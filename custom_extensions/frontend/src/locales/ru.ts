@@ -2098,5 +2098,34 @@ export const ru = {
       wipe: "Стереть",
       smoothWipe: "Плавное стирание"
     }
+  },
+  voicePicker: {
+    title: "Выберите голос",
+    search: "Поиск",
+    selected: "выбрано",
+    accent: "Акцент",
+    age: "Возраст",
+    tone: "Тон",
+    scenario: "Сценарий",
+    resetAll: "Сбросить все",
+    loadingVoices: "Загрузка голосов...",
+    voicesFound: "голосов найдено",
+    voiceDetails: "Детали голоса",
+    createCustomVoice: "Создать пользовательский голос",
+    new: "НОВЫЙ",
+    noVoicesFound: "Голоса не найдены",
+    premium: "Премиум",
+    selectVoiceToViewDetails: "Выберите голос для просмотра деталей",
+    advancedSettings: "Расширенные настройки",
+    speed: "Скорость",
+    stability: "Стабильность",
+    playSample: "Воспроизвести образец",
+    stopSample: "Остановить образец",
+    applyNewVoiceTo: "Применить новый голос к",
+    thisBlockOnly: "Только этот блок",
+    thisSceneOnly: "Только эта сцена",
+    allScenes: "Все сцены",
+    cancel: "Отмена",
+    applyVoice: "Применить голос"
   }
 };

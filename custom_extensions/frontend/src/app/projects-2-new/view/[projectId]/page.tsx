@@ -842,26 +842,46 @@ export default function Projects2ViewPage() {
   return (
     <VoiceProvider>
       <AvatarDataProvider>
-        <div className="h-screen flex flex-col relative" style={{ backgroundColor: '#F2F2F4' }} onClick={(e) => {
-          closeMenu();
-          // Hide text toolbar and color picker when clicking outside
-          const target = e.target as HTMLElement;
-          
-          // Check if clicking inside any protected areas
-          const isTextSettingsPanel = target.closest('[data-textsettings-panel]');
-          const isProseMirror = target.closest('.ProseMirror');
-          const isToolbar = target.closest('.text-editing-toolbar');
-          const isColorPalette = target.closest('[data-color-palette-popup]');
-          const isColorButton = target.closest('[data-color-picker-button]');
-          
-          const isProtectedArea = isTextSettingsPanel || isProseMirror || isToolbar || isColorPalette || isColorButton;
-          
-          if (!isProtectedArea) {
-            console.log('🔍 Main container click - closing toolbar and color picker');
-            setIsTextToolbarVisible(false);
-            setIsTextColorPickerOpen(false);
-          }
-        }}>
+        <div 
+          className="h-screen flex flex-col relative" 
+          style={{ backgroundColor: '#F2F2F4' }} 
+          onClick={(e) => {
+            closeMenu();
+            // Hide text toolbar and color picker when clicking outside
+            const target = e.target as HTMLElement;
+            
+            // Check if clicking inside any protected areas
+            const isTextSettingsPanel = target.closest('[data-textsettings-panel]');
+            const isProseMirror = target.closest('.ProseMirror');
+            const isToolbar = target.closest('.text-editing-toolbar');
+            const isColorPalette = target.closest('[data-color-palette-popup]');
+            const isColorButton = target.closest('[data-color-picker-button]');
+            
+            const isProtectedArea = isTextSettingsPanel || isProseMirror || isToolbar || isColorPalette || isColorButton;
+            
+            if (!isProtectedArea) {
+              console.log('🔍 Main container onClick - closing toolbar and color picker');
+              setIsTextToolbarVisible(false);
+              setIsTextColorPickerOpen(false);
+            } else {
+              console.log('🔍 Main container onClick - protected area, keeping open', {
+                isColorPalette: !!isColorPalette,
+                isToolbar: !!isToolbar,
+                targetElement: target.className
+              });
+            }
+          }}
+          onMouseDown={(e) => {
+            // Also check on mouseDown to prevent toolbar closing
+            const target = e.target as HTMLElement;
+            const isColorPalette = target.closest('[data-color-palette-popup]');
+            
+            if (isColorPalette) {
+              console.log('🔍 Main container onMouseDown - color palette click, preventing close');
+              e.stopPropagation();
+            }
+          }}
+        >
       {/* Product View Header */}
       <ProductViewHeader
         projectData={projectData}
@@ -1221,30 +1241,30 @@ export default function Projects2ViewPage() {
           setIsTextColorPickerOpen(false);
         }}
         onColorChange={(color) => {
-          console.log('🎨 Text color change:', color);
+          console.log('🎨 Text color change triggered:', color);
           console.log('🎨 Active editor status:', {
             exists: !!activeTextEditor,
             isDestroyed: activeTextEditor?.isDestroyed,
             hasView: !!activeTextEditor?.view
           });
           
+          // Update current color immediately
           setCurrentTextColor(color);
           
           if (activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
             try {
               // Apply color using TipTap's color command
               activeTextEditor.chain().focus().setColor(color).run();
-              console.log('✅ Color applied to editor:', color);
+              console.log('✅ Color applied to editor successfully:', color);
               
-              // Close color picker after applying color
-              setTimeout(() => {
-                setIsTextColorPickerOpen(false);
-              }, 100);
+              // Close color picker immediately after applying color
+              setIsTextColorPickerOpen(false);
+              console.log('✅ Color picker closed');
             } catch (error) {
-              console.warn('❌ Color change failed:', error);
+              console.error('❌ Color change failed:', error);
             }
           } else {
-            console.warn('❌ No active editor available', {
+            console.error('❌ No active editor available', {
               activeTextEditor,
               isDestroyed: activeTextEditor?.isDestroyed
             });

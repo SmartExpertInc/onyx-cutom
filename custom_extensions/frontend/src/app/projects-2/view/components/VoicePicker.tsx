@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
 import { useVoice } from '@/contexts/VoiceContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Custom Radio Wave Icon
 const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
@@ -100,6 +101,7 @@ interface ElaiVoice {
 }
 
 export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice }: VoicePickerProps) {
+  const { t } = useLanguage();
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -450,7 +452,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         
         {/* Row 1: Title */}
         <div className="p-4 pb-3">
-          <h2 className="text-base font-medium text-gray-900">Pick a voice</h2>
+          <h2 className="text-base font-medium text-gray-900">{t('voicePicker.title', 'Pick a voice')}</h2>
         </div>
 
         {/* Row 2: Search Bar */}
@@ -461,7 +463,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             <input
               type="text"
-              placeholder="Search"
+              placeholder={t('voicePicker.search', 'Search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 text-xs bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -486,7 +488,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-1.5">
                   <Globe size={14} className="text-gray-600" />
                   <span className="text-xs font-medium text-gray-700">
-                    {selectedAccents.length > 0 ? `${selectedAccents.length} selected` : 'Accent'}
+                    {selectedAccents.length > 0 ? `${selectedAccents.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.accent', 'Accent')}
                   </span>
                 </div>
                 <ChevronDown size={14} className="text-gray-400" />
@@ -539,7 +541,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-1.5">
                   <Cake size={14} className="text-gray-600" />
                   <span className="text-xs font-medium text-gray-700">
-                    {selectedAges.length > 0 ? `${selectedAges.length} selected` : 'Age'}
+                    {selectedAges.length > 0 ? `${selectedAges.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.age', 'Age')}
                   </span>
                 </div>
                 <ChevronDown size={14} className="text-gray-400" />
@@ -589,7 +591,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-1.5">
                   <RadioWaveIcon size={14} className="text-gray-600" />
                   <span className="text-xs font-medium text-gray-700">
-                    {selectedTones.length > 0 ? `${selectedTones.length} selected` : 'Tone'}
+                    {selectedTones.length > 0 ? `${selectedTones.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.tone', 'Tone')}
                   </span>
                 </div>
                 <ChevronDown size={14} className="text-gray-400" />
@@ -639,7 +641,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-1.5">
                   <Briefcase size={14} className="text-gray-600" />
                   <span className="text-xs font-medium text-gray-700">
-                    {selectedScenarios.length > 0 ? `${selectedScenarios.length} selected` : 'Scenario'}
+                    {selectedScenarios.length > 0 ? `${selectedScenarios.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.scenario', 'Scenario')}
                   </span>
                 </div>
                 <ChevronDown size={14} className="text-gray-400" />
@@ -685,7 +687,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               >
                 <div className="flex items-center gap-1.5">
                   <RotateCcw size={14} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">Reset all</span>
+                  <span className="text-xs font-medium text-gray-700">{t('voicePicker.resetAll', 'Reset all')}</span>
                 </div>
               </button>
             )}
@@ -704,13 +706,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Left Zone */}
             <div className="flex-1">
               <h3 className="text-xs font-medium text-gray-900">
-                {loading ? 'Loading voices...' : `${voices.length} voices found`}
+                {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.length} ${t('voicePicker.voicesFound', 'voices found')}`}
               </h3>
             </div>
             
             {/* Right Zone */}
             <div className="w-80">
-              <h3 className="text-xs font-medium text-gray-900">Voice details</h3>
+              <h3 className="text-xs font-medium text-gray-900">{t('voicePicker.voiceDetails', 'Voice details')}</h3>
             </div>
           </div>
 
@@ -734,9 +736,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   
                   {/* Text and badge */}
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm" style={{ color: '#2C71F5' }}>Create a custom voice</span>
+                    <span className="font-medium text-sm" style={{ color: '#2C71F5' }}>{t('voicePicker.createCustomVoice', 'Create a custom voice')}</span>
                     <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full" style={{ backgroundColor: '#2C71F5', color: '#FFFFFF' }}>
-                      NEW
+                      {t('voicePicker.new', 'NEW')}
                     </span>
                   </div>
                 </div>
@@ -750,9 +752,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
 
             {/* Dynamically rendered voice items from Elai API */}
             {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading voices...</div>
+              <div className="text-center py-8 text-gray-500">{t('voicePicker.loadingVoices', 'Loading voices...')}</div>
             ) : voices.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No voices found</div>
+              <div className="text-center py-8 text-gray-500">{t('voicePicker.noVoicesFound', 'No voices found')}</div>
             ) : (
                voices.map((voice, index) => (
                  <div 
@@ -811,7 +813,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
-                              <span>Premium</span>
+                              <span>{t('voicePicker.premium', 'Premium')}</span>
                       </span>
                           )}
                           {voice.tags && voice.tags.slice(0, 2).map((tag, i) => (
@@ -882,7 +884,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </>
             ) : (
               <div className="text-center py-8 text-xs text-gray-500">
-                Select a voice to view details
+                {t('voicePicker.selectVoiceToViewDetails', 'Select a voice to view details')}
               </div>
             )}
             
@@ -893,12 +895,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             
             {/* Row 5: Advanced settings */}
             <div className="mb-2">
-              <h4 className="text-xs font-medium text-gray-900">Advanced settings</h4>
+              <h4 className="text-xs font-medium text-gray-900">{t('voicePicker.advancedSettings', 'Advanced settings')}</h4>
             </div>
             
             {/* Row 6: Speed */}
             <div className="mb-2">
-              <label className="text-xs text-gray-700 mb-1 block">Speed</label>
+              <label className="text-xs text-gray-700 mb-1 block">{t('voicePicker.speed', 'Speed')}</label>
               <input
                 type="range"
                 min="0"
@@ -914,7 +916,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             
             {/* Row 7: Stability */}
             <div className="mb-4">
-              <label className="text-xs text-gray-700 mb-1 block">Stability</label>
+              <label className="text-xs text-gray-700 mb-1 block">{t('voicePicker.stability', 'Stability')}</label>
               <input
                 type="range"
                 min="0"
@@ -936,7 +938,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               >
               <Volume2 size={14} className="text-gray-700" />
                 <span className="text-xs font-medium text-gray-700">
-                  {playingVoice === tempSelectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
+                  {playingVoice === tempSelectedVoice.voice ? t('voicePicker.stopSample', 'Stop Sample') : t('voicePicker.playSample', 'Play Sample')}
                 </span>
             </button>
             )}
@@ -949,7 +951,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           {/* Left side - Apply new voice to */}
           <div className="flex-1">
             <div className="mb-1.5">
-              <span className="text-xs text-gray-700">Apply new voice to</span>
+              <span className="text-xs text-gray-700">{t('voicePicker.applyNewVoiceTo', 'Apply new voice to')}</span>
             </div>
             <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
               <button
@@ -960,7 +962,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     : 'text-gray-600 hover:bg-gray-300'
                 }`}
               >
-                This block only
+                {t('voicePicker.thisBlockOnly', 'This block only')}
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
@@ -970,7 +972,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     : 'text-gray-600 hover:bg-gray-300'
                 }`}
               >
-                This scene only
+                {t('voicePicker.thisSceneOnly', 'This scene only')}
               </button>
               <button
                 onClick={() => setApplyTo('all')}
@@ -980,7 +982,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     : 'text-gray-600 hover:bg-gray-300'
                 }`}
               >
-                All scenes
+                {t('voicePicker.allScenes', 'All scenes')}
               </button>
             </div>
           </div>
@@ -991,7 +993,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               onClick={onClose}
               className="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              {t('voicePicker.cancel', 'Cancel')}
             </button>
             <button
               onClick={() => {
@@ -1018,7 +1020,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               className="px-3 py-1.5 text-xs bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
                disabled={!tempSelectedVoice}
             >
-              Apply voice
+              {t('voicePicker.applyVoice', 'Apply voice')}
             </button>
           </div>
         </div>

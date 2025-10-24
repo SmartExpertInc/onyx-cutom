@@ -2103,5 +2103,34 @@ export const uk = {
       wipe: "Стерти",
       smoothWipe: "Плавне стирання"
     }
+  },
+  voicePicker: {
+    title: "Оберіть голос",
+    search: "Пошук",
+    selected: "обрано",
+    accent: "Акцент",
+    age: "Вік",
+    tone: "Тон",
+    scenario: "Сценарій",
+    resetAll: "Скинути все",
+    loadingVoices: "Завантаження голосів...",
+    voicesFound: "голосів знайдено",
+    voiceDetails: "Деталі голосу",
+    createCustomVoice: "Створити власний голос",
+    new: "НОВИЙ",
+    noVoicesFound: "Голоси не знайдені",
+    premium: "Преміум",
+    selectVoiceToViewDetails: "Виберіть голос для перегляду деталей",
+    advancedSettings: "Розширені налаштування",
+    speed: "Швидкість",
+    stability: "Стабільність",
+    playSample: "Відтворити зразок",
+    stopSample: "Зупинити зразок",
+    applyNewVoiceTo: "Застосувати новий голос до",
+    thisBlockOnly: "Тільки цей блок",
+    thisSceneOnly: "Тільки ця сцена",
+    allScenes: "Всі сцени",
+    cancel: "Скасувати",
+    applyVoice: "Застосувати голос"
   }
 };

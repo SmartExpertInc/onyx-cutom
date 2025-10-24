@@ -2008,5 +2008,34 @@ export const en = {
       wipe: "Wipe",
       smoothWipe: "Smooth wipe"
     }
+  },
+  voicePicker: {
+    title: "Pick a voice",
+    search: "Search",
+    selected: "selected",
+    accent: "Accent",
+    age: "Age",
+    tone: "Tone",
+    scenario: "Scenario",
+    resetAll: "Reset all",
+    loadingVoices: "Loading voices...",
+    voicesFound: "voices found",
+    voiceDetails: "Voice details",
+    createCustomVoice: "Create a custom voice",
+    new: "NEW",
+    noVoicesFound: "No voices found",
+    premium: "Premium",
+    selectVoiceToViewDetails: "Select a voice to view details",
+    advancedSettings: "Advanced settings",
+    speed: "Speed",
+    stability: "Stability",
+    playSample: "Play Sample",
+    stopSample: "Stop Sample",
+    applyNewVoiceTo: "Apply new voice to",
+    thisBlockOnly: "This block only",
+    thisSceneOnly: "This scene only",
+    allScenes: "All scenes",
+    cancel: "Cancel",
+    applyVoice: "Apply voice"
   }
 };

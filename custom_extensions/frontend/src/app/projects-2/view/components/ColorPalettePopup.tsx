@@ -580,6 +580,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only start dragging if clicking on the saturation square
     if (sbRef.current && sbRef.current.contains(e.target as Node)) {
+      e.stopPropagation();
+      e.preventDefault();
       isDraggingRef.current = true;
       setIsDragging(true);
       handleSBUpdate(e.clientX, e.clientY);
@@ -593,24 +595,29 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     }
   }, [handleSBUpdate]);
 
-  const handleMouseUp = () => { 
+  const handleMouseUp = useCallback((e?: MouseEvent) => { 
     // Only process if we were actually dragging
     if (isDraggingRef.current) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
       isDraggingRef.current = false; 
       setIsDragging(false);
       // Pass the color with current opacity to the parent component when dragging ends
+      console.log('🎨 Mouse up - calling onColorChange with:', colorState.hex);
       onColorChange(colorState.hex);
       // Add the current color to recent colors when dragging the saturation/brightness square ends
       addToRecentColors(colorState.hex);
     }
-  };
+  }, [colorState.hex, onColorChange, addToRecentColors]);
 
   useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseup", handleMouseUp, true); // Use capture phase
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseup", handleMouseUp, true);
     };
   }, [handleMouseMove, handleMouseUp]);
 
@@ -635,8 +642,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           <div
             ref={sbRef}
             onMouseDown={(e) => {
+              e.stopPropagation();
               handleMouseDown(e);
             }}
+            onClick={(e) => e.stopPropagation()}
             className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
             style={{
               background: `linear-gradient(to top, #000, transparent),

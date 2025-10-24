@@ -2123,5 +2123,34 @@ export const es = {
       wipe: "Limpiar",
       smoothWipe: "Limpiado suave"
     }
+  },
+  voicePicker: {
+    title: "Elegir una voz",
+    search: "Buscar",
+    selected: "seleccionado",
+    accent: "Acento",
+    age: "Edad",
+    tone: "Tono",
+    scenario: "Escenario",
+    resetAll: "Restablecer todo",
+    loadingVoices: "Cargando voces...",
+    voicesFound: "voces encontradas",
+    voiceDetails: "Detalles de voz",
+    createCustomVoice: "Crear una voz personalizada",
+    new: "NUEVO",
+    noVoicesFound: "No se encontraron voces",
+    premium: "Premium",
+    selectVoiceToViewDetails: "Seleccione una voz para ver los detalles",
+    advancedSettings: "Configuración avanzada",
+    speed: "Velocidad",
+    stability: "Estabilidad",
+    playSample: "Reproducir muestra",
+    stopSample: "Detener muestra",
+    applyNewVoiceTo: "Aplicar nueva voz a",
+    thisBlockOnly: "Solo este bloque",
+    thisSceneOnly: "Solo esta escena",
+    allScenes: "Todas las escenas",
+    cancel: "Cancelar",
+    applyVoice: "Aplicar voz"
   }
 };
