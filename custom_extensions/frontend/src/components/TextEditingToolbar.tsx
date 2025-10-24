@@ -164,7 +164,11 @@ export default function TextEditingToolbar({
       >
         {/* Font Color */}
         <button
-          onClick={handleFontColorClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleFontColorClick(e);
+          }}
+          data-color-palette-popup
           className="w-7 h-7 rounded-md border border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
           style={{ backgroundColor: fontColor }}
           title={`Font color: ${fontColor}`}
