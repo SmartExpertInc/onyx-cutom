@@ -1,15 +1,51 @@
-# Debugging Course Duplication mainTitle Issue
+# Course Duplication mainTitle Issue - RESOLVED
 
-## Current Problem
+## Problem Identified
 
-After duplicating a course created AFTER the fix:
+After duplicating a course:
 - Course name shows: `"Copy of Junior AI/ML Engineer Training"` ✅
 - BUT mainTitle in database shows: `"Junior AI/ML Engineer Training"` ❌
 - Result: Duplicated course finds original products instead of copied products
 
-## Root Cause Investigation
+## Root Cause FOUND
 
-The mainTitle update code is in place, but something is preventing it from being saved to the database correctly.
+**From the logs:**
+```
+[DUPLICATE] Original content type: <class 'str'>, has mainTitle: False
+ERROR: ❌ Content is not a dict! Type: <class 'str'>
+```
+
+**The Issue:** `microproduct_content` is stored as a **JSON string**, not a JSONB/dict object!
+
+The code was trying to update a string directly instead of:
+1. Parsing the JSON string to a dict
+2. Updating the mainTitle
+3. Saving the updated dict back
+
+## Solution Applied
+
+**File:** `custom_extensions/backend/main.py` (lines 34417-34425)
+
+Added JSON parsing before updating:
+
+```python
+# Parse JSON string if needed
+if isinstance(new_content, str):
+    try:
+        import json
+        new_content = json.loads(new_content)
+        logger.info(f"[DUPLICATE] Parsed JSON string to dict")
+    except (json.JSONDecodeError, TypeError) as e:
+        logger.error(f"[DUPLICATE] ❌ Failed to parse JSON: {e}")
+        new_content = {}
+```
+
+Now the flow is:
+1. Get content from database (JSON string)
+2. Parse to dict ← **NEW STEP**
+3. Deep copy
+4. Update mainTitle
+5. Save back (asyncpg handles conversion automatically)
 
 ## Enhanced Debug Logging Added
 

@@ -34411,13 +34411,23 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     
                     # Update microproduct_content to reflect the new course name
                     new_content = orig['microproduct_content']
-                    logger.info(f"[DUPLICATE] Original content type: {type(new_content)}, has mainTitle: {isinstance(new_content, dict) and 'mainTitle' in new_content}")
+                    logger.info(f"[DUPLICATE] Original content type: {type(new_content)}")
                     
                     if new_content:
+                        # Parse JSON string if needed
+                        if isinstance(new_content, str):
+                            try:
+                                import json
+                                new_content = json.loads(new_content)
+                                logger.info(f"[DUPLICATE] Parsed JSON string to dict")
+                            except (json.JSONDecodeError, TypeError) as e:
+                                logger.error(f"[DUPLICATE] ❌ Failed to parse JSON: {e}")
+                                new_content = {}
+                        
                         # Deep copy to avoid mutating original
                         import copy
                         new_content = copy.deepcopy(new_content)
-                        logger.info(f"[DUPLICATE] After deepcopy, content type: {type(new_content)}")
+                        logger.info(f"[DUPLICATE] After processing, content type: {type(new_content)}")
                         
                         # Update mainTitle in the content
                         if isinstance(new_content, dict):
@@ -34430,7 +34440,7 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                                 new_content['mainTitle'] = new_name
                                 logger.info(f"[DUPLICATE] ⚠️ mainTitle didn't exist, added: '{new_name}'")
                         else:
-                            logger.error(f"[DUPLICATE] ❌ Content is not a dict! Type: {type(new_content)}")
+                            logger.error(f"[DUPLICATE] ❌ Content is still not a dict! Type: {type(new_content)}")
                     else:
                         logger.error(f"[DUPLICATE] ❌ microproduct_content is None or empty!")
                     
