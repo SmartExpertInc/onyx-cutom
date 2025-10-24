@@ -615,6 +615,12 @@ class ProfessionalPresentationService:
         try:
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing multi-slide presentation with {len(slides_data)} slides")
             
+            # Log mode
+            if request.slide_only:
+                logger.info(f"🐛 [DEBUG_MODE] SLIDE-ONLY MODE ENABLED: Skipping avatar generation (Debug Render)")
+            else:
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Standard mode: Will generate avatars for each slide")
+            
             # Import the clean video generation service
             from .clean_video_generation_service import clean_video_generation_service
             
@@ -757,6 +763,10 @@ class ProfessionalPresentationService:
             
             # Concatenate all individual videos into final presentation
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
+            
+            # Log if this is debug mode (slide-only)
+            if request.slide_only:
+                logger.info(f"🐛 [DEBUG_MODE] Slide-only mode: Videos contain NO AVATAR, only slide content")
             
             # Use transitions if provided, otherwise use simple concatenation
             if request.transitions and len(request.transitions) > 0:

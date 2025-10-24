@@ -110,8 +110,9 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
     });
   };
 
-  const handleCreatePresentation = async () => {
-    if (!selectedAvatar) {
+  const handleCreatePresentation = async (debugMode: boolean = false) => {
+    // In debug mode, we don't need an avatar
+    if (!debugMode && !selectedAvatar) {
       onError?.('Please select an avatar first');
       return;
     }
@@ -120,10 +121,11 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       setStatus('generating');
       setProgress(0);
 
-      console.log('🎬 [PROFESSIONAL_VIDEO] Starting professional video generation with selected avatar:', {
-        avatar: selectedAvatar.name,
+      console.log(`🎬 [PROFESSIONAL_VIDEO] Starting ${debugMode ? 'DEBUG' : 'professional'} video generation`, {
+        debugMode,
+        avatar: debugMode ? 'NONE (Debug Mode)' : selectedAvatar?.name,
         variant: selectedVariant?.name,
-        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code
+        avatarCode: debugMode ? 'N/A' : (selectedVariant ? `${selectedAvatar?.code}.${selectedVariant.code}` : selectedAvatar?.code)
       });
 
       // Extract slide data
@@ -150,12 +152,13 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         transitions: slideData.transitions,  // Add transitions for multi-slide concatenation
-        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
+        avatarCode: debugMode ? undefined : (selectedVariant ? `${selectedAvatar?.code}.${selectedVariant.code}` : selectedAvatar?.code),
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
         quality: 'high',
-        resolution: [1920, 1080]
+        resolution: [1920, 1080],
+        slideOnly: debugMode  // NEW: Enable slide-only mode for debug rendering
       };
 
       console.log('🎬 [PROFESSIONAL_VIDEO] Request payload:', requestPayload);
@@ -352,7 +355,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
 
       {/* Main Video Generation Button */}
       <button
-        onClick={status === 'completed' ? handleDownloadVideo : handleCreatePresentation}
+        onClick={status === 'completed' ? handleDownloadVideo : () => handleCreatePresentation(false)}
         disabled={status === 'generating' || (!selectedAvatar && status !== 'completed')}
         className={getButtonClassName()}
         title={
@@ -368,6 +371,19 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         {status === 'completed' ? <Download size={16} className="mr-2" /> : getButtonIcon()}
         {getButtonText()}
       </button>
+
+      {/* Debug Render Button (No Avatar) */}
+      {status !== 'completed' && (
+        <button
+          onClick={() => handleCreatePresentation(true)}
+          disabled={status === 'generating'}
+          className="px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center transition-colors text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500 border border-gray-300 disabled:opacity-60"
+          title="Render slides with transitions only (no avatar) - for testing and debugging"
+        >
+          <Video size={16} className="mr-2" />
+          Debug Render (No Avatar)
+        </button>
+      )}
       
       {/* Progress Bar */}
       {status === 'generating' && (
