@@ -76,6 +76,10 @@ export default function Projects2ViewPage() {
   
   // NEW: Track active text editor for TextSettings control
   const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
+  const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
+  
+  // NEW: Track active transition for Transition panel
+  const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
 
   // Music panel state
   const [isMusicEnabled, setIsMusicEnabled] = useState<boolean>(true);
@@ -407,6 +411,49 @@ export default function Projects2ViewPage() {
     }
   };
 
+  // NEW: Handle transition button click
+  const handleTransitionClick = (transitionIndex: number) => {
+    console.log('🎬 Transition clicked:', transitionIndex);
+    setActiveTransitionIndex(transitionIndex);
+    setActiveSettingsPanel('transition');
+  };
+
+  // NEW: Handle transition change
+  const handleTransitionChange = (transitionData: any) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || activeTransitionIndex === null) return;
+    
+    console.log('🎬 Transition change:', { transitionIndex: activeTransitionIndex, transitionData });
+    
+    // Initialize transitions array if it doesn't exist
+    const transitions = componentBasedSlideDeck.transitions || [];
+    
+    // Ensure array is large enough (should be slides.length - 1)
+    const requiredLength = componentBasedSlideDeck.slides.length - 1;
+    while (transitions.length < requiredLength) {
+      transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
+    }
+    
+    // Check if "Apply to all" is enabled
+    if (transitionData.applyToAll) {
+      // Apply the same transition to ALL transition slots
+      for (let i = 0; i < transitions.length; i++) {
+        transitions[i] = { ...transitionData };
+      }
+    } else {
+      // Update only the specific transition
+      transitions[activeTransitionIndex] = { ...transitionData };
+    }
+    
+    // Update the deck with new transitions
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      transitions: [...transitions]
+    };
+    
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
+  };
+
   // NEW: Load Video Lesson data on component mount
   useEffect(() => {
     const loadVideoLessonData = async () => {
@@ -690,6 +737,13 @@ export default function Projects2ViewPage() {
     setGenerationStatus('completed');
   };
 
+  const handleDebugClick = () => {
+    console.log('Debug render started');
+    // Open the generation modal in debug mode or handle differently
+    setIsGenerateModalOpen(true);
+    // You can add a debug mode state if needed to differentiate behavior
+  };
+
   const handleAiButtonClick = (position: { x: number; y: number }) => {
     setAiPopupPosition(position);
     setIsAiPopupOpen(true);
@@ -714,7 +768,7 @@ export default function Projects2ViewPage() {
             />
           );
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -736,9 +790,14 @@ export default function Projects2ViewPage() {
             </div>
           );
         case 'transition':
+          const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
           return (
             <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
-              <Transition />
+              <Transition 
+                transitionIndex={activeTransitionIndex}
+                currentTransition={currentTransition}
+                onTransitionChange={handleTransitionChange}
+              />
             </div>
           );
         case 'templates':
@@ -755,7 +814,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -801,6 +860,7 @@ export default function Projects2ViewPage() {
         hideAiImproveButton={true}
         showVideoEditorActions={true}
         onPreviewClick={handlePreviewClick}
+        onDebugClick={handleDebugClick}
         onGenerateClick={handleGenerateClick}
       />
       
@@ -858,9 +918,10 @@ export default function Projects2ViewPage() {
                       saveVideoLessonData(updatedDeck);
                     }
                   }}
-                  onEditorActive={(editor, field) => {
-                    console.log('✏️ Editor active:', { field, hasEditor: !!editor });
+                  onEditorActive={(editor, field, computedStyles) => {
+                    console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
                     setActiveTextEditor(editor);
+                    setComputedTextStyles(computedStyles || null);
                     setActiveSettingsPanel('text');
                   }}
                   theme="default"
@@ -880,6 +941,7 @@ export default function Projects2ViewPage() {
           {/* Bottom Container - Takes 20% of main container height */}
           <SceneTimeline 
             scenes={[]} // Commented out regular scenes for now
+            aspectRatio="16:9"
             onAddScene={() => {}} // Disabled for now
             onMenuClick={handleMenuClick}
             videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
@@ -888,6 +950,8 @@ export default function Projects2ViewPage() {
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
             onOpenTemplateSelector={handleOpenTemplateSelector}
+            onTransitionClick={handleTransitionClick}
+            activeTransitionIndex={activeTransitionIndex}
           />
         </div>
 
@@ -1126,7 +1190,20 @@ export default function Projects2ViewPage() {
             <div className="space-y-3 flex-shrink-0">
               {/* Scene Transition Title and Toggle */}
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium" style={{ color: '#171718' }}>Scene transition</h3>
+                <h3 
+                  className="text-sm font-medium cursor-pointer hover:text-blue-600 transition-colors" 
+                  style={{ color: activeSettingsPanel === 'transition' ? '#0F58F9' : '#171718' }}
+                  onClick={() => {
+                    // Set the first transition as active (between slide 0 and 1)
+                    if (componentBasedSlideDeck && componentBasedSlideDeck.slides.length > 1) {
+                      setActiveTransitionIndex(0);
+                      setActiveSettingsPanel('transition');
+                    }
+                  }}
+                  title="Click to edit transitions"
+                >
+                  Scene transition
+                </h3>
                 <button
                   onClick={() => setIsTransitionEnabled(!isTransitionEnabled)}
                   className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"

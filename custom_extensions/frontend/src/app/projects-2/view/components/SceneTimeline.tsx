@@ -269,45 +269,6 @@ export default function SceneTimeline({
                   </div>
                 </div>
               </div>
-
-              {/* Transition button - show between scenes (not after the last one) */}
-              {index < displayScenes.length - 1 && (
-                <div className="flex flex-col items-center gap-2 flex-shrink-0">
-                  <div className="relative group flex items-center h-16">
-                    <button 
-                      className={`w-16 h-8 border rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-                        activeTransitionIndex === index
-                          ? 'bg-blue-500 border-blue-500'
-                          : 'bg-white border-gray-300 hover:bg-gray-50'
-                      }`}
-                      onClick={() => onTransitionClick?.(index)}
-                    >
-                      <svg 
-                        className={`w-4 h-4 ${
-                          activeTransitionIndex === index ? 'text-white' : 'text-gray-600'
-                        }`}
-                        fill="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h5v18zm7 0q-.425 0-.712-.288T11 20q0-.425.288-.712T12 19q.425 0 .713.288T13 20q0 .425-.288.713T12 21m0-4q-.425 0-.712-.288T11 16q0-.425.288-.712T12 15q.425 0 .713.288T13 16q0 .425-.288.713T12 17m0-4q-.425 0-.712-.288T11 12q0-.425.288-.712T12 11q.425 0 .713.288T13 12q0 .425-.288.713T12 13m0-4q-.425 0-.712-.288T11 8q0-.425.288-.712T12 7q.425 0 .713.288T13 8q0 .425-.288.713T12 9m0-4q-.425 0-.712-.288T11 4q0-.425.288-.712T12 3q.425 0 .713.288T13 4q0 .425-.288.713T12 5m2 14q-.425 0-.712-.288T13 18q0-.425.288-.712T14 17q.425 0 .713.288T15 18q0 .425-.288.713T14 19m0-4q-.425 0-.712-.288T13 14q0-.425.288-.712T14 13q.425 0 .713.288T15 14q0 .425-.288.713T14 15m0-4q-.425 0-.712-.288T13 10q0-.425.288-.712T14 9q.425 0 .713.288T15 10q0 .425-.288.713T14 11m0-4q-.425 0-.712-.288T13 6q0-.425.288-.712T14 5q.425 0 .713.288T15 6q0 .425-.288.713T14 7m2 14q-.425 0-.712-.288T15 20q0-.425.288-.712T16 19q.425 0 .713.288T17 20q0 .425-.288.713T16 21m0-4q-.425 0-.712-.288T15 16q0-.425.288-.712T16 15q.425 0 .713.288T17 16q0 .425-.288.713T16 17m0-4q-.425 0-.712-.288T15 12q0-.425.288-.712T16 11q.425 0 .713.288T17 12q0 .425-.288.713T16 13m0-4q-.425 0-.712-.288T15 8q0-.425.288-.712T16 7q.425 0 .713.288T17 8q0 .425-.288.713T16 9m0-4q-.425 0-.712-.288T15 4q0-.425.288-.712T16 3q.425 0 .713.288T17 4q0 .425-.288.713T16 5"/>
-                      </svg>
-                    </button>
-                    
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
-                      <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        {componentBasedSlideDeck?.transitions?.[index]?.type 
-                          ? `Transition: ${componentBasedSlideDeck.transitions[index].type}`
-                          : 'Add transition'}
-                      </div>
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
-                    </div>
-                  </div>
-                  <div className="h-8 flex items-center justify-center">
-                    {/* Empty space to maintain layout consistency */}
-                  </div>
-                </div>
-              )}
             </React.Fragment>
           ))}
           </div>
@@ -441,18 +402,49 @@ export default function SceneTimeline({
                 }}
               >
                 <div className="relative group">
-                  <button className="w-7 h-7 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-lg">
-                    <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-3">
-                      <path d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" fill="#848485"/>
-                      <path d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
+                  <button 
+                    className={`w-7 h-7 border rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg ${
+                      activeTransitionIndex === index
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'bg-white border-gray-300 hover:bg-gray-50'
+                    }`}
+                    onClick={() => onTransitionClick?.(index)}
+                  >
+                    <svg 
+                      width="13" 
+                      height="9" 
+                      viewBox="0 0 13 9" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className="w-4 h-3"
+                    >
+                      <path 
+                        d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" 
+                        fill={activeTransitionIndex === index ? '#ffffff' : '#848485'}
+                      />
+                      <path 
+                        d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" 
+                        stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
+                        strokeWidth="0.640535" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                      <path 
+                        d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" 
+                        stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
+                        strokeWidth="0.640535" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </button>
                   
                   {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
                     <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                      Add transition
+                      {componentBasedSlideDeck?.transitions?.[index]?.type 
+                        ? `Transition: ${componentBasedSlideDeck.transitions[index].type}`
+                        : 'Add transition'}
                     </div>
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
                   </div>
