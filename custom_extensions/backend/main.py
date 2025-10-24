@@ -14162,6 +14162,10 @@ async def get_project_instance_detail(
     else:
         logger.info(f"📋 [BACKEND VIEW] Project {project_id} - No contentBlocks in parsed_details or parsed_details is None")
     
+    # Log mainTitle for course outlines (Training Plans)
+    if component_name == COMPONENT_NAME_TRAINING_PLAN and parsed_details and isinstance(parsed_details, dict):
+        logger.info(f"📋 [BACKEND VIEW] Training Plan {project_id} mainTitle: '{parsed_details.get('mainTitle', 'NOT_FOUND')}'")
+    
     web_link_path = None
     pdf_link_path = None
     
@@ -34529,6 +34533,8 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                             connected.append(project)
                     
                     logger.info(f"Found {len(connected)} connected products to duplicate")
+                    for prod in connected:
+                        logger.info(f"  - Product ID {prod['id']}: '{prod['project_name']}' (micro: '{prod.get('microproduct_name')}')")
                     
                     # Duplicate each connected product with pattern-aware logic
                     duplicated_products = []
@@ -34632,6 +34638,14 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                             )
                     
                     logger.info(f"Successfully duplicated Training Plan and {len(duplicated_products)} connected products")
+                    logger.info(f"📋 [DUPLICATION SUMMARY]")
+                    logger.info(f"   Original Course: '{orig['project_name']}' (ID: {project_id})")
+                    logger.info(f"   Original mainTitle: '{orig.get('microproduct_content', {}).get('mainTitle') if isinstance(orig.get('microproduct_content'), dict) else 'N/A'}'")
+                    logger.info(f"   New Course: '{new_name}' (ID: {new_outline_id})")
+                    logger.info(f"   New mainTitle: '{new_content.get('mainTitle') if isinstance(new_content, dict) else 'N/A'}'")
+                    logger.info(f"   Duplicated {len(duplicated_products)} products:")
+                    for dp in duplicated_products:
+                        logger.info(f"      - {dp['type']}: '{dp['name']}' (Original ID: {dp['original_id']} -> New ID: {dp['new_id']})")
                     
                     return {
                         "id": new_outline_id,
