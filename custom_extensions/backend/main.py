@@ -18308,7 +18308,7 @@ async def get_public_course_outline(
         
         # Fetch all user's projects to find attached products
         all_projects_query = """
-        SELECT p.*, dt.microproduct_type, dt.component_name 
+        SELECT p.id, p.project_name, dt.microproduct_type, dt.component_name 
         FROM projects p 
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
         WHERE p.onyx_user_id = $1 
@@ -18326,7 +18326,7 @@ async def get_public_course_outline(
         main_title = content.get("mainTitle", project_name)
         detected_language = content.get("detectedLanguage", "en")
         
-        # For each lesson, try to find attached products using the SCORM inference logic
+        # For each lesson, find attached products using the same naming pattern logic as the frontend
         for section in sections:
             if not isinstance(section, dict):
                 continue
@@ -18336,20 +18336,33 @@ async def get_public_course_outline(
                     continue
                 lesson_title = lesson.get("title", "")
                 
-                # Use the same inference logic as SCORM packager
-                from app.services.scorm_packager import _infer_products_for_lesson
-                attached_products = _infer_products_for_lesson(all_projects_list, project_name, lesson_title, set())
+                # Expected project name pattern: "Outline Name: Lesson Title"
+                expected_project_name = f"{main_title}: {lesson_title}"
+                
+                # Also check legacy patterns for backward compatibility
+                legacy_quiz_pattern = f"Quiz - {main_title}: {lesson_title}"
+                legacy_text_presentation_pattern = f"Text Presentation - {main_title}: {lesson_title}"
+                
+                attached_products = []
+                
+                # Find matching projects
+                for project in all_projects_list:
+                    project_name_to_check = project.get("project_name", "").strip()
+                    
+                    # Check if this project matches the lesson
+                    if (project_name_to_check == expected_project_name or 
+                        project_name_to_check == legacy_quiz_pattern or 
+                        project_name_to_check == legacy_text_presentation_pattern):
+                        
+                        attached_products.append({
+                            "id": project.get("id"),
+                            "name": project.get("project_name"),
+                            "type": project.get("microproduct_type"),
+                            "component_name": project.get("component_name")
+                        })
                 
                 # Add product information to lesson
-                lesson["attached_products"] = [
-                    {
-                        "id": product.get("id"),
-                        "name": product.get("project_name"),
-                        "type": product.get("microproduct_type"),
-                        "component_name": product.get("component_name")
-                    }
-                    for product in attached_products
-                ]
+                lesson["attached_products"] = attached_products
         
         # Return the course outline data for public viewing
         response_data = {
@@ -18381,40 +18394,32 @@ async def get_public_product(
 ):
     """
     Get product data for public access when part of a shared course outline.
+    This endpoint allows accessing products via a share token, bypassing normal authentication.
     """
     try:
-        # First verify the product belongs to a shared course outline
-        if share_token:
-            # Check if the share token is valid and the product belongs to the course owner
-            verify_query = """
-            SELECT p.id, p.onyx_user_id, p.microproduct_content, p.project_name, dt.microproduct_type, dt.component_name
-            FROM projects p
-            LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-            WHERE p.id = $1 AND EXISTS (
-                SELECT 1 FROM projects course 
-                WHERE course.share_token = $2 
-                AND course.is_public = TRUE 
-                AND course.microproduct_type = 'Training Plan'
-                AND course.onyx_user_id = p.onyx_user_id
-            )
-            """
-            
-            async with pool.acquire() as conn:
-                product = await conn.fetchrow(verify_query, product_id, share_token)
-        else:
-            # If no share token provided, just get the product (for testing)
-            query = """
-            SELECT p.id, p.onyx_user_id, p.microproduct_content, p.project_name, dt.microproduct_type, dt.component_name
-            FROM projects p
-            LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-            WHERE p.id = $1
-            """
-            
-            async with pool.acquire() as conn:
-                product = await conn.fetchrow(query, product_id)
+        if not share_token:
+            raise HTTPException(status_code=400, detail="Share token is required for public product access")
+        
+        # Verify the share token is valid and the product belongs to the course owner
+        verify_query = """
+        SELECT p.id, p.onyx_user_id, p.microproduct_content, p.project_name, dt.microproduct_type, dt.component_name
+        FROM projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.id = $1 AND EXISTS (
+            SELECT 1 FROM projects course 
+            WHERE course.share_token = $2 
+            AND course.is_public = TRUE 
+            AND course.microproduct_type = 'Training Plan'
+            AND course.onyx_user_id = p.onyx_user_id
+            AND (course.expires_at IS NULL OR course.expires_at > NOW())
+        )
+        """
+        
+        async with pool.acquire() as conn:
+            product = await conn.fetchrow(verify_query, product_id, share_token)
         
         if not product:
-            raise HTTPException(status_code=404, detail="Product not found or not accessible")
+            raise HTTPException(status_code=404, detail="Product not found or not accessible via this share link")
         
         # Parse product content
         content = product["microproduct_content"]

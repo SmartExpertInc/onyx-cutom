@@ -59,14 +59,17 @@ Successfully implemented public link sharing for course outlines, allowing users
 ### Product Click Behavior
 When a user clicks on an attached product in the shared view:
 1. The product ID is extracted from the attached_products data
-2. Navigation occurs to `/projects/view/{product_id}`
-3. User sees the full product in its standard view page
-4. This matches the behavior of the non-shared course outline page
+2. Navigation occurs to `/public/product/{product_id}?share_token={token}`
+3. User sees the full product in a public view page (no authentication required)
+4. Public product viewer validates the share token before displaying content
+5. User can navigate back to the course outline
 
 ### Product Pairing Logic
-The shared page uses the same product inference logic as the non-shared page:
-- Backend uses `_infer_products_for_lesson` from SCORM packager
-- Matches products to lessons based on naming patterns
+The shared page uses the **exact same naming pattern logic** as the non-shared course outline page:
+- Backend matches products based on naming patterns: `"{Outline Name}: {Lesson Title}"`
+- Also supports legacy patterns: `"Quiz - {Outline Name}: {Lesson Title}"` and `"Text Presentation - {Outline Name}: {Lesson Title}"`
+- This is the same logic used in `view-new-2` page's `checkLessonContentStatus` function
+- Matches products to lessons by comparing project names with expected patterns
 - Includes all product types: Presentations, One-Pagers, Quizzes, Video Lessons
 - Product availability indicated by green checkmarks (clickable) or gray plus icons
 
@@ -106,9 +109,14 @@ Reuses existing columns in the `projects` table:
   - Added share button and modal
   - Added share state management and handlers
 - `custom_extensions/frontend/src/app/public/course/[share_token]/page.tsx` (new)
-  - Created public viewer page
+  - Created public course viewer page
   - Matches view-new-2 UI exactly
-  - Products navigate to full view pages
+  - Products navigate to public product pages with share token
+- `custom_extensions/frontend/src/app/public/product/[productId]/page.tsx` (new)
+  - Created public product viewer page
+  - Accepts share token for authentication-free access
+  - Supports all product types (Slide Decks, Quizzes, One-Pagers, Video Lessons, PDF Lessons)
+  - Validates share token before displaying content
 - `custom_extensions/frontend/src/types/trainingPlan.ts`
   - Added `attached_products` property to Lesson interface
   - Added `isPublicView` property to TrainingPlanData interface
@@ -138,10 +146,12 @@ Reuses existing columns in the `projects` table:
 2. Opens link (no login required)
 3. Sees exact same interface as view-new-2
 4. Views course structure with all modules and lessons
-5. Sees which products are attached to each lesson
+5. Sees which products are attached to each lesson (green checkmarks)
 6. Clicks on green checkmark to view product
-7. Opens product in its full view page
-8. Can navigate back to continue viewing course
+7. Navigates to `/public/product/{id}?share_token={token}` (no authentication needed)
+8. Views the full product (presentation, quiz, one-pager, video, etc.)
+9. Can click "Back to Course" to return to course outline
+10. All access is validated via the share token
 
 ### Architecture Benefits
 1. **Reusable Components**: Leverages existing UI components and styling
@@ -173,4 +183,51 @@ All requested features have been implemented:
 3. ✅ Use same lesson/product pairing logic as non-shared pages
 4. ✅ Clicking products opens their view page (not JSON modal)
 5. ✅ UI matches view-new-2 exactly
+
+## Latest Updates (Final Version)
+
+### Issue #1: Product Pairing Logic
+**Problem:** Backend was using SCORM inference logic instead of the naming pattern logic used in the course outline page.
+
+**Solution:** 
+- Updated backend to use exact same naming pattern matching as `view-new-2` page
+- Products are matched using: `"{Outline Name}: {Lesson Title}"` pattern
+- Legacy patterns also supported for backward compatibility
+- This ensures products appear in shared view exactly as they do in private view
+
+### Issue #2: Unauthenticated Product Access
+**Problem:** When unregistered users clicked on products from shared courses, they were redirected to registration because product view pages required authentication.
+
+**Solution:**
+- Created new public product viewer route: `/public/product/[productId]/page.tsx`
+- Products accessed via share token don't require authentication
+- Backend validates share token and checks:
+  - Token is valid and not expired
+  - Product belongs to the course owner
+  - Share token matches a valid shared course outline
+- Public product viewer supports all product types:
+  - Slide Decks (SlideDeckDisplay)
+  - Quizzes (QuizDisplay)
+  - One-Pagers (OnePagerDisplay)
+  - Video Lessons (VideoLessonDisplay)
+  - PDF Lessons (PdfLessonDisplay)
+- Users can view products and return to course outline seamlessly
+
+### Security Model
+The public product access maintains security by:
+1. **Token Validation**: Every product access validates the share token
+2. **Ownership Check**: Products must belong to the course owner
+3. **Expiration Check**: Share tokens are checked for expiration
+4. **Scope Limitation**: Users can only access products from the shared course, not all user's products
+5. **Read-Only Access**: No editing capabilities in public view
+
+### Complete User Flow (Unauthenticated)
+1. User receives shared course link
+2. Opens link → sees course outline (no login)
+3. Clicks on product → opens in `/public/product/{id}?share_token={token}` (no login)
+4. Views full product content
+5. Clicks "Back to Course" → returns to course outline
+6. All access validated via share token at each step
+
+This implementation ensures a seamless, secure experience for sharing course outlines with all their attached products to anyone, regardless of whether they have an account.
 

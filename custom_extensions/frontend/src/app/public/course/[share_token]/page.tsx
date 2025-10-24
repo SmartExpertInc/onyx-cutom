@@ -160,10 +160,10 @@ export default function PublicCourseViewerPage() {
   }, [shareToken]);
 
   const handleProductClick = (productId: number) => {
-    if (!productId) return;
+    if (!productId || !shareToken) return;
     
-    // Navigate to the product's view page
-    window.location.href = `/projects/view/${productId}`;
+    // Navigate to the public product view page with share token
+    window.location.href = `/public/product/${productId}?share_token=${shareToken}`;
   };
 
   if (loading) {
