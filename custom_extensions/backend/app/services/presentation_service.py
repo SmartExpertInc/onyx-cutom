@@ -664,7 +664,7 @@ class ProfessionalPresentationService:
                 
                 # Check if this is slide-only mode
                 if request.slide_only:
-                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] SLIDE-ONLY MODE: Generating slide video with requested duration")
+                    logger.info(f"🐛 [DEBUG_MODE] SLIDE-ONLY MODE: Generating slide video with requested duration (NO AVATAR)")
                     slide_result = await clean_video_generation_service.generate_avatar_slide_video(
                         slide_props=slide_data,
                         theme=request.theme or "dark-purple",
@@ -678,6 +678,7 @@ class ProfessionalPresentationService:
                     slide_video_path = slide_result["video_path"]
                     temp_files_to_cleanup.append(slide_video_path)
                     individual_videos.append(slide_video_path)
+                    logger.info(f"🐛 [DEBUG_MODE] Slide {slide_index + 1} video generated (no avatar): {slide_video_path}")
                     continue
                 
                 # OPTIMIZATION: Wait for avatar video (already rendering in parallel)

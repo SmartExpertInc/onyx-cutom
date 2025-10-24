@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
+import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
@@ -188,7 +188,7 @@ export default function VideoEditorHeader({
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   // Function to extract actual slide data from current project - updated to use props
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[], transitions: any[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
     console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
     console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
@@ -227,10 +227,15 @@ export default function VideoEditorHeader({
         // Attach avatar positions from template registry
         const slidesWithAvatarPositions = attachAvatarPositionsToSlides(componentBasedSlideDeck.slides);
         
+        // Extract transitions from deck (new feature)
+        const transitions = componentBasedSlideDeck.transitions || [];
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted transitions from componentBasedSlideDeck:', transitions);
+        
         return {
           slides: slidesWithAvatarPositions,
           theme: componentBasedSlideDeck.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts
+          voiceoverTexts: voiceoverTexts,
+          transitions: transitions
         };
       }
       
@@ -248,10 +253,15 @@ export default function VideoEditorHeader({
         // Attach avatar positions from template registry
         const slidesWithAvatarPositions = attachAvatarPositionsToSlides(videoLessonData.slides);
         
+        // Extract transitions from video lesson data
+        const transitions = videoLessonData.transitions || [];
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted transitions from videoLessonData:', transitions);
+        
         return {
           slides: slidesWithAvatarPositions,
           theme: videoLessonData.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts
+          voiceoverTexts: voiceoverTexts,
+          transitions: transitions
         };
       }
 
@@ -276,17 +286,18 @@ export default function VideoEditorHeader({
           return {
             slides: [currentSlide],
             theme: 'dark-purple',
-            voiceoverTexts: [voiceoverText]
+            voiceoverTexts: [voiceoverText],
+            transitions: []
           };
         }
       }
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data - no slides found');
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
         
     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
     }
   };
 
@@ -432,45 +443,51 @@ export default function VideoEditorHeader({
   };
 
   // Main video generation function - transferred from VideoDownloadButton
-  const handleVideoGeneration = async () => {
+  const handleVideoGeneration = async (debugMode: boolean = false) => {
     console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
+    console.log('🎬 [VIDEO_GENERATION] Debug mode:', debugMode);
     console.log('🎬 [VIDEO_GENERATION] Global defaultAvatar:', defaultAvatar);
     
     // Use the global avatar context instead of local state
     let avatarToUse = defaultAvatar?.avatar;
     let variantToUse = defaultAvatar?.selectedVariant;
     
-    if (!avatarToUse) {
-      console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
-      // Use a real avatar that exists in the backend as fallback
-      avatarToUse = {
-        id: 'max-avatar',
-        code: 'max',
-        name: 'Max',
-        type: null,
-        status: 1,
-        accountId: 'default',
-        gender: 'male' as const,
-        thumbnail: '',
-        canvas: '',
-        variants: [{
+    // In debug mode, we skip avatar validation
+    if (!debugMode) {
+      if (!avatarToUse) {
+        console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
+        // Use a real avatar that exists in the backend as fallback
+        avatarToUse = {
+          id: 'max-avatar',
+          code: 'max',
+          name: 'Max',
+          type: null,
+          status: 1,
+          accountId: 'default',
+          gender: 'male' as const,
+          thumbnail: '',
+          canvas: '',
+          variants: [{
+            id: 'business-variant',
+            code: 'business',
+            name: 'Business',
+            thumbnail: '',
+            canvas: ''
+          }]
+        };
+        variantToUse = {
           id: 'business-variant',
           code: 'business',
           name: 'Business',
           thumbnail: '',
           canvas: ''
-        }]
-      };
-      variantToUse = {
-        id: 'business-variant',
-        code: 'business',
-        name: 'Business',
-        thumbnail: '',
-        canvas: ''
-      };
-      console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
+        };
+        console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
+      } else {
+        console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
+      }
     } else {
-      console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
+      console.log('🎬 [VIDEO_GENERATION] Debug mode: Skipping avatar (slide-only render)');
     }
 
           try {
@@ -531,20 +548,23 @@ export default function VideoEditorHeader({
         ],  // Use actual voiceover texts or fallback
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
-        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code,
-        voiceId: selectedVoice?.voice || null,  // Add selected voice ID
-        voiceProvider: selectedVoice?.voiceProvider || null,  // Add voice provider
+        transitions: componentBasedSlideDeck?.transitions || [],  // Add transitions for multi-slide concatenation
+        avatarCode: debugMode ? undefined : (variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code),
+        voiceId: debugMode ? undefined : (selectedVoice?.voice || null),  // Add selected voice ID
+        voiceProvider: debugMode ? undefined : (selectedVoice?.voiceProvider || null),  // Add voice provider
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
         quality: 'high',
-        resolution: [1920, 1080]
+        resolution: [1920, 1080],
+        slideOnly: debugMode  // NEW: Enable slide-only mode for debug rendering
       };
       
       console.log('🎤 [VIDEO_GENERATION] Final request payload:', {
         projectName: requestPayload.projectName,
         voiceoverTextsCount: requestPayload.voiceoverTexts.length,
         slidesDataCount: requestPayload.slidesData.length,
+        transitionsCount: requestPayload.transitions.length,
         theme: requestPayload.theme,
         avatarCode: requestPayload.avatarCode,
         voiceId: requestPayload.voiceId,
@@ -553,7 +573,9 @@ export default function VideoEditorHeader({
         layout: requestPayload.layout,
         duration: requestPayload.duration,
         quality: requestPayload.quality,
-        resolution: requestPayload.resolution
+        resolution: requestPayload.resolution,
+        slideOnly: requestPayload.slideOnly,
+        debugMode: debugMode
       });
       console.log('🎤 [VIDEO_GENERATION] ========== PAYLOAD CONSTRUCTION COMPLETED ==========');
       
@@ -1106,6 +1128,19 @@ export default function VideoEditorHeader({
               className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
             >
               <span className="text-sm font-normal">Generate</span>
+            </button>
+
+            {/* Debug Render button (No Avatar) */}
+            <button
+              onClick={() => {
+                setIsGenerateModalOpen(false);
+                handleVideoGeneration(true);
+              }}
+              className="bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 cursor-pointer"
+              title="Render slides with transitions only (no avatar) - for testing and debugging"
+            >
+              <Video className="w-4 h-4 text-gray-700" />
+              <span className="text-sm font-normal">Debug</span>
             </button>
           </div>
         </div>

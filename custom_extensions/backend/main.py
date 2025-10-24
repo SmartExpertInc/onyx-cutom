@@ -32985,8 +32985,8 @@ async def create_presentation(request: Request):
         # NEW: Extract transitions for multi-slide presentations
         transitions = body.get("transitions", [])  # Optional - transitions between slides
         
-        # NEW: Extract slide-only mode (for debug rendering without avatar)
-        slide_only = body.get("slideOnly", False)  # Debug mode - render slides without avatar
+        # NEW: Extract slide-only flag for debug rendering
+        slide_only = body.get("slideOnly", False)  # Optional - render slides only without avatar
         
         # Add detailed logging for debugging
         logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
@@ -32998,12 +32998,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - theme: {theme}")
         logger.info(f"  - avatar_code: {avatar_code}")
         logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
+        logger.info(f"  - slide_only: {slide_only}")
         logger.info(f"  - duration: {duration}")
         logger.info(f"  - layout: {layout}")
         logger.info(f"  - quality: {quality}")
         logger.info(f"  - resolution: {resolution}")
         logger.info(f"  - project_name: {project_name}")
-        logger.info(f"  - slide_only: {slide_only} {'(DEBUG MODE - No Avatar)' if slide_only else ''}")
         
         # NEW: Log voice parameters
         logger.info("🎤 [MAIN_ENDPOINT] Voice parameters received:")
@@ -33052,7 +33052,7 @@ async def create_presentation(request: Request):
             slides_data=slides_data,  # NEW: Pass actual slide data
             theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
-            slide_only=slide_only,  # NEW: Pass slide-only mode (debug rendering)
+            slide_only=slide_only,  # NEW: Pass slide-only flag for debug rendering
             use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
             duration=duration,
             layout=layout,
@@ -33066,7 +33066,7 @@ async def create_presentation(request: Request):
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
         logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
         logger.info(f"🎞️ [MAIN_ENDPOINT] PresentationRequest created with {len(transitions) if transitions else 0} transitions")
-        logger.info(f"🐛 [MAIN_ENDPOINT] PresentationRequest created with slide_only: {slide_only} {'(DEBUG MODE)' if slide_only else ''}")
+        logger.info(f"🐛 [MAIN_ENDPOINT] PresentationRequest created with slide_only: {presentation_request.slide_only}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)
