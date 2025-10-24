@@ -807,9 +807,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const IconComponent = iconName ? iconMap[iconName] : null;
       
       let textStyleClass = ''; 
-      if (level === 1) { textStyleClass += `text-lg lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.headingText}`; } 
+      if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
+      else if (level === 2) { textStyleClass += `text-xl lg:text-base font-semibold ${THEME_COLORS.headingText}`; }  
+      else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium text-[#0F58F9]`; } 
       else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
       else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
@@ -926,8 +926,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'paragraph': { 
       const { text, isRecommendation, fontSize } = block as ParagraphBlock;
       const isTopLevelParagraph = depth === 0;
-      let paragraphClasses = `text-black leading-normal text-left`; 
-      if (isTopLevelParagraph) paragraphClasses += ` w-full`; 
+      let paragraphClasses = `text-black text-base leading-normal text-left`; 
+      if (isTopLevelParagraph) paragraphClasses += `w-full font-light`; 
       const defaultMb = depth > 0 ? 'mb-1' : 'mb-2';
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
       
@@ -1159,7 +1159,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               if (isNumbered) {
                 return (
                   <li key={index} className="flex items-start gap-1 group/listitem relative">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-white text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div>
+                    {/* <div className="flex-shrink-0 w-5 h-5 rounded-full bg-white text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div> */}
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
@@ -2541,10 +2541,10 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                   type="text" 
                   value={dataToDisplay.textTitle} 
                   onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
-                  className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
+                  className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold text-[#0F58F9] text-left`}
               />
           ) : (
-              <h1 className={`text-2xl py-4 px-10 font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
+              <h1 className={`text-2xl py-4 px-10 font-bold text-[#0F58F9] mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
           )}
 
           {/* <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} /> */}
