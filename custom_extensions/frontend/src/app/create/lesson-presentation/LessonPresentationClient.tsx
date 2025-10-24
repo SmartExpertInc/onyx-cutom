@@ -1221,7 +1221,7 @@ export default function LessonPresentationClient() {
       // Navigate immediately without delay to prevent cancellation
       // Use new interface for Video Lessons, old interface for regular presentations
       const isVideoLesson = productType === "video_lesson_presentation";
-      const redirectPath = isVideoLesson ? `/projects-2/view/${data.id}?from=create` : `/projects/view/${data.id}?from=create`;
+      const redirectPath = isVideoLesson ? `/projects-2-new/view/${data.id}?from=create` : `/projects/view/${data.id}?from=create`;
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
       }
