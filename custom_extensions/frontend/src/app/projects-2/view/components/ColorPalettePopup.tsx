@@ -617,13 +617,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   if (!isOpen || !adjustedPosition) return null;
 
   return (
-    <>
-      {/* Custom backdrop - just for z-index stacking, no click handler */}
-      <div 
-        data-color-palette-popup
-        className="fixed inset-0 z-[9998] bg-transparent pointer-events-none"
-      />
-      
+    <>      
       {/* Color picker popup */}
       <div
         ref={popupRef}
@@ -632,7 +626,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
-          pointerEvents: 'auto'
         }}
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}

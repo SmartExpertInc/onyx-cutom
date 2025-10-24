@@ -2020,12 +2020,54 @@ export const uk = {
       chooseAvatar: "Виберіть аватар"
     },
     shape: {
+      shapeName: "Назва фігури",
+      remove: "Видалити",
       format: "Формат",
-      animate: "Анімація"
+      animate: "Анімація",
+      fill: "Заливка",
+      color: "Колір",
+      fillColor: "Колір заливки",
+      stroke: "Обведення",
+      strokeColor: "Колір обведення",
+      strokeWidth: "Ширина обведення",
+      order: "Порядок",
+      sendToBack: "Відправити фігуру назад",
+      sendBackward: "Відправити фігуру на крок назад",
+      bringForward: "Перемістити фігуру вперед",
+      sendToFront: "Відправити фігуру на передній план",
+      animationType: "Тип анімації",
+      animationNone: "Немає",
+      animationFade: "Затухання",
+      animationSlide: "Ковзання",
+      animationGrow: "Збільшення"
     },
     text: {
+      textFormatting: "Форматування тексту",
+      selectTextToEdit: "Текст (Виберіть текст для редагування)",
+      active: "Активно",
       format: "Формат",
-      animate: "Анімація"
+      animate: "Анімація",
+      fontFamily: "Сімейство шрифтів",
+      selectFont: "Виберіть шрифт",
+      fontStyle: "Стиль шрифту",
+      bold: "Жирний",
+      italic: "Курсив",
+      underline: "Підкреслений",
+      strikethrough: "Закреслений",
+      fontSize: "Розмір шрифту",
+      textAlign: "Вирівнювання тексту",
+      fontColor: "Колір шрифту",
+      backgroundColor: "Колір фону",
+      order: "Порядок",
+      sendToBack: "Відправити текст назад",
+      sendBackward: "Відправити текст на крок назад",
+      bringForward: "Перемістити текст вперед",
+      sendToFront: "Відправити текст на передній план",
+      animationType: "Тип анімації",
+      animationNone: "Немає",
+      animationFade: "Затухання",
+      animationSlide: "Ковзання",
+      animationGrow: "Збільшення"
     }
   }
 };

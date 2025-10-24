@@ -1925,12 +1925,54 @@ export const en = {
       chooseAvatar: "Choose Avatar"
     },
     shape: {
+      shapeName: "Shape name",
+      remove: "Remove",
       format: "Format",
-      animate: "Animate"
+      animate: "Animate",
+      fill: "Fill",
+      color: "Color",
+      fillColor: "Fill color",
+      stroke: "Stroke",
+      strokeColor: "Stroke color",
+      strokeWidth: "Stroke width",
+      order: "Order",
+      sendToBack: "Send shape to back",
+      sendBackward: "Send shape backward",
+      bringForward: "Bring shape forward",
+      sendToFront: "Send shape to front",
+      animationType: "Animation type",
+      animationNone: "None",
+      animationFade: "Fade",
+      animationSlide: "Slide",
+      animationGrow: "Grow"
     },
     text: {
+      textFormatting: "Text Formatting",
+      selectTextToEdit: "Text (Select text to edit)",
+      active: "Active",
       format: "Format",
-      animate: "Animate"
+      animate: "Animate",
+      fontFamily: "Font family",
+      selectFont: "Select font",
+      fontStyle: "Font style",
+      bold: "Bold",
+      italic: "Italic",
+      underline: "Underline",
+      strikethrough: "Strikethrough",
+      fontSize: "Font size",
+      textAlign: "Text align",
+      fontColor: "Font color",
+      backgroundColor: "Background color",
+      order: "Order",
+      sendToBack: "Send text to back",
+      sendBackward: "Send text backward",
+      bringForward: "Bring text forward",
+      sendToFront: "Send text to front",
+      animationType: "Animation type",
+      animationNone: "None",
+      animationFade: "Fade",
+      animationSlide: "Slide",
+      animationGrow: "Grow"
     }
   }
 };

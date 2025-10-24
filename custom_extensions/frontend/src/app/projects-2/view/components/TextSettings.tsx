@@ -190,10 +190,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
   };
 
   const animationOptions = [
-    { value: 'none', label: 'None' },
-    { value: 'fade', label: 'Fade' },
-    { value: 'slide', label: 'Slide' },
-    { value: 'grow', label: 'Grow' }
+    { value: 'none', label: t('panels.text.animationNone', 'None') },
+    { value: 'fade', label: t('panels.text.animationFade', 'Fade') },
+    { value: 'slide', label: t('panels.text.animationSlide', 'Slide') },
+    { value: 'grow', label: t('panels.text.animationGrow', 'Grow') }
   ];
 
   // Web-safe fonts list with fallbacks
@@ -246,14 +246,14 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
           </div>
           {/* Text name */}
           <span className="text-xs font-medium text-gray-700">
-            {activeEditor ? 'Text Formatting' : 'Text (Select text to edit)'}
+            {activeEditor ? t('panels.text.textFormatting', 'Text Formatting') : t('panels.text.selectTextToEdit', 'Text (Select text to edit)')}
           </span>
         </div>
         
         {/* Status indicator */}
         {activeEditor && (
           <div className="bg-green-500 text-white px-2 py-1 rounded-full text-[10px] font-medium">
-            Active
+            {t('panels.text.active', 'Active')}
           </div>
         )}
       </div>
@@ -268,7 +268,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Format
+          {t('panels.text.format', 'Format')}
         </button>
         <button
           onClick={() => setActiveTab('animate')}
@@ -278,7 +278,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Animate
+          {t('panels.text.animate', 'Animate')}
         </button>
       </div>
       
@@ -288,7 +288,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
           <div className="space-y-4">
             {/* Font Family */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Font family</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.fontFamily', 'Font family')}</span>
               <div className="relative" ref={fontFamilyDropdownRef}>
                 <button
                   onMouseDown={(e) => e.preventDefault()}
@@ -299,7 +299,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   }`}
                 >
                   <span className="text-gray-700 max-w-[120px] truncate">
-                    {fontFamilyOptions.find(opt => opt.value === fontFamily)?.label || 'Select font'}
+                    {fontFamilyOptions.find(opt => opt.value === fontFamily)?.label || t('panels.text.selectFont', 'Select font')}
                   </span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -344,7 +344,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
 
             {/* Font Style */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Font style</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.fontStyle', 'Font style')}</span>
               <div className="flex space-x-2">
                 <button
                   onMouseDown={(e) => e.preventDefault()} 
@@ -362,11 +362,11 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
                     activeEditor?.isActive?.('bold') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title="Bold"
+                  title={t('panels.text.bold', 'Bold')}
                 >
                   <span className="font-bold text-xs">B</span>
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap" style={{ backgroundColor: '#0F58F9' }}>
-                    Bold
+                    {t('panels.text.bold', 'Bold')}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
                   </div>
                 </button>
@@ -386,11 +386,11 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
                     activeEditor?.isActive?.('italic') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title="Italic"
+                  title={t('panels.text.italic', 'Italic')}
                 >
                   <span className="italic text-xs">I</span>
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap" style={{ backgroundColor: '#0F58F9' }}>
-                    Italic
+                    {t('panels.text.italic', 'Italic')}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
                   </div>
                 </button>
@@ -410,11 +410,11 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
                     activeEditor?.isActive?.('underline') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title="Underline"
+                  title={t('panels.text.underline', 'Underline')}
                 >
                   <span className="underline text-xs">U</span>
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap" style={{ backgroundColor: '#0F58F9' }}>
-                    Underline
+                    {t('panels.text.underline', 'Underline')}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
                   </div>
                 </button>
@@ -434,11 +434,11 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
                     activeEditor?.isActive?.('strike') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title="Strikethrough"
+                  title={t('panels.text.strikethrough', 'Strikethrough')}
                 >
                   <span className="line-through text-xs">S</span>
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap" style={{ backgroundColor: '#0F58F9' }}>
-                    Strikethrough
+                    {t('panels.text.strikethrough', 'Strikethrough')}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
                 </button>
@@ -447,7 +447,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
 
             {/* Font Size */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Font size</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.fontSize', 'Font size')}</span>
               <div className="relative" ref={fontSizeDropdownRef}>
                 <button
                   onMouseDown={(e) => e.preventDefault()}
@@ -503,7 +503,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
 
             {/* Text Align */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Text align</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.textAlign', 'Text align')}</span>
               <div className="bg-gray-100 rounded-full p-1 flex space-x-1">
                 <button
                   onMouseDown={(e) => e.preventDefault()}
@@ -588,12 +588,12 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
 
             {/* Font Color */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Font color</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.fontColor', 'Font color')}</span>
               <button
                 onClick={handleFontColorClick}
                 className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                 style={{ backgroundColor: fontColor }}
-                title={`Font color: ${fontColor}`}
+                title={`${t('panels.text.fontColor', 'Font color')}: ${fontColor}`}
               >
                 {/* Add a subtle pattern for better color visibility */}
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
@@ -602,12 +602,12 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
 
             {/* Background Color */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Background color</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.backgroundColor', 'Background color')}</span>
               <button
                 onClick={handleBackgroundColorClick}
                 className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                 style={{ backgroundColor: backgroundColor }}
-                title={`Background color: ${backgroundColor}`}
+                title={`${t('panels.text.backgroundColor', 'Background color')}: ${backgroundColor}`}
               >
                 {/* Add a subtle pattern for better color visibility */}
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
@@ -616,9 +616,9 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
 
             {/* Order */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Order</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.order', 'Order')}</span>
               <div className="flex space-x-2">
-                <Tooltip content="Send text to back">
+                <Tooltip content={t('panels.text.sendToBack', 'Send text to back')}>
                   <button
                     className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
                     title="Send text to back"
@@ -628,30 +628,30 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Send text backward">
+                <Tooltip content={t('panels.text.sendBackward', 'Send text backward')}>
                   <button
                     className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send text backward"
+                    title={t('panels.text.sendBackward', 'Send text backward')}
                   >
                     <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v6A2.5 2.5 0 0 0 4.5 13H6v-1.707L5.293 12H4.5c-.232 0-.45-.053-.647-.146L6 9.707V9.5c0-.571.137-1.11.38-1.586l-3.234 3.233A1.495 1.495 0 0 1 3 10.5v-.94L9.56 3h.94c.232 0 .45.052.647.146L7.914 6.38A3.485 3.485 0 0 1 9.5 6h.207l2.147-2.147c.094.196.146.415.146.647v.793L11.293 6H13V4.5A2.5 2.5 0 0 0 10.5 2h-6ZM3 4.5A1.5 1.5 0 0 1 4.5 3h.647L3 5.147V4.5Zm0 2.06L6.56 3h1.587L3 8.147V6.56ZM7 9.5A2.5 2.5 0 0 1 9.5 7h6A2.5 2.5 0 0 1 18 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 7 15.5v-6ZM9.5 8A1.5 1.5 0 0 0 8 9.5v6A1.5 1.5 0 0 0 9.5 17h6a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 15.5 8h-6Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Bring text forward">
+                <Tooltip content={t('panels.text.bringForward', 'Bring text forward')}>
                   <button
                     className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Bring text forward"
+                    title={t('panels.text.bringForward', 'Bring text forward')}
                   >
                     <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6ZM4.5 3A1.5 1.5 0 0 0 3 4.5v.647L5.147 3H4.5Zm2.06 0L3 6.56v1.587L8.147 3H6.56ZM3 10.5c0 .232.052.45.146.647l8-8A1.495 1.495 0 0 0 10.5 3h-.94L3 9.56v.94ZM4.5 12h.793L12 5.293V4.5c0-.232-.053-.45-.146-.647l-8 8c.195.095.414.147.646.147Zm5.207 0h.793a1.5 1.5 0 0 0 1.5-1.5v-.793L9.707 12Zm-1.414 0L12 8.293V6.707L6.707 12h1.586Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Send text to front">
+                <Tooltip content={t('panels.text.sendToFront', 'Send text to front')}>
                   <button
                     className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send text to front"
+                    title={t('panels.text.sendToFront', 'Send text to front')}
                   >
                     <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6Z"/>
@@ -681,7 +681,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
           <div className="space-y-4">
             {/* Animate content */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">Animation type</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.text.animationType', 'Animation type')}</span>
               <div className="relative" ref={animationDropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}

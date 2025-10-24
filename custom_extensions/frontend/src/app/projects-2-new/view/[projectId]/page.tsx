@@ -1222,18 +1222,32 @@ export default function Projects2ViewPage() {
         }}
         onColorChange={(color) => {
           console.log('🎨 Text color change:', color);
+          console.log('🎨 Active editor status:', {
+            exists: !!activeTextEditor,
+            isDestroyed: activeTextEditor?.isDestroyed,
+            hasView: !!activeTextEditor?.view
+          });
+          
           setCurrentTextColor(color);
+          
           if (activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
             try {
+              // Apply color using TipTap's color command
               activeTextEditor.chain().focus().setColor(color).run();
               console.log('✅ Color applied to editor:', color);
+              
               // Close color picker after applying color
-              setIsTextColorPickerOpen(false);
+              setTimeout(() => {
+                setIsTextColorPickerOpen(false);
+              }, 100);
             } catch (error) {
               console.warn('❌ Color change failed:', error);
             }
           } else {
-            console.warn('❌ No active editor available');
+            console.warn('❌ No active editor available', {
+              activeTextEditor,
+              isDestroyed: activeTextEditor?.isDestroyed
+            });
           }
         }}
         selectedColor={currentTextColor}

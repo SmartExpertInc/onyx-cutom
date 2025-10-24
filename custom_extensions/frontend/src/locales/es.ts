@@ -2040,12 +2040,54 @@ export const es = {
       chooseAvatar: "Elegir Avatar"
     },
     shape: {
+      shapeName: "Nombre de la forma",
+      remove: "Eliminar",
       format: "Formato",
-      animate: "Animar"
+      animate: "Animar",
+      fill: "Relleno",
+      color: "Color",
+      fillColor: "Color de relleno",
+      stroke: "Trazo",
+      strokeColor: "Color del trazo",
+      strokeWidth: "Ancho del trazo",
+      order: "Orden",
+      sendToBack: "Enviar forma atrás",
+      sendBackward: "Enviar forma un paso atrás",
+      bringForward: "Traer forma adelante",
+      sendToFront: "Enviar forma al frente",
+      animationType: "Tipo de animación",
+      animationNone: "Ninguno",
+      animationFade: "Desvanecer",
+      animationSlide: "Deslizar",
+      animationGrow: "Crecer"
     },
     text: {
+      textFormatting: "Formato de texto",
+      selectTextToEdit: "Texto (Seleccione texto para editar)",
+      active: "Activo",
       format: "Formato",
-      animate: "Animar"
+      animate: "Animar",
+      fontFamily: "Familia de fuentes",
+      selectFont: "Seleccionar fuente",
+      fontStyle: "Estilo de fuente",
+      bold: "Negrita",
+      italic: "Cursiva",
+      underline: "Subrayado",
+      strikethrough: "Tachado",
+      fontSize: "Tamaño de fuente",
+      textAlign: "Alineación de texto",
+      fontColor: "Color de fuente",
+      backgroundColor: "Color de fondo",
+      order: "Orden",
+      sendToBack: "Enviar texto atrás",
+      sendBackward: "Enviar texto un paso atrás",
+      bringForward: "Traer texto adelante",
+      sendToFront: "Enviar texto al frente",
+      animationType: "Tipo de animación",
+      animationNone: "Ninguno",
+      animationFade: "Desvanecer",
+      animationSlide: "Deslizar",
+      animationGrow: "Crecer"
     }
   }
 };

@@ -2015,12 +2015,54 @@ export const ru = {
       chooseAvatar: "Выберите аватар"
     },
     shape: {
+      shapeName: "Название фигуры",
+      remove: "Удалить",
       format: "Формат",
-      animate: "Анимация"
+      animate: "Анимация",
+      fill: "Заливка",
+      color: "Цвет",
+      fillColor: "Цвет заливки",
+      stroke: "Обводка",
+      strokeColor: "Цвет обводки",
+      strokeWidth: "Ширина обводки",
+      order: "Порядок",
+      sendToBack: "Отправить фигуру назад",
+      sendBackward: "Отправить фигуру на шаг назад",
+      bringForward: "Переместить фигуру вперед",
+      sendToFront: "Отправить фигуру на передний план",
+      animationType: "Тип анимации",
+      animationNone: "Нет",
+      animationFade: "Затухание",
+      animationSlide: "Скольжение",
+      animationGrow: "Увеличение"
     },
     text: {
+      textFormatting: "Форматирование текста",
+      selectTextToEdit: "Текст (Выберите текст для редактирования)",
+      active: "Активно",
       format: "Формат",
-      animate: "Анимация"
+      animate: "Анимация",
+      fontFamily: "Семейство шрифтов",
+      selectFont: "Выберите шрифт",
+      fontStyle: "Стиль шрифта",
+      bold: "Жирный",
+      italic: "Курсив",
+      underline: "Подчеркнутый",
+      strikethrough: "Зачеркнутый",
+      fontSize: "Размер шрифта",
+      textAlign: "Выравнивание текста",
+      fontColor: "Цвет шрифта",
+      backgroundColor: "Цвет фона",
+      order: "Порядок",
+      sendToBack: "Отправить текст назад",
+      sendBackward: "Отправить текст на шаг назад",
+      bringForward: "Переместить текст вперед",
+      sendToFront: "Отправить текст на передний план",
+      animationType: "Тип анимации",
+      animationNone: "Нет",
+      animationFade: "Затухание",
+      animationSlide: "Скольжение",
+      animationGrow: "Увеличение"
     }
   }
 };
