@@ -1240,7 +1240,12 @@ export default function CommercialProposalPage() {
                                 <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                   <div className="grid grid-cols-3 gap-[20px] items-center">
                                     <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      Основные этапы открытия салона
+                                      {getLocalizedText(proposalData?.language, {
+                                        en: 'Main steps of opening a salon',
+                                        es: 'Pasos principales para abrir un salón',
+                                        ua: 'Основні кроки відкриття салону',
+                                        ru: 'Основные этапы открытия салона'
+                                      })}
                                     </div>
                                     <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                       <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1260,7 +1265,12 @@ export default function CommercialProposalPage() {
                                         <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                       </svg>
                                       <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        5 мин
+                                        {getLocalizedText(proposalData?.language, {
+                                          en: '5 minutes',
+                                          es: '5 minutos',
+                                          ua: '5 хвилин',
+                                          ru: '5 минут'
+                                        })}
                                       </span>
                                     </div>
                                   </div>
