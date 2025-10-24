@@ -1129,11 +1129,21 @@ export default function PublicAuditPage() {
                         </svg>
                         
                         <span className="font-medium text-[12px] text-white">
-                          {language === 'en' ? `Modules (${getTotalModulesAndLessons().modules})` : `Модулей (${getTotalModulesAndLessons().modules})`}
+                          {getLocalizedText(language, {
+                            en: `Modules (${getTotalModulesAndLessons().modules})`,
+                            es: `Módulos (${getTotalModulesAndLessons().modules})`,
+                            ua: `Модулі (${getTotalModulesAndLessons().modules})`,
+                            ru: `Модулей (${getTotalModulesAndLessons().modules})`,
+                          })}
                         </span>
-                        
+
                         <span className="font-medium text-[12px] text-white">
-                          {language === 'en' ? `Lessons (${getTotalModulesAndLessons().lessons})` : `Уроков (${getTotalModulesAndLessons().lessons})`}
+                          {getLocalizedText(language, {
+                            en: `Lessons (${getTotalModulesAndLessons().lessons})`,
+                            es: `Lecciones (${getTotalModulesAndLessons().lessons})`,
+                            ua: `Уроки (${getTotalModulesAndLessons().lessons})`,
+                            ru: `Уроков (${getTotalModulesAndLessons().lessons})`,
+                          })}
                         </span>
                       </div>
                       
@@ -2097,7 +2107,12 @@ export default function PublicAuditPage() {
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      AI capabilities:
+                      {getLocalizedText(language, {
+                        en: 'AI capabilities:',
+                        es: 'Capacidades de IA:',
+                        ua: 'Можливості ШІ:',
+                        ru: 'Возможности ИИ:'
+                      })}
                     </h4>
                     
                     {/* Capability 1 */}
