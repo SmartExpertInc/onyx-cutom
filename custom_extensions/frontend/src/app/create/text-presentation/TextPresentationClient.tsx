@@ -1811,7 +1811,7 @@ export default function TextPresentationClient() {
                   <span className="text-lg">+</span>
                   <span>{t('interface.generate.addSection', 'Add Section')}</span>
                 </button>
-                <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-4 rounded-b-[8px]">
+                <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-2 rounded-b-[8px]">
                   <span className="select-none">{wordCount} {t('interface.generate.words', 'words')}</span>
                   <span className="flex items-center gap-1">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2058,7 +2058,7 @@ export default function TextPresentationClient() {
       {!loading && streamDone && content && (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
           {/* Credits required */}
-          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
+          <div className="absolute left-6 flex items-center gap-2 text-sm font-semibold text-[#A5A5A5] select-none">
             {/* custom credits svg */}
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_476_6531)">
@@ -2070,7 +2070,7 @@ export default function TextPresentationClient() {
                 </clipPath>
               </defs>
             </svg>
-            <span>5 {t('interface.generate.credits', 'credits')}</span>
+            <span>5 {t('interface.generate.credits', 'Credits')}</span>
           </div>
 
           {/* AI Agent + generate */}
