@@ -2,8 +2,42 @@
 
 import React, { useState, useEffect } from 'react';
 
-export type TransitionType = 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe';
-export type TransitionVariant = 'circle' | 'horizontal-chevrons' | 'vertical-chevrons';
+// All official FFmpeg xfade transitions from https://trac.ffmpeg.org/wiki/Xfade
+export type TransitionType = 
+  | 'none'
+  // Basic fades
+  | 'fade' | 'fadeblack' | 'fadewhite' | 'fadegrays'
+  // Wipes
+  | 'wipeleft' | 'wiperight' | 'wipeup' | 'wipedown'
+  | 'wipetl' | 'wipetr' | 'wipebl' | 'wipebr'
+  // Slides
+  | 'slideleft' | 'slideright' | 'slideup' | 'slidedown'
+  // Smooth
+  | 'smoothleft' | 'smoothright' | 'smoothup' | 'smoothdown'
+  // Circle
+  | 'circlecrop' | 'circleclose' | 'circleopen'
+  // Rectangle
+  | 'rectcrop'
+  // Horizontal/Vertical
+  | 'horzclose' | 'horzopen' | 'vertclose' | 'vertopen'
+  // Diagonal
+  | 'diagbl' | 'diagbr' | 'diagtl' | 'diagtr'
+  // Slices
+  | 'hlslice' | 'hrslice' | 'vuslice' | 'vdslice'
+  // Effects
+  | 'dissolve' | 'pixelize' | 'radial' | 'hblur' | 'distance'
+  // Squeeze
+  | 'squeezev' | 'squeezeh'
+  // Zoom
+  | 'zoomin'
+  // Wind
+  | 'hlwind' | 'hrwind' | 'vuwind' | 'vdwind'
+  // Cover
+  | 'coverleft' | 'coverright' | 'coverup' | 'coverdown'
+  // Reveal
+  | 'revealleft' | 'revealright' | 'revealup' | 'revealdown';
+
+export type TransitionVariant = 'default';
 
 export interface TransitionData {
   type: TransitionType;
@@ -25,14 +59,14 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
   const [showSettings, setShowSettings] = useState(currentTransition?.type !== 'none' && currentTransition?.type !== undefined);
   const [isApplyBetweenAllScenes, setIsApplyBetweenAllScenes] = useState(currentTransition?.applyToAll || false);
   const [duration, setDuration] = useState(currentTransition?.duration || 1.0);
-  const [variant, setVariant] = useState<TransitionVariant>(currentTransition?.variant || 'circle');
+  const [variant, setVariant] = useState<TransitionVariant>(currentTransition?.variant || 'default');
 
   // Sync with external changes
   useEffect(() => {
     if (currentTransition) {
       setSelectedTransition(currentTransition.type);
       setDuration(currentTransition.duration);
-      setVariant(currentTransition.variant || 'circle');
+      setVariant(currentTransition.variant || 'default');
       setIsApplyBetweenAllScenes(currentTransition.applyToAll || false);
       setShowSettings(currentTransition.type !== 'none');
     }
@@ -145,7 +179,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               </div>
 
               {/* Duration row */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-700 text-sm">Duration (sec)</span>
                 <div className="flex items-center gap-2">
                   {/* Duration range slider */}
@@ -203,48 +237,6 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <span className="text-gray-600 text-sm w-8 text-right">{duration.toFixed(1)}</span>
                 </div>
               </div>
-
-              {/* Variant row */}
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700 text-sm">Variant</span>
-                <div className="flex gap-2">
-                  {/* Circle button */}
-                  <button 
-                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'circle' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleVariantChange('circle')}
-                  >
-                    <div className="w-3 h-3 rounded-full bg-white border border-black"></div>
-                  </button>
-                  
-                  {/* Horizontal chevrons button */}
-                  <button 
-                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'horizontal-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleVariantChange('horizontal-chevrons')}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m16 18l-6-6l6-6"/>
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m8 18l6-6l-6-6"/>
-                    </svg>
-                  </button>
-                  
-                  {/* Vertical chevrons button */}
-                  <button 
-                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'vertical-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleVariantChange('vertical-chevrons')}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 16l-6-6l-6 6"/>
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 8l-6 6l-6-6"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -288,79 +280,173 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
             <span className="text-gray-700 font-medium">No transition</span>
           </button>
 
-          {/* Transition options grid */}
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {/* Fade */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('fade')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Fade</span>
-            </div>
+          {/* Transition options grid - All FFmpeg xfade transitions */}
+          <div className="mt-4 max-h-[500px] overflow-y-auto pr-2">
+            {/* Helper function to render transition button */}
+            {(() => {
+              const TransitionButton = ({ type, label }: { type: TransitionType; label: string }) => (
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect(type)}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-xs text-gray-500">{label.substring(0, 4)}</span>
+                  </div>
+                  <span className="text-xs text-gray-700 text-center">{label}</span>
+                </div>
+              );
 
-            {/* Close */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('close')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Close</span>
-            </div>
+              return (
+                <>
+                  {/* Basic Fades */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Fades</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="fade" label="Fade" />
+                      <TransitionButton type="fadeblack" label="Fade Black" />
+                      <TransitionButton type="fadewhite" label="Fade White" />
+                      <TransitionButton type="fadegrays" label="Fade Grays" />
+                    </div>
+                  </div>
 
-            {/* Crop */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('crop')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Crop</span>
-            </div>
+                  {/* Wipes */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Wipes</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="wipeleft" label="Wipe Left" />
+                      <TransitionButton type="wiperight" label="Wipe Right" />
+                      <TransitionButton type="wipeup" label="Wipe Up" />
+                      <TransitionButton type="wipedown" label="Wipe Down" />
+                      <TransitionButton type="wipetl" label="Wipe Top-L" />
+                      <TransitionButton type="wipetr" label="Wipe Top-R" />
+                      <TransitionButton type="wipebl" label="Wipe Bot-L" />
+                      <TransitionButton type="wipebr" label="Wipe Bot-R" />
+                    </div>
+                  </div>
 
-            {/* Blur */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('blur')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Blur</span>
-            </div>
+                  {/* Slides */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Slides</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="slideleft" label="Slide Left" />
+                      <TransitionButton type="slideright" label="Slide Right" />
+                      <TransitionButton type="slideup" label="Slide Up" />
+                      <TransitionButton type="slidedown" label="Slide Down" />
+                    </div>
+                  </div>
 
-            {/* Open */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('open')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Open</span>
-            </div>
+                  {/* Smooth */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Smooth</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="smoothleft" label="Smooth Left" />
+                      <TransitionButton type="smoothright" label="Smooth Right" />
+                      <TransitionButton type="smoothup" label="Smooth Up" />
+                      <TransitionButton type="smoothdown" label="Smooth Down" />
+                    </div>
+                  </div>
 
-            {/* Slide */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('slide')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Slide</span>
-            </div>
+                  {/* Circle & Shapes */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Circle & Shapes</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="circlecrop" label="Circle Crop" />
+                      <TransitionButton type="circleclose" label="Circle Close" />
+                      <TransitionButton type="circleopen" label="Circle Open" />
+                      <TransitionButton type="rectcrop" label="Rect Crop" />
+                    </div>
+                  </div>
 
-            {/* Wipe */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('wipe')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Wipe</span>
-            </div>
+                  {/* Horizontal/Vertical */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Horizontal/Vertical</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="horzclose" label="Horz Close" />
+                      <TransitionButton type="horzopen" label="Horz Open" />
+                      <TransitionButton type="vertclose" label="Vert Close" />
+                      <TransitionButton type="vertopen" label="Vert Open" />
+                    </div>
+                  </div>
 
-            {/* Smooth wipe */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('smooth-wipe')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Smooth wipe</span>
-            </div>
+                  {/* Diagonal */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Diagonal</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="diagbl" label="Diag Bot-L" />
+                      <TransitionButton type="diagbr" label="Diag Bot-R" />
+                      <TransitionButton type="diagtl" label="Diag Top-L" />
+                      <TransitionButton type="diagtr" label="Diag Top-R" />
+                    </div>
+                  </div>
+
+                  {/* Slices */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Slices</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="hlslice" label="H-Left Slice" />
+                      <TransitionButton type="hrslice" label="H-Right Slice" />
+                      <TransitionButton type="vuslice" label="V-Up Slice" />
+                      <TransitionButton type="vdslice" label="V-Down Slice" />
+                    </div>
+                  </div>
+
+                  {/* Effects */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Effects</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="dissolve" label="Dissolve" />
+                      <TransitionButton type="pixelize" label="Pixelize" />
+                      <TransitionButton type="radial" label="Radial" />
+                      <TransitionButton type="hblur" label="H-Blur" />
+                      <TransitionButton type="distance" label="Distance" />
+                    </div>
+                  </div>
+
+                  {/* Squeeze & Zoom */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Squeeze & Zoom</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="squeezev" label="Squeeze V" />
+                      <TransitionButton type="squeezeh" label="Squeeze H" />
+                      <TransitionButton type="zoomin" label="Zoom In" />
+                    </div>
+                  </div>
+
+                  {/* Wind */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Wind</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="hlwind" label="H-Left Wind" />
+                      <TransitionButton type="hrwind" label="H-Right Wind" />
+                      <TransitionButton type="vuwind" label="V-Up Wind" />
+                      <TransitionButton type="vdwind" label="V-Down Wind" />
+                    </div>
+                  </div>
+
+                  {/* Cover */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Cover</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="coverleft" label="Cover Left" />
+                      <TransitionButton type="coverright" label="Cover Right" />
+                      <TransitionButton type="coverup" label="Cover Up" />
+                      <TransitionButton type="coverdown" label="Cover Down" />
+                    </div>
+                  </div>
+
+                  {/* Reveal */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-2">Reveal</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      <TransitionButton type="revealleft" label="Reveal Left" />
+                      <TransitionButton type="revealright" label="Reveal Right" />
+                      <TransitionButton type="revealup" label="Reveal Up" />
+                      <TransitionButton type="revealdown" label="Reveal Down" />
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </>
       )}

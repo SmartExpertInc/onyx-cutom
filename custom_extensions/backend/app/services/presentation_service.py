@@ -969,16 +969,24 @@ class ProfessionalPresentationService:
                 logger.info(f"  🎞️ Video {i+1}: {duration:.2f}s - {os.path.basename(video_path)}")
             
             # Map frontend transition types to FFmpeg xfade types
+            # Most transitions match FFmpeg names directly from https://trac.ffmpeg.org/wiki/Xfade
+            # Only 'none' needs special handling (no transition)
             transition_type_map = {
-                'none': None,  # No transition, will use simple concat
-                'fade': 'fade',
-                'close': 'circleclose',
-                'crop': 'circlecrop',
-                'blur': 'dissolve',  # FFmpeg doesn't have blur, use dissolve
-                'open': 'circleopen',
-                'slide': 'slideleft',  # Default to slideleft
-                'wipe': 'wipeleft',  # Default to wipeleft
-                'smooth-wipe': 'dissolve'  # Use dissolve for smooth-wipe
+                'none': None,  # No transition, will use minimal fade
+                # All other transitions use their FFmpeg xfade names directly:
+                # fade, fadeblack, fadewhite, fadegrays
+                # wipeleft, wiperight, wipeup, wipedown, wipetl, wipetr, wipebl, wipebr
+                # slideleft, slideright, slideup, slidedown
+                # smoothleft, smoothright, smoothup, smoothdown
+                # circlecrop, circleclose, circleopen, rectcrop
+                # horzclose, horzopen, vertclose, vertopen
+                # diagbl, diagbr, diagtl, diagtr
+                # hlslice, hrslice, vuslice, vdslice
+                # dissolve, pixelize, radial, hblur, distance
+                # squeezev, squeezeh, zoomin
+                # hlwind, hrwind, vuwind, vdwind
+                # coverleft, coverright, coverup, coverdown
+                # revealleft, revealright, revealup, revealdown
             }
             
             # Build FFmpeg command with xfade filters
@@ -1005,8 +1013,11 @@ class ProfessionalPresentationService:
                 transition_type_raw = transition_config.get('type', 'none')
                 transition_duration = float(transition_config.get('duration', 0.5))
                 
-                # Map transition type
-                transition_type_ffmpeg = transition_type_map.get(transition_type_raw, 'fade')
+                # Map transition type - if not in map, use the raw type directly (FFmpeg xfade names)
+                transition_type_ffmpeg = transition_type_map.get(transition_type_raw)
+                if transition_type_ffmpeg is None and transition_type_raw != 'none':
+                    # Type not in map, assume it's a valid FFmpeg xfade name
+                    transition_type_ffmpeg = transition_type_raw
                 
                 logger.info(f"  🎞️ Transition {i+1}: {transition_type_raw} → {transition_type_ffmpeg} ({transition_duration}s)")
                 
