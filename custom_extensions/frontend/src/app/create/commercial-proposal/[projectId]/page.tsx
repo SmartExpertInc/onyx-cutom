@@ -4164,7 +4164,7 @@ export default function CommercialProposalPage() {
                 </svg>
                 
                 <span className="font-semibold text-[14px] text-[#09090B]">
-                  {getLocalizedText(language, {
+                  {getLocalizedText(proposalData?.language, {
                     en: 'Trial Package',
                     es: 'Paquete de Prueba',
                     ua: 'Пробний пакет',
@@ -4175,7 +4175,7 @@ export default function CommercialProposalPage() {
     
               <div>
                 <span className="font-bold text-[30px] leading-[120%]">
-                  <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(language, {
+                  <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(proposalData?.language, {
                     en: 'hours',
                     es: 'horas',
                     ua: 'годин',
