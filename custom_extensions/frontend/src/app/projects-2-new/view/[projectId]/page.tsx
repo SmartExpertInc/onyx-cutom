@@ -843,7 +843,8 @@ export default function Projects2ViewPage() {
           const target = e.target as HTMLElement;
           if (!target.closest('[data-textsettings-panel]') && 
               !target.closest('.ProseMirror') && 
-              !target.closest('.text-editing-toolbar')) {
+              !target.closest('.text-editing-toolbar') &&
+              !target.closest('[data-color-palette-popup]')) {
             setIsTextToolbarVisible(false);
           }
         }}>

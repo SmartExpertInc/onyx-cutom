@@ -620,6 +620,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     <>
       {/* Custom backdrop */}
       <div 
+        data-color-palette-popup
         className="fixed inset-0 z-[9998] bg-transparent pointer-events-auto"
         onClick={onClose}
       />
@@ -627,6 +628,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       {/* Color picker popup */}
       <div
         ref={popupRef}
+        data-color-palette-popup
         className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[270px]"
         style={{
           left: adjustedPosition.x,

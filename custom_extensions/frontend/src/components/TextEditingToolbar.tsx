@@ -162,11 +162,28 @@ export default function TextEditingToolbar({
           top: `${position.y}px`,
         }}
       >
+        {/* Font Color */}
+        <button
+          onClick={handleFontColorClick}
+          className="w-7 h-7 rounded-md border border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
+          style={{ backgroundColor: fontColor }}
+          title={`Font color: ${fontColor}`}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-gray-300"></div>
+
         {/* Font Family Dropdown */}
         <div className="relative" ref={fontFamilyDropdownRef}>
           <button
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
+            onClick={() => {
+              setShowFontFamilyDropdown(!showFontFamilyDropdown);
+              setShowFontSizeDropdown(false); // Close font size dropdown
+              setShowFontColorPicker(false); // Close color picker
+            }}
             className="flex items-center space-x-1 px-2 py-1.5 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none min-w-[100px]"
           >
             <span className="text-gray-700 truncate flex-1 text-left">
@@ -194,14 +211,12 @@ export default function TextEditingToolbar({
                       }
                     }
                   }}
-                  className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
-                  style={{ fontFamily: option.label }}
+                  className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50"
+                  style={{ 
+                    fontFamily: option.label,
+                    backgroundColor: fontFamily === option.value ? '#CCDBFC' : 'transparent'
+                  }}
                 >
-                  {fontFamily === option.value && (
-                    <svg className="w-3 h-3 text-black mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
                   <span className="text-gray-700">{option.label}</span>
                 </button>
               ))}
@@ -213,7 +228,11 @@ export default function TextEditingToolbar({
         <div className="relative" ref={fontSizeDropdownRef}>
           <button
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
+            onClick={() => {
+              setShowFontSizeDropdown(!showFontSizeDropdown);
+              setShowFontFamilyDropdown(false); // Close font family dropdown
+              setShowFontColorPicker(false); // Close color picker
+            }}
             className="flex items-center space-x-1 px-2 py-1.5 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none min-w-[60px]"
           >
             <span className="text-gray-700 flex-1 text-left">{fontSizeOptions.find(opt => opt.value === fontSize)?.label || fontSize}</span>
@@ -240,15 +259,9 @@ export default function TextEditingToolbar({
                     }
                   }}
                   className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center justify-between"
+                  style={{ backgroundColor: fontSize === option.value ? '#CCDBFC' : 'transparent' }}
                 >
-                  <div className="flex items-center flex-1">
-                    {fontSize === option.value && (
-                      <svg className="w-3 h-3 text-black mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                    <span className="text-gray-700">{option.label}</span>
-                  </div>
+                  <span className="text-gray-700">{option.label}</span>
                   <span className="text-[10px] text-gray-400">px</span>
                 </button>
               ))}
@@ -264,6 +277,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()} 
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleBold().run();
@@ -273,8 +287,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              activeEditor?.isActive?.('bold') ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              activeEditor?.isActive?.('bold') ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={activeEditor?.isActive?.('bold') ? { backgroundColor: '#0F58F9' } : {}}
             title="Bold"
           >
             <span className="font-bold text-xs">B</span>
@@ -283,6 +298,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleItalic().run();
@@ -292,8 +308,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              activeEditor?.isActive?.('italic') ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              activeEditor?.isActive?.('italic') ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={activeEditor?.isActive?.('italic') ? { backgroundColor: '#0F58F9' } : {}}
             title="Italic"
           >
             <span className="italic text-xs">I</span>
@@ -302,6 +319,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleUnderline().run();
@@ -311,8 +329,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              activeEditor?.isActive?.('underline') ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              activeEditor?.isActive?.('underline') ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={activeEditor?.isActive?.('underline') ? { backgroundColor: '#0F58F9' } : {}}
             title="Underline"
           >
             <span className="underline text-xs">U</span>
@@ -321,6 +340,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleStrike().run();
@@ -330,8 +350,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              activeEditor?.isActive?.('strike') ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              activeEditor?.isActive?.('strike') ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={activeEditor?.isActive?.('strike') ? { backgroundColor: '#0F58F9' } : {}}
             title="Strikethrough"
           >
             <span className="line-through text-xs">S</span>
@@ -346,6 +367,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().setTextAlign('left').run();
@@ -356,8 +378,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              textAlign === 'left' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              textAlign === 'left' ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={textAlign === 'left' ? { backgroundColor: '#0F58F9' } : {}}
             title="Align left"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -368,6 +391,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().setTextAlign('center').run();
@@ -378,8 +402,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              textAlign === 'center' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              textAlign === 'center' ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={textAlign === 'center' ? { backgroundColor: '#0F58F9' } : {}}
             title="Align center"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -390,6 +415,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              setShowFontColorPicker(false); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().setTextAlign('right').run();
@@ -400,8 +426,9 @@ export default function TextEditingToolbar({
               }
             }}
             className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
-              textAlign === 'right' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+              textAlign === 'right' ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
+            style={textAlign === 'right' ? { backgroundColor: '#0F58F9' } : {}}
             title="Align right"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -410,18 +437,6 @@ export default function TextEditingToolbar({
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-6 bg-gray-300"></div>
-
-        {/* Font Color */}
-        <button
-          onClick={handleFontColorClick}
-          className="w-7 h-7 rounded-md border border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
-          style={{ backgroundColor: fontColor }}
-          title={`Font color: ${fontColor}`}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
-        </button>
       </div>
 
       {/* Font Color Picker Popup */}
