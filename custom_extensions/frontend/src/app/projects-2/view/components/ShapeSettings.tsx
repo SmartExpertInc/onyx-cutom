@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import AdvancedSettings from './AdvancedSettings';
 import ColorPalettePopup from './ColorPalettePopup';
 import Tooltip from './Tooltip';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ShapeSettings() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
   

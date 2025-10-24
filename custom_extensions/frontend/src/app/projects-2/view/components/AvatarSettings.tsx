@@ -3,8 +3,10 @@ import Tooltip from './Tooltip';
 import AvatarPopup from './AvatarPopup';
 import AdvancedSettings from './AdvancedSettings';
 import { useAvatarData } from './AvatarDataService';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AvatarSettings() {
+  const { t } = useLanguage();
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   const [showViewDropdown, setShowViewDropdown] = useState(false);
@@ -65,7 +67,7 @@ export default function AvatarSettings() {
             </svg>
           </div>
           {/* Avatar name */}
-          <span className="text-xs font-medium text-gray-700">Name of avatar</span>
+          <span className="text-xs font-medium text-gray-700">{t('panels.avatar.nameOfAvatar', 'Name of avatar')}</span>
         </div>
         
         {/* Change button */}
@@ -73,21 +75,21 @@ export default function AvatarSettings() {
           onClick={() => setIsAvatarPopupOpen(true)}
           className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors"
         >
-          Change
+          {t('panels.avatar.change', 'Change')}
         </button>
       </div>
       
       {/* Apply to all scenes button */}
       <div className="px-4 py-3 border-b border-gray-200">
         <button className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-full transition-colors border border-gray-300 hover:border-gray-400 text-xs">
-          Apply to all scenes
+          {t('panels.avatar.applyToAllScenes', 'Apply to all scenes')}
         </button>
       </div>
       
       {/* Appearance section */}
       <div className="px-4 py-3 border-b border-gray-200">
         <div className="mb-3">
-          <span className="text-xs font-medium text-gray-700">Appearance</span>
+          <span className="text-xs font-medium text-gray-700">{t('panels.avatar.appearance', 'Appearance')}</span>
         </div>
         <div className="bg-gray-100 rounded-full p-1 flex">
           <button 
@@ -98,7 +100,7 @@ export default function AvatarSettings() {
                 : 'text-gray-600 hover:text-gray-700'
             }`}
           >
-            Shoulder
+            {t('panels.avatar.shoulder', 'Shoulder')}
           </button>
           <button 
             onClick={() => setAppearanceMode('full-body')}
@@ -108,7 +110,7 @@ export default function AvatarSettings() {
                 : 'text-gray-600 hover:text-gray-700'
             }`}
           >
-            Full body
+            {t('panels.avatar.fullBody', 'Full body')}
           </button>
           <button 
             onClick={() => setAppearanceMode('bubble')}
@@ -118,7 +120,7 @@ export default function AvatarSettings() {
                 : 'text-gray-600 hover:text-gray-700'
             }`}
           >
-            Bubble
+            {t('panels.avatar.bubble', 'Bubble')}
           </button>
         </div>
       </div>

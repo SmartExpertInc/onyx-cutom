@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export type TransitionType = 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe';
 export type TransitionVariant = 'circle' | 'horizontal-chevrons' | 'vertical-chevrons';
@@ -19,6 +20,7 @@ interface TransitionProps {
 }
 
 export default function Transition({ transitionIndex, currentTransition, onTransitionChange }: TransitionProps) {
+  const { t } = useLanguage();
   const [selectedTransition, setSelectedTransition] = useState<TransitionType>(
     currentTransition?.type || 'none'
   );

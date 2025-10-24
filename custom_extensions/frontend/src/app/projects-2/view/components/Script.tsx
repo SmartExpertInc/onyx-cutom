@@ -9,6 +9,7 @@ import { VideoLessonData } from '@/types/videoLessonTypes';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 // Import Voice Context
 import { useVoice } from '@/contexts/VoiceContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ScriptProps {
   onAiButtonClick: (position: { x: number; y: number }) => void;
@@ -20,6 +21,7 @@ interface ScriptProps {
 }
 
 export default function Script({ onAiButtonClick, videoLessonData, componentBasedSlideDeck, currentSlideId, onTextChange }: ScriptProps) {
+  const { t } = useLanguage();
   const [openDropdownSlideId, setOpenDropdownSlideId] = useState<string | null>(null);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
@@ -31,7 +33,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   const allSlides = componentBasedSlideDeck?.slides || videoLessonData?.slides || [];
   
   // Use voiceover text from current slide or fallback to placeholder
-  const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
+  const defaultPlaceholder = t('panels.script.defaultPlaceholder', 'Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!');
   
   // Function to handle script content changes for a specific slide
   const handleScriptContentChange = (slideId: string, newContent: string) => {
@@ -235,7 +237,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                         {/* Row 1: Lisa */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <User size={16} className="text-gray-700" />
-                          <span className="text-xs text-gray-700">Lisa</span>
+                          <span className="text-xs text-gray-700">{t('panels.script.avatarLisa', 'Lisa')}</span>
                   </button>
                   
                   {/* Row 3: Narration only */}
@@ -243,7 +245,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
                       <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
                     </svg>
-                    <span className="text-xs text-gray-700">Narration only</span>
+                    <span className="text-xs text-gray-700">{t('panels.script.narrationOnly', 'Narration only')}</span>
                   </button>
                   
                   {/* Row 4: Horizontal line */}
@@ -254,13 +256,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   {/* Row 5: Remove avatar */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <UserMinus size={16} className="text-gray-500" />
-                    <span className="text-xs text-gray-500">Remove avatar</span>
+                    <span className="text-xs text-gray-500">{t('panels.script.removeAvatar', 'Remove avatar')}</span>
                   </button>
                   
                   {/* Row 6: Add new avatar */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <UserPlus size={16} className="text-gray-700" />
-                    <span className="text-xs text-gray-700">Add new avatar</span>
+                    <span className="text-xs text-gray-700">{t('panels.script.addNewAvatar', 'Add new avatar')}</span>
                   </button>
                 </div>
               </div>
@@ -281,7 +283,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               style={{ userSelect: 'none' }}
             >
                     <span className="text-xs" style={{ color: '#878787' }}>
-                      Lisa narration
+                      {t('panels.script.lisaNarration', 'Lisa narration')}
                     </span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <g fill="none" stroke="#878787" stroke-width="1.5">

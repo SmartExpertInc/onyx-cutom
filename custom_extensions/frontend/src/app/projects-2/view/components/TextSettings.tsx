@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import AdvancedSettings from './AdvancedSettings';
 import ColorPalettePopup from './ColorPalettePopup';
 import Tooltip from './Tooltip';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ComputedStyles {
   fontSize?: string;
@@ -16,6 +17,7 @@ interface TextSettingsProps {
 }
 
 export default function TextSettings({ activeEditor, computedStyles }: TextSettingsProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
   const [animationType, setAnimationType] = useState<'none' | 'fade' | 'slide' | 'grow'>('fade');
   const [showDropdown, setShowDropdown] = useState(false);

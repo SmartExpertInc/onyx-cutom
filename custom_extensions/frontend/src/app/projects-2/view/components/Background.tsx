@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import Media from './Media';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Background() {
+  const { t } = useLanguage();
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

@@ -3,8 +3,10 @@ import { Trash2, Image as ImageIcon, Check, X } from 'lucide-react';
 import Media from './Media';
 import AdvancedSettings from './AdvancedSettings';
 import Tooltip from './Tooltip';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ImageSettings() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'animate' | 'filters'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,7 +48,7 @@ export default function ImageSettings() {
             <ImageIcon className="w-5 h-5 text-gray-700" />
           </div>
           {/* Image text */}
-          <span className="text-xs font-medium text-gray-700">Image</span>
+          <span className="text-xs font-medium text-gray-700">{t('panels.image.image', 'Image')}</span>
         </div>
         
         <div className="flex items-center space-x-2">
@@ -55,14 +57,14 @@ export default function ImageSettings() {
             onClick={() => setIsModalOpen(true)}
             className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors"
           >
-            Replace image
+            {t('panels.image.replaceImage', 'Replace image')}
           </button>
           
           {/* Trashcan button */}
-          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:border-gray-400 transition-colors group relative" title="Remove media">
+          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:border-gray-400 transition-colors group relative" title={t('panels.image.removeMedia', 'Remove media')}>
             <Trash2 className="w-4 h-4 text-gray-700" />
             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Remove media
+              {t('panels.image.removeMedia', 'Remove media')}
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
             </div>
           </button>
@@ -79,7 +81,7 @@ export default function ImageSettings() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Format
+          {t('panels.image.format', 'Format')}
         </button>
         <button
           onClick={() => setActiveTab('animate')}
@@ -89,7 +91,7 @@ export default function ImageSettings() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Animate
+          {t('panels.image.animate', 'Animate')}
         </button>
         <button
           onClick={() => setActiveTab('filters')}
@@ -99,7 +101,7 @@ export default function ImageSettings() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Filters
+          {t('panels.image.filters', 'Filters')}
         </button>
       </div>
       

@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { Search, Play, Volume2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Music() {
+  const { t } = useLanguage();
   const [activeButton, setActiveButton] = useState<'stock' | 'upload'>('stock');
   const [selectedMusic, setSelectedMusic] = useState<string | null>('no-music');
   const [isBackgroundMusicEnabled, setIsBackgroundMusicEnabled] = useState(false);

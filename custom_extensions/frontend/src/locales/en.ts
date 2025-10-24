@@ -1882,5 +1882,40 @@ export const en = {
     unexpectedError: "Unexpected error",
     exporting: "Exporting…",
     downloadScorm: "Download SCORM 2004"
+  },
+  panels: {
+    script: {
+      defaultPlaceholder: "Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!",
+      avatarLisa: "Lisa",
+      narrationOnly: "Narration only",
+      removeAvatar: "Remove avatar",
+      addNewAvatar: "Add new avatar",
+      lisaNarration: "Lisa narration"
+    },
+    image: {
+      image: "Image",
+      replaceImage: "Replace image",
+      removeMedia: "Remove media",
+      format: "Format",
+      animate: "Animate",
+      filters: "Filters"
+    },
+    avatar: {
+      nameOfAvatar: "Name of avatar",
+      change: "Change",
+      applyToAllScenes: "Apply to all scenes",
+      appearance: "Appearance",
+      shoulder: "Shoulder",
+      fullBody: "Full body",
+      bubble: "Bubble"
+    },
+    shape: {
+      format: "Format",
+      animate: "Animate"
+    },
+    text: {
+      format: "Format",
+      animate: "Animate"
+    }
   }
 };
