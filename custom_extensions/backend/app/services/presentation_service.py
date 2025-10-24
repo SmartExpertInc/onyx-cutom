@@ -492,13 +492,15 @@ class ProfessionalPresentationService:
             
             # Check if this is a slide-only video (no avatar needed)
             if request.slide_only:
-                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] SLIDE-ONLY MODE: Generating slide video with requested duration")
+                # Use hardcoded 10 second duration for debug rendering (fast testing)
+                debug_duration = 10.0
+                logger.info(f"🐛 [DEBUG_MODE] SINGLE-SLIDE SLIDE-ONLY MODE: Generating slide video with hardcoded {debug_duration}s duration (NO AVATAR)")
                 
-                # Generate slide video with requested duration
+                # Generate slide video with debug duration
                 result = await clean_video_generation_service.generate_avatar_slide_video(
                     slide_props=slide_data,
                     theme=request.theme or "dark-purple",
-                    slide_duration=request.duration,
+                    slide_duration=debug_duration,
                     quality=request.quality
                 )
                 
@@ -664,11 +666,13 @@ class ProfessionalPresentationService:
                 
                 # Check if this is slide-only mode
                 if request.slide_only:
-                    logger.info(f"🐛 [DEBUG_MODE] SLIDE-ONLY MODE: Generating slide video with requested duration (NO AVATAR)")
+                    # Use hardcoded 10 second duration for debug rendering (fast testing)
+                    debug_duration = 10.0
+                    logger.info(f"🐛 [DEBUG_MODE] SLIDE-ONLY MODE: Generating slide video with hardcoded {debug_duration}s duration (NO AVATAR)")
                     slide_result = await clean_video_generation_service.generate_avatar_slide_video(
                         slide_props=slide_data,
                         theme=request.theme or "dark-purple",
-                        slide_duration=request.duration,
+                        slide_duration=debug_duration,
                         quality=request.quality
                     )
                     
@@ -878,6 +882,33 @@ class ProfessionalPresentationService:
             logger.error(f"Video concatenation failed: {e}")
             raise
 
+    async def _check_video_has_audio(self, video_path: str) -> bool:
+        """
+        Check if a video file has an audio stream.
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            True if video has audio, False otherwise
+        """
+        try:
+            probe_cmd = [
+                'ffprobe',
+                '-v', 'error',
+                '-select_streams', 'a',
+                '-show_entries', 'stream=codec_type',
+                '-of', 'default=noprint_wrappers=1',
+                video_path
+            ]
+            result = subprocess.run(probe_cmd, capture_output=True, text=True, timeout=10)
+            has_audio = bool(result.stdout.strip())
+            logger.info(f"🎞️ [AUDIO_CHECK] {os.path.basename(video_path)}: has_audio={has_audio}")
+            return has_audio
+        except Exception as e:
+            logger.warning(f"🎞️ [AUDIO_CHECK] Failed to check audio for {video_path}: {e}")
+            return False  # Assume no audio if probe fails
+
     async def _concatenate_videos_with_transitions(
         self,
         video_paths: List[str],
@@ -906,7 +937,6 @@ class ProfessionalPresentationService:
                 # If only one slide - just copy it
                 output_filename = f"presentation_{job_id}.mp4"
                 output_path = str(self.output_dir / output_filename)
-                import shutil
                 shutil.copy(video_paths[0], output_path)
                 logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Single video, copied directly: {output_path}")
                 return output_path
@@ -916,6 +946,12 @@ class ProfessionalPresentationService:
                 if not os.path.exists(video_path):
                     logger.error(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Video file {i+1} not found: {video_path}")
                     raise FileNotFoundError(f"Video file {i+1} not found: {video_path}")
+            
+            # Check if videos have audio streams (for debug mode with slide-only videos)
+            has_audio = await self._check_video_has_audio(video_paths[0])
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Videos have audio: {has_audio}")
+            if not has_audio:
+                logger.info(f"🐛 [DEBUG_MODE] Video-only mode detected: Will use xfade without audio crossfade")
             
             # Get duration of each video using ffprobe
             durations = []
@@ -1006,28 +1042,31 @@ class ProfessionalPresentationService:
                     filter_complex_parts.append(xfade_filter)
                     current_video_stream = output_video_stream
                 
-                # Add acrossfade filter for audio
-                if transition_type_ffmpeg:
-                    acrossfade_filter = (
-                        f"{current_audio_stream}{next_audio_stream}"
-                        f"acrossfade=d={transition_duration}:"
-                        f"c1=tri:"  # Triangular curve for fade out
-                        f"c2=tri"   # Triangular curve for fade in
-                        f"{output_audio_stream}"
-                    )
-                    filter_complex_parts.append(acrossfade_filter)
-                    current_audio_stream = output_audio_stream
+                # Add acrossfade filter for audio (only if videos have audio)
+                if has_audio:
+                    if transition_type_ffmpeg:
+                        acrossfade_filter = (
+                            f"{current_audio_stream}{next_audio_stream}"
+                            f"acrossfade=d={transition_duration}:"
+                            f"c1=tri:"  # Triangular curve for fade out
+                            f"c2=tri"   # Triangular curve for fade in
+                            f"{output_audio_stream}"
+                        )
+                        filter_complex_parts.append(acrossfade_filter)
+                        current_audio_stream = output_audio_stream
+                    else:
+                        # No audio crossfade for 'none' transition
+                        acrossfade_filter = (
+                            f"{current_audio_stream}{next_audio_stream}"
+                            f"acrossfade=d=0.01:"  # Extremely short duration
+                            f"c1=tri:"
+                            f"c2=tri"
+                            f"{output_audio_stream}"
+                        )
+                        filter_complex_parts.append(acrossfade_filter)
+                        current_audio_stream = output_audio_stream
                 else:
-                    # No audio crossfade for 'none' transition
-                    acrossfade_filter = (
-                        f"{current_audio_stream}{next_audio_stream}"
-                        f"acrossfade=d=0.01:"  # Extremely short duration
-                        f"c1=tri:"
-                        f"c2=tri"
-                        f"{output_audio_stream}"
-                    )
-                    filter_complex_parts.append(acrossfade_filter)
-                    current_audio_stream = output_audio_stream
+                    logger.info(f"  🐛 [DEBUG_MODE] Skipping audio crossfade for segment {i+1} (no audio stream)")
             
             # Build final filter_complex string
             filter_complex = ';'.join(filter_complex_parts)
@@ -1036,23 +1075,41 @@ class ProfessionalPresentationService:
             output_filename = f"presentation_{job_id}.mp4"
             output_path = str(self.output_dir / output_filename)
             
-            # Form final FFmpeg command
-            ffmpeg_cmd = [
-                'ffmpeg',
-                '-y',  # Overwrite output file
-                *inputs,
-                '-filter_complex', filter_complex,
-                '-map', '[vout]',
-                '-map', '[aout]',
-                '-c:v', 'libx264',
-                '-preset', 'medium',
-                '-crf', '23',
-                '-pix_fmt', 'yuv420p',
-                '-c:a', 'aac',
-                '-b:a', '192k',
-                '-movflags', '+faststart',
-                output_path
-            ]
+            # Form final FFmpeg command - adjust based on audio presence
+            if has_audio:
+                # Videos with audio (standard mode)
+                ffmpeg_cmd = [
+                    'ffmpeg',
+                    '-y',  # Overwrite output file
+                    *inputs,
+                    '-filter_complex', filter_complex,
+                    '-map', '[vout]',
+                    '-map', '[aout]',
+                    '-c:v', 'libx264',
+                    '-preset', 'medium',
+                    '-crf', '23',
+                    '-pix_fmt', 'yuv420p',
+                    '-c:a', 'aac',
+                    '-b:a', '192k',
+                    '-movflags', '+faststart',
+                    output_path
+                ]
+            else:
+                # Videos without audio (debug mode)
+                logger.info(f"🐛 [DEBUG_MODE] Building FFmpeg command for video-only (no audio mapping)")
+                ffmpeg_cmd = [
+                    'ffmpeg',
+                    '-y',  # Overwrite output file
+                    *inputs,
+                    '-filter_complex', filter_complex,
+                    '-map', '[vout]',  # Video only, no audio mapping
+                    '-c:v', 'libx264',
+                    '-preset', 'medium',
+                    '-crf', '23',
+                    '-pix_fmt', 'yuv420p',
+                    '-movflags', '+faststart',
+                    output_path
+                ]
             
             logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Running FFmpeg with xfade transitions...")
             logger.debug(f"Command: {' '.join(ffmpeg_cmd)}")

@@ -554,7 +554,7 @@ export default function VideoEditorHeader({
         voiceProvider: debugMode ? undefined : (selectedVoice?.voiceProvider || null),  // Add voice provider
         useAvatarMask: true,
         layout: 'picture_in_picture',
-        duration: 30.0,
+        duration: debugMode ? 10.0 : 30.0,  // Use 10s for debug mode, 30s for standard
         quality: 'high',
         resolution: [1920, 1080],
         slideOnly: debugMode  // NEW: Enable slide-only mode for debug rendering
