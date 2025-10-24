@@ -18174,6 +18174,278 @@ async def get_public_audit(
         raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
 
 
+# Course outline sharing models
+class ShareCourseOutlineRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareCourseOutlineResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/course-outlines/{course_id}/share")
+async def share_course_outline(
+    course_id: int, 
+    request_data: ShareCourseOutlineRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareCourseOutlineResponse:
+    """
+    Generate a share token for a course outline project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Verify the course outline belongs to the user and is a Training Plan
+        query = """
+        SELECT id, project_name, microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2 
+        AND microproduct_type = 'Training Plan'
+        """
+        
+        async with pool.acquire() as conn:
+            course = await conn.fetchrow(query, course_id, onyx_user_id)
+            
+        if not course:
+            raise HTTPException(status_code=404, detail="Course outline not found or access denied")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, course_id)
+        
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/course/{share_token}"
+        
+        logger.info(f"🔗 [COURSE SHARING] Created share token for course {course_id}: {share_token}")
+        
+        return ShareCourseOutlineResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing course outline: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share course outline")
+
+@app.get("/api/custom/public/course-outlines/{share_token}")
+async def get_public_course_outline(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get course outline data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public course outline by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public, onyx_user_id
+        FROM projects 
+        WHERE share_token = $1 AND is_public = TRUE AND microproduct_type = 'Training Plan'
+        """
+        
+        async with pool.acquire() as conn:
+            course = await conn.fetchrow(query, share_token)
+            
+        if not course:
+            raise HTTPException(status_code=404, detail="Shared course outline not found")
+        
+        # Check if the share has expired
+        if course["expires_at"] and course["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared course outline link has expired")
+        
+        content = course["microproduct_content"]
+        project_name = course["project_name"]
+        course_owner_id = course["onyx_user_id"]
+        
+        # Parse the course outline structure
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.error(f"Failed to parse course outline content JSON: {e}")
+                content = {}
+        
+        # Fetch all user's projects to find attached products
+        all_projects_query = """
+        SELECT p.*, dt.microproduct_type, dt.component_name 
+        FROM projects p 
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+        WHERE p.onyx_user_id = $1 
+        ORDER BY p.created_at
+        """
+        
+        async with pool.acquire() as conn:
+            all_projects = await conn.fetch(all_projects_query, course_owner_id)
+        
+        # Convert to list of dicts for easier processing
+        all_projects_list = [dict(project) for project in all_projects]
+        
+        # Extract course outline structure
+        sections = content.get("sections", [])
+        main_title = content.get("mainTitle", project_name)
+        detected_language = content.get("detectedLanguage", "en")
+        
+        # For each lesson, try to find attached products using the SCORM inference logic
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            lessons = section.get("lessons", [])
+            for lesson in lessons:
+                if not isinstance(lesson, dict):
+                    continue
+                lesson_title = lesson.get("title", "")
+                
+                # Use the same inference logic as SCORM packager
+                from app.services.scorm_packager import _infer_products_for_lesson
+                attached_products = _infer_products_for_lesson(all_projects_list, project_name, lesson_title, set())
+                
+                # Add product information to lesson
+                lesson["attached_products"] = [
+                    {
+                        "id": product.get("id"),
+                        "name": product.get("project_name"),
+                        "type": product.get("microproduct_type"),
+                        "component_name": product.get("component_name")
+                    }
+                    for product in attached_products
+                ]
+        
+        # Return the course outline data for public viewing
+        response_data = {
+            "projectId": course["id"],
+            "projectName": project_name,
+            "mainTitle": main_title,
+            "sections": sections,
+            "language": detected_language,
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": course["shared_at"].isoformat() if course["shared_at"] else None,
+            "expiresAt": course["expires_at"].isoformat() if course["expires_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC COURSE ACCESS] Served public course outline with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public course outline: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared course outline")
+
+@app.get("/api/custom/public/products/{product_id}")
+async def get_public_product(
+    product_id: int,
+    share_token: Optional[str] = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get product data for public access when part of a shared course outline.
+    """
+    try:
+        # First verify the product belongs to a shared course outline
+        if share_token:
+            # Check if the share token is valid and the product belongs to the course owner
+            verify_query = """
+            SELECT p.id, p.onyx_user_id, p.microproduct_content, p.project_name, dt.microproduct_type, dt.component_name
+            FROM projects p
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+            WHERE p.id = $1 AND EXISTS (
+                SELECT 1 FROM projects course 
+                WHERE course.share_token = $2 
+                AND course.is_public = TRUE 
+                AND course.microproduct_type = 'Training Plan'
+                AND course.onyx_user_id = p.onyx_user_id
+            )
+            """
+            
+            async with pool.acquire() as conn:
+                product = await conn.fetchrow(verify_query, product_id, share_token)
+        else:
+            # If no share token provided, just get the product (for testing)
+            query = """
+            SELECT p.id, p.onyx_user_id, p.microproduct_content, p.project_name, dt.microproduct_type, dt.component_name
+            FROM projects p
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+            WHERE p.id = $1
+            """
+            
+            async with pool.acquire() as conn:
+                product = await conn.fetchrow(query, product_id)
+        
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found or not accessible")
+        
+        # Parse product content
+        content = product["microproduct_content"]
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.error(f"Failed to parse product content JSON: {e}")
+                content = {}
+        
+        # Return product data in read-only format
+        response_data = {
+            "id": product["id"],
+            "name": product["project_name"],
+            "type": product["microproduct_type"],
+            "component_name": product["component_name"],
+            "content": content,
+            "isPublicView": True
+        }
+        
+        logger.info(f"🌐 [PUBLIC PRODUCT ACCESS] Served public product {product_id} with share token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public product: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve product")
+
+
 async def _run_audit_generation(payload, request, pool, job_id):
     try:
         set_progress(job_id, "Scraping company website...")
