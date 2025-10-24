@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
 import { PositionableItem, CanvasConfig, PositioningMode } from '@/types/positioning';
+import type { TransitionType, TransitionVariant } from '@/app/projects-2/view/components/Transition';
 
 // --- Base Template System Types! ---
 
@@ -85,9 +86,9 @@ export interface ComponentBasedSlide {
 }
 
 export interface SlideTransition {
-  type: 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe';
+  type: TransitionType; // All FFmpeg xfade transition types
   duration: number; // Duration in seconds (0.5 - 3.0)
-  variant?: 'circle' | 'horizontal-chevrons' | 'vertical-chevrons'; // Variant for transition effect
+  variant?: TransitionVariant; // Variant for transition effect
   applyToAll?: boolean; // If true, this transition applies to all slides
 }
 
