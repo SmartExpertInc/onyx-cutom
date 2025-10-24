@@ -276,10 +276,10 @@ export default function PublicCourseViewerPage() {
                   {section.lessons && section.lessons.length > 0 && (
                     <div>
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => {
-                        const hasPresentation = lesson.attached_products?.some((p: any) => p.type === 'Slide Deck' || p.component_name === 'SlideDeckDisplay');
-                        const hasOnePager = lesson.attached_products?.some((p: any) => p.type === 'One Pager' || p.component_name === 'OnePagerDisplay');
+                        const hasPresentation = lesson.attached_products?.some((p: any) => p.type === 'Slide Deck' || p.type === 'Lesson Presentation' || p.component_name === 'SlideDeckDisplay');
+                        const hasOnePager = lesson.attached_products?.some((p: any) => p.type === 'Text Presentation' || p.component_name === 'TextPresentationDisplay');
                         const hasQuiz = lesson.attached_products?.some((p: any) => p.type === 'Quiz' || p.component_name === 'QuizDisplay');
-                        const hasVideoLesson = lesson.attached_products?.some((p: any) => p.type === 'Video Lesson' || p.component_name === 'VideoLessonDisplay');
+                        const hasVideoLesson = lesson.attached_products?.some((p: any) => p.type === 'Video Lesson' || p.type === 'Video Lesson Presentation' || p.component_name === 'VideoLessonDisplay');
 
                         return (
                           <div key={lesson?.id || lessonIndex} className="grid py-3 gap-4 items-center px-2" style={{ gridTemplateColumns: `1fr 80px 80px 80px 80px` }}>
@@ -298,7 +298,7 @@ export default function PublicCourseViewerPage() {
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
-                                      const product = lesson.attached_products?.find((p: any) => p.type === 'Slide Deck' || p.component_name === 'SlideDeckDisplay');
+                                      const product = lesson.attached_products?.find((p: any) => p.type === 'Slide Deck' || p.type === 'Lesson Presentation' || p.component_name === 'SlideDeckDisplay');
                                       if (product && product.id) {
                                         handleProductClick(product.id);
                                       }
@@ -321,7 +321,7 @@ export default function PublicCourseViewerPage() {
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
-                                      const product = lesson.attached_products?.find((p: any) => p.type === 'One Pager' || p.component_name === 'OnePagerDisplay');
+                                      const product = lesson.attached_products?.find((p: any) => p.type === 'Text Presentation' || p.component_name === 'TextPresentationDisplay');
                                       if (product && product.id) {
                                         handleProductClick(product.id);
                                       }
@@ -367,7 +367,7 @@ export default function PublicCourseViewerPage() {
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
-                                      const product = lesson.attached_products?.find((p: any) => p.type === 'Video Lesson' || p.component_name === 'VideoLessonDisplay');
+                                      const product = lesson.attached_products?.find((p: any) => p.type === 'Video Lesson' || p.type === 'Video Lesson Presentation' || p.component_name === 'VideoLessonDisplay');
                                       if (product && product.id) {
                                         handleProductClick(product.id);
                                       }
