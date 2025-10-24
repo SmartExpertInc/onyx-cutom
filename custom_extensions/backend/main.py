@@ -18197,19 +18197,18 @@ async def share_course_outline(
         onyx_user_id = await get_current_onyx_user_id(request)
         logger.info(f"🔍 [COURSE SHARING] User {onyx_user_id} attempting to share course {course_id}")
         
-        # Verify the course outline belongs to the user and is a Training Plan
+        # Verify the course outline belongs to the user
         query = """
         SELECT id, project_name, microproduct_content, onyx_user_id, microproduct_type
         FROM projects 
-        WHERE id = $1 
-        AND (microproduct_type = 'Training Plan' OR microproduct_type ILIKE '%training%plan%')
+        WHERE id = $1
         """
         
         async with pool.acquire() as conn:
             course = await conn.fetchrow(query, course_id)
             
         if not course:
-            logger.error(f"❌ [COURSE SHARING] Course {course_id} not found or not a Training Plan")
+            logger.error(f"❌ [COURSE SHARING] Course {course_id} not found")
             raise HTTPException(status_code=404, detail="Course outline not found")
         
         # Check if the user owns this course
@@ -18285,12 +18284,10 @@ async def get_public_course_outline(
     """
     try:
         # Query for public course outline by share token
-        # More lenient query - just check for share_token and Training Plan type
         query = """
         SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public, onyx_user_id
         FROM projects 
-        WHERE share_token = $1 
-        AND (microproduct_type = 'Training Plan' OR microproduct_type ILIKE '%training%plan%')
+        WHERE share_token = $1
         """
         
         async with pool.acquire() as conn:
