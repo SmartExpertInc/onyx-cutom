@@ -338,7 +338,7 @@ export default function SceneTimeline({
             left: `${playheadPosition}px`,
             top: 0,
             height: '100vh',
-            zIndex: 999
+            zIndex: 40
           }}
         >
           {/* Time display above the line */}
@@ -398,7 +398,7 @@ export default function SceneTimeline({
                   left: `${position.x}px`,
                   top: `${position.y}px`,
                   transform: 'translate(-50%, -50%)',
-                  zIndex: 50
+                  zIndex: 40
                 }}
               >
                 <div className="relative group">
