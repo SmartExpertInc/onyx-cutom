@@ -569,9 +569,8 @@ export default function CommercialProposalPage() {
       } as ProposalPageData;
     } else if (isTableHeaderField) {
       // Handle table header field updates
-      // Remove module index from field name (e.g., 'tableHeaderLessons_1' -> 'tableHeaderLessons')
-      const baseField = field.split('_')[0];
-      const headerType = baseField.replace('tableHeader', '').toLowerCase();
+      // (e.g., 'tableHeaderLessons' -> 'lessons')
+      const headerType = field.replace('tableHeader', '').toLowerCase();
       
       // Ensure courseOutlineTableHeaders exists
       const currentHeaders = proposalData?.courseOutlineTableHeaders || {};
