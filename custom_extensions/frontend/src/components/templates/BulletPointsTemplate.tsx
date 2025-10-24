@@ -251,7 +251,7 @@ function UnifiedBulletEditor({
 
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
-    fontSize: '1.8rem',
+    fontSize: '2rem',
     marginTop: '-5px',
     opacity: '1',
     color: '#ffffff',
@@ -272,14 +272,16 @@ function UnifiedBulletEditor({
           position: 'relative',
           width: '100%',
           minWidth: 0,
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          display: 'flex',
+          justifyContent: 'flex-end'
         }}
       >
         <ul style={{
           listStyle: 'none',
           padding: 0,
           margin: 0,
-          width: '100%',
+          width: '80%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end'
@@ -296,7 +298,7 @@ function UnifiedBulletEditor({
                 alignItems: 'flex-start', 
                 gap: '12px', 
                 marginBottom: '35px',
-                width: '80%'
+                width: '100%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
