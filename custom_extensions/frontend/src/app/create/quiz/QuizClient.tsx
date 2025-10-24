@@ -704,7 +704,7 @@ export default function QuizClient() {
           trimmedLine === 'Пояснення:' || trimmedLine === 'Пояснение:') {
         return (
           <div key={lineIndex} className="mb-2">
-            <span className="text-xs font-medium leading-[140%] text-[#4D4D4D]">{trimmedLine}</span>
+            <span className="text-xs font-medium leading-[140%] -ml-2 text-[#4D4D4D]">{trimmedLine}</span>
           </div>
         );
       }
@@ -1393,7 +1393,7 @@ export default function QuizClient() {
             background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
             transform: 'rotate(-300deg)',
             filter: 'blur(200px)',
-            opacity: '30%',
+            opacity: '40%',
           }}
         />
         <div 
@@ -1488,7 +1488,7 @@ export default function QuizClient() {
                           }}
                           placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
                           rows={1}
-                          className="w-full px-7 !border-none py-5 rounded-lg text-lg text-white text-xl resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                          className="w-full px-7 !border-none py-5 rounded-lg text-lg text-white text-xl resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer !shadow-none"
                           style={{ background: "#6E9BFB"}}
                         />
                       </div>
@@ -1511,7 +1511,7 @@ export default function QuizClient() {
                     <div key={idx} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
                       {/* Question header with number and title */}
                       <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
-                        {/* <span className="text-[#0D001B] font-semibold text-lg">{idx + 1}.</span> */}
+                        <span className="text-[#0D001B] font-bold text-base">{idx + 1}.</span>
                         <div className="flex-1">
                           {editingQuestionId === idx ? (
                             <div className="relative group">
@@ -1566,7 +1566,7 @@ export default function QuizClient() {
                             />
                           ) : (
                             <div 
-                              className={`cursor-pointer rounded !text-sm p-2 -m-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                              className={`cursor-pointer rounded !text-sm p-2 pl-4 pt-4 -m-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
                               onMouseDown={() => {
                                 nextEditingContentIdRef.current = idx;
                               }}
@@ -1587,6 +1587,7 @@ export default function QuizClient() {
                      <div key={question.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
                        {/* Question header with title */}
                        <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                         <span className="text-[#0D001B] font-semibold text-base">{questionList.length + idx + 1}.</span>
                          <div className="flex-1">
                            <Input
                              type="text"
@@ -1606,7 +1607,7 @@ export default function QuizClient() {
                 </div>
 
                        {/* Question content */}
-                       <div className="px-5 pb-4">
+                       <div className="px-5 pb-4 pt-4">
                          <Textarea
                            value={question.content}
                            onChange={(e) => handleAdditionalQuestionContentEdit(question.id, e.target.value)}
@@ -1627,7 +1628,7 @@ export default function QuizClient() {
                      <span>Add Question</span>
                    </button>
                    
-                  <div className="flex items-center justify-between text-xs text-[#A5A5A5] px-10 py-4 rounded-b-[8px]">
+                  <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-4 rounded-b-[8px]">
                    <span className="select-none">{questionList.length + additionalQuestions.length} question total</span>
                    <span className="flex items-center gap-1">
                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
