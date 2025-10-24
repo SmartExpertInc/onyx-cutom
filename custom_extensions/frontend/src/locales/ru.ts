@@ -2063,6 +2063,21 @@ export const ru = {
       animationFade: "Затухание",
       animationSlide: "Скольжение",
       animationGrow: "Увеличение"
+    },
+    media: {
+      chooseMedia: "Выбрать медиа",
+      myAssets: "Мои ресурсы",
+      library: "Библиотека",
+      stockAssets: "Стоковые ресурсы",
+      image: "Изображение",
+      video: "Видео",
+      aiImage: "AI изображение",
+      upload: "Загрузить",
+      record: "Записать",
+      mediaLibrary: "Медиатека",
+      brandKit: "Брендовый набор",
+      searchPlaceholder: "Поиск в медиатеке",
+      uploadToLibrary: "Загрузить в библиотеку"
     }
   }
 };

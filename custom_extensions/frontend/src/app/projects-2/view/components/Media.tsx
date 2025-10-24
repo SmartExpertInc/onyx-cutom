@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { Folder, Image, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MediaProps {
   isOpen: boolean;
@@ -12,10 +13,12 @@ interface MediaProps {
 export default function Media({ 
   isOpen, 
   onClose, 
-  title = "Choose Media", 
+  title, 
   displayMode = 'modal',
   className = ''
 }: MediaProps) {
+  const { t } = useLanguage();
+  const defaultTitle = t('panels.media.chooseMedia', 'Choose Media');
   const popupRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside for popup mode
@@ -42,21 +45,21 @@ export default function Media({
       <div className="w-64 bg-white p-4 flex flex-col">
         {/* My assets section */}
         <div className="mb-3 pt-4">
-          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">My assets</h4>
+          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">{t('panels.media.myAssets', 'My assets')}</h4>
           <div className="flex items-center px-3 py-2 bg-gray-200 rounded-lg cursor-pointer transition-colors">
                           <Folder className="w-3 h-3 text-black mr-3" />
-            <span className="text-sm text-black">Library</span>
+            <span className="text-sm text-black">{t('panels.media.library', 'Library')}</span>
           </div>
         </div>
 
         {/* Stock assets section */}
         <div className="mb-6 flex-1">
-          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">Stock assets</h4>
+          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">{t('panels.media.stockAssets', 'Stock assets')}</h4>
           
           {/* Image option */}
           <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-1">
             <Image className="w-3 h-3 text-black mr-3" />
-            <span className="text-sm text-black">Image</span>
+            <span className="text-sm text-black">{t('panels.media.image', 'Image')}</span>
           </div>
 
                       {/* Video option */}
@@ -67,13 +70,13 @@ export default function Media({
                   <path d="M6 1a5 5 0 0 0-5 5v20a5 5 0 0 0 5 5h20a5 5 0 0 0 5-5V6a5 5 0 0 0-5-5H6ZM3 6a3 3 0 0 1 3-3h20a3 3 0 0 1 3 3v20a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Z"/>
                 </g>
               </svg>
-              <span className="text-sm text-black">Video</span>
+              <span className="text-sm text-black">{t('panels.media.video', 'Video')}</span>
             </div>
 
           {/* AI image option */}
           <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
             <Sparkles className="w-3 h-3 text-black mr-3" />
-            <span className="text-sm text-black">AI image</span>
+            <span className="text-sm text-black">{t('panels.media.aiImage', 'AI image')}</span>
           </div>
         </div>
 
@@ -85,7 +88,7 @@ export default function Media({
               <circle cx="12" cy="12" r="10" strokeWidth="2" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l0 8M8 12l4-4 4 4" />
             </svg>
-            <span className="text-sm text-gray-700">Upload</span>
+            <span className="text-sm text-gray-700">{t('panels.media.upload', 'Upload')}</span>
           </button>
 
           {/* Record button */}
@@ -94,7 +97,7 @@ export default function Media({
               <circle cx="12" cy="12" r="10" fill="white" stroke="#ef4444" strokeWidth="1" />
               <circle cx="12" cy="12" r="6" fill="#ef4444" />
             </svg>
-            <span className="text-sm text-gray-700">Record</span>
+            <span className="text-sm text-gray-700">{t('panels.media.record', 'Record')}</span>
           </button>
         </div>
       </div>
@@ -108,12 +111,12 @@ export default function Media({
         <div className="relative border-b border-gray-200">
           <div className="flex px-2 pt-0">
             <button className="relative px-4 py-2 text-sm font-medium text-gray-900 mr-8">
-              Media library
+              {t('panels.media.mediaLibrary', 'Media library')}
               {/* Active tab indicator */}
               <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-black"></div>
             </button>
             <button className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-              Brand kit
+              {t('panels.media.brandKit', 'Brand kit')}
             </button>
           </div>
         </div>
@@ -130,7 +133,7 @@ export default function Media({
             </div>
             <input
               type="text"
-              placeholder="Search media library"
+              placeholder={t('panels.media.searchPlaceholder', 'Search media library')}
               className="w-full pl-10 pr-4 py-1.5 border border-gray-400 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -141,7 +144,7 @@ export default function Media({
               <circle cx="12" cy="12" r="10" strokeWidth="2" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l0 8M8 12l4-4 4 4" />
             </svg>
-            <span className="text-sm font-medium">Upload to Library</span>
+            <span className="text-sm font-medium">{t('panels.media.uploadToLibrary', 'Upload to Library')}</span>
           </button>
         </div>
         

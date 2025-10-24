@@ -2088,6 +2088,21 @@ export const es = {
       animationFade: "Desvanecer",
       animationSlide: "Deslizar",
       animationGrow: "Crecer"
+    },
+    media: {
+      chooseMedia: "Elegir medios",
+      myAssets: "Mis recursos",
+      library: "Biblioteca",
+      stockAssets: "Recursos de stock",
+      image: "Imagen",
+      video: "Video",
+      aiImage: "Imagen AI",
+      upload: "Subir",
+      record: "Grabar",
+      mediaLibrary: "Biblioteca de medios",
+      brandKit: "Kit de marca",
+      searchPlaceholder: "Buscar en biblioteca de medios",
+      uploadToLibrary: "Subir a biblioteca"
     }
   }
 };

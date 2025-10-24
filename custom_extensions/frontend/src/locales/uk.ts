@@ -2068,6 +2068,21 @@ export const uk = {
       animationFade: "Затухання",
       animationSlide: "Ковзання",
       animationGrow: "Збільшення"
+    },
+    media: {
+      chooseMedia: "Вибрати медіа",
+      myAssets: "Мої ресурси",
+      library: "Бібліотека",
+      stockAssets: "Стокові ресурси",
+      image: "Зображення",
+      video: "Відео",
+      aiImage: "AI зображення",
+      upload: "Завантажити",
+      record: "Записати",
+      mediaLibrary: "Медіатека",
+      brandKit: "Брендовий набір",
+      searchPlaceholder: "Пошук у медіатеці",
+      uploadToLibrary: "Завантажити до бібліотеки"
     }
   }
 };

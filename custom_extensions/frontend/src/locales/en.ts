@@ -1973,6 +1973,21 @@ export const en = {
       animationFade: "Fade",
       animationSlide: "Slide",
       animationGrow: "Grow"
+    },
+    media: {
+      chooseMedia: "Choose Media",
+      myAssets: "My assets",
+      library: "Library",
+      stockAssets: "Stock assets",
+      image: "Image",
+      video: "Video",
+      aiImage: "AI image",
+      upload: "Upload",
+      record: "Record",
+      mediaLibrary: "Media library",
+      brandKit: "Brand kit",
+      searchPlaceholder: "Search media library",
+      uploadToLibrary: "Upload to Library"
     }
   }
 };
