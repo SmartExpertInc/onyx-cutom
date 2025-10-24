@@ -5718,42 +5718,20 @@ export default function CommercialProposalPage() {
       </>
     );
   };
-
-  // Helper function to generate random assessment type and duration
-  const getRandomAssessment = () => {
-    // Language parameter usage in conditional rendering
-    console.log(`[LANGUAGE FLOW DEBUG] getRandomAssessment - proposalData?.language: "${proposalData?.language}"`)
-    console.log(`[LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': ${proposalData?.language === 'en'}`)
-    
-    const assessments = getLocalizedText(proposalData?.language, {
-      en: ['none', 'test', 'practice'],
-      es: ['ninguno', 'prueba', 'práctica'],
-      ua: ['немає', 'тест', 'практика'],
-      ru: ['нет', 'тест', 'практика']
-    })
-    
-    const durations = getLocalizedText(proposalData?.language, {
-      en: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
-      es: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
-      ua: ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв'],
-      ru: ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
-    })
-    
-    return {
-      type: assessments[Math.floor(Math.random() * assessments.length)],
-      duration: durations[Math.floor(Math.random() * durations.length)]
-    }
-  }
-
-  // Generate stable assessment data for all modules
+  
+  // Use assessment data from backend instead of generating randomly
   const generateAssessmentData = () => {
     if (!proposalData?.courseOutlineModules) return {}
     
     const data: { [key: string]: { type: string; duration: string }[] } = {}
     
-    proposalData.courseOutlineModules.forEach((module, moduleIndex) => {
-      if (module.lessons) {
-        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+    proposalData.courseOutlineModules.forEach((module: any, moduleIndex: number) => {
+      // Use backend-generated assessment data if available, otherwise use fallback
+      if (module.lessonAssessments && module.lessonAssessments.length > 0) {
+        data[`module-${moduleIndex}`] = module.lessonAssessments
+      } else if (module.lessons) {
+        // Fallback: generate default assessments if backend data is missing
+        data[`module-${moduleIndex}`] = module.lessons.map(() => ({ type: 'test', duration: '5 min' }))
       }
     })
     
