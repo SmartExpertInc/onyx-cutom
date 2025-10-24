@@ -331,7 +331,12 @@ export default function SceneTimeline({
       </div>
       
       {/* Portal for playhead line - rendered outside to avoid overflow clipping */}
-      {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && (isPlaying || currentTime > 0) && ReactDOM.createPortal(
+      {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && (isPlaying || currentTime > 0) && (() => {
+        // Check if playhead is within visible bounds of timeline container
+        const containerRect = timelineContainerRef.current?.getBoundingClientRect();
+        if (!containerRect) return false;
+        return playheadPosition >= containerRect.left && playheadPosition <= containerRect.right;
+      })() && ReactDOM.createPortal(
         <div
           className="fixed pointer-events-none"
           style={{
