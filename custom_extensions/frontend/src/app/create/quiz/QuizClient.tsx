@@ -1566,7 +1566,7 @@ export default function QuizClient() {
                             />
                           ) : (
                             <div 
-                              className={`cursor-pointer rounded !text-sm p-2 pl-4 pt-4 -m-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                              className={`cursor-pointer rounded !text-sm p-2 pl-6 pt-4 -m-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
                               onMouseDown={() => {
                                 nextEditingContentIdRef.current = idx;
                               }}
@@ -1653,7 +1653,7 @@ export default function QuizClient() {
 
           {/* AI Agent section */}
           {streamDone && quizData && showAdvanced && (
-            <div className="rounded-lg pt-8 border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+            <div className="rounded-lg border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
               <AiAgent
                 editPrompt={editPrompt}
                 setEditPrompt={setEditPrompt}

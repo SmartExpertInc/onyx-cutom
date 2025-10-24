@@ -1925,7 +1925,7 @@ export default function TextPresentationClient() {
 
           {/* AI Agent section */}
           {streamDone && content && showAdvanced && (
-            <div className="rounded-lg pt-8 border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+            <div className="rounded-lg border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
               <AiAgent
                 editPrompt={editPrompt}
                 setEditPrompt={setEditPrompt}
