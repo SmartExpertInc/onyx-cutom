@@ -1328,7 +1328,7 @@ export default function CourseOutlineClient() {
           top: '-500px',
           left: '-350px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.24) 0%, rgba(56, 23, 255, 0.24) 100%)',
           transform: 'rotate(-300deg)',
           filter: 'blur(100px)',
         }}
@@ -1341,7 +1341,7 @@ export default function CourseOutlineClient() {
           top: '358px',
           left: '433px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.24) 0%, rgba(216, 23, 255, 0.24) 100%)',
           transform: 'rotate(-120deg)',
           filter: 'blur(100px)',
         }}
@@ -1363,10 +1363,10 @@ export default function CourseOutlineClient() {
       <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
         {/* Page title */}
-        <h1 className="text-center text-[58px] sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.title', 'Generate')}</h1>
+        <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">Course outline preview</h2>
 
         {/* Controls */}
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4" style={{ display: 'none' }}>
           <CustomPillSelector
             value={`${modules} ${t('interface.generate.modules', 'Modules')}`}
             onValueChange={(value) => setModules(Number(value.split(' ')[0]))}
@@ -1409,7 +1409,7 @@ export default function CourseOutlineClient() {
         </div>
 
         {/* Prompt textarea with regenerate button */}
-        <div className="flex gap-2 items-start">
+        <div className="flex gap-2 items-start" style={{ display: 'none' }}>
           <div className="relative group flex-1">
             <Textarea
               ref={promptRef}

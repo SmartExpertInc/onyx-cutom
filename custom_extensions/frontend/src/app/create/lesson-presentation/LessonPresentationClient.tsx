@@ -1597,7 +1597,7 @@ export default function LessonPresentationClient() {
           top: '-500px',
           left: '-350px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.24) 0%, rgba(56, 23, 255, 0.24) 100%)',
           transform: 'rotate(-300deg)',
           filter: 'blur(100px)',
         }}
@@ -1610,7 +1610,7 @@ export default function LessonPresentationClient() {
           top: '358px',
           left: '433px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 80%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.24) 0%, rgba(216, 23, 255, 0.24) 80%)',
           transform: 'rotate(-110deg)',
           filter: 'blur(100px)',
         }}
@@ -1632,10 +1632,12 @@ export default function LessonPresentationClient() {
         <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
           {/* Page title */}
-          <h1 className="text-center text-[58px] sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.title', 'Generate')}</h1>
+          <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">
+            {productType === "video_lesson_presentation" ? "Video outline preview" : "Presentation outline preview"}
+          </h2>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4" style={{ display: 'none' }}>
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1691,7 +1693,7 @@ export default function LessonPresentationClient() {
                                   <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
                                 </div>
                               </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
+                              <SelectContent className="border-[#CCCCCC]" sideOffset={15}>
                         {outlines.map((o) => (
                                   <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                         ))}
@@ -1725,7 +1727,7 @@ export default function LessonPresentationClient() {
                                   <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
                                 </div>
                               </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
+                              <SelectContent className="border-[#CCCCCC]" sideOffset={15}>
                           {modulesForOutline.map((m, idx) => (
                                   <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
                           ))}
@@ -1753,7 +1755,7 @@ export default function LessonPresentationClient() {
                                   <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
                                 </div>
                               </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
+                              <SelectContent className="border-[#CCCCCC]" sideOffset={15}>
                           {lessonsForModule.map((l) => (
                                   <SelectItem key={l} value={l}>{l}</SelectItem>
                                 ))}
@@ -1777,10 +1779,10 @@ export default function LessonPresentationClient() {
                           setSelectedLesson("");
                         }}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-[#CCCCCC] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                           <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
                         </SelectTrigger>
-                        <SelectContent className="border-gray-300">
+                        <SelectContent className="border-[#CCCCCC]">
                           {outlines.map((o) => (
                             <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                           ))}
@@ -1866,7 +1868,7 @@ export default function LessonPresentationClient() {
 
           {/* Prompt input for standalone lessons */}
           {useExistingOutline === false && (
-            <div className="relative group">
+            <div className="relative group" style={{ display: 'none' }}>
               <Textarea
               value={currentPrompt || ""}
               onChange={(e) => {
@@ -2116,72 +2118,14 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3">
               <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-              <div className="bg-white rounded-lg pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
-                  <div className="flex flex-col">
-                    <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.themes', 'Themes')}</h2>
-                    <p className="text-[#434343CC] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 text-sm text-[#71717AB2] hover:opacity-80 transition-opacity border border-[#71717AB2] rounded-lg px-3 py-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717AB2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
-                    <span>{t('interface.generate.viewMore', 'View more')}</span>
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-5 px-6">
-                  {/* Themes grid */}
-                  <div className="grid grid-cols-3 gap-5 justify-items-center">
-                    {themeOptions.map((theme) => {
-                      const ThemeSvgComponent = getThemeSvg(theme.id);
-                      const isSelected = selectedTheme === theme.id;
-
-                      return (
-                        <button
-                          key={theme.id}
-                          type="button"
-                          onClick={() => setSelectedTheme(theme.id)}
-                          className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
-                            ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
-                            : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
-                            }`}
-                        >
-                          {/* Status indicator circle - top right */}
-                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
-                            ? 'bg-[#0F58F9]'
-                            : 'bg-white border border-[#E0E0E0]'
-                            }`}>
-                            {isSelected && (
-                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            )}
-                          </div>
-                          
-                          <div className="w-[214px] h-[116px] flex items-center justify-center">
-                            <ThemeSvgComponent />
-                          </div>
-                          <div className="flex items-center justify-left px-3">
-                            <span className="text-sm text-[#20355D] font-medium select-none">
-                              {theme.label}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                    </div>
-                  </div>
-                </div>
 
                 {/* Avatars section for Video Lesson */}
                 {productType === "video_lesson_presentation" && (
-                  <div className="bg-white rounded-lg pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <div className="bg-white rounded-lg pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     <div className="flex items-center py-2 border-b border-[#E0E0E0] px-6">
                       <div className="flex flex-col">
-                        <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.avatars', 'Avatars')}</h2>
-                        <p className="text-[#434343CC] text-sm">{t('interface.generate.chooseVirtualTrainer', 'Choose the virtual trainer')}</p>
+                        <h2 className="text-md font-medium text-[#171718]">{t('interface.generate.avatars', 'Avatars')}</h2>
+                        <p className="text-[#A5A5A5] text-sm">{t('interface.generate.chooseVirtualTrainer', 'Choose the virtual trainer')}</p>
                       </div>
                     </div>
                     <div className="px-3 py-3 flex-1">
@@ -2276,18 +2220,76 @@ export default function LessonPresentationClient() {
                   </div>
                 )}
 
-                {/* Content section for Video Lesson */}
-                {productType === "video_lesson_presentation" && (
+              <div className="bg-white rounded-lg pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
+                  <div className="flex flex-col">
+                    <h2 className="text-md font-medium text-[#171718]">{t('interface.generate.themes', 'Themes')}</h2>
+                    <p className="text-[#A5A5A5] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-sm text-[#71717AB2] hover:opacity-80 transition-opacity border border-[#71717AB2] rounded-lg px-3 py-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717AB2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
+                    <span>{t('interface.generate.viewMore', 'View more')}</span>
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-5 px-6">
+                  {/* Themes grid */}
+                  <div className="grid grid-cols-3 gap-5 justify-items-center">
+                    {themeOptions.map((theme) => {
+                      const ThemeSvgComponent = getThemeSvg(theme.id);
+                      const isSelected = selectedTheme === theme.id;
+
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => setSelectedTheme(theme.id)}
+                          className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
+                            ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
+                            : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
+                            }`}
+                        >
+                          {/* Status indicator circle - top right */}
+                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
+                            ? 'bg-[#0F58F9]'
+                            : 'bg-white border border-[#E0E0E0]'
+                            }`}>
+                            {isSelected && (
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </div>
+                          
+                          <div className="w-[214px] h-[116px] flex items-center justify-center">
+                            <ThemeSvgComponent />
+                          </div>
+                          <div className="flex items-center justify-left px-3">
+                            <span className="text-sm text-[#20355D] font-medium select-none">
+                              {theme.label}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content section */}
                   <div className="bg-white rounded-lg pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     <div className="flex items-center py-2 border-b border-[#E0E0E0] px-6">
                       <div className="flex flex-col">
-                        <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.content', 'Content')}</h2>
-                        <p className="text-[#434343CC] text-sm">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
+                      <h2 className="text-md font-medium text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
+                      <p className="text-[#A5A5A5] text-sm">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
                       </div>
                     </div>
                     
                     <div className="flex flex-col gap-6">
-                      {/* Top Section - Image Source */}
+                    {/* Image Source */}
                       <div className="px-6">
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                           {t('interface.generate.imageSource', 'Image source')}
@@ -2302,28 +2304,8 @@ export default function LessonPresentationClient() {
                           className="w-full"
                         />
                       </div>
-                      
-                      {/* Horizontal Divider */}
-                      <div className="border-t border-gray-200"></div>
-                      
-                      {/* Bottom Section - AI Image Model */}
-                      <div className="px-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                          {t('interface.generate.aiImageModel', 'Ai image model')}
-                        </label>
-                        <CustomPillSelector
-                          value={selectedAiModel}
-                          onValueChange={setSelectedAiModel}
-                          options={[
-                            { value: "Nano banana", label: "Nano banana" }
-                          ]}
-                          label={t('interface.generate.aiImageModel', 'Ai image model')}
-                          className="w-full"
-                        />
                       </div>
                     </div>
-                  </div>
-                )}
 
                 {/* Inline Advanced section */}
                 {showAdvanced && (
