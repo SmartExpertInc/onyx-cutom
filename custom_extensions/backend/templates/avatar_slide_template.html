@@ -1478,7 +1478,7 @@
             left: 44px;
             right: 44px;
             top: 30px;
-            height: 400px;
+            height: 70%;
             background-color: #FFFFFF;
             border-radius: 6px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -1487,9 +1487,9 @@
         .percent-circles-slide .title {
             position: absolute;
             left: 50px;
-            top: 50px;
+            top: 85px;
             right: 550px;
-            font-size: 47px;
+            font-size: 65px;
             font-weight: 1100;
             color: #000000;
             white-space: pre-line;
@@ -1500,7 +1500,7 @@
         .percent-circles-slide .circles-container {
             position: absolute;
             left: 50px;
-            top: 245px;
+            bottom: 90px;
             display: flex;
             align-items: center;
         }
@@ -3424,6 +3424,178 @@
             font-size: 27px;
             font-weight: 300;
         }
+
+        /* High-Performing Teams Slide Template - EXACT FRONTEND MATCH */
+        .high-performing-teams-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            position: relative;
+            background-color: #ffffff;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .top-part {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 29%;
+            background: linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%);
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .bottom-part {
+            position: absolute;
+            top: 29%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E0E7FF;
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .title {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 46px;
+            font-weight: 800;
+            color: #FFFFFF;
+            max-width: 900px;
+            line-height: 1.2;
+            white-space: pre-line;
+            font-family: "Lora", serif;
+        }
+
+        .high-performing-teams-slide .description {
+            position: absolute;
+            right: 56px;
+            top: 51%;
+            transform: translateY(-50%);
+            width: 350px;
+            max-width: 350px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .high-performing-teams-slide .panel {
+            position: absolute;
+            left: 50%;
+            top: 53.5%;
+            transform: translate(-50%, -50%);
+            width: 692px;
+            height: 410px;
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .background-svg {
+            position: absolute;
+            left: 49.5%;
+            top: 47%;
+            transform: translate(-50%, -50%);
+            width: 692px;
+            height: 410px;
+            z-index: 0;
+        }
+
+        .high-performing-teams-slide .avatar-container {
+            width: 360px;
+            position: absolute;
+            top: 57%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 16px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .high-performing-teams-slide .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .high-performing-teams-slide .logo-container {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+        }
+
+        .high-performing-teams-slide .logo-container img {
+            height: 30px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+
+        .high-performing-teams-slide .logo-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .high-performing-teams-slide .logo-placeholder .circle {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #09090B;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .high-performing-teams-slide .logo-placeholder .circle .horizontal-line {
+            width: 12px;
+            height: 2px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .high-performing-teams-slide .logo-placeholder .circle .vertical-line {
+            width: 2px;
+            height: 12px;
+            background-color: #09090B;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .high-performing-teams-slide .logo-placeholder .text {
+            font-size: 16px;
+            font-weight: 400;
+            color: #09090B;
+            font-family: "Inter", sans-serif;
+        }
+
+        .high-performing-teams-slide .page-number-container {
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .high-performing-teams-slide .page-number-container .line {
+            width: 20px;
+            height: 1px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+
+        .high-performing-teams-slide .page-number-container .page-number {
+            color: #09090B99;
+            font-size: 17px;
+            font-weight: 300;
+            font-family: "Inter", sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -5038,6 +5210,48 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         <p style="font-size: 1.8rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
                     {% endif %}
                 </div>
+            
+            {% elif templateId == 'high-performing-teams' or templateId == 'high-performing-teams-slide' %}
+                <div class="high-performing-teams-slide">
+                    <div class="topPart"></div>
+                    <div class="bottomPart"></div>
+                    
+                    <div class="titleStyle">{{ title or 'The Power of High-Performing Teams' }}</div>
+                    <div class="paragraph">{{ content or 'Great teams drive innovation, boost productivity, and create lasting impact.' }}</div>
+                    
+                    <div class="panel">
+                        <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
+                            <defs>
+                                <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                    <use href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
+                                </pattern>
+                                <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
+                            </defs>
+                        </svg>
+                    </div>
+                    
+                    <div class="avatarContainer">
+                        {% if avatarImagePath %}
+                            <img src="{{ avatarImagePath }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+                        {% else %}
+                            <div style="width: 100%; height: 100%; background: #e0e0e0; border-radius: 50%;"></div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                        {% else %}
+                            <div style="width: 80px; height: 80px; background: #f0f0f0; border-radius: 8px;"></div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="page-number-container">
+                        <span class="page-number">{{ pageNumber or '1' }}</span>
+                    </div>
+                </div>
+            
             {% endif %}
         </div>
     </div>
