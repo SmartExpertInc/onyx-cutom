@@ -11868,7 +11868,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         2. Do NOT summarize or paraphrase - copy the actual content
         3. Include specific examples, case studies, statistics, formulas, and detailed explanations
         4. Preserve all facts, numbers, names, dates, and technical details EXACTLY as they appear
-        5. Extract AT LEAST 2000-3000 words of actual content from the file
+        5. Extract as much of actual content from the file as possible
         6. Focus on educationally valuable content that can be used for teaching
         
         WHAT TO EXTRACT:
