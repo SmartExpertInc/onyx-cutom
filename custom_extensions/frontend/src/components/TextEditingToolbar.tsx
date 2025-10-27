@@ -131,20 +131,54 @@ export default function TextEditingToolbar({
     setShowFontFamilyDropdown(false);
     setShowFontSizeDropdown(false);
     
-    const rect = event.currentTarget.getBoundingClientRect();
+    // Get toolbar dimensions
+    const toolbarRect = toolbarRef.current?.getBoundingClientRect();
+    if (!toolbarRect) return;
+    
     const popupWidth = 280;
     const popupHeight = 280;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    const gap = 8; // Gap between toolbar and popup
     
-    let x = rect.right + 8;
-    let y = rect.top - popupHeight - 8;
+    let x: number;
+    let y = toolbarRect.top;
     
-    if (x + popupWidth > viewportWidth) {
-      x = rect.left - popupWidth - 8;
+    // Check if there's enough space on the right side of the toolbar
+    const spaceOnRight = viewportWidth - toolbarRect.right;
+    const spaceOnLeft = toolbarRect.left;
+    
+    if (spaceOnRight >= popupWidth + gap) {
+      // Enough space on the right - place to the right of the toolbar
+      x = toolbarRect.right + gap;
+    } else if (spaceOnLeft >= popupWidth + gap) {
+      // Not enough space on right but enough on left - place to the left of the toolbar
+      x = toolbarRect.left - popupWidth - gap;
+    } else {
+      // Not enough space on either side - place where there's more space
+      if (spaceOnRight >= spaceOnLeft) {
+        x = toolbarRect.right + gap;
+        // Make sure it doesn't overflow
+        if (x + popupWidth > viewportWidth) {
+          x = viewportWidth - popupWidth - gap;
+        }
+      } else {
+        x = toolbarRect.left - popupWidth - gap;
+        // Make sure it doesn't overflow on the left
+        if (x < 0) {
+          x = gap;
+        }
+      }
     }
+    
+    // Adjust vertical position if popup goes beyond bottom of viewport
+    if (y + popupHeight > viewportHeight) {
+      y = viewportHeight - popupHeight - gap;
+    }
+    
+    // Ensure popup doesn't go above the top of viewport
     if (y < 0) {
-      y = rect.bottom + 8;
+      y = gap;
     }
     
     // Notify parent to open color picker
