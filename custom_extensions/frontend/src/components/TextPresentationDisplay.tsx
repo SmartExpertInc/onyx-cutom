@@ -1000,7 +1000,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} leading-normal text-black text-left`} 
-              style={{ fontSize: fontSize || '10px' }}
+              style={{ fontSize: fontSize || '16px' }}
             />
             
             {/* No settings button for paragraphs */}
@@ -1178,7 +1178,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                 }
                               }}
                             />
-                            <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                            <div className="absolute -left-4 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                               <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
                                 <Plus className="w-2.5 h-2.5 text-gray-900" />
                               </button>
@@ -1251,12 +1251,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }
                             }}
                           />
-                          <div className="absolute -left-8 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
-                              <Plus className="w-3.5 h-3.5 text-gray-900" />
+                          <div className="absolute -left-4 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                            <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
+                              <Plus className="w-2.5 h-2.5 text-gray-900" />
                             </button>
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
-                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            <button className="p-1 rounded hover:bg-gray-100/50" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
+                              <Trash2 className="w-2.5 h-2.5 text-red-600" />
                             </button>
                           </div>
                         </div>
@@ -1393,7 +1393,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     onChange={e => handleInputChangeEvent(fieldPath('text'), e)}
                     className={`${editingTextareaClass} mb-2`}
                     placeholder="Alert text"
-                    style={{ fontSize: fontSize || '10px' }}
+                    style={{ fontSize: fontSize || '16px' }}
                   />
                 </>
               ) : (
@@ -2747,10 +2747,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           >
                             <X className="w-4 h-4" />
                           </button>
-                          <div className="absolute top-2 left-2 opacity-0 group-hover/card:opacity-100 transition-opacity bg-gray-700 text-white rounded px-2 py-1 text-xs flex items-center gap-1">
-                            <Move className="w-3 h-3" />
-                            Drag
-                          </div>
                         </>
                       )}
                       {card.icon === 'drilling' && (
@@ -2787,7 +2783,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       )}
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'rounded-md' : ''}`}
                         onClick={(e) => { e.stopPropagation(); !isEditing && handlePurpleBoxClick('card', index, 'title'); }}
                       >
                         {isCardTitleEditing ? (
@@ -2805,7 +2801,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       </div>
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'rounded-md' : ''}`}
                         onClick={(e) => { e.stopPropagation(); !isEditing && handlePurpleBoxClick('card', index, 'description'); }}
                       >
                         {isCardDescEditing ? (
@@ -3190,29 +3186,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         onClose={() => setShowImageUpload(false)}
         onImageUploaded={handleImageUploaded}
       />
-
-      {/* Edit Content Button */}
-      {onToggleEditMode && (
-        <div className="flex justify-center mt-6 pb-6">
-          <button
-            onClick={onToggleEditMode}
-            className="flex items-center gap-2 rounded-md h-10 px-6 transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-            style={{
-              backgroundColor: isEditing ? '#0F58F9' : '#FFFFFF',
-              color: isEditing ? '#FFFFFF' : '#171718',
-              fontSize: '14px',
-              fontWeight: '600',
-              lineHeight: '140%',
-              letterSpacing: '0.05em',
-              border: isEditing ? 'none' : '1px solid #171718'
-            }}
-            title={isEditing ? "Exit Edit Mode" : "Edit Content"}
-          >
-            <Edit3 className="w-4 h-4" />
-            {isEditing ? "Exit Edit Mode" : "Edit Content"}
-          </button>
-        </div>
-      )}
     </div>
   );
 };
