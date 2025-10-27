@@ -2522,11 +2522,25 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState<number | null>(null);
+  const [editPanelOpen, setEditPanelOpen] = useState(false);
+  
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
     onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
     setIconPickerHeadlineIndex(null);
   }, [onTextChange]);
+
+  const handleSectionClick = useCallback((index: number) => {
+    if (!isEditing) return;
+    setSelectedSectionIndex(index);
+    setEditPanelOpen(true);
+  }, [isEditing]);
+
+  const closeEditPanel = useCallback(() => {
+    setEditPanelOpen(false);
+    setSelectedSectionIndex(null);
+  }, []);
 
   const removeBlockAtIndex = useCallback((index: number) => {
     if (!dataToDisplay || !onTextChange) return;
@@ -2535,6 +2549,242 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     const updated = [...blocks.slice(0, index), ...blocks.slice(index + 1)];
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
+
+  // Edit Panel Component
+  const EditPanel = () => {
+    if (!editPanelOpen || selectedSectionIndex === null || !dataToDisplay?.contentBlocks) return null;
+    
+    const selectedBlock = dataToDisplay.contentBlocks[selectedSectionIndex];
+    if (!selectedBlock) return null;
+
+    return (
+      <>
+        {/* Overlay */}
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-300"
+          onClick={closeEditPanel}
+        />
+        
+        {/* Side Panel */}
+        <div 
+          className="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b">
+              <h2 className="text-xl font-bold text-gray-900">Edit Section</h2>
+              <button
+                onClick={closeEditPanel}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Section Type */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Type
+              </label>
+              <div className="px-3 py-2 bg-gray-50 rounded-md text-sm text-gray-600 capitalize">
+                {selectedBlock.type.replace('_', ' ')}
+              </div>
+            </div>
+
+            {/* Text Content Editor */}
+            {(selectedBlock.type === 'headline' || selectedBlock.type === 'paragraph' || selectedBlock.type === 'alert') && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Text Content
+                </label>
+                <textarea
+                  value={(selectedBlock as HeadlineBlock | ParagraphBlock | AlertBlock).text || ''}
+                  onChange={(e) => onTextChange?.(['contentBlocks', selectedSectionIndex, 'text'], e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] text-black"
+                  placeholder="Enter text..."
+                />
+              </div>
+            )}
+
+            {/* Alert Type Editor */}
+            {selectedBlock.type === 'alert' && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Alert Type
+                </label>
+                <select
+                  value={(selectedBlock as AlertBlock).alertType || 'info'}
+                  onChange={(e) => onTextChange?.(['contentBlocks', selectedSectionIndex, 'alertType'], e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                >
+                  <option value="info">Info</option>
+                  <option value="success">Success</option>
+                  <option value="warning">Warning</option>
+                  <option value="danger">Danger</option>
+                </select>
+              </div>
+            )}
+
+            {/* Image Editor */}
+            {selectedBlock.type === 'image' && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={(selectedBlock as ImageBlock).src || ''}
+                  onChange={(e) => onTextChange?.(['contentBlocks', selectedSectionIndex, 'src'], e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black mb-3"
+                  placeholder="Enter image URL..."
+                />
+                {(selectedBlock as ImageBlock).src && (
+                  <img 
+                    src={(selectedBlock as ImageBlock).src} 
+                    alt="Preview" 
+                    className="w-full rounded-md border border-gray-300"
+                  />
+                )}
+              </div>
+            )}
+
+            {/* List Items Editor */}
+            {(selectedBlock.type === 'bullet_list' || selectedBlock.type === 'numbered_list') && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  List Items
+                </label>
+                <div className="space-y-2">
+                  {((selectedBlock as BulletListBlock | NumberedListBlock).items || []).map((item, idx) => {
+                    const itemText = typeof item === 'string' ? item : (item as any)?.text || '';
+                    return (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-gray-500 mt-2 text-sm">{idx + 1}.</span>
+                        <textarea
+                          value={itemText}
+                          onChange={(e) => onTextChange?.(['contentBlocks', selectedSectionIndex, 'items', idx], e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black min-h-[60px]"
+                          placeholder={`Item ${idx + 1}`}
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentItems = [...((selectedBlock as BulletListBlock | NumberedListBlock).items || [])];
+                            currentItems.splice(idx, 1);
+                            onTextChange?.(['contentBlocks', selectedSectionIndex, 'items'], currentItems);
+                          }}
+                          className="text-red-500 hover:text-red-700 mt-2"
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const currentItems = [...((selectedBlock as BulletListBlock | NumberedListBlock).items || [])];
+                      currentItems.push('');
+                      onTextChange?.(['contentBlocks', selectedSectionIndex, 'items'], currentItems);
+                    }}
+                    className="w-full px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Item
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Drag Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Reorder Section
+              </label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleMoveBlockUp(selectedSectionIndex)}
+                  disabled={selectedSectionIndex === 0}
+                  className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                  <Move className="w-4 h-4 rotate-180" />
+                  Move Up
+                </button>
+                <button
+                  onClick={() => handleMoveBlockDown(selectedSectionIndex)}
+                  disabled={selectedSectionIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                  className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                  <Move className="w-4 h-4" />
+                  Move Down
+                </button>
+              </div>
+            </div>
+
+            {/* Headline Settings */}
+            {selectedBlock.type === 'headline' && (
+              <>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Heading Level
+                  </label>
+                  <select
+                    value={(selectedBlock as HeadlineBlock).level || 1}
+                    onChange={(e) => onTextChange?.(['contentBlocks', selectedSectionIndex, 'level'], parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                  >
+                    <option value={1}>Large (H1)</option>
+                    <option value={2}>Medium (H2)</option>
+                    <option value={3}>Small (H3)</option>
+                    <option value={4}>Extra Small (H4)</option>
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Icon
+                  </label>
+                  <select
+                    value={(selectedBlock as HeadlineBlock).iconName || ''}
+                    onChange={(e) => onTextChange?.(['contentBlocks', selectedSectionIndex, 'iconName'], e.target.value || null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                  >
+                    <option value="">No Icon</option>
+                    <option value="info">Info</option>
+                    <option value="goal">Goal</option>
+                    <option value="star">Star</option>
+                    <option value="apple">Apple</option>
+                    <option value="award">Award</option>
+                    <option value="boxes">Boxes</option>
+                    <option value="calendar">Calendar</option>
+                    <option value="chart">Chart</option>
+                    <option value="clock">Clock</option>
+                    <option value="globe">Globe</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* Delete Section */}
+            <div className="pt-4 border-t">
+              <button
+                onClick={() => {
+                  removeBlockAtIndex(selectedSectionIndex);
+                  closeEditPanel();
+                }}
+                className="w-full px-4 py-3 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors flex items-center justify-center gap-2 font-medium"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Section
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
@@ -2620,10 +2870,23 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
+                const isSelected = selectedSectionIndex === originalHeadlineIndex;
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <section className={`mb-4 p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
+                    <section 
+                      className={`mb-4 p-3 rounded-md text-left relative group/editable ${isEditing ? 'bg-[#F7FAFF] border cursor-pointer hover:border-blue-400 transition-colors' : ''} ${isSelected ? 'border-blue-600 ring-2 ring-blue-300 bg-blue-50' : 'border-blue-200'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        isEditing && handleSectionClick(originalHeadlineIndex);
+                      }}
+                    >
+                      {isEditing && !isSelected && (
+                        <div className="absolute top-2 right-2 opacity-0 group-hover/editable:opacity-100 transition-opacity bg-blue-600 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1">
+                          <Edit3 className="w-3 h-3" />
+                          Edit
+                        </div>
+                      )}
                       {!item._skipRenderHeadline && (
                         <div className="relative group/section">
                            <RenderBlock
@@ -2807,10 +3070,23 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'mini_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
+                const isSelected = selectedSectionIndex === originalHeadlineIndex;
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <div className="p-3 my-4 !bg-white border-l-3 border-[#0F58F9] text-left">
+                    <div 
+                      className={`p-3 my-4 !bg-white border-l-3 text-left relative group/editable ${isEditing ? 'cursor-pointer transition-colors' : ''} ${isSelected ? 'border-l-blue-600 ring-2 ring-blue-300 bg-blue-50' : 'border-[#0F58F9] hover:border-l-blue-600'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        isEditing && handleSectionClick(originalHeadlineIndex);
+                      }}
+                    >
+                      {isEditing && !isSelected && (
+                        <div className="absolute top-2 right-2 opacity-0 group-hover/editable:opacity-100 transition-opacity bg-blue-600 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 z-10">
+                          <Edit3 className="w-3 h-3" />
+                          Edit
+                        </div>
+                      )}
                       <RenderBlock
                         block={item.headline}
                         isMiniSectionHeadline={true}
@@ -2851,8 +3127,22 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'standalone_block') {
                 const originalIndex = findOriginalIndex(item.content);
+                const isSelected = selectedSectionIndex === originalIndex;
                 return (
-                  <div key={index} className={reorderClasses}>
+                  <div 
+                    key={index} 
+                    className={`relative group/editable ${reorderClasses} ${isEditing ? 'cursor-pointer rounded-md transition-colors p-2 -m-2' : ''} ${isSelected ? 'ring-2 ring-blue-300 bg-blue-50' : 'hover:bg-blue-50'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      isEditing && handleSectionClick(originalIndex);
+                    }}
+                  >
+                    {isEditing && !isSelected && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover/editable:opacity-100 transition-opacity bg-blue-600 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 z-10">
+                        <Edit3 className="w-3 h-3" />
+                        Edit
+                      </div>
+                    )}
 
                     <RenderBlock
                       block={item.content}
@@ -2916,6 +3206,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         onClose={() => setShowImageUpload(false)}
         onImageUploaded={handleImageUploaded}
       />
+
+      {/* Edit Panel */}
+      <EditPanel />
     </div>
   );
 };
