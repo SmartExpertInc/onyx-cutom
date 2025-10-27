@@ -914,8 +914,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 type="text" 
                 value={text}
                 onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
-                style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
+                className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '')} m-0 p-0`} 
+                style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1 }}
               />
             ) : ( styledText )}
           </Tag>
@@ -1114,7 +1114,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           {/* List icon picker for bullet lists */}
           {isEditing && !!onTextChange && !isNumbered && (
             <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
-            style={{ left: isNumbered ? '-10px' : '5px' }}>
+            style={{ left: isNumbered ? '-10px' : '-25px' }}>
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
@@ -1179,11 +1179,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }}
                             />
                             <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
-                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
-                                <Plus className="w-3.5 h-3.5 text-gray-900" />
+                              <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
+                                <Plus className="w-2.5 h-2.5 text-gray-900" />
                               </button>
-                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
-                                <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                              <button className="p-1 rounded hover:bg-gray-100/50" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
+                                <Trash2 className="w-2.5 h-2.5 text-red-600" />
                               </button>
                             </div>
                           </div>
@@ -2716,7 +2716,14 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                   )}
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 relative group/cardgrid">
+                <div 
+                  className={`grid grid-cols-1 gap-4 mb-6 relative group/cardgrid ${
+                    purpleBoxContent.cards.length === 1 ? 'md:grid-cols-1' :
+                    purpleBoxContent.cards.length === 2 ? 'md:grid-cols-2' :
+                    purpleBoxContent.cards.length === 3 ? 'md:grid-cols-3' :
+                    'md:grid-cols-4'
+                  }`}
+                >
                   {purpleBoxContent.cards.map((card, index) => {
                     const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
                     const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
