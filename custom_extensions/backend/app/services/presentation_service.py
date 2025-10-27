@@ -970,21 +970,78 @@ class ProfessionalPresentationService:
             
             # Map frontend transition types to FFmpeg xfade types
             transition_type_map = {
-                'none': None,  # No transition, will use simple concat
-                'fade': 'fade',
-                'close': 'circleclose',
-                'crop': 'circlecrop',
-                'blur': 'dissolve',  # FFmpeg doesn't have blur, use dissolve
-                'open': 'circleopen',
-                'slide': 'slideleft',  # Default to slideleft
-                'wipe': 'wipeleft',  # Default to wipeleft
-                'smooth-wipe': 'dissolve',  # Use dissolve for smooth-wipe
-                # New specific transition types
-                'wipeleft': 'wipeleft',
-                'slideup': 'slideup',
-                'circlecrop': 'circlecrop',
-                'dissolve': 'dissolve'
-            }
+            # Basic
+            'none': None,
+            'fade': 'fade',
+            'dissolve': 'dissolve',
+            
+            # Wipes - Directional
+            'wipeleft': 'wipeleft',
+            'wiperight': 'wiperight',
+            'wipeup': 'wipeup',
+            'wipedown': 'wipedown',
+            
+            # Wipes - Diagonal
+            'wipetl': 'wipetl',      # top-left
+            'wipetr': 'wipetr',      # top-right
+            'wipebl': 'wipebl',      # bottom-left
+            'wipebr': 'wipebr',      # bottom-right
+            
+            # Slides
+            'slideleft': 'slideleft',
+            'slideright': 'slideright',
+            'slideup': 'slideup',
+            'slidedown': 'slidedown',
+            
+            # Smooth transitions
+            'smoothleft': 'smoothleft',
+            'smoothright': 'smoothright',
+            'smoothup': 'smoothup',
+            'smoothdown': 'smoothdown',
+            
+            # Circle effects
+            'circlecrop': 'circlecrop',
+            'circleopen': 'circleopen',
+            'circleclose': 'circleclose',
+            'radial': 'radial',
+            
+            # Diagonal transitions
+            'diagtl': 'diagtl',      # diagonal top-left
+            'diagtr': 'diagtr',      # diagonal top-right
+            'diagbl': 'diagbl',      # diagonal bottom-left
+            'diagbr': 'diagbr',      # diagonal bottom-right
+            
+            # Slice effects
+            'hlslice': 'hlslice',    # horizontal left slice
+            'hrslice': 'hrslice',    # horizontal right slice
+            'vuslice': 'vuslice',    # vertical up slice
+            'vdslice': 'vdslice',    # vertical down slice
+            
+            # Squeeze & Zoom
+            'squeezeh': 'squeezeh',  # squeeze horizontal
+            'squeezev': 'squeezev',  # squeeze vertical
+            'zoomin': 'zoomin',
+            
+            # Special effects
+            'distance': 'distance',
+            'hblur': 'hblur',        # horizontal blur
+            'pixelize': 'pixelize',
+            
+            # Fade variations
+            'fadeblack': 'fadeblack',
+            'fadewhite': 'fadewhite',
+            'fadefast': 'fadefast',
+            'fadeslow': 'fadeslow',
+            
+            # Legacy mappings (for backward compatibility)
+            'close': 'circleclose',
+            'crop': 'circlecrop',
+            'blur': 'dissolve',
+            'open': 'circleopen',
+            'slide': 'slideleft',
+            'wipe': 'wipeleft',
+            'smooth-wipe': 'smoothleft',
+        }
             
             # Build FFmpeg command with xfade filters
             inputs = []

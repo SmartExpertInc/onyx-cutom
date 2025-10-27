@@ -2,7 +2,31 @@
 
 import React, { useState, useEffect } from 'react';
 
-export type TransitionType = 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe' | 'wipeleft' | 'slideup' | 'circlecrop' | 'dissolve';
+export type TransitionType = 
+  // Basic
+  | 'none' | 'fade' | 'dissolve'
+  // Wipes
+  | 'wipeleft' | 'wiperight' | 'wipeup' | 'wipedown'
+  | 'wipetl' | 'wipetr' | 'wipebl' | 'wipebr'
+  // Slides
+  | 'slideleft' | 'slideright' | 'slideup' | 'slidedown'
+  // Smooth transitions
+  | 'smoothleft' | 'smoothright' | 'smoothup' | 'smoothdown'
+  // Circle effects
+  | 'circlecrop' | 'circleopen' | 'circleclose'
+  // Diagonal
+  | 'diagtl' | 'diagtr' | 'diagbl' | 'diagbr'
+  // Radial & Distance
+  | 'radial' | 'distance'
+  // Slices
+  | 'hlslice' | 'hrslice' | 'vuslice' | 'vdslice'
+  // Squeeze & Zoom
+  | 'squeezeh' | 'squeezev' | 'zoomin'
+  // Blur & Pixelize
+  | 'hblur' | 'pixelize'
+  // Fade variations
+  | 'fadeblack' | 'fadewhite' | 'fadefast' | 'fadeslow';
+
 export type TransitionVariant = 'circle' | 'horizontal-chevrons' | 'vertical-chevrons';
 
 export interface TransitionData {
@@ -289,113 +313,507 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
           </button>
 
           {/* Transition options grid */}
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {/* Fade */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('fade')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Fade</span>
+          <div className="mt-4 space-y-6">
+            {/* Basic Transitions */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Basic</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Fade */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('fade')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+                  <span className="text-sm text-gray-700 text-center">Fade</span>
+                </div>
+
+                {/* Dissolve */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('dissolve')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+                  <span className="text-sm text-gray-700 text-center">Dissolve</span>
+                </div>
+              </div>
             </div>
 
-            {/* Close */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('close')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Close</span>
+            {/* Wipe Transitions */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Wipes</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Wipe Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipeleft')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">←</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe Left</span>
+                </div>
+
+                {/* Wipe Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wiperight')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">→</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe Right</span>
+                </div>
+
+                {/* Wipe Up */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipeup')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">↑</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe Up</span>
+                </div>
+
+                {/* Wipe Down */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipedown')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">↓</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe Down</span>
+                </div>
+
+                {/* Wipe Top-Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipetl')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">↖</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe TL</span>
+                </div>
+
+                {/* Wipe Top-Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipetr')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">↗</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe TR</span>
+                </div>
+
+                {/* Wipe Bottom-Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipebl')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">↙</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe BL</span>
+                </div>
+
+                {/* Wipe Bottom-Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('wipebr')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">↘</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Wipe BR</span>
+                </div>
+              </div>
             </div>
 
-            {/* Crop */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('crop')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Crop</span>
+            {/* Slide Transitions */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Slides</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Slide Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('slideleft')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⇐</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Slide Left</span>
+                </div>
+
+                {/* Slide Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('slideright')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⇒</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Slide Right</span>
+                </div>
+
+                {/* Slide Up */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('slideup')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⇑</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Slide Up</span>
+                </div>
+
+                {/* Slide Down */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('slidedown')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⇓</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Slide Down</span>
+                </div>
+              </div>
             </div>
 
-            {/* Blur */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('blur')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Blur</span>
+            {/* Smooth Transitions */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Smooth</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Smooth Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('smoothleft')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⟵</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Smooth Left</span>
+                </div>
+
+                {/* Smooth Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('smoothright')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⟶</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Smooth Right</span>
+                </div>
+
+                {/* Smooth Up */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('smoothup')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⟰</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Smooth Up</span>
+                </div>
+
+                {/* Smooth Down */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('smoothdown')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⟱</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Smooth Down</span>
+                </div>
+              </div>
             </div>
 
-            {/* Open */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('open')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Open</span>
+            {/* Circle Effects */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Circle Effects</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Circle Crop */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('circlecrop')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◉</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Circle Crop</span>
+                </div>
+
+                {/* Circle Open */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('circleopen')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◎</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Circle Open</span>
+                </div>
+
+                {/* Circle Close */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('circleclose')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">●</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Circle Close</span>
+                </div>
+              </div>
             </div>
 
-            {/* Slide */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('slide')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Slide</span>
+            {/* Diagonal Transitions */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Diagonal</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Diagonal Top-Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('diagtl')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⤡</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Diag TL</span>
+                </div>
+
+                {/* Diagonal Top-Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('diagtr')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⤢</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Diag TR</span>
+                </div>
+
+                {/* Diagonal Bottom-Left */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('diagbl')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⤡</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Diag BL</span>
+                </div>
+
+                {/* Diagonal Bottom-Right */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('diagbr')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⤢</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Diag BR</span>
+                </div>
+              </div>
             </div>
 
-            {/* Wipe */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('wipe')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Wipe</span>
+            {/* Radial & Distance */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Radial</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Radial */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('radial')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◉</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Radial</span>
+                </div>
+
+                {/* Distance */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('distance')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◈</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Distance</span>
+                </div>
+              </div>
             </div>
 
-            {/* Smooth wipe */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('smooth-wipe')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Smooth wipe</span>
+            {/* Slice Effects */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Slices</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Horizontal Left Slice */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('hlslice')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">▬</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">H-Left Slice</span>
+                </div>
+
+                {/* Horizontal Right Slice */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('hrslice')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">▬</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">H-Right Slice</span>
+                </div>
+
+                {/* Vertical Up Slice */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('vuslice')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">▮</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">V-Up Slice</span>
+                </div>
+
+                {/* Vertical Down Slice */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('vdslice')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">▮</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">V-Down Slice</span>
+                </div>
+              </div>
             </div>
 
-            {/* Wipe Left */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('wipeleft')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Wipe Left</span>
+            {/* Squeeze & Zoom */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Transform</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Squeeze Horizontal */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('squeezeh')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⇔</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Squeeze H</span>
+                </div>
+
+                {/* Squeeze Vertical */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('squeezev')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⇕</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Squeeze V</span>
+                </div>
+
+                {/* Zoom In */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('zoomin')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">⊕</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Zoom In</span>
+                </div>
+              </div>
             </div>
 
-            {/* Slide Up */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('slideup')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Slide Up</span>
+            {/* Blur & Pixelize */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Effects</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Horizontal Blur */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('hblur')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">≡</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">H-Blur</span>
+                </div>
+
+                {/* Pixelize */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('pixelize')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">▦</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Pixelize</span>
+                </div>
+              </div>
             </div>
 
-            {/* Circle Crop */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('circlecrop')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Circle Crop</span>
-            </div>
+            {/* Fade Variations */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Fade Variations</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Fade Black */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('fadeblack')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◐</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Fade Black</span>
+                </div>
 
-            {/* Dissolve */}
-            <div 
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleTransitionSelect('dissolve')}
-            >
-              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Dissolve</span>
+                {/* Fade White */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('fadewhite')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◑</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Fade White</span>
+                </div>
+
+                {/* Fade Fast */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('fadefast')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◓</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Fade Fast</span>
+                </div>
+
+                {/* Fade Slow */}
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => handleTransitionSelect('fadeslow')}
+                >
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
+                    <span className="text-2xl">◒</span>
+                  </div>
+                  <span className="text-sm text-gray-700 text-center">Fade Slow</span>
+                </div>
+              </div>
             </div>
           </div>
         </>
