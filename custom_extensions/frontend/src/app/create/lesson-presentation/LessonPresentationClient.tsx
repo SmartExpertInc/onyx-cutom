@@ -1996,9 +1996,9 @@ export default function LessonPresentationClient() {
                     }
 
                     return (
-                      <div key={slideIdx} className="bg-white rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
+                      <div key={slideIdx} className="bg-white rounded-md overflow-hidden border border-[#CCCCCC] hover:shadow-sm transition-shadow duration-200">
                         {/* Header with number and title */}
-                        <div className="flex items-center gap-2 px-5 py-4 border-b border-[#E0E0E0]">
+                        <div className="flex items-center gap-2 px-5 py-4 border-b border-[#CCCCCC]">
                           <span className="font-semibold text-lg text-[#0D001B] select-none flex-shrink-0">
                             {slideIdx + 1}.
                           </span>

@@ -1459,9 +1459,9 @@ export default function CourseOutlineClient() {
                   </div>
                 )}
                 {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg border border-[#CCCCCC] hover:shadow-sm overflow-hidden transition-shadow duration-200">
                   {/* Module header with number and title */}
-                  <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3 px-5 py-4 border-b border-[#CCCCCC]">
                     <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
                     <div className="relative group flex-1">
                       <Input
