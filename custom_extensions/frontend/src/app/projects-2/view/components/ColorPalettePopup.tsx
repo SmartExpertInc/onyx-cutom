@@ -336,7 +336,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           
           // Check if popup goes beyond right edge
           if (position.x + rect.width > viewportWidth) {
-            newX = viewportWidth - rect.width - 10; // 10px margin
+            newX = viewportWidth - rect.width - 4; // 4px margin
           }
           
           // Check if popup goes beyond bottom edge
@@ -345,13 +345,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           }
           
           // Ensure popup doesn't go beyond left edge
-          if (newX < 10) {
-            newX = 10;
+          if (newX < 4) {
+            newX = 4;
           }
           
           // Ensure popup doesn't go beyond top edge
-          if (newY < 10) {
-            newY = 10;
+          if (newY < 4) {
+            newY = 4;
           }
           
           setAdjustedPosition({ x: newX, y: newY });
