@@ -139,7 +139,7 @@ export default function TextEditingToolbar({
     const popupHeight = 280;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const gap = 8; // Gap between toolbar and popup
+    const gap = 4; // Gap between toolbar and popup
     
     let x: number;
     let y = toolbarRect.top;
