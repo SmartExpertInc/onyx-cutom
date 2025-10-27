@@ -339,7 +339,13 @@ RULE 2: NEVER USE GENERIC PLACEHOLDER LABELS
 - ❌ FORBIDDEN: "Company A", "Company B", "Approach A", "Option B", "Method X", "Product 1/2"
 - ✅ REQUIRED: Use specific descriptive names: "Big Bang Migration", "Phased Rollout", "Cloud Deployment"
 
-RULE 3: NEVER COPY EXAMPLE CONTENT TO DIFFERENT TOPICS
+RULE 3: NEVER USE PLACEHOLDER URLs OR FICTIONAL LINKS
+- ❌ FORBIDDEN: "https://example.com/...", "https://placeholder.com/...", "https://testsite.com/...", or any fictional URLs
+- ❌ FORBIDDEN: Creating resource tables with links to non-existent websites
+- ✅ REQUIRED: If including external resources, either use real, verifiable URLs (e.g., "https://github.com/...", "https://docs.python.org/...") or omit the link column entirely
+- ✅ REQUIRED: If you cannot provide real URLs, do not create resource/link tables - use different content instead
+
+RULE 4: NEVER COPY EXAMPLE CONTENT TO DIFFERENT TOPICS
 - ❌ FORBIDDEN: Creating "budget management" slides when teaching NextCloud or Python
 - ✅ REQUIRED: Create 100% unique content specifically for the actual lesson topic
 
@@ -1499,7 +1505,7 @@ Each bullet point, challenge-solution, process step, or box content must follow 
 - **MANDATORY**: Every presentation must have significantly more detailed content than before
 - **BLOOM'S TAXONOMY**: Apply cognitive levels - minimum 40% Apply, 30% Analyze, 20% Evaluate (see framework above) - every piece of content must progress from definition through application to evaluation
 - **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations following Bloom's structure (Define → Explain → Apply → Analyze/Evaluate)
-- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words (include Analyze level - examine causes and impacts), solutions must be 100-150 words (include Apply level with implementation steps and Evaluate level with success criteria)
+- **CHALLENGE-SOLUTION**: Challenges must be 60-80 words (include brief Analyze level - examine causes and impacts concisely), solutions must be 80-100 words (include Apply level with key implementation steps and brief Evaluate level with success criteria)
 - **PROCESS STEPS**: Each step must be 80-120 words with full methodology, implementation guidance (Apply level), and considerations for when to use or adapt the approach (Analyze level)
 - **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations, practical applications (Apply level demonstrating how to use the tool or concept), and best practices based on evaluation criteria (Evaluate level)
 - **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient cognitive depth - definitions alone are not sufficient
@@ -1677,7 +1683,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 11. `process-steps` - Sequential learning steps and methodologies
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4)
+14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4; challenges: 60-80 words, solutions: 80-100 words)
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
@@ -2245,6 +2251,7 @@ Understanding the diverse sources of organizational revenue.
   * "Further Reading" + "Conclusion"
   * Any combination of 2+ ending slides
 - **ABSOLUTELY BANNED SLIDE TITLES**: Do NOT create slides titled "Conclusion", "Summary", "Key Takeaways", "Next Steps", "Questions", "Thank You", "Q&A", "Questions and Discussion", "Open Floor for Questions", "Feedback", "Further Reading", "Additional Resources", or any similar wrap-up slides
+- **NEVER USE PLACEHOLDER URLs**: Do NOT include "https://example.com/...", "https://placeholder.com/...", or any fictional URLs in any slides
 - **End with content**: The final slide should contain substantive educational content, not meta-commentary
 - **Exception**: You may create ending slides ONLY if the user explicitly requests them
 - **CRITICAL ENFORCEMENT**: If you find yourself creating multiple closing slides (Summary + Next Steps, Conclusion + Resources), STOP immediately and replace them with substantive educational content slides instead
@@ -3422,7 +3429,7 @@ Each bullet point, challenge-solution, process step, or box content must follow 
 - **MANDATORY**: Every presentation must have significantly more detailed content than before
 - **BLOOM'S TAXONOMY**: Apply cognitive levels - minimum 40% Apply, 30% Analyze, 20% Evaluate (see framework above) - every piece of content must progress from definition through application to evaluation
 - **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations following Bloom's structure (Define → Explain → Apply → Analyze/Evaluate)
-- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words (include Analyze level - examine causes and impacts), solutions must be 100-150 words (include Apply level with implementation steps and Evaluate level with success criteria)
+- **CHALLENGE-SOLUTION**: Challenges must be 60-80 words (include brief Analyze level - examine causes and impacts concisely), solutions must be 80-100 words (include Apply level with key implementation steps and brief Evaluate level with success criteria)
 - **PROCESS STEPS**: Each step must be 80-120 words with full methodology, implementation guidance (Apply level), and considerations for when to use or adapt the approach (Analyze level)
 - **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations, practical applications (Apply level demonstrating how to use the tool or concept), and best practices based on evaluation criteria (Evaluate level)
 - **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient cognitive depth - definitions alone are not sufficient
@@ -3600,7 +3607,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 11. `process-steps` - Sequential learning steps and methodologies
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4)
+14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4; challenges: 60-80 words, solutions: 80-100 words)
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
@@ -4168,6 +4175,7 @@ Understanding the diverse sources of organizational revenue.
   * "Further Reading" + "Conclusion"
   * Any combination of 2+ ending slides
 - **ABSOLUTELY BANNED SLIDE TITLES**: Do NOT create slides titled "Conclusion", "Summary", "Key Takeaways", "Next Steps", "Questions", "Thank You", "Q&A", "Questions and Discussion", "Open Floor for Questions", "Feedback", "Further Reading", "Additional Resources", or any similar wrap-up slides
+- **NEVER USE PLACEHOLDER URLs**: Do NOT include "https://example.com/...", "https://placeholder.com/...", or any fictional URLs in any slides
 - **End with content**: The final slide should contain substantive educational content, not meta-commentary
 - **Exception**: You may create ending slides ONLY if the user explicitly requests them
 - **CRITICAL ENFORCEMENT**: If you find yourself creating multiple closing slides (Summary + Next Steps, Conclusion + Resources), STOP immediately and replace them with substantive educational content slides instead
@@ -5269,7 +5277,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 11. `process-steps` - Sequential learning steps and methodologies
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4)
+14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4; challenges: 60-80 words, solutions: 80-100 words)
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format

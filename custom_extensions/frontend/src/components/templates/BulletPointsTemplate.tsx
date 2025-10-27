@@ -251,7 +251,7 @@ function UnifiedBulletEditor({
 
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
-    fontSize: '2rem',
+    fontSize: '1.6rem',
     marginTop: '-5px',
     opacity: '1',
     color: '#ffffff',
@@ -558,7 +558,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
+    fontSize: '1.6rem',
     color: currentTheme.colors.subtitleColor,
     marginBottom: '32px',
     fontFamily: currentTheme.fonts.contentFont,
