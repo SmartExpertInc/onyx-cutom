@@ -2390,6 +2390,14 @@ export default function LessonPresentationClient() {
         to { opacity: 1; transform: translateY(0); }
       }
       button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
+      
+      /* Override CustomPillSelector border colors in this component */
+      [data-slot="select-trigger"] {
+        border-color: #CCCCCC !important;
+      }
+      [data-slot="select-content"] {
+        border-color: #CCCCCC !important;
+      }
     `}</style>
       {isGenerating && (
         <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
