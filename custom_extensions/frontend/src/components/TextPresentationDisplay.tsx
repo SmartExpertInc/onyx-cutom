@@ -827,6 +827,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`;
           }
       }
+      if (isListItemContent) {
+        textStyleClass = 'text-base font-bold !text-[#0F58F9]';
+      }
 
       let calculatedMt = ''; let calculatedMb = ''; let calculatedPt = '';
       if (level === 1) { calculatedMb = 'mb-2'; } 
@@ -895,6 +898,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+            </div>
+          )}
+
+          {/* Bullet style picker for headlines */}
+          {isEditing && onTextChange && (
+            <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
+            style={{ left: '-25px' }}>
+              <div className="relative">
+                <button 
+                  className="p-1 rounded hover:bg-gray-200" 
+                  onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
+                  title="Choose bullet icon"
+                >
+                  <StarIcon className="w-4 h-4" />
+                </button>
+                {isBulletPickerOpen && (
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
+                    onClick={(e) => e.stopPropagation()}>
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                      <span className="text-xs font-medium">No Icon</span>
+                    </button>
+                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
           
@@ -1178,12 +1210,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                 }
                               }}
                             />
-                            <div className="absolute -left-4 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                            <div className="absolute -left-5 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                               <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
-                                <Plus className="w-2.5 h-2.5 text-gray-900" />
+                                <Plus className="w-3 h-3 text-gray-900" />
                               </button>
                               <button className="p-1 rounded hover:bg-gray-100/50" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
-                                <Trash2 className="w-2.5 h-2.5 text-red-600" />
+                                <Trash2 className="w-3 h-3 text-red-600" />
                               </button>
                             </div>
                           </div>
@@ -1251,12 +1283,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }
                             }}
                           />
-                          <div className="absolute -left-4 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                          <div className="absolute -left-5 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                             <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
-                              <Plus className="w-2.5 h-2.5 text-gray-900" />
+                              <Plus className="w-3 h-3 text-gray-900" />
                             </button>
                             <button className="p-1 rounded hover:bg-gray-100/50" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
-                              <Trash2 className="w-2.5 h-2.5 text-red-600" />
+                              <Trash2 className="w-3 h-3 text-red-600" />
                             </button>
                           </div>
                         </div>
