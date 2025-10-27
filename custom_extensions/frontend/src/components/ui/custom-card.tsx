@@ -123,7 +123,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                     "text-2xl font-semibold text-left leading-tight tracking-[0.01em] transition-all duration-200",
                     useCSSVariables 
                       ? "text-[hsl(var(--custom-card-title))]" 
-                      : "opacity-80 group-hover:opacity-100 group-active:opacity-100 group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"
+                      : "group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"
                   )}
                   style={!useCSSVariables ? { color: '#4D4D4D' } : undefined}
                 >
