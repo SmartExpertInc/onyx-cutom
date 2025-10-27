@@ -33,13 +33,13 @@ type MajorSection = {
 };
 type RenderableItem = MajorSection | MiniSection | StandaloneBlock;
 
-const parseAndStyleText = (text: string | undefined | null, isInRecommendationSection: boolean = false): React.ReactNode[] => {
+const parseAndStyleText = (text: string | undefined | null, isInRecommendationSection: boolean = false, applyBlueColon: boolean = false): React.ReactNode[] => {
   if (!text) return [];
   
   // Check if text contains a colon
   const colonIndex = text.indexOf(':');
   
-  if (colonIndex !== -1) {
+  if (colonIndex !== -1 && applyBlueColon) {
     // Split into before and after the first colon
     const beforeColon = text.substring(0, colonIndex);
     const afterColon = text.substring(colonIndex);
@@ -69,7 +69,7 @@ const parseAndStyleText = (text: string | undefined | null, isInRecommendationSe
     ];
   }
   
-  // Original behavior if no colon
+  // Original behavior if no colon or applyBlueColon is false
   const segments = text.split(/\*\*(.*?)\*\*/g); 
   return segments.map((segment, index) => {
     if (index % 2 === 1) { 
@@ -176,7 +176,7 @@ const THEME_COLORS = {
   alertDangerBg: 'bg-red-50', alertDangerBorder: 'border-red-400',
 };
 
-const editingInputClass = "w-full p-1 bg-yellow-50 border border-yellow-300 rounded text-black outline-none focus:ring-1 focus:ring-yellow-500";
+const editingInputClass = "w-full p-1 bg-blue-50 border border-blue-300 rounded outline-none focus:ring-1 focus:ring-blue-400";
 const editingTextareaClass = `${editingInputClass} min-h-[50px] resize-y`;
 
 const getAlertColors = (alertType: AlertBlock['alertType']) => {
@@ -1118,18 +1118,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
-                  onClick={() => setIsBulletPickerOpen(v => !v)} 
+                  onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
                   title="Choose bullet icon"
                 >
                   <StarIcon className="w-4 h-4" />
                 </button>
                 {isBulletPickerOpen && (
-                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
-                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
+                    onClick={(e) => e.stopPropagation()}>
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
                       <span className="text-xs font-medium">No Icon</span>
                     </button>
                     {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
                         {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
                       </button>
                     ))}
@@ -1155,7 +1156,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
               const textSource = itemIsString ? ((isNumbered && isPlainStringNoBold) ? `**${item}**` : item) : "";
-              let styledItemText = itemIsString ? parseAndStyleText(textSource, isRecommendation) : null;
+              let styledItemText = itemIsString ? parseAndStyleText(textSource, isRecommendation, true) : null;
 
               if (isNumbered) {
                 return (
@@ -1178,10 +1179,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }}
                             />
                             <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
-                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
                                 <Plus className="w-3.5 h-3.5 text-gray-900" />
                               </button>
-                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
+                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
                                 <Trash2 className="w-3.5 h-3.5 text-red-600" />
                               </button>
                             </div>
@@ -1251,10 +1252,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             }}
                           />
                           <div className="absolute -left-8 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
                               <Plus className="w-3.5 h-3.5 text-gray-900" />
                             </button>
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
                               <Trash2 className="w-3.5 h-3.5 text-red-600" />
                             </button>
                           </div>
@@ -2462,6 +2463,19 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
 
+  const addRecommendation = useCallback(() => {
+    if (!dataToDisplay || !onTextChange) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const newRecommendation: ParagraphBlock = { 
+      type: 'paragraph', 
+      text: 'Recommendation: ',
+      isRecommendation: true
+    };
+    const updated = [...contentBlocks, newRecommendation];
+    onTextChange(['contentBlocks'], updated);
+    setFabOpen(false);
+  }, [dataToDisplay, onTextChange]);
+
   const findMajorSectionBounds = (headlineIndex: number) => {
     const blocks = dataToDisplay?.contentBlocks || [];
     let end = blocks.length;
@@ -2578,6 +2592,27 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     setEditingPurpleBox({ type: null });
   }, []);
 
+  const addPurpleBoxCard = useCallback(() => {
+    setPurpleBoxContent(prev => ({
+      ...prev,
+      cards: [
+        ...prev.cards,
+        {
+          title: 'New Card',
+          description: 'Card description',
+          icon: 'drilling'
+        }
+      ]
+    }));
+  }, []);
+
+  const removePurpleBoxCard = useCallback((index: number) => {
+    setPurpleBoxContent(prev => ({
+      ...prev,
+      cards: prev.cards.filter((_, i) => i !== index)
+    }));
+  }, []);
+
   const removeBlockAtIndex = useCallback((index: number) => {
     if (!dataToDisplay || !onTextChange) return;
     const blocks = [...(dataToDisplay.contentBlocks || [])];
@@ -2648,8 +2683,21 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  {purpleBoxContent.cards.map((card, index) => (
+                  {purpleBoxContent.cards.map((card, index) => {
+                    const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
+                    const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
+                    
+                    return (
                     <div key={index} className="bg-[#CCDBFCCC] border border-[#CCCCCC] rounded-lg p-5 space-y-2 text-left relative group">
+                      {!isEditing && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removePurpleBoxCard(index); }}
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                          title="Remove card"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
                       {card.icon === 'drilling' && (
                         <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="white"/>
@@ -2682,11 +2730,56 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           <path d="M26.5556 15.7234C28.7283 15.7234 30.4896 13.9621 30.4896 11.7894V7.85547H20.6547V11.7894C20.6547 13.9621 18.8934 15.7234 16.7207 15.7234H26.5556Z" fill="white"/>
                         </svg>
                       )}
-                      <h3 className="text-lg font-bold text-gray-800 mb-2">{card.title}</h3>
-                      <p className="text-sm text-gray-600">{card.description}</p>
+                      
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); !isEditing && handlePurpleBoxClick('card', index, 'title'); }}
+                      >
+                        {isCardTitleEditing ? (
+                          <textarea
+                            value={card.title}
+                            onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                            onBlur={closePurpleBoxEdit}
+                            className="w-full text-lg font-bold text-gray-800 p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[50px]"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <h3 className="text-lg font-bold text-gray-800 mb-2">{card.title}</h3>
+                        )}
+                      </div>
+                      
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); !isEditing && handlePurpleBoxClick('card', index, 'description'); }}
+                      >
+                        {isCardDescEditing ? (
+                          <textarea
+                            value={card.description}
+                            onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                            onBlur={closePurpleBoxEdit}
+                            className="w-full text-sm text-gray-600 p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px]"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <p className="text-sm text-gray-600">{card.description}</p>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
+                
+                {!isEditing && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); addPurpleBoxCard(); }}
+                    className="w-full px-4 py-3 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-lg text-gray-600 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add New Card
+                  </button>
+                )}
               </section>
             )}
 
@@ -3020,8 +3113,15 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             <ImageIcon className="w-5 h-5" />
           </button>
           <button
-            onClick={() => { setFabOpen(false); addMajorSection(); }}
+            onClick={() => { setFabOpen(false); addRecommendation(); }}
             className={`fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-75' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Recommendation"
+          >
+            <AlertCircle className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { setFabOpen(false); addMajorSection(); }}
+            className={`fixed bottom-56 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-100' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
             title="Add Section"
           >
             <TextIcon className="w-5 h-5" />
