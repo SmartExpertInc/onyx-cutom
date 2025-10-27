@@ -153,7 +153,7 @@ function GenerateProductPicker() {
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
   const [lessonsPerModule, setLessonsPerModule] = useState(`3-4 ${t('interface.generate.perModule', 'per module')}`);
-  const [language, setLanguage] = useState(t('interface.english', 'English'));
+  const [language, setLanguage] = useState('en');
 
   // All filters are always true (removed dropdown functionality)
   const filters = {
@@ -281,7 +281,7 @@ function GenerateProductPicker() {
     }
 
     // Pass ISO language code to preview page
-    params.set("lang", mapLanguageToCode(language));
+    params.set("lang", language);
 
     router.push(`/create/course-outline?${params.toString()}`);
   };
@@ -457,7 +457,7 @@ function GenerateProductPicker() {
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
-  const [quizLanguage, setQuizLanguage] = useState(t('interface.english', 'English'));
+  const [quizLanguage, setQuizLanguage] = useState('en');
   const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
@@ -746,7 +746,7 @@ function GenerateProductPicker() {
       params.set("prompt", promptReference);
     }
     
-    params.set("lang", mapLanguageToCode(language));
+    params.set("lang", language);
 
     // Add connector context if coming from connectors
     const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
@@ -792,7 +792,7 @@ function GenerateProductPicker() {
     }
     params.set("questionTypes", selectedQuestionTypes.join(','));
     params.set("questionCount", String(quizQuestionCount));
-    params.set("lang", mapLanguageToCode(quizLanguage));
+    params.set("lang", quizLanguage);
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -865,7 +865,7 @@ function GenerateProductPicker() {
   const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
-  const [textLanguage, setTextLanguage] = useState<string>(t('interface.english', 'English'));
+  const [textLanguage, setTextLanguage] = useState<string>('en');
   const [textLength, setTextLength] = useState<string>(t('interface.generate.medium', 'medium'));
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
@@ -1012,7 +1012,7 @@ function GenerateProductPicker() {
         }
       }
     }
-    params.set("lang", mapLanguageToCode(textLanguage));
+    params.set("lang", textLanguage);
     params.set("length", textLength);
     params.set("styles", textStyles.join(','));
     
@@ -1078,9 +1078,6 @@ function GenerateProductPicker() {
 
     sessionStorage.setItem('stylesState', stylesState ?? ""); 
 
-    // Pass ISO language code to preview page
-    params.set("lang", mapLanguageToCode(language));
-
     router.push(`/create/text-presentation?${params.toString()}`);
   };
 
@@ -1092,7 +1089,7 @@ function GenerateProductPicker() {
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
-    params.set("lang", mapLanguageToCode(language));
+    params.set("lang", language);
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -1155,16 +1152,6 @@ function GenerateProductPicker() {
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
-  };
-
-  // Map UI language selection to ISO code for preview pages
-  const mapLanguageToCode = (label: string): string => {
-    const l = (label || '').toLowerCase();
-    if (l.startsWith('en')) return 'en';
-    if (l.startsWith('uk')) return 'uk';
-    if (l.startsWith('es') || l.startsWith('sp')) return 'es';
-    if (l.startsWith('ru')) return 'ru';
-    return 'en';
   };
 
   return (
@@ -1341,10 +1328,10 @@ function GenerateProductPicker() {
               value={language}
               onValueChange={setLanguage}
               options={[
-                { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                { value: 'en', label: t('interface.english', 'English') },
+                { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                { value: 'es', label: t('interface.spanish', 'Spanish') },
+                { value: 'ru', label: t('interface.russian', 'Russian') }
               ]}
               icon={<Globe className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}
@@ -1416,10 +1403,10 @@ function GenerateProductPicker() {
                           value={language}
                           onValueChange={setLanguage}
                           options={[
-                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                            { value: 'en', label: t('interface.english', 'English') },
+                            { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: 'es', label: t('interface.spanish', 'Spanish') },
+                            { value: 'ru', label: t('interface.russian', 'Russian') }
                           ]}
                           icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
@@ -1443,10 +1430,10 @@ function GenerateProductPicker() {
                       value={language}
                       onValueChange={setLanguage}
                       options={[
-                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                        { value: 'en', label: t('interface.english', 'English') },
+                        { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: 'es', label: t('interface.spanish', 'Spanish') },
+                        { value: 'ru', label: t('interface.russian', 'Russian') }
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
@@ -1544,10 +1531,10 @@ function GenerateProductPicker() {
                           value={quizLanguage}
                           onValueChange={setQuizLanguage}
                           options={[
-                            { value: "English", label: t('interface.english', 'English') },
-                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                            { value: 'en', label: t('interface.english', 'English') },
+                            { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: 'es', label: t('interface.spanish', 'Spanish') },
+                            { value: 'ru', label: t('interface.russian', 'Russian') }
                           ]}
                           icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
@@ -1588,10 +1575,10 @@ function GenerateProductPicker() {
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
                       options={[
-                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                        { value: 'en', label: t('interface.english', 'English') },
+                        { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: 'es', label: t('interface.spanish', 'Spanish') },
+                        { value: 'ru', label: t('interface.russian', 'Russian') }
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
@@ -1706,10 +1693,10 @@ function GenerateProductPicker() {
                           value={textLanguage}
                           onValueChange={setTextLanguage}
                           options={[
-                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                            { value: 'en', label: t('interface.english', 'English') },
+                            { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: 'es', label: t('interface.spanish', 'Spanish') },
+                            { value: 'ru', label: t('interface.russian', 'Russian') }
                           ]}
                           icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
@@ -1755,10 +1742,10 @@ function GenerateProductPicker() {
                       value={textLanguage}
                       onValueChange={setTextLanguage}
                       options={[
-                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                        { value: 'en', label: t('interface.english', 'English') },
+                        { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: 'es', label: t('interface.spanish', 'Spanish') },
+                        { value: 'ru', label: t('interface.russian', 'Russian') }
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
@@ -1811,10 +1798,10 @@ function GenerateProductPicker() {
               value={language}
               onValueChange={setLanguage}
               options={[
-                { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
-                { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
-                { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
-                { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                { value: 'en', label: t('interface.english', 'English') },
+                { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
+                { value: 'es', label: t('interface.spanish', 'Spanish') },
+                { value: 'ru', label: t('interface.russian', 'Russian') }
               ]}
               icon={<Globe className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}

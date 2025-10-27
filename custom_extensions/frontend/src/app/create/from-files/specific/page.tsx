@@ -432,30 +432,9 @@ export default function CreateFromSpecificFilesPage() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans">
+    <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans flex flex-col">
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="absolute left-8 top-1/2 transform -translate-y-1/2 flex items-center gap-4">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Back button clicked, navigating to /create');
-              try {
-                router.push('/create');
-              } catch (error) {
-                console.error('Navigation error:', error);
-                // Fallback to window.location
-                window.location.href = '/create';
-              }
-            }}
-            className="group flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer z-20 relative"
-            type="button"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
-            {t('interface.back', 'Back')}
-          </button>
-        </div>
         <HeadTextCustom
           text={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
           textSize="text-2xl sm:text-3xl"
@@ -463,8 +442,19 @@ export default function CreateFromSpecificFilesPage() {
         />
       </header>
 
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 overflow-y-auto p-8 pb-32">
         <div className="space-y-8">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link
+              href="/custom-projects-ui/create"
+              className="group inline-flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+              {t('interface.back', 'Back')}
+            </Link>
+          </div>
+
           {/* Smart Drive Browser Section */}
           <div className="mb-8">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
@@ -700,43 +690,45 @@ export default function CreateFromSpecificFilesPage() {
               </div>
             </div>
           </div>
-
-          {/* Create Content Button */}
-          <div className="mb-8">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-6">
-              <button
-                onClick={handleCreateContent}
-                disabled={!connectorSelectionValid}
-                className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
-                  !connectorSelectionValid
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-3">
-                  <Sparkles className="w-5 h-5" />
-                  {connectorSelectionValid 
-                    ? (selectedConnectors.length > 0 && (selectedFiles.length > 0 || selectedProducts.length > 0))
-                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
-                          .replace('{count}', selectedConnectors.length.toString())
-                          .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                          .replace('{fileCount}', (selectedFiles.length + selectedProducts.length).toString())
-                          .replace('{s}', (selectedFiles.length + selectedProducts.length) !== 1 ? 's' : '')
-                      : selectedConnectors.length > 0 
-                        ? t('interface.createContentFromConnectorsOnly', 'Create Content from {count} Connector{s}')
-                        .replace('{count}', selectedConnectors.length.toString())
-                        .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                        : t('interface.createContentFromFilesOnly', 'Create Content from {count} File{s}')
-                            .replace('{count}', (selectedFiles.length + selectedProducts.length).toString())
-                            .replace('{s}', (selectedFiles.length + selectedProducts.length) !== 1 ? 's' : '')
-                    : t('interface.selectConnectorsOrFilesToContinue', 'Select Connectors or Files to Continue')
-                  }
-                </div>
-              </button>
-            </div>
-          </div>
         </div>
       </main>
+
+      {/* Sticky Footer with Create Content Button */}
+      <footer className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-200 shadow-lg">
+        <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-4">
+            <button
+              onClick={handleCreateContent}
+              disabled={!connectorSelectionValid}
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
+                !connectorSelectionValid
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-3">
+                <Sparkles className="w-5 h-5" />
+                {connectorSelectionValid 
+                  ? (selectedConnectors.length > 0 && (selectedFiles.length > 0 || selectedProducts.length > 0))
+                    ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
+                        .replace('{count}', selectedConnectors.length.toString())
+                        .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                        .replace('{fileCount}', (selectedFiles.length + selectedProducts.length).toString())
+                        .replace('{s}', (selectedFiles.length + selectedProducts.length) !== 1 ? 's' : '')
+                    : selectedConnectors.length > 0 
+                      ? t('interface.createContentFromConnectorsOnly', 'Create Content from {count} Connector{s}')
+                      .replace('{count}', selectedConnectors.length.toString())
+                      .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                      : t('interface.createContentFromFilesOnly', 'Create Content from {count} File{s}')
+                          .replace('{count}', (selectedFiles.length + selectedProducts.length).toString())
+                          .replace('{s}', (selectedFiles.length + selectedProducts.length) !== 1 ? 's' : '')
+                  : t('interface.selectConnectorsOrFilesToContinue', 'Select Connectors or Files to Continue')
+                }
+              </div>
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 } 

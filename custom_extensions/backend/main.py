@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -984,7 +984,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -2927,7 +2927,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -3565,7 +3565,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -4104,7 +4104,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -4742,7 +4742,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -5254,7 +5254,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -5892,7 +5892,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Tuple
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable, Tuple
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -10624,16 +10624,442 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
 
+# --- Helper Functions ---
+
+def add_preservation_mode_if_needed(wizard_message: str, wiz_payload: dict) -> str:
+    """Add preservation mode instructions if user requests text preservation."""
+    prompt_text = wiz_payload.get("prompt", "").lower()
+    if any(phrase in prompt_text for phrase in ["не коригуй", "do not correct", "don't modify", "don't change", "preserve text"]):
+        preservation_instruction = """
+
+🔒 PRESERVATION MODE ACTIVATED 🔒
+
+The user has explicitly instructed you NOT to modify their text.
+You are in READ-ONLY mode except for the specific changes they request.
+
+STRICT RULES:
+• Make ONLY the changes explicitly requested
+• Do NOT fix grammar, spelling, or phrasing
+• Do NOT improve or enhance language
+• Do NOT restructure or reorganize
+• Do NOT translate anything
+• Preserve exact wording, even if it seems improvable
+
+Think of yourself as a precise text editor, not a content improver.
+"""
+        return wizard_message + preservation_instruction
+    return wizard_message
+
+def validate_edit_preservation(original_content: str, edited_content: str, edit_instructions: str) -> tuple[bool, str]:
+    """
+    Validates that only requested changes were made during editing.
+    Returns (is_valid, error_message)
+    """
+    try:
+        # Extract what should have changed from instructions
+        instructions_lower = edit_instructions.lower()
+        
+        # Check for preservation instructions
+        preservation_phrases = ["не коригуй", "do not correct", "don't modify", "don't change", "preserve text"]
+        is_preservation_mode = any(phrase in instructions_lower for phrase in preservation_phrases)
+        
+        if not is_preservation_mode:
+            # Not in preservation mode, allow normal editing
+            return True, ""
+        
+        # Calculate similarity ratio
+        from difflib import SequenceMatcher
+        similarity_ratio = SequenceMatcher(None, original_content, edited_content).ratio()
+        
+        # In preservation mode, content should be very similar (90%+ identical)
+        if similarity_ratio < 0.9:
+            return False, f"Content changed too much (similarity: {similarity_ratio:.2f}). In preservation mode, only specific requested changes should be made."
+        
+        # Check for specific preservation violations
+        violations = []
+        
+        # Check for Ukrainian text preservation
+        ukrainian_headers = ["Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань"]
+        for header in ukrainian_headers:
+            if header in original_content and header not in edited_content:
+                violations.append(f"Ukrainian header '{header}' was removed or modified")
+        
+        # Check for module ID preservation
+        import re
+        original_module_ids = re.findall(r'## (?:Module|#)\s*\d+', original_content)
+        edited_module_ids = re.findall(r'## (?:Module|#)\s*\d+', edited_content)
+        
+        if len(original_module_ids) != len(edited_module_ids):
+            violations.append("Module IDs were added or removed")
+        
+        # Check for table header preservation
+        if "table" in original_content.lower() and "table" in edited_content.lower():
+            # Extract table headers and check if they changed
+            original_headers = re.findall(r'\|([^|]+)\|', original_content)
+            edited_headers = re.findall(r'\|([^|]+)\|', edited_content)
+            
+            if original_headers and edited_headers:
+                if len(original_headers) != len(edited_headers):
+                    violations.append("Table structure was modified")
+        
+        if violations:
+            return False, f"Preservation violations detected: {'; '.join(violations)}"
+        
+        return True, ""
+        
+    except Exception as e:
+        logger.error(f"[VALIDATION_ERROR] Error validating edit preservation: {e}")
+        return True, ""  # Don't block on validation errors
+
+# --- OpenAI Streaming Functions ---
+
+async def stream_openai_response(message: str, temperature: float = 0.7):
+    """
+    Stream response from OpenAI directly without file context.
+    
+    Args:
+        message: The message to send to OpenAI
+        temperature: Temperature for response generation
+        
+    Yields:
+        Dict with type 'delta' (text chunk) or 'error'
+    """
+    try:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.error("[OPENAI_STREAM] No OpenAI API key found")
+            yield {"type": "error", "text": "OpenAI API key not configured"}
+            return
+        
+        client = AsyncOpenAI(api_key=openai_api_key)
+        
+        logger.info(f"[OPENAI_STREAM] Starting streaming with message length: {len(message)}")
+        
+        # Check for preservation mode instructions
+        enhanced_message = add_preservation_mode_if_needed(message, {"prompt": message})
+        
+        # Add educational depth requirements for non-file generation
+        educational_enhancement = """
+
+**EDUCATIONAL CONTENT REQUIREMENTS:**
+
+Your content must provide deep educational value suitable for corporate training:
+
+**BLOOM'S TAXONOMY PROGRESSION:**
+• REMEMBER: Define key terms with precise definitions
+• UNDERSTAND: Explain WHY concepts work and provide mental models
+• APPLY: Show HOW to use concepts with step-by-step procedures
+• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
+
+**CORPORATE TRAINING STANDARDS:**
+• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
+• Include realistic scenarios with decision points
+• Provide mental models and frameworks learners can remember
+• Add "what would you do?" reflection prompts
+• Show both correct and incorrect examples with analysis
+
+**ANTI-HALLUCINATION PROTOCOL:**
+• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
+• NEVER present made-up examples as if they were real case studies
+• NEVER invent statistics, company names, or specific details
+• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
+
+**BULLET POINT DEPTH (for presentations):**
+Each bullet point MUST contain 60-100 words structured as:
+1. Core concept statement (15-20 words)
+2. Explanation of WHY/HOW it matters (20-30 words)  
+3. Practical application or example (20-30 words)
+4. Key takeaway or implication (10-20 words)
+
+**ONE-PAGER PEDAGOGICAL ELEMENTS:**
+1. MENTAL MODELS: Provide 2-3 frameworks learners can use
+2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
+4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
+5. SKILL PRACTICE: Include 3-5 scenario-based practice items
+
+"""
+        
+        enhanced_message += educational_enhancement
+        
+        stream = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{
+                "role": "system", 
+                "content": """You are an EDUCATIONAL CONTENT CREATOR specializing in corporate training materials. Generate deep, comprehensive educational content that teaches concepts through multiple cognitive levels. Focus on practical application, real-world scenarios, and actionable insights that learners can immediately implement."""
+            }, {
+                "role": "user", 
+                "content": enhanced_message
+            }],
+            temperature=temperature,
+            stream=True
+        )
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+                
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM] Error: {e}", exc_info=True)
+        yield {"type": "error", "text": str(e)}
+
+async def stream_hybrid_response(message: str, file_context: Any, product_type: str = "Course Outline", temperature: float = 0.7):
+    """
+    Stream response from OpenAI using extracted file context as PRIMARY knowledge source.
+    
+    This function intelligently handles large files:
+    - Counts tokens to stay within limits (100k tokens max for context)
+    - Uses full content when possible
+    - Falls back to enhanced summaries for large files
+    - Prioritizes file data over general internet knowledge
+    
+    Args:
+        message: The base wizard message/request
+        file_context: Extracted context from Onyx files (dict with summaries, contents, topics)
+        product_type: Type of product being generated
+        temperature: Temperature for response generation
+        
+    Yields:
+        Dict with type 'delta' (text chunk) or 'error'
+    """
+    try:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.error("[HYBRID_STREAM] No OpenAI API key found")
+            yield {"type": "error", "text": "OpenAI API key not configured"}
+            return
+        
+        client = AsyncOpenAI(api_key=openai_api_key)
+        
+        # Token limits for GPT-4 Turbo (128k total, reserve 28k for response)
+        MAX_CONTEXT_TOKENS = 100000  # Conservative limit for context
+        TOKENS_PER_CHAR_ESTIMATE = 0.25  # Rough estimate: 1 token ≈ 4 characters
+        
+        # Build enhanced prompt that prioritizes file content
+        file_content_section = ""
+        
+        if isinstance(file_context, dict):
+            # Extract file contents and summaries
+            file_contents = file_context.get("file_contents", [])
+            file_summaries = file_context.get("file_summaries", [])
+            key_topics = file_context.get("key_topics", [])
+            
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_contents)} contents, {len(file_summaries)} summaries, {len(key_topics)} topics")
+            
+            if file_contents or file_summaries:
+                file_content_section = "\n\n" + "="*80 + "\n"
+                file_content_section += "📚 SOURCE DOCUMENTS - YOUR ONLY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+                file_content_section += "⚠️ CRITICAL INSTRUCTION ⚠️\n"
+                file_content_section += "The documents below are YOUR COMPLETE KNOWLEDGE BASE.\n"
+                file_content_section += "You MUST:\n"
+                file_content_section += "  ✓ Use ONLY information from these documents\n"
+                file_content_section += "  ✓ Quote specific passages and reference document sections\n"
+                file_content_section += "  ✓ Use examples, data, and cases ONLY from these documents\n"
+                file_content_section += "  ✓ State 'not provided in source materials' if information is missing\n"
+                file_content_section += "  ✗ NEVER use general knowledge or make assumptions\n"
+                file_content_section += "  ✗ NEVER hallucinate examples not in the documents\n\n"
+                
+                # Add key topics if available
+                if key_topics:
+                    file_content_section += f"**Key Topics from Documents**: {', '.join(key_topics[:20])}\n\n"
+                
+                # Calculate total content size
+                total_content_chars = sum(len(content) for content in file_contents if content)
+                estimated_tokens = total_content_chars * TOKENS_PER_CHAR_ESTIMATE
+                
+                logger.info(f"[HYBRID_STREAM] Total content size: {total_content_chars} chars, estimated {int(estimated_tokens)} tokens")
+                
+                # Decide whether to use full content or enhanced summaries
+                if estimated_tokens < MAX_CONTEXT_TOKENS:
+                    # Use FULL CONTENT - files are small enough
+                    logger.info(f"[HYBRID_STREAM] Using FULL CONTENT (within token limit)")
+                    
+                    # Add document structure with clear markers
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"\n{'='*80}\n"
+                            file_content_section += f"📄 SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                            file_content_section += f"{content}\n\n"
+                            file_content_section += f"{'='*80}\n"
+                            file_content_section += f"END OF SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                else:
+                    # Use ENHANCED SUMMARIES - files are too large
+                    logger.info(f"[HYBRID_STREAM] Using ENHANCED SUMMARIES (content exceeds token limit)")
+                    
+                    # Calculate how much content we can include per file
+                    max_chars_per_file = int((MAX_CONTEXT_TOKENS / TOKENS_PER_CHAR_ESTIMATE) / len(file_contents))
+                    
+                    file_content_section += "---\n**DOCUMENT CONTENT** (Enhanced excerpts from large documents):\n---\n\n"
+                    file_content_section += f"**Note**: Documents were too large to include in full. Below are key excerpts and summaries.\n\n"
+                    
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"### Document {i}:\n\n"
+                            
+                            # Include summary if available
+                            if i <= len(file_summaries) and file_summaries[i-1]:
+                                file_content_section += f"**Summary**: {file_summaries[i-1]}\n\n"
+                            
+                            # Include beginning excerpt
+                            if len(content) > max_chars_per_file:
+                                excerpt = content[:max_chars_per_file]
+                                # Try to cut at sentence boundary
+                                last_period = excerpt.rfind('.')
+                                if last_period > max_chars_per_file * 0.8:  # If we can find a period in last 20%
+                                    excerpt = excerpt[:last_period + 1]
+                                file_content_section += f"**Key Content Excerpt** (first ~{len(excerpt)} chars of {len(content)}):\n{excerpt}\n\n"
+                                file_content_section += f"*[Document continues with {len(content) - len(excerpt)} more characters]*\n\n"
+                            else:
+                                file_content_section += f"**Full Content**:\n{content}\n\n"
+                            
+                            file_content_section += "---\n\n"
+                
+                # Add summaries if we only have those (no content)
+                if not file_contents and file_summaries:
+                    file_content_section += "**Document Summaries**:\n\n"
+                    for i, summary in enumerate(file_summaries, 1):
+                        if summary and len(summary.strip()) > 0:
+                            file_content_section += f"{i}. {summary}\n\n"
+                
+                file_content_section += "="*80 + "\n"
+                file_content_section += "END OF SOURCE DOCUMENTS - USE THIS AS YOUR PRIMARY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+                
+                # Add validation checkpoint reminder
+                file_content_section += "⚠️ FINAL REMINDER ⚠️\n"
+                file_content_section += "Before generating your response, confirm:\n"
+                file_content_section += "• Have I used ONLY the source documents above?\n"
+                file_content_section += "• Have I quoted or referenced specific document content?\n"
+                file_content_section += "• Have I avoided general knowledge and assumptions?\n\n"
+        elif isinstance(file_context, str):
+            # Handle string context (fallback case)
+            file_content_section = f"\n\n**SOURCE DOCUMENT CONTENT**:\n{file_context}\n\n"
+            file_content_section += "**Note**: Base your content on the above document content.\n\n"
+        
+        # Combine with original message
+        enhanced_message = file_content_section + message
+        
+        logger.info(f"[HYBRID_STREAM] Enhanced message length: {len(enhanced_message)} (original: {len(message)}, file context: {len(file_content_section)})")
+        logger.info(f"[HYBRID_STREAM] Starting streaming for product type: {product_type}")
+        
+        stream = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{
+                "role": "system",
+                "content": """You are an EDUCATIONAL CONTENT CREATOR with STRICT SOURCE FIDELITY.
+
+ABSOLUTE RULES:
+1. SOURCE DOCUMENTS ARE YOUR ONLY KNOWLEDGE BASE - You must ONLY use information explicitly present in the source documents provided below
+2. NEVER use general internet knowledge, common knowledge, or assumptions
+3. If information is not in the source documents, state "This information is not provided in the source materials"
+4. DIRECTLY QUOTE and reference specific sections from source documents
+5. Every claim, example, statistic, or case study MUST come from the source documents
+6. Mark any illustrative examples you create as [ILLUSTRATIVE EXAMPLE - not from source]
+
+VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents."""
+            }, {
+                "role": "user",
+                "content": enhanced_message
+            }],
+            temperature=temperature,
+            stream=True
+        )
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+                
+    except Exception as e:
+        logger.error(f"[HYBRID_STREAM] Error: {e}", exc_info=True)
+        yield {"type": "error", "text": str(e)}
+
 # --- Enhanced Hybrid Approach Functions ---
 
 # Cache for file contexts to avoid repeated extraction
 FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
 FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
 
-async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+async def process_file_batch_with_progress(
+    file_ids: List[int],
+    cookies: Dict[str, str],
+    batch_size: int = 8,
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+) -> List[Optional[Dict[str, Any]]]:
     """
-    Extract relevant context from files and folders using Onyx's capabilities.
-    Returns structured context that can be used with OpenAI.
+    Process files in batches to avoid overwhelming the system.
+    Sends progress updates to keep frontend connection alive.
+    
+    Args:
+        file_ids: List of file IDs to process
+        cookies: Authentication cookies
+        batch_size: Number of files to process concurrently
+        progress_callback: Optional async callback for progress updates
+        
+    Returns:
+        List of file contexts in same order as input file_ids.
+    """
+    all_results = []
+    total_files = len(file_ids)
+    
+    for i in range(0, len(file_ids), batch_size):
+        batch = file_ids[i:i + batch_size]
+        batch_num = i//batch_size + 1
+        total_batches = (total_files + batch_size - 1) // batch_size
+        
+        logger.info(f"[FILE_CONTEXT] Processing batch {batch_num}/{total_batches}: files {i+1} to {i+len(batch)}")
+        
+        # Send progress update to keep connection alive
+        if progress_callback:
+            progress_msg = f"Processing files batch {batch_num}/{total_batches} ({i+1}-{i+len(batch)} of {total_files})..."
+            await progress_callback(progress_msg)
+        
+        # Create tasks for this batch
+        tasks = [extract_single_file_context(file_id, cookies) for file_id in batch]
+        
+        # Execute batch in parallel
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Process results
+        for file_id, result in zip(batch, batch_results):
+            if isinstance(result, Exception):
+                logger.error(f"[FILE_CONTEXT] Error processing file {file_id}: {result}")
+                all_results.append(None)
+            else:
+                all_results.append(result)
+        
+        # Send progress update after batch completion
+        if progress_callback:
+            completed = min(i + batch_size, total_files)
+            progress_msg = f"Completed {completed}/{total_files} files"
+            await progress_callback(progress_msg)
+        
+        # Brief pause between batches to be gentle on the system
+        if i + batch_size < len(file_ids):
+            await asyncio.sleep(0.5)
+    
+    return all_results
+
+async def extract_file_context_from_onyx_with_progress(
+    file_ids: List[int], 
+    folder_ids: List[int], 
+    cookies: Dict[str, str],
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+):
+    """
+    Extract relevant context from files and folders using Onyx's capabilities with progress updates.
+    Yields progress messages during extraction to keep connections alive.
+    
+    Args:
+        file_ids: List of file IDs to extract
+        folder_ids: List of folder IDs to extract
+        cookies: Authentication cookies
+        progress_callback: Optional callback for progress updates
+        
+    Yields:
+        Dict with type 'progress' (progress update) or 'complete' (final context)
     """
     try:
         # Create cache key
@@ -10644,9 +11070,12 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             cached_data = FILE_CONTEXT_CACHE[cache_key]
             if time.time() - cached_data["timestamp"] < FILE_CONTEXT_CACHE_TTL:
                 logger.info(f"[FILE_CONTEXT] Using cached context for key: {cache_key[:16]}...")
-                return cached_data["context"]
+                yield {"type": "progress", "message": "Using cached file context..."}
+                yield {"type": "complete", "context": cached_data["context"]}
+                return
         
         logger.info(f"[FILE_CONTEXT] Extracting context from {len(file_ids)} files and {len(folder_ids)} folders")
+        yield {"type": "progress", "message": f"Extracting context from {len(file_ids)} files and {len(folder_ids)} folders..."}
         
         extracted_context = {
             "file_summaries": [],
@@ -10660,54 +11089,121 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             }
         }
         
-        # Extract file contexts with enhanced retry mechanism
+        # Extract file contexts with batch parallel processing
         successful_extractions = 0
-        for file_id in file_ids:
-            file_context = None
-            for retry_attempt in range(3):  # Up to 3 attempts per file
-                try:
-                    file_context = await extract_single_file_context(file_id, cookies)
-                    if file_context and (file_context.get("summary") or file_context.get("content")):
-                        # Check if this was a successful extraction (not a generic response or error)
-                        content = file_context.get("content", "")
-                        if any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
-                            logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues (attempt {retry_attempt + 1})")
-                            if retry_attempt < 2:  # Don't sleep on the last attempt
-                                await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-                                continue
-                        
+        
+        if file_ids:
+            logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(file_ids)} files")
+            
+            # Process files in batches and yield progress for each batch
+            # Batch size balances speed vs API stability
+            batch_size = 5
+            all_file_results = []
+            total_files = len(file_ids)
+            
+            for i in range(0, len(file_ids), batch_size):
+                batch = file_ids[i:i + batch_size]
+                batch_num = i//batch_size + 1
+                total_batches = (total_files + batch_size - 1) // batch_size
+                
+                progress_msg = f"Processing files batch {batch_num}/{total_batches} ({i+1}-{i+len(batch)} of {total_files})..."
+                logger.info(f"[FILE_CONTEXT] {progress_msg}")
+                yield {"type": "progress", "message": progress_msg}
+                
+                # Create tasks for this batch, maintaining file_id -> task mapping
+                task_to_file_id = {}
+                for file_id in batch:
+                    task = asyncio.create_task(extract_single_file_context(file_id, cookies))
+                    task_to_file_id[task] = file_id
+                
+                tasks_set = set(task_to_file_id.keys())
+                
+                # Execute batch in parallel with periodic keep-alive heartbeats
+                task_results = {}  # Map task to result
+                heartbeat_count = 1
+                start_time = time.time()
+                
+                while tasks_set:
+                    # Wait for tasks with a 10-second timeout
+                    done, tasks_set = await asyncio.wait(
+                        tasks_set, 
+                        timeout=10.0,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
+                    
+                    # Collect completed results
+                    for task in done:
+                        try:
+                            task_results[task] = task.result()
+                        except Exception as e:
+                            task_results[task] = e
+                    
+                    # If there are still pending tasks, send a keep-alive heartbeat
+                    if tasks_set:
+                        elapsed = int(time.time() - start_time)
+                        heartbeat_msg = f"Processing batch {batch_num}/{total_batches}... ({elapsed}s elapsed, {len(task_results)}/{len(batch)} files analyzed)"
+                        logger.info(f"[FILE_CONTEXT_HEARTBEAT] {heartbeat_msg}")
+                        yield {"type": "progress", "message": heartbeat_msg}
+                        heartbeat_count += 1
+                
+                # Reorder results to match original file_id order
+                for file_id in batch:
+                    task = [t for t, fid in task_to_file_id.items() if fid == file_id][0]
+                    result = task_results.get(task)
+                    if isinstance(result, Exception):
+                        all_file_results.append(None)
+                    else:
+                        all_file_results.append(result)
+                
+                # Yield progress after batch completion
+                completed = min(i + batch_size, total_files)
+                progress_msg = f"Analyzed {completed}/{total_files} files"
+                yield {"type": "progress", "message": progress_msg}
+                
+                # Brief pause between batches
+                if i + batch_size < len(file_ids):
+                    await asyncio.sleep(0.5)
+            
+            file_results = all_file_results
+            
+            # Process results
+            for file_id, file_context in zip(file_ids, file_results):
+                if file_context and (file_context.get("summary") or file_context.get("content")):
+                    # Check if this was a successful extraction
+                    content = file_context.get("content", "")
+                    if not any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
                         # Success - add to context
                         extracted_context["file_summaries"].append(file_context["summary"])
                         extracted_context["file_contents"].append(file_context["content"])
                         extracted_context["key_topics"].extend(file_context.get("topics", []))
                         successful_extractions += 1
-                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} (attempt {retry_attempt + 1})")
-                        break  # Success, no need for more retries
+                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
                     else:
-                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} (attempt {retry_attempt + 1})")
-                        if retry_attempt < 2:  # Don't sleep on the last attempt
-                            await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-                except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id} (attempt {retry_attempt + 1}): {e}")
-                    if retry_attempt < 2:  # Don't sleep on the last attempt
-                        await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-            
-            if not file_context or not (file_context.get("summary") or file_context.get("content")):
-                logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
+                        logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues")
+                else:
+                    logger.error(f"[FILE_CONTEXT] Failed to extract context from file {file_id}")
         
-        # Extract folder contexts
-        for folder_id in folder_ids:
-            try:
-                folder_context = await extract_folder_context(folder_id, cookies)
-                if folder_context and folder_context.get("summary"):
+        # Extract folder contexts with batch parallel processing
+        if folder_ids:
+            logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(folder_ids)} folders")
+            yield {"type": "progress", "message": f"Processing {len(folder_ids)} folders..."}
+            
+            # Process folders in parallel
+            folder_tasks = [extract_folder_context(folder_id, cookies) for folder_id in folder_ids]
+            folder_results = await asyncio.gather(*folder_tasks, return_exceptions=True)
+            
+            for folder_id, folder_context in zip(folder_ids, folder_results):
+                if isinstance(folder_context, Exception):
+                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {folder_context}")
+                elif folder_context and folder_context.get("summary"):
                     extracted_context["folder_contexts"].append(folder_context)
                     extracted_context["key_topics"].extend(folder_context.get("topics", []))
                     successful_extractions += 1
                     logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
-            except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
+            
+            yield {"type": "progress", "message": f"Completed processing {len(folder_ids)} folders"}
         
         # If no context was extracted successfully, provide a fallback
         if successful_extractions == 0:
@@ -10727,17 +11223,39 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         
         logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_summaries'])} file summaries, {len(extracted_context['key_topics'])} key topics")
         
-        return extracted_context
+        # Yield final complete result
+        yield {"type": "complete", "context": extracted_context}
         
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] Error extracting file context: {e}", exc_info=True)
-        return {
+        yield {"type": "error", "message": f"Error extracting file context: {str(e)}"}
+        yield {"type": "complete", "context": {
             "file_summaries": [],
             "file_contents": [],
             "folder_contexts": [],
             "key_topics": [],
             "metadata": {"error": str(e)}
-        }
+        }}
+
+async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract relevant context from files and folders using Onyx's capabilities.
+    Returns structured context that can be used with OpenAI.
+    This is a backward-compatible wrapper around the progress-enabled version.
+    """
+    file_context = None
+    async for update in extract_file_context_from_onyx_with_progress(file_ids, folder_ids, cookies):
+        if update["type"] == "complete":
+            file_context = update["context"]
+            break
+    
+    return file_context or {
+        "file_summaries": [],
+        "file_contents": [],
+        "folder_contexts": [],
+        "key_topics": [],
+        "metadata": {"error": "No context extracted"}
+    }
 
 async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
@@ -11417,33 +11935,24 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         KEY_INFO: [most educational/relevant information]
         """
         
-        # Step 4: Multiple retry attempts with different strategies
-        for attempt in range(3):
-            try:
-                result = await attempt_file_analysis_with_retry(
-                    temp_chat_id, file_id, analysis_prompt, cookies, attempt
-                )
-                if result and not is_generic_response(result):
-                    return parse_analysis_result(file_id, result)
-                elif attempt < 2:
-                    logger.warning(f"[FILE_CONTEXT] Attempt {attempt + 1} failed for file {file_id}, retrying...")
-                    await asyncio.sleep(1)  # Brief delay before retry
-                else:
-                    logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
-                    break
-            except Exception as e:
-                logger.error(f"[FILE_CONTEXT] Attempt {attempt + 1} error for file {file_id}: {e}")
-                if attempt < 2:
-                    await asyncio.sleep(1)
-                else:
-                    raise
+        # Step 4: Single attempt - skip file if it fails (no retries)
+        try:
+            result = await attempt_file_analysis_with_retry(
+                temp_chat_id, file_id, analysis_prompt, cookies, 0
+            )
+            if result and not is_generic_response(result):
+                return parse_analysis_result(file_id, result)
+            else:
+                logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed, skipping...")
+        except Exception as e:
+            logger.error(f"[FILE_CONTEXT] File {file_id} analysis error: {e}, skipping...")
         
-        # Step 5: Fallback response if all attempts fail
+        # Step 5: Fallback response if attempt fails (file will be skipped)
         return {
             "file_id": file_id,
-            "summary": f"File analysis failed after multiple attempts (ID: {file_id})",
+            "summary": f"File analysis failed, skipped (ID: {file_id})",
             "topics": ["analysis error", "file processing"],
-            "key_info": "File may need manual review or re-upload",
+            "key_info": "File skipped due to processing error",
             "content": f"Analysis failed for file {file_id} ({file_info.get('name', 'Unknown')})"
         }
             
@@ -16392,6 +16901,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     
     logger.info(f"[PREVIEW_PAYLOAD] Final payload keys: {list(wiz_payload.keys())}")
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
     # Force JSON-ONLY preview output for Course Outline to enable immediate parsed preview
     try:
         json_preview_instructions = f"""
@@ -16463,8 +16973,21 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context and combine with connector context
-                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            file_context_from_smartdrive = None
+                            
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -16571,9 +17094,26 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -17468,9 +18008,10 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content}")
             
             if 'courseOutlineTableHeaders' in content:
+                headers_value = content['courseOutlineTableHeaders']
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ✅ courseOutlineTableHeaders EXISTS in database!")
-                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {content['courseOutlineTableHeaders']}")
-                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(content['courseOutlineTableHeaders'])}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {headers_value}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(headers_value)}")
             else:
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ courseOutlineTableHeaders NOT in database")
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Available keys: {list(content.keys())}")
@@ -17478,6 +18019,23 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             logger.error(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ Content is not a dict or is None!")
         
         logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ==========================================")
+        
+        # 🎯 CRITICAL INSTRUMENTATION: Check assessment data in database
+        if content and isinstance(content, dict) and 'courseOutlineModules' in content:
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Project {project_id} - courseOutlineModules EXISTS in database!")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Number of modules: {len(content['courseOutlineModules'])}")
+            for idx, module in enumerate(content.get('courseOutlineModules', [])):
+                if isinstance(module, dict):
+                    has_assessments = 'lessonAssessments' in module
+                    logger.info(f"🎯 [ASSESSMENT DB READ] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                    logger.info(f"🎯 [ASSESSMENT DB READ] - Has lessonAssessments: {has_assessments}")
+                    if has_assessments:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                    else:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - ❌ NO lessonAssessments in database for module {idx}")
+            logger.info(f"🎯 [ASSESSMENT DB READ] This data WILL BE sent to frontend")
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
         
         # 📊 DETAILED LOGGING: Language preference in retrieved data
         language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
@@ -17743,8 +18301,15 @@ async def get_public_audit(
         course_templates = content.get("courseTemplates", [])
         course_outline_table_headers = content.get("courseOutlineTableHeaders", None)  # 🔧 CRITICAL FIX: Extract table headers
         
-        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        # 🎯 INSTRUMENTATION: Log table headers and assessment data for public audits
         logger.info(f"🎯 [PUBLIC AUDIT TABLE HEADERS] Project {audit['id']} - courseOutlineTableHeaders: {course_outline_table_headers}")
+        logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Project {audit['id']} - Number of modules: {len(course_outline_modules)}")
+        for idx, module in enumerate(course_outline_modules):
+            if isinstance(module, dict):
+                has_assessments = 'lessonAssessments' in module
+                logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Module {idx}: Has lessonAssessments: {has_assessments}")
+                if has_assessments:
+                    logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Module {idx}: lessonAssessments count: {len(module.get('lessonAssessments', []))}")
         
         # Return the same structure as the private endpoint but without sensitive info
         response_data = {
@@ -18181,6 +18746,7 @@ COURSE REQUIREMENTS:
 - DO NOT add module numbers in titles (e.g., 'Module 1:', 'Module 2:', etc.)
 - Use only descriptive module names without prefixes
 - Generate ALL content EXCLUSIVELY in English
+- CRITICAL: Do NOT use Russian, Spanish, or Ukrainian words
 
 RESPONSE FORMAT (JSON only):
 [
@@ -18212,6 +18778,7 @@ REQUISITOS DEL CURSO:
 - NO agregues números de módulos en los títulos (ej., 'Módulo 1:', 'Módulo 2:', etc.)
 - Usa solo nombres descriptivos de módulos sin prefijos
 - Genera TODO el contenido EXCLUSIVAMENTE en español
+- CRÍTICO: NO uses palabras en ruso, inglés o ucraniano
 
 FORMATO DE RESPUESTA (solo JSON):
 [
@@ -18243,6 +18810,7 @@ RESPUESTA (solo JSON):"""
 - НЕ додавайте номери модулів у назви (наприклад, 'Модуль 1:', 'Модуль 2:' тощо)
 - Використовуйте лише описові назви модулів без префіксів
 - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+- КРИТИЧНО: НЕ використовуйте російські, іспанські або англійські слова
 
 ФОРМАТ ВІДПОВІДІ (тільки JSON):
 [
@@ -18253,32 +18821,38 @@ RESPUESTA (solo JSON):"""
 ]
 
 ВІДПОВІДЬ (тільки JSON):"""
-        else:
-            wizard_request = {
-                "product": "Course Outline",
-                "prompt": (
-                    f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
-                    f"КОНТЕКСТ КОМПАНИИ:\n"
-                    f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
-                    f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
-                    f"- Должность: {position_title}\n"
-                    f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
-                    f"ТРЕБОВАНИЯ К КУРСУ:\n"
-                    f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
-                    f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
-                    f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
-                    f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
-                    f"- В каждом модуле должно быть ОТ 5 ДО 7 уроков\n"
-                    f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
-                    f"- Избегай повторяющихся формулировок\n"
-                    f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
-                    f"- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)\n"
-                    f"- Используй только описательные названия модулей без префиксов\n"
-                ),
-                "modules": 4,
-                "lessonsPerModule": "5-7",
-                "language": language
-            }
+        else:  # Russian
+            prompt = f"""Создай детальный план курса 'Онбординг для должности {position_title}' для новых сотрудников на этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'.
+
+КОНТЕКСТ КОМПАНИИ:
+- Название компании: {getattr(payload, 'companyName', 'Company Name')}
+- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+- Должность: {position_title}
+- Дополнительная информация о компании: {duckduckgo_summary}
+
+ТРЕБОВАНИЯ К КУРСУ:
+- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}
+- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании
+- Учитывай специфику отрасли и корпоративную культуру
+- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями
+- В каждом модуле должно быть ОТ 5 ДО 7 уроков
+- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ
+- Избегай повторяющихся формулировок
+- Каждый урок должен быть конкретным и практичным для данной должности
+- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)
+- Используй только описательные названия модулей без префиксов
+- Генерируй ВЕСЬ контент ИСКЛЮЧИТЕЛЬНО на русском языке
+- КРИТИЧНО: НЕ используй английские, испанские или украинские слова
+
+ФОРМАТ ОТВЕТА (только JSON):
+[
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
+]
+
+ОТВЕТ (только JSON):"""
         
         # Generate the course outline
         outline_text = await stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL)
@@ -18308,8 +18882,18 @@ RESPUESTA (solo JSON):"""
         course_modules = []
         for i, module in enumerate(parsed_outline):
             if i < 4:  # Limit to 4 modules as per UI design
+                # Generate language-appropriate default title
+                if language == "en":
+                    default_title = f'Module {i+1}'
+                elif language == "es":
+                    default_title = f'Módulo {i+1}'
+                elif language == "ua":
+                    default_title = f'Модуль {i+1}'
+                else:  # Russian
+                    default_title = f'Модуль {i+1}'
+                
                 module_data = {
-                    "title": module.get('title', f'Модуль {i+1}'),
+                    "title": module.get('title', default_title),
                     "lessons": module.get('lessons', [])
                 }
                 course_modules.append(module_data)
@@ -18340,14 +18924,40 @@ RESPUESTA (solo JSON):"""
                     "lessons": []
                 })
         
-        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons for landing page")
+        # Generate assessment data for each lesson based on language
+        logger.info(f"[COURSE OUTLINE] Generating assessment data for lessons")
+        for module_idx, module in enumerate(course_modules):
+            module['lessonAssessments'] = []
+            for lesson_idx, lesson in enumerate(module.get('lessons', [])):
+                # Generate random assessment type and duration based on language
+                if language == "en":
+                    assessment_types = ['none', 'test', 'practice']
+                    durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+                elif language == "es":
+                    assessment_types = ['ninguno', 'prueba', 'práctica']
+                    durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+                elif language == "ua":
+                    assessment_types = ['немає', 'тест', 'практика']
+                    durations = ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв']
+                else:  # Russian
+                    assessment_types = ['нет', 'тест', 'практика']
+                    durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+                
+                assessment = {
+                    'type': random.choice(assessment_types),
+                    'duration': random.choice(durations)
+                }
+                module['lessonAssessments'].append(assessment)
+                logger.info(f"[COURSE OUTLINE] - Assessment for '{lesson}': {assessment['type']}, {assessment['duration']}")
+        
+        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons and assessments for landing page")
         return course_modules
         
     except Exception as e:
         logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
         # Return default modules as fallback
         if language == "en":
-            return [
+            fallback_modules = [
                 {
                     "title": "Company Introduction and Corporate Culture",
                     "lessons": ["Company Overview", "Corporate Values and Standards", "Organizational Structure", "Policies and Procedures", "Communication Systems"]
@@ -18365,8 +18975,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Goal Setting", "Development Planning", "Performance Evaluation", "Growth Opportunities", "Continuous Learning"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['none', 'test', 'practice']
+            durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
         elif language == "es":
-            return [
+            fallback_modules = [
                 {
                     "title": "Introducción a la Empresa y Cultura Corporativa",
                     "lessons": ["Visión General de la Empresa", "Valores y Estándares Corporativos", "Estructura Organizacional", "Políticas y Procedimientos", "Sistemas de Comunicación"]
@@ -18384,8 +19003,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Establecimiento de Objetivos", "Planificación del Desarrollo", "Evaluación del Rendimiento", "Oportunidades de Crecimiento", "Aprendizaje Continuo"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['ninguno', 'prueba', 'práctica']
+            durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
         elif language == "ua":
-            return [
+            fallback_modules = [
                 {
                     "title": "Введення в компанію та корпоративну культуру",
                     "lessons": ["Огляд компанії", "Корпоративні цінності та стандарти", "Організаційна структура", "Політики та процедури", "Системи комунікації"]
@@ -18403,8 +19031,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Постановка цілей", "Планування розвитку", "Оцінка продуктивності", "Можливості зростання", "Безперервне навчання"]
                 }
             ]
-        else:
-            return [
+            # Add assessment data to fallback modules
+            assessment_types = ['немає', 'тест', 'практика']
+            durations = ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
+        else:  # Russian
+            fallback_modules = [
                 {
                     "title": "Введение в компанию и корпоративную культуру",
                     "lessons": ["Знакомство с компанией", "Корпоративные ценности и стандарты", "Организационная структура", "Политики и процедуры", "Системы коммуникации"]
@@ -18422,6 +19059,15 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Постановка целей", "Планирование развития", "Оценка производительности", "Возможности роста", "Непрерывное обучение"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['нет', 'тест', 'практика']
+            durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
 
 
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload, course_outline_modules: list = None, language: str = "ru") -> list:
@@ -21530,6 +22176,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             wiz_payload["userText"] = payload.userText
 
         wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
         logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
         logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
 
@@ -22011,6 +22658,332 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
 
 
+# -------- Course Context Helper Functions ---------
+
+async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool: asyncpg.Pool) -> Optional[Dict[str, Any]]:
+    """
+    Fetch and parse course outline structure for providing context to lesson product generation.
+    
+    Returns a dictionary containing:
+    - courseTitle: The main title of the course
+    - modules: List of modules with their lessons
+    - detectedLanguage: Language of the course
+    """
+    try:
+        logger.info(f"[COURSE_CONTEXT] Fetching outline structure | outline_id={outline_id}")
+        
+        async with pool.acquire() as conn:
+            outline_row = await conn.fetchrow(
+                "SELECT project_name, microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                outline_id, onyx_user_id
+            )
+        
+        if not outline_row:
+            logger.warning(f"[COURSE_CONTEXT] Outline not found | outline_id={outline_id}")
+            return None
+        
+        course_title = outline_row['project_name']
+        content = outline_row['microproduct_content']
+        
+        # Parse the outline content
+        if isinstance(content, str):
+            import json
+            content = json.loads(content)
+        
+        if not isinstance(content, dict):
+            logger.warning(f"[COURSE_CONTEXT] Outline content is not a dictionary | outline_id={outline_id}")
+            return None
+        
+        # Extract structure
+        sections = content.get('sections', [])
+        detected_language = content.get('detectedLanguage', 'en')
+        
+        modules = []
+        total_lesson_count = 0
+        
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            
+            module_title = section.get('title', 'Untitled Module')
+            lessons = section.get('lessons', [])
+            
+            lesson_list = []
+            for lesson in lessons:
+                if isinstance(lesson, dict):
+                    lesson_title = lesson.get('title', 'Untitled Lesson')
+                elif isinstance(lesson, str):
+                    lesson_title = lesson
+                else:
+                    lesson_title = str(lesson)
+                
+                lesson_list.append(lesson_title)
+                total_lesson_count += 1
+            
+            modules.append({
+                'moduleTitle': module_title,
+                'lessons': lesson_list
+            })
+        
+        logger.info(f"[COURSE_CONTEXT] Outline fetched: \"{course_title}\" | {len(modules)} modules | {total_lesson_count} lessons")
+        
+        return {
+            'courseTitle': course_title,
+            'modules': modules,
+            'detectedLanguage': detected_language
+        }
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error fetching outline structure | outline_id={outline_id} | error={e}", exc_info=not IS_PRODUCTION)
+        return None
+
+
+async def get_adjacent_lesson_content(
+    outline_id: int,
+    current_lesson_title: str,
+    current_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool
+) -> Dict[str, Any]:
+    """
+    Find previous and next lessons relative to the current lesson, and fetch their content.
+    
+    Product Type Priority (when multiple products exist for a lesson):
+    1. Same product type as current (e.g., presentation for presentation)
+    2. Fallback hierarchy: Presentation > Onepager > Quiz
+    
+    Args:
+        outline_id: The course outline ID
+        current_lesson_title: Title of the lesson being generated
+        current_product_type: Type of product being generated (presentation, quiz, onepager)
+        onyx_user_id: User ID
+        pool: Database connection pool
+    
+    Returns:
+        Dict containing previousLesson, nextLesson, and lessonPosition
+    """
+    try:
+        logger.info(f"[COURSE_CONTEXT] Finding adjacent lessons | lesson=\"{current_lesson_title}\" | product_type={current_product_type}")
+        
+        # First, get the outline structure
+        outline_structure = await get_course_outline_structure(outline_id, onyx_user_id, pool)
+        if not outline_structure:
+            logger.warning(f"[COURSE_CONTEXT] Could not fetch outline structure for adjacent lesson lookup")
+            return {}
+        
+        # Find current lesson position
+        modules = outline_structure.get('modules', [])
+        current_module_idx = None
+        current_lesson_idx = None
+        total_modules = len(modules)
+        
+        for mod_idx, module in enumerate(modules):
+            lessons = module.get('lessons', [])
+            for les_idx, lesson_title in enumerate(lessons):
+                if lesson_title.strip().lower() == current_lesson_title.strip().lower():
+                    current_module_idx = mod_idx
+                    current_lesson_idx = les_idx
+                    break
+            if current_module_idx is not None:
+                break
+        
+        if current_module_idx is None:
+            logger.warning(f"[COURSE_CONTEXT] Current lesson not found in outline structure | lesson=\"{current_lesson_title}\"")
+            return {}
+        
+        # Calculate position
+        current_module = modules[current_module_idx]
+        lessons_in_current_module = current_module.get('lessons', [])
+        total_lessons_in_module = len(lessons_in_current_module)
+        lesson_position_str = f"Lesson {current_lesson_idx + 1} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+        
+        logger.info(f"[COURSE_CONTEXT] Position: {lesson_position_str}")
+        
+        # Find previous lesson
+        previous_lesson = None
+        if current_lesson_idx > 0:
+            # Previous lesson is in same module
+            prev_lesson_title = lessons_in_current_module[current_lesson_idx - 1]
+            previous_lesson = await _fetch_lesson_product_content(
+                outline_id, prev_lesson_title, current_product_type, onyx_user_id, pool,
+                f"Lesson {current_lesson_idx} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+            )
+        elif current_module_idx > 0:
+            # Previous lesson is last lesson of previous module
+            prev_module = modules[current_module_idx - 1]
+            prev_module_lessons = prev_module.get('lessons', [])
+            if prev_module_lessons:
+                prev_lesson_title = prev_module_lessons[-1]
+                previous_lesson = await _fetch_lesson_product_content(
+                    outline_id, prev_lesson_title, current_product_type, onyx_user_id, pool,
+                    f"Lesson {len(prev_module_lessons)} of {len(prev_module_lessons)} in Module {current_module_idx} of {total_modules}"
+                )
+        
+        # Find next lesson
+        next_lesson = None
+        if current_lesson_idx < total_lessons_in_module - 1:
+            # Next lesson is in same module
+            next_lesson_title = lessons_in_current_module[current_lesson_idx + 1]
+            next_lesson = await _fetch_lesson_product_content(
+                outline_id, next_lesson_title, current_product_type, onyx_user_id, pool,
+                f"Lesson {current_lesson_idx + 2} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+            )
+        elif current_module_idx < total_modules - 1:
+            # Next lesson is first lesson of next module
+            next_module = modules[current_module_idx + 1]
+            next_module_lessons = next_module.get('lessons', [])
+            if next_module_lessons:
+                next_lesson_title = next_module_lessons[0]
+                next_lesson = await _fetch_lesson_product_content(
+                    outline_id, next_lesson_title, current_product_type, onyx_user_id, pool,
+                    f"Lesson 1 of {len(next_module_lessons)} in Module {current_module_idx + 2} of {total_modules}"
+                )
+        
+        result = {
+            'lessonPosition': lesson_position_str
+        }
+        
+        if previous_lesson:
+            result['previousLesson'] = previous_lesson
+            logger.info(f"[COURSE_CONTEXT] Previous lesson context added | title=\"{previous_lesson.get('title')}\" | type={previous_lesson.get('productType')}")
+        else:
+            logger.info(f"[COURSE_CONTEXT] No previous lesson available")
+        
+        if next_lesson:
+            result['nextLesson'] = next_lesson
+            logger.info(f"[COURSE_CONTEXT] Next lesson context added | title=\"{next_lesson.get('title')}\" | type={next_lesson.get('productType', 'not generated')}")
+        else:
+            logger.info(f"[COURSE_CONTEXT] No next lesson available")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error finding adjacent lessons | error={e}", exc_info=not IS_PRODUCTION)
+        return {}
+
+
+async def _fetch_lesson_product_content(
+    outline_id: int,
+    lesson_title: str,
+    preferred_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool,
+    position_str: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Fetch content for a specific lesson, applying product type priority logic.
+    
+    Priority:
+    1. Same product type as currently being generated
+    2. Presentation (rich narrative content)
+    3. Onepager (rich narrative content)
+    4. Quiz (question-focused, less preferred for context)
+    """
+    try:
+        # Query all products for this lesson
+        async with pool.acquire() as conn:
+            products = await conn.fetch(
+                """
+                SELECT microproduct_content, microproduct_type, component_name
+                FROM projects
+                WHERE course_id = $1
+                  AND onyx_user_id = $2
+                  AND LOWER(project_name) LIKE '%' || $3 || '%'
+                ORDER BY created_at DESC
+                """,
+                outline_id, onyx_user_id, lesson_title.lower()
+            )
+        
+        if not products:
+            logger.info(f"[COURSE_CONTEXT] No products found for lesson | title=\"{lesson_title}\"")
+            return None
+        
+        # Map product types
+        product_type_map = {
+            'presentation': [],
+            'onepager': [],
+            'quiz': []
+        }
+        
+        for product in products:
+            content = product['microproduct_content']
+            microproduct_type = (product['microproduct_type'] or '').lower()
+            component_name = (product['component_name'] or '').lower()
+            
+            # Classify product type
+            if any(keyword in microproduct_type or keyword in component_name 
+                   for keyword in ['presentation', 'slide', 'video_lesson']):
+                product_type_map['presentation'].append(content)
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['onepager', 'text_presentation', 'pdflesson']):
+                product_type_map['onepager'].append(content)
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['quiz']):
+                product_type_map['quiz'].append(content)
+        
+        available_types = [ptype for ptype, prods in product_type_map.items() if prods]
+        logger.info(f"[COURSE_CONTEXT] Products found for \"{lesson_title}\" | {position_str}: {available_types}")
+        
+        # Apply priority logic
+        selected_content = None
+        selected_type = None
+        
+        # Normalize preferred type
+        preferred_normalized = preferred_product_type.lower()
+        if 'presentation' in preferred_normalized or 'slide' in preferred_normalized:
+            preferred_normalized = 'presentation'
+        elif 'onepager' in preferred_normalized or 'text' in preferred_normalized:
+            preferred_normalized = 'onepager'
+        elif 'quiz' in preferred_normalized:
+            preferred_normalized = 'quiz'
+        
+        # Priority 1: Same type
+        if preferred_normalized in product_type_map and product_type_map[preferred_normalized]:
+            selected_content = product_type_map[preferred_normalized][0]
+            selected_type = preferred_normalized
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (same type match)")
+        # Priority 2: Presentation
+        elif product_type_map['presentation']:
+            selected_content = product_type_map['presentation'][0]
+            selected_type = 'presentation'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        # Priority 3: Onepager
+        elif product_type_map['onepager']:
+            selected_content = product_type_map['onepager'][0]
+            selected_type = 'onepager'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        # Priority 4: Quiz
+        elif product_type_map['quiz']:
+            selected_content = product_type_map['quiz'][0]
+            selected_type = 'quiz'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        
+        if not selected_content:
+            return None
+        
+        # Parse and extract content
+        if isinstance(selected_content, str):
+            import json
+            selected_content = json.loads(selected_content)
+        
+        content_str = json.dumps(selected_content, ensure_ascii=False)
+        content_size = len(content_str)
+        
+        logger.info(f"[COURSE_CONTEXT] Content extracted | size={content_size} chars")
+        
+        return {
+            'title': lesson_title,
+            'position': position_str,
+            'productType': selected_type,
+            'content': selected_content,
+            'contentSize': content_size
+        }
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error fetching lesson product | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
+        return None
+
+
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
 
 class LessonWizardPreview(BaseModel):
@@ -22103,7 +23076,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
         
-        # Fetch outline name to include in wizard request
+        # Fetch outline name and course context to include in wizard request
         try:
             # Get current user ID to fetch the outline
             onyx_user_id = await get_current_onyx_user_id(request)
@@ -22116,9 +23089,66 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 )
                 if outline_row:
                     wizard_dict["outlineName"] = outline_row["project_name"]
+            
+            # Add course context for better lesson progression
+            if payload.lessonTitle:
+                logger.info(f"[COURSE_CONTEXT] Fetching course context | outline_id={payload.outlineProjectId} | lesson=\"{payload.lessonTitle}\"")
+                
+                # Get full course structure
+                course_structure = await get_course_outline_structure(payload.outlineProjectId, onyx_user_id, pool)
+                if course_structure:
+                    wizard_dict["courseStructure"] = course_structure
+                    logger.info(f"[COURSE_CONTEXT] Course structure added to wizard request")
+                
+                # Get adjacent lesson content with product type priority
+                product_type = "presentation"  # This is a presentation/slide deck
+                adjacent_context = await get_adjacent_lesson_content(
+                    payload.outlineProjectId,
+                    payload.lessonTitle,
+                    product_type,
+                    onyx_user_id,
+                    pool
+                )
+                
+                if adjacent_context:
+                    # Add lesson position
+                    if 'lessonPosition' in adjacent_context:
+                        wizard_dict["lessonPosition"] = adjacent_context['lessonPosition']
+                        logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                    
+                    # Add previous lesson context
+                    if 'previousLesson' in adjacent_context:
+                        wizard_dict["previousLesson"] = adjacent_context['previousLesson']
+                        prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                    
+                    # Add next lesson context (without full content, just structure)
+                    if 'nextLesson' in adjacent_context:
+                        next_lesson = adjacent_context['nextLesson']
+                        # Include only title and position, not full content
+                        wizard_dict["nextLesson"] = {
+                            'title': next_lesson.get('title'),
+                            'position': next_lesson.get('position')
+                        }
+                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                    
+                    context_summary = []
+                    if 'courseStructure' in wizard_dict:
+                        context_summary.append('courseStructure✓')
+                    if 'lessonPosition' in wizard_dict:
+                        context_summary.append('lessonPosition✓')
+                    if 'previousLesson' in wizard_dict:
+                        context_summary.append('previousLesson✓')
+                    if 'nextLesson' in wizard_dict:
+                        context_summary.append('nextLesson✓')
+                    else:
+                        context_summary.append('nextLesson✗')
+                    
+                    logger.info(f"[COURSE_CONTEXT] Context added to wizard: {' | '.join(context_summary)}")
+                
         except Exception as e:
-            logger.warning(f"Failed to fetch outline name for project {payload.outlineProjectId}: {e}")
-            # Continue without outline name - not critical for preview
+            logger.warning(f"Failed to fetch course context for project {payload.outlineProjectId}: {e}")
+            # Continue without course context - not critical for preview
             
     if payload.lessonTitle:
         wizard_dict["lessonTitle"] = payload.lessonTitle
@@ -22207,7 +23237,22 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             logger.error(f"Failed to decompress lesson text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    # Add course context instructions if context is present
+    course_context_instructions = ""
+    if 'courseStructure' in wizard_dict or 'previousLesson' in wizard_dict:
+        course_context_instructions = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, explanations, or scenarios already covered
+2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "As we learned in the previous lesson...")
+3. **Adjust Complexity**: Use lessonPosition to gauge depth - early lessons need more fundamentals, later lessons can assume knowledge
+4. **Maintain Consistency**: Use the same terminology as previous lessons
+5. **Create Progression**: Prepare groundwork for nextLesson topics when provided
+6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
     
     # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
     try:
@@ -22579,8 +23624,21 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context and combine with connector context
-                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            file_context_from_smartdrive = None
+                            
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -22650,8 +23708,21 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -22677,9 +23748,26 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                         file_ids_list.append(wizard_dict["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -24484,6 +25572,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             }
 
             wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+            wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
             assistant_reply: str = ""
             last_send = asyncio.get_event_loop().time()
@@ -25523,16 +26612,37 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             logger.info(f"🎯 [TABLE HEADER BACKEND] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content_to_store_for_db}")
             
             if 'courseOutlineTableHeaders' in content_to_store_for_db:
+                headers_value = content_to_store_for_db['courseOutlineTableHeaders']
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ✅ courseOutlineTableHeaders FOUND in payload!")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(content_to_store_for_db['courseOutlineTableHeaders'], indent=2)}")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{content_to_store_for_db['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{content_to_store_for_db['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{content_to_store_for_db['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(headers_value, indent=2)}")
+                if headers_value and isinstance(headers_value, dict):
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{headers_value.get('lessons', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{headers_value.get('assessment', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{headers_value.get('duration', 'NOT SET')}'")
+                else:
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Value is None or not a dict")
                 logger.info(f"🎯 [TABLE HEADER BACKEND] This data WILL BE stored in database")
             else:
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ❌ courseOutlineTableHeaders NOT FOUND in payload")
                 logger.info(f"🎯 [TABLE HEADER BACKEND] Payload contains: {list(content_to_store_for_db.keys())}")
             logger.info(f"🎯 [TABLE HEADER BACKEND] ==========================================")
+            
+            # 🎯 CRITICAL INSTRUMENTATION: Assessment data in courseOutlineModules
+            if 'courseOutlineModules' in content_to_store_for_db:
+                logger.info(f"🎯 [ASSESSMENT BACKEND] ==========================================")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] Project {project_id} - courseOutlineModules FOUND in payload!")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] Number of modules: {len(content_to_store_for_db['courseOutlineModules'])}")
+                for idx, module in enumerate(content_to_store_for_db.get('courseOutlineModules', [])):
+                    if isinstance(module, dict):
+                        has_assessments = 'lessonAssessments' in module
+                        logger.info(f"🎯 [ASSESSMENT BACKEND] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                        logger.info(f"🎯 [ASSESSMENT BACKEND] - Has lessonAssessments: {has_assessments}")
+                        if has_assessments:
+                            logger.info(f"🎯 [ASSESSMENT BACKEND] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                        else:
+                            logger.info(f"🎯 [ASSESSMENT BACKEND] - ❌ NO lessonAssessments found in module {idx}")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] This data WILL BE stored in database")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] ==========================================")
         
         # 🚨 CRITICAL: Validate that the data structure matches the component type
         if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
@@ -27560,6 +28670,70 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         wiz_payload["lesson"] = payload.lesson
     if payload.courseName:
         wiz_payload["courseName"] = payload.courseName
+    
+    # Add course context for better lesson progression
+    if payload.outlineId and payload.lesson:
+        try:
+            logger.info(f"[COURSE_CONTEXT] Fetching course context for quiz | outline_id={payload.outlineId} | lesson=\"{payload.lesson}\"")
+            
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
+            pool = await get_db_pool()
+            
+            # Get full course structure
+            course_structure = await get_course_outline_structure(payload.outlineId, onyx_user_id, pool)
+            if course_structure:
+                wiz_payload["courseStructure"] = course_structure
+                logger.info(f"[COURSE_CONTEXT] Course structure added to quiz wizard request")
+            
+            # Get adjacent lesson content with product type priority
+            product_type = "quiz"  # This is a quiz
+            adjacent_context = await get_adjacent_lesson_content(
+                payload.outlineId,
+                payload.lesson,
+                product_type,
+                onyx_user_id,
+                pool
+            )
+            
+            if adjacent_context:
+                # Add lesson position
+                if 'lessonPosition' in adjacent_context:
+                    wiz_payload["lessonPosition"] = adjacent_context['lessonPosition']
+                    logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                
+                # Add previous lesson context
+                if 'previousLesson' in adjacent_context:
+                    wiz_payload["previousLesson"] = adjacent_context['previousLesson']
+                    prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                
+                # Add next lesson context (without full content, just structure)
+                if 'nextLesson' in adjacent_context:
+                    next_lesson = adjacent_context['nextLesson']
+                    wiz_payload["nextLesson"] = {
+                        'title': next_lesson.get('title'),
+                        'position': next_lesson.get('position')
+                    }
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                
+                context_summary = []
+                if 'courseStructure' in wiz_payload:
+                    context_summary.append('courseStructure✓')
+                if 'lessonPosition' in wiz_payload:
+                    context_summary.append('lessonPosition✓')
+                if 'previousLesson' in wiz_payload:
+                    context_summary.append('previousLesson✓')
+                if 'nextLesson' in wiz_payload:
+                    context_summary.append('nextLesson✓')
+                else:
+                    context_summary.append('nextLesson✗')
+                
+                logger.info(f"[COURSE_CONTEXT] Context added to quiz wizard: {' | '.join(context_summary)}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch course context for quiz | outline_id={payload.outlineId} | error={e}")
+            # Continue without course context - not critical for preview
 
     # Add file context if provided
     if payload.fromFiles:
@@ -27671,7 +28845,22 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     except Exception as e:
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")  
+    # Add course context instructions if context is present
+    course_context_instructions_quiz = ""
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+        course_context_instructions_quiz = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
+2. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
+3. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
+4. **Maintain Consistency**: Use the same terminology as previous lessons in your questions
+5. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
+6. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
 
     # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
     try:
@@ -27776,8 +28965,21 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -27803,9 +29005,26 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -27938,6 +29157,7 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         wiz_payload["textMode"] = payload.textMode
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -28575,94 +29795,142 @@ CRITICAL REQUIREMENTS:
 - The "question_type" field is MANDATORY for every question
 """
 
-# Default text presentation JSON example for LLM parsing
+# Perfect educational one-pager example demonstrating 90+ quality score
+# This example shows proper structure with:
+# - Paragraphs (60%): For explanations, context, narrative flow
+# - Bullet lists (20%): For key points structured as 60-100 words each
+# - Worked examples (10%): Complete scenarios with analysis
+# - Recommendations (5%): Action plans
+# - Alerts (5%): Warnings and critical points
+# Bloom's Taxonomy: Remember → Understand → Apply → Analyze
+# Pedagogical elements: Mental models, worked examples, common mistakes, decision frameworks
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "Organizing Neighbor Support During Crisis Situations",
+  "textTitle": "Steps to Conduct Effective Market Analysis",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "Introduction" },
-    { "type": "paragraph", "text": "In times of crisis, community support can be a vital lifeline that makes the difference between struggle and survival. Organizing neighbor support not only helps those in immediate need but also strengthens community bonds and creates lasting relationships that extend far beyond the emergency situation. This presentation will outline effective strategies for mobilizing neighbors during emergencies, ensuring everyone is prepared, supported, and connected to resources they may need in challenging times." },
-    { "type": "headline", "level": 2, "text": "📋 Importance of Community Support", "iconName": "info" },
+    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "Market analysis is a crucial skill in the corporate world, enabling businesses to make informed decisions, understand their competitors, and identify new opportunities. It involves collecting, analyzing, and interpreting data about the market, including sales growth, trends, and patterns. By mastering market analysis, businesses can make informed decisions, identify new opportunities, understand their competitors, and anticipate future market conditions. This presentation delves into the steps necessary for effective market analysis, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
+    { "type": "paragraph", "text": "The fundamental challenge every business faces is understanding not just what the market looks like today, but how it will evolve and where the best opportunities lie. Market analysis transforms raw data and observations into strategic insights that drive decision-making. By the end of this guide, you'll have a systematic framework for conducting thorough market analysis that uncovers opportunities others miss." },
+    
+    { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
+    { "type": "paragraph", "text": "Before diving into the steps, let's establish a common vocabulary. Market Analysis is the process of gathering, interpreting, and utilizing information about a market, including trends, competitor behavior, and customer preferences. Understanding this concept helps stakeholders align on objectives and methodology. Market Size refers to the volume or value of a specific market, indicating potential sales opportunities. This metric helps businesses assess whether a market is worth entering and how much they can realistically capture. Market Growth is the rate at which a market's size is increasing over time, reflecting industry health and future potential. High-growth markets attract more investment but also more competition, making timing critical." },
+    
+    { "type": "headline", "level": 3, "text": "Market Trends" },
+    { "type": "paragraph", "text": "Market Trends are patterns of change in consumer behavior, technology, and regulations that shape how markets evolve. For example, the shift toward remote work created trends in collaboration software, home office equipment, and cybersecurity. Understanding trends allows businesses to anticipate changes rather than react to them. Trends can be short-term fads or long-term structural shifts—distinguishing between them is crucial for strategy. A common mistake is conflating a temporary spike in demand with a lasting trend, leading to overinvestment in capacity that won't be needed long-term." },
+    
+    { "type": "headline", "level": 3, "text": "Competitive Landscape" },
+    { "type": "paragraph", "text": "The Competitive Landscape is a detailed examination of how a business's competitors operate within the same market, including their strengths, weaknesses, strategies, and market positions. This isn't just about knowing who your competitors are—it's about understanding their business models, pricing strategies, customer segments, and strategic priorities. By understanding this, companies can differentiate themselves and exploit competitors' weaknesses. For instance, if all major competitors focus on enterprise customers, a gap may exist in serving small businesses with simpler, more affordable solutions." },
+    
+    { "type": "headline", "level": 2, "text": "💡 MENTAL MODELS FOR MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "Mental models are frameworks that help simplify complex information into understandable and usable forms. For market analysis, several proven models provide structured approaches to evaluating markets systematically." },
+    
+    { "type": "headline", "level": 3, "text": "PESTLE Analysis Framework" },
+    { "type": "paragraph", "text": "PESTLE Analysis evaluates external factors across six dimensions: Political (government policies, trade regulations, political stability), Economic (GDP growth, interest rates, inflation, exchange rates), Social (demographics, cultural trends, consumer attitudes), Technological (innovation rates, automation, R&D investment), Legal (employment law, health and safety regulations, intellectual property), and Environmental (climate change regulations, sustainability trends, resource scarcity). This framework is particularly useful for evaluating both internal and external factors influencing a company, helping identify opportunities and threats that might not be immediately obvious." },
+    { "type": "paragraph", "text": "How to apply PESTLE: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the highest impact and likelihood. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
+    
+    { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
+    { "type": "paragraph", "text": "Porter's Five Forces helps assess industry attractiveness and competitive intensity by examining: (1) Threat of New Entrants—how easy is it for new competitors to enter your market? High barriers like capital requirements or regulatory hurdles protect incumbents. (2) Bargaining Power of Suppliers—can suppliers dictate terms? If you have few supplier options, they can squeeze your margins. (3) Bargaining Power of Buyers—can customers demand lower prices? Large customers or commoditized products increase buyer power. (4) Threat of Substitutes—can customers solve their problem differently? Substitutes don't have to be direct competitors—video conferencing substituted for business travel. (5) Competitive Rivalry—how intense is competition among existing players? High rivalry leads to price wars and margin erosion." },
+    { "type": "paragraph", "text": "These models offer structured approaches for analyzing markets, ensuring comprehensive evaluation rather than ad-hoc guesswork. Use PESTLE when evaluating macro-environmental factors and market entry decisions. Use Five Forces when assessing industry profitability and competitive positioning. Combine both for a complete picture: PESTLE shows you which markets are attractive from a macro perspective, while Five Forces reveals whether you can actually make money in those markets given competitive dynamics." },
+    
+    { "type": "headline", "level": 2, "text": "🎬 STEP-BY-STEP PROCEDURES FOR MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "Now that you understand key concepts and frameworks, let's walk through the actual process of conducting market analysis. Each step builds on the previous one, creating a comprehensive understanding of your market." },
+    
+    { "type": "headline", "level": 3, "text": "Step 1: Define the Market Scope" },
+    { "type": "paragraph", "text": "Begin by clearly defining the market you wish to analyze. This involves identifying the geographic region, product categories, and customer segments you intend to examine. A precise definition ensures the relevance of your analysis and prevents scope creep that dilutes insights. For example, instead of analyzing 'the software market,' narrow it to 'project management software for remote teams of 10-50 people in North America.' This specificity makes data collection manageable and insights actionable." },
+    { "type": "paragraph", "text": "Why this matters: Without clear boundaries, you'll collect irrelevant data and draw misleading conclusions. A company analyzing 'the healthcare market' might include everything from hospital equipment to consumer vitamins—markets with completely different dynamics, customers, and competitors. The narrower your initial scope, the more actionable your insights. You can always expand later once you understand one segment deeply. Common pitfall: Defining the market too broadly to make the opportunity look bigger for stakeholders, then realizing you can't actually serve that entire market." },
+    
+    { "type": "headline", "level": 3, "text": "Step 2: Collect Data from Multiple Sources" },
+    { "type": "paragraph", "text": "Gather quantitative and qualitative data from various sources. Primary data comes directly from the market via surveys, interviews, or social media. This data is expensive and time-consuming but highly relevant to your specific questions. Secondary data can be found in existing reports or databases—industry reports from Gartner or Forrester, government statistics, trade association publications, or competitor financial filings. A mix of both types provides a comprehensive view while balancing cost and relevance." },
+    { "type": "paragraph", "text": "Best practices for data collection: Start with secondary research to understand the landscape, then use primary research to fill gaps and validate assumptions. When conducting interviews, talk to customers, potential customers, AND non-customers who chose alternatives—understanding why people didn't choose you is as valuable as understanding why they did. Aim for at least 20-30 interviews to identify patterns. For surveys, quality matters more than quantity—500 responses from your actual target segment beat 5,000 responses from a generic audience. Document your sources meticulously—you'll need to reference them later when stakeholders question your conclusions." },
+    
+    { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
+    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. Calculate TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) to understand the full opportunity, the portion you can realistically serve, and the portion you can actually capture given competition and your capabilities. For example, the global CRM software market might be $50B (TAM), but if you only serve small businesses in Europe, your SAM might be $2B, and your realistic SOM in year three might be $50M based on expected market share." },
+    { "type": "paragraph", "text": "Why three different numbers matter: TAM shows the theoretical maximum if you had infinite resources and no competition—useful for understanding market potential but misleading for planning. SAM shows what's realistically addressable given your go-to-market constraints—this is what you should use for strategic planning. SOM shows what you can actually capture—this is what you should use for revenue forecasting and resource allocation. Decision criterion: Only pursue markets where your realistic SOM can support your business model. If you need $10M revenue to be sustainable but can only capture $5M, the market is too small regardless of how large the TAM appears." },
+    
+    { "type": "headline", "level": 3, "text": "Step 4: Identify Market Trends" },
+    { "type": "paragraph", "text": "Analyze data to spot patterns and trends in consumer behavior, technology adoptions, and regulatory changes. Trends offer insights into market direction, helping businesses anticipate changes rather than merely reacting. Look for convergence of multiple signals—a real trend will show up in customer interviews, industry reports, and competitor behavior simultaneously. For instance, the shift to subscription models appeared in customer preferences for predictable costs, analyst reports on recurring revenue valuations, and competitor launches of subscription offerings." },
+    { "type": "paragraph", "text": "Distinguishing trends from fads: Trends are driven by fundamental changes in technology, demographics, or economics and build gradually over years. Fads are driven by social dynamics and novelty, peaking quickly then disappearing. Ask: What underlying force drives this change? Is it reversible? Are multiple independent factors pointing the same direction? For example, remote work is a trend driven by technology (collaboration tools), economics (real estate costs), and demographics (millennial preferences)—all durable factors. Cryptocurrency adoption in 2021 showed fad characteristics—driven primarily by speculation and social contagion rather than fundamental utility, leading to a crash when sentiment shifted." },
+    
+    { "type": "headline", "level": 3, "text": "Step 5: Conduct Competitive Analysis" },
+    { "type": "paragraph", "text": "Examine your competitors' strengths, weaknesses, market share, strategies, and weaknesses. Understanding competition is key to differentiation and gaining competitive advantage. Create a detailed competitor matrix documenting: pricing models, target segments, key features, strengths/weaknesses, recent funding or strategic moves, and estimated market share. Don't limit analysis to direct competitors—include substitute products and potential new entrants. For example, a taxi company should analyze not just other taxi companies but also Uber, Lyft, public transit, bicycle sharing, and any other way customers solve the transportation problem." },
+    { "type": "paragraph", "text": "Porter's Five Forces is particularly useful here—it reveals not just who your competitors are, but the structural factors that determine how intense competition will be. Practical application: Categorize competitors into strategic groups based on their approach (e.g., premium vs. budget, enterprise vs. SMB, product-led vs. sales-led). Within each group, identify the leader and understand their strategy. Then look for underserved segments—gaps where customer needs aren't being met. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental. If customers choose a competitor because they prefer a feature you can build, that's fixable. If they choose competitors because they need enterprise-scale support you can't economically provide at your size, that reveals a segment you should avoid until you're larger." },
+    
+    { "type": "headline", "level": 3, "text": "Step 6: Evaluate Customer Needs and Preferences" },
+    { "type": "paragraph", "text": "Use your data to identify what your potential customers need and want. Customer insights drive product development, marketing, and customer service strategies. Go beyond what customers say they want to understand their underlying jobs-to-be-done. People don't want a quarter-inch drill, they want a quarter-inch hole—or actually, they want to hang a picture to make their home feel complete. Understanding these layers helps you identify non-obvious solutions. Use techniques like focus groups for exploratory research, surveys for quantifying preferences across larger groups, and observational research to see what customers actually do versus what they say they do." },
+    { "type": "paragraph", "text": "The biggest insight often comes from understanding the gap between stated and revealed preferences. Customers might say they want more features, but behavioral data shows they primarily use three core functions and find additional features confusing. They might say price is their top priority, but they consistently choose premium options when the value proposition is clear. This is why combining surveys (stated preferences), interviews (deeper context), and behavioral data (revealed preferences) gives you the complete picture. Prioritization framework: Identify needs that are (1) important to customers, (2) unsatisfied by current solutions, and (3) feasible for you to address profitably. The intersection of these three is your opportunity space." },
+    
+    { "type": "headline", "level": 3, "text": "Step 7: Synthesize Insights and Draw Conclusions" },
+    { "type": "paragraph", "text": "Combine all findings to draw conclusions about market opportunities, challenges, and strategic directions. This synthesis guides decision-making, ensuring strategies are data-driven rather than based on assumptions or intuition alone. Create a clear narrative that connects your findings: What is the market opportunity? Who are the customers? What do they need? Who else serves them and how? Where are the gaps? What trends are creating new opportunities or threats? This narrative becomes your strategic foundation." },
+    { "type": "paragraph", "text": "The synthesis should answer three critical questions: (1) Should we enter/remain in this market? Base this on market attractiveness (size, growth, profitability) and competitive advantage (can we win?). (2) If yes, what segments should we target? Prioritize based on segment attractiveness and your ability to serve them profitably. (3) How should we position ourselves? Based on competitive gaps and customer needs. Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
+    
+    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: SaaS Company Analyzing Healthcare Market" },
+    { "type": "paragraph", "text": "Let's walk through a complete market analysis example to see how these steps work in practice." },
+    
+    { "type": "headline", "level": 3, "text": "Background and Situation" },
+    { "type": "paragraph", "text": "TechFlow is a SaaS company with $10M annual revenue, currently selling project management software to technology companies. They're considering entering the healthcare vertical. Their board wants analysis to support a go/no-go decision within three months. The team has $50K budget for research and two analysts dedicated to the project." },
+    
+    { "type": "headline", "level": 3, "text": "Step-by-Step Analysis" },
+    { "type": "paragraph", "text": "Step 1 - Define Market Scope: The team initially considered 'healthcare project management' but realized this was too broad—hospitals have completely different needs than medical practices or pharmaceutical companies. After preliminary research, they narrowed to: 'Project management software for clinical research teams at mid-size pharmaceutical and biotech companies (500-5000 employees) in North America.' This specificity made the analysis manageable and insights actionable." },
+    { "type": "paragraph", "text": "Step 2 - Collect Data: Secondary research included three industry reports ($15K total) showing clinical trial management market dynamics, FDA databases showing number of clinical trials and sponsors, and competitor websites and case studies. Primary research included 30 interviews with clinical research managers, attending two industry conferences, and surveying 120 clinical research professionals on LinkedIn. Total research cost: $45K (under budget)." },
+    { "type": "paragraph", "text": "Step 3 - Analyze Market Size: TAM (all clinical trial project management globally): $2.3B. SAM (mid-size pharma/biotech, North America only): $380M. SOM (realistic capture in 3 years given competition): $15-25M. This SOM was calculated by estimating 200 target companies, 40% reachable through their channels, 25% conversion rate (based on their historical performance in tech), at $30K average annual contract value. The SOM range ($15-25M) accounts for uncertainty in conversion rates." },
+    { "type": "paragraph", "text": "Step 4 - Identify Trends: Three major trends identified: (1) FDA increasing scrutiny of clinical trial data management, creating demand for better documentation and audit trails (regulatory driver). (2) Rise of decentralized clinical trials requiring coordination across more dispersed teams (technology and COVID-driven). (3) Growing emphasis on trial speed as cost of delays increases, particularly for biotech companies with finite runway (economic driver). These trends converged to increase willingness-to-pay for better project management tools." },
+    { "type": "paragraph", "text": "Step 5 - Competitive Analysis: Four main competitors identified: TrialMaster (market leader, enterprise-focused, $100K+ deals, strong with large pharma), Medidata (comprehensive suite, expensive, long implementation), SmallPharma PM (budget option, limited features, $10K/year), and Excel + Email (surprisingly common among mid-size companies, free but inefficient). Gap identified: No solution optimized for mid-size companies that want more than Excel but can't afford or don't need enterprise solutions like Medidata. TechFlow's sweet spot—they've built a business on serving the mid-market that enterprises ignore and startups can't profitably serve." },
+    { "type": "paragraph", "text": "Step 6 - Customer Needs: Interviews revealed clinical research managers' biggest frustrations: (1) Compliance burden—every project change requires extensive documentation for FDA audits, (2) Cross-functional coordination—clinical trials involve medical, regulatory, data management, and operations teams that don't communicate well, (3) Visibility—leadership constantly asks 'when will the trial complete?' but answering requires manually aggregating data from multiple systems. Current solutions either don't address these needs (Excel) or are overkill with features they don't need (enterprise systems). TechFlow's existing strength in visual project timelines and stakeholder communication directly addresses needs #2 and #3." },
+    
+    { "type": "headline", "level": 3, "text": "Synthesis and Decision" },
+    { "type": "paragraph", "text": "Market Attractiveness: High. Growing market ($380M SAM, 12% annual growth), strong willingness-to-pay driven by regulatory and economic pressures, clear competitive gap in the mid-market segment. Competitive Advantage: Medium-High. TechFlow's core strengths (visual project management, cross-functional collaboration, mid-market focus) align well with identified needs. However, they lack healthcare domain expertise and compliance features. Risk: Entering a regulated industry requires compliance investment and longer sales cycles than their current tech market. Recommendation: Enter the market with a focused pilot—target 5-10 mid-size biotech customers to validate assumptions before full launch. Build compliance features (audit trails, user permissions, data retention) into roadmap. Hire one clinical research expert as product advisor. Budget $2M for year-one investment with expectation of $3-5M revenue by year three. This staged approach allows learning while limiting risk." },
+    
+    { "type": "headline", "level": 3, "text": "Key Lessons from This Example" },
+    { "type": "paragraph", "text": "First, market definition narrowing was crucial. 'Healthcare' → 'Clinical Research' → 'Mid-size Pharma/Biotech' → 'North America' transformed an impossibly broad analysis into an actionable one. Second, primary research revealed insights secondary research couldn't—the Excel + Email finding only emerged from customer interviews, yet it was critical for understanding the actual competition. Third, connecting customer needs to existing strengths is how you identify genuine competitive advantages rather than wishful thinking. TechFlow didn't need to be better at everything, just better at what mattered most to their target segment. Finally, staged entry reduces risk—the pilot approach lets them test assumptions with limited investment before full commitment." },
+    
+    { "type": "headline", "level": 2, "text": "❌ ANALYZING COMMON MISTAKES IN DEPTH" },
+    { "type": "paragraph", "text": "Understanding what NOT to do is as valuable as knowing best practices. Let's examine the most frequent and costly mistakes in market analysis with detailed analysis of why they happen and how to avoid them." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #1: Relying Solely on Secondary Data" },
+    { "type": "paragraph", "text": "Why it happens: Secondary research (industry reports, market studies, published data) is faster, cheaper, and feels more 'objective' than primary research. Companies rationalize that professional analysts have done the work, so why duplicate it? It's also more comfortable—reading reports doesn't require the vulnerability of talking to customers who might tell you your idea won't work." },
+    { "type": "paragraph", "text": "Real consequence: A B2B software company analyzed Gartner and Forrester reports showing strong demand in their category. Market reports showed $5B market size growing at 20% annually. They raised $10M, built the product, and launched to crickets. Post-mortem interviews revealed that while the aggregate market was growing, their specific use case wasn't a priority—customers had workarounds they were satisfied with. The reports averaged across many use cases, hiding this critical nuance. They burned through $8M before pivoting. The $50K they saved by not doing primary research cost them $8M in wasted development." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: Warning signs include: You can't name 10 potential customers by name and describe their specific pain points. Your pitch deck has a 'market size' slide but no 'customer quotes' slide. When asked 'How do you know customers want this?' your answer starts with 'Research shows...' instead of 'When I talked to customers...'. You're using three-year-old industry reports as your primary source. You haven't personally talked to at least 20 people in your target market." },
+    { "type": "paragraph", "text": "How to correct it: Implement a 70/30 rule—70% of your analysis time should be primary research (talking to customers, observing their behavior, testing assumptions), 30% secondary research (industry reports, market data, competitive intelligence). Start every market analysis by talking to people before reading reports. Use secondary data to size the market you've already validated through primary research, not to validate whether the market exists. Require every market analysis deliverable to include customer quotes and observed behaviors, not just statistics. Make customer interviews non-negotiable—if you can't get 20-30 interviews, you don't understand the market well enough to make major decisions." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #2: Confusing Market Size with Market Opportunity" },
+    { "type": "paragraph", "text": "Why it happens: Large TAM numbers are exciting and make pitch decks impressive. There's social pressure to show you're pursuing a 'big' opportunity. Founders and product managers selectively attend to information that makes their opportunity look bigger (confirmation bias). It's also easier to calculate TAM than to realistically assess what you can actually capture (SOM), so people stop at the easy metric." },
+    { "type": "paragraph", "text": "Real consequence: A startup raised money to build productivity software, citing a $30B productivity software TAM. What they didn't account for: (1) Their solution only worked for knowledge workers in specific industries (reducing TAM to $5B), (2) they could only reach SMBs through their go-to-market channels (reducing to $800M SAM), (3) in SMB productivity software, typical market leaders capture 5-8% share (reducing to $40-64M realistic SOM). They raised $5M expecting to build a $100M+ business but ran out of money after capturing $3M in revenue—their realistic SOM for years 1-3 was $5-8M, not enough to justify their cost structure. The business failed not because the market was 'too small' in absolute terms, but because they built for the wrong market size assumption." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: You talk about TAM but haven't calculated SAM and SOM. Your revenue projections assume you'll capture an unrealistic market share (>10% in a competitive market). You can't explain why customers would switch from current solutions to yours. Your 'market size' analysis focuses on how many potential customers exist rather than how many you can realistically reach, convert, and serve profitably. Your go-to-market strategy doesn't align with your market size claims (e.g., claiming a $10B opportunity but planning to use only inbound marketing to reach customers)." },
+    { "type": "paragraph", "text": "How to correct it: Always calculate all three numbers: TAM (total market), SAM (what you can serve given your constraints), and SOM (what you can realistically capture given competition). Use SOM for business planning and resource allocation, not TAM. Calculate SOM bottom-up: How many target customers exist? → What % can you reach through your channels? → What conversion rate can you achieve? → What's your average deal size? → Multiply these to get realistic revenue potential. Validate your SOM assumptions by looking at comparable companies—if you're assuming 15% market share but leaders in similar markets only capture 8%, you're being unrealistic. Be honest about constraints: geographic limitations, channel limitations, product limitations, competitive disadvantages. Strategy is as much about what you won't do as what you will do." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #3: Ignoring the Competitive Substitutes" },
+    { "type": "paragraph", "text": "Why it happens: People naturally focus on direct competitors (other companies doing the same thing) while overlooking indirect competitors and substitutes (different ways customers solve the same problem). This happens because direct competitors are visible and easy to identify, while substitutes require understanding customer jobs-to-be-done at a deeper level. There's also an optimistic tendency to think 'our solution is so obviously better that customers will definitely switch' without considering switching costs and the 'good enough' problem." },
+    { "type": "paragraph", "text": "Real consequence: A startup built sophisticated AI-powered meal planning software, analyzing direct competitors (other meal planning apps) but ignoring substitutes. When they launched, they discovered their actual competition was: manually browsing Pinterest, asking family members for recipe ideas, ordering from the same three restaurants customers already knew, and simply eating whatever was in the fridge. These 'free' substitutes worked 'good enough' that customers didn't feel enough pain to pay $10/month for optimization. The company built a feature-rich product solving a problem customers had learned to live with. They spent $2M achieving $200K ARR before shutting down. The competition wasn't other apps—it was customer inertia and free alternatives." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: Your competitive analysis only lists companies that look like you. When you describe competitors, you focus on their features rather than how customers use them. You haven't mapped out all the ways customers currently solve the problem you're addressing, including 'do nothing' and manual/informal solutions. You're surprised when customers say they 'aren't really looking for a solution right now' despite having the problem you solve. Your win rate against direct competitors is good, but your overall conversion rate is low (meaning you win when customers decide to buy something, but most customers decide not to buy anything)." },
+    { "type": "paragraph", "text": "How to correct it: Reframe competitive analysis around customer jobs-to-be-done instead of product categories. Ask: 'What are all the ways customers currently solve this problem?' not just 'Who else sells this type of product?'. In customer interviews, always ask: 'What do you do today when you encounter this problem?' and 'What would you do if our product didn't exist?'. The answers reveal your real competition. Create a comprehensive competitor map including: direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). For each alternative, understand: What does it cost? What's good enough about it? What's the switching cost from it to you? What would have to be true for customers to switch? This reveals whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war against direct competitors but lose the value war against substitutes and status quo." },
+    
+    { "type": "headline", "level": 2, "text": "✅ RECOMMENDATIONS FOR EFFECTIVE MARKET ANALYSIS" },
     {
       "type": "bullet_list",
       "items": [
-        "**Strengthens Resilience**: Communities that actively support each other can recover significantly faster from crises and emerge stronger than before. When neighbors work together, they pool resources, share knowledge, and create support networks that help everyone bounce back more quickly from difficult situations.",
-        "**Enhances Safety**: Neighbors looking out for one another can dramatically reduce risks and improve overall safety for everyone in the community. Regular check-ins, shared awareness of potential hazards, and coordinated emergency responses create a protective network that benefits all residents, especially vulnerable individuals who may need extra assistance.",
-        "**Builds Trust**: Collaborative efforts during difficult times foster deep trust and meaningful cooperation among residents that can last for years. When people work together to overcome challenges, they develop stronger relationships, better communication patterns, and a shared sense of purpose that transforms neighborhoods into genuine communities."
+        "**Use a combination of data sources to ensure a comprehensive view of the market**: Relying on a single data source creates blind spots and biases in your analysis. Primary research gives you specific insights about your target customers that no report can provide, revealing nuances like workflow details, political dynamics, and unspoken pain points. Secondary research provides market sizing, trend validation, and competitive benchmarking that would take years to gather yourself. This approach mitigates the risk of bias and provides a solid basis for a more reliable analysis that combines the depth of primary research with the breadth of secondary data.",
+        "**Regularly update your market analysis to reflect current conditions**: Markets are dynamic—what was true last year may not be true today. Customer preferences shift, new competitors emerge, regulations change, and technological innovations disrupt established patterns. Schedule quarterly reviews of key metrics and assumptions to catch changes early when you can still adapt. Regular updates help strategies remain relevant and responsive to market changes, preventing you from optimizing for yesterday's market. Assign someone ownership of market intelligence—if it's everyone's job, it's no one's job. This person should maintain competitor tracking, customer feedback loops, and industry monitoring.",
+        "**Engage directly with customers through surveys and feedback mechanisms to understand their evolving needs and preferences**: Direct engagement offers real-time insights and fosters customer loyalty by showing you value their input. Use multiple engagement mechanisms: quarterly surveys for broad trends (what's changing?), monthly user interviews for deep dives (why is it changing?), ongoing support ticket analysis (where are pain points?), and user behavior analytics (what do they actually do vs. what they say?). The combination reveals both stated and revealed preferences. Make feedback actionable—close the loop by telling customers how their input shaped decisions, and you'll increase future participation rates.",
+        "**Incorporate scenario planning into your market analysis to anticipate various future states based on different variables**: The future is uncertain, but it's not random—it will be shaped by identifiable drivers. Scenario planning helps you prepare for multiple futures rather than betting everything on one forecast. Identify key uncertainties (regulation, technology adoption, economic conditions), create 3-4 distinct scenarios showing how these might play out (e.g., 'rapid adoption', 'slow adoption', 'regulatory backlash'), and develop strategic responses for each. This helps in preparing for unexpected changes in the market or industry, making your strategy more resilient. Focus on preparedness rather than prediction—you can't know which future will happen, but you can prepare to thrive in multiple scenarios rather than being optimized for only one."
       ]
     },
-    { "type": "headline", "level": 2, "text": "🚀 Steps to Organize Support", "iconName": "info" },
-    {
-      "type": "numbered_list",
-      "items": [
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Identify Key Resources" },
-            { "type": "paragraph", "text": "Begin by thoroughly assessing what resources are currently available within your community, including essential supplies like food, water, medical equipment, generators, and other emergency items that neighbors may have on hand. Create a detailed inventory of these resources so you know exactly what's available when crisis strikes." },
-            { "type": "paragraph", "text": "Create a comprehensive list of skills and services that neighbors can offer to the community, such as medical assistance, transportation services, childcare, pet care, technical support, language translation, or specialized knowledge that could prove valuable during emergencies. This skills inventory becomes an invaluable resource when coordinating community responses to various challenges." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Establish Communication Channels" },
-            { "type": "paragraph", "text": "Set up a dedicated group chat or social media group specifically for quick emergency updates and ongoing communication between neighbors. Choose platforms that most community members already use and ensure everyone knows how to access and use these channels effectively, even during power outages or internet disruptions when possible." },
-            { "type": "paragraph", "text": "Use multiple communication methods including community bulletin boards, flyers posted in common areas, door-to-door notifications, and email lists to share critical information with all residents. This multi-channel approach ensures that even those without smartphones or internet access can stay informed and connected to community support networks." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Create a Support Network" },
-            { "type": "paragraph", "text": "Organize a dedicated group of reliable volunteers who are committed to coordinating support efforts and serving as points of contact during emergencies. Ensure this core team represents diverse areas of your neighborhood so coverage is comprehensive and volunteers can respond quickly to nearby residents who need assistance." },
-            { "type": "paragraph", "text": "Assign specific roles and responsibilities to volunteers based on their unique skills, availability, and comfort levels with different tasks. For example, designate coordinators to manage overall efforts, communicators to disseminate information, logistics specialists to manage resources, and field responders to provide direct assistance to neighbors in need." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Plan Regular Meetings" },
-            { "type": "paragraph", "text": "Schedule regular check-in meetings, whether in-person or virtual, to discuss evolving community needs, share updates about available resources, address concerns, and maintain strong connections between neighbors. These meetings should occur both during calm periods (for planning and relationship-building) and during crises (for coordination and rapid response)." },
-            { "type": "paragraph", "text": "Use these meetings strategically to build deeper relationships, strengthen the support network, share success stories, and ensure everyone feels valued and heard within the community. Regular gatherings also help identify emerging leaders, uncover hidden resources or skills, and keep the momentum of community engagement strong even when there's no immediate crisis." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Develop Emergency Plans" },
-            { "type": "paragraph", "text": "Create a detailed, written community emergency plan that clearly outlines specific roles, responsibilities, communication protocols, and action steps for various crisis scenarios your neighborhood might face. Include contact information for all key volunteers, locations of emergency supplies, evacuation routes, and designated meeting points so everyone knows exactly what to do when disaster strikes." },
-            { "type": "paragraph", "text": "Ensure that every household has easy access to the emergency plan and clearly understands how to access critical resources, request assistance, and contribute their own skills and resources to support others. Regularly review and update the plan as the community evolves, new members join the neighborhood, or lessons are learned from past experiences." }
-          ],
-          "iconName": "none"
-        }
-      ]
-    },
-    { "type": "headline", "level": 2, "text": "🔑 Key Considerations", "iconName": "info" },
-    {
-      "type": "bullet_list",
-      "items": [
-        "**Inclusivity**: Ensure that all community members, regardless of age, ability, language spoken, or socioeconomic status, feel genuinely included, valued, and welcomed in the planning process. Actively seek input from diverse voices and make sure your support systems can accommodate the unique needs of every resident, including those who may face barriers to participation.",
-        "**Cultural Sensitivity**: Be deeply aware of and respectful toward cultural differences, religious practices, dietary restrictions, communication preferences, and other cultural factors within your community. Take time to learn about the diverse backgrounds of your neighbors and ensure that support efforts honor and accommodate these differences rather than imposing a one-size-fits-all approach.",
-        "**Flexibility**: Be fully prepared to adapt your plans, strategies, and approaches as situations evolve and new information becomes available. Crisis situations are inherently unpredictable, so maintaining flexibility and being willing to adjust your response based on real-time needs and feedback is essential for effective community support and successful outcomes."
-      ]
-    },
-    { "type": "headline", "level": 2, "text": "💡 Recommendations for Success", "iconName": "info" },
-    {
-      "type": "bullet_list",
-      "items": [
-        "**Engage Local Organizations**: Actively partner with local nonprofits, faith-based organizations, government agencies, schools, and businesses to access additional support, resources, funding, expertise, and volunteer networks. These partnerships can dramatically expand your community's capacity to respond to crises and provide professional guidance on best practices for emergency preparedness and response coordination.",
-        "**Promote Preparedness**: Consistently encourage and help neighbors prepare their own individual emergency kits, family communication plans, evacuation strategies, and disaster supplies so they can be self-sufficient for at least 72 hours. Offer workshops, share checklists, and provide guidance on essential supplies, document preparation, and household emergency planning to increase overall community resilience.",
-        "**Celebrate Successes**: Regularly acknowledge, appreciate, and celebrate the efforts, contributions, and dedication of volunteers and community members who step up to help others. Public recognition, thank-you events, success story sharing, and appreciation ceremonies foster a positive, encouraging environment that motivates continued engagement and attracts new volunteers to join your community support network."
-      ]
-    },
-    { "type": "headline", "level": 2, "text": "📌 Conclusion", "iconName": "info" },
-    { "type": "paragraph", "text": "Organizing neighbor support during crisis situations is absolutely essential for building resilient, connected, and caring communities that can weather any storm together. By following these comprehensive steps and fostering a genuine spirit of collaboration, mutual respect, and shared responsibility, we can ensure that everyone is prepared, supported, and protected in times of need. Together, through coordinated action and compassionate support, we can make a truly significant and lasting difference in our neighborhoods and the lives of all our neighbors." },
-    { "type": "alert", "alertType": "info", "title": "Recommendation", "text": "To effectively implement these strategies and build genuine community connections, consider hosting an engaging community event, neighborhood meeting, or workshop to discuss, plan, and organize neighbor support initiatives in a welcoming, collaborative atmosphere. This can be an excellent way to engage residents of all ages, build a stronger support network, identify volunteer leaders, and create the foundation for lasting community resilience." }
+    
+    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply Your Learning" },
+    { "type": "paragraph", "text": "Now let's test your understanding with a realistic scenario. Work through this analysis using the frameworks and steps you've learned." },
+    
+    { "type": "paragraph", "text": "**Scenario**: GlobalSensors Inc. manufactures industrial sensors ($500/unit) primarily for automotive manufacturing (70% of revenue) and aerospace (30% of revenue). Total revenue: $25M annually. They're considering entering the agricultural technology market. Your task is to conduct a preliminary market analysis." },
+    
+    { "type": "paragraph", "text": "**Available Data**: (1) Agricultural technology market size: $12B globally, growing at 8% annually. (2) Three major competitors control 60% combined market share: AgriTech Solutions, FarmSense, and CropMonitor. Pricing ranges from $300-$800 per unit. (3) Your sensors have tighter tolerances (0.1mm vs. industry standard 0.2mm) but most agricultural applications don't require that precision. (4) GlobalSensors has zero existing agricultural customer relationships or distribution channels. (5) Sales cycles: Current business 3-6 months, agricultural sector typically 6-12 months. (6) Agricultural customers are highly price-sensitive and seasonal in their purchasing." },
+    
+    { "type": "paragraph", "text": "**Your Analysis Tasks**: (1) How would you define the specific target market (don't just say 'agriculture')? (2) What data would you collect first and why? List your top 5 priorities. (3) What are the 3 biggest risks you identify for this market entry? (4) Using Five Forces analysis, assess two forces that concern you most. (5) What conditions would make you recommend NOT entering this market?" },
+    
+    { "type": "paragraph", "text": "**Expert Analysis**: Let's walk through how an experienced analyst would approach this scenario. **Market Definition**: Don't target 'agriculture' broadly—too diverse. Instead, focus on 'precision agriculture for large commercial farms (1,000+ acres) in North America growing commodity crops (corn, soybeans, wheat).' Why this narrowing? Large farms have budget for optimization technology, commodity crops have thin margins making efficiency gains valuable, and North America allows leveraging existing geographic footprint. Exclude: small farms (can't afford), specialty crops (different needs), and international markets initially (different regulations, distribution complexity). **Data Collection Priorities**: (1) Interview 20-30 large farm operators to understand their sensor needs, buying process, and pain points—this primary research is critical since you know nothing about this customer segment. (2) Analyze competitors' positioning and customer segments from their websites, case studies, and customer reviews—understand where they're strong and where gaps exist. (3) Talk to 5-10 agricultural equipment distributors to understand channel dynamics—you'll need distribution and don't have it. (4) Attend two agricultural technology conferences to observe buying behavior and network with potential customers. (5) Commission a focused industry report on precision agriculture sensor adoption rates and barriers—validates market size within your target segment. **Top 3 Risks**: (1) Channel risk—you have no agricultural distribution relationships and building them takes 12-18 months. Competitors have established relationships making customer acquisition very difficult. (2) Product-market fit risk—your differentiator (tighter tolerances) isn't valued in this market; customers optimize for price and durability, not precision. You'd be selling premium features no one wants to pay for. (3) Sales cycle risk—6-12 month sales cycles are twice your current length, while agricultural seasonality means customers only buy during narrow windows. This strains cash flow and makes iteration slower. **Five Forces Concerns**: Bargaining Power of Buyers is HIGH—commodity farmers are extremely price-sensitive with thin margins, they see sensors as commoditized, and they can easily switch between suppliers. This leads to price pressure and low margins. Threat of Substitutes is MEDIUM-HIGH—farmers have used traditional methods for decades and many still do. Free/manual alternatives (observation, experience, simple instruments) work 'good enough' for many. You're competing against inertia and the mindset of 'we've always done it this way.' **Conditions for No-Go**: Recommend NOT entering if: (1) Customer interviews reveal farmers don't value your precision advantage and won't pay a premium for it. (2) Distribution partners require exclusivity or minimum volumes you can't commit to without abandoning current business. (3) Realistic SOM calculation shows less than $5M capturable revenue in three years—not enough to justify the channel investment and organizational distraction. (4) Competitors are engaging in price wars with margin compression—entering a race to the bottom is value-destructive. (5) Regulatory or liability requirements (sensor failures affecting crop yields) create risk exposure your current insurance doesn't cover. **Recommendation**: Likely NO-GO unless a specific niche emerges. The core issues are: your key differentiator isn't valued, you lack distribution channels, and market dynamics favor price competition where you don't want to compete. However, one possible pivot: Target agricultural research institutions and university agricultural programs instead of commercial farms—they value precision, have different buying processes, and might serve as a beachhead before commercial expansion. This would require a separate analysis of that segment." },
+    
+    { "type": "alert", "alertType": "info", "title": "Key Takeaway", "text": "Market analysis is an ongoing process, not a one-time task. Regularly revisiting and updating your analysis ensures that your business strategies remain aligned with market realities and ahead of competitive forces. The most successful companies treat market analysis as a continuous learning system that informs every major decision." },
+    
+    { "type": "headline", "level": 2, "text": "🎯 CONCLUSION" },
+    { "type": "paragraph", "text": "Effective market analysis is pivotal for making informed strategic decisions and staying competitive in today's dynamic business environment. By following a structured approach and avoiding common pitfalls, businesses can gain valuable insights into their competitive landscape, customer preferences, and the broader market environment. This isn't merely about collecting data—it's about transforming information into actionable intelligence that drives strategic decision-making." },
+    { "type": "paragraph", "text": "Remember that market analysis is not a one-time event but an ongoing process of learning and adaptation. The most successful companies build market intelligence into their organizational DNA, continuously gathering signals, testing assumptions, and adjusting strategy. The frameworks and processes you've learned—PESTLE analysis, Five Forces, systematic data collection, synthesizing insights into decisions—provide a foundation for this continuous learning. Start by applying these methods to one specific market or decision, learn from the process, then expand to other areas of your business. With practice, rigorous market analysis becomes not just a planning exercise, but a competitive advantage that helps you see opportunities others miss and avoid risks others overlook." }
   ],
   "detectedLanguage": "en"
 }
@@ -28767,6 +30035,70 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         wiz_payload["lesson"] = payload.lesson
     if payload.courseName:
         wiz_payload["courseName"] = payload.courseName
+    
+    # Add course context for better lesson progression
+    if payload.outlineId and payload.lesson:
+        try:
+            logger.info(f"[COURSE_CONTEXT] Fetching course context for onepager | outline_id={payload.outlineId} | lesson=\"{payload.lesson}\"")
+            
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
+            pool = await get_db_pool()
+            
+            # Get full course structure
+            course_structure = await get_course_outline_structure(payload.outlineId, onyx_user_id, pool)
+            if course_structure:
+                wiz_payload["courseStructure"] = course_structure
+                logger.info(f"[COURSE_CONTEXT] Course structure added to onepager wizard request")
+            
+            # Get adjacent lesson content with product type priority
+            product_type = "onepager"  # This is a text presentation/onepager
+            adjacent_context = await get_adjacent_lesson_content(
+                payload.outlineId,
+                payload.lesson,
+                product_type,
+                onyx_user_id,
+                pool
+            )
+            
+            if adjacent_context:
+                # Add lesson position
+                if 'lessonPosition' in adjacent_context:
+                    wiz_payload["lessonPosition"] = adjacent_context['lessonPosition']
+                    logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                
+                # Add previous lesson context
+                if 'previousLesson' in adjacent_context:
+                    wiz_payload["previousLesson"] = adjacent_context['previousLesson']
+                    prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                
+                # Add next lesson context (without full content, just structure)
+                if 'nextLesson' in adjacent_context:
+                    next_lesson = adjacent_context['nextLesson']
+                    wiz_payload["nextLesson"] = {
+                        'title': next_lesson.get('title'),
+                        'position': next_lesson.get('position')
+                    }
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                
+                context_summary = []
+                if 'courseStructure' in wiz_payload:
+                    context_summary.append('courseStructure✓')
+                if 'lessonPosition' in wiz_payload:
+                    context_summary.append('lessonPosition✓')
+                if 'previousLesson' in wiz_payload:
+                    context_summary.append('previousLesson✓')
+                if 'nextLesson' in wiz_payload:
+                    context_summary.append('nextLesson✓')
+                else:
+                    context_summary.append('nextLesson✗')
+                
+                logger.info(f"[COURSE_CONTEXT] Context added to onepager wizard: {' | '.join(context_summary)}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch course context for onepager | outline_id={payload.outlineId} | error={e}")
+            # Continue without course context - not critical for preview
 
     # Add file context if provided
     if payload.fromFiles:
@@ -28848,24 +30180,185 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    # Add course context instructions if context is present
+    course_context_instructions_onepager = ""
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+        course_context_instructions_onepager = """
 
-    # Force JSON-ONLY preview output for Text Presentation to enable immediate parsed preview (like Course Outline)
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, case studies, or explanations already covered
+2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "Building on what we covered earlier...")
+3. **Adjust Depth**: Use lessonPosition to gauge appropriate depth - early lessons need comprehensive fundamentals, later lessons can assume foundation
+4. **Maintain Consistency**: Use the same terminology, frameworks, and mental models as previous lessons
+5. **Create Progression**: Prepare groundwork for nextLesson topics when provided - introduce terms that will be explored later
+6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
+
+    # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
     try:
         json_preview_instructions_text = f"""
+
+🎓 EDUCATIONAL CONTENT QUALITY REQUIREMENTS (TARGET: 90+/100 SCORE):
+
+**CONTENT STRUCTURE DISTRIBUTION (CRITICAL):**
+- Paragraphs: 60% - Use for explanations, context, WHY/HOW, narrative flow
+- Bullet Lists: 20% - Each item MUST be 60-100 words with: concept + explanation + example + takeaway
+- Worked Examples: 10% - Complete scenarios with situation → analysis → decision → outcome → lesson
+- Recommendations/Alerts: 10% - Action plans, warnings, decision frameworks
+
+**BLOOM'S TAXONOMY PROGRESSION (MANDATORY):**
+1. REMEMBER: Define key terms with clear definitions (use paragraphs)
+2. UNDERSTAND: Explain WHY concepts work, mechanisms, relationships (use paragraphs with examples)
+3. APPLY: Show HOW to use with step-by-step procedures, decision criteria (use numbered lists or paragraphs)
+4. ANALYZE: Compare approaches, identify trade-offs, common mistakes (use paragraphs or specialized blocks)
+
+**PEDAGOGICAL ELEMENTS (MUST INCLUDE - NON-NEGOTIABLE):**
+
+1. **Mental Models (2-3 REQUIRED)**:
+   - NOT just mentioned by name - MUST show HOW to apply them
+   - Include step-by-step application guidance
+   - Example: "PESTLE Analysis: (1) List factors in each category, (2) Assess impact, (3) Prioritize top 3-5"
+   - Provide a worked example of using the framework
+
+2. **Worked Examples (2-3 COMPLETE SCENARIOS REQUIRED)**:
+   - MUST follow this structure for EACH example:
+     * Background/Situation (who, what, context)
+     * Step-by-Step Analysis (walking through the process)
+     * Decision Made (what was chosen and why)
+     * Outcome (what happened)
+     * Key Lessons (what to learn from this)
+   - Use 300-500 words per worked example
+   - Make them realistic and detailed, not superficial
+
+3. **Common Mistakes Analysis (3-5 DEEP DIVES REQUIRED)**:
+   - For EACH mistake, you MUST include ALL of these:
+     * WHY it happens (psychology, incentives, biases)
+     * Real consequence (specific example of the cost)
+     * How to recognize you're making it (warning signs)
+     * How to correct it (actionable steps)
+   - Use 150-200 words per mistake analysis
+   - NOT just listing mistakes - provide deep analysis
+
+4. **Decision Frameworks (REQUIRED)**:
+   - Specific criteria: "Use X when [condition 1], [condition 2], [condition 3]"
+   - NOT vague guidance - give clear decision rules
+   - Include trade-offs between options
+
+5. **Skill Practice Section (REQUIRED)**:
+   - Present a detailed scenario (100+ words with specific data points)
+   - Ask 3-5 analytical questions
+   - Provide expert analysis (200-300 words) showing reasoning
+
+**CONTENT DEPTH REQUIREMENTS:**
+- Target 3,000-5,000 words for comprehensive learning
+- Each major concept needs: Definition → Explanation → Application → Common Pitfalls
+- Use real-world implications, not just facts
+- Provide actionable insights learners can immediately implement
+
+**ANTI-HALLUCINATION PROTOCOL:**
+- If creating illustrative examples: Use generic language ("a manufacturing company", "imagine a scenario")
+- NEVER invent specific company names, statistics, or present made-up examples as real
+- Label clearly: "For example, consider a situation where..." or "[ILLUSTRATIVE EXAMPLE]"
+
+**STRUCTURE EXAMPLES:**
+❌ BAD (list-only, shallow):
+- "Use agile methodology for faster development"
+
+✅ GOOD (paragraph with depth):
+"Implement Agile methodology with 2-week sprints to accelerate development cycles. Agile's iterative approach allows teams to gather user feedback early and adjust course, reducing the risk of building unwanted features. In practice, teams hold daily standups, sprint planning, and retrospectives to maintain alignment. This approach typically reduces time-to-market by 30-40% while improving product-market fit because you're validating assumptions continuously rather than at project end. The key trade-off is that Agile requires more frequent communication and can feel chaotic to teams accustomed to traditional waterfall methods."
+
+**HEADING HIERARCHY RULES (CRITICAL FOR READABILITY):**
+
+⚠️ PROBLEM: Too many large section headers with small content makes content look fragmented and unprofessional.
+
+✅ SOLUTION: Use hierarchical structure properly:
+
+**Level 2 Headers (## or "level": 2)** - ONLY for MAJOR sections:
+- Use for 4-6 main sections that organize the entire document
+- Each level 2 section should contain 300-500+ words of content
+- Examples: "Introduction", "Core Concepts", "Application Strategies", "Common Mistakes", "Conclusion"
+- Should have emoji icons for visual appeal
+
+**Level 3 Headers (### or "level": 3)** - For subsections within major sections:
+- Use to organize content WITHIN a level 2 section
+- Group related paragraphs and examples
+- Should contain 150-300 words of content
+- Examples: "Cost-Plus Pricing", "Value-Based Pricing" (under a "Pricing Models" level 2 section)
+
+❌ BAD Structure (too many top-level headers):
+- ## Introduction (1 paragraph)
+- ## Cost-Plus Pricing (1 paragraph)
+- ## Value-Based Pricing (1 paragraph)
+- ## Competition-Based Pricing (1 paragraph)
+- ## Psychological Pricing (1 paragraph)
+[Result: Looks like a disconnected list, no flow]
+
+✅ GOOD Structure (proper hierarchy):
+- ## 📊 Core Pricing Models (level 2)
+  - Paragraph introducing the three main models
+  - ### Cost-Plus Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+  - ### Value-Based Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+  - ### Competition-Based Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+[Result: Organized, flows well, looks professional]
+
+**CONTENT GROUPING RULES:**
+1. Combine related concepts under ONE level 2 header, use level 3 for specifics
+2. A level 2 section should feel like a "chapter" with multiple subsections
+3. If a header only has 1-2 paragraphs under it, it should probably be level 3, not level 2
+4. Aim for 4-6 level 2 sections in a complete one-pager
+5. Each level 2 section can have 2-5 level 3 subsections
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
+
+The example above demonstrates 90+ quality score with:
+- Proper paragraph-heavy structure (not list-heavy)
+- Bloom's Taxonomy progression
+- Worked examples with complete reasoning
+- Decision frameworks
+- 60-100 word bullet points when used
+
 Do NOT include code fences, markdown or extra commentary. Return JSON object only.
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- Include exact fields: textTitle, contentBlocks[], detectedLanguage.
-- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, etc.).
-- Preserve original language across all text.
+- Include exact fields: textTitle, contentBlocks[], detectedLanguage
+- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, alert, etc.)
+- Use "paragraph" type liberally (60% of content) - this is where deep learning happens
+- Use bullet_list ONLY when listing related points, and make each item 60-100 words
+- Include alert blocks for warnings/recommendations with alertType: "warning"|"info"|"success"
+- Preserve original language across all text
+
+**VALIDATION CHECKLIST - VERIFY BEFORE FINALIZING:**
+✅ Word count: 3,000-5,000 words total?
+✅ Paragraph usage: ~60% of content blocks are paragraphs?
+✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
+✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
+✅ Content grouping: Related concepts grouped under ONE level 2 header?
+✅ Mental models: 2-3 frameworks with HOW to apply them?
+✅ Worked examples: 2-3 complete scenarios (Background → Analysis → Decision → Outcome → Lessons)?
+✅ Common mistakes: 3-5 deep analyses (WHY → Consequence → Recognition → Correction)?
+✅ Skill practice: Detailed scenario + questions + expert analysis included?
+✅ Bloom's Taxonomy: Progresses through Remember → Understand → Apply → Analyze?
+✅ Decision frameworks: Specific criteria provided (not vague)?
+✅ JSON structure: Valid JSON with all required fields?
+
+IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
         wizard_message = wizard_message + json_preview_instructions_text
-        logger.info("[TEXT_PRESENTATION_PREVIEW] Added JSON-only preview instructions")
+        logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
 
@@ -28952,8 +30445,21 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -28979,9 +30485,26 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -29090,6 +30613,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():

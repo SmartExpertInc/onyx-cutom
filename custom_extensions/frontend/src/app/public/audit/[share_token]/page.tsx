@@ -73,6 +73,7 @@ interface LandingPageData {
   courseOutlineModules: Array<{
     title: string
     lessons: string[]
+    lessonAssessments?: Array<{ type: string; duration: string }>
   }>
   courseTemplates: Array<{
     title: string
@@ -122,29 +123,44 @@ export default function PublicAuditPage() {
     return { modules, lessons }
   }
 
-  // Generate random assessment data for lessons
-  const getRandomAssessment = () => {
-    const types = ['нет', 'тест', 'практика', 'проект']
-    const durations = ['5 мин', '10 мин', '15 мин', '20 мин', '30 мин']
-    
-    return {
-      type: types[Math.floor(Math.random() * types.length)],
-      duration: durations[Math.floor(Math.random() * durations.length)]
-    }
-  }
-
-  // Generate stable assessment data for all modules
+  // Generate assessment data from backend data (stored in courseOutlineModules)
   const generateAssessmentData = () => {
     if (!courseOutlineModules) return {}
     
+    console.log('🎯 [PUBLIC ASSESSMENT] Generating assessment data from backend')
     const data: { [key: string]: { type: string; duration: string }[] } = {}
     
     courseOutlineModules.forEach((module, moduleIndex) => {
-      if (module.lessons) {
-        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+      // Use lessonAssessments from backend if available, otherwise use fallback
+      if (module.lessonAssessments && Array.isArray(module.lessonAssessments)) {
+        console.log(`🎯 [PUBLIC ASSESSMENT] Module ${moduleIndex}: Using backend lessonAssessments (${module.lessonAssessments.length} items)`)
+        data[`module-${moduleIndex}`] = module.lessonAssessments
+      } else if (module.lessons) {
+        // Fallback: generate default assessments based on language
+        console.log(`🎯 [PUBLIC ASSESSMENT] Module ${moduleIndex}: No lessonAssessments found, using fallback`)
+        const language = auditData?.language || 'en'
+        let defaultType = 'test'
+        let defaultDuration = '5 min'
+        
+        if (language === 'ru') {
+          defaultType = 'тест'
+          defaultDuration = '5 мин'
+        } else if (language === 'ua') {
+          defaultType = 'тест'
+          defaultDuration = '5 хв'
+        } else if (language === 'es') {
+          defaultType = 'prueba'
+          defaultDuration = '5 min'
+        }
+        
+        data[`module-${moduleIndex}`] = module.lessons.map(() => ({
+          type: defaultType,
+          duration: defaultDuration
+        }))
       }
     })
     
+    console.log('🎯 [PUBLIC ASSESSMENT] Final assessment data:', data)
     return data
   }
 
