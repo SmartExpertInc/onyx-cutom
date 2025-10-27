@@ -9,8 +9,14 @@ import {
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon, Text as TextIcon
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon, Text as TextIcon, Columns
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
 import { uploadOnePagerImage } from '@/lib/designTemplateApi';
@@ -2685,6 +2691,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+  const [addSectionDropdownOpen, setAddSectionDropdownOpen] = useState(false);
   const [editingBlockIndex, setEditingBlockIndex] = useState<number | null>(null);
   const [purpleBoxContent, setPurpleBoxContent] = useState(PURPLE_BOX_CONTENT);
   const [editingPurpleBox, setEditingPurpleBox] = useState<{
@@ -3290,6 +3297,43 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               return null;
             })}
+
+            {/* Add Section Button with Dropdown */}
+            {isEditing && !!onTextChange && (
+              <div className="mt-6 mb-8 flex justify-center">
+                <DropdownMenu open={addSectionDropdownOpen} onOpenChange={setAddSectionDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-6 py-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 border-2 border-dashed border-blue-300 hover:border-blue-400">
+                      <Plus className="w-5 h-5" />
+                      <span className="font-medium">Add Section</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-56">
+                    <DropdownMenuItem onClick={() => {
+                      addMajorSection();
+                      setAddSectionDropdownOpen(false);
+                    }}>
+                      <TextIcon className="w-4 h-4 mr-2" />
+                      <span>Major Section</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      addRecommendation();
+                      setAddSectionDropdownOpen(false);
+                    }}>
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                      <span>Recommendation</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      addColumnContainer();
+                      setAddSectionDropdownOpen(false);
+                    }}>
+                      <Columns className="w-4 h-4 mr-2" />
+                      <span>Columns Layout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
           </main>
         </div>
       
