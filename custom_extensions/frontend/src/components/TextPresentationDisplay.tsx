@@ -974,7 +974,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       // if (isRecommendation && !suppressRecommendationStripe) {
       //   recommendationClasses = `pl-4 border-l-3 border-[#0F58F9] py-2`;
       // }
-      const styledText = parseAndStyleText(text);
+      const styledText = parseAndStyleText(text, isRecommendation, true);
 
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
@@ -2810,7 +2810,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
 
-  return (
+  return (<>
     <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
       {dataToDisplay.textTitle && (
         <header className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC]">
@@ -3298,39 +3298,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             })}
           </main>
         </div>
-        <div className="mt-6 mb-8 flex justify-center">
-          <DropdownMenu open={addSectionDropdownOpen} onOpenChange={setAddSectionDropdownOpen}>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 px-6 py-3 text-sm text-[#719AF5] hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-[#CCCCCC]">
-                <Plus className="w-5 h-5" />
-                <span className="font-medium">Add Section</span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-56">
-              <DropdownMenuItem onClick={() => {
-                addMajorSection();
-                setAddSectionDropdownOpen(false);
-              }}>
-                <TextIcon className="w-4 h-4 mr-2" />
-                <span>Major Section</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                addRecommendation();
-                setAddSectionDropdownOpen(false);
-              }}>
-                <AlertCircle className="w-4 h-4 mr-2" />
-                <span>Recommendation</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                addColumnContainer();
-                setAddSectionDropdownOpen(false);
-              }}>
-                <Columns className="w-4 h-4 mr-2" />
-                <span>Columns Layout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       {/* Floating add menu: one big plus -> expands into image and section buttons */}
       {isEditing && !!onTextChange && (
         <>
@@ -3383,6 +3350,40 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         onImageUploaded={handleImageUploaded}
       />
     </div>
+    <div className="mt-6 mb-8 flex justify-center">
+    <DropdownMenu open={addSectionDropdownOpen} onOpenChange={setAddSectionDropdownOpen}>
+      <DropdownMenuTrigger asChild>
+        <button className="w-full flex items-center bg-white gap-2 px-6 py-3 text-sm text-[#719AF5] hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-[#CCCCCC]">
+          <Plus className="w-5 h-5" />
+          <span className="font-medium">Add Section</span>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="center" className="w-56">
+        <DropdownMenuItem onClick={() => {
+          addMajorSection();
+          setAddSectionDropdownOpen(false);
+        }}>
+          <TextIcon className="w-4 h-4 mr-2" />
+          <span>Major Section</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {
+          addRecommendation();
+          setAddSectionDropdownOpen(false);
+        }}>
+          <AlertCircle className="w-4 h-4 mr-2" />
+          <span>Recommendation</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {
+          addColumnContainer();
+          setAddSectionDropdownOpen(false);
+        }}>
+          <Columns className="w-4 h-4 mr-2" />
+          <span>Columns Layout</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
+  </>
   );
 };
 
