@@ -1094,21 +1094,21 @@ export default function ProductViewNewPage() {
                             {/* Lesson Title Column */}
                             <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
-                                <span className="text-[#171718] text-[16px] font-normal">{lessonIndex + 1}.</span>
+                                <span className="text-[#171718] text-[16px] font-medium">{lessonIndex + 1}.</span>
                               {isEditingField('lessonTitle', index, lessonIndex) ? (
                                 <input
                                   type="text"
                                   value={lesson.title}
                                   onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
                                   onBlur={handleInputBlur}
-                                  className="text-[#171718] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
+                                  className="text-[#171718] text-[16px] leading-[100%] font-medium bg-transparent border-none outline-none flex-1"
                                   placeholder={t('interface.viewNew.lessonTitle', 'Lesson Title')}
                                   autoFocus
                                 />
                               ) : (
                                 <div className="group flex items-center gap-2">
                                   <span 
-                                    className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer"
+                                    className="text-[#191D30] text-[16px] leading-[100%] font-medium cursor-pointer"
                                     onClick={() => startEditing('lessonTitle', index, lessonIndex)}
                                   >
                                     {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
