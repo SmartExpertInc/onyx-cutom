@@ -10225,7 +10225,7 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                         logger.info(f"🔍 [DATA EXTRACTION] Last 100 chars: {image_data_raw[-100:]}")
                     break
                 else:
-                    logger.warning(f"⚠️ [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
+                    logger.warning(f"WARNING: [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
         
         if not image_data_raw:
             logger.error(f"❌ [DATA EXTRACTION ERROR] No image data found in response parts")
@@ -10276,7 +10276,7 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         elif image_data.startswith(b'\xff\xd8\xff'):
             logger.info(f"✅ [IMAGE VALIDATION] Detected JPEG format")
         else:
-            logger.warning(f"⚠️ [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
+            logger.warning(f"WARNING: [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
         
         logger.info(f"🔍 [IMAGE VALIDATION] Image data first 20 bytes: {image_data[:20]}")
         logger.info(f"🔍 [IMAGE VALIDATION] Image data last 20 bytes: {image_data[-20:]}")
@@ -17720,7 +17720,7 @@ async def extract_company_metadata_from_website(website_content: str, company_we
             logger.info(f"📊 [WEBSITE SCRAPING] Extracted company metadata: {company_data}")
             return company_data
         except json.JSONDecodeError:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
             return {
                 "employees": "Unknown",
                 "franchise": "Unknown",
@@ -21289,8 +21289,8 @@ async def generate_company_specific_fallback_positions(company_name: str, langua
             logger.info(f"💼 [WEBSITE SCRAPING] Generated {len(formatted_positions)} company-specific fallback positions")
             return formatted_positions
         except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             # Language-specific generic fallback
             if language == "en":
                 return [
@@ -21447,8 +21447,8 @@ async def extract_job_positions_from_website_content(website_content: str, compa
             logger.info(f"💼 [WEBSITE SCRAPING] Extracted {len(job_positions)} job positions from website")
             return job_positions
         except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             return []
         
     except Exception as e:
@@ -34833,12 +34833,12 @@ async def preview_slide_html(request: Request):
         slides_data = body.get("slides", [])
         theme = body.get("theme", "dark-purple")
         
-        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML preview")
-        logger.info(f"🔍 [HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
-        logger.info(f"🔍 [HTML_PREVIEW] Theme: {theme}")
+        logger.info(f"[HTML_PREVIEW] Generating HTML preview")
+        logger.info(f"[HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"[HTML_PREVIEW] Theme: {theme}")
         
         if not slides_data or len(slides_data) == 0:
-            logger.error("🔍 [HTML_PREVIEW] No slides data provided")
+            logger.error("[HTML_PREVIEW] No slides data provided")
             return {"success": False, "error": "No slides data provided"}
         
         # Get the first slide
@@ -34847,29 +34847,29 @@ async def preview_slide_html(request: Request):
         slide_id = slide_props.get("slideId")
         metadata = slide_props.get("metadata", {})
         
-        logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
-        logger.info(f"🔍 [HTML_PREVIEW] Slide ID: {slide_id}")
-        logger.info(f"🔍 [HTML_PREVIEW] Metadata: {metadata}")
-        logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
+        logger.info(f"[HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"[HTML_PREVIEW] Slide ID: {slide_id}")
+        logger.info(f"[HTML_PREVIEW] Metadata: {metadata}")
+        logger.info(f"[HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
         
         if not template_id:
-            logger.error("🔍 [HTML_PREVIEW] Missing templateId in slide data")
+            logger.error("[HTML_PREVIEW] Missing templateId in slide data")
             return {"success": False, "error": "Missing templateId in slide data"}
         
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
-        logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        logger.info(f"[HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
         
         # CRITICAL: Log text element positioning data at endpoint level
-        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
-        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
+        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
+        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
         logger.info(f"  - Slide ID: {slide_id}")
         logger.info(f"  - Metadata: {metadata}")
         logger.info(f"  - Metadata type: {type(metadata)}")
         
         if metadata and isinstance(metadata, dict):
             element_positions = metadata.get('elementPositions', {})
-            logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
+            logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
             logger.info(f"  - Element positions: {element_positions}")
             logger.info(f"  - Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
             
@@ -34877,34 +34877,34 @@ async def preview_slide_html(request: Request):
             if element_positions:
                 for element_id, position in element_positions.items():
                     if 'draggable' in element_id:  # Text elements use draggable IDs
-                        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
+                        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
                         logger.info(f"    - Element ID: {element_id}")
                         logger.info(f"    - Position: {position}")
                         logger.info(f"    - X coordinate: {position.get('x', 'MISSING')}")
                         logger.info(f"    - Y coordinate: {position.get('y', 'MISSING')}")
             else:
-                logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
+                logger.warning(f"[ENDPOINT_POSITIONING_DEBUG] WARNING: NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
         else:
-            logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO METADATA IN SLIDE DATA")
+            logger.warning(f"[ENDPOINT_POSITIONING_DEBUG] WARNING: NO METADATA IN SLIDE DATA")
         
         # Log some key props for debugging
         for key, value in actual_props.items():
             if isinstance(value, str):
-                logger.info(f"🔍 [HTML_PREVIEW] {key}: '{value[:100]}...'")
+                logger.info(f"[HTML_PREVIEW] {key}: '{value[:100]}...'")
             else:
-                logger.info(f"🔍 [HTML_PREVIEW] {key}: {value}")
+                logger.info(f"[HTML_PREVIEW] {key}: {value}")
         
         # Import the HTML template service
         from app.services.html_template_service import html_template_service
         
         # Generate clean HTML with slideId and metadata
-        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
+        logger.info(f"[HTML_PREVIEW] Generating HTML content...")
         html_content = html_template_service.generate_clean_html_for_video(
             template_id, actual_props, theme, metadata=metadata, slide_id=slide_id
         )
         
-        logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
-        logger.info(f"🔍 [HTML_PREVIEW] HTML content length: {len(html_content)} characters")
+        logger.info(f"[HTML_PREVIEW] HTML content generated")
+        logger.info(f"[HTML_PREVIEW] HTML content length: {len(html_content)} characters")
         
         # Return the HTML content
         return {
@@ -34916,7 +34916,7 @@ async def preview_slide_html(request: Request):
         }
         
     except Exception as e:
-        logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
+        logger.error(f"[HTML_PREVIEW] Error generating HTML preview: {str(e)}")
         return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
 
 @app.post("/api/custom/slide-video/generate")
@@ -41181,18 +41181,18 @@ async def log_static_file_requests(request: Request, call_next):
         if content_length:
             logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Length: {content_length} bytes")
         else:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Length header")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] No Content-Length header")
         
         # Log content type
         content_type = response.headers.get("content-type")
         if content_type:
             logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Type: {content_type}")
         else:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Type header")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] No Content-Type header")
         
         # Check if response is suspiciously small
         if content_length and int(content_length) < 1000:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
     
     return response
     

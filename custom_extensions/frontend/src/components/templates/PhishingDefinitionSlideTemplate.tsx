@@ -307,7 +307,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             <div
               key={index}
               style={{
-                fontSize: '1.15vw',
+                fontSize: '15px',
                 color: '#545555',
                 lineHeight: '1.5'
               }}
@@ -355,8 +355,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           position: 'absolute',
           bottom: '7.76%',
           left: '5%',
-          width: '13.33%',
-          height: '23.7%',
+          width: '140px',
+          height: '140px',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#ffffff'
@@ -379,21 +379,21 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           />
         </div>
 
-        {/* Page number with line - MATCHES HTML: bottom: 48px, gap: 13px, line: 32px × 1.5px, fontSize: 27px */}
+        {/* Page number with line */}
         <div style={{
           position: 'absolute',
-          bottom: '2.5%',
-          left: '2.5%',
+          bottom: '30px',
+          left: '0px',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.68%',
+          gap: '8px',
           zIndex: 20
         }}>
           {/* Small line */}
           <div style={{
-            width: '1.67%',
-            height: '0.14%',
-            backgroundColor: 'rgba(9, 9, 11, 0.3)'
+            width: '20px',
+            height: '1px',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
           }} />
           {/* Page number */}
           {isEditable && editingPageNumber ? (
@@ -403,10 +403,10 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               onCancel={handlePageNumberCancel}
               className="page-number-editor"
               style={{
-                color: '#09090B',
-                fontSize: '1.4vw',
+                color: '#000000',
+                fontSize: '17px',
                 fontWeight: '300',
-                width: 'auto',
+                width: '30px',
                 height: 'auto'
               }}
             />
@@ -414,8 +414,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             <div
               onClick={() => isEditable && setEditingPageNumber(true)}
               style={{
-                color: '#09090B',
-                fontSize: '1.4vw',
+                color: '#000000',
+                fontSize: '17px',
                 fontWeight: '300',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
