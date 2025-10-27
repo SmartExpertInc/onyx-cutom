@@ -12073,6 +12073,14 @@ MANDATORY RULES - NO EXCEPTIONS:
 ✓ PRESERVE all facts, numbers, examples EXACTLY as stated
 ✓ STATE "not covered in source materials" if information is missing
 
+CRITICAL CLARIFICATION ON EXAMPLES:
+• If source says "AI could double seller time from 25% to 50%" → Use that EXACT statistic
+• If source says "lead scoring accuracy improved from 15-25% to 40-60%" → Use those EXACT numbers
+• If source describes Conversation Intelligence → Use that EXACT concept and description
+• DO NOT create "retail company" or "software company" examples if not in source
+• DO NOT invent scenarios like "chatbot implementation" if not in source
+• DO NOT make up costs like "$50,000" if not in source
+
 ✗ NEVER add facts, statistics, or data from your general knowledge
 ✗ NEVER create new examples not in the source documents
 ✗ NEVER expand topics with information not in the sources
@@ -12109,17 +12117,20 @@ SOURCE DOCUMENTS START HERE ↓↓↓
 
 🚨 VERIFICATION CHECKPOINT #2 - ANSWER THESE QUESTIONS:
 
-Question 1: What topics were covered in the source documents?
-Answer: [List the actual topics you saw above]
+Question 1: What SPECIFIC topics, statistics, and examples were in the source documents?
+Answer: [List actual topics AND specific numbers/examples you saw - e.g., "25% to 50%", "Conversation Intelligence", etc.]
 
 Question 2: What are you allowed to include in your response?
 Answer: ONLY information from the source documents above. NOTHING from my general knowledge.
 
-Question 3: What should you do if the source lacks information on a typical topic?
+Question 3: Can you create NEW examples (like "retail company with chatbot") not in the source?
+Answer: NO. I can ONLY use examples that were explicitly stated in the source documents.
+
+Question 4: What should you do if the source lacks information on a typical topic?
 Answer: State "not covered in source materials" - DO NOT add information from general knowledge.
 
-Question 4: Can you add examples, case studies, or statistics not in the source?
-Answer: NO. Absolutely not. Never.
+Question 5: Can you add statistics, costs, or numbers not in the source?
+Answer: NO. Absolutely not. Never. ONLY use exact numbers from the source.
 
 FINAL VERIFICATION CHECKLIST:
 □ I have read and understood the source documents above
@@ -12223,17 +12234,20 @@ ENSURE: Every slide follows the **Slide N: Title** format exactly for proper vid
 
 🚨 VERIFICATION CHECKPOINT #2 - ANSWER THESE QUESTIONS:
 
-Question 1: What topics were covered in the source documents?
-Answer: [List the actual topics you saw above]
+Question 1: What SPECIFIC topics, statistics, and examples were in the source documents?
+Answer: [List actual topics AND specific numbers/examples you saw - e.g., "25% to 50%", "Conversation Intelligence", etc.]
 
 Question 2: What are you allowed to include in your response?
 Answer: ONLY information from the source documents above. NOTHING from my general knowledge.
 
-Question 3: What should you do if the source lacks information on a typical topic?
+Question 3: Can you create NEW examples (like "retail company with chatbot") not in the source?
+Answer: NO. I can ONLY use examples that were explicitly stated in the source documents.
+
+Question 4: What should you do if the source lacks information on a typical topic?
 Answer: State "not covered in source materials" - DO NOT add information from general knowledge.
 
-Question 4: Can you add examples, case studies, or statistics not in the source?
-Answer: NO. Absolutely not. Never.
+Question 5: Can you add statistics, costs, or numbers not in the source?
+Answer: NO. Absolutely not. Never. ONLY use exact numbers from the source.
 
 FINAL VERIFICATION CHECKLIST:
 □ I have read and understood the source documents above
