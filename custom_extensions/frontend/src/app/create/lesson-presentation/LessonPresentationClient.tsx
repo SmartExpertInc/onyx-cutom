@@ -2089,7 +2089,7 @@ export default function LessonPresentationClient() {
                   const seconds = Math.round((totalMinutes - minutes) * 60);
                   
                   return (
-                    <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
+                    <div className="flex items-center justify-between text-sm text-[#A5A5A5] mb-2">
                       <span className="select-none">
                         {minutes} m {seconds} s
                       </span>

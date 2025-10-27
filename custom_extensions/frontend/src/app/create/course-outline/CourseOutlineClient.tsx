@@ -1532,7 +1532,7 @@ export default function CourseOutlineClient() {
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
               </Button>
               {/* Status row – identical style mock */}
-              <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
+              <div className="flex items-center justify-between text-sm text-[#A5A5A5] mb-2">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
                 <span className="flex items-center gap-1">
                   <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
