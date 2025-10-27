@@ -13,6 +13,7 @@ import { ModeSelectionCard } from "@/components/ui/mode-selection-card";
 import { GenerateCard } from "@/components/ui/generate-card";
 import { CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { FeedbackButton } from "@/components/ui/feedback-button";
+import { BackButton } from "../components/BackButton";
 
 // Custom icon for "Use as Context"
 const ContextIcon: React.FC<{ className?: string; size?: number }> = ({ className, size = 22 }) => (
@@ -329,7 +330,7 @@ export default function PasteTextPage() {
     >
       {/* Decorative gradient background */}
       <div 
-        className="absolute pointer-events-none z-0"
+        className="absolute pointer-events-none"
         style={{
           width: '1100px',
           height: '2100px',
@@ -339,27 +340,18 @@ export default function PasteTextPage() {
           background: 'linear-gradient(180deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
           transform: 'translate(-50%, -50%) rotate(120deg)',
           filter: 'blur(100px)',
+          opacity: 0.24,
         }}
       />
 
-      {/* back button absolute top-left */}
-      <Link
-        href="/create"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
-        style={{ 
-          color: '#000000',
-          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
-        }}
-      >
-        <span>&lt;</span>
-        <span>{t('interface.generate.back', 'Back')}</span>
-      </Link>
+      {/* Top-left back button */}
+      <BackButton href="/create" />
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-3 items-center relative z-10">
 
-        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.pasteText.title', 'Paste in text')}</h1>
-        <p className="text-center text-[#FAFAFA] text-lg -mt-1">
+        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#4D4D4D] mt-8">{t('interface.pasteText.title', 'Paste in text')}</h1>
+        <p className="text-center text-[#878787] text-lg -mt-1">
           {t('interface.pasteText.subtitle', 'What would you like to create today?')}
         </p>
 
@@ -596,7 +588,7 @@ export default function PasteTextPage() {
         )}
 
         {/* Additional subtitle */}
-        <p className="text-center text-[#FBFAFF] text-sm my-[8px]">
+        <p className="text-center text-[#878787] text-sm my-[8px]">
           {t('interface.pasteText.pasteInstructions', 'Paste in the notes, outline or text content you\'d like to use')}
         </p>
 
@@ -606,10 +598,13 @@ export default function PasteTextPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Type or paste in content here')}
-            className="w-full h-[170px] p-6 placeholder:text-[#5D5D7980]" />
+            className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-blue-300 focus:outline-none transition-colors placeholder-[#4D4D4D]"
+            style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px", minHeight: "170px" }}
+            rows={1}
+          />
 
           <div className="mt-2 flex justify-between items-center">
-            <div className="text-xs text-[#FFFFFF]">
+            <div className="text-xs text-[#878787]">
               {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
             </div>
             {warning && (
@@ -625,7 +620,7 @@ export default function PasteTextPage() {
 
         {/* Mode selection */}
         <div className="w-[90%]">
-          <h3 className="text-lg text-[#FBFAFF] mb-4 text-center">
+          <h3 className="text-lg text-[#4D4D4D] mb-4 text-center">
             {t('interface.pasteText.howToUseText', 'What do you want to do with this content?')}
           </h3>
           
@@ -658,19 +653,12 @@ export default function PasteTextPage() {
             onClick={handleGenerate}
             disabled={!text.trim() || !mode}
             size="lg"
-            className="px-8 py-3 rounded-full border border-[#0F58F9] bg-[#0F58F9] text-white text-lg font-semibold shadow-lg cursor-pointer"
+            className="flex items-center gap-2 px-10 py-4 rounded-md bg-[#0F58F9] text-white text-lg font-semibold shadow transition-colors cursor-pointer"
           >
             <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M11.5423 11.8603C11.1071 12.0267 10.8704 12.2646 10.702 12.6991C10.5353 12.2646 10.297 12.0284 9.86183 11.8603C10.297 11.6938 10.5337 11.4575 10.702 11.0214C10.8688 11.4559 11.1071 11.6922 11.5423 11.8603ZM10.7628 5.05915C11.1399 3.65697 11.6552 3.14142 13.0612 2.76444C11.6568 2.38797 11.1404 1.87349 10.7628 0.469727C10.3858 1.87191 9.87044 2.38746 8.46442 2.76444C9.86886 3.14091 10.3852 3.65539 10.7628 5.05915ZM11.1732 7.95329C11.1732 7.82118 11.1044 7.66168 10.9118 7.60798C9.33637 7.16814 8.34932 6.666 7.61233 5.93083C6.8754 5.19508 6.37139 4.20956 5.93249 2.63662C5.8787 2.44437 5.71894 2.37563 5.58662 2.37563C5.4543 2.37563 5.29454 2.44437 5.24076 2.63662C4.80022 4.20956 4.29727 5.19503 3.56092 5.93083C2.82291 6.66765 1.83688 7.16978 0.261415 7.60798C0.0688515 7.66168 0 7.82118 0 7.95329C0 8.0854 0.0688515 8.2449 0.261415 8.2986C1.83688 8.73844 2.82393 9.24057 3.56092 9.97575C4.29892 10.7126 4.80186 11.697 5.24076 13.27C5.29455 13.4622 5.45431 13.531 5.58662 13.531C5.71895 13.531 5.87871 13.4622 5.93249 13.27C6.37303 11.697 6.87598 10.7116 7.61233 9.97575C8.35034 9.23892 9.33637 8.7368 10.9118 8.2986C11.1044 8.2449 11.1732 8.0854 11.1732 7.95329Z" fill="white"/>
             </svg>
-            {t('interface.generate.generate', 'Generate')} {
-              activeProduct === "Course" ? t('interface.generate.courseOutline', 'Course') :
-              activeProduct === "Video Lesson" ? t('interface.generate.videoLesson', 'Video Lesson') :
-              activeProduct === "Quiz" ? t('interface.generate.quiz', 'Quiz') :
-              activeProduct === "Presentation" ? t('interface.generate.presentation', 'Presentation') :
-              activeProduct === "One-Pager" ? t('interface.generate.onePager', 'One-Pager') :
-              ''
-            }
+            {t('interface.generate.nextStep', 'Next step')}
           </Button>
         </div>
       </div>
