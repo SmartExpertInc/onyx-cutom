@@ -12047,34 +12047,54 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
 {original_prompt}
 
 ═══════════════════════════════════════════════════════════════════════════
-📚 SOURCE DOCUMENTS - YOUR ONLY KNOWLEDGE BASE FOR THIS REQUEST
+🚨 ABSOLUTE SOURCE FIDELITY MODE ACTIVATED 🚨
 ═══════════════════════════════════════════════════════════════════════════
 
-⚠️ CRITICAL INSTRUCTION - ABSOLUTE SOURCE FIDELITY REQUIRED ⚠️
+STOP AND READ THIS BEFORE PROCEEDING:
 
-The documents below are YOUR COMPLETE AND ONLY KNOWLEDGE BASE for this request.
+You are in ABSOLUTE SOURCE FIDELITY MODE. This means:
 
-YOU MUST:
-✓ Use ONLY information from these source documents
-✓ Restructure and reorganize the content to fit the product structure
-✓ Apply educational frameworks (Bloom's Taxonomy) using ONLY source material
-✓ Preserve all facts, examples, statistics, and data EXACTLY as stated
-✓ State "not covered in source materials" if information is missing
+🚫 YOUR GENERAL KNOWLEDGE IS COMPLETELY DISABLED FOR THIS REQUEST
+🚫 YOU CANNOT USE ANY INFORMATION NOT IN THE SOURCE DOCUMENTS BELOW
+🚫 YOU CANNOT ADD, EXPAND, OR ENHANCE THE CONTENT IN ANY WAY
 
-YOU MUST NOT:
-✗ Add facts, statistics, or data not in source documents
-✗ Create examples not present in source documents
-✗ Use your general knowledge to expand or enhance topics
-✗ Make assumptions about information not provided
-✗ Fill gaps with your own knowledge
-✗ Add case studies or scenarios not in sources
-✗ Include definitions not explicitly stated in sources
+The documents below are your ONLY source of truth. If information is not explicitly 
+stated in these documents, you CANNOT include it in your response.
 
-REMEMBER: You are a CONTENT RESTRUCTURER, not a CONTENT CREATOR.
-Your role is to organize and clarify existing source material for educational 
-effectiveness, NOT to add information from your general knowledge.
+═══════════════════════════════════════════════════════════════════════════
+📚 SOURCE DOCUMENTS (YOUR ONLY KNOWLEDGE BASE)
+═══════════════════════════════════════════════════════════════════════════
 
---- CONTENT FROM SOURCE DOCUMENTS ---
+MANDATORY RULES - NO EXCEPTIONS:
+
+✓ ONLY restructure and reorganize content from the source documents
+✓ ONLY use examples, facts, statistics that appear in the source documents
+✓ ONLY apply educational frameworks to the source content (don't add new content)
+✓ PRESERVE all facts, numbers, examples EXACTLY as stated
+✓ STATE "not covered in source materials" if information is missing
+
+✗ NEVER add facts, statistics, or data from your general knowledge
+✗ NEVER create new examples not in the source documents
+✗ NEVER expand topics with information not in the sources
+✗ NEVER fill gaps with your own knowledge
+✗ NEVER add case studies not in the sources
+✗ NEVER use industry knowledge not stated in the sources
+✗ NEVER add definitions not in the sources
+
+YOUR ROLE: You are a CONTENT RESTRUCTURER, NOT a content creator.
+You organize existing content into educational format. You do NOT add content.
+
+VERIFICATION CHECKPOINT #1:
+Before reading the source documents, confirm:
+□ I understand I can ONLY use content from the source documents
+□ I understand I CANNOT use my general knowledge
+□ I understand I CANNOT add any information
+
+IF YOU CANNOT CONFIRM ALL THREE - STOP AND RE-READ THESE INSTRUCTIONS
+
+═══════════════════════════════════════════════════════════════════════════
+SOURCE DOCUMENTS START HERE ↓↓↓
+═══════════════════════════════════════════════════════════════════════════
 
 """
     
@@ -12084,18 +12104,36 @@ effectiveness, NOT to add information from your general knowledge.
         enhanced_prompt += """
 
 ═══════════════════════════════════════════════════════════════════════════
-END OF SOURCE DOCUMENTS
+↑↑↑ SOURCE DOCUMENTS END HERE
 ═══════════════════════════════════════════════════════════════════════════
 
-FINAL VERIFICATION BEFORE GENERATING:
-□ Will I use ONLY the source content above?
-□ Will I avoid adding information from my general knowledge?
-□ Will I state "not in source" if information is missing?
-□ Am I restructuring existing content, not creating new content?
+🚨 VERIFICATION CHECKPOINT #2 - ANSWER THESE QUESTIONS:
 
-IF YOU CANNOT CHECK ALL BOXES ✓ - DO NOT PROCEED
+Question 1: What topics were covered in the source documents?
+Answer: [List the actual topics you saw above]
 
-Now generate the requested product using ONLY the source content above.
+Question 2: What are you allowed to include in your response?
+Answer: ONLY information from the source documents above. NOTHING from my general knowledge.
+
+Question 3: What should you do if the source lacks information on a typical topic?
+Answer: State "not covered in source materials" - DO NOT add information from general knowledge.
+
+Question 4: Can you add examples, case studies, or statistics not in the source?
+Answer: NO. Absolutely not. Never.
+
+FINAL VERIFICATION CHECKLIST:
+□ I have read and understood the source documents above
+□ I will use ONLY content from those source documents
+□ I will NOT use any information from my general knowledge
+□ I will NOT add examples, facts, or cases not in the source
+□ I will state "not in source" if information is missing
+□ I am acting as a RESTRUCTURER, not a CREATOR
+
+IF ANY BOX IS UNCHECKED - YOU MUST STOP AND RE-READ THE INSTRUCTIONS
+
+NOW GENERATE THE REQUESTED PRODUCT USING **ONLY** THE SOURCE CONTENT ABOVE.
+
+DO NOT USE YOUR GENERAL KNOWLEDGE. DO NOT ADD INFORMATION. RESTRUCTURE ONLY.
 """
         return enhanced_prompt
     
@@ -12180,18 +12218,36 @@ ENSURE: Every slide follows the **Slide N: Title** format exactly for proper vid
     # Add closing source fidelity reminder
     enhanced_prompt += """
 ═══════════════════════════════════════════════════════════════════════════
-END OF SOURCE DOCUMENTS
+↑↑↑ SOURCE DOCUMENTS END HERE
 ═══════════════════════════════════════════════════════════════════════════
 
-FINAL VERIFICATION BEFORE GENERATING:
-□ Will I use ONLY the source content above?
-□ Will I avoid adding information from my general knowledge?
-□ Will I state "not covered in source materials" if information is missing?
-□ Am I restructuring existing content, not creating new content?
+🚨 VERIFICATION CHECKPOINT #2 - ANSWER THESE QUESTIONS:
 
-IF YOU CANNOT CHECK ALL BOXES ✓ - DO NOT PROCEED
+Question 1: What topics were covered in the source documents?
+Answer: [List the actual topics you saw above]
 
-Now generate the requested product using ONLY the source content above.
+Question 2: What are you allowed to include in your response?
+Answer: ONLY information from the source documents above. NOTHING from my general knowledge.
+
+Question 3: What should you do if the source lacks information on a typical topic?
+Answer: State "not covered in source materials" - DO NOT add information from general knowledge.
+
+Question 4: Can you add examples, case studies, or statistics not in the source?
+Answer: NO. Absolutely not. Never.
+
+FINAL VERIFICATION CHECKLIST:
+□ I have read and understood the source documents above
+□ I will use ONLY content from those source documents
+□ I will NOT use any information from my general knowledge
+□ I will NOT add examples, facts, or cases not in the source
+□ I will state "not in source" if information is missing
+□ I am acting as a RESTRUCTURER, not a CREATOR
+
+IF ANY BOX IS UNCHECKED - YOU MUST STOP AND RE-READ THE INSTRUCTIONS
+
+NOW GENERATE THE REQUESTED PRODUCT USING **ONLY** THE SOURCE CONTENT ABOVE.
+
+DO NOT USE YOUR GENERAL KNOWLEDGE. DO NOT ADD INFORMATION. RESTRUCTURE ONLY.
 """
     
     return enhanced_prompt
