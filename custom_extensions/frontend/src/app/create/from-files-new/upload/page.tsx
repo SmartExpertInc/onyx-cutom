@@ -7,6 +7,7 @@ import { useLanguage } from "../../../../contexts/LanguageContext";
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
 import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
+import { BackButton } from "../../components/BackButton";
 
 interface UploadedFile {
   id: string;
@@ -239,21 +240,12 @@ export default function UploadFilesPage() {
           background: 'linear-gradient(360deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
           transform: 'translate(-50%, -50%) rotate(120deg)',
           filter: 'blur(100px)',
+          opacity: 0.24,
         }}
       />
       
       {/* Top-left back button */}
-      <Link
-        href="/create/from-files-new"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
-        style={{ 
-          color: '#000000',
-          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
-        }}
-      >
-        <span>&lt;</span>
-        <span>{t('interface.generate.back', 'Back')}</span>
-      </Link>
+      <BackButton href="/create/from-files-new" />
 
       {/* Hidden file input */}
       <input
@@ -268,7 +260,7 @@ export default function UploadFilesPage() {
       {/* Main content */}
       <div className="w-full max-w-2xl flex flex-col gap-6 items-center relative z-10 mt-20">
         {/* Title */}
-        <p className="text-2xl text-center text-[#FAFAFA]">
+        <p className="text-2xl text-center text-[#4D4D4D]">
           {t('interface.fromFiles.importWithAI', 'Import with AI')}
         </p>
 
@@ -308,7 +300,7 @@ export default function UploadFilesPage() {
 
         {/* Question text - only show when Add more files and Continue buttons are visible */}
         {!showImportOptions && (
-          <p className="text-2xl text-center mt-4" style={{ color: '#FAFAFA' }}>
+          <p className="text-2xl text-center mt-4" style={{ color: '#4D4D4D' }}>
             {t('interface.fromFiles.upload.addMoreOrContinue', 'Would you like to add more files or continue?')}
           </p>
         )}
