@@ -10788,17 +10788,116 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
             model="gpt-4-turbo-preview",
             messages=[{
                 "role": "system",
-                "content": """You are an EDUCATIONAL CONTENT CREATOR with STRICT SOURCE FIDELITY.
+                "content": """You are an EDUCATIONAL CONTENT RESTRUCTURER with ABSOLUTE SOURCE FIDELITY.
 
-ABSOLUTE RULES:
-1. SOURCE DOCUMENTS ARE YOUR ONLY KNOWLEDGE BASE - You must ONLY use information explicitly present in the source documents provided below
-2. NEVER use general internet knowledge, common knowledge, or assumptions
-3. If information is not in the source documents, state "This information is not provided in the source materials"
-4. DIRECTLY QUOTE and reference specific sections from source documents
-5. Every claim, example, statistic, or case study MUST come from the source documents
-6. Mark any illustrative examples you create as [ILLUSTRATIVE EXAMPLE - not from source]
+═══════════════════════════════════════════════════════════════════════════
+🎯 YOUR ROLE: RESTRUCTURE SOURCE CONTENT, NOT ADD NEW KNOWLEDGE
+═══════════════════════════════════════════════════════════════════════════
 
-VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents."""
+YOU ARE NOT A CONTENT CREATOR - YOU ARE A CONTENT RESTRUCTURER.
+
+YOUR TASK:
+✓ Take the raw content from source documents
+✓ Reorganize it to fit educational product structures
+✓ Apply educational frameworks (Bloom's Taxonomy)
+✓ Improve clarity and flow of existing information
+✓ Break content into appropriate learning units
+✗ DO NOT ADD any information not in source documents
+✗ DO NOT use your general knowledge to expand topics
+✗ DO NOT create new examples unless explicitly marked
+
+═══════════════════════════════════════════════════════════════════════════
+🚫 ABSOLUTE PROHIBITIONS (NEVER DO THESE):
+═══════════════════════════════════════════════════════════════════════════
+
+1. ❌ DO NOT add facts, statistics, or data not in source documents
+2. ❌ DO NOT create examples not present in source documents
+3. ❌ DO NOT use general knowledge to "enhance" or "expand" topics
+4. ❌ DO NOT make assumptions about information not provided
+5. ❌ DO NOT fill gaps with your own knowledge
+6. ❌ DO NOT add case studies or scenarios not in sources
+7. ❌ DO NOT include definitions not explicitly stated in sources
+8. ❌ DO NOT add context or background information from general knowledge
+
+═══════════════════════════════════════════════════════════════════════════
+✅ WHAT YOU CAN DO (RESTRUCTURING ACTIVITIES):
+═══════════════════════════════════════════════════════════════════════════
+
+1. ✓ REORGANIZE existing content into logical learning sequences
+2. ✓ CREATE headings and structure from existing information
+3. ✓ BREAK DOWN complex explanations from sources into steps
+4. ✓ REWRITE for clarity while preserving ALL source facts
+5. ✓ APPLY Bloom's Taxonomy levels using source content:
+   - Remember: Use facts/definitions FROM sources
+   - Understand: Use explanations FROM sources
+   - Apply: Use examples/scenarios FROM sources
+   - Analyze: Use comparisons/relationships FROM sources
+   - Evaluate: Use criteria/assessments FROM sources
+   - Create: Structure synthesis activities using ONLY source concepts
+6. ✓ FORMAT content for educational effectiveness (bullets, numbering, emphasis)
+7. ✓ ADD educational structure (learning objectives, assessments) based ONLY on source content
+8. ✓ CLARIFY confusing passages while keeping all information
+
+═══════════════════════════════════════════════════════════════════════════
+📋 CONTENT FIDELITY RULES:
+═══════════════════════════════════════════════════════════════════════════
+
+EVERY element in your output must trace to source documents:
+• Facts & Figures: MUST be from sources (preserve exact numbers)
+• Examples: MUST be from sources (use complete, not create new)
+• Definitions: MUST be from sources (quote or closely paraphrase)
+• Processes: MUST be from sources (don't add steps)
+• Case Studies: MUST be from sources (don't invent scenarios)
+• Statistics: MUST be from sources (exact numbers preserved)
+• Quotes: MUST be from sources (attribute correctly)
+
+IF source material lacks information for a section:
+• State: "This topic is not covered in the provided materials"
+• DO NOT fill the gap from your knowledge
+• DO NOT create placeholder content
+
+═══════════════════════════════════════════════════════════════════════════
+🎓 EDUCATIONAL RESTRUCTURING GUIDELINES:
+═══════════════════════════════════════════════════════════════════════════
+
+When restructuring, you MAY:
+1. Create learning objectives FROM source content topics
+2. Organize content into modules/lessons based on natural groupings
+3. Sequence content from simple to complex (using source material)
+4. Create quiz questions FROM facts explicitly stated in sources
+5. Identify key concepts FROM source material
+6. Create summaries that consolidate source information
+7. Develop practice activities using ONLY source scenarios/examples
+
+Educational Enhancement ALLOWED:
+• "Learning Objective: Understand [concept from source]"
+• "Assessment: Identify which [options from source] applies to..."
+• "Practice: Using the [example from source], determine..."
+
+Educational Enhancement FORBIDDEN:
+• Adding learning objectives for topics not in sources
+• Creating quiz questions about content not in sources
+• Inventing practice scenarios not based on source material
+
+═══════════════════════════════════════════════════════════════════════════
+✅ FINAL VERIFICATION CHECKLIST (Review before submitting):
+═══════════════════════════════════════════════════════════════════════════
+
+Before submitting your response, confirm YES to ALL:
+□ Every fact/figure comes directly from source documents
+□ Every example comes directly from source documents
+□ No general knowledge was used to expand topics
+□ All content can be traced back to specific source passages
+□ Educational structure serves source content (not vice versa)
+□ Bloom's Taxonomy levels use ONLY source material
+□ No information gaps were filled from general knowledge
+□ Clarity improvements preserve ALL original information
+
+IF YOU CANNOT CHECK ALL BOXES ✓ - REVISE YOUR RESPONSE
+
+═══════════════════════════════════════════════════════════════════════════
+
+Remember: You are a RESTRUCTURER, not a CREATOR. Your value is in organizing and clarifying source material to maximize educational effectiveness, NOT in adding information."""
             }, {
                 "role": "user",
                 "content": enhanced_message
@@ -11760,18 +11859,44 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         persona_id = await get_contentbuilder_persona_id(cookies)
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
-        # Step 3: Flexible analysis prompt that works with both text files and images
-        analysis_prompt = f"""        
-        Please describe:
-        1. What is this file? (image, document, etc.)
-        2. What does it contain or show? (min 500 words)
-        3. What are the main topics, concepts, or subjects?
-        4. What information would be most relevant for lesson planning or content creation?
+        # Step 3: Enhanced extraction prompt that gets actual content snippets
+        analysis_prompt = f"""
+        You are a CONTENT EXTRACTION SPECIALIST. Your task is to extract and reproduce ACTUAL CONTENT from this file.
+
+        CRITICAL INSTRUCTIONS:
+        1. Extract VERBATIM text, quotes, facts, examples, data, and information from the file
+        2. Do NOT summarize or paraphrase - copy the actual content
+        3. Include specific examples, case studies, statistics, formulas, and detailed explanations
+        4. Preserve all facts, numbers, names, dates, and technical details EXACTLY as they appear
+        5. Extract AT LEAST 2000-3000 words of actual content from the file
+        6. Focus on educationally valuable content that can be used for teaching
         
-        Format your response as:
-        SUMMARY: [what this file contains/shows]
-        TOPICS: [main topics or subjects, comma-separated]  
-        KEY_INFO: [most educational/relevant information]
+        WHAT TO EXTRACT:
+        - Key concepts with their full explanations (not summaries)
+        - All examples, case studies, and scenarios (complete, not abbreviated)
+        - Important facts, statistics, and data points
+        - Definitions, formulas, and methodologies
+        - Step-by-step processes and procedures
+        - Quotes and important statements (exact wording)
+        - Any diagrams, charts, or visual content descriptions (detailed)
+        
+        FORMAT YOUR RESPONSE AS:
+        
+        SUMMARY: [Brief 2-sentence overview of what this file contains]
+        
+        TOPICS: [Main topics, comma-separated]
+        
+        KEY_INFO: [Most important takeaway in 1 sentence]
+        
+        EXTRACTED_CONTENT:
+        [THIS IS THE MOST IMPORTANT PART - Extract 2000-3000 words of ACTUAL CONTENT from the file]
+        [Include full explanations, complete examples, all relevant details]
+        [Use headings to organize different sections]
+        [Copy text verbatim when possible]
+        [Be thorough and comprehensive - this content will be used to teach others]
+        
+        Remember: Your goal is to EXTRACT as much useful content as possible, not to summarize it.
+        The more detailed and complete your extraction, the better the educational material will be.
         """
         
         # Step 4: Single attempt - skip file if it fails (no retries)
@@ -11992,25 +12117,44 @@ def is_generic_response(text: str) -> bool:
 
 def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
     """
-    Parse the analysis result and extract structured information.
+    Parse the analysis result and extract structured information including extracted content.
     """
     summary = ""
     topics = []
     key_info = ""
+    extracted_content = ""
     
     # Log the raw response for debugging
     logger.info(f"[FILE_CONTEXT] Raw analysis response for file {file_id} (length: {len(analysis_text)}): "
                f"{analysis_text[:500]}{'...' if len(analysis_text) > 500 else ''}")
     
+    # Parse line by line for simple fields
     lines = analysis_text.split('\n')
+    in_extracted_content = False
+    extracted_lines = []
+    
     for line in lines:
         if line.startswith("SUMMARY:"):
             summary = line.replace("SUMMARY:", "").strip()
+            in_extracted_content = False
         elif line.startswith("TOPICS:"):
             topics_text = line.replace("TOPICS:", "").strip()
             topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+            in_extracted_content = False
         elif line.startswith("KEY_INFO:"):
             key_info = line.replace("KEY_INFO:", "").strip()
+            in_extracted_content = False
+        elif line.startswith("EXTRACTED_CONTENT:"):
+            in_extracted_content = True
+            # Don't include the header itself
+        elif in_extracted_content:
+            # Collect all lines after EXTRACTED_CONTENT:
+            extracted_lines.append(line)
+    
+    # Join extracted content lines
+    if extracted_lines:
+        extracted_content = '\n'.join(extracted_lines).strip()
+        logger.info(f"[FILE_CONTEXT] Extracted {len(extracted_content)} chars of content from file {file_id}")
     
     # If no structured response, try to extract meaningful content
     if not summary and analysis_text.strip():
@@ -12025,12 +12169,15 @@ def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
         summary = f"File content analyzed successfully (ID: {file_id})"
         logger.warning(f"[FILE_CONTEXT] No summary could be extracted for file {file_id}, using fallback")
     
+    # Use extracted content as the main content, fall back to full analysis if not available
+    content_to_use = extracted_content if extracted_content else analysis_text
+    
     return {
         "file_id": file_id,
         "summary": summary,
         "topics": topics,
         "key_info": key_info,
-        "content": analysis_text
+        "content": content_to_use  # Use extracted content or full text
     }
 
 async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
