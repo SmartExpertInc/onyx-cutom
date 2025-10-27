@@ -125,7 +125,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                       ? "text-[hsl(var(--custom-card-title))]" 
                       : "opacity-80 group-hover:opacity-100 group-active:opacity-100 group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"
                   )}
-                  style={!useCSSVariables ? { color: '#0D001B' } : undefined}
+                  style={!useCSSVariables ? { color: '#4D4D4D' } : undefined}
                 >
                   {title}
                 </h3>
@@ -136,7 +136,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                     "text-base text-left leading-[130%] max-w-[64%]",
                     useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : ""
                   )}
-                  style={!useCSSVariables ? { color: '#71717A' } : undefined}
+                  style={!useCSSVariables ? { color: '#878787' } : undefined}
                 >
                   {description}
                 </p>
