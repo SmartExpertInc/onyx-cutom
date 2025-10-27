@@ -14,7 +14,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
   const { t } = useLanguage();
 
   return (
-    <div className="absolute top-6 left-6 z-10">
+    <div className="absolute top-6 left-6 z-20">
       <Link
         href={href}
         onClick={onClick}

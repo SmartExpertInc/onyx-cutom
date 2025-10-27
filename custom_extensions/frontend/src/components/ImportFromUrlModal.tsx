@@ -104,15 +104,15 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ 
-        backdropFilter: 'blur(14.699999809265137px)',
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.15)',
       }}
       onClick={handleCancel}
     >
       <div 
         className="rounded-xl p-6 w-full max-w-lg"
         style={{
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
+          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
           boxShadow: '4px 4px 8px 0px #0000000D',
           border: '1px solid #E0E0E0',
         }}
