@@ -1470,6 +1470,7 @@ export const ru = {
       generatePresentation: "Генерировать презентацию",
       generateQuiz: "Генерировать тест",
       generateOnePager: "Генерировать одностраничник",
+      nextStep: "Следующий шаг",
       avatars: "Аватары",
       chooseVirtualTrainer: "Выберите виртуального тренера",
       content: "Контент",

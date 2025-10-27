@@ -26,7 +26,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         )}
         style={{
           backgroundColor: active ? '#F2F8FF' : '#FFFFFF',
-          border: active ? '2px solid #0F58F9' : '1px solid #D3D3D3',
+          border: active ? '2px solid #0F58F9' : '1px solid #CCCCCC',
           boxShadow: 'none'
         }}
         onClick={onClick}

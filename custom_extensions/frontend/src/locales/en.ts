@@ -1187,6 +1187,7 @@ export const en = {
       generatePresentation: "Generate Presentation",
       generateQuiz: "Generate Quiz",
       generateOnePager: "Generate One-Pager",
+      nextStep: "Next step",
       avatars: "Avatars",
       chooseVirtualTrainer: "Choose the virtual trainer",
       content: "Content",

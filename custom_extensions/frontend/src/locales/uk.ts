@@ -1461,6 +1461,7 @@ export const uk = {
       generatePresentation: "Генерувати презентацію",
       generateQuiz: "Генерувати тест",
       generateOnePager: "Генерувати односторінку",
+      nextStep: "Наступний крок",
       avatars: "Аватари",
       chooseVirtualTrainer: "Оберіть віртуального тренера",
       content: "Контент",

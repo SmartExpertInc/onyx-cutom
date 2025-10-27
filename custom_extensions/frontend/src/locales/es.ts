@@ -1453,6 +1453,7 @@ export const es = {
       generatePresentation: "Generar presentación",
       generateQuiz: "Generar cuestionario",
       generateOnePager: "Generar una página",
+      nextStep: "Siguiente paso",
       avatars: "Avatares",
       chooseVirtualTrainer: "Elige el entrenador virtual",
       content: "Contenido",
