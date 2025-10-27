@@ -98,7 +98,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
         style={{
           background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
           boxShadow: '4px 4px 8px 0px #0000000D',
-          border: '1px solid #CCCCCC',
+          border: '1px solid #E0E0E0',
           width: '95vw',
           height: '95vh',
           maxHeight: '95vh',
