@@ -1708,7 +1708,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **QUALITY STANDARD**: Use the same detailed, realistic cinematic scene format as other templates
 - **CONTENT RELEVANCE**: Left image should relate to the left column content, right image to right column content
 - **CONSISTENCY**: Both images should have similar lighting, style, and professional quality
-- **Example FORMAT**: "Realistic cinematic scene of [specific people] doing [specific activity] in [specific environment]. [Detailed description of people, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [people/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+- **INDIVIDUAL FOCUS**: Focus on individual professionals working, NOT group/team scenes (like bullet-points slides)
+- **Example FORMAT**: "Realistic cinematic scene of a focused professional [person description] working at [specific environment] with [relevant materials]. [Detailed description of individual, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [person/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
 
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
@@ -3645,7 +3646,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **QUALITY STANDARD**: Use the same detailed, realistic cinematic scene format as other templates
 - **CONTENT RELEVANCE**: Left image should relate to the left column content, right image to right column content
 - **CONSISTENCY**: Both images should have similar lighting, style, and professional quality
-- **Example FORMAT**: "Realistic cinematic scene of [specific people] doing [specific activity] in [specific environment]. [Detailed description of people, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [people/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+- **INDIVIDUAL FOCUS**: Focus on individual professionals working, NOT group/team scenes (like bullet-points slides)
+- **Example FORMAT**: "Realistic cinematic scene of a focused professional [person description] working at [specific environment] with [relevant materials]. [Detailed description of individual, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [person/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
 
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
@@ -5328,7 +5330,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **QUALITY STANDARD**: Use the same detailed, realistic cinematic scene format as other templates
 - **CONTENT RELEVANCE**: Left image should relate to the left column content, right image to right column content
 - **CONSISTENCY**: Both images should have similar lighting, style, and professional quality
-- **Example FORMAT**: "Realistic cinematic scene of [specific people] doing [specific activity] in [specific environment]. [Detailed description of people, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [people/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+- **INDIVIDUAL FOCUS**: Focus on individual professionals working, NOT group/team scenes (like bullet-points slides)
+- **Example FORMAT**: "Realistic cinematic scene of a focused professional [person description] working at [specific environment] with [relevant materials]. [Detailed description of individual, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [person/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
 
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
