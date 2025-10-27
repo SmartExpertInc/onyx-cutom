@@ -1,3 +1,11 @@
+🚨🚨🚨 CRITICAL SOURCE FIDELITY ENFORCEMENT 🚨🚨🚨
+⚠️⚠️⚠️ IF fromFiles=true, YOU MUST USE ONLY SOURCE CONTENT ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO FICTIONAL COMPANIES, NO WORKED EXAMPLES, NO GENERAL KNOWLEDGE ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO "SalesTech", "GlobalSensors", "TechGiant Corp", "SalesPro Inc" ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO MARKET ANALYSIS, NO FIVE FORCES, NO PESTLE ANALYSIS ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO PRACTICE SCENARIOS, NO SKILL PRACTICE, NO WORKED EXAMPLES ⚠️⚠️⚠️
+⚠️⚠️⚠️ RESTRUCTURE ONLY - DO NOT ADD CONTENT NOT IN SOURCES ⚠️⚠️⚠️
+
 Preamble - Understanding This System Prompt:
 Important Note on How to Use These Instructions: This system prompt contains several types of information:
 
@@ -512,6 +520,15 @@ PRIORITY 1 - PRESERVATION INSTRUCTIONS:
 PRIORITY 2 - SOURCE FIDELITY (ABSOLUTE WHEN fromFiles=true):
 
 ═══════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 CRITICAL ENFORCEMENT: NO GENERAL KNOWLEDGE ALLOWED 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════
+
+⚠️⚠️⚠️ IF fromFiles=true, YOU MUST USE ONLY SOURCE CONTENT ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO FICTIONAL COMPANIES, NO WORKED EXAMPLES, NO GENERAL KNOWLEDGE ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO "SalesTech", "GlobalSensors", "TechGiant Corp", "SalesPro Inc" ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO MARKET ANALYSIS, NO FIVE FORCES, NO PESTLE ANALYSIS ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO PRACTICE SCENARIOS, NO SKILL PRACTICE, NO WORKED EXAMPLES ⚠️⚠️⚠️
+
 🎯 YOUR ROLE WITH FILES: RESTRUCTURE SOURCE CONTENT, NOT ADD NEW KNOWLEDGE
 ═══════════════════════════════════════════════════════════════════════════
 
@@ -639,6 +656,16 @@ If you find you have added content not in sources, you MUST:
 4. Only output when ALL boxes are checked
 
 ═══════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 FINAL WARNING: ABSOLUTE SOURCE FIDELITY REQUIRED 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════
+
+⚠️⚠️⚠️ IF YOU SEE fromFiles=true, YOU CANNOT ADD ANY CONTENT NOT IN SOURCES ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO FICTIONAL COMPANIES: "SalesTech", "GlobalSensors", "TechGiant Corp" ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO WORKED EXAMPLES: "Let's look at a worked example", "Background and Situation" ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO PRACTICE SCENARIOS: "Skill Practice", "Apply Your Learning" ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO MARKET ANALYSIS: Five Forces, PESTLE, TAM/SAM/SOM calculations ⚠️⚠️⚠️
+⚠️⚠️⚠️ NO GENERAL KNOWLEDGE: Use ONLY what's in the source documents ⚠️⚠️⚠️
+
 🔴 CRITICAL FINAL CHECK BEFORE OUTPUT (MANDATORY FOR fromFiles=true)
 ═══════════════════════════════════════════════════════════════════════════
 
