@@ -2688,7 +2688,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [dataToDisplay, onTextChange]);
 
   return (
-    <div className="text-presentation-container border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
+    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
       {dataToDisplay.textTitle && (
         <header className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC]">
           {/* {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>} */}

@@ -1371,86 +1371,183 @@ export default function ProjectInstanceViewPage() {
       return;
     }
 
-    // Special handling for TextPresentationDisplay - client-side PDF generation
+    // Special handling for TextPresentationDisplay - generate HTML and convert to PDF
     if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
       try {
-        // Dynamically import html2pdf
-        let html2pdf: any;
-        try {
-          // @ts-ignore - Dynamic import for optional dependency
-          html2pdf = (await import('html2pdf.js')).default;
-        } catch (importError) {
-          console.error('Failed to load html2pdf.js. Please install it: npm install html2pdf.js', importError);
-          alert('PDF export library is not installed. Please run: npm install html2pdf.js');
-          return;
-        }
-        
-        // Find the TextPresentationDisplay container
-        const element = document.querySelector('.text-presentation-container');
+        // Get the container element
+        const element = document.getElementById('text-presentation-container');
         if (!element) {
           alert('Could not find the presentation content to export.');
           return;
         }
 
-        // Clone the element to modify it without affecting the page
+        // Clone the element to modify it
         const clonedElement = element.cloneNode(true) as HTMLElement;
         
-        // Remove edit controls and buttons from the clone
-        const editControls = clonedElement.querySelectorAll('.group-hover\\:opacity-100, [class*="hover:"], .edit-controls, .fab-button, .absolute[class*="opacity-0"]');
-        editControls.forEach(el => el.remove());
+        // Remove all interactive elements and edit controls
+        const selectorsToRemove = [
+          '.absolute', 
+          'button',
+          '[class*="hover:"]',
+          '[class*="opacity-0"]',
+          '[class*="group-hover"]',
+          '.fab-button',
+          '.cursor-pointer',
+          '[draggable="true"]'
+        ];
         
-        // Get all computed styles
-        const styles = Array.from(document.styleSheets)
-          .map(styleSheet => {
-            try {
-              return Array.from(styleSheet.cssRules)
-                .map(rule => rule.cssText)
-                .join('\n');
-            } catch (e) {
-              return '';
+        selectorsToRemove.forEach(selector => {
+          const elements = clonedElement.querySelectorAll(selector);
+          elements.forEach(el => {
+            const element = el as HTMLElement;
+            // Remove interactive attributes
+            element.removeAttribute('draggable');
+            element.removeAttribute('onclick');
+            element.style.cursor = 'default';
+            
+            // Remove buttons and controls
+            if (selector === 'button' || selector === '.absolute') {
+              if (element.classList.contains('absolute') || element.tagName === 'BUTTON') {
+                element.remove();
+              }
             }
-          })
-          .join('\n');
+          });
+        });
 
-        // Create a wrapper with all styles
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = `
-          <style>
-            ${styles}
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            body {
-              margin: 0;
-              padding: 20px;
-              background: white;
-            }
-          </style>
-          ${clonedElement.outerHTML}
-        `;
+        // Get all computed styles from stylesheets
+        let styles = '';
+        try {
+          styles = Array.from(document.styleSheets)
+            .map(styleSheet => {
+              try {
+                return Array.from(styleSheet.cssRules)
+                  .map(rule => rule.cssText)
+                  .join('\n');
+              } catch (e) {
+                // Cross-origin stylesheets will throw an error
+                return '';
+              }
+            })
+            .join('\n');
+        } catch (e) {
+          console.error('Error extracting styles:', e);
+        }
 
-        const filename = `${projectInstanceData.name || 'text-presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+        // Create complete HTML document
+        const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${projectInstanceData.name || 'Text Presentation'}</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: white;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    /* Preserve all existing styles */
+    ${styles}
+    
+    /* PDF-specific adjustments */
+    @media print {
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      
+      .text-presentation-container {
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+      
+      /* Hide interactive elements in print */
+      button,
+      [class*="hover:"],
+      [class*="cursor-pointer"],
+      .absolute {
+        display: none !important;
+      }
+      
+      /* Page break control */
+      h1, h2, h3, h4 {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      
+      img {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+    
+    /* Ensure colors are preserved */
+    .bg-\\[\\#CCDBFCCC\\] {
+      background-color: #CCDBFCCC !important;
+    }
+    
+    .text-\\[\\#0F58F9\\] {
+      color: #0F58F9 !important;
+    }
+    
+    .bg-\\[\\#0F58F9\\] {
+      background-color: #0F58F9 !important;
+    }
+    
+    .border-\\[\\#CCCCCC\\] {
+      border-color: #CCCCCC !important;
+    }
+  </style>
+</head>
+<body>
+  ${clonedElement.outerHTML}
+  
+  <script>
+    // Auto-print on load
+    window.onload = function() {
+      window.print();
+      // Close window after printing or cancel
+      setTimeout(function() {
+        window.close();
+      }, 100);
+    };
+  </script>
+</body>
+</html>`;
 
-        const opt = {
-          margin: [10, 10, 10, 10],
-          filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            letterRendering: true
-          },
-          jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait'
-          },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
+        // Create a blob and open it in a new window for printing
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        // Open in new window for print
+        const printWindow = window.open(url, '_blank');
+        
+        if (!printWindow) {
+          alert('Please allow pop-ups to export the PDF. Then try again.');
+          URL.revokeObjectURL(url);
+          return;
+        }
+        
+        // Clean up the blob URL after a delay
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 1000);
 
-        await html2pdf().set(opt).from(wrapper).save();
       } catch (error) {
         console.error('Error generating PDF:', error);
         alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
