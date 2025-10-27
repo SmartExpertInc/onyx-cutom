@@ -5157,6 +5157,47 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     </div>
                 </div>
                 
+            {% elif templateId == 'high-performing-teams' or templateId == 'high-performing-teams-slide' %}
+                <div class="high-performing-teams-slide">
+                    <div class="topPart"></div>
+                    <div class="bottomPart"></div>
+                    
+                    <div class="titleStyle">{{ title or 'The Power of High-Performing Teams' }}</div>
+                    <div class="paragraph">{{ content or 'Great teams drive innovation, boost productivity, and create lasting impact.' }}</div>
+                    
+                    <div class="panel">
+                        <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
+                            <defs>
+                                <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                    <use href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
+                                </pattern>
+                                <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
+                            </defs>
+                        </svg>
+                    </div>
+                    
+                    <div class="avatarContainer">
+                        {% if avatarImagePath %}
+                            <img src="{{ avatarImagePath }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+                        {% else %}
+                            <div style="width: 100%; height: 100%; background: #e0e0e0; border-radius: 50%;"></div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                        {% else %}
+                            <div style="width: 80px; height: 80px; background: #f0f0f0; border-radius: 8px;"></div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="page-number-container">
+                        <span class="page-number">{{ pageNumber or '1' }}</span>
+                    </div>
+                </div>
+                
             {% else %}
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
@@ -5210,48 +5251,6 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         <p style="font-size: 1.8rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
                     {% endif %}
                 </div>
-            
-            {% elif templateId == 'high-performing-teams' or templateId == 'high-performing-teams-slide' %}
-                <div class="high-performing-teams-slide">
-                    <div class="topPart"></div>
-                    <div class="bottomPart"></div>
-                    
-                    <div class="titleStyle">{{ title or 'The Power of High-Performing Teams' }}</div>
-                    <div class="paragraph">{{ content or 'Great teams drive innovation, boost productivity, and create lasting impact.' }}</div>
-                    
-                    <div class="panel">
-                        <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
-                            <defs>
-                                <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
-                                    <use href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
-                                </pattern>
-                                <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
-                            </defs>
-                        </svg>
-                    </div>
-                    
-                    <div class="avatarContainer">
-                        {% if avatarImagePath %}
-                            <img src="{{ avatarImagePath }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
-                        {% else %}
-                            <div style="width: 100%; height: 100%; background: #e0e0e0; border-radius: 50%;"></div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="logo-container">
-                        {% if logoPath %}
-                            <img src="{{ logoPath }}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                        {% else %}
-                            <div style="width: 80px; height: 80px; background: #f0f0f0; border-radius: 8px;"></div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="page-number-container">
-                        <span class="page-number">{{ pageNumber or '1' }}</span>
-                    </div>
-                </div>
-            
             {% endif %}
         </div>
     </div>
