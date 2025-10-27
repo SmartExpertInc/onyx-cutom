@@ -1385,7 +1385,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_11_team_motivation",
       "slideNumber": 11,
       "slideTitle": "Project Management Fundamentals — How to Keep Your Team Motivated and Productive",
-      "templateId": "big-image-top",
+      "templateId": "bullet-points-right",
       "previewKeyPoints": [
         "Team motivation directly impacts project success and timeline adherence",
         "Common demotivators: unclear expectations, lack of recognition, poor communication",
@@ -1394,9 +1394,15 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "Building and Maintaining High-Performing Project Teams",
+        "bullets": [
+          "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply.",
+          "Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort.",
+          "Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved.",
+          "Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares what they completed yesterday, what they will work on today, and any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused.",
+          "Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption and revenue growth by 40% based on our analysis'."
+        ],
         "imagePrompt": "Realistic cinematic scene of a diverse project team having an engaged discussion around a conference table in a modern office. A confident Asian woman in business attire stands presenting project updates on a large screen while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. Other team members are actively participating, some pointing at documents, others contributing ideas. The conference room features floor-to-ceiling windows with natural daylight, a large wooden table, executive chairs, and visible project materials including laptops, tablets, planning boards, and coffee cups. Natural office lighting illuminates the collaborative atmosphere. The presentation screen and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
-        "imageAlt": "Project team engaged in productive planning meeting",
-        "content": "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply. Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort. Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved. Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares what they completed yesterday, what they will work on today, and any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused. Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption and revenue growth by 40% based on our analysis'."
+        "imageAlt": "Project team engaged in productive planning meeting"
       }
     },
     {
@@ -1631,7 +1637,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_20_next_steps_application",
       "slideNumber": 20,
       "slideTitle": "Project Management Fundamentals — Your Next Steps: Applying What You Learned",
-      "templateId": "process-steps",
+      "templateId": "big-image-top",
       "previewKeyPoints": [
         "You now have the fundamental frameworks and tools to manage projects successfully",
         "Move from learning to doing: apply these concepts to real projects immediately",
@@ -1640,12 +1646,10 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "From Learning to Doing: Your Action Plan This Week",
-        "steps": [
-          "Identify Your First Project: Choose a small, low-risk project to practice these skills. Ideal first project: 4-8 weeks duration, 3-5 team members, clear deliverable, supportive stakeholder. Examples: process improvement initiative, internal tool development, department event planning. Avoid choosing your organization's most critical strategic project for your first application.",
-          "Create Your Project Documents: This week, create your basic project management toolkit for this project: (1) One-page project charter defining goals, scope, and success criteria, (2) Simple work breakdown structure with tasks and time estimates, (3) Basic risk register with top 5 risks and mitigation plans, (4) Weekly status report template. Use templates from this lesson.",
-          "Set Up Your Tracking System: Choose your project tracking method: simple spreadsheet, free project management tool, or physical task board. Set it up this week with all your tasks. Update it every Friday. Schedule 15-minute weekly review with your team. The system does not need to be fancy - it needs to be used consistently.",
-          "Find a Mentor: Identify someone who has managed projects successfully in your organization. Ask them to review your project plan and provide feedback. Schedule monthly 30-minute coffee chats to discuss challenges you are facing. Learn from their experiences. Most experienced project managers are happy to mentor and share what they have learned."
-        ]
+        "subtitle": "Transform your project management knowledge into practical skills through structured practice and mentorship",
+        "imagePrompt": "Realistic cinematic scene of a confident professional woman in business attire standing in a modern office environment, reviewing project documents on a large wall-mounted display. She is holding a tablet with project planning materials while standing near a whiteboard covered with project timelines, task lists, and success metrics. The office features floor-to-ceiling windows with natural daylight, contemporary furniture, and visible project management tools including laptops, planning boards, and organizational materials. Natural office lighting illuminates the focused workspace. The project display and planning materials are [COLOR1], her professional attire and devices are [COLOR2], and the office environment and furniture are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Professional reviewing project management materials in modern office",
+        "content": "Identify Your First Project: Choose a small, low-risk project to practice these skills. Ideal first project: 4-8 weeks duration, 3-5 team members, clear deliverable, supportive stakeholder. Examples: process improvement initiative, internal tool development, department event planning. Avoid choosing your organization's most critical strategic project for your first application. Create Your Project Documents: This week, create your basic project management toolkit for this project: (1) One-page project charter defining goals, scope, and success criteria, (2) Simple work breakdown structure with tasks and time estimates, (3) Basic risk register with top 5 risks and mitigation plans, (4) Weekly status report template. Use templates from this lesson. Set Up Your Tracking System: Choose your project tracking method: simple spreadsheet, free project management tool, or physical task board. Set it up this week with all your tasks. Update it every Friday. Schedule 15-minute weekly review with your team. The system does not need to be fancy - it needs to be used consistently. Find a Mentor: Identify someone who has managed projects successfully in your organization. Ask them to review your project plan and provide feedback. Schedule monthly 30-minute coffee chats to discuss challenges you are facing. Learn from their experiences. Most experienced project managers are happy to mentor and share what they have learned."
       }
     }
   ],
@@ -1748,6 +1752,96 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "hasVoiceover": true
 }
 """
+
+def validate_presentation_slides(slides: List[Dict]) -> Dict[str, List[str]]:
+    """
+    Validate presentation slides for common issues:
+    1. big-image-left missing imagePrompt
+    2. challenges-solutions having more than 3 pairs
+    3. big-image-top in middle positions
+    """
+    issues = {
+        "big_image_left_missing_prompt": [],
+        "challenges_solutions_count": [],
+        "big_image_top_positioning": []
+    }
+    
+    for i, slide in enumerate(slides):
+        slide_num = i + 1
+        template_id = slide.get('templateId', '')
+        props = slide.get('props', {})
+        
+        # Check big-image-left for missing imagePrompt
+        if template_id == 'big-image-left':
+            if 'imagePrompt' not in props or not props.get('imagePrompt', '').strip():
+                issues["big_image_left_missing_prompt"].append(f"Slide {slide_num}: big-image-left missing imagePrompt")
+        
+        # Check challenges-solutions for count
+        if template_id == 'challenges-solutions':
+            challenges = props.get('challenges', [])
+            solutions = props.get('solutions', [])
+            if len(challenges) != 3 or len(solutions) != 3:
+                issues["challenges_solutions_count"].append(
+                    f"Slide {slide_num}: challenges-solutions has {len(challenges)} challenges and {len(solutions)} solutions (should be exactly 3 each)"
+                )
+        
+        # Check big-image-top positioning (not first or last slide)
+        if template_id == 'big-image-top':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["big_image_top_positioning"].append(
+                    f"Slide {slide_num}: big-image-top should only be used for first or last slide"
+                )
+    
+    return issues
+
+def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
+    """
+    Fix common presentation issues automatically:
+    1. Add default imagePrompt to big-image-left slides
+    2. Remove excess pairs from challenges-solutions slides
+    3. Replace big-image-top in middle with bullet-points-right
+    """
+    fixed_slides = []
+    
+    for i, slide in enumerate(slides):
+        slide_num = i + 1
+        template_id = slide.get('templateId', '')
+        props = slide.get('props', {})
+        
+        # Fix big-image-left missing imagePrompt
+        if template_id == 'big-image-left' and ('imagePrompt' not in props or not props.get('imagePrompt', '').strip()):
+            props['imagePrompt'] = "Realistic cinematic scene of professionals working in a modern office environment with natural lighting and contemporary furniture. The workspace features clean, organized materials and professional equipment. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+            logger.info(f"Fixed big-image-left slide {slide_num}: Added default imagePrompt")
+        
+        # Fix challenges-solutions count
+        if template_id == 'challenges-solutions':
+            challenges = props.get('challenges', [])
+            solutions = props.get('solutions', [])
+            if len(challenges) > 3:
+                props['challenges'] = challenges[:3]
+                logger.info(f"Fixed challenges-solutions slide {slide_num}: Reduced challenges from {len(challenges)} to 3")
+            if len(solutions) > 3:
+                props['solutions'] = solutions[:3]
+                logger.info(f"Fixed challenges-solutions slide {slide_num}: Reduced solutions from {len(solutions)} to 3")
+        
+        # Fix big-image-top positioning
+        if template_id == 'big-image-top' and slide_num != 1 and slide_num != len(slides):
+            # Replace with bullet-points-right
+            slide['templateId'] = 'bullet-points-right'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed big-image-top slide {slide_num}: Replaced with bullet-points-right")
+        
+        fixed_slides.append(slide)
+    
+    return fixed_slides
 
 async def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
     """

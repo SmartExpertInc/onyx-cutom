@@ -1901,6 +1901,9 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
 14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4; challenges: 60-80 words, solutions: 80-100 words)
+    - **MANDATORY VALIDATION**: Before finalizing any challenges-solutions slide, count the challenges and solutions arrays
+    - **If more than 3 pairs are provided, remove excess pairs to maintain exactly 3**
+    - **This validation is NON-NEGOTIABLE and must be performed for every challenges-solutions slide**
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
@@ -2513,6 +2516,7 @@ Understanding the diverse sources of organizational revenue.
 - **NEVER use big-image-top for middle slides (slides 2 through n-1)**
 - **If you need a visual slide in the middle, use bullet-points, bullet-points-right, or two-column instead**
 - **This restriction ensures proper visual flow and prevents overuse of large image templates**
+- **VALIDATION REQUIRED**: Before finalizing any presentation, scan all slides and ensure no big-image-top appears in middle positions
 - **BULLET-POINTS RESTRICTION**: Maximum 3 bullet-points slides total per presentation (bullet-points + bullet-points-right combined)
 - **BULLET-POINTS ALTERNATION**: MUST alternate between `bullet-points` and `bullet-points-right` when using multiple bullet slides
 - **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
@@ -2608,6 +2612,21 @@ Before you finish generating any presentation, perform these checks:
 3. **CONTENT is comprehensive and educational** (not superficial)
 4. **PRACTICAL examples are included** in every point
 5. **NO shortcuts or exceptions** - these rules are absolute
+
+**BIG-IMAGE-LEFT VALIDATION:**
+1. **EVERY `big-image-left` slide MUST have `imagePrompt` property**
+2. **The `imagePrompt` must describe a realistic cinematic scene**
+3. **If any `big-image-left` slide is missing `imagePrompt`, ADD IT immediately**
+
+**CHALLENGES-SOLUTIONS VALIDATION:**
+1. **EVERY `challenges-solutions` slide has EXACTLY 3 challenges and 3 solutions**
+2. **If more than 3 pairs are provided, remove excess pairs to maintain exactly 3**
+3. **This validation is NON-NEGOTIABLE and must be performed for every challenges-solutions slide**
+
+**BIG-IMAGE-TOP POSITIONING VALIDATION:**
+1. **Scan all slides and ensure no `big-image-top` appears in middle positions (slides 2 through n-1)**
+2. **`big-image-top` is ONLY allowed for the FIRST slide or LAST slide**
+3. **If found in middle, replace with `bullet-points-right` or `two-column` template**
 
 **CRITICAL CONTENT QUALITY REQUIREMENTS:**
 - **NEVER create shallow or superficial content** - every slide must provide substantial educational value
@@ -3845,6 +3864,9 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
 14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4; challenges: 60-80 words, solutions: 80-100 words)
+    - **MANDATORY VALIDATION**: Before finalizing any challenges-solutions slide, count the challenges and solutions arrays
+    - **If more than 3 pairs are provided, remove excess pairs to maintain exactly 3**
+    - **This validation is NON-NEGOTIABLE and must be performed for every challenges-solutions slide**
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
@@ -4457,6 +4479,7 @@ Understanding the diverse sources of organizational revenue.
 - **NEVER use big-image-top for middle slides (slides 2 through n-1)**
 - **If you need a visual slide in the middle, use bullet-points, bullet-points-right, or two-column instead**
 - **This restriction ensures proper visual flow and prevents overuse of large image templates**
+- **VALIDATION REQUIRED**: Before finalizing any presentation, scan all slides and ensure no big-image-top appears in middle positions
 - **BULLET-POINTS RESTRICTION**: Maximum 3 bullet-points slides total per presentation (bullet-points + bullet-points-right combined)
 - **BULLET-POINTS ALTERNATION**: MUST alternate between `bullet-points` and `bullet-points-right` when using multiple bullet slides
 - **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
@@ -4552,6 +4575,21 @@ Before you finish generating any presentation, perform these checks:
 3. **CONTENT is comprehensive and educational** (not superficial)
 4. **PRACTICAL examples are included** in every point
 5. **NO shortcuts or exceptions** - these rules are absolute
+
+**BIG-IMAGE-LEFT VALIDATION:**
+1. **EVERY `big-image-left` slide MUST have `imagePrompt` property**
+2. **The `imagePrompt` must describe a realistic cinematic scene**
+3. **If any `big-image-left` slide is missing `imagePrompt`, ADD IT immediately**
+
+**CHALLENGES-SOLUTIONS VALIDATION:**
+1. **EVERY `challenges-solutions` slide has EXACTLY 3 challenges and 3 solutions**
+2. **If more than 3 pairs are provided, remove excess pairs to maintain exactly 3**
+3. **This validation is NON-NEGOTIABLE and must be performed for every challenges-solutions slide**
+
+**BIG-IMAGE-TOP POSITIONING VALIDATION:**
+1. **Scan all slides and ensure no `big-image-top` appears in middle positions (slides 2 through n-1)**
+2. **`big-image-top` is ONLY allowed for the FIRST slide or LAST slide**
+3. **If found in middle, replace with `bullet-points-right` or `two-column` template**
 
 **CRITICAL CONTENT QUALITY REQUIREMENTS:**
 - **NEVER create shallow or superficial content** - every slide must provide substantial educational value
@@ -5535,6 +5573,9 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
 14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4; challenges: 60-80 words, solutions: 80-100 words)
+    - **MANDATORY VALIDATION**: Before finalizing any challenges-solutions slide, count the challenges and solutions arrays
+    - **If more than 3 pairs are provided, remove excess pairs to maintain exactly 3**
+    - **This validation is NON-NEGOTIABLE and must be performed for every challenges-solutions slide**
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
