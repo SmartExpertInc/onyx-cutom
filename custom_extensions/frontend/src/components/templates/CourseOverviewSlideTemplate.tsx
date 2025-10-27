@@ -238,7 +238,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
             isEditable={isEditable}
             color="#ffffff"
             text="Your Logo"
-            fontSize="38px"
+            fontSize="28px"
             style={{
               maxHeight: '64px',
               maxWidth: '192px',
