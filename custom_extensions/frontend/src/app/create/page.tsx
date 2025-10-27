@@ -29,7 +29,7 @@ interface OptionCardProps {
 const ImportIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect x="11.333" y="7" width="37.3333" height="18.6667" rx="6.22222" fill="#0AFFEA"/>
-  <foreignObject x="-7.33333" y="3.88835" width="74.6667" height="59.111"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(4.67px);clip-path:url(#bgblur_0_1339_30084_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_i_1339_30084)" data-figma-bg-blur-radius="9.33333">
+  <foreignObject x="-7.33333" y="3.88835" width="74.6667" height="59.111"><div style={{backdropFilter:'blur(4.67px)',clipPath:'url(#bgblur_0_1339_30084_clip_path)',height:'100%',width:'100%'}}></div></foreignObject><g filter="url(#filter0_i_1339_30084)" data-figma-bg-blur-radius="9.33333">
   <rect x="2" y="13.2217" width="56" height="40.4444" rx="9.33333" fill="#0AFFEA" fill-opacity="0.2"/>
   </g>
   <g filter="url(#filter1_i_1339_30084)">
@@ -64,7 +64,7 @@ const ImportIcon: React.FC<{ size?: number }> = ({ size }) => (
 const GenerateIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="30.5" cy="30.5" r="16.5625" fill="#0F58F9"/>
-  <foreignObject x="-5.9375" y="-5.9375" width="72.875" height="72.875"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(4.97px);clip-path:url(#bgblur_0_1339_30065_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_i_1339_30065)" data-figma-bg-blur-radius="9.9375">
+  <foreignObject x="-5.9375" y="-5.9375" width="72.875" height="72.875"><div style={{backdropFilter:'blur(4.97px)',clipPath:'url(#bgblur_0_1339_30065_clip_path)',height:'100%',width:'100%'}}></div></foreignObject><g filter="url(#filter0_i_1339_30065)" data-figma-bg-blur-radius="9.9375">
   <path d="M4 10.625C4 6.96611 6.96611 4 10.625 4H20.5625C24.2214 4 27.1875 6.96611 27.1875 10.625V20.5625C27.1875 24.2214 24.2214 27.1875 20.5625 27.1875H10.625C6.96611 27.1875 4 24.2214 4 20.5625V10.625Z" fill="#0F58F9" fill-opacity="0.2"/>
   <path d="M4 40.4375C4 36.7786 6.96611 33.8125 10.625 33.8125H20.5625C24.2214 33.8125 27.1875 36.7786 27.1875 40.4375V50.375C27.1875 54.0339 24.2214 57 20.5625 57H10.625C6.96611 57 4 54.0339 4 50.375V40.4375Z" fill="#0F58F9" fill-opacity="0.2"/>
   <path d="M33.8125 10.625C33.8125 6.96611 36.7786 4 40.4375 4H50.375C54.0339 4 57 6.96611 57 10.625V20.5625C57 24.2214 54.0339 27.1875 50.375 27.1875H40.4375C36.7786 27.1875 33.8125 24.2214 33.8125 20.5625V10.625Z" fill="#0F58F9" fill-opacity="0.2"/>
@@ -92,7 +92,7 @@ const GenerateIcon: React.FC<{ size?: number }> = ({ size }) => (
 const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M18.5833 6.91699C20.1942 6.91699 21.5 8.22283 21.5 9.83366L21.5 50.667C21.5 52.2778 20.1942 53.5837 18.5833 53.5837L9.83333 53.5837C6.61167 53.5837 4 50.972 4 47.7503L4 12.7503C4 9.52867 6.61167 6.91699 9.83333 6.91699L18.5833 6.91699Z" fill="#D60AFF"/>
-  <foreignObject x="9.83301" y="-4.75" width="55.417" height="70"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(4.38px);clip-path:url(#bgblur_0_1339_30050_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_i_1339_30050)" data-figma-bg-blur-radius="8.75">
+  <foreignObject x="9.83301" y="-4.75" width="55.417" height="70"><div style={{backdropFilter:'blur(4.38px)',clipPath:'url(#bgblur_0_1339_30050_clip_path)',height:'100%',width:'100%'}}></div></foreignObject><g filter="url(#filter0_i_1339_30050)" data-figma-bg-blur-radius="8.75">
   <path d="M18.583 9.83334C18.583 7.08347 18.583 5.70854 19.4373 4.85427C20.2916 4 21.6665 4 24.4163 4H44.833C50.3327 4 53.0826 4 54.7911 5.70854C56.4997 7.41709 56.4997 10.1669 56.4997 15.6667V44.8333C56.4997 50.3331 56.4997 53.0829 54.7911 54.7915C53.0826 56.5 50.3327 56.5 44.833 56.5H24.4163C21.6665 56.5 20.2916 56.5 19.4373 55.6457C18.583 54.7915 18.583 53.4165 18.583 50.6667V9.83334Z" fill="#D60AFF" fill-opacity="0.2"/>
   </g>
   <g filter="url(#filter1_i_1339_30050)">
