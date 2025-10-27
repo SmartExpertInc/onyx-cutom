@@ -76,6 +76,7 @@ export type AnyContentBlock =
   | NumberedListBlock
   | TableBlock
   | ImageBlock
+  | ColumnContainerBlock
   | MiniSection
   | StandaloneBlock;
 
@@ -86,15 +87,20 @@ export interface BulletListBlock {
   items: ListItem[];
   iconName?: string | null; // Specific to BulletListBlock
   fontSize?: string | null;
-  columnCount?: 1 | 2; // Number of columns to display the list
 }
 
 export interface NumberedListBlock {
   type: 'numbered_list';
   items: ListItem[];
   fontSize?: string | null;
-  columnCount?: 1 | 2; // Number of columns to display the list
   // NumberedListBlock does not have its own iconName in the Pydantic model.
+}
+
+// Container block for column layouts
+export interface ColumnContainerBlock {
+  type: 'column_container';
+  columnCount: 2 | 3; // Number of columns
+  columns: AnyContentBlock[][]; // Array of columns, each containing blocks
 }
 
 // --- Composite Types for Rendering ---

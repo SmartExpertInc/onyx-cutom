@@ -4,7 +4,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
-  BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock,
+  BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock, ColumnContainerBlock,
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
@@ -1143,62 +1143,36 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           )}
 
-          {/* List controls - icon picker and column layout */}
-          {isEditing && !!onTextChange && (
+          {/* List icon picker for bullet lists */}
+          {isEditing && !!onTextChange && !isNumbered && (
             <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
             style={{ left: isNumbered ? '-10px' : '-25px' }}>
-              {/* Bullet icon picker for bullet lists only */}
-              {!isNumbered && (
-                <div className="relative">
-                  <button 
-                    className="p-1 rounded hover:bg-gray-200" 
-                    onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
-                    title="Choose bullet icon"
-                  >
-                    <StarIcon className="w-4 h-4" />
-                  </button>
-                  {isBulletPickerOpen && (
-                    <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
-                      onClick={(e) => e.stopPropagation()}>
-                      <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
-                        <span className="text-xs font-medium">No Icon</span>
+              <div className="relative">
+                <button 
+                  className="p-1 rounded hover:bg-gray-200" 
+                  onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
+                  title="Choose bullet icon"
+                >
+                  <StarIcon className="w-4 h-4" />
+                </button>
+                {isBulletPickerOpen && (
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
+                    onClick={(e) => e.stopPropagation()}>
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                      <span className="text-xs font-medium">No Icon</span>
+                    </button>
+                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
                       </button>
-                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                        <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
-                          {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* Column layout toggle */}
-              <button 
-                className={`p-1 rounded hover:bg-gray-200 ${(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? 'bg-blue-100' : ''}`}
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  const currentColumns = (block as BulletListBlock | NumberedListBlock).columnCount || 1;
-                  const newColumns = currentColumns === 2 ? 1 : 2;
-                  onTextChange?.([...basePath, 'columnCount'], newColumns as 1 | 2);
-                }} 
-                title={`Switch to ${(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? '1' : '2'} columns`}
-              >
-                {(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <rect x="4" y="4" width="16" height="16" strokeWidth="2" rx="2"/>
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <rect x="4" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
-                    <rect x="14" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
-                  </svg>
+                    ))}
+                  </div>
                 )}
-              </button>
+              </div>
             </div>
           )}
           
-          <ListTag className={`${listStyle} ${textIndentClass} ${(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? 'grid grid-cols-2 gap-x-4 gap-y-1.5' : 'space-y-1.5'}`} style={{ fontSize: fontSize || '10px' }}>
+          <ListTag className={`${listStyle} ${textIndentClass} ${isNumbered ? 'grid grid-cols-2 gap-x-4 gap-y-1.5' : 'space-y-1.5'}`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
@@ -2094,6 +2068,100 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         </div>
       );
     }
+    
+    case 'column_container': {
+      const { columnCount, columns } = block as ColumnContainerBlock;
+      const columnClass = columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
+      
+      return (
+        <div 
+          className="my-4 group relative"
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+        >
+          {/* Arrow buttons for reordering */}
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+              <button
+                onClick={() => onMoveBlockUp(contentBlockIndex)}
+                disabled={isFirstBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveBlockDown(contentBlockIndex)}
+                disabled={isLastBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {/* Column count toggle */}
+              <button
+                onClick={() => {
+                  const newCount = columnCount === 2 ? 3 : 2;
+                  onTextChange?.(fieldPath('columnCount'), newCount);
+                }}
+                className="p-1 hover:bg-gray-200 rounded ml-1"
+                title={`Switch to ${columnCount === 2 ? '3' : '2'} columns`}
+              >
+                {columnCount === 2 ? '2' : '3'} cols
+              </button>
+            </div>
+          )}
+          
+          <div className={`grid grid-cols-1 ${columnClass} gap-6`}>
+            {columns.map((column, columnIndex) => (
+              <div key={columnIndex} className="flex flex-col space-y-2">
+                {column.map((columnBlock, blockIndex) => (
+                  <RenderBlock
+                    key={blockIndex}
+                    block={columnBlock}
+                    depth={(depth || 0) + 1}
+                    isEditing={isEditing}
+                    onTextChange={onTextChange}
+                    basePath={[...basePath, 'columns', columnIndex, blockIndex]}
+                    documentContent={documentContent}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
     default:
       return null;
   }
@@ -2530,6 +2598,28 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       isRecommendation: true
     };
     const updated = [...contentBlocks, newRecommendation];
+    onTextChange(['contentBlocks'], updated);
+    setFabOpen(false);
+  }, [dataToDisplay, onTextChange]);
+  
+  const addColumnContainer = useCallback(() => {
+    if (!dataToDisplay || !onTextChange) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const newColumnContainer: ColumnContainerBlock = {
+      type: 'column_container',
+      columnCount: 2,
+      columns: [
+        [
+          { type: 'headline', level: 3, text: 'Column 1 Title' },
+          { type: 'bullet_list', items: ['Item 1', 'Item 2', 'Item 3'] }
+        ],
+        [
+          { type: 'headline', level: 3, text: 'Column 2 Title' },
+          { type: 'bullet_list', items: ['Item 1', 'Item 2', 'Item 3'] }
+        ]
+      ]
+    };
+    const updated = [...contentBlocks, newColumnContainer];
     onTextChange(['contentBlocks'], updated);
     setFabOpen(false);
   }, [dataToDisplay, onTextChange]);
@@ -3234,6 +3324,16 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             title="Add Section"
           >
             <TextIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { setFabOpen(false); addColumnContainer(); }}
+            className={`fixed bottom-72 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-150' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Columns"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="4" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
+              <rect x="14" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
+            </svg>
           </button>
         </>
       )}
