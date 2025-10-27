@@ -291,7 +291,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
       {selectedTransition && selectedTransition !== 'none' && showSettings ? (
         renderSelectedTransitionView()
       ) : (
-        <>
+        <div className="flex-1 overflow-y-auto pr-2">
           {/* Pill-shaped button with SVG and "No transition" text */}
           <button 
             className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-full py-3 px-4 transition-colors duration-200"
@@ -816,7 +816,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
