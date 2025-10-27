@@ -1143,36 +1143,62 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           )}
 
-          {/* List icon picker for bullet lists */}
-          {isEditing && !!onTextChange && !isNumbered && (
+          {/* List controls - icon picker and column layout */}
+          {isEditing && !!onTextChange && (
             <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
             style={{ left: isNumbered ? '-10px' : '-25px' }}>
-              <div className="relative">
-                <button 
-                  className="p-1 rounded hover:bg-gray-200" 
-                  onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
-                  title="Choose bullet icon"
-                >
-                  <StarIcon className="w-4 h-4" />
-                </button>
-                {isBulletPickerOpen && (
-                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
-                    onClick={(e) => e.stopPropagation()}>
-                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
-                      <span className="text-xs font-medium">No Icon</span>
-                    </button>
-                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
-                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+              {/* Bullet icon picker for bullet lists only */}
+              {!isNumbered && (
+                <div className="relative">
+                  <button 
+                    className="p-1 rounded hover:bg-gray-200" 
+                    onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
+                    title="Choose bullet icon"
+                  >
+                    <StarIcon className="w-4 h-4" />
+                  </button>
+                  {isBulletPickerOpen && (
+                    <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
+                      onClick={(e) => e.stopPropagation()}>
+                      <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                        <span className="text-xs font-medium">No Icon</span>
                       </button>
-                    ))}
-                  </div>
+                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                        <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                          {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Column layout toggle */}
+              <button 
+                className={`p-1 rounded hover:bg-gray-200 ${(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? 'bg-blue-100' : ''}`}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  const currentColumns = (block as BulletListBlock | NumberedListBlock).columnCount || 1;
+                  const newColumns = currentColumns === 2 ? 1 : 2;
+                  onTextChange?.([...basePath, 'columnCount'], newColumns as 1 | 2);
+                }} 
+                title={`Switch to ${(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? '1' : '2'} columns`}
+              >
+                {(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="4" y="4" width="16" height="16" strokeWidth="2" rx="2"/>
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="4" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
+                    <rect x="14" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
+                  </svg>
                 )}
-              </div>
+              </button>
             </div>
           )}
           
-          <ListTag className={`${listStyle} ${textIndentClass} ${isNumbered ? 'grid grid-cols-2 gap-x-4 gap-y-1.5' : 'space-y-1.5'}`} style={{ fontSize: fontSize || '10px' }}>
+          <ListTag className={`${listStyle} ${textIndentClass} ${(block as BulletListBlock | NumberedListBlock).columnCount === 2 ? 'grid grid-cols-2 gap-x-4 gap-y-1.5' : 'space-y-1.5'}`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';

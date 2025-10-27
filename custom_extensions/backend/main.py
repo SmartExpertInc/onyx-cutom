@@ -13955,150 +13955,158 @@ def parse_styled_text(text: str) -> str:
 
 def generate_text_presentation_html(data: dict) -> str:
     """Generate complete HTML document from text presentation data"""
-    title = data.get('textTitle', 'Text Presentation')
-    language = data.get('detectedLanguage', 'en')
-    content_blocks = data.get('contentBlocks', [])
+    try:
+        title = data.get('textTitle', 'Text Presentation')
+        language = data.get('detectedLanguage', 'en')
+        content_blocks = data.get('contentBlocks', [])
+        
+        logger.info(f"Generating HTML for text presentation: {title}, blocks: {len(content_blocks)}")
+        
+        # Generate HTML for all content blocks
+        content_html_parts = []
+        for idx, block in enumerate(content_blocks):
+            try:
+                block_type = block.get('type', '')
+                
+                if block_type == 'headline':
+                    level = block.get('level', 1)
+                    text = block.get('text', '')
+                    font_size = block.get('fontSize', f'{28 if level == 1 else 24 if level == 2 else 20}px')
+                    bg_color = block.get('backgroundColor', 'transparent')
+                    text_color = block.get('textColor', '#171718')
+                    font_weight = 700 if level == 1 else 600
+                    margin_top = '32px' if level == 1 else '24px'
+                    margin_bottom = '16px' if level == 1 else '12px'
+                    padding_style = 'padding: 12px 16px; border-radius: 8px;' if bg_color != 'transparent' else ''
+                    
+                    style = f'font-size: {font_size}; font-weight: {font_weight}; color: {text_color}; background-color: {bg_color}; margin-top: {margin_top}; margin-bottom: {margin_bottom}; line-height: 1.3; {padding_style}'
+                    content_html_parts.append(f'<h{level} style="{style}">{parse_styled_text(text)}</h{level}>')
+                
+                elif block_type == 'paragraph':
+                    text = block.get('text', '')
+                    font_size = block.get('fontSize', '16px')
+                    style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 16px;'
+                    content_html_parts.append(f'<p style="{style}">{parse_styled_text(text)}</p>')
+                
+                elif block_type == 'bullet_list':
+                    items = block.get('items', [])
+                    font_size = block.get('fontSize', '16px')
+                    column_count = block.get('columnCount', 1)
+                    
+                    # Apply column styles if columnCount is 2
+                    list_style = f'margin-bottom: 16px; padding-left: 0; list-style: none;'
+                    if column_count == 2:
+                        list_style += ' column-count: 2; column-gap: 16px;'
+                    
+                    item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 8px; display: flex; align-items: flex-start; break-inside: avoid;'
+                    bullet_style = 'width: 6px; height: 6px; border-radius: 50%; background-color: #0F58F9; margin-right: 12px; margin-top: 8px; flex-shrink: 0;'
+                    
+                    html = f'<ul style="{list_style}">'
+                    for item in items:
+                        item_text = item if isinstance(item, str) else str(item)
+                        html += f'<li style="{item_style}"><span style="{bullet_style}"></span><span>{parse_styled_text(item_text)}</span></li>'
+                    html += '</ul>'
+                    content_html_parts.append(html)
+                
+                elif block_type == 'numbered_list':
+                    items = block.get('items', [])
+                    font_size = block.get('fontSize', '16px')
+                    column_count = block.get('columnCount', 1)
+                    
+                    # Apply column styles if columnCount is 2
+                    list_style = 'margin-bottom: 16px; padding-left: 0; list-style: none; counter-reset: list-counter;'
+                    if column_count == 2:
+                        list_style += ' column-count: 2; column-gap: 16px;'
+                    
+                    item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 8px; display: flex; align-items: flex-start; counter-increment: list-counter; break-inside: avoid;'
+                    number_style = 'font-weight: 600; color: #0F58F9; margin-right: 12px; flex-shrink: 0; min-width: 24px;'
+                    
+                    html = f'<ol style="{list_style}">'
+                    for list_idx, item in enumerate(items, 1):
+                        item_text = item if isinstance(item, str) else str(item)
+                        html += f'<li style="{item_style}"><span style="{number_style}">{list_idx}.</span><span>{parse_styled_text(item_text)}</span></li>'
+                    html += '</ol>'
+                    content_html_parts.append(html)
+                
+                elif block_type == 'alert':
+                    alert_type = block.get('alertType', 'info')
+                    alert_title = block.get('title', '')
+                    alert_text = block.get('text', '')
+                    font_size = block.get('fontSize', '16px')
+                    
+                    alert_styles = {
+                        'info': {'bg': '#EFF6FF', 'border': '#3B82F6', 'text': '#1E40AF', 'icon': 'i'},
+                        'warning': {'bg': '#FEF3C7', 'border': '#F59E0B', 'text': '#92400E', 'icon': '!'},
+                        'success': {'bg': '#D1FAE5', 'border': '#10B981', 'text': '#065F46', 'icon': '✓'},
+                        'danger': {'bg': '#FEE2E2', 'border': '#EF4444', 'text': '#991B1B', 'icon': 'x'},
+                    }
+                    alert_style = alert_styles.get(alert_type, alert_styles['info'])
+                    bg_color = block.get('backgroundColor', alert_style['bg'])
+                    border_color = block.get('borderColor', alert_style['border'])
+                    text_color = block.get('textColor', alert_style['text'])
+                    
+                    container_style = f'background-color: {bg_color}; border-left: 4px solid {border_color}; border-radius: 8px; padding: 16px; margin-bottom: 16px;'
+                    title_style = f'font-weight: 600; color: {text_color}; font-size: {font_size}; margin-bottom: 8px;'
+                    text_style = f'color: {text_color}; font-size: {font_size}; line-height: 1.6;'
+                    
+                    html = f'<div style="{container_style}">'
+                    if alert_title:
+                        html += f'<div style="{title_style}">{alert_style["icon"]} {parse_styled_text(alert_title)}</div>'
+                    html += f'<div style="{text_style}">{parse_styled_text(alert_text)}</div>'
+                    html += '</div>'
+                    content_html_parts.append(html)
+                
+                elif block_type == 'section_break':
+                    style_type = block.get('style', 'solid')
+                    border_style = 'dashed' if style_type == 'dashed' else 'solid'
+                    hr_style = f'border: none; border-top: 2px {border_style} #E4E4E7; margin: 32px 0;'
+                    content_html_parts.append(f'<hr style="{hr_style}" />')
+                
+                elif block_type == 'image':
+                    # Skip image blocks - they may cause issues with external URLs
+                    logger.info(f"Skipping image block at index {idx}")
+                    continue
+                    
+                elif block_type == 'table':
+                    headers = block.get('headers', [])
+                    rows = block.get('rows', [])
+                    caption = block.get('caption', '')
+                    
+                    table_style = 'width: 100%; border-collapse: collapse; margin: 24px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;'
+                    th_style = 'background-color: #F4F4F5; color: #171718; font-weight: 600; padding: 12px; text-align: left; border-bottom: 2px solid #E4E4E7;'
+                    td_style = 'padding: 12px; border-bottom: 1px solid #E4E4E7; color: #171718;'
+                    
+                    html = f'<table style="{table_style}">'
+                    html += '<thead><tr>'
+                    for header in headers:
+                        html += f'<th style="{th_style}">{escape_html(header)}</th>'
+                    html += '</tr></thead>'
+                    html += '<tbody>'
+                    for row in rows:
+                        html += '<tr>'
+                        for cell in row:
+                            html += f'<td style="{td_style}">{parse_styled_text(cell)}</td>'
+                        html += '</tr>'
+                    html += '</tbody>'
+                    html += '</table>'
+                    
+                    if caption:
+                        caption_style = 'font-size: 14px; color: #71717A; text-align: center; margin-top: 8px; font-style: italic;'
+                        html += f'<div style="{caption_style}">{parse_styled_text(caption)}</div>'
+                    
+                    content_html_parts.append(html)
+                    
+            except Exception as block_error:
+                logger.error(f"Error processing block {idx} (type: {block.get('type', 'unknown')}): {str(block_error)}")
+                # Continue processing other blocks
+                continue
+        
+        content_html = '\n'.join(content_html_parts)
+        logger.info(f"Successfully generated HTML content with {len(content_html_parts)} blocks")
     
-    # Generate HTML for all content blocks
-    content_html_parts = []
-    for block in content_blocks:
-        block_type = block.get('type', '')
-        
-        if block_type == 'headline':
-            level = block.get('level', 1)
-            text = block.get('text', '')
-            font_size = block.get('fontSize', f'{28 if level == 1 else 24 if level == 2 else 20}px')
-            bg_color = block.get('backgroundColor', 'transparent')
-            text_color = block.get('textColor', '#171718')
-            font_weight = 700 if level == 1 else 600
-            margin_top = '32px' if level == 1 else '24px'
-            margin_bottom = '16px' if level == 1 else '12px'
-            padding_style = 'padding: 12px 16px; border-radius: 8px;' if bg_color != 'transparent' else ''
-            
-            style = f'font-size: {font_size}; font-weight: {font_weight}; color: {text_color}; background-color: {bg_color}; margin-top: {margin_top}; margin-bottom: {margin_bottom}; line-height: 1.3; {padding_style}'
-            content_html_parts.append(f'<h{level} style="{style}">{parse_styled_text(text)}</h{level}>')
-        
-        elif block_type == 'paragraph':
-            text = block.get('text', '')
-            font_size = block.get('fontSize', '16px')
-            style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 16px;'
-            content_html_parts.append(f'<p style="{style}">{parse_styled_text(text)}</p>')
-        
-        elif block_type == 'bullet_list':
-            items = block.get('items', [])
-            font_size = block.get('fontSize', '16px')
-            list_style = 'margin-bottom: 16px; padding-left: 0; list-style: none;'
-            item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 8px; display: flex; align-items: flex-start;'
-            bullet_style = 'width: 6px; height: 6px; border-radius: 50%; background-color: #0F58F9; margin-right: 12px; margin-top: 8px; flex-shrink: 0;'
-            
-            html = f'<ul style="{list_style}">'
-            for item in items:
-                item_text = item if isinstance(item, str) else str(item)
-                html += f'<li style="{item_style}"><span style="{bullet_style}"></span><span>{parse_styled_text(item_text)}</span></li>'
-            html += '</ul>'
-            content_html_parts.append(html)
-        
-        elif block_type == 'numbered_list':
-            items = block.get('items', [])
-            font_size = block.get('fontSize', '16px')
-            list_style = 'margin-bottom: 16px; padding-left: 0; list-style: none; counter-reset: list-counter;'
-            item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 8px; display: flex; align-items: flex-start; counter-increment: list-counter;'
-            number_style = 'font-weight: 600; color: #0F58F9; margin-right: 12px; flex-shrink: 0; min-width: 24px;'
-            
-            html = f'<ol style="{list_style}">'
-            for idx, item in enumerate(items, 1):
-                item_text = item if isinstance(item, str) else str(item)
-                html += f'<li style="{item_style}"><span style="{number_style}">{idx}.</span><span>{parse_styled_text(item_text)}</span></li>'
-            html += '</ol>'
-            content_html_parts.append(html)
-        
-        elif block_type == 'alert':
-            alert_type = block.get('alertType', 'info')
-            alert_title = block.get('title', '')
-            alert_text = block.get('text', '')
-            font_size = block.get('fontSize', '16px')
-            
-            alert_styles = {
-                'info': {'bg': '#EFF6FF', 'border': '#3B82F6', 'text': '#1E40AF', 'icon': 'ℹ️'},
-                'warning': {'bg': '#FEF3C7', 'border': '#F59E0B', 'text': '#92400E', 'icon': '⚠️'},
-                'success': {'bg': '#D1FAE5', 'border': '#10B981', 'text': '#065F46', 'icon': '✓'},
-                'danger': {'bg': '#FEE2E2', 'border': '#EF4444', 'text': '#991B1B', 'icon': '✕'},
-            }
-            alert_style = alert_styles.get(alert_type, alert_styles['info'])
-            bg_color = block.get('backgroundColor', alert_style['bg'])
-            border_color = block.get('borderColor', alert_style['border'])
-            text_color = block.get('textColor', alert_style['text'])
-            
-            container_style = f'background-color: {bg_color}; border-left: 4px solid {border_color}; border-radius: 8px; padding: 16px; margin-bottom: 16px;'
-            title_style = f'font-weight: 600; color: {text_color}; font-size: {font_size}; margin-bottom: 8px;'
-            text_style = f'color: {text_color}; font-size: {font_size}; line-height: 1.6;'
-            
-            html = f'<div style="{container_style}">'
-            if alert_title:
-                html += f'<div style="{title_style}">{alert_style["icon"]} {parse_styled_text(alert_title)}</div>'
-            html += f'<div style="{text_style}">{parse_styled_text(alert_text)}</div>'
-            html += '</div>'
-            content_html_parts.append(html)
-        
-        elif block_type == 'section_break':
-            style_type = block.get('style', 'solid')
-            border_style = 'dashed' if style_type == 'dashed' else 'solid'
-            hr_style = f'border: none; border-top: 2px {border_style} #E4E4E7; margin: 32px 0;'
-            content_html_parts.append(f'<hr style="{hr_style}" />')
-        
-        elif block_type == 'image':
-            src = block.get('src', '')
-            alt = block.get('alt', '')
-            caption = block.get('caption', '')
-            alignment = block.get('alignment', 'center')
-            max_width = block.get('maxWidth', '100%')
-            border_radius = block.get('borderRadius', '8px')
-            box_shadow = block.get('boxShadow', 'none')
-            border = block.get('border', 'none')
-            opacity = block.get('opacity', 1)
-            transform = block.get('transform', 'none')
-            
-            container_style = f'margin: 24px 0; text-align: {alignment};'
-            img_style = f'max-width: {max_width}; height: auto; border-radius: {border_radius}; box-shadow: {box_shadow}; border: {border}; opacity: {opacity}; transform: {transform};'
-            
-            html = f'<div style="{container_style}">'
-            html += f'<img src="{escape_html(src)}" alt="{escape_html(alt)}" style="{img_style}" />'
-            if caption:
-                caption_style = 'font-size: 14px; color: #71717A; margin-top: 8px; font-style: italic;'
-                html += f'<div style="{caption_style}">{parse_styled_text(caption)}</div>'
-            html += '</div>'
-            content_html_parts.append(html)
-        
-        elif block_type == 'table':
-            headers = block.get('headers', [])
-            rows = block.get('rows', [])
-            caption = block.get('caption', '')
-            
-            table_style = 'width: 100%; border-collapse: collapse; margin: 24px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;'
-            th_style = 'background-color: #F4F4F5; color: #171718; font-weight: 600; padding: 12px; text-align: left; border-bottom: 2px solid #E4E4E7;'
-            td_style = 'padding: 12px; border-bottom: 1px solid #E4E4E7; color: #171718;'
-            
-            html = f'<table style="{table_style}">'
-            html += '<thead><tr>'
-            for header in headers:
-                html += f'<th style="{th_style}">{escape_html(header)}</th>'
-            html += '</tr></thead>'
-            html += '<tbody>'
-            for row in rows:
-                html += '<tr>'
-                for cell in row:
-                    html += f'<td style="{td_style}">{parse_styled_text(cell)}</td>'
-                html += '</tr>'
-            html += '</tbody>'
-            html += '</table>'
-            
-            if caption:
-                caption_style = 'font-size: 14px; color: #71717A; text-align: center; margin-top: 8px; font-style: italic;'
-                html += f'<div style="{caption_style}">{parse_styled_text(caption)}</div>'
-            
-            content_html_parts.append(html)
-    
-    content_html = '\n'.join(content_html_parts)
+    except Exception as e:
+        logger.error(f"Error in generate_text_presentation_html: {str(e)}", exc_info=True)
+        raise
     
     # Complete HTML document
     html = f'''<!DOCTYPE html>

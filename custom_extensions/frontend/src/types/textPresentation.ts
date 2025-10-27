@@ -86,12 +86,14 @@ export interface BulletListBlock {
   items: ListItem[];
   iconName?: string | null; // Specific to BulletListBlock
   fontSize?: string | null;
+  columnCount?: 1 | 2; // Number of columns to display the list
 }
 
 export interface NumberedListBlock {
   type: 'numbered_list';
   items: ListItem[];
   fontSize?: string | null;
+  columnCount?: 1 | 2; // Number of columns to display the list
   // NumberedListBlock does not have its own iconName in the Pydantic model.
 }
 
