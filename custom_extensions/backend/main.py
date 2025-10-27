@@ -1109,7 +1109,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Section: Project Management Fundamentals",
-      "templateId": "title-slide",
+      "templateId": "big-image-left",
       "previewKeyPoints": [
         "Learning Outcome: You will be able to plan and execute projects using structured methodologies",
         "Learning Outcome: You will be able to identify and mitigate common project risks before they occur",
@@ -1119,7 +1119,8 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Project Management Fundamentals",
         "subtitle": "Learn to plan, execute, and deliver successful projects in any industry",
-        "author": "Professional Development Institute"
+        "imagePrompt": "Realistic cinematic scene of a diverse project management team collaborating in a modern office environment. A confident Asian woman in business attire stands at a whiteboard presenting project timelines while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. Other team members are actively participating, some pointing at documents, others contributing ideas. The conference room features floor-to-ceiling windows with natural daylight, a large wooden table, executive chairs, and visible project materials including laptops, tablets, planning boards, and coffee cups. Natural office lighting illuminates the collaborative atmosphere. The presentation screen and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Project management team collaborating in modern office"
       }
     },
     {

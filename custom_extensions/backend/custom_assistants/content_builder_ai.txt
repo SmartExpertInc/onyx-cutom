@@ -1677,6 +1677,12 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 7. `two-column` - Comparative analysis and before/after scenarios
 8. `comparison-slide` - Direct comparisons with detailed characteristics
 
+**CRITICAL: IMAGE PROMPT REQUIREMENTS FOR VISUAL TEMPLATES:**
+- **MANDATORY**: ALL `big-image-left` and `big-image-top` slides MUST include `imagePrompt` property
+- **MANDATORY**: ALL `bullet-points` and `bullet-points-right` slides MUST include `imagePrompt` property  
+- **MANDATORY**: ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
+- **NEVER**: Leave image prompt fields empty or undefined - this breaks automatic image generation
+
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
 10. `four-box-grid` - Four key concepts or benefits with detailed explanations
@@ -3601,6 +3607,12 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 7. `two-column` - Comparative analysis and before/after scenarios
 8. `comparison-slide` - Direct comparisons with detailed characteristics
 
+**CRITICAL: IMAGE PROMPT REQUIREMENTS FOR VISUAL TEMPLATES:**
+- **MANDATORY**: ALL `big-image-left` and `big-image-top` slides MUST include `imagePrompt` property
+- **MANDATORY**: ALL `bullet-points` and `bullet-points-right` slides MUST include `imagePrompt` property  
+- **MANDATORY**: ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
+- **NEVER**: Leave image prompt fields empty or undefined - this breaks automatic image generation
+
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
 10. `four-box-grid` - Four key concepts or benefits with detailed explanations
@@ -5270,6 +5282,12 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 6. `bullet-points-right` - Contextual bullet lists with introductory explanations
 7. `two-column` - Comparative analysis and before/after scenarios
 8. `comparison-slide` - Direct comparisons with detailed characteristics
+
+**CRITICAL: IMAGE PROMPT REQUIREMENTS FOR VISUAL TEMPLATES:**
+- **MANDATORY**: ALL `big-image-left` and `big-image-top` slides MUST include `imagePrompt` property
+- **MANDATORY**: ALL `bullet-points` and `bullet-points-right` slides MUST include `imagePrompt` property  
+- **MANDATORY**: ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
+- **NEVER**: Leave image prompt fields empty or undefined - this breaks automatic image generation
 
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
