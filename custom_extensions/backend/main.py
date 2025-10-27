@@ -12660,6 +12660,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - If slide has challenges vs solutions → use "challenges-solutions"
             - If slide has analytics metrics in bullet points → use "metrics-analytics"
 
+            **🚨 CRITICAL: big-image-top USAGE RESTRICTION 🚨**
+            - big-image-top template is ONLY allowed for the FIRST slide or LAST slide
+            - NEVER use big-image-top for middle slides (slides 2 through n-1)
+            - If you need a visual slide in the middle, use bullet-points, bullet-points-right, or two-column instead
+
             **CRITICAL: VISUAL TEMPLATES REQUIRE IMAGE PROMPTS**
             When using visual templates, you MUST include the required image prompt properties:
             - `big-image-left`: MUST include `imagePrompt` property
@@ -14727,6 +14732,26 @@ async def download_slide_deck_pdf(
                 if len(solutions) > 3:
                     logger.info(f"Truncating solutions from {len(solutions)} to 3 items")
                     props['solutions'] = solutions[-3:]  # Keep only last 3
+
+        # Post-process big-image-top slides to enforce first/last slide restriction
+        total_slides = len(slide_deck_data['slides'])
+        for i, slide in enumerate(slide_deck_data['slides']):
+            if slide.get('templateId') == 'big-image-top':
+                slide_number = i + 1
+                # Check if it's not the first slide (1) or last slide
+                if slide_number != 1 and slide_number != total_slides:
+                    logger.info(f"Replacing big-image-top in middle slide {slide_number} with bullet-points")
+                    # Replace with bullet-points template
+                    slide['templateId'] = 'bullet-points'
+                    # Add basic props if missing
+                    if 'props' not in slide:
+                        slide['props'] = {}
+                    if 'title' not in slide['props']:
+                        slide['props']['title'] = slide.get('slideTitle', 'Key Points')
+                    if 'bullets' not in slide['props']:
+                        slide['props']['bullets'] = ['Key point 1', 'Key point 2', 'Key point 3']
+                    if 'imagePrompt' not in slide['props']:
+                        slide['props']['imagePrompt'] = "Realistic cinematic scene of a focused professional working at a modern desk with relevant materials. Natural office lighting illuminates the workspace. Professional attire and workspace accessories are [COLOR1], materials and environment are [COLOR2], office setting is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
 
         logger.info(f"Slide Deck PDF Gen (Project {project_id}): Generating PDF with {len(slide_deck_data['slides'])} slides, theme: {theme}")
 
@@ -24111,13 +24136,19 @@ Before finalizing your JSON output, scan for and eliminate fictional data:
 - REPLACE with specific descriptive names: "Big Bang Migration", "Phased Rollout", "Cloud Deployment"
 - Use real, meaningful names that describe the actual content or approach
 
+🚨 big-image-top USAGE VALIDATION 🚨
+Before finalizing your JSON output, verify big-image-top usage:
+- Check that big-image-top is ONLY used for the first slide (slide 1) or last slide
+- If big-image-top appears in middle slides (2 through n-1), REPLACE with bullet-points, bullet-points-right, or two-column
+- This ensures proper visual flow and prevents overuse of large image templates
+
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
   • Usage: ONLY for the first slide of the presentation; opening/section title with heading and short subtitle.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
   • Usage: Opening slides with strong visual impact and lesson introduction. MUST include imagePrompt for automatic image generation.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: hero image across top; explanatory text below.
+  • Usage: hero image across top; explanatory text below. RESTRICTED to FIRST slide or LAST slide only.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
   • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]

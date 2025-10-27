@@ -2324,6 +2324,12 @@ Understanding the diverse sources of organizational revenue.
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
 - **VISUAL VARIETY MANDATE**: **Never** use the **same template** twice in a row. Always alternate between different template types (e.g., avoid `bullet-points` → `bullet-points`). Also avoid placing `big-image-left` and `big-image-top` consecutively.
 - **TITLE-SLIDE RESTRICTION**: If you've already used `title-slide` twice, you CANNOT use it again - choose `content-slide`, `big-image-top`, or another template for conclusions
+
+**🚨 CRITICAL: big-image-top USAGE RESTRICTION 🚨**
+- **big-image-top template is ONLY allowed for the FIRST slide or LAST slide**
+- **NEVER use big-image-top for middle slides (slides 2 through n-1)**
+- **If you need a visual slide in the middle, use bullet-points, bullet-points-right, or two-column instead**
+- **This restriction ensures proper visual flow and prevents overuse of large image templates**
 - **BULLET-POINTS RESTRICTION**: Maximum 3 bullet-points slides total per presentation (bullet-points + bullet-points-right combined)
 - **BULLET-POINTS ALTERNATION**: MUST alternate between `bullet-points` and `bullet-points-right` when using multiple bullet slides
 - **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
@@ -4262,6 +4268,12 @@ Understanding the diverse sources of organizational revenue.
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
 - **VISUAL VARIETY MANDATE**: **Never** use the **same template** twice in a row. Always alternate between different template types (e.g., avoid `bullet-points` → `bullet-points`). Also avoid placing `big-image-left` and `big-image-top` consecutively.
 - **TITLE-SLIDE RESTRICTION**: If you've already used `title-slide` twice, you CANNOT use it again - choose `content-slide`, `big-image-top`, or another template for conclusions
+
+**🚨 CRITICAL: big-image-top USAGE RESTRICTION 🚨**
+- **big-image-top template is ONLY allowed for the FIRST slide or LAST slide**
+- **NEVER use big-image-top for middle slides (slides 2 through n-1)**
+- **If you need a visual slide in the middle, use bullet-points, bullet-points-right, or two-column instead**
+- **This restriction ensures proper visual flow and prevents overuse of large image templates**
 - **BULLET-POINTS RESTRICTION**: Maximum 3 bullet-points slides total per presentation (bullet-points + bullet-points-right combined)
 - **BULLET-POINTS ALTERNATION**: MUST alternate between `bullet-points` and `bullet-points-right` when using multiple bullet slides
 - **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
