@@ -12609,6 +12609,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
             - NEVER leave image prompt fields empty or undefined - this breaks automatic image generation
 
+            **🚨 CRITICAL: FIRST SLIDE MUST BE big-image-left WITH imagePrompt 🚨**
+            - The first slide of EVERY presentation MUST use templateId: "big-image-left"
+            - The first slide MUST include imagePrompt property with detailed scene description
+            - This is MANDATORY - no exceptions, no alternatives
+
             **CRITICAL: big-image-left VALIDATION CHECKPOINT**
             - BEFORE generating any `big-image-left` slide, verify you are including the `imagePrompt` property
             - The `imagePrompt` must describe a realistic cinematic scene with specific people, settings, and objects
@@ -12648,6 +12653,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - If slide has 2-3 numerical metrics/statistics with clear values → use "big-numbers"
             - If slide has hierarchical content → use "pyramid"
             - If slide is the FIRST slide with title + subtitle → use "big-image-left" (MUST include imagePrompt)
+            - **CRITICAL**: The first slide of EVERY presentation MUST use "big-image-left" template with imagePrompt
             - If slide has timeline content → use "timeline"
             - If slide has event dates → use "event-list"
             - If slide has 6 numbered ideas → use "six-ideas-list"
@@ -14704,6 +14710,23 @@ async def download_slide_deck_pdf(
         # Validate slides structure
         if not isinstance(slide_deck_data['slides'], list):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid slides structure.")
+
+        # Post-process challenges-solutions slides to enforce 3-item limit
+        for slide in slide_deck_data['slides']:
+            if slide.get('templateId') == 'challenges-solutions':
+                props = slide.get('props', {})
+                challenges = props.get('challenges', [])
+                solutions = props.get('solutions', [])
+                
+                # Enforce 3-item limit for challenges
+                if len(challenges) > 3:
+                    logger.info(f"Truncating challenges from {len(challenges)} to 3 items")
+                    props['challenges'] = challenges[-3:]  # Keep only last 3
+                
+                # Enforce 3-item limit for solutions
+                if len(solutions) > 3:
+                    logger.info(f"Truncating solutions from {len(solutions)} to 3 items")
+                    props['solutions'] = solutions[-3:]  # Keep only last 3
 
         logger.info(f"Slide Deck PDF Gen (Project {project_id}): Generating PDF with {len(slide_deck_data['slides'])} slides, theme: {theme}")
 
@@ -24074,6 +24097,12 @@ Before finalizing your JSON output, verify that ALL challenges-solutions slides 
 - If you generated 4+ items, keep only the LAST 3 pairs
 - Each challenge: 60-80 words
 - Each solution: 80-100 words
+
+**MANDATORY POST-PROCESSING FOR CHALLENGES-SOLUTIONS:**
+After generating your JSON, scan for challenges-solutions slides and enforce the 3-item limit:
+- If challenges array has 4+ items: keep only the last 3 items
+- If solutions array has 4+ items: keep only the last 3 items
+- This is a hard requirement - no exceptions
 
 🚨 FICTIONAL DATA VALIDATION 🚨
 Before finalizing your JSON output, scan for and eliminate fictional data:

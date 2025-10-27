@@ -454,7 +454,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           display: 'flex',
           gap: '70px',
           zIndex: 10,
-          paddingLeft: '10px'
+          paddingLeft: '10px',
+          justifyContent: 'space-between',
+          width: '400px'
         }}>
           {/* Challenges Title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
@@ -503,7 +505,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   fontWeight: '500',
-                  textAlign: 'center',
+                  textAlign: 'left',
                 }}
               />
             ) : (
@@ -513,7 +515,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   fontWeight: '500',
-                  textAlign: 'center',
+                  textAlign: 'left',
                   cursor: isEditable ? 'pointer' : 'default',
                 }}
                 onClick={() => isEditable && setIsEditingSolutionsTitle(true)}
