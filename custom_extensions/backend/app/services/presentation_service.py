@@ -982,10 +982,10 @@ class ProfessionalPresentationService:
             'wipedown': 'wipedown',
             
             # Wipes - Diagonal
-            'wipetl': 'wipetl',      # top-left
-            'wipetr': 'wipetr',      # top-right
-            'wipebl': 'wipebl',      # bottom-left
-            'wipebr': 'wipebr',      # bottom-right
+            'wipetl': 'wipetl',
+            'wipetr': 'wipetr',
+            'wipebl': 'wipebl',
+            'wipebr': 'wipebr',
             
             # Slides
             'slideleft': 'slideleft',
@@ -1006,25 +1006,25 @@ class ProfessionalPresentationService:
             'radial': 'radial',
             
             # Diagonal transitions
-            'diagtl': 'diagtl',      # diagonal top-left
-            'diagtr': 'diagtr',      # diagonal top-right
-            'diagbl': 'diagbl',      # diagonal bottom-left
-            'diagbr': 'diagbr',      # diagonal bottom-right
+            'diagtl': 'diagtl',
+            'diagtr': 'diagtr',
+            'diagbl': 'diagbl',
+            'diagbr': 'diagbr',
             
             # Slice effects
-            'hlslice': 'hlslice',    # horizontal left slice
-            'hrslice': 'hrslice',    # horizontal right slice
-            'vuslice': 'vuslice',    # vertical up slice
-            'vdslice': 'vdslice',    # vertical down slice
+            'hlslice': 'hlslice',
+            'hrslice': 'hrslice',
+            'vuslice': 'vuslice',
+            'vdslice': 'vdslice',
             
             # Squeeze & Zoom
-            'squeezeh': 'squeezeh',  # squeeze horizontal
-            'squeezev': 'squeezev',  # squeeze vertical
+            'squeezeh': 'squeezeh',
+            'squeezev': 'squeezev',
             'zoomin': 'zoomin',
             
             # Special effects
             'distance': 'distance',
-            'hblur': 'hblur',        # horizontal blur
+            'hblur': 'hblur',
             'pixelize': 'pixelize',
             
             # Fade variations
@@ -1032,17 +1032,9 @@ class ProfessionalPresentationService:
             'fadewhite': 'fadewhite',
             'fadefast': 'fadefast',
             'fadeslow': 'fadeslow',
-            
-            # Legacy mappings (for backward compatibility)
-            'close': 'circleclose',
-            'crop': 'circlecrop',
-            'blur': 'dissolve',
-            'open': 'circleopen',
-            'slide': 'slideleft',
-            'wipe': 'wipeleft',
-            'smooth-wipe': 'smoothleft',
+          
         }
-            
+                    
             # Build FFmpeg command with xfade filters
             inputs = []
             filter_complex_parts = []
