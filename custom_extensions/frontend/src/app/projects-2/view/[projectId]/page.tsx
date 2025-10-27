@@ -676,6 +676,15 @@ export default function Projects2ViewPage() {
           return <AvatarSettings />;
         case 'shape':
           return <ShapeSettings />;
+        case 'transition':
+          const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
+          return (
+            <Transition 
+              transitionIndex={activeTransitionIndex}
+              currentTransition={currentTransition}
+              onTransitionChange={handleTransitionChange}
+            />
+          );
         default:
           break;
       }
@@ -722,15 +731,6 @@ export default function Projects2ViewPage() {
         return <Background />;
       case 'music':
         return <Music />;
-      case 'transition':
-        const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
-        return (
-          <Transition 
-            transitionIndex={activeTransitionIndex}
-            currentTransition={currentTransition}
-            onTransitionChange={handleTransitionChange}
-          />
-        );
       case 'comments':
         return <Comments />;
       default:
