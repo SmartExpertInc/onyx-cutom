@@ -5243,10 +5243,19 @@ async def stream_openai_response(prompt: str, model: str = None):
                 # Check for preservation mode instructions
         enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
         
-        # Add educational depth requirements for non-file generation
-        educational_enhancement = """
+        # Add educational depth requirements ONLY for non-file generation
+        # DO NOT add these for file-based generation as they could contradict source fidelity
+        educational_enhancement = ""
+        
+        # Check if this is file-based generation (check for source fidelity markers)
+        is_file_based = ("SOURCE DOCUMENTS" in prompt or 
+                        "fromFiles" in prompt or 
+                        "ABSOLUTE SOURCE FIDELITY" in prompt)
+        
+        if not is_file_based:
+            educational_enhancement = """
 
-**EDUCATIONAL CONTENT REQUIREMENTS:**
+**EDUCATIONAL CONTENT REQUIREMENTS (FOR NON-FILE GENERATION ONLY):**
 
 Your content must provide deep educational value suitable for corporate training:
 
@@ -12037,23 +12046,60 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
     enhanced_prompt = f"""
 {original_prompt}
 
---- CONTEXT FROM UPLOADED FILES ---
+═══════════════════════════════════════════════════════════════════════════
+📚 SOURCE DOCUMENTS - YOUR ONLY KNOWLEDGE BASE FOR THIS REQUEST
+═══════════════════════════════════════════════════════════════════════════
+
+⚠️ CRITICAL INSTRUCTION - ABSOLUTE SOURCE FIDELITY REQUIRED ⚠️
+
+The documents below are YOUR COMPLETE AND ONLY KNOWLEDGE BASE for this request.
+
+YOU MUST:
+✓ Use ONLY information from these source documents
+✓ Restructure and reorganize the content to fit the product structure
+✓ Apply educational frameworks (Bloom's Taxonomy) using ONLY source material
+✓ Preserve all facts, examples, statistics, and data EXACTLY as stated
+✓ State "not covered in source materials" if information is missing
+
+YOU MUST NOT:
+✗ Add facts, statistics, or data not in source documents
+✗ Create examples not present in source documents
+✗ Use your general knowledge to expand or enhance topics
+✗ Make assumptions about information not provided
+✗ Fill gaps with your own knowledge
+✗ Add case studies or scenarios not in sources
+✗ Include definitions not explicitly stated in sources
+
+REMEMBER: You are a CONTENT RESTRUCTURER, not a CONTENT CREATOR.
+Your role is to organize and clarify existing source material for educational 
+effectiveness, NOT to add information from your general knowledge.
+
+--- CONTENT FROM SOURCE DOCUMENTS ---
 
 """
     
     # Handle string file_context (fallback case)
     if isinstance(file_context, str):
         enhanced_prompt += file_context
-        enhanced_prompt += "\n\nPlease create the content based on the information above.\n"
+        enhanced_prompt += """
+
+═══════════════════════════════════════════════════════════════════════════
+END OF SOURCE DOCUMENTS
+═══════════════════════════════════════════════════════════════════════════
+
+FINAL VERIFICATION BEFORE GENERATING:
+□ Will I use ONLY the source content above?
+□ Will I avoid adding information from my general knowledge?
+□ Will I state "not in source" if information is missing?
+□ Am I restructuring existing content, not creating new content?
+
+IF YOU CANNOT CHECK ALL BOXES ✓ - DO NOT PROCEED
+
+Now generate the requested product using ONLY the source content above.
+"""
         return enhanced_prompt
     
     # Handle dict file_context (normal case)
-    # Handle string file_context (fallback case)
-    if isinstance(file_context, str):
-        enhanced_prompt += file_context
-        enhanced_prompt += "\n\nPlease create the content based on the information above.\n"
-        return enhanced_prompt
-    
     # Check if fallback was used (dict case)
     if file_context.get("metadata", {}).get("fallback_used"):
         enhanced_prompt += "NOTE: File context extraction was limited, but files were provided for content creation.\n\n"
@@ -12131,16 +12177,21 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
 """
     
-    # Add specific instructions for the product type
-    if file_context.get("metadata", {}).get("fallback_used"):
-        enhanced_prompt += f"""
-IMPORTANT: Files were provided for content creation. Create a {product_type} that is relevant to the uploaded materials.
-If specific content details are not available, focus on creating high-quality educational content that would be appropriate for the file types provided.
-"""
-    else:
-        enhanced_prompt += f"""
-IMPORTANT: Use the context from the uploaded files to create a {product_type} that is relevant and accurate to the source materials. 
-Ensure that the content aligns with the topics and information provided in the file summaries and folder contexts.
+    # Add closing source fidelity reminder
+    enhanced_prompt += """
+═══════════════════════════════════════════════════════════════════════════
+END OF SOURCE DOCUMENTS
+═══════════════════════════════════════════════════════════════════════════
+
+FINAL VERIFICATION BEFORE GENERATING:
+□ Will I use ONLY the source content above?
+□ Will I avoid adding information from my general knowledge?
+□ Will I state "not covered in source materials" if information is missing?
+□ Am I restructuring existing content, not creating new content?
+
+IF YOU CANNOT CHECK ALL BOXES ✓ - DO NOT PROCEED
+
+Now generate the requested product using ONLY the source content above.
 """
     
     return enhanced_prompt
