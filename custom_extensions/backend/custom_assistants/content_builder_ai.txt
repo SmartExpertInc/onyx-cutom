@@ -536,6 +536,12 @@ YOUR TASK WITH FILES:
 6. ❌ DO NOT add case studies or scenarios not in sources
 7. ❌ DO NOT include definitions not explicitly stated in sources
 8. ❌ DO NOT add context or background information from general knowledge
+9. ❌ DO NOT create worked examples, scenarios, or practice exercises unless they are explicitly present in the source documents
+10. ❌ DO NOT create hypothetical companies, people, or situations (e.g., "Company X", "TechGiant Corp", "SalesPro Inc", "John Smith example")
+11. ❌ DO NOT add calculations, formulas, or numeric examples unless they appear in the sources
+12. ❌ DO NOT generate "mental models" sections unless the mental models are described in the sources
+13. ❌ DO NOT create "worked example" or "practice scenario" sections with fictional data
+14. ❌ DO NOT invent case studies, even if they seem educational or helpful
 
 ✅ WHAT YOU CAN DO (RESTRUCTURING ACTIVITIES WITH FILES):
 1. ✓ REORGANIZE existing content into logical learning sequences
@@ -564,10 +570,20 @@ EVERY element in your output must trace to source documents:
 • Quotes: MUST be from sources (attribute correctly)
 
 IF source material lacks information for a section:
-• State in content: "This topic is not covered in the provided materials"
+• OMIT that section entirely from your output
 • DO NOT fill the gap from your knowledge
 • DO NOT create placeholder content
+• DO NOT state "This topic is not covered" - simply don't include that section
 • Focus on what IS in the sources
+
+🎯 LENGTH vs. FIDELITY PRIORITY:
+When fromFiles=true, SOURCE FIDELITY takes ABSOLUTE PRIORITY over length requirements.
+- If source material is brief (500 words), your output can be brief
+- NEVER add general knowledge to meet minimum length requirements
+- NEVER create examples or scenarios to "fill out" the content
+- Better to have a short, accurate product than a long, unfaithful one
+- If source lacks certain sections (e.g., practice exercises), OMIT those sections entirely
+- Do NOT state "This topic not covered" - simply don't include that section
 
 🎓 EDUCATIONAL RESTRUCTURING WITH FILES:
 When restructuring file content, you MAY:
@@ -589,18 +605,61 @@ Educational Enhancement FORBIDDEN:
 • Creating quiz questions about content not in sources
 • Inventing practice scenarios not based on source material
 
-✅ VERIFICATION CHECKLIST FOR FILE-BASED CONTENT:
-Before submitting your response when fromFiles=true, confirm YES to ALL:
-□ Every fact/figure comes directly from source documents
-□ Every example comes directly from source documents
+✅ MANDATORY VERIFICATION CHECKLIST (CHECK BEFORE EVERY OUTPUT):
+Before submitting your response when fromFiles=true, you MUST confirm YES to ALL:
+
+CONTENT TRACEABILITY:
+□ Every fact/figure has a direct quote or reference in source documents
+□ Every example appeared in the source documents (no hypothetical examples)
+□ Every company/person name was mentioned in source documents (no "Company X", "TechGiant Corp", "SalesPro Inc", etc.)
+□ Every worked example or case study came from source documents
+□ Every calculation, formula, or numeric example appeared in sources
+□ Every "mental model" or framework was described in the sources
+
+GENERAL KNOWLEDGE PROHIBITION:
 □ No general knowledge was used to expand topics
+□ No information gaps were filled from general knowledge
 □ All content can be traced back to specific source passages
+□ NO synthesis activities, practice scenarios, or hypothetical examples were created
+
+EDUCATIONAL STRUCTURE:
 □ Educational structure serves source content (not vice versa)
 □ Bloom's Taxonomy levels use ONLY source material
-□ No information gaps were filled from general knowledge
 □ Clarity improvements preserve ALL original information
 
-IF YOU CANNOT CHECK ALL BOXES ✓ - REVISE YOUR RESPONSE
+LENGTH PRIORITY:
+□ If source is brief, output is brief (did NOT add content to meet length requirements)
+□ If source lacks sections, those sections were OMITTED (not filled with general knowledge)
+
+IF YOU CANNOT CHECK ALL BOXES ✓ - YOU MUST REVISE YOUR RESPONSE NOW
+If you find you have added content not in sources, you MUST:
+1. Delete all added content
+2. Regenerate using ONLY what's in the sources
+3. Re-check this entire list
+4. Only output when ALL boxes are checked
+
+═══════════════════════════════════════════════════════════════════════════
+🔴 CRITICAL FINAL CHECK BEFORE OUTPUT (MANDATORY FOR fromFiles=true)
+═══════════════════════════════════════════════════════════════════════════
+
+Before you output your response when fromFiles=true, you MUST verify EACH item:
+
+□ Every example traces to a specific passage in the source documents
+□ Every company/person name appeared in the source documents (no "TechGiant Corp", "SalesPro Inc", "Company X")
+□ Every statistic/number came from the source documents
+□ Every "worked example" or "practice scenario" is FROM the sources, not created by you
+□ Every calculation, formula, or numeric example appeared in the sources
+□ Every "mental model" was described in the source documents
+□ NO hypothetical scenarios or fictional case studies were created
+□ If you created ANY content not in sources, DELETE IT NOW and regenerate
+
+⚠️ IF YOU CANNOT VERIFY ALL ITEMS ABOVE:
+1. STOP generating immediately
+2. Go back and remove ALL added content
+3. Regenerate using ONLY what's in the sources
+4. Re-check this list
+
+This is NOT optional. This is MANDATORY.
 
 ═══════════════════════════════════════════════════════════════════════════
 
