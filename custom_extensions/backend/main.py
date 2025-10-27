@@ -13927,6 +13927,122 @@ async def debug_slide_generation(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Debug failed: {str(e)[:200]}")
 
 
+@app.post("/api/custom/pdf/text-presentation/{project_id}", response_class=JSONResponse)
+async def generate_text_presentation_pdf(
+    project_id: int,
+    request_data: Dict[str, Any],
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Generate PDF from text presentation HTML content.
+    Receives HTML content from frontend and converts it to PDF.
+    """
+    try:
+        # Verify project access
+        async with pool.acquire() as conn:
+            target_row_dict = await conn.fetchrow(
+                """
+                SELECT p.project_name, p.microproduct_name, p.microproduct_content,
+                       dt.component_name as design_component_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.id = $1 AND p.onyx_user_id = $2;
+                """,
+                project_id, onyx_user_id
+            )
+        
+        if not target_row_dict:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found for user.")
+
+        component_name = target_row_dict.get("design_component_name")
+        if component_name != COMPONENT_NAME_TEXT_PRESENTATION:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This endpoint is only for text presentation projects.")
+
+        # Get HTML content from request
+        html_content = request_data.get('html_content')
+        if not html_content:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No HTML content provided.")
+        
+        logger.info(f"Generating PDF for text presentation {project_id}, HTML length: {len(html_content)}")
+        
+        # Generate unique filename
+        unique_output_filename = f"text_presentation_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
+        
+        # Generate PDF from HTML content
+        from app.services.pdf_generator import generate_pdf_from_html_content
+        pdf_path = await generate_pdf_from_html_content(
+            html_content=html_content,
+            output_filename=unique_output_filename,
+            use_cache=False  # Don't use cache for text presentations as they may change frequently
+        )
+        
+        # Create user-friendly filename
+        mp_name_for_pdf_context = request_data.get('filename') or target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+        user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+        
+        # Return download URL
+        return JSONResponse(content={
+            'download_url': f'/pdf/text-presentation/{project_id}/download/{os.path.basename(pdf_path)}',
+            'filename': user_friendly_pdf_filename,
+            'success': True
+        })
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating text presentation PDF for project {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
+
+
+@app.get("/api/custom/pdf/text-presentation/{project_id}/download/{pdf_filename}", response_class=FileResponse)
+async def download_text_presentation_pdf(
+    project_id: int,
+    pdf_filename: str,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download generated text presentation PDF"""
+    try:
+        # Verify project access
+        async with pool.acquire() as conn:
+            target_row_dict = await conn.fetchrow(
+                """
+                SELECT p.project_name, p.microproduct_name
+                FROM projects p
+                WHERE p.id = $1 AND p.onyx_user_id = $2;
+                """,
+                project_id, onyx_user_id
+            )
+        
+        if not target_row_dict:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found for user.")
+
+        # Get PDF from cache
+        from app.services.pdf_generator import PDF_CACHE_DIR
+        pdf_path = PDF_CACHE_DIR / pdf_filename
+        
+        if not os.path.exists(pdf_path):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="PDF file not found. It may have expired or been deleted.")
+        
+        # Create user-friendly filename
+        mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+        user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+        
+        return FileResponse(
+            path=str(pdf_path),
+            filename=user_friendly_pdf_filename,
+            media_type='application/pdf',
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error serving text presentation PDF for project {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to serve PDF: {str(e)[:200]}")
+
+
 @app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_project_instance_pdf_no_slug(
     project_id: int,

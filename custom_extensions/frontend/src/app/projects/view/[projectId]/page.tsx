@@ -1373,7 +1373,7 @@ export default function ProjectInstanceViewPage() {
 
     // Special handling for TextPresentationDisplay - export as HTML
     if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
-      const { generateTextPresentationHtml, downloadHtmlFile } = await import('@/lib/textPresentationHtmlExport');
+      const { generateTextPresentationHtml } = await import('@/lib/textPresentationHtmlExport');
       const presentationData = editableData as TextPresentationData;
       
       if (!presentationData) {
@@ -1381,12 +1381,55 @@ export default function ProjectInstanceViewPage() {
         return;
       }
       
-      const html = generateTextPresentationHtml(presentationData, projectInstanceData.name);
-      const nameForSlug = projectInstanceData.name || 'text-presentation';
-      const docNameSlug = slugify(nameForSlug);
-      const filename = `${docNameSlug}_${new Date().toISOString().split('T')[0]}.html`;
+      // Generate HTML content
+      const htmlContent = generateTextPresentationHtml(presentationData, projectInstanceData.name);
       
-      downloadHtmlFile(html, filename);
+      // Show loading modal
+      setIsExportingPdf(true);
+      setPdfProgress({ current: 0, total: 1, message: 'Generating PDF from HTML...' });
+      
+      try {
+        // Send HTML to backend for PDF conversion
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            html_content: htmlContent,
+            filename: projectInstanceData.name || 'text-presentation'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`PDF generation failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.download_url) {
+          const fullDownloadUrl = `${CUSTOM_BACKEND_URL}${result.download_url}`;
+          const nameForSlug = projectInstanceData.name || 'text-presentation';
+          const docNameSlug = slugify(nameForSlug);
+          const filename = result.filename || `${docNameSlug}_${new Date().toISOString().split('T')[0]}.pdf`;
+          
+          // Set the download ready state
+          setPdfDownloadReady({
+            url: fullDownloadUrl,
+            filename: filename
+          });
+        } else {
+          throw new Error('No download URL received from server');
+        }
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+        // Reset states on error
+        setIsExportingPdf(false);
+        setPdfDownloadReady(null);
+        setPdfProgress(null);
+      }
       return;
     }
 

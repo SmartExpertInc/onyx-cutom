@@ -3065,3 +3065,134 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     if isinstance(last_error, HTTPException):
         raise last_error
     raise HTTPException(status_code=500, detail=f"Failed to generate one-pager PDF: {last_error}")
+
+
+async def generate_pdf_from_html_content(
+    html_content: str,
+    output_filename: str,
+    use_cache: bool = True
+) -> str:
+    """
+    Generate a PDF from raw HTML content (not a template).
+    Used for text presentations where HTML is generated on the frontend.
+    
+    Args:
+        html_content: Complete HTML document as a string
+        output_filename: Name for the output PDF file
+        use_cache: Whether to use cached PDFs
+        
+    Returns:
+        Path to the generated PDF file
+    """
+    logger.info(f"=== STARTING PDF GENERATION FROM HTML CONTENT ===")
+    logger.info(f"Output filename: {output_filename}")
+    logger.info(f"HTML content length: {len(html_content)} chars")
+    
+    pdf_path_in_cache = PDF_CACHE_DIR / output_filename
+    if use_cache and pdf_path_in_cache.exists():
+        logger.info(f"PDF CACHE: Serving cached PDF: {pdf_path_in_cache}")
+        return str(pdf_path_in_cache)
+
+    browser = None
+    page = None
+    temp_pdf_path = os.path.join("/tmp", f"temp_html_content_pdf_{output_filename}")
+
+    logger.info(f"PDF GEN (from HTML content): Temp output at {temp_pdf_path}, final cache at {pdf_path_in_cache}")
+
+    try:
+        # Launch browser
+        logger.info("=== BROWSER LAUNCH PHASE ===")
+        browser = await pyppeteer.launch(
+            executablePath=CHROME_EXEC_PATH,
+            headless=True,
+            args=[
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                f'--disable-features=IsolateOrigins,site-per-process',
+                f'--disk-cache-size=0',
+            ]
+        )
+        logger.info("Browser launched successfully")
+        
+        page = await browser.newPage()
+        logger.info("New page created")
+        
+        # Set viewport for A4 size
+        await page.setViewport({'width': 794, 'height': 1123})  # A4 at 96 DPI
+        logger.info("Viewport set to A4 dimensions")
+        
+        # Set content from HTML string
+        await page.setContent(html_content, {'waitUntil': 'networkidle0'})
+        logger.info("HTML content loaded successfully")
+        
+        # Wait for any fonts to load
+        try:
+            await page.waitForFunction("""
+                () => {
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    return document.readyState === 'complete';
+                }
+            """, timeout=5000)
+        except Exception as e:
+            logger.warning(f"Font loading timeout, proceeding anyway: {e}")
+        
+        # Additional delay for rendering
+        await asyncio.sleep(1)
+        
+        # Generate PDF with A4 format
+        logger.info("=== PDF GENERATION PHASE ===")
+        pdf_options = {
+            'path': temp_pdf_path,
+            'format': 'A4',
+            'printBackground': True,
+            'margin': {
+                'top': '20mm',
+                'right': '20mm',
+                'bottom': '20mm',
+                'left': '20mm'
+            }
+        }
+        
+        await page.pdf(pdf_options)
+        logger.info(f"PDF generated successfully at {temp_pdf_path}")
+        
+        # Move to cache
+        if os.path.exists(temp_pdf_path):
+            os.rename(temp_pdf_path, str(pdf_path_in_cache))
+            logger.info(f"PDF moved to cache: {pdf_path_in_cache}")
+        else:
+            raise FileNotFoundError(f"Temporary PDF not found: {temp_pdf_path}")
+        
+        return str(pdf_path_in_cache)
+        
+    except Exception as e:
+        logger.error(f"Error generating PDF from HTML content: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to generate PDF: {str(e)[:200]}")
+        
+    finally:
+        # Cleanup
+        if page:
+            try:
+                await page.close()
+                logger.info("Page closed")
+            except Exception as e:
+                logger.warning(f"Error closing page: {e}")
+                
+        if browser:
+            try:
+                await browser.close()
+                logger.info("Browser closed")
+            except Exception as e:
+                logger.warning(f"Error closing browser: {e}")
+        
+        # Clean up temp file if it still exists
+        if os.path.exists(temp_pdf_path):
+            try:
+                os.remove(temp_pdf_path)
+                logger.info("Temp PDF file removed")
+            except Exception as e:
+                logger.warning(f"Error removing temp PDF: {e}")
