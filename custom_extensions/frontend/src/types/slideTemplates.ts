@@ -85,7 +85,30 @@ export interface ComponentBasedSlide {
 }
 
 export interface SlideTransition {
-  type: 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe';
+  type: 
+    // Basic
+    | 'none' | 'fade' | 'dissolve'
+    // Wipes
+    | 'wipeleft' | 'wiperight' | 'wipeup' | 'wipedown'
+    | 'wipetl' | 'wipetr' | 'wipebl' | 'wipebr'
+    // Slides
+    | 'slideleft' | 'slideright' | 'slideup' | 'slidedown'
+    // Smooth transitions
+    | 'smoothleft' | 'smoothright' | 'smoothup' | 'smoothdown'
+    // Circle effects
+    | 'circlecrop' | 'circleopen' | 'circleclose'
+    // Diagonal
+    | 'diagtl' | 'diagtr' | 'diagbl' | 'diagbr'
+    // Radial & Distance
+    | 'radial' | 'distance'
+    // Slices
+    | 'hlslice' | 'hrslice' | 'vuslice' | 'vdslice'
+    // Squeeze & Zoom
+    | 'squeezeh' | 'squeezev' | 'zoomin'
+    // Blur & Pixelize
+    | 'hblur' | 'pixelize'
+    // Fade variations
+    | 'fadeblack' | 'fadewhite' | 'fadefast' | 'fadeslow';
   duration: number; // Duration in seconds (0.5 - 3.0)
   variant?: 'circle' | 'horizontal-chevrons' | 'vertical-chevrons'; // Variant for transition effect
   applyToAll?: boolean; // If true, this transition applies to all slides
