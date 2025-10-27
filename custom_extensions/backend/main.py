@@ -3822,6 +3822,10 @@ class AiAuditScrapedData(BaseModel):
     priorities: list[str]
     priorityOther: str = ""
 
+class CommercialProposalCreateRequest(BaseModel):
+    project_id: int
+    language: str = "ru"  # Default to Russian
+
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
     type: str = "unknown"
@@ -17821,6 +17825,185 @@ async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, r
     return {"jobId": job_id}
 
 
+@app.post("/api/custom/commercial-proposal/generate")
+async def generate_commercial_proposal(payload: CommercialProposalCreateRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Generate a commercial proposal by copying an existing AI audit project.
+    """
+    try:
+        logger.info(f"🚀 [COMMERCIAL PROPOSAL] Starting commercial proposal generation for project ID: {payload.project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the source AI audit project with all necessary fields
+        query = """
+        SELECT microproduct_content, microproduct_name, created_at, product_type, microproduct_type, 
+               design_template_id, source_chat_session_id, folder_id
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            source_row = await conn.fetchrow(query, payload.project_id, onyx_user_id)
+            
+        if not source_row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL] Source project {payload.project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Source AI audit project not found")
+        
+        source_content = source_row["microproduct_content"]
+        source_name = source_row["microproduct_name"]
+        source_created_at = source_row["created_at"]
+        source_product_type = source_row["product_type"]
+        source_microproduct_type = source_row["microproduct_type"]
+        source_design_template_id = source_row["design_template_id"]
+        source_chat_session_id = source_row["source_chat_session_id"]
+        source_folder_id = source_row["folder_id"]
+        
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] Source project data retrieved:")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Name: {source_name}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Product Type: {source_product_type}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Microproduct Type: {source_microproduct_type}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Content keys: {list(source_content.keys()) if source_content else 'None'}")
+        
+        # Create commercial proposal content based on AI audit data
+        commercial_proposal_content = {
+            "projectId": payload.project_id,
+            "projectName": f"{source_name} - Commercial Proposal",
+            "companyName": source_content.get("companyName", None),
+            "companyDescription": source_content.get("companyDescription", None),
+            "courseOutlineModules": source_content.get("courseOutlineModules", []),
+            "courseTemplates": source_content.get("courseTemplates", []),
+            "serviceTemplatesDescription": "",
+            "language": payload.language,
+            "courseOutlineTableHeaders": source_content.get("courseOutlineTableHeaders", None)
+        }
+        
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] Created commercial proposal content:")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Project Name: {commercial_proposal_content['projectName']}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Company Name: {commercial_proposal_content['companyName']}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Course Templates: {len(commercial_proposal_content['courseTemplates'])}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Language: {commercial_proposal_content['language']}")
+        
+        # Insert new commercial proposal project with proper product type and template
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)
+        RETURNING id
+        """
+        
+        # Use the same template as the source project or get a text presentation template
+        template_id = source_design_template_id
+        if not template_id:
+            template_id = await _ensure_text_presentation_template(pool)
+        
+        async with pool.acquire() as conn:
+            new_project_id = await conn.fetchval(
+                insert_query, 
+                onyx_user_id,
+                commercial_proposal_content["projectName"],  # project_name
+                "Commercial Proposal",  # product_type - changed from AI Audit
+                "Commercial Proposal",  # microproduct_type - changed from AI Audit
+                commercial_proposal_content["projectName"],  # microproduct_name
+                commercial_proposal_content,  # microproduct_content
+                template_id,  # design_template_id
+                source_chat_session_id,  # source_chat_session_id
+                source_folder_id  # folder_id - keep same folder as source
+            )
+        
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] Successfully created commercial proposal project with ID: {new_project_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Product Type: Commercial Proposal")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Microproduct Type: Commercial Proposal")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Template ID: {template_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Folder ID: {source_folder_id}")
+        
+        return {
+            "success": True,
+            "projectId": new_project_id,
+            "message": "Commercial proposal generated successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL] Error generating commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.get("/api/custom/commercial-proposal/{project_id}")
+async def get_commercial_proposal_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Get the commercial proposal data for a specific project.
+    """
+    try:
+        logger.info(f"📥 [COMMERCIAL PROPOSAL DATA] Request for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the project data
+        query = """
+        SELECT microproduct_content, microproduct_name 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
+            
+        if not row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL DATA] Project {project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        content = row["microproduct_content"]
+        project_name = row["microproduct_name"]
+        
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] Retrieved project data: {content}")
+
+        # 🎯 CRITICAL INSTRUMENTATION: Check assessment data in database
+        if content and isinstance(content, dict) and 'courseOutlineModules' in content:
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Project {project_id} - courseOutlineModules EXISTS in database!")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Number of modules: {len(content['courseOutlineModules'])}")
+            for idx, module in enumerate(content.get('courseOutlineModules', [])):
+                if isinstance(module, dict):
+                    has_assessments = 'lessonAssessments' in module
+                    logger.info(f"🎯 [ASSESSMENT DB READ] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                    logger.info(f"🎯 [ASSESSMENT DB READ] - Has lessonAssessments: {has_assessments}")
+                    if has_assessments:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                    else:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - ❌ NO lessonAssessments in database for module {idx}")
+            logger.info(f"🎯 [ASSESSMENT DB READ] This data WILL BE sent to frontend")
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+        
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Project name: '{project_name}'")
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Content keys: {list(content.keys()) if content else 'None'}")
+        
+        # Build response data by merging all microproduct_content fields
+        response_data = {
+            "projectId": project_id,
+            "projectName": project_name,
+            # Include all fields from microproduct_content
+            **content
+        }
+        
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] Final response data:")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project ID: {response_data['projectId']}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project Name: '{response_data['projectName']}'")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Total fields included: {len(response_data)}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - All content fields: {list(content.keys()) if content else 'None'}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL DATA] Error getting commercial proposal data: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 @app.get("/api/custom/ai-audit/landing-page/{project_id}")
 async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """
@@ -18471,6 +18654,152 @@ async def get_public_product(
     except Exception as e:
         logger.error(f"Error getting public product: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve product")
+
+
+# Commercial proposal sharing models
+class ShareCommercialProposalRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareCommercialProposalResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/commercial-proposal/{commercial_proposal_id}/share")
+async def share_commercial_proposal(
+    commercial_proposal_id: int, 
+    request_data: ShareCommercialProposalRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareCommercialProposalResponse:
+    """
+    Generate a share token for a commercial proposal project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Verify the commercial proposal belongs to the user and is a commercial proposal project
+        query = """
+        SELECT id, project_name, microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2 
+        AND (project_name LIKE '%Commercial Proposal')
+        """
+        
+        async with pool.acquire() as conn:
+            commercial_proposal = await conn.fetchrow(query, commercial_proposal_id, onyx_user_id)
+            
+        if not commercial_proposal:
+            raise HTTPException(status_code=404, detail="Commercial proposal not found or access denied")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, commercial_proposal_id)
+        
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/commercial-proposal/{share_token}"
+        
+        logger.info(f"🔗 [COMMERCIAL PROPOSAL SHARING] Created share token for commercial proposal {commercial_proposal_id}: {share_token}")
+        
+        return ShareCommercialProposalResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share commercial proposal")
+
+@app.get("/api/custom/public/commercial-proposal/{share_token}")
+async def get_public_commercial_proposal(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get commercial proposal data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public commercial proposal by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public
+        FROM projects 
+        WHERE share_token = $1 AND is_public = TRUE
+        """
+        
+        async with pool.acquire() as conn:
+            commercial_proposal = await conn.fetchrow(query, share_token)
+            
+        if not commercial_proposal:
+            raise HTTPException(status_code=404, detail="Shared commercial proposal not found")
+        
+        # Check if the share has expired
+        if commercial_proposal["expires_at"] and commercial_proposal["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared commercial proposal link has expired")
+        
+        content = commercial_proposal["microproduct_content"]
+        project_name = commercial_proposal["project_name"]
+        
+        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        logger.info(f"🎯 [PUBLIC COMMERCIAL PROPOSAL TABLE HEADERS] Project {commercial_proposal['id']} - content: {content}")
+        
+        # Return the same structure as the private endpoint but without sensitive info
+        response_data = {
+            "projectId": commercial_proposal["id"],
+            "projectName": project_name,
+            **content,
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": commercial_proposal["shared_at"].isoformat() if commercial_proposal["shared_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC COMMERCIAL PROPOSAL ACCESS] Served public commercial proposal with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
 
 
 async def _run_audit_generation(payload, request, pool, job_id):

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
 
@@ -297,6 +297,7 @@ const getLocalizedText = (language: string | undefined, texts: { en: any; es: an
 
 export default function DynamicAuditLandingPage() {
   const params = useParams()
+  const router = useRouter()
   const projectId = params?.projectId as string
   const [landingPageData, setLandingPageData] = useState<LandingPageData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -323,6 +324,57 @@ export default function DynamicAuditLandingPage() {
       ...prev,
       [moduleId]: !prev[moduleId]
     }))
+  }
+
+  const handleCreateCP = async () => {
+    try {
+      console.log('🚀 [CREATE COMMERCIAL PROPOSAL] Starting commercial proposal creation for project:', projectId);
+      
+      if (!projectId) {
+        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Project ID is required');
+        return;
+      }
+      
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const apiEndpoint = `${CUSTOM_BACKEND_URL}/commercial-proposal/generate`;
+      
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Making request to:', apiEndpoint);
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Project ID:', projectId);
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          project_id: parseInt(projectId),
+          language: landingPageData?.language || 'ru'
+        })
+      });
+      
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Response status:', response.status);
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Response ok:', response.ok);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ [CREATE COMMERCIAL PROPOSAL] Successfully created commercial proposal');
+        console.log('✅ [CREATE COMMERCIAL PROPOSAL] New project ID:', data.projectId);
+        console.log('✅ [CREATE COMMERCIAL PROPOSAL] Message:', data.message);
+        
+        // Redirect to the new commercial proposal page
+        if (data.projectId) {
+          router.push(`/create/commercial-proposal/${data.projectId}`);
+        }
+      } else {
+        const errorText = await response.text();
+        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Request failed:', response.status);
+        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error response:', errorText);
+        alert(`Failed to create commercial proposal. Please try again. ${errorText}`);
+      }
+    } catch (error) {
+      console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error creating commercial proposal:', error);
+      alert('An error occurred while creating the commercial proposal. Please try again.');
+    }
   }
 
   // Text editing handlers
@@ -1831,6 +1883,34 @@ export default function DynamicAuditLandingPage() {
                     })}
                   </span>
                 </button>
+
+                {/* Create CP Button */}
+                <button
+                  onClick={() => handleCreateCP()}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                  title={getLocalizedText(landingPageData?.language, {
+                    en: 'Create Commercial Proposal',
+                    es: 'Crear Commercial Proposal',
+                    ua: 'Створити Commercial Proposal',
+                    ru: 'Создать Commercial Proposal'
+                  })}
+                >
+                  <svg
+                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors"
+                    viewBox="0 0 32 32"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  >
+                    <path d="M16 2 L16 30 M2 16 L30 16" />
+                  </svg>
+                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                    Commercial Proposal
+                  </span>
+                </button>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
@@ -1880,7 +1960,7 @@ export default function DynamicAuditLandingPage() {
                     es: 'para empresa',
                     ua: 'для компанії',
                     ru: 'для компании'
-                  }                  )} {editingField === 'companyName' ? (
+                  })} {editingField === 'companyName' ? (
                     <InlineEditor
                       initialValue={companyName}
                       onSave={(value) => handleTextSave('companyName', value)}
@@ -2040,7 +2120,7 @@ export default function DynamicAuditLandingPage() {
                           en: 'AI Onboarding Implementation',
                           es: 'Implementación de Incorporación IA',
                           ua: 'Впровадження AI-онбордингу',
-                          ru: 'Внедрение AI-онбординг'
+                          ru: 'Внедрение AI-онбординга'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -2973,7 +3053,7 @@ export default function DynamicAuditLandingPage() {
                           en: 'Ready-made course templates for onboarding and training your employees:',
                           es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
                           ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
-                          ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+                          ru: 'Готовые шаблоны курсов для онбординга и обучения ваших сотрудников:'
                         })}
                       onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
                       onCancel={handleTextCancel}
@@ -3118,11 +3198,6 @@ export default function DynamicAuditLandingPage() {
                       </div>
                     </div>
                   ))}
-  
-  
-  
-  
-  
                 </div>
                 
                 <div className="flex flex-col gap-[10px] xl:gap-[15px]">
@@ -4913,15 +4988,15 @@ export default function DynamicAuditLandingPage() {
                   })}
                 </h3>
   
-                <div 
-                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
-                  style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                  }}
-                ></div>
+                <div className="border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] overflow-hidden" 
+                     style={{boxShadow: 'rgba(42, 51, 70, 0.03) 0px 6.43px 6.43px -2.14px, rgba(42, 51, 70, 0.03) 0px 2.68px 2.68px -1.34px, rgba(42, 51, 70, 0.03) 0px 1.34px 1.34px -0.67px'}}>
+                  <img 
+                    src={`/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${
+                      landingPageData?.language === 'ua' ? 'ua' : 'en'
+                    }.png`}
+                    alt="Service Image"
+                    className="w-full h-auto block rounded-[2px]" />
+                </div>
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] mb-[15px] xl:mb-[40px]">
                   <div 
