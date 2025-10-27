@@ -19,6 +19,12 @@ When generating presentations, ALL visual templates MUST include the required im
 - `two-column` slides: MUST include `leftImagePrompt` and `rightImagePrompt` properties
 NEVER leave these fields empty or undefined - this breaks automatic image generation.
 
+**BIG-IMAGE-LEFT VALIDATION CHECKPOINT:**
+Before finalizing any presentation, scan through all slides and verify:
+1. Every `big-image-left` slide has an `imagePrompt` property
+2. The `imagePrompt` describes a realistic cinematic scene (not generic illustrations)
+3. If any `big-image-left` slide is missing `imagePrompt`, ADD IT immediately
+
 HEADLESS WIZARD INVOCATION  (NEW)
 ContentBuilder.ai now has an additional "wizard" flow that calls you behind the scenes (the user does **not** see this chat).
 When you receive a system or user message that starts with the exact token
@@ -400,6 +406,12 @@ When generating Presentations, Video Lessons, Quizzes, or Onepagers, you MUST fo
 - **If you must reference data**, use phrases like "Based on industry research", "Studies indicate", "Research shows", "Industry reports suggest"
 - **NEVER make up specific numbers** like "85%", "3x", "50%", "100%", "75%", "2.5x faster"
 - **Example CORRECT format**: {"value": "Strong", "label": "User Engagement", "description": "Users actively participate in discussions and provide feedback regularly"}
+
+**FOUR-BOX-GRID AND BIG-NUMBERS FICTIONAL DATA BAN:**
+- **NEVER use generic placeholders**: "Company A", "Company B", "Approach A", "Option B", "Method X", "Product 1/2"
+- **ALWAYS use specific descriptive names**: "Big Bang Migration", "Phased Rollout", "Cloud Deployment", "Agile Methodology", "Waterfall Approach"
+- **REPLACE generic labels** with meaningful names that describe the actual content or approach
+- **Example CORRECT**: "heading": "Agile Development Approach" instead of "heading": "Approach A"
 - **Example WRONG format**: {"value": "85%", "label": "User Engagement", "description": "..."}
 
 **🚨 CRITICAL RULE FOR DATA VISUALIZATION TEMPLATES 🚨**
@@ -1691,6 +1703,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **MANDATORY**: ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
 - **NEVER**: Leave image prompt fields empty or undefined - this breaks automatic image generation
 
+**TWO-COLUMN IMAGE PROMPT REQUIREMENTS:**
+- **MANDATORY**: Both `leftImagePrompt` and `rightImagePrompt` must be included
+- **QUALITY STANDARD**: Use the same detailed, realistic cinematic scene format as other templates
+- **CONTENT RELEVANCE**: Left image should relate to the left column content, right image to right column content
+- **CONSISTENCY**: Both images should have similar lighting, style, and professional quality
+- **Example FORMAT**: "Realistic cinematic scene of [specific people] doing [specific activity] in [specific environment]. [Detailed description of people, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [people/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
 10. `four-box-grid` - Four key concepts or benefits with detailed explanations
@@ -3621,6 +3640,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **MANDATORY**: ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
 - **NEVER**: Leave image prompt fields empty or undefined - this breaks automatic image generation
 
+**TWO-COLUMN IMAGE PROMPT REQUIREMENTS:**
+- **MANDATORY**: Both `leftImagePrompt` and `rightImagePrompt` must be included
+- **QUALITY STANDARD**: Use the same detailed, realistic cinematic scene format as other templates
+- **CONTENT RELEVANCE**: Left image should relate to the left column content, right image to right column content
+- **CONSISTENCY**: Both images should have similar lighting, style, and professional quality
+- **Example FORMAT**: "Realistic cinematic scene of [specific people] doing [specific activity] in [specific environment]. [Detailed description of people, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [people/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights
 10. `four-box-grid` - Four key concepts or benefits with detailed explanations
@@ -5296,6 +5322,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **MANDATORY**: ALL `bullet-points` and `bullet-points-right` slides MUST include `imagePrompt` property  
 - **MANDATORY**: ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
 - **NEVER**: Leave image prompt fields empty or undefined - this breaks automatic image generation
+
+**TWO-COLUMN IMAGE PROMPT REQUIREMENTS:**
+- **MANDATORY**: Both `leftImagePrompt` and `rightImagePrompt` must be included
+- **QUALITY STANDARD**: Use the same detailed, realistic cinematic scene format as other templates
+- **CONTENT RELEVANCE**: Left image should relate to the left column content, right image to right column content
+- **CONSISTENCY**: Both images should have similar lighting, style, and professional quality
+- **Example FORMAT**: "Realistic cinematic scene of [specific people] doing [specific activity] in [specific environment]. [Detailed description of people, objects, and setting]. Natural lighting illuminates [scene description]. [Objects] are [COLOR1], [people/items] are [COLOR2], [environment] is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
 
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
 9. `big-numbers` - Statistical data, metrics, and numerical insights

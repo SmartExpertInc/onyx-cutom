@@ -1139,7 +1139,9 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "leftTitle": "Planning Skills",
         "leftContent": "You will learn to define project scope, create detailed timelines, and allocate resources effectively. These skills apply to any project in any industry.",
         "rightTitle": "Execution Skills",
-        "rightContent": "You will learn to track progress, identify risks early, and adjust plans when circumstances change. You will practice these skills through real scenarios."
+        "rightContent": "You will learn to track progress, identify risks early, and adjust plans when circumstances change. You will practice these skills through real scenarios.",
+        "leftImagePrompt": "Realistic cinematic scene of a diverse project planning team working around a large conference table with laptops, project charts, and planning documents. A confident Asian woman in business attire is pointing at a Gantt chart on a whiteboard while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. The conference room features floor-to-ceiling windows with natural daylight, executive chairs, and visible project materials including sticky notes, planning boards, and coffee cups. Natural office lighting illuminates the collaborative planning atmosphere. The whiteboard and planning materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "rightImagePrompt": "Realistic cinematic scene of a diverse project execution team actively monitoring progress in a modern office environment. A confident Black woman in business attire stands at a digital dashboard displaying project metrics while a white male colleague in a shirt reviews status reports on a laptop, and an Asian woman in a blazer updates task boards with sticky notes. The workspace features multiple monitors showing project tracking software, task management boards, and progress charts. Natural office lighting illuminates the focused execution environment with laptops, tablets, and project materials visible on desks. The digital displays and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
       }
     },
     {
@@ -12607,6 +12609,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
             - NEVER leave image prompt fields empty or undefined - this breaks automatic image generation
 
+            **CRITICAL: big-image-left VALIDATION CHECKPOINT**
+            - BEFORE generating any `big-image-left` slide, verify you are including the `imagePrompt` property
+            - The `imagePrompt` must describe a realistic cinematic scene with specific people, settings, and objects
+            - If you forget to include `imagePrompt` for `big-image-left`, the slide will not display images
+
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
                 - Look for patterns like "**Course Name** : **Lesson Presentation** : **Title**" or similar
@@ -24059,6 +24066,21 @@ Before finalizing your JSON output, verify that ALL visual templates have the re
 - Check every `bullet-points` and `bullet-points-right` slide has `imagePrompt` property
 - Check every `two-column` slide has `leftImagePrompt` and `rightImagePrompt` properties
 If any visual template is missing its required image prompt properties, ADD THEM before submitting your response.
+
+🚨 CHALLENGES-SOLUTIONS VALIDATION 🚨
+Before finalizing your JSON output, verify that ALL challenges-solutions slides have exactly 3 challenges and 3 solutions:
+- Count challenges: MUST be exactly 3, never 4 or more
+- Count solutions: MUST be exactly 3, never 4 or more  
+- If you generated 4+ items, keep only the LAST 3 pairs
+- Each challenge: 60-80 words
+- Each solution: 80-100 words
+
+🚨 FICTIONAL DATA VALIDATION 🚨
+Before finalizing your JSON output, scan for and eliminate fictional data:
+- NO "Company A", "Company B", "Approach A", "Option B", "Method X", "Product 1/2"
+- NO generic placeholder labels in four-box-grid or big-numbers slides
+- REPLACE with specific descriptive names: "Big Bang Migration", "Phased Rollout", "Cloud Deployment"
+- Use real, meaningful names that describe the actual content or approach
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
