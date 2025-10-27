@@ -1945,7 +1945,7 @@ function GenerateProductPicker() {
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base...')
                 : t('interface.generate.promptPlaceholder', 'Type or paste in content here...')}
               className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-blue-300 focus:outline-none transition-colors placeholder-[#4D4D4D] relative z-10"
-              style={{ background: "rgba(255,255,255,0.95)" }}
+              style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px" }}
               rows={1}
             />
             </div>
@@ -2021,7 +2021,6 @@ function GenerateProductPicker() {
               }}
               size="lg"
               className="flex items-center gap-2 px-10 py-4 rounded-md bg-[#0F58F9] text-white text-lg font-semibold shadow transition-colors cursor-pointer"
-              style={{ minWidth: 240 }}
             >
               <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M11.5423 11.8603C11.1071 12.0267 10.8704 12.2646 10.702 12.6991C10.5353 12.2646 10.297 12.0284 9.86183 11.8603C10.297 11.6938 10.5337 11.4575 10.702 11.0214C10.8688 11.4559 11.1071 11.6922 11.5423 11.8603ZM10.7628 5.05915C11.1399 3.65697 11.6552 3.14142 13.0612 2.76444C11.6568 2.38797 11.1404 1.87349 10.7628 0.469727C10.3858 1.87191 9.87044 2.38746 8.46442 2.76444C9.86886 3.14091 10.3852 3.65539 10.7628 5.05915ZM11.1732 7.95329C11.1732 7.82118 11.1044 7.66168 10.9118 7.60798C9.33637 7.16814 8.34932 6.666 7.61233 5.93083C6.8754 5.19508 6.37139 4.20956 5.93249 2.63662C5.8787 2.44437 5.71894 2.37563 5.58662 2.37563C5.4543 2.37563 5.29454 2.44437 5.24076 2.63662C4.80022 4.20956 4.29727 5.19503 3.56092 5.93083C2.82291 6.66765 1.83688 7.16978 0.261415 7.60798C0.0688515 7.66168 0 7.82118 0 7.95329C0 8.0854 0.0688515 8.2449 0.261415 8.2986C1.83688 8.73844 2.82393 9.24057 3.56092 9.97575C4.29892 10.7126 4.80186 11.697 5.24076 13.27C5.29455 13.4622 5.45431 13.531 5.58662 13.531C5.71895 13.531 5.87871 13.4622 5.93249 13.27C6.37303 11.697 6.87598 10.7116 7.61233 9.97575C8.35034 9.23892 9.33637 8.7368 10.9118 8.2986C11.1044 8.2449 11.1732 8.0854 11.1732 7.95329Z" fill="white"/>
