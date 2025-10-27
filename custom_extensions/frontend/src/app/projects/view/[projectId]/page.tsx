@@ -1371,6 +1371,93 @@ export default function ProjectInstanceViewPage() {
       return;
     }
 
+    // Special handling for TextPresentationDisplay - client-side PDF generation
+    if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+      try {
+        // Dynamically import html2pdf
+        let html2pdf: any;
+        try {
+          // @ts-ignore - Dynamic import for optional dependency
+          html2pdf = (await import('html2pdf.js')).default;
+        } catch (importError) {
+          console.error('Failed to load html2pdf.js. Please install it: npm install html2pdf.js', importError);
+          alert('PDF export library is not installed. Please run: npm install html2pdf.js');
+          return;
+        }
+        
+        // Find the TextPresentationDisplay container
+        const element = document.querySelector('.text-presentation-container');
+        if (!element) {
+          alert('Could not find the presentation content to export.');
+          return;
+        }
+
+        // Clone the element to modify it without affecting the page
+        const clonedElement = element.cloneNode(true) as HTMLElement;
+        
+        // Remove edit controls and buttons from the clone
+        const editControls = clonedElement.querySelectorAll('.group-hover\\:opacity-100, [class*="hover:"], .edit-controls, .fab-button, .absolute[class*="opacity-0"]');
+        editControls.forEach(el => el.remove());
+        
+        // Get all computed styles
+        const styles = Array.from(document.styleSheets)
+          .map(styleSheet => {
+            try {
+              return Array.from(styleSheet.cssRules)
+                .map(rule => rule.cssText)
+                .join('\n');
+            } catch (e) {
+              return '';
+            }
+          })
+          .join('\n');
+
+        // Create a wrapper with all styles
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = `
+          <style>
+            ${styles}
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body {
+              margin: 0;
+              padding: 20px;
+              background: white;
+            }
+          </style>
+          ${clonedElement.outerHTML}
+        `;
+
+        const filename = `${projectInstanceData.name || 'text-presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+        const opt = {
+          margin: [10, 10, 10, 10],
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            letterRendering: true
+          },
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait'
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        await html2pdf().set(opt).from(wrapper).save();
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+      }
+      return;
+    }
+
     // Special handling for slide decks and video lesson presentations  
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
         projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
@@ -1778,13 +1865,27 @@ export default function ProjectInstanceViewPage() {
           purpleBoxSection: true
         } : null;
         return (
-          <TextPresentationDisplay
-            dataToDisplay={textPresentationDataWithBox}
-            isEditing={isEditing}
-            onTextChange={handleTextChange}
-            parentProjectName={parentProjectName}
-            onToggleEditMode={handleToggleEdit}
-          />
+          <>
+            <ProductViewHeader
+              projectData={projectInstanceData}
+              editableData={textPresentationData}
+              productId={projectId}
+              showSmartEditor={showSmartEditor}
+              setShowSmartEditor={setShowSmartEditor}
+              scormEnabled={scormEnabled}
+              componentName={COMPONENT_NAME_TEXT_PRESENTATION}
+              allowedComponentNames={[COMPONENT_NAME_TEXT_PRESENTATION]}
+              t={t}
+              onPdfExport={handlePdfDownload}
+            />
+            <TextPresentationDisplay
+              dataToDisplay={textPresentationDataWithBox}
+              isEditing={isEditing}
+              onTextChange={handleTextChange}
+              parentProjectName={parentProjectName}
+              onToggleEditMode={handleToggleEdit}
+            />
+          </>
         );
       case COMPONENT_NAME_VIDEO_LESSON:
         const videoData = editableData as VideoLessonData | null;

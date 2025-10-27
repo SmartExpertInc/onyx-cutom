@@ -2,14 +2,14 @@
 "use client";
 
 import React from 'react';
-import { ProjectInstanceDetail, TrainingPlanData } from '@/types/projectSpecificTypes';
+import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { UserDropdown } from '@/components/UserDropdown';
 
 interface ProductViewHeaderProps {
   projectData: ProjectInstanceDetail | null;
-  editableData: TrainingPlanData | null;
+  editableData: TrainingPlanData | TextPresentationData | null;
   productId: string | undefined;
   showSmartEditor: boolean;
   setShowSmartEditor: (show: boolean) => void;
@@ -137,8 +137,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           </button>
           )}
 
-          {/* Export button for slide deck presentations and quizzes */}
-          {(isSlideDeck || isQuiz) && (
+          {/* Export button for slide deck presentations, quizzes, and text presentations */}
+          {(isSlideDeck || isQuiz || isOnePager) && (
             <button
               onClick={() => {
                 if (onPdfExport) {
