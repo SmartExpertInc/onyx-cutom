@@ -1783,7 +1783,7 @@ export default function ProjectInstanceViewPage() {
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
-            onOpenSmartEditor={() => setShowSmartEditor(!showSmartEditor)}
+            onToggleEditMode={handleToggleEdit}
           />
         );
       case COMPONENT_NAME_VIDEO_LESSON:
@@ -1852,8 +1852,7 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_TRAINING_PLAN,
           COMPONENT_NAME_SLIDE_DECK,
           COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
-          COMPONENT_NAME_QUIZ,
-          COMPONENT_NAME_TEXT_PRESENTATION
+          COMPONENT_NAME_QUIZ
         ]}
         t={t}
         onPdfExport={handlePdfDownload}
@@ -2173,8 +2172,7 @@ export default function ProjectInstanceViewPage() {
         {showSmartEditor && projectInstanceData && (
           projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN ||
           projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ||
-          projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION
+          projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
         ) && (
           <SmartPromptEditor
             projectId={projectInstanceData.project_id}
