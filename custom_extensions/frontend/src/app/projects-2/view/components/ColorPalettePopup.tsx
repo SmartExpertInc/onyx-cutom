@@ -918,8 +918,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
 
 
-        {/* Recent Colors */}
-        {onRecentColorChange && (
+        {/* Recent Colors - Hidden */}
+        {/* {onRecentColorChange && (
           <div className="mt-4 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
             <div className="text-gray-500 mb-2 block text-xs">
               Recent Colors
@@ -961,7 +961,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               })}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </>
   );
