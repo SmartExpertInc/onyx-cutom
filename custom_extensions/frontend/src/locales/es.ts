@@ -1272,6 +1272,7 @@ export const es = {
 
     // Course Outline Page
     courseOutline: {
+      pageTitle: "Vista previa de la estructura del curso",
       loading: "Cargando...",
       applyingEdit: "Aplicando edición...",
       edit: "Editar",
@@ -1666,6 +1667,12 @@ export const es = {
       applying: "Aplicando...",
       footerInfo:
         "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
+    },
+
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Vista previa de la estructura del video",
+      presentationOutlinePreview: "Vista previa de la estructura de la presentación",
     },
 
     // View New Page (Course Outline View)

@@ -1290,6 +1290,7 @@ export const ru = {
 
     // Course Outline Page
     courseOutline: {
+      pageTitle: "Предварительный просмотр структуры курса",
       loading: "Загрузка...",
       applyingEdit: "Применение изменений...",
       edit: "Редактировать",
@@ -1643,6 +1644,12 @@ export const ru = {
       applying: "Применение...",
       footerInfo:
         "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам.",
+    },
+
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Предварительный просмотр структуры видео",
+      presentationOutlinePreview: "Предварительный просмотр структуры презентации",
     },
 
     // View New Page (Course Outline View)

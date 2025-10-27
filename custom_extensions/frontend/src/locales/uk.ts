@@ -1281,6 +1281,7 @@ export const uk = {
 
     // Course Outline Page
     courseOutline: {
+      pageTitle: "Попередній перегляд структури курсу",
       loading: "Завантаження...",
       applyingEdit: "Застосування змін...",
       edit: "Редагувати",
@@ -1674,6 +1675,12 @@ export const uk = {
       applying: "Застосування...",
       footerInfo:
         "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень.",
+    },
+
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Попередній перегляд структури відео",
+      presentationOutlinePreview: "Попередній перегляд структури презентації",
     },
 
     // View New Page (Course Outline View)

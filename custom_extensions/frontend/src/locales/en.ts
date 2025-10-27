@@ -1224,6 +1224,7 @@ export const en = {
 
     // Course Outline specific translations
     courseOutline: {
+      pageTitle: "Course outline preview",
       additionalInfo: "Additional Info",
       assessmentType: "Assessment Type",
       contentVolume: "Content Volume",
@@ -1440,6 +1441,12 @@ export const en = {
       selectClient: "Select a client...",
       autoCalculated: "auto-calculated",
       totalHoursHelp: "Total hours are automatically calculated based on projects in the selected client folder",
+    },
+
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Video outline preview",
+      presentationOutlinePreview: "Presentation outline preview",
     },
 
     // Pipelines

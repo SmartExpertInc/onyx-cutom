@@ -1354,7 +1354,7 @@ export default function CourseOutlineClient() {
       <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
         {/* Page title */}
-        <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">Course outline preview</h2>
+        <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">{t('interface.courseOutline.pageTitle', 'Course outline preview')}</h2>
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center gap-4" style={{ display: 'none' }}>
@@ -1684,11 +1684,11 @@ export default function CourseOutlineClient() {
       {!loading && preview.length > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center">
           {/* Credits required */}
-          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
             {/* custom credits svg */}
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_476_6531)">
-                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#434343" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#A5A5A5" stroke-linecap="round" stroke-linejoin="round"/>
               </g>
               <defs>
                 <clipPath id="clip0_476_6531">
