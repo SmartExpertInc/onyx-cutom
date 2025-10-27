@@ -2524,6 +2524,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
   const [editingBlockIndex, setEditingBlockIndex] = useState<number | null>(null);
+  const [purpleBoxContent, setPurpleBoxContent] = useState(PURPLE_BOX_CONTENT);
+  const [editingPurpleBox, setEditingPurpleBox] = useState<{
+    type: 'title' | 'description' | 'card' | null;
+    cardIndex?: number;
+    field?: 'title' | 'description';
+  }>({ type: null });
   
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
@@ -2544,6 +2550,33 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     // Toggle editing for this block
     setEditingBlockIndex(prev => prev === index ? null : index);
   }, [isEditing]);
+
+  const handlePurpleBoxClick = useCallback((type: 'title' | 'description' | 'card', cardIndex?: number, field?: 'title' | 'description') => {
+    if (isEditing) return;
+    setEditingPurpleBox({ type, cardIndex, field });
+  }, [isEditing]);
+
+  const handlePurpleBoxChange = useCallback((value: string) => {
+    setPurpleBoxContent(prev => {
+      if (editingPurpleBox.type === 'title') {
+        return { ...prev, title: value };
+      } else if (editingPurpleBox.type === 'description') {
+        return { ...prev, description: value };
+      } else if (editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex !== undefined && editingPurpleBox.field) {
+        const newCards = [...prev.cards];
+        newCards[editingPurpleBox.cardIndex] = {
+          ...newCards[editingPurpleBox.cardIndex],
+          [editingPurpleBox.field]: value
+        };
+        return { ...prev, cards: newCards };
+      }
+      return prev;
+    });
+  }, [editingPurpleBox]);
+
+  const closePurpleBoxEdit = useCallback(() => {
+    setEditingPurpleBox({ type: null });
+  }, []);
 
   const removeBlockAtIndex = useCallback((index: number) => {
     if (!dataToDisplay || !onTextChange) return;
@@ -2578,14 +2611,45 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             {/* Purple Box Section */}
             {purpleBoxSection && (
               <section className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">{PURPLE_BOX_CONTENT.title}</h2>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  {PURPLE_BOX_CONTENT.description}
-                </p>
+                <div 
+                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-2 -m-2 mb-4' : ''} ${editingPurpleBox.type === 'title' ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                  onClick={() => handlePurpleBoxClick('title')}
+                >
+                  {editingPurpleBox.type === 'title' ? (
+                    <textarea
+                      value={purpleBoxContent.title}
+                      onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                      onBlur={closePurpleBoxEdit}
+                      className="w-full text-xl font-bold text-gray-800 mb-4 p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      autoFocus
+                    />
+                  ) : (
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">{purpleBoxContent.title}</h2>
+                  )}
+                </div>
+                
+                <div 
+                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-2 -m-2 mb-6' : ''} ${editingPurpleBox.type === 'description' ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                  onClick={() => handlePurpleBoxClick('description')}
+                >
+                  {editingPurpleBox.type === 'description' ? (
+                    <textarea
+                      value={purpleBoxContent.description}
+                      onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                      onBlur={closePurpleBoxEdit}
+                      className="w-full text-gray-600 mb-6 leading-relaxed p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
+                      autoFocus
+                    />
+                  ) : (
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      {purpleBoxContent.description}
+                    </p>
+                  )}
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  {PURPLE_BOX_CONTENT.cards.map((card, index) => (
-                    <div key={index} className="bg-[#CCDBFCCC] border border-[#CCCCCC] rounded-lg p-5 space-y-2 text-left">
+                  {purpleBoxContent.cards.map((card, index) => (
+                    <div key={index} className="bg-[#CCDBFCCC] border border-[#CCCCCC] rounded-lg p-5 space-y-2 text-left relative group">
                       {card.icon === 'drilling' && (
                         <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="white"/>
@@ -2637,16 +2701,20 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
+                const isHeadlineEditing = editingBlockIndex === originalHeadlineIndex;
                 return (
                   <div key={index} className={reorderClasses}>
 
                     <section className={`mb-4 p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {!item._skipRenderHeadline && (
-                        <div className="relative group/section">
+                        <div 
+                          className={`relative group/section ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mb-2' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                          onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
+                        >
                            <RenderBlock
                              block={item.headline}
                              basePath={['contentBlocks', originalHeadlineIndex]}
-                             isEditing={isEditing}
+                             isEditing={isEditing || editingBlockIndex === originalHeadlineIndex}
                              onTextChange={onTextChange}
                              contentBlockIndex={originalHeadlineIndex}
                              onMoveBlockUp={handleMoveBlockUp}
@@ -2743,7 +2811,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   </div>
                                 )}
                                 <div 
-                                  className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1' : ''} ${isMiniHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isMiniHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniHeadlineIndex, e)}
                                 >
                                   <RenderBlock
@@ -2768,7 +2836,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   />
                                 </div>
                                 <div 
-                                  className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isMiniListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isMiniListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniListIndex, e)}
                                 >
                                   <RenderBlock
@@ -2799,7 +2867,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             return (
                               <div 
                                 key={subIndex} 
-                                className={`relative group/block ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1 my-2' : ''} ${isSubBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                className={`relative group/block ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 my-2' : ''} ${isSubBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                                 onClick={(e) => !isEditing && handleBlockClick(originalSubIndex, e)}
                               >
                                 <RenderBlock
@@ -2848,7 +2916,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
                     <div className="p-3 my-4 !bg-white border-l-3 border-[#0F58F9] text-left">
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                       >
                         <RenderBlock
@@ -2867,7 +2935,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         />
                       </div>
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalListIndex, e)}
                       >
                         <RenderBlock
@@ -2901,7 +2969,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
                     <div 
-                      className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''} ${isBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                      className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''} ${isBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                       onClick={(e) => !isEditing && handleBlockClick(originalIndex, e)}
                     >
                       <RenderBlock
