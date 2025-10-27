@@ -176,7 +176,7 @@ const THEME_COLORS = {
   alertDangerBg: 'bg-red-50', alertDangerBorder: 'border-red-400',
 };
 
-const editingInputClass = "w-full p-1 bg-blue-50 border border-blue-300 rounded outline-none focus:ring-1 focus:ring-blue-400";
+const editingInputClass = "w-full p-1 text-black border border-blue-300 rounded outline-none focus:ring-1 focus:ring-blue-400";
 const editingTextareaClass = `${editingInputClass} min-h-[50px] resize-y`;
 
 const getAlertColors = (alertType: AlertBlock['alertType']) => {
@@ -1170,7 +1170,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               type="text"
                               value={item}
                               onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                              className={`${editingInputClass} w-full text-xs`}
+                              className={`${editingInputClass} w-full text-base`}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
@@ -1243,7 +1243,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             type="text"
                             value={item}
                             onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                            className={`${editingInputClass} w-full text-xs`}
+                            className={`${editingInputClass} w-full text-base`}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();
@@ -2613,6 +2613,40 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     }));
   }, []);
 
+  const [draggedCardIndex, setDraggedCardIndex] = useState<number | null>(null);
+  const [dragOverCardIndex, setDragOverCardIndex] = useState<number | null>(null);
+
+  const handleCardDragStart = useCallback((e: React.DragEvent, index: number) => {
+    setDraggedCardIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleCardDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverCardIndex(index);
+  }, []);
+
+  const handleCardDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedCardIndex === null || draggedCardIndex === dropIndex) return;
+    
+    setPurpleBoxContent(prev => {
+      const newCards = [...prev.cards];
+      const [draggedCard] = newCards.splice(draggedCardIndex, 1);
+      newCards.splice(dropIndex, 0, draggedCard);
+      return { ...prev, cards: newCards };
+    });
+    
+    setDraggedCardIndex(null);
+    setDragOverCardIndex(null);
+  }, [draggedCardIndex]);
+
+  const handleCardDragEnd = useCallback(() => {
+    setDraggedCardIndex(null);
+    setDragOverCardIndex(null);
+  }, []);
+
   const removeBlockAtIndex = useCallback((index: number) => {
     if (!dataToDisplay || !onTextChange) return;
     const blocks = [...(dataToDisplay.contentBlocks || [])];
@@ -2682,21 +2716,35 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                   )}
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 relative group/cardgrid">
                   {purpleBoxContent.cards.map((card, index) => {
                     const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
                     const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
                     
                     return (
-                    <div key={index} className="bg-[#CCDBFCCC] border border-[#CCCCCC] rounded-lg p-5 space-y-2 text-left relative group">
+                    <div 
+                      key={index} 
+                      className={`bg-[#CCDBFCCC] border rounded-lg p-5 space-y-2 text-left relative group/card transition-all ${dragOverCardIndex === index ? 'border-blue-500 border-2 scale-105' : 'border-[#CCCCCC]'}`}
+                      draggable={!isEditing}
+                      onDragStart={(e) => !isEditing && handleCardDragStart(e, index)}
+                      onDragOver={(e) => !isEditing && handleCardDragOver(e, index)}
+                      onDrop={(e) => !isEditing && handleCardDrop(e, index)}
+                      onDragEnd={handleCardDragEnd}
+                    >
                       {!isEditing && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); removePurpleBoxCard(index); }}
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                          title="Remove card"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removePurpleBoxCard(index); }}
+                            className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full p-1 z-10"
+                            title="Remove card"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                          <div className="absolute top-2 left-2 opacity-0 group-hover/card:opacity-100 transition-opacity bg-gray-700 text-white rounded px-2 py-1 text-xs flex items-center gap-1">
+                            <Move className="w-3 h-3" />
+                            Drag
+                          </div>
+                        </>
                       )}
                       {card.icon === 'drilling' && (
                         <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2769,17 +2817,17 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                     </div>
                     );
                   })}
+                  
+                  {!isEditing && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); addPurpleBoxCard(); }}
+                      className="absolute -right-12 top-1/2 -translate-y-1/2 opacity-0 group-hover/cardgrid:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+                      title="Add New Card"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
-                
-                {!isEditing && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); addPurpleBoxCard(); }}
-                    className="w-full px-4 py-3 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-lg text-gray-600 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Add New Card
-                  </button>
-                )}
               </section>
             )}
 
