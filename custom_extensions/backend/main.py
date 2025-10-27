@@ -12043,6 +12043,18 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
     Build an enhanced prompt that includes the extracted file context for OpenAI.
     Handles both dict (structured context) and str (fallback context) cases.
     """
+    # Debug logging to see what content we're actually passing
+    if isinstance(file_context, str):
+        content_preview = file_context[:500] if len(file_context) > 500 else file_context
+        logger.info(f"[FIDELITY_DEBUG] File context (string): {len(file_context)} chars")
+        logger.info(f"[FIDELITY_DEBUG] Content preview: {content_preview}")
+    elif isinstance(file_context, dict):
+        summaries_count = len(file_context.get('file_summaries', []))
+        topics_count = len(file_context.get('key_topics', []))
+        logger.info(f"[FIDELITY_DEBUG] File context (dict): {summaries_count} summaries, {topics_count} topics")
+        if file_context.get('file_summaries'):
+            logger.info(f"[FIDELITY_DEBUG] First summary: {file_context['file_summaries'][0][:200]}")
+    
     enhanced_prompt = f"""
 {original_prompt}
 
@@ -12142,9 +12154,31 @@ FINAL VERIFICATION CHECKLIST:
 
 IF ANY BOX IS UNCHECKED - YOU MUST STOP AND RE-READ THE INSTRUCTIONS
 
-NOW GENERATE THE REQUESTED PRODUCT USING **ONLY** THE SOURCE CONTENT ABOVE.
+═══════════════════════════════════════════════════════════════════════════
+🛑 FINAL COMMAND - READ THIS CAREFULLY 🛑
+═══════════════════════════════════════════════════════════════════════════
 
-DO NOT USE YOUR GENERAL KNOWLEDGE. DO NOT ADD INFORMATION. RESTRUCTURE ONLY.
+BEFORE YOU START GENERATING, ANSWER THIS QUESTION:
+
+❓ What was the MAIN TOPIC of the source documents you just read above?
+
+If you read about "AI in Sales" → Your product must be about AI in Sales
+If you read about "Marketing Strategies" → Your product must be about Marketing Strategies
+If you read about "Leadership Skills" → Your product must be about Leadership Skills
+
+⚠️ YOUR PRODUCT TOPIC MUST MATCH THE SOURCE DOCUMENT TOPIC EXACTLY ⚠️
+
+DO NOT:
+❌ Generate about "Market Analysis" if source was about "AI in Sales"
+❌ Generate about "Five Forces" if source didn't mention it
+❌ Generate about "GlobalSensors" if source didn't mention it
+❌ Generate about ANY topic different from what you read above
+
+NOW GENERATE THE REQUESTED PRODUCT:
+→ Use ONLY the source content above
+→ Keep the SAME TOPIC as the source
+→ Use the EXACT statistics from the source
+→ DO NOT add information from your general knowledge
 """
         return enhanced_prompt
     
@@ -12259,9 +12293,31 @@ FINAL VERIFICATION CHECKLIST:
 
 IF ANY BOX IS UNCHECKED - YOU MUST STOP AND RE-READ THE INSTRUCTIONS
 
-NOW GENERATE THE REQUESTED PRODUCT USING **ONLY** THE SOURCE CONTENT ABOVE.
+═══════════════════════════════════════════════════════════════════════════
+🛑 FINAL COMMAND - READ THIS CAREFULLY 🛑
+═══════════════════════════════════════════════════════════════════════════
 
-DO NOT USE YOUR GENERAL KNOWLEDGE. DO NOT ADD INFORMATION. RESTRUCTURE ONLY.
+BEFORE YOU START GENERATING, ANSWER THIS QUESTION:
+
+❓ What was the MAIN TOPIC of the source documents you just read above?
+
+If you read about "AI in Sales" → Your product must be about AI in Sales
+If you read about "Marketing Strategies" → Your product must be about Marketing Strategies
+If you read about "Leadership Skills" → Your product must be about Leadership Skills
+
+⚠️ YOUR PRODUCT TOPIC MUST MATCH THE SOURCE DOCUMENT TOPIC EXACTLY ⚠️
+
+DO NOT:
+❌ Generate about "Market Analysis" if source was about "AI in Sales"
+❌ Generate about "Five Forces" if source didn't mention it
+❌ Generate about "GlobalSensors" if source didn't mention it
+❌ Generate about ANY topic different from what you read above
+
+NOW GENERATE THE REQUESTED PRODUCT:
+→ Use ONLY the source content above
+→ Keep the SAME TOPIC as the source
+→ Use the EXACT statistics from the source
+→ DO NOT add information from your general knowledge
 """
     
     return enhanced_prompt
