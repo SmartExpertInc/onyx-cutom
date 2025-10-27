@@ -277,7 +277,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
   };
 
   return (
-    <div className="h-full bg-white relative overflow-hidden w-full">
+    <div className="h-full bg-white relative overflow-y-auto overflow-hidden w-full">
       {/* Header with transition info */}
       <div className="mb-4">
         <h3 className="text-sm font-medium text-gray-700">
