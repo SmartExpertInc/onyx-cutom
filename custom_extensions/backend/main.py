@@ -12596,6 +12596,13 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             **CRITICAL: Parse Component-Based Slides with templateId and props**
             You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
 
+            **MANDATORY: IMAGE PROMPTS FOR VISUAL TEMPLATES**
+            - ALL `big-image-left` slides MUST include `imagePrompt` property
+            - ALL `big-image-top` slides MUST include `imagePrompt` property  
+            - ALL `bullet-points` and `bullet-points-right` slides MUST include `imagePrompt` property
+            - ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
+            - NEVER leave image prompt fields empty or undefined - this breaks automatic image generation
+
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
                 - Look for patterns like "**Course Name** : **Lesson Presentation** : **Title**" or similar
@@ -12629,11 +12636,19 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has 2-3 numerical metrics/statistics with clear values → use "big-numbers"
             - If slide has hierarchical content → use "pyramid"
+            - If slide is the FIRST slide with title + subtitle → use "big-image-left" (MUST include imagePrompt)
             - If slide has timeline content → use "timeline"
             - If slide has event dates → use "event-list"
             - If slide has 6 numbered ideas → use "six-ideas-list"
             - If slide has challenges vs solutions → use "challenges-solutions"
             - If slide has analytics metrics in bullet points → use "metrics-analytics"
+
+            **CRITICAL: VISUAL TEMPLATES REQUIRE IMAGE PROMPTS**
+            When using visual templates, you MUST include the required image prompt properties:
+            - `big-image-left`: MUST include `imagePrompt` property
+            - `big-image-top`: MUST include `imagePrompt` property
+            - `bullet-points` and `bullet-points-right`: MUST include `imagePrompt` property
+            - `two-column`: MUST include `leftImagePrompt` and `rightImagePrompt` properties
             - For standard content → use "content-slide"
             
             **CRITICAL TEMPLATE SELECTION RULES:**
@@ -23707,6 +23722,14 @@ Always specify: realistic workplace, professional attire, authentic tools/equipm
 Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
+
+🚨 IMAGE PROMPT VALIDATION 🚨
+Before finalizing your JSON output, verify that ALL visual templates have the required image prompt properties:
+- Check every `big-image-left` slide has `imagePrompt` property
+- Check every `big-image-top` slide has `imagePrompt` property  
+- Check every `bullet-points` and `bullet-points-right` slide has `imagePrompt` property
+- Check every `two-column` slide has `leftImagePrompt` and `rightImagePrompt` properties
+If any visual template is missing its required image prompt properties, ADD THEM before submitting your response.
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
