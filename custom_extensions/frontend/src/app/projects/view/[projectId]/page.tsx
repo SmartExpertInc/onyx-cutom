@@ -1371,79 +1371,44 @@ export default function ProjectInstanceViewPage() {
       return;
     }
 
-    // Special handling for TextPresentationDisplay - export as HTML
+    // Special handling for text presentations
     if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
-      const { generateTextPresentationHtml } = await import('@/lib/textPresentationHtmlExport');
-      const presentationData = editableData as TextPresentationData;
-      
-      if (!presentationData) {
-        alert('No presentation data available for export.');
+        setIsExportingPdf(true);
+        setPdfProgress({ current: 0, total: 1, message: 'Generating PDF...' });
+        
+        try {
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`, {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`PDF generation failed: ${response.status}`);
+            }
+
+            // Get the PDF as a blob
+            const blob = await response.blob();
+            
+            // Create a download URL and trigger download
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${projectInstanceData.name || 'text-presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            // Close the modal
+            setIsExportingPdf(false);
+            setPdfProgress(null);
+        } catch (error) {
+            console.error('Error generating text presentation PDF:', error);
+            alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+            setIsExportingPdf(false);
+            setPdfProgress(null);
+        }
         return;
-      }
-      
-      // Generate HTML content
-      const htmlContent = generateTextPresentationHtml(presentationData, projectInstanceData.name);
-      
-      // Show loading modal
-      setIsExportingPdf(true);
-      setPdfProgress({ current: 0, total: 1, message: 'Generating PDF from HTML...' });
-      
-      try {
-        // Send HTML to backend for PDF conversion
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'same-origin',
-          body: JSON.stringify({
-            html_content: htmlContent,
-            filename: projectInstanceData.name || 'text-presentation'
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`PDF generation failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-        
-        if (result.download_url) {
-          const fullDownloadUrl = `${CUSTOM_BACKEND_URL}${result.download_url}`;
-          const nameForSlug = projectInstanceData.name || 'text-presentation';
-          const docNameSlug = slugify(nameForSlug);
-          const filename = result.filename || `${docNameSlug}_${new Date().toISOString().split('T')[0]}.pdf`;
-          
-          // Set the download ready state
-          setPdfDownloadReady({
-            url: fullDownloadUrl,
-            filename: filename
-          });
-        } else {
-          throw new Error('No download URL received from server');
-        }
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        
-        // Fallback: Download as HTML if PDF generation fails
-        const shouldDownloadHtml = confirm(
-          t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Would you like to download as HTML instead?')
-        );
-        
-        if (shouldDownloadHtml) {
-          const { downloadHtmlFile } = await import('@/lib/textPresentationHtmlExport');
-          const nameForSlug = projectInstanceData.name || 'text-presentation';
-          const docNameSlug = slugify(nameForSlug);
-          const filename = `${docNameSlug}_${new Date().toISOString().split('T')[0]}.html`;
-          downloadHtmlFile(htmlContent, filename);
-        }
-        
-        // Reset states on error
-        setIsExportingPdf(false);
-        setPdfDownloadReady(null);
-        setPdfProgress(null);
-      }
-      return;
     }
 
     // Special handling for slide decks and video lesson presentations  
@@ -1858,7 +1823,6 @@ export default function ProjectInstanceViewPage() {
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
-            onToggleEditMode={handleToggleEdit}
           />
         );
       case COMPONENT_NAME_VIDEO_LESSON:
@@ -1931,6 +1895,8 @@ export default function ProjectInstanceViewPage() {
         ]}
         t={t}
         onPdfExport={handlePdfDownload}
+        isEditing={isEditing}
+        onEditOrSave={handleToggleEdit}
       />
       
       <main 
