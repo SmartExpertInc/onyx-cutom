@@ -23,6 +23,7 @@ import { trackCreateProduct } from "../../../lib/mixpanelClient"
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { AiAgent } from "@/components/ui/ai-agent";
+import { BackButton } from "../components/BackButton";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -1586,7 +1587,7 @@ export default function LessonPresentationClient() {
   return (
     <>
       <main
-      className="min-h-screen py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
+      className="min-h-screen pt-16 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
     >
       {/* Decorative gradient backgrounds */}
       <div 
@@ -1617,17 +1618,7 @@ export default function LessonPresentationClient() {
       />
 
         {/* Back button */}
-          <Link
-            href="/create/generate"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
-          style={{
-          color: '#000000',
-          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
-        }}
-      >
-        <span>&lt;</span>
-        <span>{t('interface.generate.back', 'Back')}</span>
-          </Link>
+        <BackButton href="/create/generate" />
 
         <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
@@ -1912,11 +1903,10 @@ export default function LessonPresentationClient() {
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="rounded-[8px] flex flex-col relative"
+                className="border border-[#CCCCCC] rounded-lg flex flex-col relative"
                 style={{ 
                   animation: 'fadeInDown 0.25s ease-out both',
-                  background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
-                  border: '1px solid #E0E0E0'
+                  background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
                 }}
               >
                 {/* Header with lesson title */}
@@ -2058,7 +2048,7 @@ export default function LessonPresentationClient() {
                                       value={String(b)}
                                       onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
                                       disabled={!streamDone}
-                                      className="text-sm text-[#434343CC] border-0 px-0 py-0 focus:outline-none focus:ring-0 flex-1"
+                                      className="text-sm text-[#171718] border-0 px-0 py-0 focus:outline-none focus:ring-0 flex-1"
                                       placeholder={t('interface.generate.topic', 'Topic') as string}
                                     />
                                   </div>
@@ -2117,7 +2107,7 @@ export default function LessonPresentationClient() {
 
           {streamDone && content && (
             <section className="flex flex-col gap-3">
-              <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+              <div className="rounded-lg px-10 py-5 border border-[#CCCCCC]" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)' }}>
 
                 {/* Avatars section for Video Lesson */}
                 {productType === "video_lesson_presentation" && (
@@ -2334,7 +2324,7 @@ export default function LessonPresentationClient() {
           )}
 
           {streamDone && content && (
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
+            <div className="fixed inset-x-0 bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center">
               {/* Credits required */}
               <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
                 {/* custom credits svg */}
@@ -2359,7 +2349,7 @@ export default function LessonPresentationClient() {
                     setShowAdvanced(!showAdvanced);
                     handleAdvancedModeClick();
                   }}
-                  className="px-6 py-2 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+                  className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
@@ -2370,7 +2360,7 @@ export default function LessonPresentationClient() {
                 <button
                   type="button"
                   onClick={handleGenerateFinal}
-                    className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="px-6 py-2 rounded-md bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
                   disabled={loading || isGenerating}
                 >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
