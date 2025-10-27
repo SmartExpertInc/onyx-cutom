@@ -282,7 +282,7 @@ function UnifiedBulletEditor({
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end'
+          alignItems: 'flex-start'
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
@@ -434,7 +434,7 @@ function UnifiedBulletEditor({
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-end',
+        alignItems: 'flex-start',
       }}>
         {bullets.map((bullet: string, index: number) => (
           <li key={index} style={{ 

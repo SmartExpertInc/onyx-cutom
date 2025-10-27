@@ -24782,6 +24782,26 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                     actual_count = len(slides)
                     logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
                     
+                    # VALIDATION AND FIXING: Apply presentation validation and fixes
+                    logger.info(f"🔍 [PRESENTATION_VALIDATION] Validating slide deck for common issues...")
+                    validation_issues = validate_presentation_slides(slides)
+                    
+                    # Log all validation issues
+                    total_issues = sum(len(issues) for issues in validation_issues.values())
+                    if total_issues > 0:
+                        logger.warning(f"⚠️ [PRESENTATION_VALIDATION] Found {total_issues} validation issues:")
+                        for category, issues in validation_issues.items():
+                            if issues:
+                                logger.warning(f"⚠️ [PRESENTATION_VALIDATION] {category}: {issues}")
+                        
+                        # Apply fixes automatically
+                        logger.info(f"🔧 [PRESENTATION_FIXING] Applying automatic fixes...")
+                        slides = fix_presentation_issues(slides)
+                        parsed_json['slides'] = slides  # Update the parsed JSON with fixed slides
+                        logger.info(f"✅ [PRESENTATION_FIXING] Automatic fixes applied successfully")
+                    else:
+                        logger.info(f"✅ [PRESENTATION_VALIDATION] No validation issues found")
+                    
                     # Validate slide count matches request
                     requested_count = wizard_dict.get('slidesCount', 5)
                     if actual_count != requested_count:
