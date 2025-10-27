@@ -253,18 +253,18 @@ export const EmptySmartDrive = () => {
       <div className="relative" style={{ borderBottom: '1px solid #EEEEF0' }}>
         {/* Background SVG */}
         <svg width="826" height="241" viewBox="0 0 826 241" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g clipPath="url(#clip0_867_16076)">
-            <rect opacity="0.5" x="393.963" y="226.807" width="38.0738" height="38.0517" rx="19.0258" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="368.151" y="201.01" width="89.6988" height="89.6472" rx="44.8236" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="342.338" y="175.213" width="141.324" height="141.243" rx="70.6213" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="316.526" y="149.414" width="192.949" height="192.838" rx="96.4191" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="290.713" y="123.617" width="244.574" height="244.434" rx="122.217" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="264.901" y="97.8186" width="296.199" height="296.029" rx="148.015" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="239.088" y="72.0217" width="347.824" height="347.625" rx="173.812" stroke="#C7D2FE" strokeWidth="0.644944"/>
-            <rect opacity="0.5" x="213.276" y="46.2229" width="399.449" height="399.22" rx="199.61" stroke="#C7D2FE" strokeWidth="0.644944"/>
+          <g clip-path="url(#clip0_1339_33567)">
+            <rect opacity="0.5" x="393.963" y="226.807" width="38.0738" height="38.0517" rx="19.0258" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="368.151" y="201.01" width="89.6988" height="89.6472" rx="44.8236" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="342.338" y="175.213" width="141.324" height="141.243" rx="70.6213" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="316.526" y="149.414" width="192.949" height="192.838" rx="96.4191" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="290.713" y="123.617" width="244.574" height="244.434" rx="122.217" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="264.901" y="97.8186" width="296.199" height="296.029" rx="148.015" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="239.088" y="72.0217" width="347.824" height="347.625" rx="173.812" stroke="#719AF5" stroke-width="0.644944"/>
+            <rect opacity="0.5" x="213.276" y="46.2229" width="399.449" height="399.22" rx="199.61" stroke="#719AF5" stroke-width="0.644944"/>
           </g>
           <defs>
-            <clipPath id="clip0_867_16076">
+            <clipPath id="clip0_1339_33567">
               <rect width="826" height="241" fill="white"/>
             </clipPath>
           </defs>

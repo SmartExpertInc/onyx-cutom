@@ -88,17 +88,17 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ 
-        backdropFilter: 'blur(14.699999809265137px)',
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.15)',
       }}
       onClick={onClose}
     >
       <div 
         className="rounded-lg p-6 flex flex-col"
         style={{
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
+          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
           boxShadow: '4px 4px 8px 0px #0000000D',
-          border: '1px solid #E0E0E0',
+          border: '1px solid #CCCCCC',
           width: '95vw',
           height: '95vh',
           maxHeight: '95vh',
@@ -135,15 +135,17 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
           >
             {t('interface.importFromSmartDrive.cancel', 'Cancel')}
           </button>
-          <button
-            onClick={handleImport}
-            className="px-4 py-2 rounded-md text-sm font-medium text-white"
-            style={{
-              backgroundColor: '#0F58F9',
-            }}
-          >
-            {t('interface.importFromSmartDrive.import', 'Import')}
-          </button>
+          {((selectedFiles && selectedFiles.length > 0) || localSelectedFiles.length > 0) && (
+            <button
+              onClick={handleImport}
+              className="px-4 py-2 rounded-md text-sm font-medium text-white"
+              style={{
+                backgroundColor: '#0F58F9',
+              }}
+            >
+              {t('interface.importFromSmartDrive.import', 'Import')}
+            </button>
+          )}
         </div>
       </div>
     </div>

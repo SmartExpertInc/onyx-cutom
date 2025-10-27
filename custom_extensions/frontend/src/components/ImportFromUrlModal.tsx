@@ -119,12 +119,12 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Title */}
-        <h2 className="text-lg font-semibold text-[#09090B] mb-1">
+        <h2 className="text-lg font-semibold text-[#171718] mb-1">
           {t('interface.importFromUrl.title', 'Import from URL')}
         </h2>
 
         {/* Description */}
-        <p className="text-sm text-[#71717A] mb-6">
+        <p className="text-sm text-[#878787] mb-6">
           {t('interface.importFromUrl.description', 'This will extract the text from the webpage you enter.')}
         </p>
 
@@ -132,7 +132,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
         <div className="space-y-3 mb-6">
           {urls.map((url, index) => (
             <div key={index}>
-              <label className="block text-md font-semibolld text-[#09090B] mb-2">
+              <label className="block text-md font-semibolld text-[#171718] mb-2">
                 {t('interface.importFromUrl.urlLabel', 'URL')}
               </label>
               <input
