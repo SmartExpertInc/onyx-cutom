@@ -1062,7 +1062,7 @@ export const en = {
         "Do you want to create a quiz from an existing Course Outline?",
       onePagerQuestion:
         "Do you want to create a one-pager from an existing Course Outline?",
-      promptPlaceholder: "Describe what you'd like to make...",
+      promptPlaceholder: "Type or paste in content here...",
       promptPlaceholderFromFiles: "Describe what you'd like to make from your files...",
       promptPlaceholderFromText: "Describe what you'd like to make from your text...",
       examples: "Examples",

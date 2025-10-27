@@ -1384,7 +1384,7 @@ export const uk = {
       quiz: "Тест",
       onePager: "Односторінка",
       prompt: "Запит",
-      promptPlaceholder: "Опишіть, що ви хочете створити...",
+      promptPlaceholder: "Введіть або вставте контент тут...",
       promptPlaceholderFromFiles:
         "Опишіть, що ви хочете створити з ваших файлів...",
       promptPlaceholderFromText:

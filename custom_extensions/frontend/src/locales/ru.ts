@@ -1393,7 +1393,7 @@ export const ru = {
       quiz: "Тест",
       onePager: "Одностраничник",
       prompt: "Запрос",
-      promptPlaceholder: "Опишите, что вы хотите создать...",
+      promptPlaceholder: "Введите или вставьте контент здесь...",
       promptPlaceholderFromFiles:
         "Опишите, что вы хотите создать из ваших файлов...",
       promptPlaceholderFromText:

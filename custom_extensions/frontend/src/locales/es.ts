@@ -1375,7 +1375,7 @@ export const es = {
       quiz: "Cuestionario",
       onePager: "Una página",
       prompt: "Prompt",
-      promptPlaceholder: "Describe lo que te gustaría crear...",
+      promptPlaceholder: "Escribe o pega contenido aquí...",
       promptPlaceholderFromFiles:
         "Describe lo que quieres crear desde tus archivos...",
       promptPlaceholderFromText:

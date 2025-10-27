@@ -1943,8 +1943,8 @@ function GenerateProductPicker() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base...')
-                : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make...')}
-              className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-blue-300 focus:outline-none transition-colors placeholder-[#4D4D4D] relative z-10"
+                : t('interface.generate.promptPlaceholder', 'Type or paste in content here...')}
+              className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-blue-300 focus:outline-none transition-colors placeholder-[#4D4D4D] relative z-10"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={1}
             />
@@ -1972,7 +1972,7 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-row justify-between items-center w-full p-3 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
+                      className="flex flex-row justify-between items-center w-full p-3 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
                       style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FBFAFF", border: "1px solid #CCCCCC", color: "#71717A" }}
                     >
                       <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>
