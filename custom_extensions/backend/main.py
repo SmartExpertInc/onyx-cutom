@@ -27504,9 +27504,14 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 if 'courseOutlineTableHeaders' in saved_content:
                     logger.info(f"🎯 [TABLE HEADER DB VERIFY] ✅ courseOutlineTableHeaders CONFIRMED SAVED to database!")
                     logger.info(f"🎯 [TABLE HEADER DB VERIFY] Saved data: {json.dumps(saved_content['courseOutlineTableHeaders'], indent=2)}")
-                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Lessons: '{saved_content['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
-                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Assessment: '{saved_content['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
-                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Duration: '{saved_content['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                    
+                    # Check if courseOutlineTableHeaders is not None before calling .get()
+                    if saved_content['courseOutlineTableHeaders'] is not None:
+                        logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Lessons: '{saved_content['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
+                        logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Assessment: '{saved_content['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
+                        logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Duration: '{saved_content['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                    else:
+                        logger.warning(f"🎯 [TABLE HEADER DB VERIFY] ⚠️ courseOutlineTableHeaders is NULL in database!")
                 else:
                     logger.warning(f"🎯 [TABLE HEADER DB VERIFY] ⚠️ courseOutlineTableHeaders NOT FOUND in saved database content!")
                     logger.warning(f"🎯 [TABLE HEADER DB VERIFY] This means the data was NOT persisted to database")
