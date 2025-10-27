@@ -365,7 +365,7 @@ export const EmptyConnectors = () => {
   const { t } = useLanguage();
   
   return (
-    <div className="bg-white rounded-lg p-6 flex flex-col items-center overflow-hidden" style={{ height: 'calc(95vh - 220px)' }}>
+    <div className="bg-white rounded-lg p-6 flex flex-col items-center overflow-hidden" style={{ height: '60vh' }}>
       <div className="relative w-full max-w-full flex justify-center overflow-hidden">
         {/* Background SVG */}
         <div className="max-w-full" style={{ maxWidth: '100%' }}>
