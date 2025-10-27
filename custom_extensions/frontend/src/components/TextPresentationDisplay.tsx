@@ -2541,26 +2541,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       return;
     }
     
-    setEditingBlockIndex(index);
+    // Toggle editing for this block
+    setEditingBlockIndex(prev => prev === index ? null : index);
   }, [isEditing]);
-
-  const handleCloseBlockEdit = useCallback(() => {
-    setEditingBlockIndex(null);
-  }, []);
-
-  // Handle ESC key to close inline editor
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && editingBlockIndex !== null) {
-        handleCloseBlockEdit();
-      }
-    };
-    
-    if (editingBlockIndex !== null) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [editingBlockIndex, handleCloseBlockEdit]);
 
   const removeBlockAtIndex = useCallback((index: number) => {
     if (!dataToDisplay || !onTextChange) return;
@@ -2569,68 +2552,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     const updated = [...blocks.slice(0, index), ...blocks.slice(index + 1)];
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
-
-  // Inline Quick Edit Component
-  const InlineQuickEdit = ({ blockIndex }: { blockIndex: number }) => {
-    if (!dataToDisplay?.contentBlocks || editingBlockIndex !== blockIndex) return null;
-    
-    const block = dataToDisplay.contentBlocks[blockIndex];
-    if (!block) return null;
-
-    return (
-      <>
-        {/* Overlay */}
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-20 z-40"
-          onClick={handleCloseBlockEdit}
-        />
-        
-        {/* Inline Edit Panel */}
-        <div className="absolute top-0 left-0 right-0 bg-white border-2 border-blue-500 rounded-lg shadow-2xl z-50 p-4 mt-2">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-gray-700">Quick Edit</span>
-            <button
-              onClick={handleCloseBlockEdit}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Text Editor for headline, paragraph, alert */}
-          {(block.type === 'headline' || block.type === 'paragraph' || block.type === 'alert') && (
-            <textarea
-              value={(block as HeadlineBlock | ParagraphBlock | AlertBlock).text || ''}
-              onChange={(e) => onTextChange?.(['contentBlocks', blockIndex, 'text'], e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black min-h-[100px]"
-              placeholder="Enter text..."
-              autoFocus
-            />
-          )}
-
-          {/* List Editor */}
-          {(block.type === 'bullet_list' || block.type === 'numbered_list') && (
-            <div className="space-y-2">
-              {((block as BulletListBlock | NumberedListBlock).items || []).map((item, idx) => {
-                const itemText = typeof item === 'string' ? item : (item as any)?.text || '';
-                return (
-                  <div key={idx} className="flex items-start gap-2">
-                    <span className="text-gray-500 mt-2 text-sm">{idx + 1}.</span>
-                    <textarea
-                      value={itemText}
-                      onChange={(e) => onTextChange?.(['contentBlocks', blockIndex, 'items', idx], e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black min-h-[60px]"
-                      placeholder={`Item ${idx + 1}`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </>
-    );
-  };
 
   return (
     <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
@@ -2830,7 +2751,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     isMiniSectionHeadline={true}
                                     isFirstInBox={subIndex === 0}
                                     basePath={['contentBlocks', originalMiniHeadlineIndex]}
-                                    isEditing={isEditing}
+                                    isEditing={isEditing || editingBlockIndex === originalMiniHeadlineIndex}
                                     onTextChange={onTextChange}
                                     contentBlockIndex={originalMiniHeadlineIndex}
                                     onMoveBlockUp={handleMoveBlockUp}
@@ -2845,7 +2766,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                     documentContent={documentContent}
                                   />
-                                  <InlineQuickEdit blockIndex={originalMiniHeadlineIndex} />
                                 </div>
                                 <div 
                                   className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isMiniListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
@@ -2855,7 +2775,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     block={subItem.list}
                                     isLastInBox={isLastSubItem}
                                     basePath={['contentBlocks', originalMiniListIndex]}
-                                    isEditing={isEditing}
+                                    isEditing={isEditing || editingBlockIndex === originalMiniListIndex}
                                     onTextChange={onTextChange}
                                     contentBlockIndex={originalMiniListIndex}
                                     onMoveBlockUp={handleMoveBlockUp}
@@ -2870,7 +2790,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     isDraggedOver={dragOverIndex === originalMiniListIndex}
                                     documentContent={documentContent}
                                   />
-                                  <InlineQuickEdit blockIndex={originalMiniListIndex} />
                                 </div>
                               </div>
                             );
@@ -2887,7 +2806,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   block={subItem}
                                   isLastInBox={isLastSubItem}
                                   basePath={['contentBlocks', originalSubIndex]}
-                                  isEditing={isEditing}
+                                  isEditing={isEditing || editingBlockIndex === originalSubIndex}
                                   onTextChange={onTextChange}
                                   contentBlockIndex={originalSubIndex}
                                   onMoveBlockUp={handleMoveBlockUp}
@@ -2902,7 +2821,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   isDraggedOver={dragOverIndex === originalSubIndex}
                                   documentContent={documentContent}
                                 />
-                                <InlineQuickEdit blockIndex={originalSubIndex} />
                                 {isEditing && (
                                   <div className="absolute -bottom-3 -right-2 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200 z-50">
                                     <button className="p-1 rounded bg-white/90 border border-gray-200 hover:bg-gray-100 shadow-sm" onClick={() => removeBlockAtIndex(originalSubIndex)} title="Delete This Block">
@@ -2938,7 +2856,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           isMiniSectionHeadline={true}
                           isFirstInBox={index === 0}
                           basePath={['contentBlocks', originalHeadlineIndex]}
-                          isEditing={isEditing}
+                          isEditing={isEditing || editingBlockIndex === originalHeadlineIndex}
                           onTextChange={onTextChange}
                           contentBlockIndex={originalHeadlineIndex}
                           onMoveBlockUp={handleMoveBlockUp}
@@ -2947,7 +2865,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                           documentContent={documentContent}
                         />
-                        <InlineQuickEdit blockIndex={originalHeadlineIndex} />
                       </div>
                       <div 
                         className={`relative ${!isEditing ? 'cursor-pointer hover:border-blue-500 hover:border-2 hover:rounded-md hover:bg-blue-50 transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
@@ -2957,7 +2874,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           block={item.list}
                           isLastInBox={isLastItem}
                           basePath={['contentBlocks', originalListIndex]}
-                          isEditing={isEditing}
+                          isEditing={isEditing || editingBlockIndex === originalListIndex}
                           onTextChange={onTextChange}
                           contentBlockIndex={originalListIndex}
                           onMoveBlockUp={handleMoveBlockUp}
@@ -2972,7 +2889,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           isDraggedOver={dragOverIndex === originalListIndex}
                           documentContent={documentContent}
                         />
-                        <InlineQuickEdit blockIndex={originalListIndex} />
                       </div>
                     </div>
                   </div>
@@ -2992,7 +2908,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         block={item.content}
                         isLastInBox={isLastItem}
                         basePath={['contentBlocks', originalIndex]}
-                        isEditing={isEditing}
+                        isEditing={isEditing || editingBlockIndex === originalIndex}
                         onTextChange={onTextChange}
                         contentBlockIndex={originalIndex}
                         onMoveBlockUp={handleMoveBlockUp}
@@ -3007,7 +2923,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalIndex}
                       />
-                      <InlineQuickEdit blockIndex={originalIndex} />
                     </div>
                   </div>
                 );
