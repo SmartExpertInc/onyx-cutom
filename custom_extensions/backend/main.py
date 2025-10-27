@@ -13927,10 +13927,77 @@ async def debug_slide_generation(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Debug failed: {str(e)[:200]}")
 
 
+# Pydantic model for text presentation PDF request
+class TextPresentationPdfRequest(BaseModel):
+    html_content: str
+    filename: Optional[str] = None
+
+
+# Test endpoint to verify PDF generation works
+@app.post("/api/custom/pdf/test-html-to-pdf", response_class=JSONResponse)
+async def test_html_to_pdf_generation(
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Test endpoint to verify HTML to PDF generation works"""
+    try:
+        logger.info(f"[TEST PDF] Starting test PDF generation for user {onyx_user_id}")
+        
+        # Simple test HTML
+        test_html = """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; }
+        h1 { color: #0F58F9; }
+    </style>
+</head>
+<body>
+    <h1>Test PDF Generation</h1>
+    <p>This is a test PDF to verify the HTML to PDF conversion works correctly.</p>
+    <p>If you can see this, the PDF generation is working!</p>
+</body>
+</html>"""
+        
+        logger.info(f"[TEST PDF] Test HTML length: {len(test_html)}")
+        
+        from app.services.pdf_generator import generate_pdf_from_html_content
+        import uuid
+        
+        test_filename = f"test_pdf_{uuid.uuid4().hex[:12]}.pdf"
+        logger.info(f"[TEST PDF] Generating test PDF: {test_filename}")
+        
+        pdf_path = await generate_pdf_from_html_content(
+            html_content=test_html,
+            output_filename=test_filename,
+            use_cache=False
+        )
+        
+        logger.info(f"[TEST PDF] PDF generated successfully at: {pdf_path}")
+        
+        return JSONResponse(content={
+            'success': True,
+            'message': 'PDF generation test successful',
+            'pdf_path': pdf_path
+        })
+        
+    except Exception as e:
+        logger.error(f"[TEST PDF] Error in test PDF generation: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={
+                'success': False,
+                'error': str(e),
+                'error_type': type(e).__name__
+            }
+        )
+
+
 @app.post("/api/custom/pdf/text-presentation/{project_id}", response_class=JSONResponse)
 async def generate_text_presentation_pdf(
     project_id: int,
-    request_data: Dict[str, Any],
+    request_data: TextPresentationPdfRequest,
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -13939,6 +14006,8 @@ async def generate_text_presentation_pdf(
     Receives HTML content from frontend and converts it to PDF.
     """
     try:
+        logger.info(f"[TEXT PRESENTATION PDF] Starting PDF generation for project {project_id}")
+        
         # Verify project access
         async with pool.acquire() as conn:
             target_row_dict = await conn.fetchrow(
@@ -13953,33 +14022,44 @@ async def generate_text_presentation_pdf(
             )
         
         if not target_row_dict:
+            logger.error(f"[TEXT PRESENTATION PDF] Project {project_id} not found for user {onyx_user_id}")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found for user.")
 
         component_name = target_row_dict.get("design_component_name")
+        logger.info(f"[TEXT PRESENTATION PDF] Component name: {component_name}")
+        
         if component_name != COMPONENT_NAME_TEXT_PRESENTATION:
+            logger.error(f"[TEXT PRESENTATION PDF] Invalid component type: {component_name}, expected: {COMPONENT_NAME_TEXT_PRESENTATION}")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This endpoint is only for text presentation projects.")
 
         # Get HTML content from request
-        html_content = request_data.get('html_content')
+        html_content = request_data.html_content
         if not html_content:
+            logger.error(f"[TEXT PRESENTATION PDF] No HTML content provided")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No HTML content provided.")
         
-        logger.info(f"Generating PDF for text presentation {project_id}, HTML length: {len(html_content)}")
+        logger.info(f"[TEXT PRESENTATION PDF] Generating PDF for text presentation {project_id}, HTML length: {len(html_content)}")
         
         # Generate unique filename
         unique_output_filename = f"text_presentation_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
         
         # Generate PDF from HTML content
         from app.services.pdf_generator import generate_pdf_from_html_content
+        logger.info(f"[TEXT PRESENTATION PDF] Calling generate_pdf_from_html_content with filename: {unique_output_filename}")
+        
         pdf_path = await generate_pdf_from_html_content(
             html_content=html_content,
             output_filename=unique_output_filename,
             use_cache=False  # Don't use cache for text presentations as they may change frequently
         )
         
+        logger.info(f"[TEXT PRESENTATION PDF] PDF generated successfully at: {pdf_path}")
+        
         # Create user-friendly filename
-        mp_name_for_pdf_context = request_data.get('filename') or target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+        mp_name_for_pdf_context = request_data.filename or target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
         user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+        
+        logger.info(f"[TEXT PRESENTATION PDF] User-friendly filename: {user_friendly_pdf_filename}")
         
         # Return download URL
         return JSONResponse(content={
@@ -13991,7 +14071,7 @@ async def generate_text_presentation_pdf(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error generating text presentation PDF for project {project_id}: {e}", exc_info=True)
+        logger.error(f"[TEXT PRESENTATION PDF] Error generating text presentation PDF for project {project_id}: {e}", exc_info=True)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
 
 

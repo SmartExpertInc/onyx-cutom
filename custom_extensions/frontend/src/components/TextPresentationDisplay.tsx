@@ -965,9 +965,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
       
       let recommendationClasses = "";
-      if (isRecommendation && !suppressRecommendationStripe) {
-        recommendationClasses = `pl-4 border-l-3 border-[#0F58F9] py-2`;
-      }
+      // if (isRecommendation && !suppressRecommendationStripe) {
+      //   recommendationClasses = `pl-4 border-l-3 border-[#0F58F9] py-2`;
+      // }
       const styledText = parseAndStyleText(text);
 
       if (isEditing && onTextChange) {

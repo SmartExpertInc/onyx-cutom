@@ -1424,7 +1424,20 @@ export default function ProjectInstanceViewPage() {
         }
       } catch (error) {
         console.error('Error generating PDF:', error);
-        alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+        
+        // Fallback: Download as HTML if PDF generation fails
+        const shouldDownloadHtml = confirm(
+          t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Would you like to download as HTML instead?')
+        );
+        
+        if (shouldDownloadHtml) {
+          const { downloadHtmlFile } = await import('@/lib/textPresentationHtmlExport');
+          const nameForSlug = projectInstanceData.name || 'text-presentation';
+          const docNameSlug = slugify(nameForSlug);
+          const filename = `${docNameSlug}_${new Date().toISOString().split('T')[0]}.html`;
+          downloadHtmlFile(htmlContent, filename);
+        }
+        
         // Reset states on error
         setIsExportingPdf(false);
         setPdfDownloadReady(null);
