@@ -1249,15 +1249,6 @@ export default function CourseOutlineClient() {
     }
   }, [prompt]);
   
-  // Auto-scroll to advanced section when it's shown
-  useEffect(() => {
-    if (showAdvanced && advancedSectionRef.current) {
-      advancedSectionRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
-      });
-    }
-  }, [showAdvanced]);
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
       setAdvancedModeState("Clicked");
@@ -1318,7 +1309,7 @@ export default function CourseOutlineClient() {
   return (
     <>
     <main
-      className="min-h-screen pt-16 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
+      className="min-h-screen pt-16 pb-24 bg-white relative overflow-hidden"
     >
       {/* Decorative gradient backgrounds */}
       <div 
@@ -1351,7 +1342,16 @@ export default function CourseOutlineClient() {
       {/* Back button */}
       <BackButton href="/create/generate" />
 
-      <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
+      {/* Main content wrapper with flex layout */}
+      <div className="flex h-full relative">
+        {/* Main content area - shrinks when panel is open */}
+        <div 
+          className="flex-1 px-4 flex flex-col items-center transition-all duration-300 ease-in-out relative z-10"
+          style={{
+            marginRight: showAdvanced ? '600px' : '0'
+          }}
+        >
+          <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900">
 
         {/* Page title */}
         <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">{t('interface.courseOutline.pageTitle', 'Course outline preview')}</h2>
@@ -1550,31 +1550,6 @@ export default function CourseOutlineClient() {
           )}
         </section>
 
-        {/* Inline Advanced section & button */}
-        {!loading && preview.length > 0 && showAdvanced && (
-          <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-            <AiAgent
-              editPrompt={editPrompt}
-              setEditPrompt={setEditPrompt}
-              examples={outlineExamples}
-              selectedExamples={selectedExamples}
-              toggleExample={toggleExample}
-              loadingEdit={loadingPreview}
-              onApplyEdit={() => {
-                handleApplyEdit();
-                setAdvancedModeState("Used");
-              }}
-              advancedSectionRef={advancedSectionRef}
-              placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-              buttonText={t('interface.courseOutline.edit', 'Edit')}
-              hasStartedChat={aiAgentChatStarted}
-              setHasStartedChat={setAiAgentChatStarted}
-              lastUserMessage={aiAgentLastMessage}
-              setLastUserMessage={setAiAgentLastMessage}
-            />
-          </div>
-        )}
-
         {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3" style={{ display: 'none' }}>
             <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
@@ -1678,11 +1653,77 @@ export default function CourseOutlineClient() {
             </div>
           </section>
         )}
-      </div> {/* end inner wrapper */}
+          </div> {/* end max-w-4xl wrapper */}
+        </div> {/* end main content area */}
+
+        {/* Semi-transparent overlay when panel is open */}
+        {showAdvanced && (
+          <div 
+            className="fixed inset-0 bg-black/10 z-25 transition-opacity duration-300"
+            onClick={() => setShowAdvanced(false)}
+            style={{ opacity: showAdvanced ? 1 : 0 }}
+          />
+        )}
+
+        {/* AI Agent Side Panel - slides from right */}
+        <div 
+          className="fixed top-0 right-0 h-full bg-white shadow-2xl transition-transform duration-300 ease-in-out z-30 overflow-y-auto"
+          style={{
+            width: '600px',
+            transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
+            borderLeft: '1px solid #E0E0E0'
+          }}
+        >
+          <div className="p-6 pt-20">
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdvanced(false)}
+              className="absolute top-4 right-4 p-3 bg-white rounded-full transition-all hover:shadow-lg"
+              style={{
+                boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
+              }}
+              aria-label="Close panel"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {!loading && preview.length > 0 && (
+              <AiAgent
+                editPrompt={editPrompt}
+                setEditPrompt={setEditPrompt}
+                examples={outlineExamples}
+                selectedExamples={selectedExamples}
+                toggleExample={toggleExample}
+                loadingEdit={loadingPreview}
+                onApplyEdit={() => {
+                  handleApplyEdit();
+                  setAdvancedModeState("Used");
+                }}
+                advancedSectionRef={advancedSectionRef}
+                placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+                buttonText={t('interface.courseOutline.edit', 'Edit')}
+                hasStartedChat={aiAgentChatStarted}
+                setHasStartedChat={setAiAgentChatStarted}
+                lastUserMessage={aiAgentLastMessage}
+                setLastUserMessage={setAiAgentLastMessage}
+              />
+            )}
+          </div>
+        </div>
+      </div> {/* end flex container */}
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center">
+        <div 
+          className="fixed bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out"
+          style={{
+            left: 0,
+            right: showAdvanced ? '600px' : '0'
+          }}
+        >
           {/* Credits required */}
           <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
             {/* custom credits svg */}
@@ -1732,6 +1773,21 @@ export default function CourseOutlineClient() {
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-8px); }
         to { opacity: 1; transform: translateY(0); }
+      }
+      
+      /* Smooth transition for side panel */
+      .ai-agent-panel-enter {
+        transform: translateX(100%);
+      }
+      
+      .ai-agent-panel-enter-active {
+        transform: translateX(0);
+        transition: transform 300ms ease-in-out;
+      }
+      
+      /* Prevent body scroll when panel is open */
+      body.panel-open {
+        overflow: hidden;
       }
     `}</style>
     {/* Make cursor a pointer (hand) over all obvious clickable elements */}
