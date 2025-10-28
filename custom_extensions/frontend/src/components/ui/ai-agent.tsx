@@ -264,16 +264,16 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               placeholder={placeholder}
               className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
               style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
-              onFocus={(e) => {
-                setIsTextareaFocused(true);
-                e.target.style.borderColor = '#8808A2';
-                e.target.style.boxShadow = 'none';
-              }}
-              onBlur={(e) => {
-                setIsTextareaFocused(false);
-                e.target.style.borderColor = '#E0E0E0';
-                e.target.style.boxShadow = 'none';
-              }}
+          onFocus={(e) => {
+            setIsTextareaFocused(true);
+            e.target.style.borderColor = '#8808A2';
+            e.target.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.1)';
+          }}
+          onBlur={(e) => {
+            setIsTextareaFocused(false);
+            e.target.style.borderColor = '#E0E0E0';
+            e.target.style.boxShadow = 'none';
+          }}
             />
             
             {/* Plus button at bottom left */}
@@ -422,25 +422,25 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               placeholder={placeholder}
               className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
               style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
-              onFocus={(e) => {
-                setIsTextareaFocused(true);
-                e.target.style.borderColor = '#8808A2';
-                e.target.style.boxShadow = 'none';
-              }}
-              onBlur={(e) => {
-                setIsTextareaFocused(false);
-                e.target.style.borderColor = '#E0E0E0';
-                e.target.style.boxShadow = 'none';
-              }}
+          onFocus={(e) => {
+            setIsTextareaFocused(true);
+            e.target.style.borderColor = '#8808A2';
+            e.target.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.1)';
+          }}
+          onBlur={(e) => {
+            setIsTextareaFocused(false);
+            e.target.style.borderColor = '#E0E0E0';
+            e.target.style.boxShadow = 'none';
+          }}
             />
             
             {/* Plus button at bottom left */}
             <button
               type="button"
-              className="absolute bottom-3 left-3 p-2 hover:opacity-70 transition-all"
+              className="absolute bottom-2 left-2 p-2 hover:opacity-70 transition-all"
               aria-label="Add attachment"
             >
-              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="14" height="14" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.42871 0.428711V8.42871M0.428711 4.42871H8.42871" stroke={isTextareaFocused ? "#7B0792" : "#878787"} strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>

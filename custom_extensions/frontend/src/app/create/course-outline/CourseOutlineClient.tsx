@@ -1671,7 +1671,7 @@ export default function CourseOutlineClient() {
             {/* AI Agent Badge and Info - Left Side */}
             <div className="flex flex-col gap-2">
               {/* AI Agent Badge */}
-              <div className="inline-flex items-center gap-2 self-start">
+              <div className="inline-flex items-center gap-1 self-start">
                 <span 
                   className="px-3 py-1 rounded-md text-[16px] font-medium"
                   style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
@@ -1687,7 +1687,7 @@ export default function CourseOutlineClient() {
                 </span>
                 <a 
                   href="#" 
-                  className="no-underline"
+                  className="no-underline -mt-1"
                   style={{ color: '#498FFF' }}
                 >
                   {t('interface.aiAgent.learnMore', 'Learn more')}
