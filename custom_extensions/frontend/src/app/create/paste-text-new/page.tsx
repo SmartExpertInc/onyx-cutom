@@ -588,7 +588,7 @@ export default function PasteTextPage() {
         )}
 
         {/* Additional subtitle */}
-        <p className="text-center text-[#4D4D4D] text-lg font-semibold my-[8px]">
+        <p className="text-center text-[#4D4D4D] text-lg font-semibold mt-4">
           {t('interface.pasteText.pasteInstructions', 'Paste in the notes, outline or text content you\'d like to use')}
         </p>
 
