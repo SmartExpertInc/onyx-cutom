@@ -24,9 +24,6 @@
   border: 2px solid transparent;
   background-clip: padding-box;
   overflow: hidden;
-  aspect-ratio: 16/9;
-  width: 100%;
-  position: relative;
 }
 
 .slide-preview-card.active {
@@ -51,71 +48,6 @@
 .main-slide-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   aspect-ratio: 16/9;
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: auto;
-  max-width: 1200px;
-  min-height: 300px;
-  max-height: 675px;
-}
-
-/* Ensure slide content respects container bounds */
-.main-slide-container > div {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: absolute;
-  inset: 0;
-}
-
-/* Force consistent aspect ratio for all slides and enable text interaction */
-.slide-content-wrapper {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  z-index: 1;
-  pointer-events: auto;
-}
-
-.slide-content-wrapper * {
-  pointer-events: auto;
-}
-
-/* Ensure text elements are clickable for editing */
-.slide-content-wrapper h1,
-.slide-content-wrapper h2,
-.slide-content-wrapper h3,
-.slide-content-wrapper h4,
-.slide-content-wrapper p,
-.slide-content-wrapper span,
-.slide-content-wrapper div {
-  cursor: text !important;
-  pointer-events: auto !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
-
-/* Override any draggable styling for text elements */
-.slide-content-wrapper [data-draggable="true"] h1,
-.slide-content-wrapper [data-draggable="true"] h2,
-.slide-content-wrapper [data-draggable="true"] h3,
-.slide-content-wrapper [data-draggable="true"] h4,
-.slide-content-wrapper [data-draggable="true"] p,
-.slide-content-wrapper [data-draggable="true"] span {
-  cursor: text !important;
-}
-
-/* Scale slide content to fit container */
-.main-slide-container .slide-renderer {
-  width: 100%;
-  height: 100%;
-  transform-origin: top left;
-  overflow: hidden;
 }
 
 .navigation-button {

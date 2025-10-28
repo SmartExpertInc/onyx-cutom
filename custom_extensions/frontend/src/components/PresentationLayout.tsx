@@ -386,23 +386,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 className={`relative cursor-pointer slide-thumbnail-card rounded-lg group ${
                   isActive ? 'active' : ''
                 }`}
-                onClick={(e) => {
-                  // Don't select slide if clicking on text elements for editing
-                  const target = e.target as HTMLElement;
-                  const isTextElement = target.tagName === 'P' || 
-                                       target.tagName === 'H1' || 
-                                       target.tagName === 'H2' || 
-                                       target.tagName === 'H3' || 
-                                       target.tagName === 'H4' || 
-                                       target.tagName === 'SPAN' ||
-                                       target.closest('.wysiwyg-editor') ||
-                                       target.classList.contains('editable-text') ||
-                                       target.closest('.editable-text');
-                  
-                  if (!isTextElement) {
-                    handleSlideSelect(slide.slideId, index);
-                  }
-                }}
+                onClick={() => handleSlideSelect(slide.slideId, index)}
                 onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                 onMouseLeave={() => setHoveredSlideId(null)}
               >
@@ -451,7 +435,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           className="flex-1 bg-[#F2F2F4]"
           ref={scrollContainerRef}
         >
-          <div className="space-y-8 px-6 py-6">
+          <div className="space-y-8 px-6">
             {deck.slides.map((slide, index) => {
               const isActive = slide.slideId === selectedSlideId;
               const isHovered = hoveredSlideId === slide.slideId;
@@ -465,20 +449,19 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full max-w-6xl mx-auto">
-                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative">
+                    <div className="w-full max-w-7xl">
+                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
-                          <div className="absolute top-2 left-2 z-20">
+                          <div className="absolute top-2 left-2 z-40">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setShowSlideMenu(showMenu ? null : slide.slideId);
                               }}
-                              className="w-8 h-8 bg-white hover:bg-gray-50 rounded-md flex items-center justify-center shadow-sm border border-[#CCCCCC] transition-all duration-200"
-                              title="Slide options"
+                              className="w-5 h-8 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#CCCCCC] transition-all duration-200"
                             >
-                              <MoreVertical size={14} className="text-[#666666]" />
+                              <MoreVertical size={16} className="text-[#CCCCCC]" />
                             </button>
                           </div>
                         )}
@@ -487,19 +470,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="flex flex-row absolute top-10 left-5 z-50 bg-white border border-gray-200 rounded-md shadow-xl"
-                            style={{ width: '100px', height: '32px' }}
+                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-sm shadow-xl min-w-[60px]"
                           >
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 duplicateSlide(slide.slideId);
-                                setShowSlideMenu(null);
                               }}
-                              className="w-8 h-8 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center rounded-t-md"
-                              title="Duplicate slide"
+                              className="w-full px-1 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
                             >
-                              <Copy size={12} />
+                              <Copy size={14} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -507,34 +487,27 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 setShowAIModal(true);
                                 setShowSlideMenu(null);
                               }}
-                              className="w-8 h-8 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center border-t border-gray-200"
-                              title="AI enhance"
+                              className="w-full px-1 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
                             >
-                              <Sparkles size={12} />
+                              <Sparkles size={14} />
                             </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteSlide(slide.slideId);
-                                setShowSlideMenu(null);
                               }}
-                              className="w-8 h-8 text-sm text-red-600 hover:bg-red-50 flex items-center justify-center border-t border-gray-200 rounded-b-md"
-                              title="Delete slide"
+                              className="w-full px-1 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                             >
-                              <Trash2 size={12} className="text-red-500" />
+                              <Trash2 size={14} className="text-red-500" />
                             </button>
                           </div>
                         )}
-                        
-                        {/* Slide content wrapper with proper constraints */}
-                        <div className="slide-content-wrapper">
                           <ComponentBasedSlideRenderer
                             slide={slide}
-                            isEditable={true}
+                            isEditable={isEditable}
                             onSlideUpdate={handleSlideUpdate}
                             theme={theme}
                           />
-                        </div>
                       </div>
                     </div>
               </div>
@@ -554,7 +527,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         title="Generate with AI"
                         className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] !bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
                       >
-                        <Sparkles size={15} />
+                        <Sparkles strokeWidth={1} size={15} />
                       </button>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -562,7 +535,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             title="More"
                             className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-[#A5A5A5]"
                           >
-                            <ArrowDown size={15} strokeWidth={3} />
+                            <ArrowDown strokeWidth={3} size={15} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent 

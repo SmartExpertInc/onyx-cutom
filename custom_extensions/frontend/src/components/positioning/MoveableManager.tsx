@@ -138,34 +138,12 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         if (target.closest('[data-resize-handle]') || 
             target.isContentEditable || 
             target.tagName === 'INPUT' || 
-            target.tagName === 'TEXTAREA' ||
-            target.closest('.wysiwyg-editor') ||
-            target.classList.contains('editable-text') ||
-            target.closest('.editable-text')) {
+            target.tagName === 'TEXTAREA') {
           log('MoveableManager', 'clickIgnored', { 
             elementId: element.id, 
             reason: 'editing-controls',
             slideId
           });
-          return;
-        }
-
-        // Don't interfere with text editing - allow text elements to handle their own clicks
-        const isTextElement = target.tagName === 'P' || 
-                              target.tagName === 'H1' || 
-                              target.tagName === 'H2' || 
-                              target.tagName === 'H3' || 
-                              target.tagName === 'H4' || 
-                              target.tagName === 'SPAN' ||
-                              target.tagName === 'DIV';
-        
-        if (isTextElement) {
-          log('MoveableManager', 'clickIgnored', { 
-            elementId: element.id, 
-            reason: 'text-element-click',
-            slideId
-          });
-          // Don't prevent default or stop propagation - let text editing work
           return;
         }
 
