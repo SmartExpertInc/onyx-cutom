@@ -1348,7 +1348,7 @@ export default function CourseOutlineClient() {
         <div 
           className="flex-1 px-4 flex flex-col items-center transition-all duration-300 ease-in-out relative z-10"
           style={{
-            marginRight: showAdvanced ? '600px' : '0'
+            marginRight: showAdvanced ? '500px' : '0'
           }}
         >
           <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900">
@@ -1667,18 +1667,47 @@ export default function CourseOutlineClient() {
 
         {/* AI Agent Side Panel - slides from right */}
         <div 
-          className="fixed top-0 right-0 h-full bg-white shadow-2xl transition-transform duration-300 ease-in-out z-30 overflow-y-auto"
+          className="fixed top-0 right-0 h-full shadow-2xl transition-transform duration-300 ease-in-out z-30 overflow-y-auto"
           style={{
-            width: '600px',
+            width: '500px',
+            backgroundColor: '#F9F9F9',
             transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
-            borderLeft: '1px solid #E0E0E0'
+            borderLeft: '1px solid #CCCCCC'
           }}
         >
-          <div className="p-6 pt-20">
-            {/* Close button */}
+          {/* Header with badge and close button */}
+          <div className="flex items-start justify-between p-6 pb-4">
+            {/* AI Agent Badge and Info - Left Side */}
+            <div className="flex flex-col gap-2">
+              {/* AI Agent Badge */}
+              <div className="inline-flex items-center gap-2 self-start">
+                <span 
+                  className="px-3 py-1 rounded-md text-[16px] font-medium"
+                  style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
+                >
+                  {t('interface.aiAgent.title', 'Ai Agent')}
+                </span>
+              </div>
+              
+              {/* Info text */}
+              <div className="flex flex-col" style={{ fontSize: '10px' }}>
+                <span style={{ color: '#949CA8' }}>
+                  {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
+                </span>
+                <a 
+                  href="#" 
+                  className="no-underline"
+                  style={{ color: '#498FFF' }}
+                >
+                  {t('interface.aiAgent.learnMore', 'Learn more')}
+                </a>
+              </div>
+            </div>
+
+            {/* Close button - Right Side */}
             <button
               onClick={() => setShowAdvanced(false)}
-              className="absolute top-4 right-4 p-3 bg-white rounded-full transition-all hover:shadow-lg"
+              className="p-3 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
               style={{
                 boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
               }}
@@ -1689,7 +1718,10 @@ export default function CourseOutlineClient() {
                 <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+          </div>
 
+          {/* Content area */}
+          <div className="px-6 pb-6">
             {!loading && preview.length > 0 && (
               <AiAgent
                 editPrompt={editPrompt}
@@ -1721,7 +1753,7 @@ export default function CourseOutlineClient() {
           className="fixed bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out"
           style={{
             left: 0,
-            right: showAdvanced ? '600px' : '0'
+            right: showAdvanced ? '500px' : '0'
           }}
         >
           {/* Credits required */}
