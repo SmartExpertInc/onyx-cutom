@@ -1944,7 +1944,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base...')
                 : t('interface.generate.promptPlaceholder', 'Type or paste in content here...')}
-              className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-blue-300 focus:outline-none transition-colors placeholder-[#4D4D4D] relative z-10"
+              className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-purple-400 focus:outline-none transition-colors placeholder-[#4D4D4D] relative z-10"
               style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px", minHeight: "80px" }}
               rows={1}
             />
