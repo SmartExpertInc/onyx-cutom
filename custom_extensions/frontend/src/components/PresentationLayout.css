@@ -92,9 +92,12 @@
 .slide-content-wrapper h3,
 .slide-content-wrapper h4,
 .slide-content-wrapper p,
-.slide-content-wrapper span {
+.slide-content-wrapper span,
+.slide-content-wrapper div {
   cursor: text !important;
   pointer-events: auto !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
 
 /* Override any draggable styling for text elements */

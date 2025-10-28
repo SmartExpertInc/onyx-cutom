@@ -37,10 +37,16 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Prevent flickering after drag */
+/* Prevent flickering after drag - but allow text editing */
 .positioning-enabled-slide [data-just-dragged="true"] {
-  pointer-events: none; /* Temporarily disable pointer events */
+  /* pointer-events: none; */ /* REMOVED: This was preventing text editing clicks */
   transition: none !important; /* Disable transitions to prevent flicker */
+}
+
+/* Only disable pointer events for the draggable container, not child text elements */
+.positioning-enabled-slide [data-just-dragged="true"] > * {
+  /* Allow child elements to still receive clicks for text editing */
+  pointer-events: auto;
 }
 
 /* Preserve text editing capabilities */

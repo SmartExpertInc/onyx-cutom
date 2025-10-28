@@ -196,13 +196,17 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           // Create a more targeted click suppression that only affects draggable elements
           const suppressNextClick = (ev: MouseEvent) => {
             const target = ev.target as HTMLElement;
-            // Don't suppress clicks on text elements
+            // Don't suppress clicks on text elements or elements inside wysiwyg editors
             const isTextElement = target.tagName === 'P' || 
                                  target.tagName === 'H1' || 
                                  target.tagName === 'H2' || 
                                  target.tagName === 'H3' || 
                                  target.tagName === 'H4' || 
                                  target.tagName === 'SPAN' ||
+                                 target.tagName === 'DIV' ||
+                                 target.closest('.wysiwyg-editor') ||
+                                 target.classList.contains('editable-text') ||
+                                 target.closest('.editable-text') ||
                                  target.classList.contains('editable-text') ||
                                  target.closest('.editable-text');
             

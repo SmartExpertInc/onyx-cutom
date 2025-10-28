@@ -487,8 +487,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="flex flex-col absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-md shadow-xl"
-                            style={{ width: '32px' }}
+                            className="flex flex-row absolute top-10 left-5 z-50 bg-white border border-gray-200 rounded-md shadow-xl"
+                            style={{ width: '100px', height: '32px' }}
                           >
                             <button
                               onClick={(e) => {
