@@ -1667,7 +1667,7 @@ export default function CourseOutlineClient() {
 
         {/* AI Agent Side Panel - slides from right */}
         <div 
-          className="fixed top-0 right-0 h-full shadow-2xl transition-transform duration-300 ease-in-out z-30 overflow-y-auto"
+          className="fixed top-0 right-0 h-full shadow-2xl transition-transform duration-300 ease-in-out z-30 flex flex-col"
           style={{
             width: '400px',
             backgroundColor: '#F9F9F9',
@@ -1721,7 +1721,7 @@ export default function CourseOutlineClient() {
           </div>
 
           {/* Content area */}
-          <div className="px-6 pb-24">
+          <div className="flex-1 px-6 pb-24 overflow-hidden">
             {!loading && preview.length > 0 && (
               <AiAgent
                 editPrompt={editPrompt}
