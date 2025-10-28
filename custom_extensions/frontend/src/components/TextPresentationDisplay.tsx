@@ -964,14 +964,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} leading-normal text-black text-left`} 
-              style={{ fontSize: fontSize || '16px' }}
+              style={{ fontSize: fontSize || '12px' }}
             />
             
             {/* No settings button for paragraphs */}
           </div>
         );
       }
-      return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '16px' }}>{styledText}</p> );
+      return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '12px' }}>{styledText}</p> );
     }
     case 'bullet_list': 
     case 'numbered_list': {
