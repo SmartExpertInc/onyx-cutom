@@ -213,8 +213,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   return (
     <div 
       ref={advancedSectionRef} 
-      className="flex flex-col h-full"
-      style={{ minHeight: 'calc(100vh - 150px)' }}
+      className="flex flex-col flex-1"
     >
       {!hasStartedChat ? (
         <>
@@ -257,7 +256,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mt-auto">
+          <div className="relative w-full mt-auto mb-20">
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
@@ -402,7 +401,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mt-auto">
+          <div className="relative w-full mt-auto mb-20">
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
