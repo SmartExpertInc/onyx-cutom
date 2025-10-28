@@ -1698,7 +1698,7 @@ export default function CourseOutlineClient() {
             {/* Close button - Right Side */}
             <button
               onClick={() => setShowAdvanced(false)}
-              className="p-3 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
+              className="p-1.5 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
               style={{
                 boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
               }}

@@ -11,6 +11,7 @@ import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
+import { AiAgent } from '@/components/ui/ai-agent';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -142,6 +143,39 @@ export default function ProductViewNewPage() {
     videoLesson: {exists: boolean, productId?: number}
   }}>({});
   const [collapsedSections, setCollapsedSections] = useState<{[key: number]: boolean}>({});
+  const [showAiAgent, setShowAiAgent] = useState(false);
+  const [editPrompt, setEditPrompt] = useState('');
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+
+  // AI Agent examples (similar to course outline)
+  const aiAgentExamples = [
+    { short: t('interface.aiAgent.example1', 'Make it more engaging'), detailed: t('interface.aiAgent.example1Full', 'Make the course outline more engaging for students') },
+    { short: t('interface.aiAgent.example2', 'Add more details'), detailed: t('interface.aiAgent.example2Full', 'Add more details to the lesson descriptions') },
+    { short: t('interface.aiAgent.example3', 'Simplify language'), detailed: t('interface.aiAgent.example3Full', 'Simplify the language for better understanding') }
+  ];
+
+  const toggleExample = (example: { short: string; detailed: string }) => {
+    setSelectedExamples((prev) =>
+      prev.includes(example.short)
+        ? prev.filter((e) => e !== example.short)
+        : [...prev, example.short]
+    );
+    setEditPrompt((prev) => {
+      if (prev.includes(example.detailed)) {
+        return prev.replace(example.detailed, '').trim();
+      }
+      return prev ? `${prev} ${example.detailed}` : example.detailed;
+    });
+  };
+
+  const handleApplyEdit = () => {
+    // Placeholder for apply edit functionality
+    console.log('Apply edit:', editPrompt);
+    setEditPrompt('');
+    setSelectedExamples([]);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -910,12 +944,19 @@ export default function ProductViewNewPage() {
         productId={productId}
         showSmartEditor={showSmartEditor}
         setShowSmartEditor={setShowSmartEditor}
+        showAiAgent={showAiAgent}
+        setShowAiAgent={setShowAiAgent}
         scormEnabled={scormEnabled}
         componentName={COMPONENT_NAME_TRAINING_PLAN}
         t={t}
       />
 
-      <div className="max-w-7xl mx-auto flex flex-col">
+      <div 
+        className="max-w-7xl mx-auto flex flex-col transition-all duration-300 ease-in-out"
+        style={{
+          marginRight: showAiAgent ? '400px' : '0'
+        }}
+      >
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
           <div className="px-4 md:px-8 lg:px-[100px] mt-6">
@@ -1455,6 +1496,84 @@ export default function ProductViewNewPage() {
           </div>
         </div>
       )}
+
+      {/* AI Agent Side Panel - slides from right, positioned below header */}
+      <div 
+        className="fixed right-0 transition-transform duration-300 ease-in-out z-30 flex flex-col"
+        style={{
+          top: '64px', // Start below the header
+          height: 'calc(100vh - 64px)', // Full height minus header
+          width: '400px',
+          backgroundColor: '#F9F9F9',
+          transform: showAiAgent ? 'translateX(0)' : 'translateX(100%)',
+          borderLeft: '1px solid #CCCCCC'
+        }}
+      >
+        {/* Header with badge and close button */}
+        <div className="flex items-start justify-between p-6 pb-4">
+          {/* AI Agent Badge and Info - Left Side */}
+          <div className="flex flex-col gap-2">
+            {/* AI Agent Badge */}
+            <div className="inline-flex items-center gap-2 self-start">
+              <span 
+                className="px-3 py-1 rounded-md text-[16px] font-medium"
+                style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
+              >
+                {t('interface.aiAgent.title', 'AI Agent')}
+              </span>
+            </div>
+            
+            {/* Info text */}
+            <div className="flex flex-col" style={{ fontSize: '10px' }}>
+              <span style={{ color: '#949CA8' }}>
+                {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
+              </span>
+              <a 
+                href="#" 
+                className="no-underline -mt-1"
+                style={{ color: '#498FFF' }}
+              >
+                {t('interface.aiAgent.learnMore', 'Learn more')}
+              </a>
+            </div>
+          </div>
+
+          {/* Close button - Right Side */}
+          <button
+            onClick={() => setShowAiAgent(false)}
+            className="p-3 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
+            style={{
+              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
+            }}
+            aria-label="Close panel"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Content area */}
+        <div className="flex-1 px-6 pb-8 overflow-hidden">
+          {projectData && (
+            <AiAgent
+              editPrompt={editPrompt}
+              setEditPrompt={setEditPrompt}
+              examples={aiAgentExamples}
+              selectedExamples={selectedExamples}
+              toggleExample={toggleExample}
+              loadingEdit={false}
+              onApplyEdit={handleApplyEdit}
+              advancedSectionRef={advancedSectionRef}
+              placeholder={t('interface.aiAgent.describeImprovements', "Describe what you'd like to improve...")}
+              buttonText={t('interface.aiAgent.edit', 'Edit')}
+              hasStartedChat={aiAgentChatStarted}
+              setHasStartedChat={setAiAgentChatStarted}
+            />
+          )}
+        </div>
+      </div>
     </main>
   );
 }

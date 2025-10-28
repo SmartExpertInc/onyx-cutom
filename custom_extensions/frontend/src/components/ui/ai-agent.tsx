@@ -219,7 +219,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
       {!hasStartedChat ? (
         <>
           {/* Center content: Title and Examples */}
-          <div className="flex flex-col items-center justify-center flex-grow gap-6">
+          <div className="flex flex-col items-center justify-center flex-grow gap-8">
             {/* Title */}
             <h3 
               className="text-center font-semibold"
@@ -267,7 +267,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           onFocus={(e) => {
             setIsTextareaFocused(true);
             e.target.style.borderColor = '#8808A2';
-            e.target.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.1)';
+            e.target.style.boxShadow = '0px 8px 24px rgba(0, 0, 0, 0.15)';
           }}
           onBlur={(e) => {
             setIsTextareaFocused(false);
@@ -425,7 +425,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           onFocus={(e) => {
             setIsTextareaFocused(true);
             e.target.style.borderColor = '#8808A2';
-            e.target.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.1)';
+            e.target.style.boxShadow = '0px 8px 24px rgba(0, 0, 0, 0.15)';
           }}
           onBlur={(e) => {
             setIsTextareaFocused(false);
