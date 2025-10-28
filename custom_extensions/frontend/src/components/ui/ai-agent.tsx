@@ -234,13 +234,13 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           
           {/* Info text */}
           <div className="flex flex-col" style={{ fontSize: '10px' }}>
-            <span style={{ color: '#949CA8' }}>
+            <span style={{ color: '#A5A5A5' }}>
               {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
             </span>
             <a 
               href="#" 
               className="no-underline -mt-1"
-              style={{ color: '#498FFF' }}
+              style={{ color: '#719AF5' }}
             >
               {t('interface.aiAgent.learnMore', 'Learn more')}
             </a>
@@ -466,7 +466,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mt-auto mb-16">
+          <div className="relative w-full mb-16">
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
