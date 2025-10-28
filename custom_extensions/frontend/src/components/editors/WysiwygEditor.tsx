@@ -38,6 +38,42 @@ export function WysiwygEditor({
   delete cleanedStyle.fontWeight;
   delete cleanedStyle.fontStyle;
 
+  const getCurrentTextColor = () => {
+    if (!editor) return '#000000';
+    
+    // Try to get color from editor attributes first
+    const editorColor = editor.getAttributes('textStyle').color;
+    if (editorColor) return editorColor;
+    
+    // Try to get from component styles
+    if (style.color) return style.color;
+    if (cleanedStyle.color) return cleanedStyle.color;
+    
+    // Try to get from computed styles of the editor element
+    try {
+      const editorElement = editor.view.dom;
+      if (editorElement) {
+        const computedStyle = window.getComputedStyle(editorElement);
+        const computedColor = computedStyle.color;
+        if (computedColor && computedColor !== 'rgb(0, 0, 0)') {
+          // Convert rgb to hex if needed
+          const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+          if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+          }
+          return computedColor;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not get computed color:', e);
+    }
+    
+    return '#000000';
+  };
+
   const textStyles = [
     { label: 'Small text', value: 'small', action: () => editor?.chain().focus().setParagraph().run() },
     { label: 'Normal text', value: 'normal', action: () => editor?.chain().focus().setParagraph().run() },
@@ -77,12 +113,12 @@ export function WysiwygEditor({
           .join('; '),
       },
     },
-    onSelectionUpdate: ({ editor }) => {
+    onSelectionUpdate: ({ editor }: { editor: any }) => {
       const { empty } = editor.state.selection;
       setShowToolbar(!empty);
       
       // Отримати поточний колір
-      const currentColor = editor.getAttributes('textStyle').color || '#000000';
+      const currentColor = getCurrentTextColor();
       setSelectedColor(currentColor);
 
       // Визначити поточний стиль тексту
@@ -104,8 +140,12 @@ export function WysiwygEditor({
     if (editor) {
       editor.commands.focus('end');
       editor.commands.selectAll();
+      
+      // Set initial color from editor content or CSS styles
+      const initialColor = getCurrentTextColor();
+      setSelectedColor(initialColor);
     }
-  }, [editor]);
+  }, [editor, style, cleanedStyle]);
 
   useEffect(() => {
     if (!editor) return;
@@ -182,15 +222,14 @@ export function WysiwygEditor({
       ref={containerRef}
       style={{ 
         position: 'relative', 
-        width: '100%',
-        paddingTop: '50px'
+        width: '100%'
       }}
     >
       {showToolbar && (
         <div
           style={{
             position: 'absolute',
-            top: '0',
+            top: '-60px',
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
@@ -210,6 +249,9 @@ export function WysiwygEditor({
               type="button"
               onMouseDown={(e) => {
                 e.preventDefault();
+                // Update color before showing picker
+                const currentColor = getCurrentTextColor();
+                setSelectedColor(currentColor);
                 setShowColorPicker(!showColorPicker);
               }}
               style={{
@@ -335,8 +377,10 @@ export function WysiwygEditor({
                 justifyContent: 'space-between',
                 padding: '0 8px',
                 transition: 'all 0.2s ease',
+                fontFamily: 'Public Sans, sans-serif'
               }}
               title="Text Style"
+              className='public-sans-font'
             >
               <span>{currentTextStyle}</span>
               <span style={{ marginLeft: '4px' }}><ChevronDownIcon size={16} /></span>
@@ -412,7 +456,7 @@ export function WysiwygEditor({
                type="text"
                defaultValue="120"
                style={{
-                 width: '60px',
+                 width: '40px',
                  height: '25px',
                  border: '1px solid rgb(0, 0, 0)',
                  borderRadius: '6px',
@@ -422,8 +466,10 @@ export function WysiwygEditor({
                  backgroundColor: 'white',
                  outline: 'none',
                  color: 'black',
+                 fontFamily: 'Public Sans, sans-serif'
                }}
                title="Font Size"
+               className='public-sans-font'
              />
            </div>
             <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
@@ -538,7 +584,7 @@ export function WysiwygEditor({
           </button>
 
            <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
-            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', }}>
+            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', marginTop: '2px' }}>
               <svg width="13" height="15" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0.658961 1.12109C0.293787 1.12109 0 1.421 0 1.79378C0 2.16656 0.293787 2.46647 0.658961 2.46647H7.24857C7.61374 2.46647 7.90753 2.16656 7.90753 1.79378C7.90753 1.421 7.61374 1.12109 7.24857 1.12109H0.658961ZM0.658961 4.70877C0.293787 4.70877 0 5.00868 0 5.38146C0 5.75424 0.293787 6.05415 0.658961 6.05415H11.6416C12.0068 6.05415 12.3006 5.75424 12.3006 5.38146C12.3006 5.00868 12.0068 4.70877 11.6416 4.70877H0.658961ZM0 8.96913C0 9.34192 0.293787 9.64182 0.658961 9.64182H7.24857C7.61374 9.64182 7.90753 9.34192 7.90753 8.96913C7.90753 8.59635 7.61374 8.29644 7.24857 8.29644H0.658961C0.293787 8.29644 0 8.59635 0 8.96913ZM0.658961 11.8841C0.293787 11.8841 0 12.184 0 12.5568C0 12.9296 0.293787 13.2295 0.658961 13.2295H11.6416C12.0068 13.2295 12.3006 12.9296 12.3006 12.5568C12.3006 12.184 12.0068 11.8841 11.6416 11.8841H0.658961Z" fill="#434343"/>
               </svg>
@@ -550,7 +596,7 @@ export function WysiwygEditor({
               </svg>
             </div>
             <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
-            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', }}>
+            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', marginTop: '2px' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_396_47086)">
               <path opacity="0.5" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H3.2V3.2H0V0ZM6.4 3.2H3.2V6.4H0V9.6H3.2V12.8H0V16H3.2V12.8H6.4V16H9.6V12.8H12.8V16H16V12.8H12.8V9.6H16V6.4H12.8V3.2H16V0H12.8V3.2H9.6V0H6.4V3.2ZM6.4 6.4V3.2H9.6V6.4H6.4ZM6.4 9.6H3.2V6.4H6.4V9.6ZM9.6 9.6V6.4H12.8V9.6H9.6ZM9.6 9.6H6.4V12.8H9.6V9.6Z" fill="url(#paint0_linear_396_47086)"/>
@@ -602,8 +648,8 @@ export function WysiwygEditor({
             </svg>
             <span className='public-sans-font' style={{ fontSize: '12px', color: '#434343' }}>Animate</span>
           </button>
-
-          {/* Sparkle Button */}
+          <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
+          {/* Sparkle Button with Arrow */}
           <button
             type="button"
             style={{
@@ -614,14 +660,18 @@ export function WysiwygEditor({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '0 10px',
+              padding: '0 8px',
               transition: 'all 0.2s ease',
-              gap: '6px'
+              gap: '4px',
+              border: '1px solid #E0E0E0'
             }}
             title="Effects"
           >
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9.1794 2.38805C9.05327 2.4357 8.96919 2.55622 8.96919 2.69076C8.96919 2.82529 9.05327 2.94582 9.1794 2.99347L10.763 3.58768L11.3572 5.1713C11.4049 5.29743 11.5254 5.38151 11.6599 5.38151C11.7945 5.38151 11.915 5.29743 11.9627 5.1713L12.5569 3.58768L14.1405 2.99347C14.2666 2.94582 14.3507 2.82529 14.3507 2.69076C14.3507 2.55622 14.2666 2.4357 14.1405 2.38805L12.5569 1.79384L11.9627 0.210215C11.915 0.0840861 11.7945 0 11.6599 0C11.5254 0 11.4049 0.0840861 11.3572 0.210215L10.763 1.79384L9.1794 2.38805ZM5.74869 2.0545C5.67581 1.89474 5.51605 1.79384 5.34227 1.79384C5.1685 1.79384 5.00873 1.89474 4.93586 2.0545L3.45594 5.24978L0.260667 6.72689C0.100903 6.79977 0 6.95953 0 7.13611C0 7.31269 0.100903 7.46965 0.260667 7.54253L3.45874 9.01964L4.93305 12.2149C5.00593 12.3747 5.16569 12.4756 5.33947 12.4756C5.51325 12.4756 5.67301 12.3747 5.74589 12.2149L7.223 9.01684L10.4211 7.53972C10.5808 7.46685 10.6817 7.30709 10.6817 7.13331C10.6817 6.95953 10.5808 6.79977 10.4211 6.72689L7.2258 5.25258L5.74869 2.0545ZM10.763 10.763L9.1794 11.3572C9.05327 11.4049 8.96919 11.5254 8.96919 11.6599C8.96919 11.7945 9.05327 11.915 9.1794 11.9627L10.763 12.5569L11.3572 14.1405C11.4049 14.2666 11.5254 14.3507 11.6599 14.3507C11.7945 14.3507 11.915 14.2666 11.9627 14.1405L12.5569 12.5569L14.1405 11.9627C14.2666 11.915 14.3507 11.7945 14.3507 11.6599C14.3507 11.5254 14.2666 11.4049 14.1405 11.3572L12.5569 10.763L11.9627 9.1794C11.915 9.05327 11.7945 8.96919 11.6599 8.96919C11.5254 8.96919 11.4049 9.05327 11.3572 9.1794L10.763 10.763Z" fill="#4D4D4D"/>
+            </svg>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="#4D4D4D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         </div>
