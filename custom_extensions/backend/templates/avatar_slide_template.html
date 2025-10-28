@@ -3436,19 +3436,28 @@
             overflow: hidden;
         }
 
+        .high-performing-teams-slide *:not(.title-element) {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        .high-performing-teams-slide .title-element {
+            font-family: "Lora", serif !important;
+            font-weight: 500 !important;
+        }
+
         .high-performing-teams-slide .top-part {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 29%;
+            height: 40%;
             background: linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%);
             overflow: hidden;
         }
 
         .high-performing-teams-slide .bottom-part {
             position: absolute;
-            top: 29%;
+            top: 40%;
             left: 0;
             right: 0;
             bottom: 0;
@@ -5166,22 +5175,22 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="bottom-part"></div>
                     
                     <!-- Title in top section -->
-                    <div class="title">{{ title or 'The Power of High-Performing Teams' }}</div>
+                    <div class="title title-element">{{ title or 'The Power of High-\nPerforming Teams' }}</div>
                     
                     <!-- Description in top section -->
-                    <div class="description">{{ content or 'Great teams drive innovation, boost productivity, and create lasting impact.' }}</div>
+                    <div class="description">{{ content or 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.' }}</div>
                     
                     <!-- White panel in center -->
                     <div class="panel">
                         <!-- Background SVG pattern -->
                         <div class="background-svg">
-                            <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                 <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
                                 <defs>
                                     <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
-                                        <use href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
+                                        <use xlink:href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
                                     </pattern>
-                                    <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
+                                    <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
                                 </defs>
                             </svg>
                         </div>
@@ -5189,15 +5198,15 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     
                     <!-- Avatar container -->
                     <div class="avatar-container">
-                        {% if avatarImagePath %}
-                            <img src="{{ avatarImagePath }}" alt="Avatar" />
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" />
                         {% endif %}
                     </div>
                     
                     <!-- Logo container -->
                     <div class="logo-container">
-                        {% if logoPath %}
-                            <img src="{{ logoPath }}" alt="Company Logo" />
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Company Logo" />
                         {% else %}
                             <div class="logo-placeholder">
                                 <div class="circle">
@@ -5212,7 +5221,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <!-- Page number -->
                     <div class="page-number-container">
                         <div class="line"></div>
-                        <div class="page-number">{{ pageNumber or '1' }}</div>
+                        <div class="page-number">{{ pageNumber or '17' }}</div>
                     </div>
                 </div>
                 
