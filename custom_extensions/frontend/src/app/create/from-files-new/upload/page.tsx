@@ -268,7 +268,7 @@ export default function UploadFilesPage() {
         <div 
           className={`w-full bg-white rounded-sm border border-[#E0E0E0] shadow-lg flex flex-col min-h-[45px] transition-colors ${
             isDragging ? 'border-[#0F58F9] bg-blue-50' : 'border-gray-300'
-          } ${uploadedFiles.length === 0 ? 'items-center justify-center cursor-pointer' : 'max-h-[160px] overflow-y-auto'}`}
+          } ${uploadedFiles.length === 0 ? 'items-center justify-center cursor-pointer' : 'max-h-[155px] overflow-y-auto'}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
