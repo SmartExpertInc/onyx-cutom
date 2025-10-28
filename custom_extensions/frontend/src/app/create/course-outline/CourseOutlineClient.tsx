@@ -1721,7 +1721,7 @@ export default function CourseOutlineClient() {
           </div>
 
           {/* Content area */}
-          <div className="flex-1 px-6 pb-28 overflow-hidden">
+          <div className="flex-1 px-6 pb-32 overflow-hidden">
             {!loading && preview.length > 0 && (
               <AiAgent
                 editPrompt={editPrompt}
