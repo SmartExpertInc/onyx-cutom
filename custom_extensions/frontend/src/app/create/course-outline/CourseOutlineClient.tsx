@@ -1658,7 +1658,7 @@ export default function CourseOutlineClient() {
 
         {/* AI Agent Side Panel - slides from right */}
         <div 
-          className="fixed top-0 right-0 h-full shadow-2xl transition-transform duration-300 ease-in-out z-30 flex flex-col"
+          className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
           style={{
             width: '400px',
             backgroundColor: '#F9F9F9',
@@ -1669,7 +1669,7 @@ export default function CourseOutlineClient() {
           {/* Header with badge and close button */}
           <div className="flex items-start justify-between p-6 pb-4">
             {/* AI Agent Badge and Info - Left Side */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {/* AI Agent Badge */}
               <div className="inline-flex items-center gap-1 self-start">
                 <span 

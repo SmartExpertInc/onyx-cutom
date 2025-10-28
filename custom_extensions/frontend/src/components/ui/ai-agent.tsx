@@ -415,7 +415,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mt-auto mb-20">
+          <div className="relative w-full mt-auto">
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
