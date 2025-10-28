@@ -340,31 +340,46 @@ export default function VideoEditorHeader({
       const firstSlide = componentBasedSlideDeck?.slides?.[0] || videoLessonData?.slides?.[0];
       const productName = firstSlide?.props?.title || firstSlide?.slideTitle || videoTitle || 'Generated Video';
       
-      // Find video product template - DO NOT create if missing, FAIL EARLY
+      // Find or create video product template
       let videoTemplateId: number | null = null;
       try {
+        // First, try to find existing template
         const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`);
         if (templatesResponse.ok) {
           const templates = await templatesResponse.json();
           const videoTemplate = templates.find((t: any) => 
-            t.component_name === 'VideoProductDisplay' || 
-            t.microproduct_type === 'video_product'
+            t.component_name === 'VideoProductDisplay'
           );
           
           if (videoTemplate) {
             videoTemplateId = videoTemplate.id;
-            console.log('🎬 [VIDEO_GENERATION] Found video template:', videoTemplateId);
-          } else {
-            // CRITICAL: Video template must exist - don't create on the fly
-            console.error('🎬 [VIDEO_GENERATION] VideoProductDisplay template not found in database');
-            throw new Error('Video product template not configured. Please contact administrator.');
+            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', videoTemplateId);
           }
-        } else {
-          throw new Error(`Failed to fetch templates: ${templatesResponse.status}`);
+        }
+        
+        // If not found, ensure it exists
+        if (!videoTemplateId) {
+          console.log('🎬 [VIDEO_GENERATION] Video template not found, creating...');
+          const ensureResponse = await fetch(`${CUSTOM_BACKEND_URL}/ensure-video-product-template`, {
+            method: 'POST',
+            credentials: 'same-origin'
+          });
+          
+          if (ensureResponse.ok) {
+            const templateData = await ensureResponse.json();
+            videoTemplateId = templateData.id;
+            console.log('🎬 [VIDEO_GENERATION] Created video template:', videoTemplateId);
+          } else {
+            throw new Error(`Failed to create video template: ${ensureResponse.status}`);
+          }
+        }
+        
+        if (!videoTemplateId) {
+          throw new Error('Video product template could not be created or found');
         }
       } catch (error) {
-        console.error('🎬 [VIDEO_GENERATION] Error fetching video template:', error);
-        throw error; // Don't swallow this error
+        console.error('🎬 [VIDEO_GENERATION] Error with video template:', error);
+        throw error;
       }
       
       // Create video metadata structure (without component_name field - it comes from template)

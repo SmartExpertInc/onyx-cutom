@@ -10502,6 +10502,38 @@ async def delete_design_template(template_id: int, pool: asyncpg.Pool = Depends(
         detail_msg = "An error occurred during design template deletion." if IS_PRODUCTION else f"DB error on design template deletion: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
+@app.post("/api/custom/ensure-video-product-template")
+async def ensure_video_product_template_endpoint(
+    request: Request,
+    cookies: dict = Depends(get_cookies_from_request)
+):
+    """Ensure video product template exists and return its ID"""
+    try:
+        onyx_user_id = await get_user_id_from_session(cookies)
+        if not onyx_user_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        
+        pool = await get_custom_project_pool()
+        template_id = await _ensure_video_product_template(pool)
+        
+        # Fetch full template details
+        async with pool.acquire() as conn:
+            template = await conn.fetchrow(
+                "SELECT id, template_name, microproduct_type, component_name FROM design_templates WHERE id = $1",
+                template_id
+            )
+        
+        return {
+            "id": template["id"],
+            "template_name": template["template_name"],
+            "microproduct_type": template["microproduct_type"],
+            "component_name": template["component_name"]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in ensure video product template endpoint: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
     "Training Plan", "PDF Lesson", "Slide Deck", "Text Presentation"
 ]
@@ -23321,6 +23353,43 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
     except Exception as e:
         logger.error(f"Error ensuring text presentation template: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
+
+
+# Ensure a design template for Video Product exists, return its ID
+async def _ensure_video_product_template(pool: asyncpg.Pool) -> int:
+    """Ensure a design template for Video Product exists, return its ID"""
+    try:
+        async with pool.acquire() as conn:
+            # Check if template already exists
+            template_result = await conn.fetchval(
+                "SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", 
+                COMPONENT_NAME_VIDEO_PRODUCT
+            )
+            
+            if template_result:
+                return template_result
+            
+            # Create video product template if it doesn't exist
+            insert_query = """
+                INSERT INTO design_templates 
+                (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id
+            """
+            template_id = await conn.fetchval(
+                insert_query,
+                "Generated Video Product",
+                "Display a rendered video product generated from presentation slides.",
+                "Video Product",
+                COMPONENT_NAME_VIDEO_PRODUCT,
+                "/video-product.png"
+            )
+            logger.info(f"✅ Created Video Product template with ID: {template_id}")
+            return template_id
+            
+    except Exception as e:
+        logger.error(f"Error ensuring video product template: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure video product template")
 
 
 # -------- Course Context Helper Functions ---------

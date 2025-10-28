@@ -11,6 +11,7 @@ const SmartSlideDeckViewer = React.lazy(() => import('@/components/SmartSlideDec
 const QuizDisplay = React.lazy(() => import('@/components/QuizDisplay'));
 const TextPresentationDisplay = React.lazy(() => import('@/components/TextPresentationDisplay'));
 const VideoLessonDisplay = React.lazy(() => import('@/components/VideoLessonDisplay'));
+const VideoProductDisplay = React.lazy(() => import('@/components/VideoProductDisplay'));
 const PdfLessonDisplay = React.lazy(() => import('@/components/PdfLessonDisplay'));
 
 interface ProductData {
@@ -105,6 +106,9 @@ function PublicProductViewerContent() {
       
       case 'VideoLessonDisplay':
         return <VideoLessonDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
+      
+      case 'VideoProductDisplay':
+        return <VideoProductDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'PdfLessonDisplay':
         return <PdfLessonDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
