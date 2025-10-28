@@ -813,24 +813,54 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       const IconComponent = iconName ? iconMap[iconName] : null;
       
+      // Check if headline starts with "Recommendation:" and apply blue color
+      const isRecommendationHeadline = text?.toLowerCase().startsWith('recommendation:');
+      
       let textStyleClass = ''; 
-      if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
-      else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
-      else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      if (isRecommendationHeadline) {
+        // Apply blue color for recommendation headlines regardless of level
+        if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold !text-[#0F58F9]`; } 
+        else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold !text-[#0F58F9]`; }  
+        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
+        else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
+        else { textStyleClass += `text-base font-bold !text-[#0F58F9]`; }
+      } else {
+        // Original color logic for non-recommendation headlines
+        if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
+        else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold ${THEME_COLORS.headingText}`; }  
+        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
+        else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
+        else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      }
 
       if (depth > 0) {
-        textStyleClass = ''; 
-        if (level === 3) textStyleClass += `text-base font-bold ${THEME_COLORS.accentRed}`; 
-        else if (level === 4) textStyleClass += `text-base font-bold text-black`;
+        if (isRecommendationHeadline) {
+          // Preserve blue color for recommendation headlines even when nested
+          textStyleClass = ''; 
+          if (level === 3) textStyleClass += `text-base font-bold !text-[#0F58F9]`; 
+          else if (level === 4) textStyleClass += `text-base font-bold !text-[#0F58F9]`;
+        } else {
+          textStyleClass = ''; 
+          if (level === 3) textStyleClass += `text-base font-bold ${THEME_COLORS.accentRed}`; 
+          else if (level === 4) textStyleClass += `text-base font-bold text-black`;
+        }
       }
       if (isMiniSectionHeadline) {
-          textStyleClass = ''; 
-          textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`; 
-          if (depth > 0) { 
+          if (isRecommendationHeadline) {
+            // Preserve blue color for recommendation headlines in mini sections
             textStyleClass = ''; 
-            textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`;
+            textStyleClass += level === 3 ? `text-base font-bold !text-[#0F58F9]` : `text-base font-bold !text-[#0F58F9]`; 
+            if (depth > 0) { 
+              textStyleClass = ''; 
+              textStyleClass += level === 3 ? `text-base font-bold !text-[#0F58F9]` : `text-base font-bold !text-[#0F58F9]`;
+            }
+          } else {
+            textStyleClass = ''; 
+            textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`; 
+            if (depth > 0) { 
+              textStyleClass = ''; 
+              textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`;
+            }
           }
       }
       if (isListItemContent) {
@@ -1178,7 +1208,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           )}
           
-          <ListTag className={`${listStyle} ${textIndentClass} ${isNumbered ? 'grid grid-cols-2 gap-x-4 gap-y-1.5' : 'space-y-1.5'}`} style={{ fontSize: fontSize || '10px' }}>
+          <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
@@ -2851,7 +2881,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                     <section className={`p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {(!item._skipRenderHeadline || isEditing) && (
                         <div 
-                          className={`relative group/section ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mb-2' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                          className={`relative group/section ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
                           onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                         >
                            <RenderBlock
@@ -2936,7 +2966,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             const isMiniHeadlineEditing = editingBlockIndex === originalMiniHeadlineIndex;
                             const isMiniListEditing = editingBlockIndex === originalMiniListIndex;
                             return (
-                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-3 border-blue-400' : '!bg-white border-l-3 border-[#0F58F9]'} text-left relative group/minisection`}>
+                              <div key={subIndex} className={`px-3 py-1 my-1 ${isEditing ? '!bg-[#F7FAFF] border-l-3 border-blue-400' : '!bg-white border-l-3 border-[#0F58F9]'} text-left relative group/minisection`}>
                                 {isEditing && (
                                   <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
                                     <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
@@ -3353,7 +3383,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     <div className="mt-6 mb-8 flex justify-center">
     <DropdownMenu open={addSectionDropdownOpen} onOpenChange={setAddSectionDropdownOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="w-full flex items-center bg-white gap-2 px-6 py-3 text-sm text-[#719AF5] hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-[#CCCCCC]">
+        <button className="w-full max-w-5xl flex items-center justify-center bg-white gap-2 px-6 py-4 text-sm text-[#719AF5] hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-[#CCCCCC]">
           <Plus className="w-5 h-5" />
           <span className="font-medium">Add Section</span>
         </button>

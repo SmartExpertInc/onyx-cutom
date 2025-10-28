@@ -36747,6 +36747,67 @@ async def startup_event_lms_exports():
 
 # 🔍 STATIC FILE LOGGING MIDDLEWARE
 @app.middleware("http")
+# ====================================================================================================
+# PDF EXPORT ROUTES
+# ====================================================================================================
+
+@app.get("/pdf/text-presentation/{project_id}")
+async def generate_text_presentation_pdf(
+    project_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Generate PDF for text presentation projects"""
+    logger.info(f"📄 [PDF EXPORT] Starting text presentation PDF generation for project {project_id}")
+    
+    try:
+        # Import the PDF generation service
+        from app.services.pdf_generator import generate_onepager_pdf
+        
+        # Get project data from database
+        async with pool.acquire() as conn:
+            project_row = await conn.fetchrow(
+                "SELECT id, project_name, microproduct_content, onyx_user_id FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project_row:
+                logger.error(f"❌ [PDF EXPORT ERROR] Project {project_id} not found or access denied for user {onyx_user_id}")
+                raise HTTPException(status_code=404, detail="Project not found or access denied")
+            
+            # Convert row to dict format expected by generate_onepager_pdf
+            project_data = {
+                'id': project_row['id'],
+                'project_name': project_row['project_name'],
+                'name': project_row['project_name']  # Add name field as alias
+            }
+            
+            logger.info(f"📄 [PDF EXPORT] Found project: {project_data['project_name']}")
+            
+            # Generate PDF using the service
+            pdf_bytes = await generate_onepager_pdf(project_data, onyx_user_id)
+            
+            # Create filename
+            safe_project_name = re.sub(r'[^\w\-_\.]', '_', project_data['project_name'])
+            filename = f"{safe_project_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+            
+            logger.info(f"✅ [PDF EXPORT] Successfully generated PDF for project {project_id}, size: {len(pdf_bytes)} bytes")
+            
+            # Return PDF as downloadable file
+            return StreamingResponse(
+                io.BytesIO(pdf_bytes),
+                media_type="application/pdf",
+                headers={"Content-Disposition": f"attachment; filename={filename}"}
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [PDF EXPORT ERROR] Failed to generate PDF for project {project_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate PDF: {str(e)}")
+
+
 async def log_static_file_requests(request: Request, call_next):
     """Middleware to log all requests to static files, especially AI-generated images"""
     
