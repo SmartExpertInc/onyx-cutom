@@ -1362,6 +1362,8 @@ function GenerateProductPicker() {
             <div 
               className="w-full max-w-2xl mb-6 bg-white rounded-md shadow-lg border border-[#E0E0E0] flex flex-col min-h-[45px]"
             >
+            {/* Scrollable file list */}
+            <div className="max-h-[150px] overflow-y-auto">
             {uploadedFiles.map((file, index) => (
               <div
                 key={file.id}
@@ -1376,6 +1378,7 @@ function GenerateProductPicker() {
                 </div>
               </div>
             ))}
+            </div>
             
             {/* Add Material Row */}
             {isFromUploadedFiles && (
