@@ -13865,6 +13865,15 @@ Return ONLY the JSON object.
         derived_product_type = selected_design_template.microproduct_type
         derived_microproduct_type = selected_design_template.template_name
 
+        logger.info(f"🎬 [VIDEO_PRODUCT_DEBUG] Selected template details:")
+        logger.info(f"  - Template ID: {selected_design_template.id}")
+        logger.info(f"  - Template Name: {selected_design_template.template_name}")
+        logger.info(f"  - Microproduct Type: {selected_design_template.microproduct_type}")
+        logger.info(f"  - Component Name: {selected_design_template.component_name}")
+        logger.info(f"🎬 [VIDEO_PRODUCT_DEBUG] Derived types:")
+        logger.info(f"  - derived_product_type: {derived_product_type}")
+        logger.info(f"  - derived_microproduct_type: {derived_microproduct_type}")
+
         logger.info(f"Content prepared for DB storage (first 200 chars of JSON): {str(content_to_store_for_db)[:200]}")
 
         # Determine if this is a standalone product (default to True for general project creation)

@@ -347,13 +347,22 @@ export default function VideoEditorHeader({
         const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`);
         if (templatesResponse.ok) {
           const templates = await templatesResponse.json();
+          console.log('🎬 [VIDEO_GENERATION] All templates:', templates.map((t: any) => ({ id: t.id, name: t.template_name, component: t.component_name, microproduct_type: t.microproduct_type })));
+          
           const videoTemplate = templates.find((t: any) => 
             t.component_name === 'VideoProductDisplay'
           );
           
           if (videoTemplate) {
             videoTemplateId = videoTemplate.id;
-            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', videoTemplateId);
+            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', {
+              id: videoTemplate.id,
+              name: videoTemplate.template_name,
+              component_name: videoTemplate.component_name,
+              microproduct_type: videoTemplate.microproduct_type
+            });
+          } else {
+            console.log('🎬 [VIDEO_GENERATION] No VideoProductDisplay template found in existing templates');
           }
         }
         
@@ -410,6 +419,8 @@ export default function VideoEditorHeader({
         hasAiResponse: !!projectData.aiResponse,
         aiResponseLength: projectData.aiResponse.length
       });
+      
+      console.log('🎬 [VIDEO_GENERATION] Final videoTemplateId being used:', videoTemplateId);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
         method: 'POST',
