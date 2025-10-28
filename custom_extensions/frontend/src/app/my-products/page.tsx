@@ -426,7 +426,7 @@ const Header = ({ onTariffModalOpen, onAddOnsModalOpen }: { onTariffModalOpen: (
       <div className="flex items-center gap-4">
         <button 
           onClick={onTariffModalOpen}
-          className="flex items-center gap-2 bg-[#F2CCFA] hover:bg-[#EBD5F0]/90 text-sm font-bold text-[#8808A2] px-3 py-2 rounded-full transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-2 bg-[#F2CCFA] hover:bg-[#EBD5F0]/90 text-sm font-bold text-[#8808A2] px-3 py-3 rounded-full transition-all duration-200 cursor-pointer"
         >
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#clip0_1699_24379)">
