@@ -13927,308 +13927,87 @@ async def debug_slide_generation(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Debug failed: {str(e)[:200]}")
 
 
-def escape_html(text: str) -> str:
-    """Escape HTML special characters"""
-    return (text
-            .replace('&', '&amp;')
-            .replace('<', '&lt;')
-            .replace('>', '&gt;')
-            .replace('"', '&quot;')
-            .replace("'", '&#x27;'))
+class TextPresentationPdfRequest(BaseModel):
+    html_content: str
+    filename: Optional[str] = None
 
 
-def parse_styled_text(text: str) -> str:
-    """Parse text with **bold** markers and return HTML"""
-    if not text:
-        return ''
-    
-    # Split by bold markers (**text**)
-    segments = re.split(r'\*\*(.*?)\*\*', text)
-    result = []
-    for i, segment in enumerate(segments):
-        if i % 2 == 1:  # Odd indices are bold text
-            result.append(f'<strong style="font-weight: 600; color: #0F58F9;">{escape_html(segment)}</strong>')
-        else:
-            result.append(escape_html(segment))
-    return ''.join(result)
-
-
-def render_block_to_html(block: dict) -> str:
-    """Render a single content block to HTML (helper for recursive rendering)"""
-    block_type = block.get('type', '')
-    
-    if block_type == 'headline':
-        level = block.get('level', 1)
-        text = block.get('text', '')
-        font_size = block.get('fontSize', f'{28 if level == 1 else 24 if level == 2 else 20}px')
-        bg_color = block.get('backgroundColor', 'transparent')
-        text_color = block.get('textColor', '#171718')
-        font_weight = 700 if level == 1 else 600
-        margin_top = '16px' if level == 1 else '12px'
-        margin_bottom = '8px' if level == 1 else '6px'
-        padding_style = 'padding: 12px 16px; border-radius: 8px;' if bg_color != 'transparent' else ''
+# Test endpoint to verify PDF generation works
+@app.post("/api/custom/pdf/test-html-to-pdf", response_class=JSONResponse)
+async def test_html_to_pdf_generation(
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Test endpoint to verify HTML to PDF generation works"""
+    try:
+        logger.info(f"[TEST PDF] Starting test PDF generation for user {onyx_user_id}")
         
-        style = f'font-size: {font_size}; font-weight: {font_weight}; color: {text_color}; background-color: {bg_color}; margin-top: {margin_top}; margin-bottom: {margin_bottom}; line-height: 1.3; {padding_style}'
-        return f'<h{level} style="{style}">{parse_styled_text(text)}</h{level}>'
-    
-    elif block_type == 'paragraph':
-        text = block.get('text', '')
-        font_size = block.get('fontSize', '16px')
-        style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 12px;'
-        return f'<p style="{style}">{parse_styled_text(text)}</p>'
-    
-    elif block_type == 'bullet_list':
-        items = block.get('items', [])
-        font_size = block.get('fontSize', '16px')
-        list_style = 'margin-bottom: 12px; padding-left: 0; list-style: none;'
-        item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 6px; display: flex; align-items: flex-start;'
-        bullet_style = 'width: 6px; height: 6px; border-radius: 50%; background-color: #0F58F9; margin-right: 12px; margin-top: 8px; flex-shrink: 0;'
-        
-        html = f'<ul style="{list_style}">'
-        for item in items:
-            item_text = item if isinstance(item, str) else str(item)
-            html += f'<li style="{item_style}"><span style="{bullet_style}"></span><span>{parse_styled_text(item_text)}</span></li>'
-        html += '</ul>'
-        return html
-    
-    elif block_type == 'numbered_list':
-        items = block.get('items', [])
-        font_size = block.get('fontSize', '16px')
-        list_style = 'margin-bottom: 12px; padding-left: 0; list-style: none; counter-reset: list-counter;'
-        item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 6px; display: flex; align-items: flex-start; counter-increment: list-counter;'
-        number_style = 'font-weight: 600; color: #0F58F9; margin-right: 12px; flex-shrink: 0; min-width: 24px;'
-        
-        html = f'<ol style="{list_style}">'
-        for list_idx, item in enumerate(items, 1):
-            item_text = item if isinstance(item, str) else str(item)
-            html += f'<li style="{item_style}"><span style="{number_style}">{list_idx}.</span><span>{parse_styled_text(item_text)}</span></li>'
-        html += '</ol>'
-        return html
-    
-    return ''
-
-
-def generate_text_presentation_html(data: dict) -> str:
-    """Generate complete HTML document from text presentation data"""
-    title = data.get('textTitle', 'Text Presentation')
-    language = data.get('detectedLanguage', 'en')
-    content_blocks = data.get('contentBlocks', [])
-    
-    logger.info(f"Generating HTML for text presentation: {title}, blocks: {len(content_blocks)}")
-    
-    # Generate HTML for all content blocks
-    content_html_parts = []
-    for idx, block in enumerate(content_blocks):
-        try:
-            block_type = block.get('type', '')
-            logger.info(f"Processing block {idx}: type={block_type}")
-            
-            if block_type == 'headline':
-                level = block.get('level', 1)
-                text = block.get('text', '')
-                font_size = block.get('fontSize', f'{28 if level == 1 else 24 if level == 2 else 20}px')
-                bg_color = block.get('backgroundColor', 'transparent')
-                text_color = block.get('textColor', '#171718')
-                font_weight = 700 if level == 1 else 600
-                margin_top = '32px' if level == 1 else '24px'
-                margin_bottom = '16px' if level == 1 else '12px'
-                padding_style = 'padding: 12px 16px; border-radius: 8px;' if bg_color != 'transparent' else ''
-                
-                style = f'font-size: {font_size}; font-weight: {font_weight}; color: {text_color}; background-color: {bg_color}; margin-top: {margin_top}; margin-bottom: {margin_bottom}; line-height: 1.3; {padding_style}'
-                content_html_parts.append(f'<h{level} style="{style}">{parse_styled_text(text)}</h{level}>')
-            
-            elif block_type == 'paragraph':
-                text = block.get('text', '')
-                font_size = block.get('fontSize', '16px')
-                style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 16px;'
-                content_html_parts.append(f'<p style="{style}">{parse_styled_text(text)}</p>')
-            
-            elif block_type == 'bullet_list':
-                items = block.get('items', [])
-                font_size = block.get('fontSize', '16px')
-                
-                list_style = 'margin-bottom: 16px; padding-left: 0; list-style: none;'
-                item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 8px; display: flex; align-items: flex-start;'
-                bullet_style = 'width: 6px; height: 6px; border-radius: 50%; background-color: #0F58F9; margin-right: 12px; margin-top: 8px; flex-shrink: 0;'
-                
-                html = f'<ul style="{list_style}">'
-                for item in items:
-                    item_text = item if isinstance(item, str) else str(item)
-                    html += f'<li style="{item_style}"><span style="{bullet_style}"></span><span>{parse_styled_text(item_text)}</span></li>'
-                html += '</ul>'
-                content_html_parts.append(html)
-            
-            elif block_type == 'numbered_list':
-                items = block.get('items', [])
-                font_size = block.get('fontSize', '16px')
-                
-                list_style = 'margin-bottom: 16px; padding-left: 0; list-style: none; counter-reset: list-counter;'
-                item_style = f'font-size: {font_size}; line-height: 1.6; color: #171718; margin-bottom: 8px; display: flex; align-items: flex-start; counter-increment: list-counter;'
-                number_style = 'font-weight: 600; color: #0F58F9; margin-right: 12px; flex-shrink: 0; min-width: 24px;'
-                
-                html = f'<ol style="{list_style}">'
-                for list_idx, item in enumerate(items, 1):
-                    item_text = item if isinstance(item, str) else str(item)
-                    html += f'<li style="{item_style}"><span style="{number_style}">{list_idx}.</span><span>{parse_styled_text(item_text)}</span></li>'
-                html += '</ol>'
-                content_html_parts.append(html)
-            
-            elif block_type == 'alert':
-                alert_type = block.get('alertType', 'info')
-                alert_title = block.get('title', '')
-                alert_text = block.get('text', '')
-                font_size = block.get('fontSize', '16px')
-                
-                alert_styles = {
-                    'info': {'bg': '#EFF6FF', 'border': '#3B82F6', 'text': '#1E40AF', 'icon': 'i'},
-                    'warning': {'bg': '#FEF3C7', 'border': '#F59E0B', 'text': '#92400E', 'icon': '!'},
-                    'success': {'bg': '#D1FAE5', 'border': '#10B981', 'text': '#065F46', 'icon': '✓'},
-                    'danger': {'bg': '#FEE2E2', 'border': '#EF4444', 'text': '#991B1B', 'icon': 'x'},
-                }
-                alert_style = alert_styles.get(alert_type, alert_styles['info'])
-                bg_color = block.get('backgroundColor', alert_style['bg'])
-                border_color = block.get('borderColor', alert_style['border'])
-                text_color = block.get('textColor', alert_style['text'])
-                
-                container_style = f'background-color: {bg_color}; border-left: 4px solid {border_color}; border-radius: 8px; padding: 16px; margin-bottom: 16px;'
-                title_style = f'font-weight: 600; color: {text_color}; font-size: {font_size}; margin-bottom: 8px;'
-                text_style = f'color: {text_color}; font-size: {font_size}; line-height: 1.6;'
-                
-                html = f'<div style="{container_style}">'
-                if alert_title:
-                    html += f'<div style="{title_style}">{alert_style["icon"]} {parse_styled_text(alert_title)}</div>'
-                html += f'<div style="{text_style}">{parse_styled_text(alert_text)}</div>'
-                html += '</div>'
-                content_html_parts.append(html)
-            
-            elif block_type == 'section_break':
-                style_type = block.get('style', 'solid')
-                border_style = 'dashed' if style_type == 'dashed' else 'solid'
-                hr_style = f'border: none; border-top: 2px {border_style} #E4E4E7; margin: 32px 0;'
-                content_html_parts.append(f'<hr style="{hr_style}" />')
-            elif block_type == 'image':
-                # Skip image blocks - they may cause issues with external URLs
-                logger.info(f"Skipping image block at index {idx}")
-                continue
-                
-            elif block_type == 'column_container':
-                column_count = block.get('columnCount', 2)
-                columns = block.get('columns', [])
-                
-                # Create column container with CSS columns
-                container_style = f'display: grid; grid-template-columns: repeat({column_count}, 1fr); gap: 24px; margin-bottom: 24px;'
-                
-                html = f'<div style="{container_style}">'
-                for column in columns:
-                    html += '<div style="display: flex; flex-direction: column;">'
-                    for column_block in column:
-                        # Recursively render blocks in each column
-                        block_html = render_block_to_html(column_block)
-                        html += block_html
-                    html += '</div>'
-                html += '</div>'
-                content_html_parts.append(html)
-                
-            elif block_type == 'table':
-                headers = block.get('headers', [])
-                rows = block.get('rows', [])
-                caption = block.get('caption', '')
-                
-                table_style = 'width: 100%; border-collapse: collapse; margin: 24px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;'
-                th_style = 'background-color: #F4F4F5; color: #171718; font-weight: 600; padding: 12px; text-align: left; border-bottom: 2px solid #E4E4E7;'
-                td_style = 'padding: 12px; border-bottom: 1px solid #E4E4E7; color: #171718;'
-                
-                html = f'<table style="{table_style}">'
-                html += '<thead><tr>'
-                for header in headers:
-                    html += f'<th style="{th_style}">{escape_html(header)}</th>'
-                html += '</tr></thead>'
-                html += '<tbody>'
-                for row in rows:
-                    html += '<tr>'
-                    for cell in row:
-                        html += f'<td style="{td_style}">{parse_styled_text(cell)}</td>'
-                    html += '</tr>'
-                html += '</tbody>'
-                html += '</table>'
-                
-                if caption:
-                    caption_style = 'font-size: 14px; color: #71717A; text-align: center; margin-top: 8px; font-style: italic;'
-                    html += f'<div style="{caption_style}">{parse_styled_text(caption)}</div>'
-                
-                content_html_parts.append(html)
-                    
-        except Exception as block_error:
-            logger.error(f"Error processing block {idx} (type: {block.get('type', 'unknown')}): {str(block_error)}", exc_info=True)
-            # Continue processing other blocks
-            continue
-    
-    content_html = '\n'.join(content_html_parts)
-    logger.info(f"Successfully generated HTML content with {len(content_html_parts)} blocks")
-    
-    # Complete HTML document
-    html = f'''<!DOCTYPE html>
-<html lang="{language}">
+        # Simple test HTML
+        test_html = """<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{escape_html(title)}</title>
-  <style>
-    * {{
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }}
-    
-    body {{
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
-      color: #171718;
-      background-color: #FFFFFF;
-      padding: 40px 20px;
-      max-width: 210mm;
-      margin: 0 auto;
-    }}
-    
-    @media print {{
-      body {{
-        padding: 0;
-        background-color: white;
-      }}
-      
-      @page {{
-        size: A4;
-        margin: 20mm;
-      }}
-    }}
-    
-    h1, h2, h3, h4, h5, h6 {{
-      font-family: inherit;
-    }}
-  </style>
+    <meta charset="UTF-8">
+    <title>Test PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; }
+        h1 { color: #0F58F9; }
+    </style>
 </head>
 <body>
-  <div style="max-width: 100%; margin: 0 auto;">
-    <h1 style="font-size: 32px; font-weight: 700; color: #171718; margin-bottom: 24px; text-align: center;">
-      {escape_html(title)}
-    </h1>
-    {content_html}
-  </div>
+    <h1>Test PDF Generation</h1>
+    <p>This is a test PDF to verify the HTML to PDF conversion works correctly.</p>
+    <p>If you can see this, the PDF generation is working!</p>
 </body>
-</html>'''
-    
-    logger.info(f"HTML document generated successfully, length: {len(html)} chars")
-    return html
+</html>"""
+        
+        logger.info(f"[TEST PDF] Test HTML length: {len(test_html)}")
+        
+        from app.services.pdf_generator import generate_pdf_from_html_content
+        import uuid
+        
+        test_filename = f"test_pdf_{uuid.uuid4().hex[:12]}.pdf"
+        logger.info(f"[TEST PDF] Generating test PDF: {test_filename}")
+        
+        pdf_path = await generate_pdf_from_html_content(
+            html_content=test_html,
+            output_filename=test_filename,
+            use_cache=False
+        )
+        
+        logger.info(f"[TEST PDF] PDF generated successfully at: {pdf_path}")
+        
+        return JSONResponse(content={
+            'success': True,
+            'message': 'PDF generation test successful',
+            'pdf_path': pdf_path
+        })
+        
+    except Exception as e:
+        logger.error(f"[TEST PDF] Error in test PDF generation: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={
+                'success': False,
+                'error': str(e),
+                'error_type': type(e).__name__
+            }
+        )
 
 
-@app.get("/api/custom/pdf/text-presentation/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
-async def download_text_presentation_pdf(
+@app.post("/api/custom/pdf/text-presentation/{project_id}", response_class=JSONResponse)
+async def generate_text_presentation_pdf(
     project_id: int,
+    request_data: TextPresentationPdfRequest,
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Download text presentation as PDF"""
+    """
+    Generate PDF from text presentation HTML content.
+    Receives HTML content from frontend and converts it to PDF.
+    """
     try:
+        logger.info(f"[TEXT PRESENTATION PDF] Starting PDF generation for project {project_id}")
+        
+        # Verify project access
         async with pool.acquire() as conn:
             target_row_dict = await conn.fetchrow(
                 """
@@ -14240,70 +14019,106 @@ async def download_text_presentation_pdf(
                 """,
                 project_id, onyx_user_id
             )
+        
         if not target_row_dict:
+            logger.error(f"[TEXT PRESENTATION PDF] Project {project_id} not found for user {onyx_user_id}")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found for user.")
 
         component_name = target_row_dict.get("design_component_name")
+        logger.info(f"[TEXT PRESENTATION PDF] Component name: {component_name}")
+        
         if component_name != COMPONENT_NAME_TEXT_PRESENTATION:
+            logger.error(f"[TEXT PRESENTATION PDF] Invalid component type: {component_name}, expected: {COMPONENT_NAME_TEXT_PRESENTATION}")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This endpoint is only for text presentation projects.")
 
-        mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
-        user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
-
-        content_json = target_row_dict.get('microproduct_content')
-        if not content_json or not isinstance(content_json, dict):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid text presentation content.")
-
-        # Extract text presentation data
-        text_presentation_data = {
-            'textTitle': content_json.get('textTitle', mp_name_for_pdf_context),
-            'contentBlocks': content_json.get('contentBlocks', []),
-            'detectedLanguage': content_json.get('detectedLanguage', 'en')
-        }
-
-        logger.info(f"Text Presentation PDF Gen (Project {project_id}): Generating PDF with {len(text_presentation_data['contentBlocks'])} content blocks")
-        logger.info(f"Text presentation data structure: {json.dumps(text_presentation_data, indent=2)[:500]}...")
-
-        # Generate HTML from text presentation data
-        try:
-            html_content = generate_text_presentation_html(text_presentation_data)
-            logger.info(f"HTML generation successful, content length: {len(html_content)}")
-        except Exception as html_error:
-            logger.error(f"Failed to generate HTML: {str(html_error)}", exc_info=True)
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate HTML: {str(html_error)[:200]}")
+        # Get HTML content from request
+        html_content = request_data.html_content
+        if not html_content:
+            logger.error(f"[TEXT PRESENTATION PDF] No HTML content provided")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No HTML content provided.")
         
-        # Generate PDF from HTML
+        logger.info(f"[TEXT PRESENTATION PDF] Generating PDF for text presentation {project_id}, HTML length: {len(html_content)}")
+        
+        # Generate unique filename
         unique_output_filename = f"text_presentation_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
         
+        # Generate PDF from HTML content
         from app.services.pdf_generator import generate_pdf_from_html_content
+        logger.info(f"[TEXT PRESENTATION PDF] Calling generate_pdf_from_html_content with filename: {unique_output_filename}")
         
-        try:
-            logger.info(f"Starting PDF generation from HTML content...")
-            pdf_path = await generate_pdf_from_html_content(
-                html_content=html_content,
-                output_filename=unique_output_filename,
-                use_cache=True
-            )
-            logger.info(f"PDF generation completed, path: {pdf_path}")
-        except Exception as pdf_error:
-            logger.error(f"Failed to generate PDF from HTML: {str(pdf_error)}", exc_info=True)
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(pdf_error)[:200]}")
-        
-        if not os.path.exists(pdf_path):
-            logger.error(f"PDF file not found at expected path: {pdf_path}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")
-        
-        return FileResponse(
-            path=pdf_path, 
-            filename=user_friendly_pdf_filename, 
-            media_type='application/pdf', 
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        pdf_path = await generate_pdf_from_html_content(
+            html_content=html_content,
+            output_filename=unique_output_filename,
+            use_cache=False  # Don't use cache for text presentations as they may change frequently
         )
+        
+        logger.info(f"[TEXT PRESENTATION PDF] PDF generated successfully at: {pdf_path}")
+        
+        # Create user-friendly filename
+        mp_name_for_pdf_context = request_data.filename or target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+        user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+        
+        logger.info(f"[TEXT PRESENTATION PDF] User-friendly filename: {user_friendly_pdf_filename}")
+        
+        # Return download URL
+        return JSONResponse(content={
+            'download_url': f'/pdf/text-presentation/{project_id}/download/{os.path.basename(pdf_path)}',
+            'filename': user_friendly_pdf_filename,
+            'success': True
+        })
+        
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error generating text presentation PDF for project {project_id}: {e}", exc_info=True)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate text presentation PDF: {str(e)[:200]}")
+        logger.error(f"[TEXT PRESENTATION PDF] Error generating text presentation PDF for project {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
+
+@app.get("/api/custom/pdf/text-presentation/{project_id}/download/{pdf_filename}", response_class=FileResponse)
+async def download_text_presentation_pdf(
+    project_id: int,
+    pdf_filename: str,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download generated text presentation PDF"""
+    try:
+        # Verify project access
+        async with pool.acquire() as conn:
+            target_row_dict = await conn.fetchrow(
+                """
+                SELECT p.project_name, p.microproduct_name
+                FROM projects p
+                WHERE p.id = $1 AND p.onyx_user_id = $2;
+                """,
+                project_id, onyx_user_id
+            )
+        
+        if not target_row_dict:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found for user.")
+
+        # Get PDF from cache
+        from app.services.pdf_generator import PDF_CACHE_DIR
+        pdf_path = PDF_CACHE_DIR / pdf_filename
+        
+        if not os.path.exists(pdf_path):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="PDF file not found. It may have expired or been deleted.")
+        
+        # Create user-friendly filename
+        mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+        user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+        
+        return FileResponse(
+            path=str(pdf_path),
+            filename=user_friendly_pdf_filename,
+            media_type='application/pdf',
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error serving text presentation PDF for project {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to serve PDF: {str(e)[:200]}")
 
 
 @app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
