@@ -449,19 +449,20 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full max-w-7xl">
-                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9', width: '100%', height: 'auto' }}>
+                    <div className="w-full max-w-6xl mx-auto">
+                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative">
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
-                          <div className="absolute top-2 left-2 z-40">
+                          <div className="absolute top-2 left-2 z-50">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setShowSlideMenu(showMenu ? null : slide.slideId);
                               }}
-                              className="w-5 h-8 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#CCCCCC] transition-all duration-200"
+                              className="w-8 h-8 bg-white hover:bg-gray-50 rounded-md flex items-center justify-center shadow-sm border border-[#CCCCCC] transition-all duration-200"
+                              title="Slide options"
                             >
-                              <MoreVertical size={16} className="text-[#CCCCCC]" />
+                              <MoreVertical size={14} className="text-[#666666]" />
                             </button>
                           </div>
                         )}
@@ -470,14 +471,17 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-sm shadow-xl min-w-[60px]"
+                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-md shadow-xl"
+                            style={{ width: 'auto', minWidth: 'auto' }}
                           >
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 duplicateSlide(slide.slideId);
+                                setShowSlideMenu(null);
                               }}
-                              className="w-full px-1 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
+                              className="px-2 py-2 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center"
+                              title="Duplicate slide"
                             >
                               <Copy size={14} />
                             </button>
@@ -487,7 +491,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 setShowAIModal(true);
                                 setShowSlideMenu(null);
                               }}
-                              className="w-full px-1 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
+                              className="px-2 py-2 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center border-l border-gray-200"
+                              title="AI enhance"
                             >
                               <Sparkles size={14} />
                             </button>
@@ -495,8 +500,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteSlide(slide.slideId);
+                                setShowSlideMenu(null);
                               }}
-                              className="w-full px-1 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              className="px-2 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center justify-center border-l border-gray-200"
+                              title="Delete slide"
                             >
                               <Trash2 size={14} className="text-red-500" />
                             </button>
@@ -504,7 +511,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         )}
                         
                         {/* Slide content wrapper with proper constraints */}
-                        <div className="slide-content-wrapper">
+                        <div className="slide-content-wrapper" style={{ pointerEvents: isEditable ? 'auto' : 'none' }}>
                           <ComponentBasedSlideRenderer
                             slide={slide}
                             isEditable={isEditable}

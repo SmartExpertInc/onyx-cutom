@@ -56,6 +56,8 @@
   width: 100%;
   height: auto;
   max-width: 1200px;
+  min-height: 300px;
+  max-height: 675px;
 }
 
 /* Ensure slide content respects container bounds */
@@ -76,6 +78,16 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  z-index: 10;
+}
+
+/* Allow text interaction when editable */
+.slide-content-wrapper[style*="pointer-events: auto"] {
+  pointer-events: auto;
+}
+
+.slide-content-wrapper[style*="pointer-events: auto"] * {
+  pointer-events: auto;
 }
 
 /* Scale slide content to fit container */

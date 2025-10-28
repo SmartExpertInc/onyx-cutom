@@ -2866,14 +2866,15 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             {/* Purple Boxes Section - Essential tools for beginners */}
             {purpleBoxSection && (
               <section className="mb-6">
-                <div 
-                  className={`grid grid-cols-1 gap-4 mb-6 relative group/cardgrid ${
-                    purpleBoxContent.cards.length === 1 ? 'md:grid-cols-1' :
-                    purpleBoxContent.cards.length === 2 ? 'md:grid-cols-2' :
-                    purpleBoxContent.cards.length === 3 ? 'md:grid-cols-3' :
-                    'md:grid-cols-4'
-                  }`}
-                >
+                <div className="relative">
+                  <div 
+                    className={`grid grid-cols-1 gap-4 mb-6 ${
+                      purpleBoxContent.cards.length === 1 ? 'md:grid-cols-1' :
+                      purpleBoxContent.cards.length === 2 ? 'md:grid-cols-2' :
+                      purpleBoxContent.cards.length === 3 ? 'md:grid-cols-3' :
+                      'md:grid-cols-4'
+                    }`}
+                  >
                   {purpleBoxContent.cards.map((card, index) => {
                     const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
                     const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
@@ -2968,28 +2969,17 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                     </div>
                     );
                   })}
+                  </div>
                   
-                  {isEditing && (
-                    <div 
-                      className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-5 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors group/addcard"
-                      onClick={addPurpleBoxCard}
-                    >
-                      <div className="text-center">
-                        <Plus className="w-8 h-8 text-gray-400 group-hover/addcard:text-blue-500 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500 group-hover/addcard:text-blue-600">Add Card</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {isEditing && (
+                  {/* Subtle add button on the right side */}
                   <button
                     onClick={addPurpleBoxCard}
-                    className="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 -mr-12 w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 rounded-full flex items-center justify-center transition-colors opacity-60 hover:opacity-100"
+                    title="Add new card"
                   >
-                    Add Card
+                    <Plus className="w-4 h-4" />
                   </button>
-                )}
+                </div>
               </section>
             )}
 
