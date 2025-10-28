@@ -1348,7 +1348,7 @@ export default function CourseOutlineClient() {
         <div 
           className="flex-1 px-4 flex flex-col items-center transition-all duration-300 ease-in-out relative z-10"
           style={{
-            marginRight: showAdvanced ? '500px' : '0'
+            marginRight: showAdvanced ? '400px' : '0'
           }}
         >
           <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900">
@@ -1669,7 +1669,7 @@ export default function CourseOutlineClient() {
         <div 
           className="fixed top-0 right-0 h-full shadow-2xl transition-transform duration-300 ease-in-out z-30 overflow-y-auto"
           style={{
-            width: '500px',
+            width: '400px',
             backgroundColor: '#F9F9F9',
             transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
             borderLeft: '1px solid #CCCCCC'
@@ -1721,7 +1721,7 @@ export default function CourseOutlineClient() {
           </div>
 
           {/* Content area */}
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-24">
             {!loading && preview.length > 0 && (
               <AiAgent
                 editPrompt={editPrompt}
@@ -1750,10 +1750,10 @@ export default function CourseOutlineClient() {
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
         <div 
-          className="fixed bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out"
+          className="fixed bottom-0 z-40 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out border-t border-[#E0E0E0]"
           style={{
             left: 0,
-            right: showAdvanced ? '500px' : '0'
+            right: showAdvanced ? '400px' : '0'
           }}
         >
           {/* Credits required */}
