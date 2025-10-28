@@ -224,3 +224,10 @@ export const trackAddMember = async (action: string, role?: string) => {
     { transport: "sendBeacon", send_immediately: true }
   );
 };
+
+export const trackFeedback = async () => {
+  await track(
+    "Feedback Sent", 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};

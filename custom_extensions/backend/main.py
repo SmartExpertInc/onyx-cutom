@@ -68,6 +68,7 @@ from app.models.workspace_models import (
 from app.services.workspace_service import WorkspaceService
 from app.services.role_service import RoleService
 from app.services.product_access_service import ProductAccessService
+from app.utils.mixpanel_helper import track_to_mp
 
 # Product JSON indexing service (for products-as-context feature)
 from app.services.product_json_indexer import upload_product_json_to_onyx
