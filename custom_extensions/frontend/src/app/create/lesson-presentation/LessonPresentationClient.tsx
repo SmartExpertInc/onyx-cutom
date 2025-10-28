@@ -356,8 +356,8 @@ export default function LessonPresentationClient() {
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
 
-  // ---- Inline Advanced Mode ----
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // ---- AI Agent Side Panel ----
+  const [showAiAgent, setShowAiAgent] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
@@ -366,15 +366,6 @@ export default function LessonPresentationClient() {
   const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
   const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
   
-  // Auto-scroll to advanced section when it's shown
-  useEffect(() => {
-    if (showAdvanced && advancedSectionRef.current) {
-      advancedSectionRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
-      });
-    }
-  }, [showAdvanced]);
   
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
@@ -2297,28 +2288,6 @@ export default function LessonPresentationClient() {
                       </div>
                     </div>
 
-                {/* Inline Advanced section */}
-                {showAdvanced && (
-                  <AiAgent
-                    editPrompt={editPrompt}
-                    setEditPrompt={setEditPrompt}
-                    examples={lessonExamples}
-                    selectedExamples={selectedExamples}
-                    toggleExample={toggleExample}
-                    loadingEdit={loadingEdit}
-                    onApplyEdit={() => {
-                      handleApplyLessonEdit();
-                      setAdvancedModeState("Used");
-                    }}
-                    advancedSectionRef={advancedSectionRef}
-                    placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    buttonText="Edit"
-                    hasStartedChat={aiAgentChatStarted}
-                    setHasStartedChat={setAiAgentChatStarted}
-                    lastUserMessage={aiAgentLastMessage}
-                    setLastUserMessage={setAiAgentLastMessage}
-                  />
-                )}
               </div>
             </section>
           )}
@@ -2346,7 +2315,7 @@ export default function LessonPresentationClient() {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowAdvanced(!showAdvanced);
+                    setShowAiAgent(!showAiAgent);
                     handleAdvancedModeClick();
                   }}
                   className="px-4 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
@@ -2394,6 +2363,38 @@ export default function LessonPresentationClient() {
           <LoadingAnimation message="Finalizing lesson..." />
         </div>
       )}
+
+      {/* AI Agent Side Panel - slides from right */}
+      <div 
+        className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
+        style={{
+          width: '400px',
+          backgroundColor: '#F9F9F9',
+          transform: showAiAgent ? 'translateX(0)' : 'translateX(100%)',
+          borderLeft: '1px solid #CCCCCC'
+        }}
+      >
+        <AiAgent
+          editPrompt={editPrompt}
+          setEditPrompt={setEditPrompt}
+          examples={lessonExamples}
+          selectedExamples={selectedExamples}
+          toggleExample={toggleExample}
+          loadingEdit={loadingEdit}
+          onApplyEdit={() => {
+            handleApplyLessonEdit();
+            setAdvancedModeState("Used");
+          }}
+          onClose={() => setShowAiAgent(false)}
+          advancedSectionRef={advancedSectionRef}
+          placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
+          buttonText="Edit"
+          hasStartedChat={aiAgentChatStarted}
+          setHasStartedChat={setAiAgentChatStarted}
+          lastUserMessage={aiAgentLastMessage}
+          setLastUserMessage={setAiAgentLastMessage}
+        />
+      </div>
     
     <FeedbackButton />
     </>
