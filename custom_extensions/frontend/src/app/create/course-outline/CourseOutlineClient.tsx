@@ -1721,7 +1721,7 @@ export default function CourseOutlineClient() {
           </div>
 
           {/* Content area */}
-          <div className="flex-1 px-6 pb-24 overflow-hidden">
+          <div className="flex-1 px-6 pb-28 overflow-hidden">
             {!loading && preview.length > 0 && (
               <AiAgent
                 editPrompt={editPrompt}
@@ -1750,11 +1750,7 @@ export default function CourseOutlineClient() {
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
         <div 
-          className="fixed bottom-0 z-40 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out border-t border-[#E0E0E0]"
-          style={{
-            left: 0,
-            right: showAdvanced ? '400px' : '0'
-          }}
+          className="fixed bottom-0 left-0 right-0 z-40 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out border-t border-[#E0E0E0]"
         >
           {/* Credits required */}
           <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
