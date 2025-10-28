@@ -1976,7 +1976,11 @@ function GenerateProductPicker() {
                       style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FBFAFF", border: "1px solid #CCCCCC", color: "#71717A" }}
                     >
                       <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>
-                      <span className="absolute top-1 right-2 text-xl leading-none" style={{ color: "#71717A", fontWeight: 200 }}>+</span>
+                      <span className="absolute top-1 right-2">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5.16667 0.5V9.83333M0.5 5.16667H9.83333" stroke="#5C5D5E" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
                     </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
