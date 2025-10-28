@@ -328,7 +328,7 @@ export default function UploadFilesPage() {
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mt-4">
             {/* Upload a file button */}
             <button
               onClick={handleUploadFileClick}
