@@ -1656,15 +1656,6 @@ export default function CourseOutlineClient() {
           </div> {/* end max-w-4xl wrapper */}
         </div> {/* end main content area */}
 
-        {/* Semi-transparent overlay when panel is open */}
-        {showAdvanced && (
-          <div 
-            className="fixed inset-0 bg-black/10 z-25 transition-opacity duration-300"
-            onClick={() => setShowAdvanced(false)}
-            style={{ opacity: showAdvanced ? 1 : 0 }}
-          />
-        )}
-
         {/* AI Agent Side Panel - slides from right */}
         <div 
           className="fixed top-0 right-0 h-full shadow-2xl transition-transform duration-300 ease-in-out z-30 flex flex-col"

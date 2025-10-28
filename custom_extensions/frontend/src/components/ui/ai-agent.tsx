@@ -214,7 +214,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   return (
     <div 
       ref={advancedSectionRef} 
-      className="flex flex-col h-full"
+      className="flex flex-col h-full mt-6"
     >
       {!hasStartedChat ? (
         <>
@@ -257,7 +257,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mt-auto mb-20">
+          <div className="relative w-full mt-auto">
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
@@ -279,10 +279,10 @@ export const AiAgent: React.FC<AiAgentProps> = ({
             {/* Plus button at bottom left */}
             <button
               type="button"
-              className="absolute bottom-3 left-3 p-2 hover:opacity-70 transition-all"
+              className="absolute bottom-2 left-2 p-2 hover:opacity-70 transition-all"
               aria-label="Add attachment"
             >
-              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="14" height="14" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.42871 0.428711V8.42871M0.428711 4.42871H8.42871" stroke={isTextareaFocused ? "#7B0792" : "#878787"} strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
