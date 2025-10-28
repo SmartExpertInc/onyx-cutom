@@ -332,7 +332,7 @@ export default function UploadFilesPage() {
             {/* Upload a file button */}
             <button
               onClick={handleUploadFileClick}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#E0E0E0] text-[#171718] font-medium hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#CCCCCC] text-[#171718] font-medium hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             >
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.2422 2.5H4.74219C4.48331 2.5 4.27344 2.29013 4.27344 2.03125C4.27344 1.77237 4.48331 1.5625 4.74219 1.5625H12.2422C12.5011 1.5625 12.7109 1.77237 12.7109 2.03125C12.7109 2.29013 12.5011 2.5 12.2422 2.5ZM12.7109 4.21875C12.7109 3.95988 12.5011 3.75 12.2422 3.75H8.49219C8.23331 3.75 8.02344 3.95988 8.02344 4.21875C8.02344 4.47762 8.23331 4.6875 8.49219 4.6875H12.2422C12.5011 4.6875 12.7109 4.47762 12.7109 4.21875ZM16.4922 15.5312V6.78125C16.4922 6.52238 16.2823 6.3125 16.0234 6.3125H7.49306L6.38222 4.64625C6.29528 4.51584 6.14894 4.4375 5.99219 4.4375H2.24219C1.98331 4.4375 1.77344 4.64738 1.77344 4.90625V6.3125H0.960938C0.702062 6.3125 0.492188 6.52238 0.492188 6.78125V15.5312C0.492188 15.7901 0.702062 16 0.960938 16H16.0234C16.2823 16 16.4922 15.7901 16.4922 15.5312Z" fill="#F7E0FC"/>
@@ -348,7 +348,7 @@ export default function UploadFilesPage() {
             {/* Import from SmartDrive button */}
             <button
               onClick={() => setIsSmartDriveModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#E0E0E0] text-[#171718] font-medium hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#CCCCCC] text-[#171718] font-medium hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             >
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_817_17014)">
@@ -369,7 +369,7 @@ export default function UploadFilesPage() {
             {/* Import from URL button */}
             <button
               onClick={() => setIsUrlModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#E0E0E0] text-[#171718] font-medium hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#CCCCCC] text-[#171718] font-medium hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             >
               <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.0234 0.90625H0.960938C0.698406 0.90625 0.492188 1.11247 0.492188 1.375V3.71875L1.42969 4.65625H15.5547L16.4922 3.71875V1.375C16.4922 1.11247 16.286 0.90625 16.0234 0.90625Z" fill="#D8FDF9"/>
