@@ -1272,6 +1272,7 @@ export const es = {
 
     // Course Outline Page
     courseOutline: {
+      pageTitle: "Vista previa de la estructura del curso",
       loading: "Cargando...",
       applyingEdit: "Aplicando edición...",
       edit: "Editar",
@@ -1375,7 +1376,7 @@ export const es = {
       quiz: "Cuestionario",
       onePager: "Una página",
       prompt: "Prompt",
-      promptPlaceholder: "Describe lo que te gustaría crear...",
+      promptPlaceholder: "Escribe o pega contenido aquí...",
       promptPlaceholderFromFiles:
         "Describe lo que quieres crear desde tus archivos...",
       promptPlaceholderFromText:
@@ -1453,6 +1454,7 @@ export const es = {
       generatePresentation: "Generar presentación",
       generateQuiz: "Generar cuestionario",
       generateOnePager: "Generar una página",
+      nextStep: "Siguiente paso",
       avatars: "Avatares",
       chooseVirtualTrainer: "Elige el entrenador virtual",
       content: "Contenido",
@@ -1676,6 +1678,12 @@ export const es = {
         "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
     },
 
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Vista previa de la estructura del video",
+      presentationOutlinePreview: "Vista previa de la estructura de la presentación",
+    },
+
     // View New Page (Course Outline View)
     viewNew: {
       back: "Atrás",
@@ -1701,10 +1709,10 @@ export const es = {
       lessonsGenitive: "lecciones en total",
       lessonsTotal: "lecciones en total",
       collapseAll: "Contraer Todo",
-      lesson: "lección",
-      lessonsGenitiveSingle: "lecciones",
-      lessonsGenitivePlural: "lecciones",
-      lessons: "lecciones",
+      lesson: "Lección",
+      lessonsGenitiveSingle: "Lecciones",
+      lessonsGenitivePlural: "Lecciones",
+      lessons: "Lecciones",
       created: "creado",
       create: "Crear",
       createContent: "Crear contenido",

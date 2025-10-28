@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPi
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { AiAgent } from "@/components/ui/ai-agent";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { BackButton } from "../components/BackButton";
 
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -1248,15 +1249,6 @@ export default function CourseOutlineClient() {
     }
   }, [prompt]);
   
-  // Auto-scroll to advanced section when it's shown
-  useEffect(() => {
-    if (showAdvanced && advancedSectionRef.current) {
-      advancedSectionRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
-      });
-    }
-  }, [showAdvanced]);
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
       setAdvancedModeState("Clicked");
@@ -1317,7 +1309,7 @@ export default function CourseOutlineClient() {
   return (
     <>
     <main
-      className="min-h-screen py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
+      className="min-h-screen pt-16 pb-24 bg-white relative overflow-hidden"
     >
       {/* Decorative gradient backgrounds */}
       <div 
@@ -1328,7 +1320,7 @@ export default function CourseOutlineClient() {
           top: '-500px',
           left: '-350px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.24) 0%, rgba(56, 23, 255, 0.24) 100%)',
           transform: 'rotate(-300deg)',
           filter: 'blur(100px)',
         }}
@@ -1341,32 +1333,31 @@ export default function CourseOutlineClient() {
           top: '358px',
           left: '433px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.24) 0%, rgba(216, 23, 255, 0.24) 100%)',
           transform: 'rotate(-120deg)',
           filter: 'blur(100px)',
         }}
       />
 
       {/* Back button */}
-      <Link
-        href="/create/generate"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
-        style={{ 
-          color: '#000000',
-          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
-        }}
-      >
-        <span>&lt;</span>
-        <span>{t('interface.generate.back', 'Back')}</span>
-      </Link>
+      <BackButton href="/create/generate" />
 
-      <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
+      {/* Main content wrapper with flex layout */}
+      <div className="flex h-full relative">
+        {/* Main content area - shrinks when panel is open */}
+        <div 
+          className="flex-1 px-4 flex flex-col items-center transition-all duration-300 ease-in-out relative z-10"
+          style={{
+            marginRight: showAdvanced ? '400px' : '0'
+          }}
+        >
+          <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900">
 
         {/* Page title */}
-        <h1 className="text-center text-[58px] sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.title', 'Generate')}</h1>
+        <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">{t('interface.courseOutline.pageTitle', 'Course outline preview')}</h2>
 
         {/* Controls */}
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4" style={{ display: 'none' }}>
           <CustomPillSelector
             value={`${modules} ${t('interface.generate.modules', 'Modules')}`}
             onValueChange={(value) => setModules(Number(value.split(' ')[0]))}
@@ -1409,7 +1400,7 @@ export default function CourseOutlineClient() {
         </div>
 
         {/* Prompt textarea with regenerate button */}
-        <div className="flex gap-2 items-start">
+        <div className="flex gap-2 items-start" style={{ display: 'none' }}>
           <div className="relative group flex-1">
             <Textarea
               ref={promptRef}
@@ -1468,9 +1459,9 @@ export default function CourseOutlineClient() {
                   </div>
                 )}
                 {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg border border-[#CCCCCC] hover:shadow-sm overflow-hidden transition-shadow duration-200">
                   {/* Module header with number and title */}
-                  <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3 px-5 py-4 border-b border-[#CCCCCC]">
                     <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
                     <div className="relative group flex-1">
                       <Input
@@ -1517,7 +1508,7 @@ export default function CourseOutlineClient() {
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#434343] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6 px-0"
+                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#171718] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6 px-0"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                  disabled={loading || loadingPreview || isGenerating}
                                />
@@ -1541,7 +1532,7 @@ export default function CourseOutlineClient() {
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
               </Button>
               {/* Status row – identical style mock */}
-              <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
+              <div className="flex items-center justify-between text-sm text-[#A5A5A5] mb-2">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
                 <span className="flex items-center gap-1">
                   <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
@@ -1558,31 +1549,6 @@ export default function CourseOutlineClient() {
             </pre>
           )}
         </section>
-
-        {/* Inline Advanced section & button */}
-        {!loading && preview.length > 0 && showAdvanced && (
-          <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-            <AiAgent
-              editPrompt={editPrompt}
-              setEditPrompt={setEditPrompt}
-              examples={outlineExamples}
-              selectedExamples={selectedExamples}
-              toggleExample={toggleExample}
-              loadingEdit={loadingPreview}
-              onApplyEdit={() => {
-                handleApplyEdit();
-                setAdvancedModeState("Used");
-              }}
-              advancedSectionRef={advancedSectionRef}
-              placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-              buttonText={t('interface.courseOutline.edit', 'Edit')}
-              hasStartedChat={aiAgentChatStarted}
-              setHasStartedChat={setAiAgentChatStarted}
-              lastUserMessage={aiAgentLastMessage}
-              setLastUserMessage={setAiAgentLastMessage}
-            />
-          </div>
-        )}
 
         {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3" style={{ display: 'none' }}>
@@ -1687,17 +1653,55 @@ export default function CourseOutlineClient() {
             </div>
           </section>
         )}
-      </div> {/* end inner wrapper */}
+          </div> {/* end max-w-4xl wrapper */}
+        </div> {/* end main content area */}
+
+        {/* AI Agent Side Panel - slides from right */}
+        <div 
+          className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
+          style={{
+            width: '400px',
+            backgroundColor: '#F9F9F9',
+            transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
+            borderLeft: '1px solid #CCCCCC'
+          }}
+        >
+          {!loading && preview.length > 0 && (
+            <AiAgent
+                editPrompt={editPrompt}
+                setEditPrompt={setEditPrompt}
+                examples={outlineExamples}
+                selectedExamples={selectedExamples}
+                toggleExample={toggleExample}
+                loadingEdit={loadingPreview}
+                onApplyEdit={() => {
+                  handleApplyEdit();
+                  setAdvancedModeState("Used");
+                }}
+                onClose={() => setShowAdvanced(false)}
+                advancedSectionRef={advancedSectionRef}
+                placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+                buttonText={t('interface.courseOutline.edit', 'Edit')}
+                hasStartedChat={aiAgentChatStarted}
+                setHasStartedChat={setAiAgentChatStarted}
+                lastUserMessage={aiAgentLastMessage}
+                setLastUserMessage={setAiAgentLastMessage}
+              />
+            )}
+        </div>
+      </div> {/* end flex container */}
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
+        <div 
+          className="fixed bottom-0 left-0 right-0 z-40 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out border-t border-[#E0E0E0]"
+        >
           {/* Credits required */}
-          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
             {/* custom credits svg */}
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_476_6531)">
-                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#434343" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#A5A5A5" stroke-linecap="round" stroke-linejoin="round"/>
               </g>
               <defs>
                 <clipPath id="clip0_476_6531">
@@ -1710,21 +1714,23 @@ export default function CourseOutlineClient() {
 
           {/* AI Agent + generate */}
           <div className="flex items-center gap-[10px]">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="px-6 py-2 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>{t('interface.courseOutline.aiAgent', 'AI Agent')}</span>
-            </button>
+            {!showAdvanced && (
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="px-4 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{t('interface.courseOutline.aiAgent', 'AI Agent')}</span>
+              </button>
+            )}
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleGenerateFinal}
-                className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-4 py-2 rounded-md bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={loading || isGenerating}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1741,6 +1747,21 @@ export default function CourseOutlineClient() {
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-8px); }
         to { opacity: 1; transform: translateY(0); }
+      }
+      
+      /* Smooth transition for side panel */
+      .ai-agent-panel-enter {
+        transform: translateX(100%);
+      }
+      
+      .ai-agent-panel-enter-active {
+        transform: translateX(0);
+        transition: transform 300ms ease-in-out;
+      }
+      
+      /* Prevent body scroll when panel is open */
+      body.panel-open {
+        overflow: hidden;
       }
     `}</style>
     {/* Make cursor a pointer (hand) over all obvious clickable elements */}

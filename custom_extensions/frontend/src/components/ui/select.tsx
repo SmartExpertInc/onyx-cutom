@@ -68,8 +68,8 @@ const selectTriggerVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-input bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 border shadow-none hover:shadow-lg active:shadow-lg",
-        filter: "bg-white text-gray-700 data-[placeholder]:text-gray-700 [&_svg:not([class*='text-'])]:text-gray-700 shadow-none hover:shadow-lg active:shadow-lg focus-visible:ring-gray-300/50",
+        default: "border-[#171718] bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 border shadow-none hover:shadow-lg active:shadow-lg",
+        filter: "border-[#171718] bg-white text-gray-700 data-[placeholder]:text-gray-700 [&_svg:not([class*='text-'])]:text-gray-700 border shadow-none hover:shadow-lg active:shadow-lg focus-visible:ring-gray-300/50",
       },
     },
     defaultVariants: {
@@ -110,7 +110,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "border-input bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 flex w-fit items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm whitespace-nowrap shadow-none hover:shadow-lg active:shadow-lg transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "border-[#171718] bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 flex w-fit items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm whitespace-nowrap shadow-none hover:shadow-lg active:shadow-lg transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}
@@ -136,7 +136,7 @@ function SelectContent({
         data-slot="select-content"
         sideOffset={sideOffset}
         className={cn(
-          "bg-white text-gray-900 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg border shadow-lg",
+          "bg-white text-gray-900 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg border border-[#171718] shadow-lg",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
@@ -271,7 +271,7 @@ function CustomPillSelector({
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#E0E0E0] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg focus:shadow-lg transition-all cursor-pointer",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#171718] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg focus:shadow-lg transition-all cursor-pointer",
           className
         )}
       >
@@ -279,7 +279,7 @@ function CustomPillSelector({
           <span className="text-[#0D001B] text-sm font-medium truncate">{value}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-[#E0E0E0] max-h-[200px] rounded-xl" sideOffset={15}>
+      <SelectContent className="border border-[#171718] max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value} className="rounded-full ml-1 mr-1">
             {option.label}
@@ -331,7 +331,7 @@ function CustomMultiSelector({
     <Select open={isOpen} onOpenChange={setIsOpen}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#E0E0E0] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg focus:shadow-lg transition-all cursor-pointer",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#171718] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg focus:shadow-lg transition-all cursor-pointer",
           className
         )}
       >
@@ -339,7 +339,7 @@ function CustomMultiSelector({
           <span className="text-[#0D001B] text-sm font-medium truncate">{displayText}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-[#E0E0E0] max-h-[200px] rounded-xl" sideOffset={15}>
+      <SelectContent className="border border-[#171718] max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <div
             key={option.value}

@@ -13,6 +13,7 @@ import { ImportCard, UploadFileIcon, KnowledgeBaseIcon, ImportURLIcon } from "@/
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
 import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
+import { BackButton } from "../components/BackButton";
 
 // StepCard component for the old step-based interface
 interface StepCardProps {
@@ -179,21 +180,12 @@ export default function FromFilesNew() {
           background: 'linear-gradient(360deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
           transform: 'translate(-50%, -50%) rotate(120deg)',
           filter: 'blur(100px)',
+          opacity: 0.24,
         }}
       />
       
       {/* Top-left back button */}
-      <Link
-        href="/create"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-20"
-        style={{ 
-          color: '#000000',
-          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
-        }}
-      >
-        <span>&lt;</span>
-        <span>{t('interface.generate.back', 'Back')}</span>
-      </Link>
+      <BackButton href="/create" />
 
       {/* Hidden file input */}
       <input
@@ -209,10 +201,10 @@ export default function FromFilesNew() {
       <div className="w-full flex flex-col gap-5 items-center relative z-10">
         {/* Headings */}
         <div className="text-center">
-          <h1 className="sora-font-semibold text-7xl text-center tracking-wide text-[#FFFFFF] mb-4 mt-8">
+          <h1 className="sora-font-semibold text-7xl text-center tracking-wide text-[#4D4D4D] mb-4 mt-8">
             {t('interface.fromFiles.importWithAI', 'Import with AI')}
           </h1>
-          <p className="text-xl sm:text-xl text-[#FAFAFA] max-w-2xl">
+          <p className="text-xl sm:text-xl text-[#878787] max-w-2xl">
             {t('interface.fromFiles.selectFile', 'Select the file you\'d like to transform')}
           </p>
         </div>

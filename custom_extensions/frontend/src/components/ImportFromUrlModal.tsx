@@ -104,27 +104,27 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ 
-        backdropFilter: 'blur(14.699999809265137px)',
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.15)',
       }}
       onClick={handleCancel}
     >
       <div 
         className="rounded-xl p-6 w-full max-w-lg"
         style={{
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
+          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
           boxShadow: '4px 4px 8px 0px #0000000D',
           border: '1px solid #E0E0E0',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Title */}
-        <h2 className="text-lg font-semibold text-[#09090B] mb-1">
+        <h2 className="text-lg font-semibold text-[#171718] mb-1">
           {t('interface.importFromUrl.title', 'Import from URL')}
         </h2>
 
         {/* Description */}
-        <p className="text-sm text-[#71717A] mb-6">
+        <p className="text-sm text-[#878787] mb-6">
           {t('interface.importFromUrl.description', 'This will extract the text from the webpage you enter.')}
         </p>
 
@@ -132,7 +132,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
         <div className="space-y-3 mb-6">
           {urls.map((url, index) => (
             <div key={index}>
-              <label className="block text-md font-semibolld text-[#09090B] mb-2">
+              <label className="block text-md font-semibolld text-[#171718] mb-2">
                 {t('interface.importFromUrl.urlLabel', 'URL')}
               </label>
               <input

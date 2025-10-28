@@ -1062,7 +1062,7 @@ export const en = {
         "Do you want to create a quiz from an existing Course Outline?",
       onePagerQuestion:
         "Do you want to create a one-pager from an existing Course Outline?",
-      promptPlaceholder: "Describe what you'd like to make...",
+      promptPlaceholder: "Type or paste in content here...",
       promptPlaceholderFromFiles: "Describe what you'd like to make from your files...",
       promptPlaceholderFromText: "Describe what you'd like to make from your text...",
       examples: "Examples",
@@ -1196,6 +1196,7 @@ export const en = {
       generatePresentation: "Generate Presentation",
       generateQuiz: "Generate Quiz",
       generateOnePager: "Generate One-Pager",
+      nextStep: "Next step",
       avatars: "Avatars",
       chooseVirtualTrainer: "Choose the virtual trainer",
       content: "Content",
@@ -1232,6 +1233,7 @@ export const en = {
 
     // Course Outline specific translations
     courseOutline: {
+      pageTitle: "Course outline preview",
       additionalInfo: "Additional Info",
       assessmentType: "Assessment Type",
       contentVolume: "Content Volume",
@@ -1450,6 +1452,12 @@ export const en = {
       totalHoursHelp: "Total hours are automatically calculated based on projects in the selected client folder",
     },
 
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Video outline preview",
+      presentationOutlinePreview: "Presentation outline preview",
+    },
+
     // Pipelines
     pipelines: {
       deleteConfirmation:
@@ -1638,10 +1646,10 @@ export const en = {
       lessonsGenitive: "lessons total",
       lessonsTotal: "lessons total",
       collapseAll: "Collapse All",
-      lesson: "lesson",
-      lessonsGenitiveSingle: "lessons",
-      lessonsGenitivePlural: "lessons",
-      lessons: "lessons",
+      lesson: "Lesson",
+      lessonsGenitiveSingle: "Lessons",
+      lessonsGenitivePlural: "Lessons",
+      lessons: "Lessons",
       created: "created",
       create: "Create",
       createContent: "Create content",

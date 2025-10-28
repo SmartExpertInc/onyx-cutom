@@ -1281,6 +1281,7 @@ export const uk = {
 
     // Course Outline Page
     courseOutline: {
+      pageTitle: "Попередній перегляд структури курсу",
       loading: "Завантаження...",
       applyingEdit: "Застосування змін...",
       edit: "Редагувати",
@@ -1384,7 +1385,7 @@ export const uk = {
       quiz: "Тест",
       onePager: "Односторінка",
       prompt: "Запит",
-      promptPlaceholder: "Опишіть, що ви хочете створити...",
+      promptPlaceholder: "Введіть або вставте контент тут...",
       promptPlaceholderFromFiles:
         "Опишіть, що ви хочете створити з ваших файлів...",
       promptPlaceholderFromText:
@@ -1461,6 +1462,7 @@ export const uk = {
       generatePresentation: "Генерувати презентацію",
       generateQuiz: "Генерувати тест",
       generateOnePager: "Генерувати односторінку",
+      nextStep: "Наступний крок",
       avatars: "Аватари",
       chooseVirtualTrainer: "Оберіть віртуального тренера",
       content: "Контент",
@@ -1684,6 +1686,12 @@ export const uk = {
         "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень.",
     },
 
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Попередній перегляд структури відео",
+      presentationOutlinePreview: "Попередній перегляд структури презентації",
+    },
+
     // View New Page (Course Outline View)
     viewNew: {
       back: "Назад",
@@ -1709,9 +1717,9 @@ export const uk = {
       lessonsGenitive: "уроки всього",
       lessonsTotal: "уроків всього",
       collapseAll: "Згорнути Все",
-      lesson: "урок",
-      lessonsGenitiveSingle: "уроки",
-      lessonsGenitivePlural: "уроків",
+      lesson: "Урок",
+      lessonsGenitiveSingle: "Уроки",
+      lessonsGenitivePlural: "Уроків",
       lessons: "Уроки",
       created: "створено",
       create: "Створити",

@@ -7,10 +7,10 @@ import { FolderOpen, Sparkles, Edit3, Plus, ShieldAlert, ChevronDown, Eye } from
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
-import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
+import { AiAgent } from '@/components/ui/ai-agent';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -142,6 +142,196 @@ export default function ProductViewNewPage() {
     videoLesson: {exists: boolean, productId?: number}
   }}>({});
   const [collapsedSections, setCollapsedSections] = useState<{[key: number]: boolean}>({});
+  const [showAiAgent, setShowAiAgent] = useState(false);
+  const [editPrompt, setEditPrompt] = useState('');
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [previewContent, setPreviewContent] = useState<TrainingPlanData | null>(null);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+
+  // AI Agent examples (similar to course outline)
+  const aiAgentExamples = [
+    { short: t('interface.aiAgent.example1', 'Make it more engaging'), detailed: t('interface.aiAgent.example1Full', 'Make the course outline more engaging for students') },
+    { short: t('interface.aiAgent.example2', 'Add more details'), detailed: t('interface.aiAgent.example2Full', 'Add more details to the lesson descriptions') },
+    { short: t('interface.aiAgent.example3', 'Simplify language'), detailed: t('interface.aiAgent.example3Full', 'Simplify the language for better understanding') }
+  ];
+
+  const toggleExample = (example: { short: string; detailed: string }) => {
+    setSelectedExamples((prev) =>
+      prev.includes(example.short)
+        ? prev.filter((e) => e !== example.short)
+        : [...prev, example.short]
+    );
+    setEditPrompt((prev) => {
+      if (prev.includes(example.detailed)) {
+        return prev.replace(example.detailed, '').trim();
+      }
+      return prev ? `${prev} ${example.detailed}` : example.detailed;
+    });
+  };
+
+  const handleApplyEdit = async () => {
+    const trimmed = editPrompt.trim();
+    if (!trimmed || loadingEdit || !productId) return;
+
+    const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+    if (!trainingPlanData) return;
+
+    setLoadingEdit(true);
+    try {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/training-plan/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          prompt: trimmed,
+          projectId: parseInt(productId),
+          language: trainingPlanData.detectedLanguage || "en",
+          theme: trainingPlanData.theme || "cherry",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No stream body");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const packet = JSON.parse(line);
+            if (packet.type === "done" && packet.updatedContent) {
+              if (packet.isPreview) {
+                // This is a preview - store it and show immediately in the UI
+                setPreviewContent(packet.updatedContent);
+                setEditableData(packet.updatedContent);
+              } else {
+                // Old immediate update flow (fallback if backend doesn't send isPreview)
+                setEditableData(packet.updatedContent);
+                setEditPrompt('');
+                setSelectedExamples([]);
+              }
+            } else if (packet.type === "error") {
+              throw new Error(packet.message || "AI edit failed");
+            }
+          } catch (e) {
+            if (e instanceof SyntaxError) {
+              console.warn("Failed to parse packet:", line);
+              continue;
+            }
+            throw e;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error applying edit:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to apply edit');
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
+
+  // Confirm the AI edit and save to database
+  const handleConfirmEdit = async () => {
+    if (!previewContent || !productId) return;
+
+    try {
+      const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+      
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/training-plan/confirm-edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          projectId: parseInt(productId),
+          updatedContent: previewContent,
+          language: trainingPlanData?.detectedLanguage || "en",
+          theme: trainingPlanData?.theme || "cherry",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        // Changes are confirmed and saved
+        setEditableData(previewContent);
+        setPreviewContent(null);
+        setEditPrompt('');
+        setSelectedExamples([]);
+        
+        // Refresh the project data to ensure everything is in sync
+        const commonHeaders: HeadersInit = {};
+        const devUserId = "dummy-onyx-user-id-for-testing";
+        if (devUserId && process.env.NODE_ENV === 'development') {
+          commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+        }
+        
+        const refreshResponse = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+          cache: 'no-store',
+          headers: commonHeaders
+        });
+        if (refreshResponse.ok) {
+          const refreshedData: ProjectInstanceDetail = await refreshResponse.json();
+          setProjectData(refreshedData);
+          setEditableData(refreshedData.details as TrainingPlanData);
+        }
+      } else {
+        setSaveError("Failed to save changes");
+      }
+    } catch (error) {
+      console.error('Error confirming edit:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save changes');
+    }
+  };
+
+  // Revert the AI edit preview
+  const handleRevertEdit = async () => {
+    if (!productId) return;
+    
+    // Refetch the original data from the server to restore
+    try {
+      const commonHeaders: HeadersInit = {};
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+        cache: 'no-store',
+        headers: commonHeaders
+      });
+
+      if (response.ok) {
+        const data: ProjectInstanceDetail = await response.json();
+        setProjectData(data);
+        setEditableData(data.details as TrainingPlanData);
+      }
+    } catch (error) {
+      console.error('Error refetching project data:', error);
+      setError('Failed to restore original content');
+    }
+    
+    setPreviewContent(null);
+    setEditPrompt('');
+    setSelectedExamples([]);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -158,8 +348,6 @@ export default function ProductViewNewPage() {
   }, [openDropdown]);
   const [userCredits, setUserCredits] = useState<number | null>(null);
   
-  // Smart editing state
-  const [showSmartEditor, setShowSmartEditor] = useState(false);
   const [editableData, setEditableData] = useState<TrainingPlanData | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -604,50 +792,6 @@ export default function ProductViewNewPage() {
     }
   }, [projectData]);
 
-  // Handler for SmartPromptEditor content updates
-  const handleSmartEditContentUpdate = useCallback((updatedContent: TrainingPlanData) => {
-    setEditableData(updatedContent);
-    // Note: Don't refetch from server here since with confirmation flow,
-    // changes are only saved after user explicitly confirms them
-  }, []);
-
-  // Handler for SmartPromptEditor errors
-  const handleSmartEditError = useCallback((error: string) => {
-    setSaveError(error);
-  }, []);
-
-  // Handler for SmartPromptEditor revert
-  const handleSmartEditRevert = useCallback(() => {
-    // Refetch the original data from the server to restore the original content
-    if (productId) {
-      const fetchProjectData = async () => {
-        try {
-          const commonHeaders: HeadersInit = {};
-          const devUserId = "dummy-onyx-user-id-for-testing";
-          if (devUserId && process.env.NODE_ENV === 'development') {
-            commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-          }
-
-          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
-            cache: 'no-store',
-            headers: commonHeaders
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch project data: ${response.status}`);
-          }
-
-          const data: ProjectInstanceDetail = await response.json();
-          setProjectData(data);
-          setEditableData(data.details as TrainingPlanData);
-        } catch (error) {
-          console.error('Error refetching project data:', error);
-          setError('Failed to restore original content');
-        }
-      };
-      fetchProjectData();
-    }
-  }, [productId]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
     const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
@@ -908,33 +1052,78 @@ export default function ProductViewNewPage() {
         projectData={projectData}
         editableData={editableData}
         productId={productId}
-        showSmartEditor={showSmartEditor}
-        setShowSmartEditor={setShowSmartEditor}
+        showAiAgent={showAiAgent}
+        setShowAiAgent={setShowAiAgent}
         scormEnabled={scormEnabled}
         componentName={COMPONENT_NAME_TRAINING_PLAN}
         t={t}
       />
 
-      <div className="max-w-7xl mx-auto flex flex-col">
-        {/* Smart Prompt Editor - positioned between top panel and main content */}
-        {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-4 md:px-8 lg:px-[100px] mt-6">
-            <SmartPromptEditor
-              projectId={projectData.project_id}
-              onContentUpdate={handleSmartEditContentUpdate}
-              onError={handleSmartEditError}
-              onRevert={handleSmartEditRevert}
-              onClose={() => setShowSmartEditor(false)}
-              currentLanguage={editableData.detectedLanguage}
-              currentTheme={editableData.theme}
-            />
-          </div>
-        )}
-
+      <div 
+        className="max-w-7xl mx-auto flex flex-col transition-all duration-300 ease-in-out"
+        style={{
+          marginRight: showAiAgent ? '400px' : '0'
+        }}
+      >
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px]">
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-3 space-y-4 pb-4">
+            {/* AI Edit Preview Confirmation Banner */}
+            {previewContent && (
+              <div className="w-full bg-white rounded-lg p-6 border border-[#E0E0E0] mt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
+                </div>
+                
+                <p className="text-gray-700 mb-6">
+                  {t('actions.reviewChangesMessage', 'The AI has updated your training plan. Please review the changes below. You can accept these changes to save them permanently, or revert to go back to the original content.')}
+                </p>
+                
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleConfirmEdit}
+                    className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      backgroundColor: '#0F58F9',
+                      color: 'white',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {t('actions.acceptChanges', 'Accept Changes')}
+                  </button>
+                  
+                  <button
+                    onClick={handleRevertEdit}
+                    className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      color: '#0F58F9',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em',
+                      border: '1px solid #0F58F9'
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 3v5h-5" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 21v-5h5" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {t('actions.revertChanges', 'Revert Changes')}
+                  </button>
+                </div>
+              </div>
+            )}
+            
             {/* Course Info Bar */}
             <div className="flex justify-between items-center py-3 mb-0">
               <div className="flex items-center gap-2 text-[#797979] text-[14px]">
@@ -982,7 +1171,7 @@ export default function ProductViewNewPage() {
               }
 
               return trainingPlanData.sections.map((section, index) => (
-                <div key={section.id || index} className="bg-white rounded-lg overflow-hidden">
+                <div key={section.id || index} className="bg-[#F9F9F9] rounded-lg border border-[#E0E0E0] overflow-hidden">
                   {/* Module Header */}
                   <div className="bg-[#CCDBFC] px-[12px] py-[24px]">
                   {isEditingField('sectionTitle', index) ? (
@@ -1017,13 +1206,13 @@ export default function ProductViewNewPage() {
                       >
                           <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
                       </button>
-                        <span className="bg-white text-[#797979] text-[12px] px-2 py-[5px] rounded-full">
+                        <span className="bg-white text-[#A5A5A5] text-[12px] px-2 py-[5px] rounded-full">
                           {section.lessons?.length || 0} {(() => {
                             const count = section.lessons?.length || 0;
                             const form = getSlavicPluralForm(count);
-                            if (form === 'one') return t('interface.viewNew.lesson', 'lesson');
-                            if (form === 'few') return t('interface.viewNew.lessonsGenitiveSingle', 'lessons');
-                            return t('interface.viewNew.lessonsGenitivePlural', 'lessons');
+                            if (form === 'one') return t('interface.viewNew.lesson', 'Lesson');
+                            if (form === 'few') return t('interface.viewNew.lessonsGenitiveSingle', 'Lessons');
+                            return t('interface.viewNew.lessonsGenitivePlural', 'Lessons');
                           })()}
                         </span>
                     </div>
@@ -1042,32 +1231,32 @@ export default function ProductViewNewPage() {
                   
                   {/* Product Types Header */}
                   <div className="grid mb-4 gap-4 items-center px-[25px] py-[10px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, borderBottom: '1px solid #E0E0E0' }} >
-                    <div className="text-[14px] font-medium text-[#434343]">
+                    <div className="text-[14px] font-medium text-[#4D4D4D]">
                       {t('interface.viewNew.lessons', 'Lessons')}
                     </div>
-                    {columnVideoLessonEnabled && (
-                      <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="#4CFFF0" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
-                      </div>
-                    )}
-                    <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#FFE149" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
-                    </div>
-                    <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13.3333 2H2.66667C2.29848 2 2 2.29848 2 2.66667V6C2 6.36819 2.29848 6.66667 2.66667 6.66667H13.3333C13.7015 6.66667 14 6.36819 14 6V2.66667C14 2.29848 13.7015 2 13.3333 2Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7.33333 9.33333H2.66667C2.29848 9.33333 2 9.63181 2 10V13.3333C2 13.7015 2.29848 14 2.66667 14H7.33333C7.70152 14 8 13.7015 8 13.3333V10C8 9.63181 7.70152 9.33333 7.33333 9.33333Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M13.3333 9.33333H11.3333C10.9651 9.33333 10.6667 9.63181 10.6667 10V13.3333C10.6667 13.7015 10.9651 14 11.3333 14H13.3333C13.7015 14 14 13.7015 14 13.3333V10C14 9.63181 13.7015 9.33333 13.3333 9.33333Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span>{t('interface.viewNew.presentation', 'Presentation')}</span>
-                    </div>
-                    <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
+  {columnVideoLessonEnabled && (
+    <div className="flex flex-col items-center text-[12px] font-medium text-[#4D4D4D] justify-center gap-1 p-2">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="#0AFFEA" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
+    </div>
+  )}
+  <div className="flex flex-col items-center text-[12px] font-medium text-[#4D4D4D] justify-center gap-1 p-2">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#FF960A" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
+  </div>
+  <div className="flex flex-col items-center text-[12px] font-medium text-[#4D4D4D] justify-center gap-1 p-2">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.3333 2H2.66667C2.29848 2 2 2.29848 2 2.66667V6C2 6.36819 2.29848 6.66667 2.66667 6.66667H13.3333C13.7015 6.66667 14 6.36819 14 6V2.66667C14 2.29848 13.7015 2 13.3333 2Z" stroke="#D60AFF" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7.33333 9.33333H2.66667C2.29848 9.33333 2 9.63181 2 10V13.3333C2 13.7015 2.29848 14 2.66667 14H7.33333C7.70152 14 8 13.7015 8 13.3333V10C8 9.63181 7.70152 9.33333 7.33333 9.33333Z" stroke="#D60AFF" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13.3333 9.33333H11.3333C10.9651 9.33333 10.6667 9.63181 10.6667 10V13.3333C10.6667 13.7015 10.9651 14 11.3333 14H13.3333C13.7015 14 14 13.7015 14 13.3333V10C14 9.63181 13.7015 9.33333 13.3333 9.33333Z" stroke="#D60AFF" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span>{t('interface.viewNew.presentation', 'Presentation')}</span>
+  </div>
+                    <div className="flex flex-col items-center text-[12px] font-medium text-[#4D4D4D] justify-center gap-1 p-2">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9.33366 1.33398V5.33398H13.3337M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -1094,21 +1283,21 @@ export default function ProductViewNewPage() {
                             {/* Lesson Title Column */}
                             <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
-                                <span className="text-[#191D30] text-[16px] font-normal">{lessonIndex + 1}.</span>
+                                <span className="text-[#171718] text-[16px] font-medium">{lessonIndex + 1}.</span>
                               {isEditingField('lessonTitle', index, lessonIndex) ? (
                                 <input
                                   type="text"
                                   value={lesson.title}
                                   onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
                                   onBlur={handleInputBlur}
-                                  className="text-[#191D30] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
+                                  className="text-[#171718] text-[16px] leading-[100%] font-medium bg-transparent border-none outline-none flex-1"
                                   placeholder={t('interface.viewNew.lessonTitle', 'Lesson Title')}
                                   autoFocus
                                 />
                               ) : (
                                 <div className="group flex items-center gap-2">
                                   <span 
-                                    className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer"
+                                    className="text-[#191D30] text-[16px] leading-[100%] font-medium cursor-pointer"
                                     onClick={() => startEditing('lessonTitle', index, lessonIndex)}
                                   >
                                     {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
@@ -1131,7 +1320,7 @@ export default function ProductViewNewPage() {
                                     style={{ width: `${(actualCreatedCount / totalProducts) * 100}%` }}
                                   />
                                 </div>
-                                <span className="text-[#797979] text-[9px]">{actualCreatedCount}/{totalProducts} {t('interface.viewNew.created', 'created')}</span>
+                                <span className="text-[#A5A5A5] text-[9px]">{actualCreatedCount}/{totalProducts} {t('interface.viewNew.created', 'created')}</span>
                               </div>
                             </div>
                             
@@ -1455,6 +1644,38 @@ export default function ProductViewNewPage() {
           </div>
         </div>
       )}
+
+      {/* AI Agent Side Panel - slides from right, positioned below header */}
+      <div 
+        className="fixed right-0 transition-transform duration-300 ease-in-out z-30 flex flex-col"
+        style={{
+          top: '64px', // Start below the header
+          height: 'calc(100vh - 64px)', // Full height minus header
+          width: '400px',
+          backgroundColor: '#F9F9F9',
+          transform: showAiAgent ? 'translateX(0)' : 'translateX(100%)',
+          borderLeft: '1px solid #CCCCCC'
+        }}
+      >
+        {projectData && (
+          <AiAgent
+              editPrompt={editPrompt}
+              setEditPrompt={setEditPrompt}
+              examples={aiAgentExamples}
+              selectedExamples={selectedExamples}
+              toggleExample={toggleExample}
+              loadingEdit={loadingEdit}
+              onApplyEdit={handleApplyEdit}
+              onClose={() => setShowAiAgent(false)}
+              advancedSectionRef={advancedSectionRef}
+              placeholder={t('interface.aiAgent.describeImprovements', "Describe what you'd like to improve...")}
+              buttonText={t('interface.aiAgent.edit', 'Edit')}
+              hasStartedChat={aiAgentChatStarted}
+              setHasStartedChat={setAiAgentChatStarted}
+              hasFooter={false}
+            />
+          )}
+      </div>
     </main>
   );
 }

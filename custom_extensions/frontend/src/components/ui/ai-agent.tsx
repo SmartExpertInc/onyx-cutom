@@ -12,10 +12,10 @@ const SparkleIcon: React.FC<{ color?: string }> = ({ color = '#5D5D79' }) => (
 );
 
 // Send icon for send button
-const SendIcon: React.FC = () => (
+const SendIcon: React.FC<{ color?: string }> = ({ color = '#878787' }) => (
   <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#clip0_493_10723)">
-      <path d="M7.33366 0.666992L3.66699 4.33366M7.33366 0.666992L5.00033 7.33366L3.66699 4.33366M7.33366 0.666992L0.666992 3.00033L3.66699 4.33366" stroke="#8808A2" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7.33366 0.666992L3.66699 4.33366M7.33366 0.666992L5.00033 7.33366L3.66699 4.33366M7.33366 0.666992L0.666992 3.00033L3.66699 4.33366" stroke={color} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
     </g>
     <defs>
       <clipPath id="clip0_493_10723">
@@ -67,6 +67,7 @@ interface AiAgentProps {
   toggleExample: (ex: { short: string; detailed: string }) => void;
   loadingEdit: boolean;
   onApplyEdit: () => void;
+  onClose: () => void;
   advancedSectionRef?: any;
   placeholder?: string;
   buttonText?: string;
@@ -75,6 +76,7 @@ interface AiAgentProps {
   setHasStartedChat?: (value: boolean) => void;
   lastUserMessage?: string;
   setLastUserMessage?: (value: string) => void;
+  hasFooter?: boolean;
 }
 
 export const AiAgent: React.FC<AiAgentProps> = ({
@@ -85,6 +87,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   toggleExample,
   loadingEdit,
   onApplyEdit,
+  onClose,
   advancedSectionRef,
   placeholder = "Ask me to edit, create, or style anything",
   buttonText = "Edit",
@@ -93,15 +96,32 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   setHasStartedChat: externalSetHasStartedChat,
   lastUserMessage: externalLastUserMessage,
   setLastUserMessage: externalSetLastUserMessage,
+  hasFooter = true,
 }) => {
   const { t } = useLanguage();
   const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
+  const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   
-  // Initialize messages from sessionStorage or use default
+  // Initialize messages from localStorage or use default
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const stored = sessionStorage.getItem('aiAgentMessages');
+        // Check if we're on a different page
+        const storedPage = localStorage.getItem('aiAgentCurrentPage');
+        const currentPage = window.location.pathname;
+        
+        if (storedPage && storedPage !== currentPage) {
+          // We're on a different page, clear the messages
+          localStorage.removeItem('aiAgentMessages');
+          localStorage.setItem('aiAgentCurrentPage', currentPage);
+          return [
+            { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
+          ];
+        }
+        
+        // Same page or first visit, load stored messages
+        localStorage.setItem('aiAgentCurrentPage', currentPage);
+        const stored = localStorage.getItem('aiAgentMessages');
         if (stored) {
           const parsed = JSON.parse(stored);
           return parsed.length > 0 ? parsed : [
@@ -109,7 +129,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           ];
         }
       } catch (error) {
-        console.error('Error loading messages from sessionStorage:', error);
+        console.error('Error loading messages from localStorage:', error);
       }
     }
     return [
@@ -124,13 +144,13 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   const hasStartedChat = externalHasStartedChat !== undefined ? externalHasStartedChat : internalHasStartedChat;
   const setHasStartedChat = externalSetHasStartedChat || setInternalHasStartedChat;
 
-  // Save messages to sessionStorage whenever they change
+  // Save messages to localStorage whenever they change
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem('aiAgentMessages', JSON.stringify(messages));
+        localStorage.setItem('aiAgentMessages', JSON.stringify(messages));
       } catch (error) {
-        console.error('Error saving messages to sessionStorage:', error);
+        console.error('Error saving messages to localStorage:', error);
       }
     }
   }, [messages]);
@@ -141,19 +161,6 @@ export const AiAgent: React.FC<AiAgentProps> = ({
     if (hasUserMessages && !hasStartedChat) {
       setHasStartedChat(true);
     }
-  }, []);
-
-  // Clear messages when navigating away (component unmount)
-  React.useEffect(() => {
-    return () => {
-      if (typeof window !== 'undefined') {
-        try {
-          sessionStorage.removeItem('aiAgentMessages');
-        } catch (error) {
-          console.error('Error clearing messages from sessionStorage:', error);
-        }
-      }
-    };
   }, []);
 
   // Scroll to bottom only when a new message is added (not when status updates)
@@ -213,91 +220,126 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   return (
     <div 
       ref={advancedSectionRef} 
-      className="bg-white border border-[#E0E0E0] rounded-lg py-5 px-8 flex flex-col gap-4 mt-3" 
-      style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+      className="flex flex-col h-full"
     >
-      {/* Header section with badge */}
-      <div className="flex flex-col gap-2 mb-[10px]">
-        {/* AI Agent Badge */}
-        <div className="inline-flex items-center gap-2 self-start">
-          <span 
-            className="px-3 py-1 rounded-md text-[16px] font-medium"
-            style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
-          >
-            {t('interface.aiAgent.title', 'Ai Agent')}
-          </span>
+      {/* Header with badge and close button */}
+      <div className="flex items-start justify-between p-6 pb-4">
+        {/* AI Agent Badge and Info - Left Side */}
+        <div className="flex flex-col gap-1">
+          {/* AI Agent Badge */}
+          <div className="inline-flex items-center gap-1 self-start">
+            <span 
+              className="px-3 py-1 rounded-md text-[16px] font-medium"
+              style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
+            >
+              {t('interface.aiAgent.title', 'AI Agent')}
+            </span>
+          </div>
+          
+          {/* Info text */}
+          <div className="flex flex-col" style={{ fontSize: '10px' }}>
+            <span style={{ color: '#A5A5A5' }}>
+              {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
+            </span>
+            <a 
+              href="#" 
+              className="no-underline -mt-1"
+              style={{ color: '#719AF5' }}
+            >
+              {t('interface.aiAgent.learnMore', 'Learn more')}
+            </a>
+          </div>
         </div>
-        
-        {/* Info text */}
-        <div className="flex flex-col" style={{ fontSize: '10px' }}>
-          <span style={{ color: '#949CA8' }}>
-            {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
-          </span>
-          <a 
-            href="#" 
-            className="no-underline"
-            style={{ color: '#498FFF' }}
-          >
-            {t('interface.aiAgent.learnMore', 'Learn more')}
-          </a>
-        </div>
+
+        {/* Close button - Right Side */}
+        <button
+          onClick={onClose}
+          className="p-1.5 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
+          style={{
+            boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
+          }}
+          aria-label="Close panel"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
 
+      {/* Content area */}
+      <div className="flex-1 px-6 pb-8 overflow-hidden flex flex-col">
       {!hasStartedChat ? (
         <>
-          {/* Title */}
-          <h3 
-            className="text-center font-semibold"
-            style={{ color: '#0D001B', fontSize: '18px' }}
-          >
-            {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
-          </h3>
+          {/* Center content: Title and Examples */}
+          <div className="flex flex-col items-center justify-center flex-grow gap-8">
+            {/* Title */}
+            <h3 
+              className="text-center font-semibold"
+              style={{ color: '#0D001B', fontSize: '18px' }}
+            >
+              {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
+            </h3>
 
-          {/* Example prompts */}
-          <div className="flex flex-wrap justify-center gap-3 mb-[20px]">
-            {examples.map((ex) => {
-              const isSelected = selectedExamples.includes(ex.short);
-              return (
-                <button
-                  key={ex.short}
-                  type="button"
-                  onClick={() => toggleExample(ex)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all duration-200 border ${
-                    isSelected
-                      ? 'hover:shadow-md'
-                      : 'bg-white hover:shadow-md'
-                  }`}
-                  style={
-                    isSelected
-                      ? { backgroundColor: '#F7E0FC', color: '#8808A2', borderColor: '#8808A2' }
-                      : { color: '#5D5D79', borderColor: '#5D5D79' }
-                  }
-                >
-                  <SparkleIcon color={isSelected ? '#8808A2' : '#5D5D79'} />
-                  <span>{ex.short}</span>
-                </button>
-              );
-            })}
+            {/* Example prompts - show only first 3 */}
+            <div className="flex flex-col items-center gap-3">
+              {examples.slice(0, 3).map((ex) => {
+                const isSelected = selectedExamples.includes(ex.short);
+                return (
+                  <button
+                    key={ex.short}
+                    type="button"
+                    onClick={() => toggleExample(ex)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all duration-200 border ${
+                      isSelected
+                        ? 'hover:shadow-md'
+                        : 'bg-white hover:shadow-md'
+                    }`}
+                    style={
+                      isSelected
+                        ? { backgroundColor: '#F7E0FC', color: '#8808A2', borderColor: '#8808A2' }
+                        : { color: '#878787', borderColor: '#878787' }
+                    }
+                  >
+                    <SparkleIcon color={isSelected ? '#8808A2' : '#878787'} />
+                    <span>{ex.short}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Textarea with embedded Send button */}
-          <div className="relative w-[80%] mx-auto mb-[20px]">
+          {/* Textarea at bottom */}
+          <div className={`relative w-full mt-auto ${hasFooter ? 'mb-16' : ''}`}>
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
               placeholder={placeholder}
               className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
               style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#8808A2';
-                e.target.style.boxShadow = 'none';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#E0E0E0';
-                e.target.style.boxShadow = 'none';
-              }}
+          onFocus={(e) => {
+            setIsTextareaFocused(true);
+            e.target.style.borderColor = '#8808A2';
+            e.target.style.boxShadow = '0px 8px 24px rgba(0, 0, 0, 0.15)';
+          }}
+          onBlur={(e) => {
+            setIsTextareaFocused(false);
+            e.target.style.borderColor = '#E0E0E0';
+            e.target.style.boxShadow = 'none';
+          }}
             />
             
+            {/* Plus button at bottom left */}
+            <button
+              type="button"
+              className="absolute bottom-2 left-2 p-2 hover:opacity-70 transition-all"
+              aria-label="Add attachment"
+            >
+              <svg width="14" height="14" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.42871 0.428711V8.42871M0.428711 4.42871H8.42871" stroke={isTextareaFocused ? "#7B0792" : "#878787"} strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
             {/* Send button positioned inside textarea */}
             <button
               type="button"
@@ -305,8 +347,8 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               onClick={handleSend}
               className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
               style={{ 
-                borderColor: '#8808A2',
-                color: '#8808A2'
+                borderColor: isTextareaFocused ? '#8808A2' : '#878787',
+                color: isTextareaFocused ? '#8808A2' : '#878787'
               }}
             >
               {loadingEdit ? (
@@ -314,7 +356,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               ) : (
                 <>
                   <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
-                  <SendIcon />
+                  <SendIcon color={isTextareaFocused ? '#8808A2' : '#878787'} />
                 </>
               )}
             </button>
@@ -322,124 +364,142 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </>
       ) : (
         <>
-          {/* Chat view - messenger style with scrolling */}
-          <div ref={messagesContainerRef} className="flex flex-col gap-4 mt-4 max-h-[300px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
-            {/* Render all messages from history */}
-            {messages.map((message, index) => {
-              // Find the index of the last user message
-              const lastUserMessageIndex = messages.map((m, i) => m.sender === 'user' ? i : -1)
-                .filter(i => i !== -1)
-                .pop();
-              const isLastUserMessage = index === lastUserMessageIndex;
+          {/* Content area with messages and feedback */}
+          <div className="flex flex-col gap-4 mt-auto mb-4">
+            {/* Chat view - messenger style with scrolling */}
+            <div ref={messagesContainerRef} className="flex flex-col gap-4 mt-4 max-h-[300px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
+              {/* Render all messages from history */}
+              {messages.map((message, index) => {
+                // Find the index of the last user message
+                const lastUserMessageIndex = messages.map((m, i) => m.sender === 'user' ? i : -1)
+                  .filter(i => i !== -1)
+                  .pop();
+                const isLastUserMessage = index === lastUserMessageIndex;
 
-              return (
-                <div key={index}>
-                  {/* Message bubble */}
-                  <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div 
-                      className="px-4 py-3 max-w-[70%]"
-                      style={message.sender === 'user' ? { 
-                        backgroundColor: '#F7E0FC', 
-                        color: '#0D001B',
-                        borderRadius: '16px',
-                        borderBottomRightRadius: '0'
-                      } : { 
-                        backgroundColor: '#FFFFFF', 
-                        color: '#0D001B',
-                        border: '1px solid #E0E0E0',
-                        borderRadius: '16px',
-                        borderBottomLeftRadius: '0'
-                      }}
-                    >
-                      <p className={`text-sm ${message.sender === 'ai' ? 'font-medium' : ''}`}>
-                        {message.text}
-                      </p>
+                return (
+                  <div key={index}>
+                    {/* Message bubble */}
+                    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div 
+                        className="px-4 py-3 max-w-[70%]"
+                        style={message.sender === 'user' ? { 
+                          backgroundColor: '#F7E0FC', 
+                          color: '#0D001B',
+                          borderRadius: '16px',
+                          borderBottomRightRadius: '0'
+                        } : { 
+                          backgroundColor: '#FFFFFF', 
+                          color: '#0D001B',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '16px',
+                          borderBottomLeftRadius: '0'
+                        }}
+                      >
+                        <p className={`text-sm ${message.sender === 'ai' ? 'font-medium' : ''}`}>
+                          {message.text}
+                        </p>
+                      </div>
                     </div>
+
+                    {/* Status updates only for the last user message */}
+                    {message.sender === 'user' && message.status && isLastUserMessage && (
+                      <div className="flex flex-col gap-2 mt-2 mb-2">
+                        {message.status === 'updating' && (
+                          <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                            <SparklesEmoji />
+                            <span>{t('interface.aiAgent.updating', 'Updating')}</span>
+                          </div>
+                        )}
+                        
+                        {message.status === 'updated' && (
+                          <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                            <SparklesEmoji />
+                            <span>{t('interface.aiAgent.updated', 'Updated')}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-
-                  {/* Status updates only for the last user message */}
-                  {message.sender === 'user' && message.status && isLastUserMessage && (
-                    <div className="flex flex-col gap-2 mt-2 mb-2">
-                      {message.status === 'updating' && (
-                        <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                          <SparklesEmoji />
-                          <span>{t('interface.aiAgent.updating', 'Updating')}</span>
-                        </div>
-                      )}
-                      
-                      {message.status === 'updated' && (
-                        <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                          <SparklesEmoji />
-                          <span>{t('interface.aiAgent.updated', 'Updated')}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Feedback section */}
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-xl text-[#434343]">{t('interface.aiAgent.feedbackQuestion', 'Did this edit work for you?')}</p>
-            <div className="flex gap-3">
-              {/* Thumbs Down */}
-              <button
-                type="button"
-                className="p-2 rounded-md transition-colors group"
-                aria-label="Thumbs down"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
-                  <g clipPath="url(#clip0_867_17790)">
-                    <path d="M11.333 9.33301V1.33301M5.99962 12.0797L6.66629 9.33301H2.77962C2.57263 9.33301 2.36848 9.28481 2.18334 9.19224C1.9982 9.09967 1.83715 8.96527 1.71296 8.79967C1.58876 8.63408 1.50482 8.44184 1.4678 8.23819C1.43077 8.03453 1.44166 7.82505 1.49962 7.62634L3.05296 2.29301C3.13373 2.01605 3.30216 1.77277 3.53296 1.59967C3.76375 1.42658 4.04446 1.33301 4.33296 1.33301H13.333C13.6866 1.33301 14.0257 1.47348 14.2758 1.72353C14.5258 1.97358 14.6663 2.31272 14.6663 2.66634V7.99967C14.6663 8.3533 14.5258 8.69243 14.2758 8.94248C14.0257 9.19253 13.6866 9.33301 13.333 9.33301H11.493C11.2449 9.33314 11.0018 9.40247 10.791 9.53319C10.5802 9.66392 10.41 9.85087 10.2996 10.073L7.99962 14.6663C7.68524 14.6624 7.3758 14.5876 7.09442 14.4473C6.81304 14.307 6.567 14.1049 6.37469 13.8562C6.18237 13.6075 6.04874 13.3185 5.9838 13.0109C5.91885 12.7032 5.92426 12.3849 5.99962 12.0797Z" className="stroke-[#949CA8] group-hover:stroke-[#8808A2]" strokeLinecap="round" strokeLinejoin="round"/>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_867_17790">
-                      <rect width="16" height="16" fill="white"/>
-                    </clipPath>
-                  </defs>
-                </svg>
-              </button>
-
-              {/* Thumbs Up */}
-              <button
-                type="button"
-                className="p-2 rounded-md transition-colors group"
-                aria-label="Thumbs up"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
-                  <g clipPath="url(#clip0_867_17792)">
-                    <path d="M4.66634 6.66634V14.6663M9.99967 3.91967L9.33301 6.66634H13.2197C13.4267 6.66634 13.6308 6.71453 13.816 6.8071C14.0011 6.89967 14.1621 7.03408 14.2863 7.19967C14.4105 7.36527 14.4945 7.55751 14.5315 7.76116C14.5685 7.96481 14.5576 8.17429 14.4997 8.37301L12.9463 13.7063C12.8656 13.9833 12.6971 14.2266 12.4663 14.3997C12.2355 14.5728 11.9548 14.6663 11.6663 14.6663H2.66634C2.31272 14.6663 1.97358 14.5259 1.72353 14.2758C1.47348 14.0258 1.33301 13.6866 1.33301 13.333V7.99967C1.33301 7.64605 1.47348 7.30691 1.72353 7.05687C1.97358 6.80682 2.31272 6.66634 2.66634 6.66634H4.50634C4.7544 6.66621 4.9975 6.59688 5.20831 6.46615C5.41912 6.33543 5.58929 6.14848 5.69967 5.92634L7.99967 1.33301C8.31406 1.3369 8.6235 1.41179 8.90488 1.55207C9.18625 1.69236 9.43229 1.89441 9.62461 2.14314C9.81693 2.39187 9.95055 2.68085 10.0155 2.98848C10.0804 3.2961 10.075 3.61443 9.99967 3.91967Z" className="stroke-[#949CA8] group-hover:stroke-[#8808A2]" strokeLinecap="round" strokeLinejoin="round"/>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_867_17792">
-                      <rect width="16" height="16" fill="white"/>
-                    </clipPath>
-                  </defs>
-                </svg>
-              </button>
+                );
+              })}
             </div>
+
+            {/* Feedback section - only show after content is updated */}
+            {messages.some(m => m.status === 'updated') && (
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-xl text-[#434343]">{t('interface.aiAgent.feedbackQuestion', 'Did this edit work for you?')}</p>
+                <div className="flex gap-3">
+                  {/* Thumbs Down */}
+                  <button
+                    type="button"
+                    className="p-2 rounded-md transition-colors group"
+                    aria-label="Thumbs down"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
+                      <g clipPath="url(#clip0_867_17790)">
+                        <path d="M11.333 9.33301V1.33301M5.99962 12.0797L6.66629 9.33301H2.77962C2.57263 9.33301 2.36848 9.28481 2.18334 9.19224C1.9982 9.09967 1.83715 8.96527 1.71296 8.79967C1.58876 8.63408 1.50482 8.44184 1.4678 8.23819C1.43077 8.03453 1.44166 7.82505 1.49962 7.62634L3.05296 2.29301C3.13373 2.01605 3.30216 1.77277 3.53296 1.59967C3.76375 1.42658 4.04446 1.33301 4.33296 1.33301H13.333C13.6866 1.33301 14.0257 1.47348 14.2758 1.72353C14.5258 1.97358 14.6663 2.31272 14.6663 2.66634V7.99967C14.6663 8.3533 14.5258 8.69243 14.2758 8.94248C14.0257 9.19253 13.6866 9.33301 13.333 9.33301H11.493C11.2449 9.33314 11.0018 9.40247 10.791 9.53319C10.5802 9.66392 10.41 9.85087 10.2996 10.073L7.99962 14.6663C7.68524 14.6624 7.3758 14.5876 7.09442 14.4473C6.81304 14.307 6.567 14.1049 6.37469 13.8562C6.18237 13.6075 6.04874 13.3185 5.9838 13.0109C5.91885 12.7032 5.92426 12.3849 5.99962 12.0797Z" className="stroke-[#949CA8] group-hover:stroke-[#8808A2]" strokeLinecap="round" strokeLinejoin="round"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_867_17790">
+                          <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </button>
+
+                  {/* Thumbs Up */}
+                  <button
+                    type="button"
+                    className="p-2 rounded-md transition-colors group"
+                    aria-label="Thumbs up"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
+                      <g clipPath="url(#clip0_867_17792)">
+                        <path d="M4.66634 6.66634V14.6663M9.99967 3.91967L9.33301 6.66634H13.2197C13.4267 6.66634 13.6308 6.71453 13.816 6.8071C14.0011 6.89967 14.1621 7.03408 14.2863 7.19967C14.4105 7.36527 14.4945 7.55751 14.5315 7.76116C14.5685 7.96481 14.5576 8.17429 14.4997 8.37301L12.9463 13.7063C12.8656 13.9833 12.6971 14.2266 12.4663 14.3997C12.2355 14.5728 11.9548 14.6663 11.6663 14.6663H2.66634C2.31272 14.6663 1.97358 14.5259 1.72353 14.2758C1.47348 14.0258 1.33301 13.6866 1.33301 13.333V7.99967C1.33301 7.64605 1.47348 7.30691 1.72353 7.05687C1.97358 6.80682 2.31272 6.66634 2.66634 6.66634H4.50634C4.7544 6.66621 4.9975 6.59688 5.20831 6.46615C5.41912 6.33543 5.58929 6.14848 5.69967 5.92634L7.99967 1.33301C8.31406 1.3369 8.6235 1.41179 8.90488 1.55207C9.18625 1.69236 9.43229 1.89441 9.62461 2.14314C9.81693 2.39187 9.95055 2.68085 10.0155 2.98848C10.0804 3.2961 10.075 3.61443 9.99967 3.91967Z" className="stroke-[#949CA8] group-hover:stroke-[#8808A2]" strokeLinecap="round" strokeLinejoin="round"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_867_17792">
+                          <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Textarea for next message - same as initial view */}
-          <div className="relative w-[80%] mx-auto mb-[20px]">
+          {/* Textarea at bottom */}
+          <div className={`relative w-full ${hasFooter ? 'mb-16' : ''}`}>
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
               placeholder={placeholder}
               className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
               style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#8808A2';
-                e.target.style.boxShadow = 'none';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#E0E0E0';
-                e.target.style.boxShadow = 'none';
-              }}
+          onFocus={(e) => {
+            setIsTextareaFocused(true);
+            e.target.style.borderColor = '#8808A2';
+            e.target.style.boxShadow = '0px 8px 24px rgba(0, 0, 0, 0.15)';
+          }}
+          onBlur={(e) => {
+            setIsTextareaFocused(false);
+            e.target.style.borderColor = '#E0E0E0';
+            e.target.style.boxShadow = 'none';
+          }}
             />
             
+            {/* Plus button at bottom left */}
+            <button
+              type="button"
+              className="absolute bottom-2 left-2 p-2 hover:opacity-70 transition-all"
+              aria-label="Add attachment"
+            >
+              <svg width="14" height="14" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.42871 0.428711V8.42871M0.428711 4.42871H8.42871" stroke={isTextareaFocused ? "#7B0792" : "#878787"} strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
             {/* Send button positioned inside textarea */}
             <button
               type="button"
@@ -447,8 +507,8 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               onClick={handleSend}
               className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
               style={{ 
-                borderColor: '#8808A2',
-                color: '#8808A2'
+                borderColor: isTextareaFocused ? '#8808A2' : '#878787',
+                color: isTextareaFocused ? '#8808A2' : '#878787'
               }}
             >
               {loadingEdit ? (
@@ -456,13 +516,14 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               ) : (
                 <>
                   <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
-                  <SendIcon />
+                  <SendIcon color={isTextareaFocused ? '#8808A2' : '#878787'} />
                 </>
               )}
             </button>
           </div>
         </>
       )}
+      </div>
       
       {/* Custom scrollbar styling */}
       <style jsx>{`

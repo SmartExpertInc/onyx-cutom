@@ -11,8 +11,8 @@ interface ProductViewHeaderProps {
   projectData: ProjectInstanceDetail | null;
   editableData: TrainingPlanData | TextPresentationData | null;
   productId: string | undefined;
-  showSmartEditor: boolean;
-  setShowSmartEditor: (show: boolean) => void;
+  showAiAgent?: boolean;
+  setShowAiAgent?: (show: boolean) => void;
   scormEnabled: boolean;
   componentName: string;
   allowedComponentNames?: string[];
@@ -26,8 +26,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   projectData,
   editableData,
   productId,
-  showSmartEditor,
-  setShowSmartEditor,
+  showAiAgent,
+  setShowAiAgent,
   scormEnabled,
   componentName,
   allowedComponentNames,
@@ -127,8 +127,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
-          {/* Edit/Save button for Text Presentations */}
-          {isOnePager && onEditOrSave && (
+        {isOnePager && onEditOrSave && (
             <button
               onClick={onEditOrSave}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -161,10 +160,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </button>
           )}
 
-          {/* AI Improve button for Course Outline and Presentations */}
-          {shouldShowButtons && (
+{projectData && projectData.component_name === componentName && productId && setShowAiAgent && !showAiAgent && (
           <button
-              onClick={() => setShowSmartEditor(!showSmartEditor)}
+              onClick={() => setShowAiAgent(!showAiAgent)}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
             style={{
                 backgroundColor: '#FFFFFF',

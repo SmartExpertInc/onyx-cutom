@@ -54,7 +54,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         ref={ref}
         className={cn(
           "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
-          "bg-white border-2 border-[#E0E0E0] shadow-md",
+          "bg-white border-2 border-[#CCCCCC] shadow-md",
           "hover:bg-[#F2F8FF] hover:border-[#0F58F9] hover:shadow-xl",
           "active:bg-[#F2F8FF] active:border-[#0F58F9] active:shadow-xl",
           useCSSVariables 
@@ -123,9 +123,9 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                     "text-2xl font-semibold text-left leading-tight tracking-[0.01em] transition-all duration-200",
                     useCSSVariables 
                       ? "text-[hsl(var(--custom-card-title))]" 
-                      : "opacity-80 group-hover:opacity-100 group-active:opacity-100 group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"
+                      : "group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"
                   )}
-                  style={!useCSSVariables ? { color: '#0D001B' } : undefined}
+                  style={!useCSSVariables ? { color: '#4D4D4D' } : undefined}
                 >
                   {title}
                 </h3>
@@ -136,7 +136,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                     "text-base text-left leading-[130%] max-w-[64%]",
                     useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : ""
                   )}
-                  style={!useCSSVariables ? { color: '#71717A' } : undefined}
+                  style={!useCSSVariables ? { color: '#878787' } : undefined}
                 >
                   {description}
                 </p>

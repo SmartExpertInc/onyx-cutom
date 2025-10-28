@@ -1290,6 +1290,7 @@ export const ru = {
 
     // Course Outline Page
     courseOutline: {
+      pageTitle: "Предварительный просмотр структуры курса",
       loading: "Загрузка...",
       applyingEdit: "Применение изменений...",
       edit: "Редактировать",
@@ -1393,7 +1394,7 @@ export const ru = {
       quiz: "Тест",
       onePager: "Одностраничник",
       prompt: "Запрос",
-      promptPlaceholder: "Опишите, что вы хотите создать...",
+      promptPlaceholder: "Введите или вставьте контент здесь...",
       promptPlaceholderFromFiles:
         "Опишите, что вы хотите создать из ваших файлов...",
       promptPlaceholderFromText:
@@ -1470,6 +1471,7 @@ export const ru = {
       generatePresentation: "Генерировать презентацию",
       generateQuiz: "Генерировать тест",
       generateOnePager: "Генерировать одностраничник",
+      nextStep: "Следующий шаг",
       avatars: "Аватары",
       chooseVirtualTrainer: "Выберите виртуального тренера",
       content: "Контент",
@@ -1653,6 +1655,12 @@ export const ru = {
         "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам.",
     },
 
+    // Lesson Presentation specific translations
+    lessonPresentation: {
+      videoOutlinePreview: "Предварительный просмотр структуры видео",
+      presentationOutlinePreview: "Предварительный просмотр структуры презентации",
+    },
+
     // View New Page (Course Outline View)
     viewNew: {
       back: "Назад",
@@ -1678,9 +1686,9 @@ export const ru = {
       lessonsGenitive: "урока всего",
       lessonsTotal: "уроков всего",
       collapseAll: "Свернуть Все",
-      lesson: "урок",
-      lessonsGenitiveSingle: "урока",
-      lessonsGenitivePlural: "уроков",
+      lesson: "Урок",
+      lessonsGenitiveSingle: "Урока",
+      lessonsGenitivePlural: "Уроков",
       lessons: "Уроки",
       created: "создано",
       create: "Создать",
