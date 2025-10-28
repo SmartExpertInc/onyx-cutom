@@ -1937,6 +1937,7 @@ export default function TextPresentationClient() {
                   handleApplyEdit();
                   setAdvancedModeState("Used");
                 }}
+                onClose={() => setShowAdvanced(false)}
                 advancedSectionRef={advancedSectionRef}
                 placeholder={t('interface.generate.describeImprovements', "Describe what you'd like to improve...")}
                 buttonText={t('interface.edit', 'Edit')}
