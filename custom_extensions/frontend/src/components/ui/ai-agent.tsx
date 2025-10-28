@@ -100,11 +100,26 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   
-  // Initialize messages from sessionStorage or use default
+  // Initialize messages from localStorage or use default
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const stored = sessionStorage.getItem('aiAgentMessages');
+        // Check if we're on a different page
+        const storedPage = localStorage.getItem('aiAgentCurrentPage');
+        const currentPage = window.location.pathname;
+        
+        if (storedPage && storedPage !== currentPage) {
+          // We're on a different page, clear the messages
+          localStorage.removeItem('aiAgentMessages');
+          localStorage.setItem('aiAgentCurrentPage', currentPage);
+          return [
+            { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
+          ];
+        }
+        
+        // Same page or first visit, load stored messages
+        localStorage.setItem('aiAgentCurrentPage', currentPage);
+        const stored = localStorage.getItem('aiAgentMessages');
         if (stored) {
           const parsed = JSON.parse(stored);
           return parsed.length > 0 ? parsed : [
@@ -112,7 +127,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           ];
         }
       } catch (error) {
-        console.error('Error loading messages from sessionStorage:', error);
+        console.error('Error loading messages from localStorage:', error);
       }
     }
     return [
@@ -127,13 +142,13 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   const hasStartedChat = externalHasStartedChat !== undefined ? externalHasStartedChat : internalHasStartedChat;
   const setHasStartedChat = externalSetHasStartedChat || setInternalHasStartedChat;
 
-  // Save messages to sessionStorage whenever they change
+  // Save messages to localStorage whenever they change
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem('aiAgentMessages', JSON.stringify(messages));
+        localStorage.setItem('aiAgentMessages', JSON.stringify(messages));
       } catch (error) {
-        console.error('Error saving messages to sessionStorage:', error);
+        console.error('Error saving messages to localStorage:', error);
       }
     }
   }, [messages]);
@@ -144,19 +159,6 @@ export const AiAgent: React.FC<AiAgentProps> = ({
     if (hasUserMessages && !hasStartedChat) {
       setHasStartedChat(true);
     }
-  }, []);
-
-  // Clear messages when navigating away (component unmount)
-  React.useEffect(() => {
-    return () => {
-      if (typeof window !== 'undefined') {
-        try {
-          sessionStorage.removeItem('aiAgentMessages');
-        } catch (error) {
-          console.error('Error clearing messages from sessionStorage:', error);
-        }
-      }
-    };
   }, []);
 
   // Scroll to bottom only when a new message is added (not when status updates)
