@@ -69,7 +69,7 @@
   inset: 0;
 }
 
-/* Force consistent aspect ratio for all slides */
+/* Force consistent aspect ratio for all slides and enable text interaction */
 .slide-content-wrapper {
   position: absolute;
   inset: 0;
@@ -78,15 +78,11 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  z-index: 10;
-}
-
-/* Allow text interaction when editable */
-.slide-content-wrapper[style*="pointer-events: auto"] {
+  z-index: 1;
   pointer-events: auto;
 }
 
-.slide-content-wrapper[style*="pointer-events: auto"] * {
+.slide-content-wrapper * {
   pointer-events: auto;
 }
 

@@ -453,7 +453,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       <div className="main-slide-container border border-[#CCCCCC] rounded-md relative">
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
-                          <div className="absolute top-2 left-2 z-50">
+                          <div className="absolute top-2 left-2 z-20">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -471,8 +471,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-md shadow-xl"
-                            style={{ width: 'auto', minWidth: 'auto' }}
+                            className="flex flex-col absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-md shadow-xl"
+                            style={{ width: '32px' }}
                           >
                             <button
                               onClick={(e) => {
@@ -480,10 +480,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 duplicateSlide(slide.slideId);
                                 setShowSlideMenu(null);
                               }}
-                              className="px-2 py-2 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center"
+                              className="w-8 h-8 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center rounded-t-md"
                               title="Duplicate slide"
                             >
-                              <Copy size={14} />
+                              <Copy size={12} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -491,10 +491,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 setShowAIModal(true);
                                 setShowSlideMenu(null);
                               }}
-                              className="px-2 py-2 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center border-l border-gray-200"
+                              className="w-8 h-8 text-sm text-[#3C3838] hover:bg-gray-50 flex items-center justify-center border-t border-gray-200"
                               title="AI enhance"
                             >
-                              <Sparkles size={14} />
+                              <Sparkles size={12} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -502,19 +502,19 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 deleteSlide(slide.slideId);
                                 setShowSlideMenu(null);
                               }}
-                              className="px-2 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center justify-center border-l border-gray-200"
+                              className="w-8 h-8 text-sm text-red-600 hover:bg-red-50 flex items-center justify-center border-t border-gray-200 rounded-b-md"
                               title="Delete slide"
                             >
-                              <Trash2 size={14} className="text-red-500" />
+                              <Trash2 size={12} className="text-red-500" />
                             </button>
                           </div>
                         )}
                         
                         {/* Slide content wrapper with proper constraints */}
-                        <div className="slide-content-wrapper" style={{ pointerEvents: isEditable ? 'auto' : 'none' }}>
+                        <div className="slide-content-wrapper">
                           <ComponentBasedSlideRenderer
                             slide={slide}
-                            isEditable={isEditable}
+                            isEditable={true}
                             onSlideUpdate={handleSlideUpdate}
                             theme={theme}
                           />
