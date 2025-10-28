@@ -312,7 +312,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
       ) : (
         <>
           {/* Content area with messages and feedback */}
-          <div className="flex flex-col flex-grow gap-4 overflow-y-auto">
+          <div className="flex flex-col gap-4 mt-auto mb-4">
             {/* Chat view - messenger style with scrolling */}
             <div ref={messagesContainerRef} className="flex flex-col gap-4 mt-4 max-h-[300px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
               {/* Render all messages from history */}
