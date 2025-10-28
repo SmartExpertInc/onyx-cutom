@@ -287,7 +287,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-85 h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
+      <div className="w-100 h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="pt-4 px-4">
             <button 
@@ -297,7 +297,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               }}
               className="w-full flex items-center bg-white text-[#A5A5A5] text-sm rounded-lg hover:bg-gray-100 transition-colors border border-[#CCCCCC]"
             >
-              <div className="flex items-center gap-2 pl-18 py-2 flex-1">
+              <div className="flex items-center justify-center gap-2 py-2 flex-1">
                 <Plus size={16} />
                 <span>Add new card</span>
               </div>
@@ -313,7 +313,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               ref={dropdownRef}
               className="absolute -right-103 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
               style={{
-                width: 'calc(100% + 80px)',
+                width: 'calc(100% + 110px)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -435,7 +435,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           className="flex-1 bg-[#F2F2F4]"
           ref={scrollContainerRef}
         >
-          <div className="space-y-8 px-6">
+          <div className="space-y-8 px-6 py-6">
             {deck.slides.map((slide, index) => {
               const isActive = slide.slideId === selectedSlideId;
               const isHovered = hoveredSlideId === slide.slideId;
@@ -450,7 +450,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
                     <div className="w-full max-w-7xl">
-                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9' }}>
+                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative overflow-hidden" style={{ aspectRatio: '16/9', minHeight: '400px', maxHeight: '600px' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -502,12 +502,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
+                        
+                        {/* Slide content wrapper with proper constraints */}
+                        <div className="absolute inset-0 w-full h-full">
                           <ComponentBasedSlideRenderer
                             slide={slide}
                             isEditable={isEditable}
                             onSlideUpdate={handleSlideUpdate}
                             theme={theme}
                           />
+                        </div>
                       </div>
                     </div>
               </div>
@@ -525,7 +529,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       <button
                         onClick={() => setShowAIModal(true)}
                         title="Generate with AI"
-                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] !bg-[#CCDBFC] hover:bg-blue-100 text-[#A5A5A5]"
+                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] !bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
                       >
                         <Sparkles size={15} />
                       </button>
@@ -535,7 +539,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             title="More"
                             className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-[#A5A5A5]"
                           >
-                            <ArrowDown size={15} />
+                            <ArrowDown size={15} strokeWidth={3} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent 

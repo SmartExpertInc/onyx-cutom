@@ -49,6 +49,15 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a quiz to show Export button
   const isQuiz = projectData?.component_name === 'QuizDisplay';
   const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
+  
+  // Debug logging for PDF export
+  console.log('🔍 ProductViewHeader Debug:', {
+    componentName: projectData?.component_name,
+    isOnePager,
+    isQuiz,
+    isSlideDeck,
+    onPdfExport: !!onPdfExport
+  });
 
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
@@ -179,10 +188,12 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {(isSlideDeck || isQuiz || isOnePager) && (
             <button
               onClick={() => {
+                console.log('🔍 Export button clicked for:', projectData?.component_name);
                 if (onPdfExport) {
+                  console.log('🔍 Calling onPdfExport function...');
                   onPdfExport();
                 } else {
-                  console.log('PDF export function not provided');
+                  console.error('🔍 PDF export function not provided');
                 }
               }}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"

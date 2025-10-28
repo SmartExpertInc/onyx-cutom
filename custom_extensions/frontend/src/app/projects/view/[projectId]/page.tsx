@@ -1366,13 +1366,21 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handlePdfDownload = async () => {
+    console.log('🔍 PDF Download Debug - Start:', {
+      projectInstanceData: projectInstanceData?.component_name,
+      projectId: projectInstanceData?.project_id,
+      componentName: projectInstanceData?.component_name
+    });
+
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
+      console.error('🔍 PDF Download Debug - Missing data:', { projectInstanceData, projectId: projectInstanceData?.project_id });
       alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
       return;
     }
 
     // Special handling for text presentations
     if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+        console.log('🔍 PDF Download Debug - Text Presentation detected, starting PDF generation...');
         setIsExportingPdf(true);
         setPdfProgress({ current: 0, total: 1, message: 'Generating PDF...' });
         
