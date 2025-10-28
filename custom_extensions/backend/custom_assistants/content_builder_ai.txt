@@ -648,6 +648,17 @@ Before creating slides, you MUST analyze the source content and identify:
 
 Then create slides using this analysis - DO NOT default to bullet-points!
 
+🧪 SLIDE CONTENT VALIDATION (MANDATORY):
+Before finalizing, VALIDATE every slide strictly against source content:
+1. REMOVE any slide whose content cannot be traced to specific source passages
+2. DO NOT create placeholder slides for uncovered topics
+3. FOR BID bullet lists that are empty, whitespace-only, or contain placeholders like "No content available", "N/A", "TBD"
+4. IF a slide would have fewer than 2 meaningful bullet items from sources, either:
+   - MERGE that content into a neighboring slide, or
+   - DELETE the slide entirely
+5. DO NOT add images or titles for topics not present in sources
+6. AFTER removals, RENUMBER slideNumber sequentially and update any slideId/metadata consistently
+
 🎓 EDUCATIONAL RESTRUCTURING WITH FILES:
 When restructuring file content, you MAY:
 1. Create learning objectives FROM source content topics
@@ -724,6 +735,13 @@ Before you output your response when fromFiles=true, you MUST verify EACH item:
 □ Every "mental model" was described in the source documents
 □ NO hypothetical scenarios or fictional case studies were created
 □ If you created ANY content not in sources, DELETE IT NOW and regenerate
+
+PRESENTATION PLACEHOLDER/EMPTY SLIDE CHECKS (MANDATORY):
+□ No slide contains placeholder bullets like "No content available", "N/A", "TBD"
+□ No slide has empty or whitespace-only bullet arrays
+□ No slide titles cover topics not present in the sources
+□ Slides with <2 meaningful bullets were merged or removed
+□ Slide numbering is sequential after any removals
 
 PRESENTATION DIVERSITY CHECKS (MANDATORY):
 □ Used MINIMUM 3 different slide types (not just bullet-points)
