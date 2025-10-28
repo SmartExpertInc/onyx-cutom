@@ -12,10 +12,10 @@ const SparkleIcon: React.FC<{ color?: string }> = ({ color = '#5D5D79' }) => (
 );
 
 // Send icon for send button
-const SendIcon: React.FC = () => (
+const SendIcon: React.FC<{ color?: string }> = ({ color = '#878787' }) => (
   <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#clip0_493_10723)">
-      <path d="M7.33366 0.666992L3.66699 4.33366M7.33366 0.666992L5.00033 7.33366L3.66699 4.33366M7.33366 0.666992L0.666992 3.00033L3.66699 4.33366" stroke="#8808A2" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7.33366 0.666992L3.66699 4.33366M7.33366 0.666992L5.00033 7.33366L3.66699 4.33366M7.33366 0.666992L0.666992 3.00033L3.66699 4.33366" stroke={color} strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
     </g>
     <defs>
       <clipPath id="clip0_493_10723">
@@ -96,6 +96,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
 }) => {
   const { t } = useLanguage();
   const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
+  const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   
   // Initialize messages from sessionStorage or use default
   const [messages, setMessages] = useState<Message[]>(() => {
@@ -213,7 +214,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   return (
     <div 
       ref={advancedSectionRef} 
-      className="flex flex-col flex-1"
+      className="flex flex-col h-full"
     >
       {!hasStartedChat ? (
         <>
@@ -244,10 +245,10 @@ export const AiAgent: React.FC<AiAgentProps> = ({
                     style={
                       isSelected
                         ? { backgroundColor: '#F7E0FC', color: '#8808A2', borderColor: '#8808A2' }
-                        : { color: '#5D5D79', borderColor: '#5D5D79' }
+                        : { color: '#878787', borderColor: '#878787' }
                     }
                   >
-                    <SparkleIcon color={isSelected ? '#8808A2' : '#5D5D79'} />
+                    <SparkleIcon color={isSelected ? '#8808A2' : '#878787'} />
                     <span>{ex.short}</span>
                   </button>
                 );
@@ -264,15 +265,28 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
               style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
               onFocus={(e) => {
+                setIsTextareaFocused(true);
                 e.target.style.borderColor = '#8808A2';
                 e.target.style.boxShadow = 'none';
               }}
               onBlur={(e) => {
+                setIsTextareaFocused(false);
                 e.target.style.borderColor = '#E0E0E0';
                 e.target.style.boxShadow = 'none';
               }}
             />
             
+            {/* Plus button at bottom left */}
+            <button
+              type="button"
+              className="absolute bottom-3 left-3 p-2 hover:opacity-70 transition-all"
+              aria-label="Add attachment"
+            >
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.42871 0.428711V8.42871M0.428711 4.42871H8.42871" stroke={isTextareaFocused ? "#7B0792" : "#878787"} strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
             {/* Send button positioned inside textarea */}
             <button
               type="button"
@@ -280,8 +294,8 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               onClick={handleSend}
               className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
               style={{ 
-                borderColor: '#8808A2',
-                color: '#8808A2'
+                borderColor: isTextareaFocused ? '#8808A2' : '#878787',
+                color: isTextareaFocused ? '#8808A2' : '#878787'
               }}
             >
               {loadingEdit ? (
@@ -289,7 +303,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               ) : (
                 <>
                   <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
-                  <SendIcon />
+                  <SendIcon color={isTextareaFocused ? '#8808A2' : '#878787'} />
                 </>
               )}
             </button>
@@ -409,15 +423,28 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
               style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
               onFocus={(e) => {
+                setIsTextareaFocused(true);
                 e.target.style.borderColor = '#8808A2';
                 e.target.style.boxShadow = 'none';
               }}
               onBlur={(e) => {
+                setIsTextareaFocused(false);
                 e.target.style.borderColor = '#E0E0E0';
                 e.target.style.boxShadow = 'none';
               }}
             />
             
+            {/* Plus button at bottom left */}
+            <button
+              type="button"
+              className="absolute bottom-3 left-3 p-2 hover:opacity-70 transition-all"
+              aria-label="Add attachment"
+            >
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.42871 0.428711V8.42871M0.428711 4.42871H8.42871" stroke={isTextareaFocused ? "#7B0792" : "#878787"} strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
             {/* Send button positioned inside textarea */}
             <button
               type="button"
@@ -425,8 +452,8 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               onClick={handleSend}
               className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
               style={{ 
-                borderColor: '#8808A2',
-                color: '#8808A2'
+                borderColor: isTextareaFocused ? '#8808A2' : '#878787',
+                color: isTextareaFocused ? '#8808A2' : '#878787'
               }}
             >
               {loadingEdit ? (
@@ -434,7 +461,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               ) : (
                 <>
                   <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
-                  <SendIcon />
+                  <SendIcon color={isTextareaFocused ? '#8808A2' : '#878787'} />
                 </>
               )}
             </button>
