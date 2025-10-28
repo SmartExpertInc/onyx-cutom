@@ -1185,7 +1185,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                       setOpenDropdownId(connector.id);
                                     }
                                   }}
-                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-[#0F58F9] text-[#878787] hover:bg-blue-50"
+                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50"
                                 >
                                   View Integration
                                 </button>
@@ -1312,7 +1312,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                     e.stopPropagation();
                                     handleConnectClick(connector.id, connector.name);
                                   }}
-                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-gray-200 text-[#878787] hover:bg-gray-50"
                                 >
                                   View Integration
                                 </button>

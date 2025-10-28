@@ -1369,10 +1369,11 @@ export default function ProjectInstanceViewPage() {
     console.log('🔍 PDF Download Debug - Start:', {
       projectInstanceData: projectInstanceData?.component_name,
       projectId: projectInstanceData?.project_id,
+      projectIdType: typeof projectInstanceData?.project_id,
       componentName: projectInstanceData?.component_name
     });
 
-    if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
+    if (!projectInstanceData || !projectInstanceData.project_id) {
       console.error('🔍 PDF Download Debug - Missing data:', { projectInstanceData, projectId: projectInstanceData?.project_id });
       alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
       return;
@@ -1385,13 +1386,27 @@ export default function ProjectInstanceViewPage() {
         setPdfProgress({ current: 0, total: 1, message: 'Generating PDF...' });
         
         try {
+            console.log('🔍 PDF Download Debug - Making request to:', `${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`);
+            
             const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`, {
-                method: 'GET',
-                credentials: 'same-origin'
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    projectId: projectInstanceData.project_id,
+                    componentName: projectInstanceData.component_name,
+                    data: editableData
+                })
             });
 
+            console.log('🔍 PDF Download Debug - Response status:', response.status);
+
             if (!response.ok) {
-                throw new Error(`PDF generation failed: ${response.status}`);
+                const errorText = await response.text();
+                console.error('🔍 PDF Download Debug - Error response:', errorText);
+                throw new Error(`PDF generation failed: ${response.status} - ${errorText}`);
             }
 
             // Get the PDF as a blob

@@ -2863,6 +2863,136 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       <div className="bg-[#FFFFFF] rounded-[10px] px-4 sm:px-6 md:px-8 py-4">
           <main className="text-left">
 
+            {/* Purple Boxes Section - Essential tools for beginners */}
+            {purpleBoxSection && (
+              <section className="mb-6">
+                <div 
+                  className={`grid grid-cols-1 gap-4 mb-6 relative group/cardgrid ${
+                    purpleBoxContent.cards.length === 1 ? 'md:grid-cols-1' :
+                    purpleBoxContent.cards.length === 2 ? 'md:grid-cols-2' :
+                    purpleBoxContent.cards.length === 3 ? 'md:grid-cols-3' :
+                    'md:grid-cols-4'
+                  }`}
+                >
+                  {purpleBoxContent.cards.map((card, index) => {
+                    const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
+                    const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
+                    
+                    return (
+                    <div 
+                      key={index} 
+                      className={`bg-[#CCDBFCCC] border rounded-lg p-5 space-y-2 text-left relative group/card transition-all ${dragOverCardIndex === index ? 'border-blue-500 border-2 scale-105' : 'border-[#CCCCCC]'}`}
+                      draggable={!isEditing}
+                      onDragStart={(e) => !isEditing && handleCardDragStart(e, index)}
+                      onDragOver={(e) => !isEditing && handleCardDragOver(e, index)}
+                      onDrop={(e) => !isEditing && handleCardDrop(e, index)}
+                      onDragEnd={handleCardDragEnd}
+                    >
+                      {!isEditing && (
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removePurpleBoxCard(index); }}
+                            className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full p-1 z-10"
+                            title="Remove card"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                      {card.icon === 'drilling' && (
+                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="white"/>
+                          <path d="M18.9988 29.1841C19.1531 29.1841 19.3016 29.1247 19.4203 29.0059L21.825 26.6013C21.9378 26.4944 21.9972 26.34 21.9972 26.1856V25.7344L17.3125 27.7413L18.5772 29.0059C18.6959 29.1247 18.8444 29.1841 18.9988 29.1841Z" fill="white"/>
+                          <path d="M16.002 8.11719V11.8756L15.5091 12.0834C15.2063 12.2141 15.0698 12.5644 15.1945 12.8672C15.3319 13.1743 15.7048 13.3135 16.002 13.1641L22.0048 10.605L22.4916 10.3972C23.2186 10.068 22.7236 8.98124 22.0047 9.31659C22.0048 9.31657 22.0048 8.11719 22.0048 8.11719H16.002Z" fill="white"/>
+                          <path d="M22.8052 14.2319C22.6785 13.921 22.3068 13.7779 22.0037 13.9291V11.8984C19.7415 12.818 16.5389 14.3141 16.0009 14.3863C16.0009 14.3863 16.0009 16.4763 16.0009 16.4763L15.5021 16.69C14.7774 17.0265 15.2782 18.1042 16.0009 17.7706C16.0009 17.7706 22.0037 15.2175 22.0037 15.2175L22.4906 15.0097C22.7934 14.885 22.9359 14.5347 22.8052 14.2319Z" fill="white"/>
+                          <path d="M22.806 18.8472C22.6771 18.5317 22.3056 18.3965 21.9985 18.5444L22.0044 16.5078L16.4647 18.865C16.3163 18.9303 16.1619 18.9778 16.0016 18.9956V21.0915L15.5029 21.3053C15.206 21.43 15.0635 21.7803 15.1941 22.0831C15.3265 22.4012 15.7007 22.5293 16.0016 22.3859C16.0016 22.386 21.9985 19.8328 21.9985 19.8328L22.4913 19.625C22.7941 19.4944 22.9366 19.15 22.806 18.8472Z" fill="white"/>
+                          <path d="M22.4895 24.2383C23.2167 23.907 22.7339 22.8259 21.9966 23.1517L21.9966 21.1211C19.8318 22.0204 16.391 23.5734 15.9998 23.6149L15.9998 25.7108L15.5545 25.9008C14.9618 26.1419 15.1566 27.052 15.7861 27.0408C15.9377 27.0576 16.2607 26.8825 16.4035 26.833L21.9966 24.4461L22.4895 24.2383Z" fill="white"/>
+                          <path d="M13.6543 14.8438C13.6543 14.5172 13.3871 14.25 13.0605 14.25H2.9668C2.64024 14.25 2.37305 14.5172 2.37305 14.8438V17.8125H13.6543V14.8438Z" fill="white"/>
+                          <path d="M4.19587 23.7916C4.55413 24.0002 5.42014 24.0001 5.77522 23.7915C6.04836 23.6847 6.3868 23.5481 7.01024 23.5481C8.08021 23.5346 8.11102 23.9306 9.02899 23.9519C9.93919 23.9296 9.97634 23.5341 11.0418 23.5482C12.1217 23.5345 12.1395 23.9308 13.0605 23.9519C13.0606 23.9519 13.6543 23.9519 13.6543 23.9519V19H2.37305V23.5481C2.99299 23.5137 3.83458 23.5907 4.19587 23.7916Z" fill="white"/>
+                          <path d="M15.2218 29.3063C14.1062 28.2068 13.5778 26.6901 13.6543 25.1382C13.0357 25.1726 12.1918 25.0955 11.8315 24.8947C11.4779 24.6871 10.6149 24.6851 10.2581 24.8948C9.98493 25.0016 9.64648 25.1382 9.029 25.1382C7.95384 25.1527 7.92784 24.7575 7.01024 24.7344C6.08863 24.7563 6.06338 25.1521 4.98555 25.1381C3.91648 25.1517 3.88407 24.7557 2.96681 24.7344C2.9668 24.7344 2.37305 24.7344 2.37305 24.7344V29.6863H15.6433C15.4949 29.5676 15.3584 29.4428 15.2218 29.3063ZM5.68023 27.6022C4.9003 27.5914 4.8996 26.4294 5.68026 26.4147C6.46099 26.4295 6.46006 27.5915 5.68023 27.6022ZM8.79148 28.196C8.01031 28.1883 8.00958 27.02 8.7915 27.0085C9.57223 27.0232 9.5713 28.1853 8.79148 28.196Z" fill="white"/>
+                          <path d="M35.0293 14.25H24.9355C24.609 14.25 24.3418 14.5172 24.3418 14.8438V17.8125H35.623V14.8438C35.623 14.5172 35.3559 14.25 35.0293 14.25Z" fill="white"/>
+                          <path d="M24.3418 23.5481H24.9355C26.0032 23.5346 26.0406 23.9309 26.9543 23.9519C27.8748 23.9299 27.902 23.5342 28.979 23.5481C29.5965 23.5481 29.9349 23.6847 30.208 23.7916C30.5617 23.9991 31.4245 24.0011 31.7815 23.7915C32.0546 23.6847 32.393 23.5481 33.0105 23.5481C33.634 23.5481 33.9724 23.6847 34.2396 23.7916C34.5375 23.9715 35.2111 23.9602 35.6231 23.9518L35.623 19H24.3418V23.5481Z" fill="white"/>
+                          <path d="M33.8012 24.8947C33.4476 24.6871 32.5846 24.6851 32.2277 24.8948C31.9546 25.0016 31.6162 25.1382 30.9987 25.1382C29.9233 25.1526 29.8977 24.7575 28.9799 24.7344C28.0586 24.7563 28.0328 25.1521 26.9552 25.1381C25.8859 25.1517 25.8539 24.7557 24.9365 24.7344C24.9365 24.7344 24.3427 24.7344 24.3427 24.7344C24.4898 26.6531 23.8234 28.5456 22.3477 29.6863C22.3477 29.6863 35.624 29.6863 35.624 29.6863V25.1382C35.0034 25.1725 34.1629 25.0957 33.8012 24.8947ZM27.5371 28.196C26.7572 28.1852 26.7565 27.0231 27.5371 27.0085C28.3178 27.0232 28.3169 28.1853 27.5371 28.196ZM30.874 27.6022C30.094 27.5914 30.0933 26.4294 30.874 26.4147C31.6547 26.4295 31.6538 27.5915 30.874 27.6022Z" fill="white"/>
+                          <path d="M2.37305 35.0312C2.37305 35.3578 2.64024 35.625 2.9668 35.625H35.0293C35.3559 35.625 35.6231 35.3578 35.6231 35.0312V30.875H2.37305V35.0312Z" fill="white"/>
+                        </svg>
+                      )}
+                      {card.icon === 'sawing' && (
+                        <svg width="34" height="30" viewBox="0 0 34 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8.98869 0.936214C7.7403 -0.312104 5.70909 -0.312039 4.46077 0.936214L0.939119 4.45793C-0.309133 5.70625 -0.309133 7.73747 0.939119 8.98585L5.7164 13.7631L13.766 5.7135L8.98869 0.936214ZM5.46704 7.97958L3.95773 6.47027L6.47318 3.95483L7.98248 5.46413L5.46704 7.97958Z" fill="white"/>
+                          <path d="M33.4429 25.6133H0.00292969V29.8822H33.4429V25.6133Z" fill="white"/>
+                          <path d="M15.2743 7.42188L9.1875 13.5087L10.0213 17.3441L13.8784 18.1828L14.7169 22.0398L18.6397 22.8926L18.8239 23.4762H29.9987L15.2743 7.42188Z" fill="white"/>
+                        </svg>
+                      )}
+                      {card.icon === 'finishing' && (
+                        <svg width="34" height="27" viewBox="0 0 34 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M33.4411 21.6254V17.6914H26.5567V18.6749C26.5567 21.3864 24.3507 22.6089 21.6392 22.6089H19.6722C17.5031 22.6089 15.7383 24.3736 15.7383 26.5428H33.4411V23.5924H27.5402V21.6254H33.4411Z" fill="white"/>
+                          <path d="M21.6378 20.6419C23.2647 20.6419 24.5882 20.3019 24.5882 18.6749V17.6914H0.000976562V20.6419H8.85239V22.6089H0.000976562V26.5428H13.7698C13.7698 23.289 16.417 20.6419 19.6708 20.6419H21.6378ZM12.7864 22.6089H10.8194V20.6419H12.7864V22.6089Z" fill="white"/>
+                          <path d="M27.5394 1.95454C27.4427 -0.652497 23.7013 -0.65053 23.6055 1.95454V5.8885H27.5394V1.95454Z" fill="white"/>
+                          <path d="M26.5556 15.7234C28.7283 15.7234 30.4896 13.9621 30.4896 11.7894V7.85547H20.6547V11.7894C20.6547 13.9621 18.8934 15.7234 16.7207 15.7234H26.5556Z" fill="white"/>
+                        </svg>
+                      )}
+                      
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={() => handlePurpleBoxClick('card', index, 'title')}
+                      >
+                        {isCardTitleEditing ? (
+                          <textarea
+                            value={card.title}
+                            onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                            onBlur={closePurpleBoxEdit}
+                            className="w-full font-semibold text-gray-900 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                          />
+                        ) : (
+                          <h3 className="font-semibold text-gray-900">{card.title}</h3>
+                        )}
+                      </div>
+                      
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={() => handlePurpleBoxClick('card', index, 'description')}
+                      >
+                        {isCardDescEditing ? (
+                          <textarea
+                            value={card.description}
+                            onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                            onBlur={closePurpleBoxEdit}
+                            className="w-full text-sm text-gray-600 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px]"
+                            autoFocus
+                          />
+                        ) : (
+                          <p className="text-sm text-gray-600">{card.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    );
+                  })}
+                  
+                  {isEditing && (
+                    <div 
+                      className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-5 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors group/addcard"
+                      onClick={addPurpleBoxCard}
+                    >
+                      <div className="text-center">
+                        <Plus className="w-8 h-8 text-gray-400 group-hover/addcard:text-blue-500 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500 group-hover/addcard:text-blue-600">Add Card</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {isEditing && (
+                  <button
+                    onClick={addPurpleBoxCard}
+                    className="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                  >
+                    Add Card
+                  </button>
+                )}
+              </section>
+            )}
+
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
               
@@ -3135,162 +3265,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                   </div>
                 );
               }
-
-              {purpleBoxSection && (
-                <section className="mb-6">
-                  <div 
-                    className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-2 -m-2 mb-4' : ''} ${editingPurpleBox.type === 'title' ? 'border-2 border-blue-500 rounded-md' : ''}`}
-                    onClick={() => handlePurpleBoxClick('title')}
-                  >
-                    {editingPurpleBox.type === 'title' ? (
-                      <textarea
-                        value={purpleBoxContent.title}
-                        onChange={(e) => handlePurpleBoxChange(e.target.value)}
-                        onBlur={closePurpleBoxEdit}
-                        className="w-full text-xl font-bold text-gray-800 mb-4 p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        autoFocus
-                      />
-                    ) : (
-                      <h2 className="text-xl font-bold text-gray-800 mb-4">{purpleBoxContent.title}</h2>
-                    )}
-                  </div>
-                  
-                  <div 
-                    className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-2 -m-2 mb-6' : ''} ${editingPurpleBox.type === 'description' ? 'border-2 border-blue-500 rounded-md' : ''}`}
-                    onClick={() => handlePurpleBoxClick('description')}
-                  >
-                    {editingPurpleBox.type === 'description' ? (
-                      <textarea
-                        value={purpleBoxContent.description}
-                        onChange={(e) => handlePurpleBoxChange(e.target.value)}
-                        onBlur={closePurpleBoxEdit}
-                        className="w-full text-gray-600 mb-6 leading-relaxed p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
-                        autoFocus
-                      />
-                    ) : (
-                      <p className="text-gray-600 mb-6 leading-relaxed">
-                        {purpleBoxContent.description}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div 
-                    className={`grid grid-cols-1 gap-4 mb-6 relative group/cardgrid ${
-                      purpleBoxContent.cards.length === 1 ? 'md:grid-cols-1' :
-                      purpleBoxContent.cards.length === 2 ? 'md:grid-cols-2' :
-                      purpleBoxContent.cards.length === 3 ? 'md:grid-cols-3' :
-                      'md:grid-cols-4'
-                    }`}
-                  >
-                    {purpleBoxContent.cards.map((card, index) => {
-                      const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
-                      const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
-                      
-                      return (
-                      <div 
-                        key={index} 
-                        className={`bg-[#CCDBFCCC] border rounded-lg p-5 space-y-2 text-left relative group/card transition-all ${dragOverCardIndex === index ? 'border-blue-500 border-2 scale-105' : 'border-[#CCCCCC]'}`}
-                        draggable={!isEditing}
-                        onDragStart={(e) => !isEditing && handleCardDragStart(e, index)}
-                        onDragOver={(e) => !isEditing && handleCardDragOver(e, index)}
-                        onDrop={(e) => !isEditing && handleCardDrop(e, index)}
-                        onDragEnd={handleCardDragEnd}
-                      >
-                        {!isEditing && (
-                          <>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); removePurpleBoxCard(index); }}
-                              className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full p-1 z-10"
-                              title="Remove card"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                        {card.icon === 'drilling' && (
-                          <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="white"/>
-                            <path d="M18.9988 29.1841C19.1531 29.1841 19.3016 29.1247 19.4203 29.0059L21.825 26.6013C21.9378 26.4944 21.9972 26.34 21.9972 26.1856V25.7344L17.3125 27.7413L18.5772 29.0059C18.6959 29.1247 18.8444 29.1841 18.9988 29.1841Z" fill="white"/>
-                            <path d="M16.002 8.11719V11.8756L15.5091 12.0834C15.2063 12.2141 15.0698 12.5644 15.1945 12.8672C15.3319 13.1743 15.7048 13.3135 16.002 13.1641L22.0048 10.605L22.4916 10.3972C23.2186 10.068 22.7236 8.98124 22.0047 9.31659C22.0048 9.31657 22.0048 8.11719 22.0048 8.11719H16.002Z" fill="white"/>
-                            <path d="M22.8052 14.2319C22.6785 13.921 22.3068 13.7779 22.0037 13.9291V11.8984C19.7415 12.818 16.5389 14.3141 16.0009 14.3863C16.0009 14.3863 16.0009 16.4763 16.0009 16.4763L15.5021 16.69C14.7774 17.0265 15.2782 18.1042 16.0009 17.7706C16.0009 17.7706 22.0037 15.2175 22.0037 15.2175L22.4906 15.0097C22.7934 14.885 22.9359 14.5347 22.8052 14.2319Z" fill="white"/>
-                            <path d="M22.806 18.8472C22.6771 18.5317 22.3056 18.3965 21.9985 18.5444L22.0044 16.5078L16.4647 18.865C16.3163 18.9303 16.1619 18.9778 16.0016 18.9956V21.0915L15.5029 21.3053C15.206 21.43 15.0635 21.7803 15.1941 22.0831C15.3265 22.4012 15.7007 22.5293 16.0016 22.3859C16.0016 22.386 21.9985 19.8328 21.9985 19.8328L22.4913 19.625C22.7941 19.4944 22.9366 19.15 22.806 18.8472Z" fill="white"/>
-                            <path d="M22.4895 24.2383C23.2167 23.907 22.7339 22.8259 21.9966 23.1517L21.9966 21.1211C19.8318 22.0204 16.391 23.5734 15.9998 23.6149L15.9998 25.7108L15.5545 25.9008C14.9618 26.1419 15.1566 27.052 15.7861 27.0408C15.9377 27.0576 16.2607 26.8825 16.4035 26.833L21.9966 24.4461L22.4895 24.2383Z" fill="white"/>
-                            <path d="M13.6543 14.8438C13.6543 14.5172 13.3871 14.25 13.0605 14.25H2.9668C2.64024 14.25 2.37305 14.5172 2.37305 14.8438V17.8125H13.6543V14.8438Z" fill="white"/>
-                            <path d="M4.19587 23.7916C4.55413 24.0002 5.42014 24.0001 5.77522 23.7915C6.04836 23.6847 6.3868 23.5481 7.01024 23.5481C8.08021 23.5346 8.11102 23.9306 9.02899 23.9519C9.93919 23.9296 9.97634 23.5341 11.0418 23.5482C12.1217 23.5345 12.1395 23.9308 13.0605 23.9519C13.0606 23.9519 13.6543 23.9519 13.6543 23.9519V19H2.37305V23.5481C2.99299 23.5137 3.83458 23.5907 4.19587 23.7916Z" fill="white"/>
-                            <path d="M15.2218 29.3063C14.1062 28.2068 13.5778 26.6901 13.6543 25.1382C13.0357 25.1726 12.1918 25.0955 11.8315 24.8947C11.4779 24.6871 10.6149 24.6851 10.2581 24.8948C9.98493 25.0016 9.64648 25.1382 9.029 25.1382C7.95384 25.1527 7.92784 24.7575 7.01024 24.7344C6.08863 24.7563 6.06338 25.1521 4.98555 25.1381C3.91648 25.1517 3.88407 24.7557 2.96681 24.7344C2.9668 24.7344 2.37305 24.7344 2.37305 24.7344V29.6863H15.6433C15.4949 29.5676 15.3584 29.4428 15.2218 29.3063ZM5.68023 27.6022C4.9003 27.5914 4.8996 26.4294 5.68026 26.4147C6.46099 26.4295 6.46006 27.5915 5.68023 27.6022ZM8.79148 28.196C8.01031 28.1883 8.00958 27.02 8.7915 27.0085C9.57223 27.0232 9.5713 28.1853 8.79148 28.196Z" fill="white"/>
-                            <path d="M35.0293 14.25H24.9355C24.609 14.25 24.3418 14.5172 24.3418 14.8438V17.8125H35.623V14.8438C35.623 14.5172 35.3559 14.25 35.0293 14.25Z" fill="white"/>
-                            <path d="M24.3418 23.5481H24.9355C26.0032 23.5346 26.0406 23.9309 26.9543 23.9519C27.8748 23.9299 27.902 23.5342 28.979 23.5481C29.5965 23.5481 29.9349 23.6847 30.208 23.7916C30.5617 23.9991 31.4245 24.0011 31.7815 23.7915C32.0546 23.6847 32.393 23.5481 33.0105 23.5481C33.634 23.5481 33.9724 23.6847 34.2396 23.7916C34.5375 23.9715 35.2111 23.9602 35.6231 23.9518L35.623 19H24.3418V23.5481Z" fill="white"/>
-                            <path d="M33.8012 24.8947C33.4476 24.6871 32.5846 24.6851 32.2277 24.8948C31.9546 25.0016 31.6162 25.1382 30.9987 25.1382C29.9233 25.1526 29.8977 24.7575 28.9799 24.7344C28.0586 24.7563 28.0328 25.1521 26.9552 25.1381C25.8859 25.1517 25.8539 24.7557 24.9365 24.7344C24.9365 24.7344 24.3427 24.7344 24.3427 24.7344C24.4898 26.6531 23.8234 28.5456 22.3477 29.6863C22.3477 29.6863 35.624 29.6863 35.624 29.6863V25.1382C35.0034 25.1725 34.1629 25.0957 33.8012 24.8947ZM27.5371 28.196C26.7572 28.1852 26.7565 27.0231 27.5371 27.0085C28.3178 27.0232 28.3169 28.1853 27.5371 28.196ZM30.874 27.6022C30.094 27.5914 30.0933 26.4294 30.874 26.4147C31.6547 26.4295 31.6538 27.5915 30.874 27.6022Z" fill="white"/>
-                            <path d="M2.37305 35.0312C2.37305 35.3578 2.64024 35.625 2.9668 35.625H35.0293C35.3559 35.625 35.6231 35.3578 35.6231 35.0312V30.875H2.37305V35.0312Z" fill="white"/>
-                          </svg>
-                        )}
-                        {card.icon === 'sawing' && (
-                          <svg width="34" height="30" viewBox="0 0 34 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8.98869 0.936214C7.7403 -0.312104 5.70909 -0.312039 4.46077 0.936214L0.939119 4.45793C-0.309133 5.70625 -0.309133 7.73747 0.939119 8.98585L5.7164 13.7631L13.766 5.7135L8.98869 0.936214ZM5.46704 7.97958L3.95773 6.47027L6.47318 3.95483L7.98248 5.46413L5.46704 7.97958Z" fill="white"/>
-                            <path d="M33.4429 25.6133H0.00292969V29.8822H33.4429V25.6133Z" fill="white"/>
-                            <path d="M15.2743 7.42188L9.1875 13.5087L10.0213 17.3441L13.8784 18.1828L14.7169 22.0398L18.6397 22.8926L18.8239 23.4762H29.9987L15.2743 7.42188Z" fill="white"/>
-                          </svg>
-                        )}
-                        {card.icon === 'finishing' && (
-                          <svg width="34" height="27" viewBox="0 0 34 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M33.4411 21.6254V17.6914H26.5567V18.6749C26.5567 21.3864 24.3507 22.6089 21.6392 22.6089H19.6722C17.5031 22.6089 15.7383 24.3736 15.7383 26.5428H33.4411V23.5924H27.5402V21.6254H33.4411Z" fill="white"/>
-                            <path d="M21.6378 20.6419C23.2647 20.6419 24.5882 20.3019 24.5882 18.6749V17.6914H0.000976562V20.6419H8.85239V22.6089H0.000976562V26.5428H13.7698C13.7698 23.289 16.417 20.6419 19.6708 20.6419H21.6378ZM12.7864 22.6089H10.8194V20.6419H12.7864V22.6089Z" fill="white"/>
-                            <path d="M27.5394 1.95454C27.4427 -0.652497 23.7013 -0.65053 23.6055 1.95454V5.8885H27.5394V1.95454Z" fill="white"/>
-                            <path d="M26.5556 15.7234C28.7283 15.7234 30.4896 13.9621 30.4896 11.7894V7.85547H20.6547V11.7894C20.6547 13.9621 18.8934 15.7234 16.7207 15.7234H26.5556Z" fill="white"/>
-                          </svg>
-                        )}
-                        
-                        <div 
-                          className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'rounded-md' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); !isEditing && handlePurpleBoxClick('card', index, 'title'); }}
-                        >
-                          {isCardTitleEditing ? (
-                            <textarea
-                              value={card.title}
-                              onChange={(e) => handlePurpleBoxChange(e.target.value)}
-                              onBlur={closePurpleBoxEdit}
-                              className="w-full text-lg font-bold text-gray-800 p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[50px]"
-                              autoFocus
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          ) : (
-                            <h3 className="text-lg font-bold text-gray-800 mb-2">{card.title}</h3>
-                          )}
-                        </div>
-                        
-                        <div 
-                          className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'rounded-md' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); !isEditing && handlePurpleBoxClick('card', index, 'description'); }}
-                        >
-                          {isCardDescEditing ? (
-                            <textarea
-                              value={card.description}
-                              onChange={(e) => handlePurpleBoxChange(e.target.value)}
-                              onBlur={closePurpleBoxEdit}
-                              className="w-full text-sm text-gray-600 p-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px]"
-                              autoFocus
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          ) : (
-                            <p className="text-sm text-gray-600">{card.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      );
-                    })}
-                    
-                    {!isEditing && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addPurpleBoxCard(); }}
-                        className="absolute -right-12 top-1/2 -translate-y-1/2 opacity-0 group-hover/cardgrid:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
-                        title="Add New Card"
-                      >
-                        <Plus className="w-5 h-5" />
-                      </button>
-                    )}
-                  </div>
-                </section>
-              )}
 
               if (item.type === 'standalone_block') {
                 const originalIndex = findOriginalIndex(item.content);

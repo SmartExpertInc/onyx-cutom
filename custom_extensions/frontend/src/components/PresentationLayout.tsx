@@ -287,7 +287,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-100 h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
+      <div className="w-85 h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="pt-4 px-4">
             <button 
@@ -313,7 +313,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               ref={dropdownRef}
               className="absolute -right-103 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
               style={{
-                width: 'calc(100% + 110px)',
+                width: 'calc(100% + 80px)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -450,7 +450,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
                     <div className="w-full max-w-7xl">
-                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative overflow-hidden" style={{ aspectRatio: '16/9', minHeight: '400px', maxHeight: '600px' }}>
+                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9', width: '100%', height: 'auto' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -504,7 +504,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         )}
                         
                         {/* Slide content wrapper with proper constraints */}
-                        <div className="absolute inset-0 w-full h-full">
+                        <div className="slide-content-wrapper">
                           <ComponentBasedSlideRenderer
                             slide={slide}
                             isEditable={isEditable}
