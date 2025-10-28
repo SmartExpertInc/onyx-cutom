@@ -1891,7 +1891,8 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_TRAINING_PLAN,
           COMPONENT_NAME_SLIDE_DECK,
           COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
-          COMPONENT_NAME_QUIZ
+          COMPONENT_NAME_QUIZ,
+          COMPONENT_NAME_TEXT_PRESENTATION
         ]}
         t={t}
         onPdfExport={handlePdfDownload}
