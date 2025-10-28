@@ -1972,11 +1972,11 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-row justify-between items-center w-full p-3 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
+                      className="flex flex-row justify-between items-center w-full p-4 rounded-md hover:bg-blue-50 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
                       style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FBFAFF", border: "1px solid #CCCCCC", color: "#5C5D5E" }}
                     >
                       <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>
-                      <span className="absolute top-1 right-2">
+                      <span className="absolute top-3 right-3">
                         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M5.16667 0.5V9.83333M0.5 5.16667H9.83333" stroke="#5C5D5E" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
