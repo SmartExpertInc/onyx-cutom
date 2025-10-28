@@ -1936,6 +1936,11 @@ function GenerateProductPicker() {
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
           <div className="flex flex-col items-center gap-3 w-full max-w-3xl">
             {/* Simple prompt input */}
+            <div className="w-full text-center mt-4">
+              <span className="text-lg font-semibold" style={{ color: "#4D4D4D" }}>
+                Describe what you'd like to make
+              </span>
+            </div>
             <div className="w-full relative">
             <Textarea
               ref={promptRef}
@@ -1948,11 +1953,6 @@ function GenerateProductPicker() {
               style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px", minHeight: "80px" }}
               rows={1}
             />
-            <div className="w-[95%] mx-auto mt-2">
-              <span className="text-lg font-semibold" style={{ color: "#4D4D4D" }}>
-                Describe what you'd like to make
-              </span>
-            </div>
             </div>
 
             {/* Simple examples grid */}

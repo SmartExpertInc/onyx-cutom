@@ -22,12 +22,13 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           "group relative rounded-sm overflow-hidden transition-all duration-200 cursor-pointer",
           "w-[116px] h-[90px] xs:w-[132px] xs:h-[106px] sm:w-[132px] sm:h-[106px] md:w-[132px] md:h-[106px] lg:w-[132px] lg:h-[106px] xl:w-[150px] xl:h-[114px]",
           "hover:scale-105",
+          "shadow-sm hover:shadow-md",
+          active && "shadow-md",
           className
         )}
         style={{
           backgroundColor: active ? '#F2F8FF' : '#FFFFFF',
-          border: active ? '2px solid #0F58F9' : '1px solid #CCCCCC',
-          boxShadow: 'none'
+          border: active ? '2px solid #0F58F9' : '1px solid #CCCCCC'
         }}
         onClick={onClick}
         {...props}
