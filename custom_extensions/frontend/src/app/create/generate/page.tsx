@@ -1398,7 +1398,7 @@ function GenerateProductPicker() {
 
         {/* Title for uploaded files */}
         {isFromUploadedFiles && uploadedFiles.length > 0 && (
-          <h3 className="text-xl font-semibold text-[#FAFAFA]">
+          <h3 className="text-xl font-semibold text-[#4D4D4D]">
             {t('interface.generate.selectWhatToGenerate', 'Select what you\'d like to generate')}
           </h3>
         )}
