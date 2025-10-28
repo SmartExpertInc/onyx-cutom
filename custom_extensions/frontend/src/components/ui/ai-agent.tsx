@@ -76,6 +76,7 @@ interface AiAgentProps {
   setHasStartedChat?: (value: boolean) => void;
   lastUserMessage?: string;
   setLastUserMessage?: (value: string) => void;
+  hasFooter?: boolean;
 }
 
 export const AiAgent: React.FC<AiAgentProps> = ({
@@ -95,6 +96,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   setHasStartedChat: externalSetHasStartedChat,
   lastUserMessage: externalLastUserMessage,
   setLastUserMessage: externalSetLastUserMessage,
+  hasFooter = true,
 }) => {
   const { t } = useLanguage();
   const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
@@ -308,7 +310,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mt-auto mb-16">
+          <div className={`relative w-full mt-auto ${hasFooter ? 'mb-16' : ''}`}>
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
@@ -468,7 +470,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
 
           {/* Textarea at bottom */}
-          <div className="relative w-full mb-16">
+          <div className={`relative w-full ${hasFooter ? 'mb-16' : ''}`}>
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}

@@ -1672,6 +1672,7 @@ export default function ProductViewNewPage() {
               buttonText={t('interface.aiAgent.edit', 'Edit')}
               hasStartedChat={aiAgentChatStarted}
               setHasStartedChat={setAiAgentChatStarted}
+              hasFooter={false}
             />
           )}
       </div>
