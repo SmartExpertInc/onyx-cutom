@@ -1948,6 +1948,11 @@ function GenerateProductPicker() {
               style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px", minHeight: "80px" }}
               rows={1}
             />
+            <div className="w-[95%] mx-auto mt-2">
+              <span className="text-lg font-semibold" style={{ color: "#4D4D4D" }}>
+                Describe what you'd like to make
+              </span>
+            </div>
             </div>
 
             {/* Simple examples grid */}
