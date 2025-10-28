@@ -1578,7 +1578,10 @@ export default function LessonPresentationClient() {
   return (
     <>
       <main
-      className="min-h-screen pt-16 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
+      className="min-h-screen pt-16 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out"
+      style={{
+        marginRight: showAiAgent ? '400px' : '0'
+      }}
     >
       {/* Decorative gradient backgrounds */}
       <div 
