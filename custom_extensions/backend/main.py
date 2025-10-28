@@ -68,7 +68,7 @@ from app.models.workspace_models import (
 from app.services.workspace_service import WorkspaceService
 from app.services.role_service import RoleService
 from app.services.product_access_service import ProductAccessService
-from app.utils.mixpanel_helper import track_to_mp
+import app.utils.mixpanel_helper as mixpanel_helper
 
 # Product JSON indexing service (for products-as-context feature)
 from app.services.product_json_indexer import upload_product_json_to_onyx
@@ -33738,6 +33738,26 @@ async def stripe_webhook(
                     logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
                 
                 logger.info(f"[BILLING] Updated billing for user {onyx_user_id}: plan={plan}, interval={interval}, is_addon_purchase={is_addon_purchase}")
+                
+                # Track successful payment to Mixpanel
+                try:
+                    # Get payment details from the session
+                    amount_total = session.get('amount_total', 0)
+                    currency = session.get('currency', 'usd').upper()
+                    
+                    # Track directly with user_id since we're in a webhook context
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Payment Successful",
+                        {
+                            "Mode": "Subscription",
+                            "Plan Type": plan.capitalize(),
+                            "Amount": amount_total / 100,  # Convert from cents
+                            "Currency": currency
+                        }
+                    )
+                except Exception as track_err:
+                    logger.warning(f"Failed to track payment to Mixpanel: {track_err}")
 
             # One-time credits purchase via Checkout Session (mode=payment)
             if onyx_user_id and session.get('mode') == 'payment':
@@ -33769,6 +33789,26 @@ async def stripe_webhook(
                                 """,
                                 str(uuid.uuid4()), onyx_user_id, total_credits
                             )
+                    
+                    # Track one-time credits purchase to Mixpanel
+                    try:
+                        # Get payment details from the session
+                        amount_total = session.get('amount_total', 0)
+                        currency = session.get('currency', 'usd').upper()
+                        
+                        # Track directly with user_id since we're in a webhook context
+                        mixpanel_helper.track_to_mp(
+                            onyx_user_id,
+                            "Payment Successful",
+                            {
+                                "Mode": "Payment",
+                                "Addon Type": "Credits",
+                                "Amount": amount_total / 100,  # Convert from cents
+                                "Currency": currency
+                            }
+                        )
+                    except Exception as track_err:
+                        logger.warning(f"Failed to track payment to Mixpanel: {track_err}")
                 except Exception as ce:
                     logger.error(f"Failed to grant one-time credits: {ce}")
 
@@ -33880,6 +33920,22 @@ async def stripe_webhook(
                             onyx_user_id, subscription['status'], price_id, plan, interval
                         )
                     logger.info(f"[BILLING] Updated subscription for user {onyx_user_id}: plan={plan}, status={subscription['status']}")
+
+                    if plan != existing_plan:
+                        # Track plan upgrade to Mixpanel
+                        try:
+                            mixpanel_helper.track_to_mp(
+                                onyx_user_id,
+                                "Plan Upgraded",
+                                {
+                                    "New Plan": plan.capitalize(),
+                                    "Old Plan": existing_plan.capitalize() if existing_plan else None,
+                                    "Price Difference": None, # TODO: Add price difference
+                                }
+                            )
+                        except Exception as track_err:
+                            logger.warning(f"Failed to track plan upgrade to Mixpanel: {track_err}")
+
                 else:
                     # No base tier found - this is likely just add-ons being added
                     # Only update status, preserve existing plan
@@ -34000,6 +34056,20 @@ async def stripe_webhook(
                 )
             
             logger.info(f"Cancelled subscription for customer {customer_id}")
+
+            # Track subscription cancellation to Mixpanel
+            try:
+                mixpanel_helper.track_to_mp(
+                    onyx_user_id,
+                    "Subscription Cancelled",
+                    {
+                        "Plan Type": None,
+                        "End Date": subscription.get('canceled_at'),
+                        "Cancelation Reason": subscription.get('cancellation_details').get('reason')
+                    }
+                )
+            except Exception as track_err:
+                logger.warning(f"Failed to track subscription cancellation to Mixpanel: {track_err}")
 
         # Mark processed
         try:
