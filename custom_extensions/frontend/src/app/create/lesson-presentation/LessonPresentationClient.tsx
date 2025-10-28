@@ -1578,10 +1578,7 @@ export default function LessonPresentationClient() {
   return (
     <>
       <main
-      className="min-h-screen pt-16 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out"
-      style={{
-        marginRight: showAiAgent ? '400px' : '0'
-      }}
+      className="min-h-screen pt-16 pb-24 bg-white relative overflow-hidden"
     >
       {/* Decorative gradient backgrounds */}
       <div 
@@ -1614,7 +1611,16 @@ export default function LessonPresentationClient() {
         {/* Back button */}
         <BackButton href="/create/generate" />
 
-        <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
+      {/* Main content wrapper with flex layout */}
+      <div className="flex h-full relative">
+        {/* Main content area - shrinks when panel is open */}
+        <div 
+          className="flex-1 px-4 flex flex-col items-center transition-all duration-300 ease-in-out relative z-10"
+          style={{
+            marginRight: showAiAgent ? '400px' : '0'
+          }}
+        >
+        <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900">
 
           {/* Page title */}
           <h2 className="text-center text-2xl font-semibold text-[#4B4B51] mb-2">
@@ -2294,9 +2300,45 @@ export default function LessonPresentationClient() {
               </div>
             </section>
           )}
+          </div> {/* end max-w-4xl wrapper */}
+        </div> {/* end main content area */}
 
+        {/* AI Agent Side Panel - slides from right */}
+        <div 
+          className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
+          style={{
+            width: '400px',
+            backgroundColor: '#F9F9F9',
+            transform: showAiAgent ? 'translateX(0)' : 'translateX(100%)',
+            borderLeft: '1px solid #CCCCCC'
+          }}
+        >
+          <AiAgent
+            editPrompt={editPrompt}
+            setEditPrompt={setEditPrompt}
+            examples={lessonExamples}
+            selectedExamples={selectedExamples}
+            toggleExample={toggleExample}
+            loadingEdit={loadingEdit}
+            onApplyEdit={() => {
+              handleApplyLessonEdit();
+              setAdvancedModeState("Used");
+            }}
+            onClose={() => setShowAiAgent(false)}
+            advancedSectionRef={advancedSectionRef}
+            placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
+            buttonText="Edit"
+            hasStartedChat={aiAgentChatStarted}
+            setHasStartedChat={setAiAgentChatStarted}
+            lastUserMessage={aiAgentLastMessage}
+            setLastUserMessage={setAiAgentLastMessage}
+          />
+        </div>
+      </div> {/* end flex container */}
+
+      {/* Full-width generate footer bar */}
           {streamDone && content && (
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-white py-4 px-6 flex items-center justify-center">
+            <div className="fixed bottom-0 left-0 right-0 z-40 bg-white py-4 px-6 flex items-center justify-center transition-all duration-300 ease-in-out border-t border-[#E0E0E0]">
               {/* Credits required */}
               <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
                 {/* custom credits svg */}
@@ -2344,7 +2386,6 @@ export default function LessonPresentationClient() {
               </div>
             </div>
           )}
-        </div>
       </main>
       <style jsx global>{`
       @keyframes fadeInDown {
@@ -2366,38 +2407,6 @@ export default function LessonPresentationClient() {
           <LoadingAnimation message="Finalizing lesson..." />
         </div>
       )}
-
-      {/* AI Agent Side Panel - slides from right */}
-      <div 
-        className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
-        style={{
-          width: '400px',
-          backgroundColor: '#F9F9F9',
-          transform: showAiAgent ? 'translateX(0)' : 'translateX(100%)',
-          borderLeft: '1px solid #CCCCCC'
-        }}
-      >
-        <AiAgent
-          editPrompt={editPrompt}
-          setEditPrompt={setEditPrompt}
-          examples={lessonExamples}
-          selectedExamples={selectedExamples}
-          toggleExample={toggleExample}
-          loadingEdit={loadingEdit}
-          onApplyEdit={() => {
-            handleApplyLessonEdit();
-            setAdvancedModeState("Used");
-          }}
-          onClose={() => setShowAiAgent(false)}
-          advancedSectionRef={advancedSectionRef}
-          placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-          buttonText="Edit"
-          hasStartedChat={aiAgentChatStarted}
-          setHasStartedChat={setAiAgentChatStarted}
-          lastUserMessage={aiAgentLastMessage}
-          setLastUserMessage={setAiAgentLastMessage}
-        />
-      </div>
     
     <FeedbackButton />
     </>
