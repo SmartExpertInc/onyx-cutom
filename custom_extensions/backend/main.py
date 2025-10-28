@@ -10503,13 +10503,10 @@ async def delete_design_template(template_id: int, pool: asyncpg.Pool = Depends(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 @app.post("/api/custom/ensure-video-product-template")
-async def ensure_video_product_template_endpoint(
-    request: Request,
-    cookies: dict = Depends(get_cookies_from_request)
-):
+async def ensure_video_product_template_endpoint(request: Request):
     """Ensure video product template exists and return its ID"""
     try:
-        onyx_user_id = await get_user_id_from_session(cookies)
+        onyx_user_id = await get_current_onyx_user_id(request)
         if not onyx_user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
         
