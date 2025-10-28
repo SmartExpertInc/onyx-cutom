@@ -7,7 +7,6 @@ import { FolderOpen, Sparkles, Edit3, Plus, ShieldAlert, ChevronDown, Eye } from
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
-import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
@@ -147,6 +146,8 @@ export default function ProductViewNewPage() {
   const [editPrompt, setEditPrompt] = useState('');
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
   const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [previewContent, setPreviewContent] = useState<TrainingPlanData | null>(null);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
 
   // AI Agent examples (similar to course outline)
@@ -170,9 +171,164 @@ export default function ProductViewNewPage() {
     });
   };
 
-  const handleApplyEdit = () => {
-    // Placeholder for apply edit functionality
-    console.log('Apply edit:', editPrompt);
+  const handleApplyEdit = async () => {
+    const trimmed = editPrompt.trim();
+    if (!trimmed || loadingEdit || !productId) return;
+
+    const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+    if (!trainingPlanData) return;
+
+    setLoadingEdit(true);
+    try {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/training-plan/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          prompt: trimmed,
+          projectId: parseInt(productId),
+          language: trainingPlanData.detectedLanguage || "en",
+          theme: trainingPlanData.theme || "cherry",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No stream body");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const packet = JSON.parse(line);
+            if (packet.type === "done" && packet.updatedContent) {
+              if (packet.isPreview) {
+                // This is a preview - store it and show immediately in the UI
+                setPreviewContent(packet.updatedContent);
+                setEditableData(packet.updatedContent);
+              } else {
+                // Old immediate update flow (fallback if backend doesn't send isPreview)
+                setEditableData(packet.updatedContent);
+                setEditPrompt('');
+                setSelectedExamples([]);
+              }
+            } else if (packet.type === "error") {
+              throw new Error(packet.message || "AI edit failed");
+            }
+          } catch (e) {
+            if (e instanceof SyntaxError) {
+              console.warn("Failed to parse packet:", line);
+              continue;
+            }
+            throw e;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error applying edit:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to apply edit');
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
+
+  // Confirm the AI edit and save to database
+  const handleConfirmEdit = async () => {
+    if (!previewContent || !productId) return;
+
+    try {
+      const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+      
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/training-plan/confirm-edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          projectId: parseInt(productId),
+          updatedContent: previewContent,
+          language: trainingPlanData?.detectedLanguage || "en",
+          theme: trainingPlanData?.theme || "cherry",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        // Changes are confirmed and saved
+        setEditableData(previewContent);
+        setPreviewContent(null);
+        setEditPrompt('');
+        setSelectedExamples([]);
+        
+        // Refresh the project data to ensure everything is in sync
+        const commonHeaders: HeadersInit = {};
+        const devUserId = "dummy-onyx-user-id-for-testing";
+        if (devUserId && process.env.NODE_ENV === 'development') {
+          commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+        }
+        
+        const refreshResponse = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+          cache: 'no-store',
+          headers: commonHeaders
+        });
+        if (refreshResponse.ok) {
+          const refreshedData: ProjectInstanceDetail = await refreshResponse.json();
+          setProjectData(refreshedData);
+          setEditableData(refreshedData.details as TrainingPlanData);
+        }
+      } else {
+        setSaveError("Failed to save changes");
+      }
+    } catch (error) {
+      console.error('Error confirming edit:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save changes');
+    }
+  };
+
+  // Revert the AI edit preview
+  const handleRevertEdit = async () => {
+    if (!productId) return;
+    
+    // Refetch the original data from the server to restore
+    try {
+      const commonHeaders: HeadersInit = {};
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+        cache: 'no-store',
+        headers: commonHeaders
+      });
+
+      if (response.ok) {
+        const data: ProjectInstanceDetail = await response.json();
+        setProjectData(data);
+        setEditableData(data.details as TrainingPlanData);
+      }
+    } catch (error) {
+      console.error('Error refetching project data:', error);
+      setError('Failed to restore original content');
+    }
+    
+    setPreviewContent(null);
     setEditPrompt('');
     setSelectedExamples([]);
   };
@@ -192,8 +348,6 @@ export default function ProductViewNewPage() {
   }, [openDropdown]);
   const [userCredits, setUserCredits] = useState<number | null>(null);
   
-  // Smart editing state
-  const [showSmartEditor, setShowSmartEditor] = useState(false);
   const [editableData, setEditableData] = useState<TrainingPlanData | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -638,50 +792,6 @@ export default function ProductViewNewPage() {
     }
   }, [projectData]);
 
-  // Handler for SmartPromptEditor content updates
-  const handleSmartEditContentUpdate = useCallback((updatedContent: TrainingPlanData) => {
-    setEditableData(updatedContent);
-    // Note: Don't refetch from server here since with confirmation flow,
-    // changes are only saved after user explicitly confirms them
-  }, []);
-
-  // Handler for SmartPromptEditor errors
-  const handleSmartEditError = useCallback((error: string) => {
-    setSaveError(error);
-  }, []);
-
-  // Handler for SmartPromptEditor revert
-  const handleSmartEditRevert = useCallback(() => {
-    // Refetch the original data from the server to restore the original content
-    if (productId) {
-      const fetchProjectData = async () => {
-        try {
-          const commonHeaders: HeadersInit = {};
-          const devUserId = "dummy-onyx-user-id-for-testing";
-          if (devUserId && process.env.NODE_ENV === 'development') {
-            commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-          }
-
-          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
-            cache: 'no-store',
-            headers: commonHeaders
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch project data: ${response.status}`);
-          }
-
-          const data: ProjectInstanceDetail = await response.json();
-          setProjectData(data);
-          setEditableData(data.details as TrainingPlanData);
-        } catch (error) {
-          console.error('Error refetching project data:', error);
-          setError('Failed to restore original content');
-        }
-      };
-      fetchProjectData();
-    }
-  }, [productId]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
     const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
@@ -942,8 +1052,6 @@ export default function ProductViewNewPage() {
         projectData={projectData}
         editableData={editableData}
         productId={productId}
-        showSmartEditor={showSmartEditor}
-        setShowSmartEditor={setShowSmartEditor}
         showAiAgent={showAiAgent}
         setShowAiAgent={setShowAiAgent}
         scormEnabled={scormEnabled}
@@ -957,25 +1065,64 @@ export default function ProductViewNewPage() {
           marginRight: showAiAgent ? '400px' : '0'
         }}
       >
-        {/* Smart Prompt Editor - positioned between top panel and main content */}
-        {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-4 md:px-8 lg:px-[100px] mt-6">
-            <SmartPromptEditor
-              projectId={projectData.project_id}
-              onContentUpdate={handleSmartEditContentUpdate}
-              onError={handleSmartEditError}
-              onRevert={handleSmartEditRevert}
-              onClose={() => setShowSmartEditor(false)}
-              currentLanguage={editableData.detectedLanguage}
-              currentTheme={editableData.theme}
-            />
-          </div>
-        )}
-
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px]">
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-3 space-y-4 pb-4">
+            {/* AI Edit Preview Confirmation Banner */}
+            {previewContent && (
+              <div className="w-full bg-white rounded-lg p-6 border border-[#E0E0E0] mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
+                </div>
+                
+                <p className="text-gray-700 mb-6">
+                  {t('actions.reviewChangesMessage', 'The AI has updated your training plan. Please review the changes below. You can accept these changes to save them permanently, or revert to go back to the original content.')}
+                </p>
+                
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleConfirmEdit}
+                    className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      backgroundColor: '#059669',
+                      color: 'white',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {t('actions.acceptChanges', 'Accept Changes')}
+                  </button>
+                  
+                  <button
+                    onClick={handleRevertEdit}
+                    className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      backgroundColor: '#6B7280',
+                      color: 'white',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 3v5h-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 21v-5h5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {t('actions.revertChanges', 'Revert Changes')}
+                  </button>
+                </div>
+              </div>
+            )}
+            
             {/* Course Info Bar */}
             <div className="flex justify-between items-center py-3 mb-0">
               <div className="flex items-center gap-2 text-[#797979] text-[14px]">
@@ -1509,62 +1656,16 @@ export default function ProductViewNewPage() {
           borderLeft: '1px solid #CCCCCC'
         }}
       >
-        {/* Header with badge and close button */}
-        <div className="flex items-start justify-between p-6 pb-4">
-          {/* AI Agent Badge and Info - Left Side */}
-          <div className="flex flex-col gap-2">
-            {/* AI Agent Badge */}
-            <div className="inline-flex items-center gap-2 self-start">
-              <span 
-                className="px-3 py-1 rounded-md text-[16px] font-medium"
-                style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
-              >
-                {t('interface.aiAgent.title', 'AI Agent')}
-              </span>
-            </div>
-            
-            {/* Info text */}
-            <div className="flex flex-col" style={{ fontSize: '10px' }}>
-              <span style={{ color: '#949CA8' }}>
-                {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
-              </span>
-              <a 
-                href="#" 
-                className="no-underline -mt-1"
-                style={{ color: '#498FFF' }}
-              >
-                {t('interface.aiAgent.learnMore', 'Learn more')}
-              </a>
-            </div>
-          </div>
-
-          {/* Close button - Right Side */}
-          <button
-            onClick={() => setShowAiAgent(false)}
-            className="p-3 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
-            style={{
-              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
-            }}
-            aria-label="Close panel"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-
-        {/* Content area */}
-        <div className="flex-1 px-6 pb-8 overflow-hidden">
-          {projectData && (
-            <AiAgent
+        {projectData && (
+          <AiAgent
               editPrompt={editPrompt}
               setEditPrompt={setEditPrompt}
               examples={aiAgentExamples}
               selectedExamples={selectedExamples}
               toggleExample={toggleExample}
-              loadingEdit={false}
+              loadingEdit={loadingEdit}
               onApplyEdit={handleApplyEdit}
+              onClose={() => setShowAiAgent(false)}
               advancedSectionRef={advancedSectionRef}
               placeholder={t('interface.aiAgent.describeImprovements', "Describe what you'd like to improve...")}
               buttonText={t('interface.aiAgent.edit', 'Edit')}
@@ -1572,7 +1673,6 @@ export default function ProductViewNewPage() {
               setHasStartedChat={setAiAgentChatStarted}
             />
           )}
-        </div>
       </div>
     </main>
   );

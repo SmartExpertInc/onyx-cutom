@@ -1666,55 +1666,8 @@ export default function CourseOutlineClient() {
             borderLeft: '1px solid #CCCCCC'
           }}
         >
-          {/* Header with badge and close button */}
-          <div className="flex items-start justify-between p-6 pb-4">
-            {/* AI Agent Badge and Info - Left Side */}
-            <div className="flex flex-col gap-1">
-              {/* AI Agent Badge */}
-              <div className="inline-flex items-center gap-1 self-start">
-                <span 
-                  className="px-3 py-1 rounded-md text-[16px] font-medium"
-                  style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
-                >
-                  {t('interface.aiAgent.title', 'Ai Agent')}
-                </span>
-              </div>
-              
-              {/* Info text */}
-              <div className="flex flex-col" style={{ fontSize: '10px' }}>
-                <span style={{ color: '#949CA8' }}>
-                  {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
-                </span>
-                <a 
-                  href="#" 
-                  className="no-underline -mt-1"
-                  style={{ color: '#498FFF' }}
-                >
-                  {t('interface.aiAgent.learnMore', 'Learn more')}
-                </a>
-              </div>
-            </div>
-
-            {/* Close button - Right Side */}
-            <button
-              onClick={() => setShowAdvanced(false)}
-              className="p-1.5 bg-white rounded-full transition-all hover:shadow-lg flex-shrink-0"
-              style={{
-                boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
-              }}
-              aria-label="Close panel"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
-
-          {/* Content area */}
-          <div className="flex-1 px-6 pb-32 overflow-hidden">
-            {!loading && preview.length > 0 && (
-              <AiAgent
+          {!loading && preview.length > 0 && (
+            <AiAgent
                 editPrompt={editPrompt}
                 setEditPrompt={setEditPrompt}
                 examples={outlineExamples}
@@ -1725,6 +1678,7 @@ export default function CourseOutlineClient() {
                   handleApplyEdit();
                   setAdvancedModeState("Used");
                 }}
+                onClose={() => setShowAdvanced(false)}
                 advancedSectionRef={advancedSectionRef}
                 placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
                 buttonText={t('interface.courseOutline.edit', 'Edit')}
@@ -1734,7 +1688,6 @@ export default function CourseOutlineClient() {
                 setLastUserMessage={setAiAgentLastMessage}
               />
             )}
-          </div>
         </div>
       </div> {/* end flex container */}
 
