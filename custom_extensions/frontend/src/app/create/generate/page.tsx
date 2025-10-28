@@ -1944,7 +1944,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base...')
                 : t('interface.generate.promptPlaceholder', 'Type or paste in content here...')}
-              className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-purple-400 focus:outline-none transition-colors placeholder-[#4D4D4D] relative z-10"
+              className="w-[95%] mx-auto px-7 py-5 rounded-md bg-white shadow-lg text-sm text-[#171718] resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-purple-400 focus:outline-none transition-colors placeholder-[#878787] relative z-10"
               style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px", minHeight: "80px" }}
               rows={1}
             />
@@ -1973,7 +1973,7 @@ function GenerateProductPicker() {
                       key={index}
                       onClick={() => setPrompt(examples[index])}
                       className="flex flex-row justify-between items-center w-full p-3 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
-                      style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FBFAFF", border: "1px solid #CCCCCC", color: "#71717A" }}
+                      style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FBFAFF", border: "1px solid #CCCCCC", color: "#5C5D5E" }}
                     >
                       <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>
                       <span className="absolute top-1 right-2">
