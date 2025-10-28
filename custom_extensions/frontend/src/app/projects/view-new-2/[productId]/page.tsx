@@ -1071,7 +1071,7 @@ export default function ProductViewNewPage() {
           <div className="lg:col-span-3 space-y-4 pb-4">
             {/* AI Edit Preview Confirmation Banner */}
             {previewContent && (
-              <div className="w-full bg-white rounded-lg p-6 border border-[#E0E0E0] mb-4">
+              <div className="w-full bg-white rounded-lg p-6 border border-[#E0E0E0] mt-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
                 </div>
@@ -1083,9 +1083,9 @@ export default function ProductViewNewPage() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleConfirmEdit}
-                    className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                     style={{
-                      backgroundColor: '#059669',
+                      backgroundColor: '#0F58F9',
                       color: 'white',
                       fontSize: '14px',
                       fontWeight: '600',
@@ -1101,21 +1101,22 @@ export default function ProductViewNewPage() {
                   
                   <button
                     onClick={handleRevertEdit}
-                    className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                     style={{
-                      backgroundColor: '#6B7280',
-                      color: 'white',
+                      backgroundColor: '#FFFFFF',
+                      color: '#0F58F9',
                       fontSize: '14px',
                       fontWeight: '600',
                       lineHeight: '140%',
-                      letterSpacing: '0.05em'
+                      letterSpacing: '0.05em',
+                      border: '1px solid #0F58F9'
                     }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M21 3v5h-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M3 21v-5h5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 3v5h-5" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 21v-5h5" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     {t('actions.revertChanges', 'Revert Changes')}
                   </button>
