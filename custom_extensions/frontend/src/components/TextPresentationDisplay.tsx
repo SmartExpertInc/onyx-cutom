@@ -821,14 +821,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         // Apply blue color for recommendation headlines regardless of level
         if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold !text-[#0F58F9]`; } 
         else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold !text-[#0F58F9]`; }  
-        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
+        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9] !mt-0 !mb-0`; } 
         else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
         else { textStyleClass += `text-base font-bold !text-[#0F58F9]`; }
       } else {
         // Original color logic for non-recommendation headlines
         if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
         else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold ${THEME_COLORS.headingText}`; }  
-        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
+        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9] !mt-0 !mb-0`; } 
         else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
         else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
       }

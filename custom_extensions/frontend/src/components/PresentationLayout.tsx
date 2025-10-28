@@ -386,7 +386,23 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 className={`relative cursor-pointer slide-thumbnail-card rounded-lg group ${
                   isActive ? 'active' : ''
                 }`}
-                onClick={() => handleSlideSelect(slide.slideId, index)}
+                onClick={(e) => {
+                  // Don't select slide if clicking on text elements for editing
+                  const target = e.target as HTMLElement;
+                  const isTextElement = target.tagName === 'P' || 
+                                       target.tagName === 'H1' || 
+                                       target.tagName === 'H2' || 
+                                       target.tagName === 'H3' || 
+                                       target.tagName === 'H4' || 
+                                       target.tagName === 'SPAN' ||
+                                       target.closest('.wysiwyg-editor') ||
+                                       target.classList.contains('editable-text') ||
+                                       target.closest('.editable-text');
+                  
+                  if (!isTextElement) {
+                    handleSlideSelect(slide.slideId, index);
+                  }
+                }}
                 onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                 onMouseLeave={() => setHoveredSlideId(null)}
               >

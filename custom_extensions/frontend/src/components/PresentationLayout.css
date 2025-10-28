@@ -86,6 +86,27 @@
   pointer-events: auto;
 }
 
+/* Ensure text elements are clickable for editing */
+.slide-content-wrapper h1,
+.slide-content-wrapper h2,
+.slide-content-wrapper h3,
+.slide-content-wrapper h4,
+.slide-content-wrapper p,
+.slide-content-wrapper span {
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Override any draggable styling for text elements */
+.slide-content-wrapper [data-draggable="true"] h1,
+.slide-content-wrapper [data-draggable="true"] h2,
+.slide-content-wrapper [data-draggable="true"] h3,
+.slide-content-wrapper [data-draggable="true"] h4,
+.slide-content-wrapper [data-draggable="true"] p,
+.slide-content-wrapper [data-draggable="true"] span {
+  cursor: text !important;
+}
+
 /* Scale slide content to fit container */
 .main-slide-container .slide-renderer {
   width: 100%;
