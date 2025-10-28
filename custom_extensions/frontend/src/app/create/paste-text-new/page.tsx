@@ -598,7 +598,7 @@ export default function PasteTextPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Type or paste in content here')}
-            className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-blue-300 focus:outline-none transition-colors placeholder-[#4D4D4D]"
+            className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-sm text-black resize-none overflow-hidden max-h-[320px] border-2 border-[#7B0792] focus:border-purple-400 focus:outline-none transition-colors placeholder-[#4D4D4D]"
             style={{ background: "rgba(255,255,255,0.95)", fontSize: "14px", minHeight: "170px" }}
             rows={1}
           />
