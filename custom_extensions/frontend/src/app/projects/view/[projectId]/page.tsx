@@ -1906,8 +1906,6 @@ export default function ProjectInstanceViewPage() {
         projectData={projectInstanceData}
         editableData={editableData as TrainingPlanData | null}
         productId={projectId}
-        showSmartEditor={showSmartEditor}
-        setShowSmartEditor={setShowSmartEditor}
         scormEnabled={scormEnabled}
         componentName={COMPONENT_NAME_TRAINING_PLAN}
         allowedComponentNames={[
