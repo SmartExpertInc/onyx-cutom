@@ -448,7 +448,7 @@
         }
 
         .pyramid-level:nth-child(1) { 
-            width: 600px; 
+            width: 200px; 
             height: 60px; 
             top: 0px; 
             background: #2A7CFF; 
@@ -456,7 +456,7 @@
             clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(2) { 
-            width: 500px; 
+            width: 300px; 
             height: 60px; 
             top: 70px; 
             background: #09ACD8; 
@@ -472,7 +472,7 @@
             clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(4) { 
-            width: 300px; 
+            width: 500px; 
             height: 60px; 
             top: 210px; 
             background: #3A11C3; 
@@ -480,7 +480,7 @@
             clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(5) { 
-            width: 200px; 
+            width: 600px; 
             height: 60px; 
             top: 280px; 
             background: #01298A; 
@@ -1621,11 +1621,11 @@
             width: 100%;
         }
         
-        .pyramid-level:nth-child(1) { width: 100%; }
-        .pyramid-level:nth-child(2) { width: 80%; }
+        .pyramid-level:nth-child(5) { width: 100%; }
+        .pyramid-level:nth-child(4) { width: 80%; }
         .pyramid-level:nth-child(3) { width: 60%; }
-        .pyramid-level:nth-child(4) { width: 40%; }
-        .pyramid-level:nth-child(5) { width: 20%; }
+        .pyramid-level:nth-child(2) { width: 40%; }
+        .pyramid-level:nth-child(1) { width: 20%; }
         
         .level-content {
             font-size: 18px; /* Exact frontend match */
@@ -2176,11 +2176,8 @@
             align-items: center;
             position: relative;
             z-index: 2;
+            flex: 1;
         }
-        
-        .timeline-step:nth-child(1) { flex: 1; }
-        .timeline-step:nth-child(2) { flex: 1; }
-        .timeline-step:nth-child(3) { flex: 1; }
         
         .timeline-number-box {
             width: 40px;
@@ -2263,10 +2260,10 @@
 
 .timeline-line {
     position: absolute;
-    top: 11px;
+    top: 80px;
     left: calc(50% + 60px);
-    width: 2px;
-    height: 115%;
+    width: 115%;
+    height: 2px;
     background: #0F58F9;
 }
 
@@ -3277,98 +3274,72 @@
                         <!-- Left Project Title -->
                         <div style="position: absolute; left: 1.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
                             <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: bold; min-width: 100px;">
-                                {{ slide.props.leftTitle or 'The first project' }}
+                                The first project
                             </div>
                         </div>
 
                         <!-- Right Project Title -->
                         <div style="position: absolute; right: -4%; top: 50%; transform: translateY(-50%); z-index: 10;">
                             <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: bold;">
-                                {{ slide.props.rightTitle or 'The second project' }}
+                                The second project
                             </div>
                         </div>
 
-                        <!-- Left Side Text Blocks (Contraindications) -->
-                        {% if slide.props.contraindications and slide.props.contraindications|length > 0 %}
-                            {% for item in slide.props.contraindications[:3] %}
-                                <div style="position: absolute; left: {% if loop.index == 1 %}23%{% elif loop.index == 2 %}26%{% else %}22%{% endif %}; top: {% if loop.index == 1 %}27%{% elif loop.index == 2 %}44%{% else %}62%{% endif %}; z-index: 10; max-width: 200px;">
-                                    <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                        {{ item.title or 'Heading text goes here' }}
-                                    </div>
-                                    <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                        {{ item.description or 'Lorem ipsum dolor sit amet, consectetur elit, sed do' }}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
-                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                    Heading text goes here
-                                </div>
-                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
+                        <!-- Left Side Text Blocks -->
+                        <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
                             </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
 
-                            <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
-                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                    Heading text goes here
-                                </div>
-                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
+                        <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
                             </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
 
-                            <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
-                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                    Heading text goes here
-                                </div>
-                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
+                        <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
                             </div>
-                        {% endif %}
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
 
-                        <!-- Right Side Text Blocks (Indications) -->
-                        {% if slide.props.indications and slide.props.indications|length > 0 %}
-                            {% for item in slide.props.indications[:3] %}
-                                <div style="position: absolute; right: {% if loop.index == 1 %}23%{% elif loop.index == 2 %}26%{% else %}22%{% endif %}; top: {% if loop.index == 1 %}27%{% elif loop.index == 2 %}44%{% else %}62%{% endif %}; z-index: 10; max-width: 200px; text-align: right;">
-                                    <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                        {{ item.title or 'Heading text goes here' }}
-                                    </div>
-                                    <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                        {{ item.description or 'Lorem ipsum dolor sit amet, consectetur elit, sed do' }}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
-                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                    Heading text goes here
-                                </div>
-                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
+                        <!-- Right Side Text Blocks -->
+                        <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
                             </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
 
-                            <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
-                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                    Heading text goes here
-                                </div>
-                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
+                        <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
                             </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
 
-                            <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
-                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                    Heading text goes here
-                                </div>
-                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
+                        <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
                             </div>
-                        {% endif %}
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
