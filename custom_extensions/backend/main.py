@@ -24327,7 +24327,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Summarize methods, approaches, or policies in two focused sections
   • Content guidelines: Keep lines concise; ensure each section contains two clear, actionable lines
 
-- company-tools-resources-slide: title, sections[] (array of {title, content, backgroundColor, textColor}), [profileImagePath], [companyLogoPath]
+- company-tools-resources-slide: title, sections[] (array of {{title, content, backgroundColor, textColor}}), [profileImagePath], [companyLogoPath]
   • Purpose: Present key internal tools and resources in a 2x2 grid layout
   • Structure: Blue header with logo and title; four content blocks alternating background styles
   • Required props: title; sections (ideally 4) with title and content strings
@@ -24335,7 +24335,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Summarize communication, project management, L&D, or other internal resources
   • Content guidelines: Keep section titles concise; content can be short paragraphs or lists
 
-- ai-pharma-market-growth-slide: title, bars[] (array of {year, label, widthPercent}), [doctorImagePath], [panelBackgroundColor], [pageNumber]
+- ai-pharma-market-growth-slide: title, bars[] (array of {{year, label, widthPercent}}), [doctorImagePath], [panelBackgroundColor], [pageNumber]
   • Purpose: Display progressive growth or timeline data with horizontal bar chart
   • Structure: Rounded light panel with title, horizontal bars showing year labels and values, optional right image
   • Required props: title (multiline heading), bars (array with year, label like "$10 million", widthPercent 0-100)
@@ -24351,7 +24351,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Introduce core concepts, highlight critical thinking skills, or emphasize important ideas
   • Content guidelines: Title supports line breaks; content should be 2-3 sentences; highlightedPhrases should be exact substrings from content
 
-- benefits-tags-slide: title, tags[] (array of {text, isHighlighted}), [profileImagePath], [companyLogoPath], [pageNumber]
+- benefits-tags-slide: title, tags[] (array of {{text, isHighlighted}}), [profileImagePath], [companyLogoPath], [pageNumber]
   • Purpose: Display benefits or key concepts as visual tags with emphasis on one highlighted tag
   • Structure: Light panel with circular profile background, title, and 6 tags in 3 rows (3-2-1 layout)
   • Required props: title (main heading), tags (array of 6 tag objects with text and isHighlighted boolean)
@@ -24359,7 +24359,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Present benefits, key features, values, or concepts with visual emphasis on the most important one
   • Content guidelines: Keep tag text concise (1-3 words); set isHighlighted: true for the most important tag (typically the last one)
 
-- kpi-update-slide: title, items[] (array of {value, description}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
+- kpi-update-slide: title, items[] (array of {{value, description}}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
   • Purpose: Present KPI metrics with large values and detailed descriptions
   • Structure: Light panel with title pill, grid layout of values and descriptions, profile image in bottom-left
   • Required props: title (report name), items (array of 3-4 KPI objects with value like "10%" or "1M" and description text)
@@ -24367,7 +24367,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Display key performance indicators, metrics reports, or quantified results
   • Content guidelines: Values should be concise metrics; descriptions can be 1-2 sentences; maintain consistent formatting
 
-- phishing-rise-slide: title, description, bars[] (array of {year, valueLabel, height}), [actorImagePath], [pageNumber]
+- phishing-rise-slide: title, description, bars[] (array of {{year, valueLabel, height}}), [actorImagePath], [pageNumber]
   • Purpose: Show trend data or threat growth with vertical bar chart
   • Structure: Two-column layout with narrative on left (light blue panel) and bar chart on right (white panel)
   • Required props: title (main heading), description (2-3 sentence narrative), bars (array of 4-6 bars with year, valueLabel like "33M$", height in pixels)
@@ -24375,7 +24375,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data
   • Content guidelines: Title should be concise; description provides context; bars should show progression over time
 
-- four-box-grid: title, boxes[] (array of {heading, text})
+- four-box-grid: title, boxes[] (array of {{heading, text}})
   • Purpose: Present four key concepts or features in a balanced 2x2 grid layout
   • Structure: Title with four equal boxes arranged in 2 rows and 2 columns
   • Required props: title (main heading), boxes (EXACTLY 4 boxes with heading and text fields)
@@ -24383,7 +24383,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Compare features, present quadrants, show four key points, or organize related concepts
   • Content guidelines: Keep box headings concise (2-5 words); text can be 1-2 sentences; maintain consistent length across boxes
 
-- solution-steps-slide: subtitle, title, steps[] (array of {title, description}), [profileImagePath], [logoNew], [pageNumber]
+- solution-steps-slide: subtitle, title, steps[] (array of {{title, description}}), [profileImagePath], [logoNew], [pageNumber]
   • Purpose: Present sequential solution steps with visual timeline
   • Structure: Subtitle chip, main title, profile image, horizontal timeline with circles, and step descriptions below
   • Required props: subtitle (category like "The Solution"), title (main heading), steps (array of 3 steps with title and description)
@@ -24391,7 +24391,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Show step-by-step guides, sequential solutions, process workflows, or implementation phases
   • Content guidelines: Keep step titles concise (e.g., "Step 1", "Know the Regulations"); descriptions should be actionable; limit to 3 steps for optimal layout
 
-- hybrid-work-best-practices-slide: title, subtitle, mainStatement, practices[] (array of {number, title, description}), [profileImagePath], [teamImagePath], [logoPath], [logoText], [pageNumber]
+- hybrid-work-best-practices-slide: title, subtitle, mainStatement, practices[] (array of {{number, title, description}}), [profileImagePath], [teamImagePath], [logoPath], [logoText], [pageNumber]
   • Purpose: Present best practices or recommendations in a 2x2 grid with supporting statement
   • Structure: Tag with title, main statement, 4 numbered practices in grid, profile image, and team image
   • Required props: title (category tag), mainStatement (introductory statement), practices (EXACTLY 4 items with number, title, description)
