@@ -238,7 +238,7 @@ export function WysiwygEditor({
             borderRadius: '6px',
             padding: '4px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            zIndex: 1000000,
+            zIndex: 10000000,
             pointerEvents: 'auto',
           }}
           onMouseDown={(e) => e.preventDefault()}

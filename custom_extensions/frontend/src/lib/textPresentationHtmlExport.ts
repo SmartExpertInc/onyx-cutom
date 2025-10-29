@@ -236,30 +236,10 @@ const renderAlert = (block: AlertBlock): string => {
 const renderBulletList = (block: BulletListBlock): string => {
   const fontSize = block.fontSize || '16px';
   
-  // Check if any item contains "recommendation" - match TextPresentationDisplay logic
-  const hasRecommendation = block.items.some(item => 
-    (typeof item === 'string' && item.toLowerCase().includes('recommendation'))
-  );
-  
-  let containerStyle = `
-    margin-bottom: 16px;
-  `.trim();
-  
-  // Add blue left border for recommendations
-  if (hasRecommendation) {
-    containerStyle += `
-      border-left: 4px solid #0F58F9;
-      padding-left: 16px;
-      padding-top: 8px;
-      padding-bottom: 8px;
-      background-color: rgba(243, 244, 246, 0.3);
-    `.trim();
-  }
-  
   const listStyle = `
+    margin-bottom: 16px;
     padding-left: 0;
     list-style: none;
-    margin: 0;
   `.trim();
   
   const itemStyle = `
@@ -281,13 +261,23 @@ const renderBulletList = (block: BulletListBlock): string => {
     flex-shrink: 0;
   `.trim();
   
-  let html = `<div style="${containerStyle}">`;
-  html += `<ul style="${listStyle}">`;
+  const recommendationStyle = `
+    border-left: 4px solid #0F58F9;
+    padding-left: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: rgba(243, 244, 246, 0.3);
+  `.trim();
+  
+  let html = `<ul style="${listStyle}">`;
   block.items.forEach((item) => {
     const itemText = typeof item === 'string' ? item : JSON.stringify(item);
     const isRecommendationItem = typeof item === 'string' && item.toLowerCase().includes('recommendation');
     
-    html += `<li style="${itemStyle}">`;
+    // Apply recommendation style only to recommendation items
+    const finalItemStyle = isRecommendationItem ? `${itemStyle}; ${recommendationStyle}` : itemStyle;
+    
+    html += `<li style="${finalItemStyle}">`;
     // Only show bullet if it's NOT a recommendation item
     if (!isRecommendationItem) {
       html += `<span style="${bulletStyle}"></span>`;
@@ -296,7 +286,6 @@ const renderBulletList = (block: BulletListBlock): string => {
     </li>`;
   });
   html += `</ul>`;
-  html += `</div>`;
   
   return html;
 };
@@ -307,31 +296,11 @@ const renderBulletList = (block: BulletListBlock): string => {
 const renderNumberedList = (block: NumberedListBlock): string => {
   const fontSize = block.fontSize || '16px';
   
-  // Check if any item contains "recommendation"
-  const hasRecommendation = block.items.some(item => 
-    (typeof item === 'string' && item.toLowerCase().includes('recommendation'))
-  );
-  
-  let containerStyle = `
-    margin-bottom: 16px;
-  `.trim();
-  
-  // Add blue left border for recommendations
-  if (hasRecommendation) {
-    containerStyle += `
-      border-left: 4px solid #0F58F9;
-      padding-left: 16px;
-      padding-top: 8px;
-      padding-bottom: 8px;
-      background-color: rgba(243, 244, 246, 0.3);
-    `.trim();
-  }
-  
   const listStyle = `
+    margin-bottom: 16px;
     padding-left: 0;
     list-style: none;
     counter-reset: list-counter;
-    margin: 0;
   `.trim();
   
   const itemStyle = `
@@ -352,13 +321,23 @@ const renderNumberedList = (block: NumberedListBlock): string => {
     min-width: 24px;
   `.trim();
   
-  let html = `<div style="${containerStyle}">`;
-  html += `<ol style="${listStyle}">`;
+  const recommendationStyle = `
+    border-left: 4px solid #0F58F9;
+    padding-left: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: rgba(243, 244, 246, 0.3);
+  `.trim();
+  
+  let html = `<ol style="${listStyle}">`;
   block.items.forEach((item, index) => {
     const itemText = typeof item === 'string' ? item : JSON.stringify(item);
     const isRecommendationItem = typeof item === 'string' && item.toLowerCase().includes('recommendation');
     
-    html += `<li style="${itemStyle}">`;
+    // Apply recommendation style only to recommendation items
+    const finalItemStyle = isRecommendationItem ? `${itemStyle}; ${recommendationStyle}` : itemStyle;
+    
+    html += `<li style="${finalItemStyle}">`;
     // Only show number if it's NOT a recommendation item
     if (!isRecommendationItem) {
       html += `<span style="${numberStyle}">${index + 1}.</span>`;
@@ -367,7 +346,6 @@ const renderNumberedList = (block: NumberedListBlock): string => {
     </li>`;
   });
   html += `</ol>`;
-  html += `</div>`;
   
   return html;
 };
