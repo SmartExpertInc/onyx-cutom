@@ -353,6 +353,65 @@ FINAL VERIFICATION:
 
 This ensures the LAST thing the AI reads before generating is the fidelity requirements.
 
+## Critical Fix #3: Diversity vs Fidelity Balance (2025-10-29)
+
+### Problem Discovered
+User feedback on AWS presentation showed:
+- ✅ Fidelity is now working perfectly - no fabricated content
+- ❌ BUT: 7 out of 10 slides are bullet-points (violating "max 2" rule)
+- Issue: AI is now prioritizing fidelity OVER diversity, using bullet-points as "safe" option
+
+### Root Cause
+The ABSOLUTE FINAL INSTRUCTIONS emphasized fidelity so strongly that the AI interpreted it as:
+- "When in doubt, use bullet-points to stay safe with source content"
+- "Diverse templates are risky because they might require adding content"
+- Missing guidance on how to achieve diversity while maintaining fidelity
+
+### Solution Implemented (Lines 24687-24738)
+Enhanced the TEMPLATE DIVERSITY section with:
+
+**3-Step Process for Diverse + Faithful Templates:**
+
+1. **STEP 1: ANALYZE SOURCE CONTENT STRUCTURE**
+   - Scan for patterns: problems/solutions, sequential steps, comparisons, categories
+   - Identify natural structures in the source that map to specific templates
+   - Don't just see "content" - see "process", "comparison", "hierarchy", etc.
+
+2. **STEP 2: MAP CONTENT TO DIVERSE TEMPLATES**
+   - Explicit mapping rules for converting content types to templates
+   - Even simple lists can use: two-column, four-box-grid, six-ideas-list
+   - Comparison → two-column or table, NOT bullet-points
+   - Process → process-steps or timeline, NOT bullet-points
+   - Problem/solution → challenges-solutions, NOT bullet-points
+
+3. **STEP 3: COUNT AND VERIFY**
+   - Count bullet-point slides (must be ≤ 2)
+   - Count template types (must be ≥ 3 minimum)
+   - If failed: Go back and convert to appropriate templates
+
+**Concrete Examples Added:**
+```
+❌ BAD: "Key Benefits" with 4 bullets → Use bullet-points-right
+✅ GOOD: "Key Benefits" with 4 bullets → Use four-box-grid (each benefit in a box)
+
+❌ BAD: "Services Overview" with 6 bullets → Use bullet-points
+✅ GOOD: "Services Overview" with 6 bullets → Use six-ideas-list template
+
+❌ BAD: "Comparing Options A vs B" with bullets → Use bullet-points-right
+✅ GOOD: "Comparing Options A vs B" → Use two-column (A on left, B on right)
+```
+
+**Key Principle Added:**
+"THE RULE IS: Maximum 2 bullet-point slides, period. No exceptions, even for sparse content."
+
+### Why This Works
+1. **Reframes diversity as analysis**: Instead of "add more", it's "recognize existing structure"
+2. **Provides concrete examples**: Shows how to convert bullet lists to visual templates
+3. **Makes both requirements equal**: "Fidelity does NOT excuse poor diversity!"
+4. **Gives practical strategies**: How to achieve diversity even with sparse source
+
+This ensures the LAST thing the AI reads before generating emphasizes BOTH fidelity AND diversity as mandatory requirements.
+
 ## Known Limitations
 
 1. **Instruction Conflicts**: The system has multiple instruction layers that can conflict. The ABSOLUTE FINAL INSTRUCTIONS are designed to be the last word, but AI adherence may vary.

@@ -24684,20 +24684,58 @@ ABSOLUTE PROHIBITIONS (OVERRIDE ALL PREVIOUS "INCLUDE" INSTRUCTIONS):
 ❌ NEVER add IAM features or security best practices unless in source
 ❌ NEVER invent "real workplace scenarios" - use ONLY scenarios from source
 
-TEMPLATE DIVERSITY WITH SOURCE FIDELITY:
-✅ YES to diverse templates (process-steps, challenges-solutions, two-column, etc.)
-✅ YES to maximum 2 bullet-point slides
-✅ BUT: Every slide's CONTENT must come from source files only
-✅ Choose templates based on what content patterns exist in the source
+TEMPLATE DIVERSITY WITH SOURCE FIDELITY - BOTH ARE MANDATORY:
+🚨 CRITICAL: Fidelity does NOT excuse poor diversity! You MUST satisfy BOTH requirements:
 
-If source is sparse and doesn't support diverse templates:
-→ It's BETTER to have fewer, simpler slides with accurate content
-→ Than to have diverse, rich slides with fabricated content
+STEP 1: ANALYZE SOURCE CONTENT STRUCTURE
+Before selecting templates, scan the source and identify:
+□ Are there problems + solutions mentioned? → USE challenges-solutions
+□ Are there sequential steps or processes? → USE process-steps
+□ Are there 2 things being compared/contrasted? → USE two-column
+□ Are there 4 related concepts or categories? → USE four-box-grid
+□ Are there chronological events or timeline info? → USE timeline
+□ Are there hierarchical levels or foundations? → USE pyramid
+□ Are there 3 key metrics or achievements? → USE big-numbers (with qualitative values)
+□ Is there a table structure in source? → USE table-dark or table-light
 
-COUNT YOUR BULLET-POINT SLIDES:
-Before finalizing, count how many times you used bullet-points or bullet-points-right.
-If it's more than 2, you FAILED the diversity requirement.
-Replace excess bullet-point slides with other templates that fit the source content.
+STEP 2: MAP CONTENT TO DIVERSE TEMPLATES
+✅ For each section of content, ask: "What template BEST represents this structure?"
+✅ Even simple lists can use: two-column (split list), four-box-grid (group of 4), six-ideas-list (6 items)
+✅ Comparison content? → two-column or table, NOT bullet-points
+✅ Process/workflow content? → process-steps or timeline, NOT bullet-points
+✅ Problem/solution content? → challenges-solutions, NOT bullet-points
+
+STEP 3: COUNT AND VERIFY
+Before finalizing, count your templates:
+□ How many bullet-points slides? (Must be ≤ 2)
+□ How many bullet-points-right slides? (Must be ≤ 2)
+□ Total bullet-point slides? (Combined must be ≤ 2)
+□ How many different template types? (Must be ≥ 3 for small, ≥ 8 for large presentations)
+
+CRITICAL ENFORCEMENT:
+❌ If you have 3+ bullet-point slides: FAIL - Go back and convert them to appropriate templates
+❌ If you have only 2-3 template types total: FAIL - Find more structure in the source content
+✅ Even with sparse source, you can achieve diversity by:
+   - Splitting content across two-column instead of bullets
+   - Grouping into four-box-grid instead of bullets
+   - Using big-numbers with qualitative values instead of bullets
+   - Using process-steps for any sequential information
+   - Using challenges-solutions for any problems mentioned
+
+EXAMPLES OF CONVERTING BULLET-POINTS TO DIVERSE TEMPLATES:
+❌ BAD: "Key Benefits" with 4 bullets → Use bullet-points-right
+✅ GOOD: "Key Benefits" with 4 bullets → Use four-box-grid (each benefit in a box)
+
+❌ BAD: "Services Overview" with 6 bullets → Use bullet-points
+✅ GOOD: "Services Overview" with 6 bullets → Use six-ideas-list template
+
+❌ BAD: "Comparing Options A vs B" with bullets → Use bullet-points-right
+✅ GOOD: "Comparing Options A vs B" → Use two-column (A on left, B on right)
+
+❌ BAD: "Step-by-step guide" with bullets → Use bullet-points
+✅ GOOD: "Step-by-step guide" → Use process-steps template
+
+THE RULE IS: Maximum 2 bullet-point slides, period. No exceptions, even for sparse content.
 
 FINAL VERIFICATION:
 □ Did I add any case studies not in source? → DELETE THEM
