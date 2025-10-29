@@ -312,13 +312,13 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 min-w-[830px] border-0 shadow-xl bg-transparent left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 min-w-[830px] border-0 shadow-xl bg-transparent fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[90vh]" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="rounded-2xl bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 overflow-y-auto survey-modal-scroll">
-            <div className="relative h-[90vh] z-10 w-full max-w-[1280px] rounded-2xl p-0 mx-auto">
+          <div className="rounded-2xl bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 overflow-y-auto survey-modal-scroll max-h-[90vh]">
+            <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 mx-auto flex flex-col">
             {/* Header with Logo and Progress */}
             <div className="flex-shrink-0 p-8 pb-4">
             {/* ContentBuilder Logo */}
@@ -393,7 +393,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>)}
             
             {/* Main Question */}
-            <div className="text-center mb-5">
+            <div className="text-center mb-5 flex-shrink-0">
               <h2 className="text-2xl font-bold text-[#171718] mb-3 sora-font-bold">
                   {surveyStep === 1 && t('survey.step1.title', "What do you plan to use ContentBuilder for?")}
                   {surveyStep === 2 && selectedCategory === 'work' && t('survey.step2Work.title', "What best describes your role?")}
@@ -408,7 +408,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
           {/* Main Content */}
-          <div className="px-8 pb-3">
+          <div className="px-8 pb-3 flex-1 overflow-y-auto">
           <div className={`transition-all duration-300 ease-in-out ${
             isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'
           }`}>
@@ -644,7 +644,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
         {/* Navigation Buttons */}
-        <div className="px-8 pt-2 pb-8">
+        <div className="px-8 pt-2 pb-8 flex-shrink-0">
           <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
             <div className="grid grid-cols-2 gap-16">
               {/* Previous Button */}

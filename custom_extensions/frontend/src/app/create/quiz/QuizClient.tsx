@@ -1380,7 +1380,10 @@ export default function QuizClient() {
 
   return (
     <>
-      <main className="min-h-screen py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden">
+    <div className="flex w-full min-h-screen relative">
+      <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
+        marginRight: showAdvanced ? '400px' : '0'
+      }}>
         {/* Decorative gradient backgrounds */}
         <div 
           className="absolute pointer-events-none"
@@ -1651,31 +1654,6 @@ export default function QuizClient() {
             )}
           </section>
 
-          {/* AI Agent section */}
-          {streamDone && quizData && showAdvanced && (
-            <div className="rounded-lg border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-              <AiAgent
-                editPrompt={editPrompt}
-                setEditPrompt={setEditPrompt}
-                examples={quizExamples}
-                selectedExamples={selectedExamples}
-                toggleExample={toggleExample}
-                loadingEdit={loadingEdit}
-                onApplyEdit={() => {
-                  handleApplyQuizEdit();
-                  setAdvancedModeState("Used");
-                }}
-                onClose={() => setShowAdvanced(false)}
-                advancedSectionRef={advancedSectionRef}
-                placeholder={t('interface.generate.describeImprovements', "Describe what you'd like to improve...")}
-                buttonText={t('interface.edit', 'Edit')}
-                hasStartedChat={aiAgentChatStarted}
-                setHasStartedChat={setAiAgentChatStarted}
-                lastUserMessage={aiAgentLastMessage}
-                setLastUserMessage={setAiAgentLastMessage}
-              />
-            </div>
-          )}
         </div> {/* end inner wrapper */}
 
       {/* Full-width generate footer bar */}
@@ -1699,19 +1677,21 @@ export default function QuizClient() {
 
           {/* AI Agent + generate */}
           <div className="flex items-center gap-[10px]">
-            <button
-              type="button"
-              onClick={() => {
-                setShowAdvanced(!showAdvanced);
-                handleAdvancedModeClick();
-              }}
-              className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>AI Improve</span>
-            </button>
+            {!showAdvanced && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdvanced(!showAdvanced);
+                  handleAdvancedModeClick();
+                }}
+                className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>AI Improve</span>
+              </button>
+            )}
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -1729,6 +1709,41 @@ export default function QuizClient() {
         </div>
       )}
     </main>
+
+    {/* AI Agent Side Panel - slides from right */}
+    <div 
+      className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
+      style={{
+        width: '400px',
+        backgroundColor: '#F9F9F9',
+        transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
+        borderLeft: '1px solid #CCCCCC'
+      }}
+    >
+      {streamDone && quizData && (
+        <AiAgent
+          editPrompt={editPrompt}
+          setEditPrompt={setEditPrompt}
+          examples={quizExamples}
+          selectedExamples={selectedExamples}
+          toggleExample={toggleExample}
+          loadingEdit={loadingEdit}
+          onApplyEdit={() => {
+            handleApplyQuizEdit();
+            setAdvancedModeState("Used");
+          }}
+          onClose={() => setShowAdvanced(false)}
+          advancedSectionRef={advancedSectionRef}
+          placeholder={t('interface.generate.describeImprovements', "Describe what you'd like to improve...")}
+          buttonText={t('interface.edit', 'Edit')}
+          hasStartedChat={aiAgentChatStarted}
+          setHasStartedChat={setAiAgentChatStarted}
+          lastUserMessage={aiAgentLastMessage}
+          setLastUserMessage={setAiAgentLastMessage}
+        />
+      )}
+    </div>
+    </div>
     <style jsx global>{`
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-8px); }

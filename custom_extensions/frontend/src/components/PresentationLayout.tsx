@@ -285,9 +285,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   return (
     <>
-    <div className="flex min-h-screen bg-gray-50 presentation-layout">
+    <div className="flex min-h-screen presentation-layout" style={{ backgroundColor: '#F2F2F4' }}>
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-85 min-h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
+      <div className="w-85 bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="pt-4 px-4">
             <button 
@@ -374,7 +374,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
             </div>
           )}
         {/* Slide Thumbnails */}
-        <div className="flex-1 p-4 space-y-4 bg-[#F9F9F9] rounded-md overflow-y-auto">
+        <div className="p-4 space-y-4 bg-[#F9F9F9] rounded-md">
           {deck.slides.map((slide, index) => {
             const isActive = slide.slideId === selectedSlideId;
             const isHovered = hoveredSlideId === slide.slideId;
@@ -450,7 +450,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
                     <div className="w-full max-w-7xl">
-                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9' }}>
+                      <div className="main-slide-container border border-[#CCCCCC] bg-[#F2F2F4] rounded-md relative" style={{ aspectRatio: '16/9' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">

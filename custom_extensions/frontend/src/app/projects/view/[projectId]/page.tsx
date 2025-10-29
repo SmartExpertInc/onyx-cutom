@@ -44,6 +44,7 @@ import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
+import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -1388,6 +1389,14 @@ export default function ProjectInstanceViewPage() {
         try {
             console.log('🔍 PDF Download Debug - Making request to:', `${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`);
             
+            // Generate HTML content from editableData
+            const htmlContent = generateTextPresentationHtml(
+                editableData as TextPresentationData,
+                projectInstanceData.name || 'Text Presentation'
+            );
+            
+            console.log('🔍 PDF Download Debug - Generated HTML content length:', htmlContent.length);
+            
             const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`, {
                 method: 'POST',
                 headers: {
@@ -1395,9 +1404,8 @@ export default function ProjectInstanceViewPage() {
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
-                    projectId: projectInstanceData.project_id,
-                    componentName: projectInstanceData.component_name,
-                    data: editableData
+                    html_content: htmlContent,
+                    filename: projectInstanceData.name || 'text-presentation'
                 })
             });
 
@@ -1409,18 +1417,30 @@ export default function ProjectInstanceViewPage() {
                 throw new Error(`PDF generation failed: ${response.status} - ${errorText}`);
             }
 
-            // Get the PDF as a blob
-            const blob = await response.blob();
+            // Get the response JSON with download URL
+            const responseData = await response.json();
+            console.log('🔍 PDF Download Debug - Response data:', responseData);
             
-            // Create a download URL and trigger download
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${projectInstanceData.name || 'text-presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            if (responseData.download_url) {
+                // Download the generated PDF
+                const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}${responseData.download_url}`, {
+                    credentials: 'same-origin'
+                });
+                
+                if (!downloadResponse.ok) {
+                    throw new Error('Failed to download PDF');
+                }
+                
+                const blob = await downloadResponse.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = responseData.filename || `${projectInstanceData.name || 'text-presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
             
             // Close the modal
             setIsExportingPdf(false);
