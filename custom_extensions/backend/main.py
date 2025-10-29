@@ -1923,6 +1923,27 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "companyLogoPath": "",
         "pageNumber": "12"
       }
+    },
+    {
+      "slideId": "slide_13_benefits_tags",
+      "slideNumber": 13,
+      "slideTitle": "Key Benefits",
+      "templateId": "benefits-tags-slide",
+      "voiceoverText": "Here are the key benefits you'll gain. Each represents a critical advantage, with innovative solutions being the most transformative outcome you can expect from applying what we've learned.",
+      "props": {
+        "title": "Benefits",
+        "tags": [
+          { "text": "Better decisions", "isHighlighted": false },
+          { "text": "Insight", "isHighlighted": false },
+          { "text": "Growth", "isHighlighted": false },
+          { "text": "Progress", "isHighlighted": false },
+          { "text": "Creativity", "isHighlighted": false },
+          { "text": "Innovative solutions", "isHighlighted": true }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "13"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2846,6 +2867,44 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not isinstance(phrases, list) or not phrases:
                     phrases = ['analyze information,', 'make informed decisions,', 'overcome challenges.']
                 normalized_props['highlightedPhrases'] = [str(p) for p in phrases]
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('companyLogoPath'):
+                    normalized_props['companyLogoPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'benefits-tags-slide':
+                # Ensure required props and normalize tags
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Benefits'
+
+                tags = normalized_props.get('tags')
+                if isinstance(tags, str):
+                    tags = [t.strip() for t in tags.split(',') if t.strip()]
+                if not isinstance(tags, list) or not tags:
+                    tags = [
+                        { 'text': 'Better decisions', 'isHighlighted': False },
+                        { 'text': 'Insight', 'isHighlighted': False },
+                        { 'text': 'Growth', 'isHighlighted': False },
+                        { 'text': 'Progress', 'isHighlighted': False },
+                        { 'text': 'Creativity', 'isHighlighted': False },
+                        { 'text': 'Innovative solutions', 'isHighlighted': True }
+                    ]
+                fixed_tags = []
+                for tag in tags[:6]:  # Limit to 6 tags
+                    if isinstance(tag, dict):
+                        fixed_tags.append({
+                            'text': str(tag.get('text', 'Tag')),
+                            'isHighlighted': bool(tag.get('isHighlighted', False))
+                        })
+                    else:
+                        fixed_tags.append({
+                            'text': str(tag),
+                            'isHighlighted': False
+                        })
+                normalized_props['tags'] = fixed_tags
 
                 if not normalized_props.get('profileImagePath'):
                     normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
@@ -23899,7 +23958,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 12 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 13 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23997,6 +24056,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 12 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (profile image with colored background), companyLogoPath (branding)
   • Usage: Introduce core concepts, highlight critical thinking skills, or emphasize important ideas
   • Content guidelines: Title supports line breaks; content should be 2-3 sentences; highlightedPhrases should be exact substrings from content
+
+- benefits-tags-slide: title, tags[] (array of {text, isHighlighted}), [profileImagePath], [companyLogoPath], [pageNumber]
+  • Purpose: Display benefits or key concepts as visual tags with emphasis on one highlighted tag
+  • Structure: Light panel with circular profile background, title, and 6 tags in 3 rows (3-2-1 layout)
+  • Required props: title (main heading), tags (array of 6 tag objects with text and isHighlighted boolean)
+  • Visual elements: profileImagePath (profile image with gradient background), companyLogoPath (branding)
+  • Usage: Present benefits, key features, values, or concepts with visual emphasis on the most important one
+  • Content guidelines: Keep tag text concise (1-3 words); set isHighlighted: true for the most important tag (typically the last one)
 
 
 
