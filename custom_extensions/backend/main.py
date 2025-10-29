@@ -1715,8 +1715,27 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_4_soft_skills_assessment",
+      "slideId": "slide_4_culture_values",
       "slideNumber": 4,
+      "slideTitle": "Culture & Values",
+      "templateId": "culture-values-three-columns",
+      "voiceoverText": "Our organizational culture is built on three fundamental pillars that guide everything we do. These core values shape our decision-making, interactions, and commitment to excellence in all our endeavors.",
+      "props": {
+        "title": "Our Culture & Values",
+        "leftTitle": "Code of Conduct",
+        "leftText": "We maintain the highest ethical standards in all our business practices. Our code of conduct ensures transparency, integrity, and accountability in every interaction.",
+        "middleTitle": "HR Policies",
+        "middleText": "Our human resources policies are designed to support employee wellbeing, professional development, and work-life balance. We believe in creating an inclusive environment where everyone can thrive.",
+        "rightTitle": "IT Policies",
+        "rightText": "Information security and data protection are paramount. Our IT policies ensure secure access, proper data handling, and compliance with industry standards and regulations.",
+        "middlePanelColor": "#3B46FF",
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": ""
+      }
+    },
+    {
+      "slideId": "slide_5_soft_skills_assessment",
+      "slideNumber": 5,
       "slideTitle": "Assessment Tips",
       "templateId": "soft-skills-assessment-slide",
       "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
@@ -1727,14 +1746,14 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           { "text": "Second key recommendation for better results", "isHighlighted": false }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "pageNumber": 4,
+        "pageNumber": 5,
         "logoPath": "",
         "logoText": "Assessment Guide"
       }
     },
     {
-      "slideId": "slide_5_work_life_balance",
-      "slideNumber": 5,
+      "slideId": "slide_6_work_life_balance",
+      "slideNumber": 6,
       "slideTitle": "Conclusion",
       "templateId": "work-life-balance-slide",
       "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
@@ -1742,8 +1761,288 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "title": "Conclusion and Next Steps",
         "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
         "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
-        "pageNumber": 5,
+        "pageNumber": 6,
         "logoPath": ""
+      }
+    },
+    {
+      "slideId": "slide_7_percent_circles",
+      "slideNumber": 7,
+      "slideTitle": "Statistics Overview",
+      "templateId": "percent-circles",
+      "voiceoverText": "Let's examine some key statistics that highlight important trends and insights. These numbers tell a compelling story about the current state and future potential in our field.",
+      "props": {
+        "title": "% of Fortune 500 CEOs\nwho are women",
+        "percent": "10%",
+        "bottomCards": [
+          { "value": "3%", "text": "Minorities hold just 3% of executive roles." },
+          { "value": "35%", "text": "Companies with diverse leadership outperform competitors by 35%", "hasArrow": true }
+        ],
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": "",
+        "logoText": "Your Logo",
+        "pageNumber": "7"
+      }
+    },
+    {
+      "slideId": "slide_8_benefits_list",
+      "slideNumber": 8,
+      "slideTitle": "Benefits Overview",
+      "templateId": "benefits-list-slide",
+      "voiceoverText": "Let's explore the comprehensive benefits package that supports employee wellbeing and professional growth. These benefits are designed to create a supportive work environment where everyone can thrive.",
+      "props": {
+        "title": "Benefits",
+        "subtitle": "Employment",
+        "description": "Here is a list of benefits that you can offer to your employees to maintain small business compliance:",
+        "benefits": [
+          "Workers' compensation",
+          "Unemployment insurance",
+          "Disability insurance",
+          "Health insurance",
+          "COBRA benefits",
+          "Leave of absence"
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "profileImageAlt": "Profile image",
+        "currentStep": 3,
+        "totalSteps": 4,
+        "companyName": "Company name",
+        "benefitsListIcon": "",
+        "logoNew": "",
+        "pageNumber": "8"
+      }
+    },
+    {
+      "slideId": "slide_9_dei_methods",
+      "slideNumber": 9,
+      "slideTitle": "Methods to Meet DEI Standards",
+      "templateId": "dei-methods",
+      "voiceoverText": "Here are two practical methods you can apply immediately. We'll walk through each briefly so you know exactly what to do and why it works.",
+      "props": {
+        "headerTitle": "Methods to Meet DEI Standards",
+        "section1Title": "Diverse Recruitment:",
+        "section1Lines": [
+          "Source candidates from underrepresented groups.",
+          "Use blind screening to focus on skills."
+        ],
+        "section2Title": "Mentorship & Sponsorship:",
+        "section2Lines": [
+          "Mentor and sponsor diverse talent.",
+          "Create growth and advancement opportunities."
+        ],
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": "",
+        "logoText": "Your Logo"
+      }
+    },
+    {
+      "slideId": "slide_10_company_tools_resources",
+      "slideNumber": 10,
+      "slideTitle": "Company Tools & Resources",
+      "templateId": "company-tools-resources-slide",
+      "voiceoverText": "Here are the core tools and resources we rely on. I'll highlight how each category supports your day-to-day work and where to find them.",
+      "props": {
+        "title": "Company tools and resources",
+        "sections": [
+          {
+            "title": "Communication Tools:",
+            "content": "We use Slack and email for daily communication, and Zoom for video meetings.",
+            "backgroundColor": "#E0E7FF",
+            "textColor": "#374151"
+          },
+          {
+            "title": "Project Management:",
+            "content": "Track work with Jira or Trello; plan sprints and monitor burndown charts.",
+            "backgroundColor": "#FFFFFF",
+            "textColor": "#374151"
+          },
+          {
+            "title": "Learning & Development:",
+            "content": "Access LinkedIn Learning and internal workshops for ongoing upskilling.",
+            "backgroundColor": "#FFFFFF",
+            "textColor": "#374151"
+          },
+          {
+            "title": "Knowledge Base:",
+            "content": "Browse our Confluence space for playbooks, standards, and templates.",
+            "backgroundColor": "#E0E7FF",
+            "textColor": "#374151"
+          }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "10"
+      }
+    },
+    {
+      "slideId": "slide_11_ai_pharma_market_growth",
+      "slideNumber": 11,
+      "slideTitle": "AI Pharma Market Growth",
+      "templateId": "ai-pharma-market-growth-slide",
+      "voiceoverText": "This chart shows remarkable growth in the AI pharma market over the past decade and projections into the future. Notice how the market has expanded exponentially from millions to billions.",
+      "props": {
+        "title": "AI Pharma\nMarket Growth",
+        "bars": [
+          { "year": "2012", "label": "$10 million", "widthPercent": 24 },
+          { "year": "2016", "label": "$100 million", "widthPercent": 72 },
+          { "year": "2020", "label": "$700 million", "widthPercent": 92 },
+          { "year": "2030", "label": "$9000 billion", "widthPercent": 100 }
+        ],
+        "doctorImagePath": "https://via.placeholder.com/300x600?text=Doctor",
+        "panelBackgroundColor": "#dfeeff",
+        "pageNumber": "11"
+      }
+    },
+    {
+      "slideId": "slide_12_critical_thinking",
+      "slideNumber": 12,
+      "slideTitle": "Critical Thinking and Problem Solving",
+      "templateId": "critical-thinking-slide",
+      "voiceoverText": "Critical thinking and problem solving are foundational skills for success. Let's explore how these abilities empower you to analyze information, make informed decisions, and overcome challenges effectively.",
+      "props": {
+        "title": "Critical Thinking\nand Problem Solving",
+        "content": "Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.",
+        "highlightedPhrases": ["analyze information,", "make informed decisions,", "overcome challenges."],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "12"
+      }
+    },
+    {
+      "slideId": "slide_13_benefits_tags",
+      "slideNumber": 13,
+      "slideTitle": "Key Benefits",
+      "templateId": "benefits-tags-slide",
+      "voiceoverText": "Here are the key benefits you'll gain. Each represents a critical advantage, with innovative solutions being the most transformative outcome you can expect from applying what we've learned.",
+      "props": {
+        "title": "Benefits",
+        "tags": [
+          { "text": "Better decisions", "isHighlighted": false },
+          { "text": "Insight", "isHighlighted": false },
+          { "text": "Growth", "isHighlighted": false },
+          { "text": "Progress", "isHighlighted": false },
+          { "text": "Creativity", "isHighlighted": false },
+          { "text": "Innovative solutions", "isHighlighted": true }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "13"
+      }
+    },
+    {
+      "slideId": "slide_14_kpi_update",
+      "slideNumber": 14,
+      "slideTitle": "KPI Update",
+      "templateId": "kpi-update-slide",
+      "voiceoverText": "Let's review our key performance indicators. These metrics demonstrate measurable progress and highlight areas where we're achieving significant results.",
+      "props": {
+        "title": "KPI Update",
+        "items": [
+          { "value": "10%", "description": "Improvement in efficiency across all teams this quarter" },
+          { "value": "75", "description": "New features successfully deployed to production" },
+          { "value": "86%", "description": "Customer satisfaction rating, exceeding our target" },
+          { "value": "1M", "description": "Active users reached, marking a major milestone" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "footerLeft": "Company name",
+        "footerCenter": "KPI Report",
+        "footerRight": "February 2023",
+        "pageNumber": "14"
+      }
+    },
+    {
+      "slideId": "slide_15_phishing_rise",
+      "slideNumber": 15,
+      "slideTitle": "Phishing Rise",
+      "templateId": "phishing-rise-slide",
+      "voiceoverText": "Phishing attacks have become a growing threat in recent years. This chart shows the dramatic increase in incidents and financial impact over time, highlighting why awareness and prevention are more critical than ever.",
+      "props": {
+        "title": "Phishing rise",
+        "description": "This has become a growing threat in the world of today. The Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been noted that 93% of phishing emails are now ransomware.",
+        "bars": [
+          { "year": "2019", "valueLabel": "33M$", "height": 160 },
+          { "year": "2020", "valueLabel": "39M$", "height": 200 },
+          { "year": "2021", "valueLabel": "55M$", "height": 330 },
+          { "year": "2022", "valueLabel": "44M$", "height": 270 },
+          { "year": "2023", "valueLabel": "67M$", "height": 420 },
+          { "year": "2024", "valueLabel": "35M$", "height": 210 }
+        ],
+        "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": "15"
+      }
+    },
+    {
+      "slideId": "slide_16_four_box_grid",
+      "slideNumber": 16,
+      "slideTitle": "Four Key Concepts",
+      "templateId": "four-box-grid",
+      "voiceoverText": "Let's break down the four essential concepts you need to understand. Each box represents a critical component that works together to form the complete picture.",
+      "props": {
+        "title": "Four Key Concepts",
+        "boxes": [
+          { "heading": "Concept A", "text": "First key concept with detailed explanation of its importance" },
+          { "heading": "Concept B", "text": "Second key concept showing how it builds on the first" },
+          { "heading": "Concept C", "text": "Third key concept demonstrating practical application" },
+          { "heading": "Concept D", "text": "Fourth key concept tying everything together" }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_17_solution_steps",
+      "slideNumber": 17,
+      "slideTitle": "Step-by-step Solution Guide",
+      "templateId": "solution-steps-slide",
+      "voiceoverText": "Here's your practical step-by-step guide to implementing the solution. Follow these three steps in order to achieve the best results.",
+      "props": {
+        "subtitle": "The Solution",
+        "title": "Step-by-step Guide",
+        "steps": [
+          { "title": "Step 1", "description": "Know the Regulations" },
+          { "title": "Step 2", "description": "Conduct Risk Assessments" },
+          { "title": "Step 3", "description": "Provide Training and Education" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoNew": "",
+        "pageNumber": "17"
+      }
+    },
+    {
+      "slideId": "slide_18_hybrid_work_best_practices",
+      "slideNumber": 18,
+      "slideTitle": "Hybrid Work Best Practices",
+      "templateId": "hybrid-work-best-practices-slide",
+      "voiceoverText": "Adopting hybrid work requires the right people, processes, and technology. Here are four essential best practices to ensure a successful transition and maintain productivity across your distributed workforce.",
+      "props": {
+        "title": "HYBRID WORK BEST PRACTICES",
+        "subtitle": "",
+        "mainStatement": "To adopt a hybrid work model, you need the right people, processes, and technology.",
+        "practices": [
+          {
+            "number": 1,
+            "title": "Communicate with your employees",
+            "description": "When you roll out hybrid work, your decisions will affect everyone in your workforce."
+          },
+          {
+            "number": 2,
+            "title": "Work with HR and IT",
+            "description": "Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless."
+          },
+          {
+            "number": 3,
+            "title": "Create the right work environment",
+            "description": "Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important."
+          },
+          {
+            "number": 4,
+            "title": "Delight and connect remote",
+            "description": "Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high."
+          }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "teamImagePath": "https://via.placeholder.com/400x200?text=Team",
+        "logoPath": "",
+        "logoText": "Your Logo",
+        "pageNumber": "18"
       }
     }
   ],
@@ -2590,6 +2889,422 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Assessment Guide'
                     
+            elif template_id == 'culture-values-three-columns':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Our Culture & Values'
+                if not normalized_props.get('leftTitle'):
+                    normalized_props['leftTitle'] = 'Code of Conduct'
+                if not normalized_props.get('leftText'):
+                    normalized_props['leftText'] = 'We maintain the highest ethical standards in all our business practices. Our code of conduct ensures transparency, integrity, and accountability in every interaction.'
+                if not normalized_props.get('middleTitle'):
+                    normalized_props['middleTitle'] = 'HR Policies'
+                if not normalized_props.get('middleText'):
+                    normalized_props['middleText'] = 'Our human resources policies are designed to support employee wellbeing, professional development, and work-life balance. We believe in creating an inclusive environment where everyone can thrive.'
+                if not normalized_props.get('rightTitle'):
+                    normalized_props['rightTitle'] = 'IT Policies'
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'Information security and data protection are paramount. Our IT policies ensure secure access, proper data handling, and compliance with industry standards and regulations.'
+                if not normalized_props.get('middlePanelColor'):
+                    normalized_props['middlePanelColor'] = '#3B46FF'
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'percent-circles':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = '% of Fortune 500 CEOs\nwho are women'
+                if not normalized_props.get('percent'):
+                    normalized_props['percent'] = '10%'
+                if not normalized_props.get('bottomCards'):
+                    normalized_props['bottomCards'] = [
+                        { 'value': '3%', 'text': 'Minorities hold just 3% of executive roles.' },
+                        { 'value': '35%', 'text': 'Companies with diverse leadership outperform competitors by 35%', 'hasArrow': True }
+                    ]
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'benefits-list-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Benefits'
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'Employment'
+                if not normalized_props.get('description'):
+                    normalized_props['description'] = 'Here is a list of benefits that you can offer to your employees to maintain small business compliance:'
+                if not normalized_props.get('benefits'):
+                    normalized_props['benefits'] = [
+                        "Workers' compensation",
+                        "Unemployment insurance",
+                        "Disability insurance",
+                        "Health insurance",
+                        "COBRA benefits",
+                        "Leave of absence"
+                    ]
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('profileImageAlt'):
+                    normalized_props['profileImageAlt'] = 'Profile image'
+                if not normalized_props.get('currentStep'):
+                    normalized_props['currentStep'] = 3
+                if not normalized_props.get('totalSteps'):
+                    normalized_props['totalSteps'] = 4
+                if not normalized_props.get('companyName'):
+                    normalized_props['companyName'] = 'Company name'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # Don't set logoNew - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'dei-methods':
+                # Ensure required props exist and correct shapes
+                if not normalized_props.get('headerTitle'):
+                    normalized_props['headerTitle'] = 'Methods to Meet DEI Standards'
+                if not normalized_props.get('section1Title'):
+                    normalized_props['section1Title'] = 'Diverse Recruitment:'
+                s1 = normalized_props.get('section1Lines')
+                if isinstance(s1, str):
+                    s1 = [line.strip() for line in s1.split('\n') if line.strip()]
+                if not (isinstance(s1, list) and s1):
+                    s1 = [
+                        'Source candidates from underrepresented groups.',
+                        'Use blind screening to focus on skills and qualifications.'
+                    ]
+                normalized_props['section1Lines'] = [str(x) for x in s1[:2]]
+
+                if not normalized_props.get('section2Title'):
+                    normalized_props['section2Title'] = 'Mentorship and Sponsorship Programs:'
+                s2 = normalized_props.get('section2Lines')
+                if isinstance(s2, str):
+                    s2 = [line.strip() for line in s2.split('\n') if line.strip()]
+                if not (isinstance(s2, list) and s2):
+                    s2 = [
+                        'Mentor and sponsor diverse talent.',
+                        'Create opportunities for growth & advancement.'
+                    ]
+                normalized_props['section2Lines'] = [str(x) for x in s2[:2]]
+
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                # logoPath can remain empty to show placeholder
+
+            elif template_id == 'company-tools-resources-slide':
+                # Ensure required props and normalize sections
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Company tools and resources'
+
+                sections = normalized_props.get('sections')
+                if isinstance(sections, str):
+                    sections = [s.strip() for s in sections.split('\n\n') if s.strip()]
+                if not isinstance(sections, list) or not sections:
+                    sections = [
+                        { 'title': 'Communication Tools:', 'content': 'We use Slack and email for daily communication, and Zoom for video meetings.', 'backgroundColor': '#E0E7FF', 'textColor': '#374151' },
+                        { 'title': 'Project Management:', 'content': 'Track work with Jira or Trello; plan sprints and monitor burndown charts.', 'backgroundColor': '#FFFFFF', 'textColor': '#374151' },
+                        { 'title': 'Learning & Development:', 'content': 'Access LinkedIn Learning and internal workshops for ongoing upskilling.', 'backgroundColor': '#FFFFFF', 'textColor': '#374151' },
+                        { 'title': 'Knowledge Base:', 'content': 'Browse our Confluence space for playbooks, standards, and templates.', 'backgroundColor': '#E0E7FF', 'textColor': '#374151' }
+                    ]
+                fixed_sections = []
+                for sec in sections[:4]:
+                    if isinstance(sec, dict):
+                        fixed_sections.append({
+                            'title': str(sec.get('title', 'Section')),
+                            'content': str(sec.get('content', '')),
+                            'backgroundColor': sec.get('backgroundColor', '#FFFFFF'),
+                            'textColor': sec.get('textColor', '#374151')
+                        })
+                    else:
+                        fixed_sections.append({
+                            'title': 'Section',
+                            'content': str(sec),
+                            'backgroundColor': '#FFFFFF',
+                            'textColor': '#374151'
+                        })
+                normalized_props['sections'] = fixed_sections
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # companyLogoPath may remain empty; UI shows placeholder text
+
+            elif template_id == 'ai-pharma-market-growth-slide':
+                # Ensure required props and normalize bars
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'AI Pharma\nMarket Growth'
+
+                bars = normalized_props.get('bars')
+                if not isinstance(bars, list) or not bars:
+                    bars = [
+                        { 'year': '2012', 'label': '$10 million', 'widthPercent': 24 },
+                        { 'year': '2016', 'label': '$100 million', 'widthPercent': 72 },
+                        { 'year': '2020', 'label': '$700 million', 'widthPercent': 92 },
+                        { 'year': '2030', 'label': '$9000 billion', 'widthPercent': 100 }
+                    ]
+                fixed_bars = []
+                for bar in bars:
+                    if isinstance(bar, dict):
+                        fixed_bars.append({
+                            'year': str(bar.get('year', '2020')),
+                            'label': str(bar.get('label', '$0')),
+                            'widthPercent': int(bar.get('widthPercent', 50))
+                        })
+                    else:
+                        fixed_bars.append({
+                            'year': '2020',
+                            'label': str(bar),
+                            'widthPercent': 50
+                        })
+                normalized_props['bars'] = fixed_bars
+
+                if not normalized_props.get('doctorImagePath'):
+                    normalized_props['doctorImagePath'] = 'https://via.placeholder.com/300x600?text=Doctor'
+                if not normalized_props.get('panelBackgroundColor'):
+                    normalized_props['panelBackgroundColor'] = '#dfeeff'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'critical-thinking-slide':
+                # Ensure required props and normalize highlightedPhrases
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Critical Thinking\nand Problem Solving'
+                if not normalized_props.get('content'):
+                    normalized_props['content'] = 'Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.'
+
+                phrases = normalized_props.get('highlightedPhrases')
+                if isinstance(phrases, str):
+                    phrases = [p.strip() for p in phrases.split(',') if p.strip()]
+                if not isinstance(phrases, list) or not phrases:
+                    phrases = ['analyze information,', 'make informed decisions,', 'overcome challenges.']
+                normalized_props['highlightedPhrases'] = [str(p) for p in phrases]
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('companyLogoPath'):
+                    normalized_props['companyLogoPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'benefits-tags-slide':
+                # Ensure required props and normalize tags
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Benefits'
+
+                tags = normalized_props.get('tags')
+                if isinstance(tags, str):
+                    tags = [t.strip() for t in tags.split(',') if t.strip()]
+                if not isinstance(tags, list) or not tags:
+                    tags = [
+                        { 'text': 'Better decisions', 'isHighlighted': False },
+                        { 'text': 'Insight', 'isHighlighted': False },
+                        { 'text': 'Growth', 'isHighlighted': False },
+                        { 'text': 'Progress', 'isHighlighted': False },
+                        { 'text': 'Creativity', 'isHighlighted': False },
+                        { 'text': 'Innovative solutions', 'isHighlighted': True }
+                    ]
+                fixed_tags = []
+                for tag in tags[:6]:  # Limit to 6 tags
+                    if isinstance(tag, dict):
+                        fixed_tags.append({
+                            'text': str(tag.get('text', 'Tag')),
+                            'isHighlighted': bool(tag.get('isHighlighted', False))
+                        })
+                    else:
+                        fixed_tags.append({
+                            'text': str(tag),
+                            'isHighlighted': False
+                        })
+                normalized_props['tags'] = fixed_tags
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('companyLogoPath'):
+                    normalized_props['companyLogoPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'kpi-update-slide':
+                # Ensure required props and normalize items
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'KPI Update'
+
+                items = normalized_props.get('items')
+                if not isinstance(items, list) or not items:
+                    items = [
+                        { 'value': '10%', 'description': 'Improvement in efficiency across all teams this quarter' },
+                        { 'value': '75', 'description': 'New features successfully deployed to production' },
+                        { 'value': '86%', 'description': 'Customer satisfaction rating, exceeding our target' },
+                        { 'value': '1M', 'description': 'Active users reached, marking a major milestone' }
+                    ]
+                fixed_items = []
+                for item in items[:4]:  # Limit to 4 KPIs
+                    if isinstance(item, dict):
+                        fixed_items.append({
+                            'value': str(item.get('value', '0')),
+                            'description': str(item.get('description', 'No description'))
+                        })
+                    else:
+                        fixed_items.append({
+                            'value': str(item),
+                            'description': 'No description'
+                        })
+                normalized_props['items'] = fixed_items
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('footerLeft'):
+                    normalized_props['footerLeft'] = 'Company name'
+                if not normalized_props.get('footerCenter'):
+                    normalized_props['footerCenter'] = 'KPI Report'
+                if not normalized_props.get('footerRight'):
+                    normalized_props['footerRight'] = 'February 2023'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'phishing-rise-slide':
+                # Ensure required props and normalize bars
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Phishing rise'
+                if not normalized_props.get('description'):
+                    normalized_props['description'] = 'This has become a growing threat in the world of today. The Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016.'
+
+                bars = normalized_props.get('bars')
+                if not isinstance(bars, list) or not bars:
+                    bars = [
+                        { 'year': '2019', 'valueLabel': '33M$', 'height': 160 },
+                        { 'year': '2020', 'valueLabel': '39M$', 'height': 200 },
+                        { 'year': '2021', 'valueLabel': '55M$', 'height': 330 },
+                        { 'year': '2022', 'valueLabel': '44M$', 'height': 270 },
+                        { 'year': '2023', 'valueLabel': '67M$', 'height': 420 },
+                        { 'year': '2024', 'valueLabel': '35M$', 'height': 210 }
+                    ]
+                fixed_bars = []
+                for bar in bars[:6]:  # Limit to 6 bars
+                    if isinstance(bar, dict):
+                        fixed_bars.append({
+                            'year': str(bar.get('year', '2020')),
+                            'valueLabel': str(bar.get('valueLabel', '0$')),
+                            'height': int(bar.get('height', 200))
+                        })
+                    else:
+                        fixed_bars.append({
+                            'year': '2020',
+                            'valueLabel': str(bar),
+                            'height': 200
+                        })
+                normalized_props['bars'] = fixed_bars
+
+                if not normalized_props.get('actorImagePath'):
+                    normalized_props['actorImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'four-box-grid':
+                # Ensure required props and normalize boxes
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Four Key Concepts'
+
+                boxes = normalized_props.get('boxes')
+                if not isinstance(boxes, list) or len(boxes) < 4:
+                    boxes = [
+                        { 'heading': 'Concept A', 'text': 'First key concept with detailed explanation' },
+                        { 'heading': 'Concept B', 'text': 'Second key concept showing how it builds on the first' },
+                        { 'heading': 'Concept C', 'text': 'Third key concept demonstrating practical application' },
+                        { 'heading': 'Concept D', 'text': 'Fourth key concept tying everything together' }
+                    ]
+                fixed_boxes = []
+                for box in boxes[:4]:  # Exactly 4 boxes
+                    if isinstance(box, dict):
+                        fixed_boxes.append({
+                            'heading': str(box.get('heading', 'Heading')),
+                            'text': str(box.get('text', 'Description'))
+                        })
+                    else:
+                        fixed_boxes.append({
+                            'heading': 'Heading',
+                            'text': str(box)
+                        })
+                normalized_props['boxes'] = fixed_boxes
+
+            elif template_id == 'solution-steps-slide':
+                # Ensure required props and normalize steps
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'The Solution'
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Step-by-step Guide'
+
+                steps = normalized_props.get('steps')
+                if not isinstance(steps, list) or not steps:
+                    steps = [
+                        { 'title': 'Step 1', 'description': 'Know the Regulations' },
+                        { 'title': 'Step 2', 'description': 'Conduct Risk Assessments' },
+                        { 'title': 'Step 3', 'description': 'Provide Training and Education' }
+                    ]
+                fixed_steps = []
+                for step in steps[:3]:  # Limit to 3 steps
+                    if isinstance(step, dict):
+                        fixed_steps.append({
+                            'title': str(step.get('title', 'Step')),
+                            'description': str(step.get('description', 'Description'))
+                        })
+                    else:
+                        fixed_steps.append({
+                            'title': 'Step',
+                            'description': str(step)
+                        })
+                normalized_props['steps'] = fixed_steps
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # logoNew can remain empty to show placeholder
+
+            elif template_id == 'hybrid-work-best-practices-slide':
+                # Ensure required props and normalize practices
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'HYBRID WORK BEST PRACTICES'
+                if not normalized_props.get('mainStatement'):
+                    normalized_props['mainStatement'] = 'To adopt a hybrid work model, you need the right people, processes, and technology.'
+
+                practices = normalized_props.get('practices')
+                if not isinstance(practices, list) or len(practices) < 4:
+                    practices = [
+                        { 'number': 1, 'title': 'Communicate with your employees', 'description': 'When you roll out hybrid work, your decisions will affect everyone in your workforce.' },
+                        { 'number': 2, 'title': 'Work with HR and IT', 'description': 'Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless.' },
+                        { 'number': 3, 'title': 'Create the right work environment', 'description': 'Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important.' },
+                        { 'number': 4, 'title': 'Delight and connect remote', 'description': 'Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high.' }
+                    ]
+                fixed_practices = []
+                for i, practice in enumerate(practices[:4], 1):  # Exactly 4 practices
+                    if isinstance(practice, dict):
+                        fixed_practices.append({
+                            'number': practice.get('number', i),
+                            'title': str(practice.get('title', 'Practice')),
+                            'description': str(practice.get('description', 'Description'))
+                        })
+                    else:
+                        fixed_practices.append({
+                            'number': i,
+                            'title': 'Practice',
+                            'description': str(practice)
+                        })
+                normalized_props['practices'] = fixed_practices
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('teamImagePath'):
+                    normalized_props['teamImagePath'] = 'https://via.placeholder.com/400x200?text=Team'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # logoPath can remain empty to show placeholder
+
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
@@ -10259,7 +10974,7 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                         logger.info(f"🔍 [DATA EXTRACTION] Last 100 chars: {image_data_raw[-100:]}")
                     break
                 else:
-                    logger.warning(f"⚠️ [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
+                    logger.warning(f"WARNING: [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
         
         if not image_data_raw:
             logger.error(f"❌ [DATA EXTRACTION ERROR] No image data found in response parts")
@@ -10310,7 +11025,7 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         elif image_data.startswith(b'\xff\xd8\xff'):
             logger.info(f"✅ [IMAGE VALIDATION] Detected JPEG format")
         else:
-            logger.warning(f"⚠️ [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
+            logger.warning(f"WARNING: [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
         
         logger.info(f"🔍 [IMAGE VALIDATION] Image data first 20 bytes: {image_data[:20]}")
         logger.info(f"🔍 [IMAGE VALIDATION] Image data last 20 bytes: {image_data[-20:]}")
@@ -17814,7 +18529,7 @@ async def extract_company_metadata_from_website(website_content: str, company_we
             logger.info(f"📊 [WEBSITE SCRAPING] Extracted company metadata: {company_data}")
             return company_data
         except json.JSONDecodeError:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
             return {
                 "employees": "Unknown",
                 "franchise": "Unknown",
@@ -21991,8 +22706,8 @@ async def generate_company_specific_fallback_positions(company_name: str, langua
             logger.info(f"💼 [WEBSITE SCRAPING] Generated {len(formatted_positions)} company-specific fallback positions")
             return formatted_positions
         except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             # Language-specific generic fallback
             if language == "en":
                 return [
@@ -22149,8 +22864,8 @@ async def extract_job_positions_from_website_content(website_content: str, compa
             logger.info(f"💼 [WEBSITE SCRAPING] Extracted {len(job_positions)} job positions from website")
             return job_positions
         except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             return []
         
     except Exception as e:
@@ -24443,7 +25158,37 @@ General Rules:
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
+VIDEO LESSON TEMPLATE DIVERSITY (CRITICAL - MAINTAIN VARIETY):
+- You MUST use a wide variety of templates from the 18 available video lesson templates below.
+- DO NOT repeat the same template unless absolutely necessary for content structure.
+- For typical video lessons (5-15 slides), aim to use each template AT MOST ONCE or TWICE.
 
+RECOMMENDED TEMPLATE DISTRIBUTION:
+- Start with: course-overview-slide (opening/welcome)
+- Content slides: Use diverse templates that fit your content:
+  * phishing-definition-slide (for definitions and key concepts)
+  * impact-statements-slide (for statistics and metrics)
+  * culture-values-three-columns-slide (for 3-part content)
+  * percent-circles (for percentage-based data)
+  * benefits-list-slide (for listing benefits/features)
+  * dei-methods-slide (for methodologies)
+  * company-tools-resources-slide (for tools/resources)
+  * ai-pharma-market-growth-slide (for growth/trend data)
+  * critical-thinking-slide (for analytical content)
+  * benefits-tags-slide (for tag-style benefits)
+  * kpi-update-slide (for KPI/metrics updates)
+  * phishing-rise-slide (for rising trends/statistics)
+  * four-box-grid-slide (for 4-part content)
+  * solution-steps-slide (for step-by-step solutions)
+  * soft-skills-assessment-slide (for tips/recommendations)
+  * hybrid-work-best-practices-slide (for best practices)
+- End with: work-life-balance-slide (conclusion/next steps)
+
+TEMPLATE SELECTION GUIDELINES:
+- Prioritize templates that best express your content structure
+- Use specialty templates when content naturally fits (e.g., percent-circles for percentage data)
+- Avoid defaulting to the same template repeatedly
+- Match template to content type (statistics → impact-statements-slide, definitions → phishing-definition-slide, etc.)
 
 PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
 Based on presentation design best practices, follow these rules for selecting appropriate images:
@@ -24485,7 +25230,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -24519,6 +25264,30 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
   • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
 
+- culture-values-three-columns: title, leftTitle, leftText, middleTitle, middleText, rightTitle, rightText, [middlePanelColor], [avatarPath], [logoPath]
+  • Purpose: Present organizational culture, values, policies, or three-pillar concepts with structured content
+  • Structure: Top bar with logo and title, three equal columns with colored middle panel and avatar display
+  • Required props: title (main heading), leftTitle/leftText (first pillar), middleTitle/middleText (central concept), rightTitle/rightText (third pillar)
+  • Visual elements: middlePanelColor (accent color for middle column), avatarPath (instructor/representative image), logoPath (branding)
+  • Usage: Explain company culture, organizational values, policy frameworks, or any three-part conceptual structure
+  • Content guidelines: Each column should present a distinct but related concept; middle column often serves as the central/primary concept; maintain consistent depth and tone across all three sections
+
+- percent-circles: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
+  • Purpose: Present statistical data with visual percentage circles and supporting statistics cards
+  • Structure: Top section with title and 10 circles (1 filled with percentage + 9 empty), avatar display, bottom section with two statistics cards
+  • Required props: title (main heading, supports multiline), percent (percentage value like "10%"), bottomCards (EXACTLY 2 items with 'value' field and 'text' field, optional 'hasArrow' boolean)
+  • Visual elements: avatarPath (instructor/representative image), logoPath (branding), logoText (contextual label)
+  • Usage: Display key statistics, percentage data, diversity metrics, or comparative statistics with visual emphasis
+  • Content guidelines: Title should clearly state what percentage represents; percent should be a meaningful statistic; bottomCards should provide supporting context or related statistics; use hasArrow: true for the most important secondary statistic
+
+- benefits-list-slide: title, subtitle, description, benefits[] (array of strings), [profileImagePath], [currentStep], [totalSteps], [companyName], [logoNew], [pageNumber]
+  • Purpose: Present comprehensive lists of benefits, features, or items with professional layout and navigation indicators
+  • Structure: Top section with blue gradient background containing title/subtitle/description and navigation squares, profile image, bottom section with benefits list in 3-column grid
+  • Required props: title (main heading), subtitle (category/subject), description (introductory text), benefits (array of 6+ benefit strings)
+  • Visual elements: profileImagePath (instructor/representative image), currentStep/totalSteps (navigation indicators), logoNew (company branding)
+  • Usage: Display employee benefits, product features, service offerings, compliance requirements, or any comprehensive list with professional presentation
+  • Content guidelines: Title should be clear and specific; subtitle should categorize the content; description should introduce the list; benefits should be concise but descriptive; maintain consistent formatting across all list items
+
 - work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
   • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
   • Structure: Content-rich slide with gradient background, visual arch design, and avatar display for lengthy text
@@ -24527,17 +25296,88 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
   • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
 
-MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
-- Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
-  1. FIRST SLIDE: course-overview-slide (Welcome and course introduction)
-  2. SECOND SLIDE: impact-statements-slide (Key statistics and impact metrics)
-  3. THIRD SLIDE: phishing-definition-slide (Core definitions and concepts)
-  4. FOURTH SLIDE: soft-skills-assessment-slide (Critical tips and recommendations)
-  5. FIFTH SLIDE: work-life-balance-slide (Conclusion and next steps)
-- NO template repetition allowed - each template used EXACTLY ONCE
-- NO additional slides beyond these 5 - maintain strict 5-slide structure
-- NO substitutions - you must use these exact 5 templates in this exact order
-- This structure ensures comprehensive coverage: Introduction → Data → Education → Application → Conclusion
+
+- dei-methods: headerTitle, section1Title, section1Lines[] (array of 2 strings), section2Title, section2Lines[] (array of 2 strings), [avatarPath], [logoPath], [logoText]
+  • Purpose: Present two key methods/sections with concise bullet lines under each
+  • Structure: Gradient header with title, two content sections with headings and two lines each, optional avatar and logo
+  • Required props: headerTitle (slide heading), section1Title/section1Lines (exactly 2 lines), section2Title/section2Lines (exactly 2 lines)
+  • Visual elements: avatarPath (speaker image), logoPath/logoText (branding)
+  • Usage: Summarize methods, approaches, or policies in two focused sections
+  • Content guidelines: Keep lines concise; ensure each section contains two clear, actionable lines
+
+- company-tools-resources-slide: title, sections[] (array of {{title, content, backgroundColor, textColor}}), [profileImagePath], [companyLogoPath]
+  • Purpose: Present key internal tools and resources in a 2x2 grid layout
+  • Structure: Blue header with logo and title; four content blocks alternating background styles
+  • Required props: title; sections (ideally 4) with title and content strings
+  • Visual elements: profileImagePath (speaker image), companyLogoPath (branding)
+  • Usage: Summarize communication, project management, L&D, or other internal resources
+  • Content guidelines: Keep section titles concise; content can be short paragraphs or lists
+
+- ai-pharma-market-growth-slide: title, bars[] (array of {{year, label, widthPercent}}), [doctorImagePath], [panelBackgroundColor], [pageNumber]
+  • Purpose: Display progressive growth or timeline data with horizontal bar chart
+  • Structure: Rounded light panel with title, horizontal bars showing year labels and values, optional right image
+  • Required props: title (multiline heading), bars (array with year, label like "$10 million", widthPercent 0-100)
+  • Visual elements: doctorImagePath (right-side image), panelBackgroundColor (defaults to light blue)
+  • Usage: Show market growth, revenue progression, or any timeline-based metrics
+  • Content guidelines: Title can include line breaks; bars should be chronological; labels should be clear monetary/metric values
+
+- critical-thinking-slide: title, content, highlightedPhrases[] (array of strings), [profileImagePath], [companyLogoPath], [pageNumber]
+  • Purpose: Present key concept with highlighted phrases for emphasis
+  • Structure: Light panel with circular profile background, title, and content with highlighted key phrases
+  • Required props: title (multiline heading), content (paragraph text), highlightedPhrases (array of 2-4 phrase strings to highlight)
+  • Visual elements: profileImagePath (profile image with colored background), companyLogoPath (branding)
+  • Usage: Introduce core concepts, highlight critical thinking skills, or emphasize important ideas
+  • Content guidelines: Title supports line breaks; content should be 2-3 sentences; highlightedPhrases should be exact substrings from content
+
+- benefits-tags-slide: title, tags[] (array of {{text, isHighlighted}}), [profileImagePath], [companyLogoPath], [pageNumber]
+  • Purpose: Display benefits or key concepts as visual tags with emphasis on one highlighted tag
+  • Structure: Light panel with circular profile background, title, and 6 tags in 3 rows (3-2-1 layout)
+  • Required props: title (main heading), tags (array of 6 tag objects with text and isHighlighted boolean)
+  • Visual elements: profileImagePath (profile image with gradient background), companyLogoPath (branding)
+  • Usage: Present benefits, key features, values, or concepts with visual emphasis on the most important one
+  • Content guidelines: Keep tag text concise (1-3 words); set isHighlighted: true for the most important tag (typically the last one)
+
+- kpi-update-slide: title, items[] (array of {{value, description}}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
+  • Purpose: Present KPI metrics with large values and detailed descriptions
+  • Structure: Light panel with title pill, grid layout of values and descriptions, profile image in bottom-left
+  • Required props: title (report name), items (array of 3-4 KPI objects with value like "10%" or "1M" and description text)
+  • Visual elements: profileImagePath (profile image with blue background), footer text for company/report/date
+  • Usage: Display key performance indicators, metrics reports, or quantified results
+  • Content guidelines: Values should be concise metrics; descriptions can be 1-2 sentences; maintain consistent formatting
+
+- phishing-rise-slide: title, description, bars[] (array of {{year, valueLabel, height}}), [actorImagePath], [pageNumber]
+  • Purpose: Show trend data or threat growth with vertical bar chart
+  • Structure: Two-column layout with narrative on left (light blue panel) and bar chart on right (white panel)
+  • Required props: title (main heading), description (2-3 sentence narrative), bars (array of 4-6 bars with year, valueLabel like "33M$", height in pixels)
+  • Visual elements: actorImagePath (avatar in left panel with blue background)
+  • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data
+  • Content guidelines: Title should be concise; description provides context; bars should show progression over time
+
+- four-box-grid: title, boxes[] (array of {{heading, text}})
+  • Purpose: Present four key concepts or features in a balanced 2x2 grid layout
+  • Structure: Title with four equal boxes arranged in 2 rows and 2 columns
+  • Required props: title (main heading), boxes (EXACTLY 4 boxes with heading and text fields)
+  • Visual elements: None (simple layout focused on content organization)
+  • Usage: Compare features, present quadrants, show four key points, or organize related concepts
+  • Content guidelines: Keep box headings concise (2-5 words); text can be 1-2 sentences; maintain consistent length across boxes
+
+- solution-steps-slide: subtitle, title, steps[] (array of {{title, description}}), [profileImagePath], [logoNew], [pageNumber]
+  • Purpose: Present sequential solution steps with visual timeline
+  • Structure: Subtitle chip, main title, profile image, horizontal timeline with circles, and step descriptions below
+  • Required props: subtitle (category like "The Solution"), title (main heading), steps (array of 3 steps with title and description)
+  • Visual elements: profileImagePath (profile image with blue background), logoNew (branding), timeline with connecting circles
+  • Usage: Show step-by-step guides, sequential solutions, process workflows, or implementation phases
+  • Content guidelines: Keep step titles concise (e.g., "Step 1", "Know the Regulations"); descriptions should be actionable; limit to 3 steps for optimal layout
+
+- hybrid-work-best-practices-slide: title, subtitle, mainStatement, practices[] (array of {{number, title, description}}), [profileImagePath], [teamImagePath], [logoPath], [logoText], [pageNumber]
+  • Purpose: Present best practices or recommendations in a 2x2 grid with supporting statement
+  • Structure: Tag with title, main statement, 4 numbered practices in grid, profile image, and team image
+  • Required props: title (category tag), mainStatement (introductory statement), practices (EXACTLY 4 items with number, title, description)
+  • Visual elements: profileImagePath (profile with blue background), teamImagePath (team photo in bottom-right), logoPath/logoText (branding)
+  • Usage: Display best practices, recommendations, guidelines, or key principles
+  • Content guidelines: Keep practice titles concise; descriptions should be actionable; maintain consistent length across all 4 practices
+
+
 
 VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.
@@ -35843,15 +36683,23 @@ async def create_presentation(request: Request):
         voice_id = body.get("voiceId")
         voice_provider = body.get("voiceProvider")
         
+        # NEW: Extract transitions for multi-slide presentations
+        transitions = body.get("transitions", [])  # Optional - transitions between slides
+        
+        # NEW: Extract slide-only flag for debug rendering
+        slide_only = body.get("slideOnly", False)  # Optional - render slides only without avatar
+        
         # Add detailed logging for debugging
         logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
         logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
         logger.info(f"  - slide_url: {slide_url}")
         logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
         logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"  - transitions_count: {len(transitions) if transitions else 0}")
         logger.info(f"  - theme: {theme}")
         logger.info(f"  - avatar_code: {avatar_code}")
         logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
+        logger.info(f"  - slide_only: {slide_only}")
         logger.info(f"  - duration: {duration}")
         logger.info(f"  - layout: {layout}")
         logger.info(f"  - quality: {quality}")
@@ -35863,6 +36711,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - voice_id: {voice_id}")
         logger.info(f"  - voice_provider: {voice_provider}")
         logger.info("🎤 [MAIN_ENDPOINT] ========== VOICE PARAMETERS LOGGED ==========")
+        
+        # NEW: Log transitions
+        if transitions and len(transitions) > 0:
+            logger.info("🎞️ [MAIN_ENDPOINT] Transitions received:")
+            for i, trans in enumerate(transitions):
+                logger.info(f"  - Transition {i}: type={trans.get('type')}, duration={trans.get('duration')}s")
         
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
@@ -35899,6 +36753,7 @@ async def create_presentation(request: Request):
             slides_data=slides_data,  # NEW: Pass actual slide data
             theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
+            slide_only=slide_only,  # NEW: Pass slide-only flag for debug rendering
             use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
             duration=duration,
             layout=layout,
@@ -35906,10 +36761,13 @@ async def create_presentation(request: Request):
             resolution=tuple(resolution),
             project_name=project_name,
             voice_id=voice_id,  # NEW: Pass voice ID
-            voice_provider=voice_provider  # NEW: Pass voice provider
+            voice_provider=voice_provider,  # NEW: Pass voice provider
+            transitions=transitions  # NEW: Pass transitions array
         )
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
         logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
+        logger.info(f"🎞️ [MAIN_ENDPOINT] PresentationRequest created with {len(transitions) if transitions else 0} transitions")
+        logger.info(f"🐛 [MAIN_ENDPOINT] PresentationRequest created with slide_only: {presentation_request.slide_only}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)
@@ -36152,12 +37010,12 @@ async def preview_slide_html(request: Request):
         slides_data = body.get("slides", [])
         theme = body.get("theme", "dark-purple")
         
-        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML preview")
-        logger.info(f"🔍 [HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
-        logger.info(f"🔍 [HTML_PREVIEW] Theme: {theme}")
+        logger.info(f"[HTML_PREVIEW] Generating HTML preview")
+        logger.info(f"[HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"[HTML_PREVIEW] Theme: {theme}")
         
         if not slides_data or len(slides_data) == 0:
-            logger.error("🔍 [HTML_PREVIEW] No slides data provided")
+            logger.error("[HTML_PREVIEW] No slides data provided")
             return {"success": False, "error": "No slides data provided"}
         
         # Get the first slide
@@ -36166,29 +37024,29 @@ async def preview_slide_html(request: Request):
         slide_id = slide_props.get("slideId")
         metadata = slide_props.get("metadata", {})
         
-        logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
-        logger.info(f"🔍 [HTML_PREVIEW] Slide ID: {slide_id}")
-        logger.info(f"🔍 [HTML_PREVIEW] Metadata: {metadata}")
-        logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
+        logger.info(f"[HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"[HTML_PREVIEW] Slide ID: {slide_id}")
+        logger.info(f"[HTML_PREVIEW] Metadata: {metadata}")
+        logger.info(f"[HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
         
         if not template_id:
-            logger.error("🔍 [HTML_PREVIEW] Missing templateId in slide data")
+            logger.error("[HTML_PREVIEW] Missing templateId in slide data")
             return {"success": False, "error": "Missing templateId in slide data"}
         
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
-        logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        logger.info(f"[HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
         
         # CRITICAL: Log text element positioning data at endpoint level
-        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
-        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
+        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
+        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
         logger.info(f"  - Slide ID: {slide_id}")
         logger.info(f"  - Metadata: {metadata}")
         logger.info(f"  - Metadata type: {type(metadata)}")
         
         if metadata and isinstance(metadata, dict):
             element_positions = metadata.get('elementPositions', {})
-            logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
+            logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
             logger.info(f"  - Element positions: {element_positions}")
             logger.info(f"  - Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
             
@@ -36196,34 +37054,34 @@ async def preview_slide_html(request: Request):
             if element_positions:
                 for element_id, position in element_positions.items():
                     if 'draggable' in element_id:  # Text elements use draggable IDs
-                        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
+                        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
                         logger.info(f"    - Element ID: {element_id}")
                         logger.info(f"    - Position: {position}")
                         logger.info(f"    - X coordinate: {position.get('x', 'MISSING')}")
                         logger.info(f"    - Y coordinate: {position.get('y', 'MISSING')}")
             else:
-                logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
+                logger.warning(f"[ENDPOINT_POSITIONING_DEBUG] WARNING: NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
         else:
-            logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO METADATA IN SLIDE DATA")
+            logger.warning(f"[ENDPOINT_POSITIONING_DEBUG] WARNING: NO METADATA IN SLIDE DATA")
         
         # Log some key props for debugging
         for key, value in actual_props.items():
             if isinstance(value, str):
-                logger.info(f"🔍 [HTML_PREVIEW] {key}: '{value[:100]}...'")
+                logger.info(f"[HTML_PREVIEW] {key}: '{value[:100]}...'")
             else:
-                logger.info(f"🔍 [HTML_PREVIEW] {key}: {value}")
+                logger.info(f"[HTML_PREVIEW] {key}: {value}")
         
         # Import the HTML template service
         from app.services.html_template_service import html_template_service
         
         # Generate clean HTML with slideId and metadata
-        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
+        logger.info(f"[HTML_PREVIEW] Generating HTML content...")
         html_content = html_template_service.generate_clean_html_for_video(
             template_id, actual_props, theme, metadata=metadata, slide_id=slide_id
         )
         
-        logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
-        logger.info(f"🔍 [HTML_PREVIEW] HTML content length: {len(html_content)} characters")
+        logger.info(f"[HTML_PREVIEW] HTML content generated")
+        logger.info(f"[HTML_PREVIEW] HTML content length: {len(html_content)} characters")
         
         # Return the HTML content
         return {
@@ -36235,7 +37093,7 @@ async def preview_slide_html(request: Request):
         }
         
     except Exception as e:
-        logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
+        logger.error(f"[HTML_PREVIEW] Error generating HTML preview: {str(e)}")
         return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
 
 @app.post("/api/custom/slide-video/generate")
@@ -42500,18 +43358,18 @@ async def log_static_file_requests(request: Request, call_next):
         if content_length:
             logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Length: {content_length} bytes")
         else:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Length header")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] No Content-Length header")
         
         # Log content type
         content_type = response.headers.get("content-type")
         if content_type:
             logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Type: {content_type}")
         else:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Type header")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] No Content-Type header")
         
         # Check if response is suspiciously small
         if content_length and int(content_length) < 1000:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
     
     return response
     

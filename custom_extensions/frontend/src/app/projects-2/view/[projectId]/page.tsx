@@ -71,6 +71,13 @@ export default function Projects2ViewPage() {
   
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
+  
+  // NEW: Track active text editor for TextSettings control
+  const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
+  const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
+  
+  // NEW: Track active transition for Transition panel
+  const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -271,6 +278,49 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
+  };
+
+  // NEW: Handle transition button click
+  const handleTransitionClick = (transitionIndex: number) => {
+    console.log('🎬 Transition clicked:', transitionIndex);
+    setActiveTransitionIndex(transitionIndex);
+    setActiveSettingsPanel('transition');
+  };
+
+  // NEW: Handle transition change
+  const handleTransitionChange = (transitionData: any) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || activeTransitionIndex === null) return;
+    
+    console.log('🎬 Transition change:', { transitionIndex: activeTransitionIndex, transitionData });
+    
+    // Initialize transitions array if it doesn't exist
+    const transitions = componentBasedSlideDeck.transitions || [];
+    
+    // Ensure array is large enough (should be slides.length - 1)
+    const requiredLength = componentBasedSlideDeck.slides.length - 1;
+    while (transitions.length < requiredLength) {
+      transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
+    }
+    
+    // Check if "Apply to all" is enabled
+    if (transitionData.applyToAll) {
+      // Apply the same transition to ALL transition slots
+      for (let i = 0; i < transitions.length; i++) {
+        transitions[i] = { ...transitionData };
+      }
+    } else {
+      // Update only the specific transition
+      transitions[activeTransitionIndex] = { ...transitionData };
+    }
+    
+    // Update the deck with new transitions
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      transitions: [...transitions]
+    };
+    
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
   };
 
   // NEW: Function to delete slide (following old interface pattern)
@@ -619,13 +669,22 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'text':
-          return <TextSettings />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
           return <AvatarSettings />;
         case 'shape':
           return <ShapeSettings />;
+        case 'transition':
+          const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
+          return (
+            <Transition 
+              transitionIndex={activeTransitionIndex}
+              currentTransition={currentTransition}
+              onTransitionChange={handleTransitionChange}
+            />
+          );
         default:
           break;
       }
@@ -635,7 +694,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -672,8 +731,6 @@ export default function Projects2ViewPage() {
         return <Background />;
       case 'music':
         return <Music />;
-      case 'transition':
-        return <Transition />;
       case 'comments':
         return <Comments />;
       default:
@@ -779,12 +836,7 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center"
-                style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  margin: 'auto'
-                }}
+                className="bg-white rounded-md relative overflow-hidden flex items-center justify-center w-full h-full"
               >
                 {/* Slide Container - Keeps original size */}
                 <div
@@ -801,7 +853,6 @@ export default function Projects2ViewPage() {
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
                       width: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
@@ -840,6 +891,12 @@ export default function Projects2ViewPage() {
                           saveVideoLessonData(updatedDeck);
                         }
                       }}
+                      onEditorActive={(editor, field, computedStyles) => {
+                        console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
+                        setActiveTextEditor(editor);
+                        setComputedTextStyles(computedStyles || null);
+                        setActiveSettingsPanel('text');
+                      }}
                       theme="default"
                       isVideoMode={true}
                     />
@@ -870,6 +927,8 @@ export default function Projects2ViewPage() {
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
             onOpenTemplateSelector={handleOpenTemplateSelector}
+            onTransitionClick={handleTransitionClick}
+            activeTransitionIndex={activeTransitionIndex}
           />
         </div>
       </div>

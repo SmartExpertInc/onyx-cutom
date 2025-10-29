@@ -33,10 +33,37 @@
             color: #333;
         }
         
+        /* Global font styles to match frontend */
+        * {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        
+        /* Override for title elements to use Lora serif like frontend */
+        .title, .title-element, h1, h2, h3, h4, h5, h6,
+        .card-title, .section-title, .slide-title,
+        .culture-value-title, .benefits-title, .impact-title,
+        .course-title, .work-life-title, .phishing-title,
+        .benefits-list-title, .impact-statements-title,
+        .company-tools-title, .ai-pharma-title, .critical-thinking-title,
+        .benefits-tags-title, .kpi-update-title, .phishing-rise-title,
+        .soft-skills-title, .hybrid-work-title {
+            font-family: "Lora", serif !important;
+        }
+        
+        /* Specific overrides for card titles in different columns */
+        .card-title-left, .card-title-right {
+            font-family: "Lora", serif !important;
+        }
+        
+        .card-title-middle {
+            font-family: "Lora", serif !important;
+        }
+        
         /* Video slide container - EXACT VIDEO DIMENSIONS */
         .slide-page {
             width: 1920px;
             height: 1080px;
+            aspect-ratio: 16/9;
             position: relative;
             overflow: hidden;
             margin: 0;
@@ -50,6 +77,7 @@
         .slide-content {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             padding: 0;
             margin: 0;
             display: flex;
@@ -102,6 +130,7 @@
         .slide {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             color: var(--content-color);
             font-family: var(--content-font);
@@ -118,6 +147,7 @@
         .avatar-checklist {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
@@ -235,6 +265,7 @@
         .avatar-crm {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             display: flex;
             position: relative;
@@ -303,6 +334,7 @@
         .avatar-service {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
@@ -399,6 +431,7 @@
         .avatar-buttons {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
@@ -476,6 +509,7 @@
         .avatar-steps {
             width: 100%;
             height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
@@ -572,6 +606,249 @@
             z-index: 3;
             background-color: transparent; /* Transparent background */
             border: none; /* No border */
+        }
+
+        /* Solution Steps Slide Template - EXACT FRONTEND MATCH */
+        .solution-steps-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 40px 60px;
+        }
+
+        .solution-steps-slide .subtitle-chip {
+            position: absolute;
+            top: 40px;
+            left: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .solution-steps-slide .subtitle-container {
+            background-color: #FFFFFF;
+            border-radius: 24px;
+            padding: 9px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .solution-steps-slide .subtitle-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+        }
+
+        .solution-steps-slide .subtitle-text {
+            font-size: 20px;
+            color: #09090BCC;
+            font-weight: 400;
+        }
+
+        .solution-steps-slide .main-title {
+            position: absolute;
+            top: 120px;
+            left: 60px;
+            right: 60px;
+            font-size: 56px;
+            color: #09090B;
+            line-height: 1.1;
+            min-height: 75px;
+            max-height: 75px;
+            display: flex;
+            align-items: center;
+            font-family: "Lora", serif;
+            font-weight: 600;
+        }
+
+        .solution-steps-slide .profile-image-container {
+            position: absolute;
+            top: 70px;
+            right: 60px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+            overflow: hidden;
+        }
+
+        .solution-steps-slide .profile-image-container img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .solution-steps-slide .timeline-container {
+            position: absolute;
+            top: 405px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .solution-steps-slide .timeline-line {
+            width: 100%;
+            height: 3px;
+            background-color: #0F58F9;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .solution-steps-slide .step-circle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            border: 5px solid #0F58F9;
+            z-index: 1;
+        }
+
+        .solution-steps-slide .step-circle.position-1 {
+            left: 17%;
+        }
+
+        .solution-steps-slide .step-circle.position-2 {
+            left: 43%;
+        }
+
+        .solution-steps-slide .step-circle.position-3 {
+            left: 71%;
+        }
+
+        .solution-steps-slide .steps-content {
+            position: relative;
+            width: 100%;
+            height: 150px;
+        }
+
+        .solution-steps-slide .step-item {
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            width: 220px;
+        }
+
+        .solution-steps-slide .step-item.position-1 {
+            left: 22.5%;
+        }
+
+        .solution-steps-slide .step-item.position-2 {
+            left: 48.5%;
+        }
+
+        .solution-steps-slide .step-item.position-3 {
+            left: 76.5%;
+        }
+
+        .solution-steps-slide .step-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #09090B;
+            margin-bottom: 15px;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .solution-steps-slide .step-description {
+            font-size: 20px;
+            color: rgba(9, 9, 11, 0.7);
+            line-height: 1.3;
+            max-width: 160px;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .solution-steps-slide .logo-container {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+        }
+
+        .solution-steps-slide .logo-container img {
+            height: 30px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+
+        .solution-steps-slide .logo-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .solution-steps-slide .logo-placeholder-circle {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #09090B;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .solution-steps-slide .logo-placeholder-horizontal {
+            width: 12px;
+            height: 2px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .solution-steps-slide .logo-placeholder-vertical {
+            width: 2px;
+            height: 12px;
+            background-color: #09090B;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .solution-steps-slide .logo-placeholder-text {
+            font-size: 16px;
+            font-weight: 400;
+            color: #09090B;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .solution-steps-slide .page-number-container {
+            position: absolute;
+            bottom: 20px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .solution-steps-slide .page-line {
+            width: 20px;
+            height: 1px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+
+        .solution-steps-slide .page-number {
+            color: #09090B99;
+            font-size: 18px;
+            font-weight: 300;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             border-radius: 0; /* No border radius */
             display: block; /* Simple block display */
             /* Remove all text and icon styles */
@@ -696,8 +973,9 @@
         
         /* Course Overview Slide Template - EXACT React Copy */
         .course-overview-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #ffffff;
             display: flex;
             position: relative;
@@ -735,8 +1013,8 @@
         }
         
         .course-overview-slide .logo-text {
-            color: #ffffff;
-            font-size: 38px;
+            color: #ffffff !important;
+            font-size: 28px;
             font-weight: 500;
             font-family: 'Inter', sans-serif;
         }
@@ -804,8 +1082,9 @@
         
         /* Work Life Balance Slide Template - EXACT React Copy */
         .work-life-balance-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background: linear-gradient(90deg, #0F58F9 0%, #1023A1 100%);
             display: flex;
             position: relative;
@@ -893,7 +1172,7 @@
         
         .work-life-balance-slide .content {
             position: absolute;
-            top: 60%;
+            top: 50%;
             left: 96px;
             margin-top: 0px;
             margin-left: 10px;
@@ -902,7 +1181,6 @@
             color: #ffffff;
             line-height: 1.6;
             font-family: 'Inter', sans-serif;
-            text-indent: 50px;
         }
         
         .work-life-balance-slide .page-number-container {
@@ -958,8 +1236,9 @@
         
         /* Phishing Definition Slide Template - EXACT React Copy */
         .phishing-definition-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             display: flex;
             position: relative;
@@ -1026,23 +1305,23 @@
         
         .phishing-definition-slide .page-number-container {
             position: absolute;
-            bottom: 48px;
-            left: 0;
+            bottom: 30px;
+            left: 0px;
             display: flex;
             align-items: center;
-            gap: 13px;
+            gap: 8px;
             z-index: 20;
         }
         
         .phishing-definition-slide .page-line {
-            width: 32px;
-            height: 1.5px;
-            background-color: rgba(9, 9, 11, 0.3);
+            width: 20px;
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.5);
         }
         
         .phishing-definition-slide .page-number {
-            color: #09090B;
-            font-size: 27px;
+            color: #000000;
+            font-size: 17px;
             font-weight: 300;
         }
         
@@ -1062,10 +1341,321 @@
             font-weight: 500;
         }
         
+        /* Culture Values Three Columns Slide Template - EXACT React Copy */
+        .culture-values-three-columns-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            position: relative;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .culture-values-three-columns-slide .top-section {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 250px;
+            background-color: #E0E7FF;
+            border-bottom: 1px solid #d8d8d8;
+        }
+        
+        .culture-values-three-columns-slide .logo-container {
+            position: absolute;
+            left: 25px;
+            top: 25px;
+            color: #6b7280;
+            font-size: 22px;
+        }
+        
+        .culture-values-three-columns-slide .title {
+            position: absolute;
+            left: 48px;
+            top: 88px;
+            font-size: 65px;
+            font-weight: 800;
+            color: #242424;
+            font-family: "Lora", serif;
+        }
+        
+        .culture-values-three-columns-slide .avatar-container {
+            position: absolute;
+            right: 48px;
+            top: 40px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #0F58F9;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.06) inset;
+        }
+        
+        .culture-values-three-columns-slide .avatar-container img {
+            width: 100%;
+            height: 172%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .culture-values-three-columns-slide .grid-container {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 250px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .culture-values-three-columns-slide .column {
+            padding: 30px 38px 25px 28px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #FFFFFF;
+            background-color: #0F58F9;
+        }
+        
+        .culture-values-three-columns-slide .column-middle {
+            padding: 30px 38px 25px 28px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #000000;
+            background-color: #FFFFFF;
+        }
+        
+        .culture-values-three-columns-slide .card-title {
+            font-size: 31px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: "Lora", serif;
+        }
+        
+        .culture-values-three-columns-slide .card-title-left {
+            color: #FFFFFF;
+        }
+        
+        .culture-values-three-columns-slide .card-title-middle {
+            color: #000000;
+        }
+        
+        .culture-values-three-columns-slide .card-title-right {
+            color: #FFFFFF;
+        }
+        
+        .culture-values-three-columns-slide .page-number-container {
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .culture-values-three-columns-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #9EBBFC;
+        }
+        
+        .culture-values-three-columns-slide .page-number {
+            color: #9EBBFC;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        /* Percent Circles Slide Template - EXACT FRONTEND MATCH */
+        .percent-circles-slide {
+            width: 100%;
+            height: 100%;
+            background-color: #E0E7FF;
+            position: relative;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .percent-circles-slide .top-section {
+            position: absolute;
+            left: 44px;
+            right: 44px;
+            top: 30px;
+            height: 70%;
+            background-color: #FFFFFF;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .percent-circles-slide .title {
+            position: absolute;
+            left: 50px;
+            top: 85px;
+            right: 550px;
+            font-size: 65px;
+            font-weight: 1100;
+            color: #000000;
+            white-space: pre-line;
+            line-height: 1.2;
+            font-family: "Lora", serif;
+        }
+        
+        .percent-circles-slide .circles-container {
+            position: absolute;
+            left: 50px;
+            bottom: 90px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .percent-circles-slide .circle-base {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px solid #0F58F9;
+            background-color: #F3F5FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .percent-circles-slide .circle-filled {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+            font-size: 23px;
+            font-weight: 600;
+            border: none;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .percent-circles-slide .avatar-container {
+            position: absolute;
+            right: 70px;
+            top: 60px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #0F58F9;
+            border: 3px solid #FFFFFF;
+            z-index: 10;
+        }
+        
+        .percent-circles-slide .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            margin-top: 4px;
+        }
+        
+        .percent-circles-slide .bottom-section {
+            position: absolute;
+            left: 44px;
+            right: 44px;
+            bottom: 75px;
+            height: 135px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .percent-circles-slide .white-card {
+            background-color: #FFFFFF;
+            border-radius: 6px;
+            padding: 20px 30px;
+            padding-right: 190px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .percent-circles-slide .card-value {
+            font-size: 53px;
+            font-weight: 900;
+            color: #000000;
+            margin-bottom: 8px;
+            font-family: "Lora", serif;
+        }
+        
+        .percent-circles-slide .card-text {
+            font-size: 18px;
+            color: #34353C;
+            line-height: 1.3;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-weight: 400;
+        }
+        
+        .percent-circles-slide .card-text-first {
+            width: 200px;
+        }
+        
+        .percent-circles-slide .card-text-second {
+            width: 300px;
+        }
+        
+        .percent-circles-slide .arrow-icon {
+            position: absolute;
+            right: 49px;
+            width: 45px;
+            height: 45px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            background-color: #0F58F9;
+            border: none;
+            font-size: 28px;
+        }
+        
+        .percent-circles-slide .logo-section {
+            position: absolute;
+            bottom: 24px;
+            right: 44px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: black;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .percent-circles-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #34353C;
+            font-size: 16px;
+            font-weight: 400;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .percent-circles-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+        
+        .percent-circles-slide .page-number {
+            color: #34353C;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
         /* Benefits List Slide Template - EXACT React Copy */
         .benefits-list-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -1240,8 +1830,9 @@
         
         /* Impact Statements Slide Template - EXACT React Copy */
         .impact-statements-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             display: flex;
             gap: 112px;
@@ -1379,8 +1970,9 @@
         
         /* DEI Methods Slide Template */
         .dei-methods-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background: #F0F2F7;
             color: #0F172A;
             font-family: 'Lora', serif;
@@ -1413,7 +2005,7 @@
             left: 60px;
             top: 18%;
             transform: translateY(-50%);
-            font-size: 46px;
+            font-size: 60px;
             font-weight: 600;
             color: #FFFFFF;
             font-family: 'Lora', serif;
@@ -1476,7 +2068,7 @@
         .dei-methods-slide .avatar-wrap {
             position: absolute;
             right: 60px;
-            top: 40px;
+            top: 115px;
             width: 172px;
             height: 172px;
             border-radius: 50%;
@@ -1523,8 +2115,9 @@
         
         /* Company Tools and Resources Slide Template - EXACT React Copy */
         .company-tools-resources-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #F0F2F7;
             display: flex;
             flex-direction: column;
@@ -1661,8 +2254,9 @@
         
         /* AI Pharma Market Growth Slide Template - EXACT React Copy */
         .ai-pharma-market-growth-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             position: relative;
             overflow: hidden;
@@ -1840,8 +2434,9 @@
         
         /* Critical Thinking Slide Template - EXACT React Copy */
         .critical-thinking-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             display: flex;
             flex-direction: column;
@@ -2004,8 +2599,9 @@
         
         /* Benefits Tags Slide Template - EXACT React Copy */
         .benefits-tags-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             display: flex;
             flex-direction: column;
@@ -2165,8 +2761,9 @@
         
         /* KPI Update Slide Template */
         .kpi-update-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             position: relative;
             overflow: hidden;
@@ -2247,7 +2844,7 @@
         .kpi-update-slide .profile-image {
             position: absolute;
             left: 56px;
-            bottom: 120px;
+            bottom: 215px;
             width: 140px;
             background-color: #0F58F9;
             height: 140px;
@@ -2296,8 +2893,9 @@
         
         /* Phishing Rise Slide Template */
         .phishing-rise-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #ffffff;
             position: relative;
             overflow: hidden;
@@ -2439,8 +3037,9 @@
         
         /* Soft Skills Assessment Slide Template */
         .soft-skills-assessment-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #FFFFFF;
             display: flex;
             flex-direction: column;
@@ -2460,7 +3059,7 @@
             font-size: 61px;
             color: #000000;
             line-height: 1.2;
-            max-width: 70%;
+            max-width: 44%;
             font-weight: 900;
             font-family: 'Lora', serif;
         }
@@ -2483,6 +3082,7 @@
         .soft-skills-assessment-slide .tips-section {
             display: flex;
             gap: 30px;
+            height: 55%;
             margin-top: -35px;
         }
         
@@ -2564,8 +3164,9 @@
         
         /* FourBox Grid Slide Template - EXACT React Copy with Theme Support */
         .four-box-grid-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
@@ -2627,8 +3228,9 @@
         
         /* Hybrid Work Best Practices Slide Template - EXACT React Copy */
         .hybrid-work-slide {
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
             background-color: #E0E7FF;
             display: flex;
             flex-direction: column;
@@ -2822,6 +3424,178 @@
             font-size: 27px;
             font-weight: 300;
         }
+
+        /* High-Performing Teams Slide Template - EXACT FRONTEND MATCH */
+        .high-performing-teams-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            position: relative;
+            background-color: #ffffff;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .top-part {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 29%;
+            background: linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%);
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .bottom-part {
+            position: absolute;
+            top: 29%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E0E7FF;
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .title {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 46px;
+            font-weight: 800;
+            color: #FFFFFF;
+            max-width: 900px;
+            line-height: 1.2;
+            white-space: pre-line;
+            font-family: "Lora", serif;
+        }
+
+        .high-performing-teams-slide .description {
+            position: absolute;
+            right: 56px;
+            top: 51%;
+            transform: translateY(-50%);
+            width: 350px;
+            max-width: 350px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .high-performing-teams-slide .panel {
+            position: absolute;
+            left: 50%;
+            top: 53.5%;
+            transform: translate(-50%, -50%);
+            width: 692px;
+            height: 410px;
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .high-performing-teams-slide .background-svg {
+            position: absolute;
+            left: 49.5%;
+            top: 47%;
+            transform: translate(-50%, -50%);
+            width: 692px;
+            height: 410px;
+            z-index: 0;
+        }
+
+        .high-performing-teams-slide .avatar-container {
+            width: 360px;
+            position: absolute;
+            top: 57%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 16px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .high-performing-teams-slide .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .high-performing-teams-slide .logo-container {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+        }
+
+        .high-performing-teams-slide .logo-container img {
+            height: 30px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+
+        .high-performing-teams-slide .logo-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .high-performing-teams-slide .logo-placeholder .circle {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #09090B;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .high-performing-teams-slide .logo-placeholder .circle .horizontal-line {
+            width: 12px;
+            height: 2px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .high-performing-teams-slide .logo-placeholder .circle .vertical-line {
+            width: 2px;
+            height: 12px;
+            background-color: #09090B;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .high-performing-teams-slide .logo-placeholder .text {
+            font-size: 16px;
+            font-weight: 400;
+            color: #09090B;
+            font-family: "Inter", sans-serif;
+        }
+
+        .high-performing-teams-slide .page-number-container {
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .high-performing-teams-slide .page-number-container .line {
+            width: 20px;
+            height: 1px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+
+        .high-performing-teams-slide .page-number-container .page-number {
+            color: #09090B99;
+            font-size: 17px;
+            font-weight: 300;
+            font-family: "Inter", sans-serif;
+        }
     </style>
 </head>
 <body class="theme-{{ theme or 'dark-purple' }}">
@@ -2841,7 +3615,7 @@
         {% set EDITOR_HEIGHT = 600 %}
     {% endif %}
     
-    {# Video canvas dimensions (always 1920×1080) #}
+    {# Video canvas dimensions (always 1920x1080) #}
     {% set VIDEO_WIDTH = 1920 %}
     {% set VIDEO_HEIGHT = 1080 %}
     
@@ -2895,26 +3669,26 @@
                                 {% for item in items %}
                                     <div class="checklist-item">
                                         <span class="icon {% if item.isPositive %}positive-icon{% else %}negative-icon{% endif %}">
-                                            {% if item.isPositive %}✓{% else %}✗{% endif %}
+                                            {% if item.isPositive %}&#10003;{% else %}&#10007;{% endif %}
                                         </span>
                                         <span>{{ item.text }}</span>
                                     </div>
                                 {% endfor %}
                                 {% if not items or items|length == 0 %}
                                     <div class="checklist-item">
-                                        <span class="icon positive-icon">✓</span>
+                                        <span class="icon positive-icon">&#10003;</span>
                                         <span>"Let me help you"</span>
                                     </div>
                                     <div class="checklist-item">
-                                        <span class="icon positive-icon">✓</span>
+                                        <span class="icon positive-icon">&#10003;</span>
                                         <span>"I'll be happy to clarify"</span>
                                     </div>
                                     <div class="checklist-item">
-                                        <span class="icon positive-icon">✓</span>
+                                        <span class="icon positive-icon">&#10003;</span>
                                         <span>"Thank you for your attention"</span>
                                     </div>
                                     <div class="checklist-item">
-                                        <span class="icon negative-icon">✗</span>
+                                        <span class="icon negative-icon">&#10007;</span>
                                         <span>Avoid cold phrases and uncertainty</span>
                                     </div>
                                 {% endif %}
@@ -2950,25 +3724,25 @@
                         >
                             {% if subtitle %}
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                     <span>{{ subtitle }}</span>
                             </div>
                             {% endif %}
                             
                             {% if content %}
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                     <span>{{ content }}</span>
                             </div>
                             {% endif %}
                             
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                 <span>Maintain warm contact</span>
                             </div>
                             
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                 <span>The client will feel it</span>
                             </div>
                         </div>
@@ -2985,13 +3759,13 @@
                 
             {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
                 <!-- 
-                ═══════════════════════════════════════════════════════════════════════════
-                🔍 AVATAR-SERVICE POSITIONING DEBUG LOG
-                ═══════════════════════════════════════════════════════════════════════════
+                ============================================================================
+                AVATAR-SERVICE POSITIONING DEBUG LOG
+                ============================================================================
                 Template ID: {{ templateId }}
                 Slide ID: {{ slideId }}
                 
-                📐 Canvas Dimensions Analysis:
+                Canvas Dimensions Analysis:
                   ACTUAL Editor Canvas (from metadata):
                     - Width:  {{ "%.2f"|format(EDITOR_WIDTH) }}px
                     - Height: {{ "%.2f"|format(EDITOR_HEIGHT) }}px
@@ -2999,7 +3773,7 @@
                     - Total Pixels: {{ "{:,}".format((EDITOR_WIDTH * EDITOR_HEIGHT)|int) }}
                     - Source: {{ 'metadata.canvasDimensions' if metadata and metadata.canvasDimensions else 'fallback defaults' }}
                     {% if not metadata or not metadata.canvasDimensions %}
-                    - ⚠️ Using fallback - may cause positioning errors!
+                    - WARNING: Using fallback - may cause positioning errors!
                     {% endif %}
                   
                   Design Editor Canvas (reference):
@@ -3007,7 +3781,7 @@
                     - Height: 600px
                     - Aspect Ratio: 1.956667 (1.957:1)
                     {% if metadata and metadata.canvasDimensions and (EDITOR_WIDTH - 1174)|abs > 1 %}
-                    - ⚠️ MISMATCH: Actual canvas is {{ "%.2f"|format(((EDITOR_WIDTH/1174 - 1) * 100)) }}% different!
+                    - WARNING: MISMATCH: Actual canvas is {{ "%.2f"|format(((EDITOR_WIDTH/1174 - 1) * 100)) }}% different!
                     {% endif %}
                   
                   Video Canvas (Backend):
@@ -3020,9 +3794,9 @@
                     - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
                     - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
                     - Aspect Ratio Mismatch: {{ "%.6f"|format((EDITOR_WIDTH/EDITOR_HEIGHT) - (VIDEO_WIDTH/VIDEO_HEIGHT)|abs) }}
-                    - ⚠️ Non-uniform scaling required (different X/Y factors)
+                    - WARNING: Non-uniform scaling required (different X/Y factors)
                 
-                📏 Scale Factors (using ACTUAL dimensions):
+                Scale Factors (using ACTUAL dimensions):
                   - SCALE_X: {{ "%.6f"|format(SCALE_X) }} ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
                   - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }} ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
                   - Scale Factor Ratio: {{ "%.6f"|format(SCALE_Y/SCALE_X) }} (Y is {{ "%.2f"|format(((SCALE_Y/SCALE_X - 1) * 100)) }}% {{ 'larger' if SCALE_Y > SCALE_X else 'smaller' }})
@@ -3034,7 +3808,7 @@
                 Total Positioned Elements: {{ metadata.elementPositions|length }}
                 Position Keys: {{ metadata.elementPositions.keys()|list }}
                 {% endif %}
-                ═══════════════════════════════════════════════════════════════════════════
+                ============================================================================
                 -->
                 
                 <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
@@ -3052,28 +3826,28 @@
                                         {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
                                         <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 TITLE POSITIONING
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
+                                        TITLE POSITIONING
+                                        ---------------------------------------------------------------
                                         Element ID: {{ titleId }}
                                         Original Position (Editor Canvas):
                                           x: {{ metadata.elementPositions[titleId].x }}px
                                           y: {{ metadata.elementPositions[titleId].y }}px
                                         
                                         Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[titleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[titleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        scaledX = {{ metadata.elementPositions[titleId].x }} * {{ SCALE_X }} = {{ scaledX }}px
+                                        scaledY = {{ metadata.elementPositions[titleId].y }} * {{ SCALE_Y }} = {{ scaledY }}px
                                         
                                         Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
                                         -->
                                         <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title }}</h1>
                                     {% else %}
-                                        <!-- 📍 TITLE: No custom position found for {{ titleId }}, using default layout -->
+                                        <!-- TITLE: No custom position found for {{ titleId }}, using default layout -->
                                         <h1 class="slide-title">{{ title }}</h1>
                                     {% endif %}
                                 {% else %}
-                                    <!-- 📍 TITLE: No metadata available, using default layout -->
+                                    <!-- TITLE: No metadata available, using default layout -->
                                     <h1 class="slide-title">{{ title }}</h1>
                                 {% endif %}
                             {% endif %}
@@ -3086,28 +3860,28 @@
                                         {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
                                         <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 SUBTITLE POSITIONING
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
+                                        SUBTITLE POSITIONING
+                                        ---------------------------------------------------------------
                                         Element ID: {{ subtitleId }}
                                         Original Position (Editor Canvas):
                                           x: {{ metadata.elementPositions[subtitleId].x }}px
                                           y: {{ metadata.elementPositions[subtitleId].y }}px
                                         
                                         Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[subtitleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[subtitleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        scaledX = {{ metadata.elementPositions[subtitleId].x }} * {{ SCALE_X }} = {{ scaledX }}px
+                                        scaledY = {{ metadata.elementPositions[subtitleId].y }} * {{ SCALE_Y }} = {{ scaledY }}px
                                         
                                         Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
                                         -->
                                         <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle }}</h2>
                                     {% else %}
-                                        <!-- 📍 SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
+                                        <!-- SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
                                         <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                     {% endif %}
                                 {% else %}
-                                    <!-- 📍 SUBTITLE: No metadata available, using default layout -->
+                                    <!-- SUBTITLE: No metadata available, using default layout -->
                                     <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                 {% endif %}
                             {% endif %}
@@ -3120,28 +3894,28 @@
                                         {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
                                         <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 CONTENT POSITIONING
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
+                                        CONTENT POSITIONING
+                                        ---------------------------------------------------------------
                                         Element ID: {{ contentId }}
                                         Original Position (Editor Canvas):
                                           x: {{ metadata.elementPositions[contentId].x }}px
                                           y: {{ metadata.elementPositions[contentId].y }}px
                                         
                                         Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[contentId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[contentId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        scaledX = {{ metadata.elementPositions[contentId].x }} * {{ SCALE_X }} = {{ scaledX }}px
+                                        scaledY = {{ metadata.elementPositions[contentId].y }} * {{ SCALE_Y }} = {{ scaledY }}px
                                         
                                         Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
                                         -->
                                         <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content }}</p>
                                     {% else %}
-                                        <!-- 📍 CONTENT: No custom position found for {{ contentId }}, using default layout -->
+                                        <!-- CONTENT: No custom position found for {{ contentId }}, using default layout -->
                                         <p class="content-text">{{ content }}</p>
                                     {% endif %}
                                 {% else %}
-                                    <!-- 📍 CONTENT: No metadata available, using default layout -->
+                                    <!-- CONTENT: No metadata available, using default layout -->
                                     <p class="content-text">{{ content }}</p>
                                 {% endif %}
                             {% endif %}
@@ -3157,9 +3931,9 @@
                 </div>
                 
                 <!-- 
-                ═══════════════════════════════════════════════════════════════════════════
-                ✅ END AVATAR-SERVICE POSITIONING DEBUG LOG
-                ═══════════════════════════════════════════════════════════════════════════
+                ============================================================================
+                END AVATAR-SERVICE POSITIONING DEBUG LOG
+                ============================================================================
                 -->
                 
             {% elif templateId == 'avatar-buttons' %}
@@ -3216,9 +3990,9 @@
                         <!-- Logo in top-left corner -->
                         <div class="logo-container">
                             {% if logoPath %}
-                                <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                                <img src="{{ logoPath }}" alt="Logo" class="logo-img">
                             {% else %}
-                                Your Logo
+                                <span class="logo-text">Your Logo</span>
                             {% endif %}
                         </div>
 
@@ -3338,6 +4112,133 @@
                                 Your Logo
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'culture-values-three-columns-slide' or templateId == 'culture-values-three-columns' %}
+                <div class="culture-values-three-columns-slide">
+                    <!-- Top section -->
+                    <div class="top-section"></div>
+                    
+                    <!-- Logo container -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                        {% else %}
+                            Your Logo
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Title -->
+                    <div class="title">{{ title or 'Our culture and values' }}</div>
+                    
+                    <!-- Avatar container -->
+                    <div class="avatar-container">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="{{ avatarAlt or 'Avatar' }}">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Grid container with three columns -->
+                    <div class="grid-container">
+                        <!-- Left column -->
+                        <div class="column">
+                            <div class="card-title card-title-left">{{ leftTitle or 'Code of Conduct' }}</div>
+                            <div>{{ leftText or 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner and to uphold the following principles: ...' }}</div>
+                        </div>
+                        
+                        <!-- Middle column -->
+                        <div class="column-middle">
+                            <div class="card-title card-title-middle">{{ middleTitle or 'HR Policies' }}</div>
+                            <div>{{ middleText or 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees ...' }}</div>
+                        </div>
+                        
+                        <!-- Right column -->
+                        <div class="column">
+                            <div class="card-title card-title-right">{{ rightTitle or 'IT Policies' }}</div>
+                            <div>{{ rightText or 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data ...' }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '40' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'percent-circles-slide' or templateId == 'percent-circles' %}
+                <div class="percent-circles-slide">
+                    <!-- Top section -->
+                    <div class="top-section">
+                        <!-- Title -->
+                        <div class="title">{{ title or '% of Fortune 500 CEOs\nwho are women' }}</div>
+                        
+                        <!-- Circles container -->
+                        <div class="circles-container">
+                            <!-- First circle - filled with percentage -->
+                            <div class="circle-filled">{{ percent or '10%' }}</div>
+                            
+                            <!-- Remaining 9 empty circles -->
+                            {% for i in range(9) %}
+                                <div class="circle-base"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Avatar container -->
+                    <div class="avatar-container">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="{{ avatarAlt or 'Avatar' }}">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Bottom section with white cards -->
+                    <div class="bottom-section">
+                        {% for card in bottomCards %}
+                            <div class="white-card">
+                                <!-- Value - only for first card -->
+                                {% if loop.index0 == 0 %}
+                                    <div class="card-value">{{ card.value or '3%' }}</div>
+                                {% endif %}
+                                
+                                <!-- Text -->
+                                <div class="card-text {% if loop.index0 == 0 %}card-text-first{% else %}card-text-second{% endif %}">
+                                    {{ card.text or ('Minorities hold just 3% of executive roles.' if loop.index0 == 0 else 'Companies with diverse leadership outperform competitors by 35%') }}
+                                </div>
+                                
+                                <!-- Arrow icon for second card -->
+                                {% if card.hasArrow %}
+                                    <div class="arrow-icon">&rarr;</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- Default cards if none provided -->
+                        {% if not bottomCards or bottomCards|length == 0 %}
+                            <div class="white-card">
+                                <div class="card-value">3%</div>
+                                <div class="card-text card-text-first">Minorities hold just 3% of executive roles.</div>
+                            </div>
+                            <div class="white-card">
+                                <div class="card-text card-text-second">Companies with diverse leadership outperform competitors by 35%</div>
+                                <div class="arrow-icon">&rarr;</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Logo section -->
+                    <div class="logo-section">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="max-height: 20px; max-width: 20px; object-fit: contain;">
+                        {% endif %}
+                        <span>{{ logoText or 'Your Logo' }}</span>
+                    </div>
+                    
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '1' }}</div>
                     </div>
                 </div>
                 
@@ -3746,18 +4647,18 @@
                                 {% for step in steps %}
                                     <div class="step-box">{{ step }}</div>
                                     {% if not loop.last %}
-                                        <div class="arrow">↓</div>
+                                        <div class="arrow">&darr;</div>
                                     {% endif %}
                                 {% endfor %}
                                 {% if not steps or steps|length == 0 %}
                                     <div class="step-box">Greeting</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Consultation</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Comfort</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Final Recommendations</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Farewell</div>
                                 {% endif %}
                             </div>
@@ -4287,6 +5188,152 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 <div class="box-text">Data analysis and reporting tools for informed decision-making.</div>
                             </div>
                         {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'solution-steps-slide' or templateId == 'solution-steps' %}
+                <!-- Solution Steps Slide - EXACT FRONTEND MATCH -->
+                <div class="solution-steps-slide">
+                    <!-- Subtitle chip -->
+                    <div class="subtitle-chip">
+                        <div class="subtitle-container">
+                            <div class="subtitle-indicator"></div>
+                            <div class="subtitle-text">{{ subtitle or 'The Solution' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Main title -->
+                    <div class="main-title">{{ title or 'Step-by-step Guide' }}</div>
+
+                    <!-- Profile Image -->
+                    <div class="profile-image-container">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Timeline and Steps -->
+                    <div class="timeline-container">
+                        <!-- Timeline Line -->
+                        <div class="timeline-line">
+                            <!-- Step Circles -->
+                            {% if steps and steps|length > 0 %}
+                                {% for step in steps %}
+                                    <div class="step-circle position-{{ loop.index }}"></div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default steps -->
+                                <div class="step-circle position-1"></div>
+                                <div class="step-circle position-2"></div>
+                                <div class="step-circle position-3"></div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step Titles and Descriptions -->
+                        <div class="steps-content">
+                            {% if steps and steps|length > 0 %}
+                                {% for step in steps %}
+                                    <div class="step-item position-{{ loop.index }}">
+                                        <div class="step-title">{{ step.title or 'Step ' ~ loop.index }}</div>
+                                        <div class="step-description">{{ step.description or 'Enter step description' }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default steps -->
+                                <div class="step-item position-1">
+                                    <div class="step-title">Step 1</div>
+                                    <div class="step-description">Know the Regulations</div>
+                                </div>
+                                <div class="step-item position-2">
+                                    <div class="step-title">Step 2</div>
+                                    <div class="step-description">Conduct Risk Assessments</div>
+                                </div>
+                                <div class="step-item position-3">
+                                    <div class="step-title">Step 3</div>
+                                    <div class="step-description">Provide Training and Education</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Company logo" />
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <div class="logo-placeholder-circle">
+                                    <div class="logo-placeholder-horizontal"></div>
+                                    <div class="logo-placeholder-vertical"></div>
+                                </div>
+                                <span class="logo-placeholder-text">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '23' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'high-performing-teams' or templateId == 'high-performing-teams-slide' %}
+                <div class="high-performing-teams-slide">
+                    <!-- Top part with blue gradient background -->
+                    <div class="top-part"></div>
+                    
+                    <!-- Bottom part with light blue background -->
+                    <div class="bottom-part"></div>
+                    
+                    <!-- Title in top section -->
+                    <div class="title">{{ title or 'The Power of High-Performing Teams' }}</div>
+                    
+                    <!-- Description in top section -->
+                    <div class="description">{{ content or 'Great teams drive innovation, boost productivity, and create lasting impact.' }}</div>
+                    
+                    <!-- White panel in center -->
+                    <div class="panel">
+                        <!-- Background SVG pattern -->
+                        <div class="background-svg">
+                            <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
+                                <defs>
+                                    <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                        <use href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
+                                    </pattern>
+                                    <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
+                                </defs>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Avatar container -->
+                    <div class="avatar-container">
+                        {% if avatarImagePath %}
+                            <img src="{{ avatarImagePath }}" alt="Avatar" />
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Logo container -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Company Logo" />
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <div class="circle">
+                                    <div class="horizontal-line"></div>
+                                    <div class="vertical-line"></div>
+                                </div>
+                                <span class="text">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Page number -->
+                    <div class="page-number-container">
+                        <div class="line"></div>
+                        <div class="page-number">{{ pageNumber or '1' }}</div>
                     </div>
                 </div>
                 

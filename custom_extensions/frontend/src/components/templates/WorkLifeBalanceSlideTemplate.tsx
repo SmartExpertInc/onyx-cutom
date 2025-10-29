@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '@/components/editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -125,6 +126,7 @@ function InlineEditor({
 
 export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Work-life balance',
@@ -141,7 +143,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   onUpdate,
   theme,
   voiceoverText,
-  pageNumber = '02'
+  pageNumber = '02',
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
@@ -150,6 +153,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const [currentContent, setCurrentContent] = useState(content);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const contentEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -168,6 +175,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
+    onEditorActive?.(null as any, 'title');
     if (onUpdate) {
       onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, title: newTitle });
     }
@@ -176,6 +184,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const handleContentSave = (newContent: string) => {
     setCurrentContent(newContent);
     setEditingContent(false);
+    onEditorActive?.(null as any, 'content');
     if (onUpdate) {
       onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, content: newContent });
     }
@@ -184,11 +193,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const handleTitleCancel = () => {
     setCurrentTitle(title);
     setEditingTitle(false);
+    onEditorActive?.(null as any, 'title');
   };
 
   const handleContentCancel = () => {
     setCurrentContent(content);
     setEditingContent(false);
+    onEditorActive?.(null as any, 'content');
   };
 
   const handleImageUploaded = (newImagePath: string) => {
@@ -300,10 +311,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           marginBottom: '40px'
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
+              placeholder="Enter title..."
               className="work-life-balance-title-editor"
               style={{
                 marginTop: '162px',
@@ -311,8 +324,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 color: '#ffffff',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'relative'
+                position: 'relative',
+                padding: '8px 12px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
               }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
             <div
@@ -327,9 +345,9 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 userSelect: 'none',
                 position: 'relative'
               }}
-            >
-              {currentTitle}
-            </div>
+              className={isEditable ? 'cursor-pointer hover:opacity-80' : ''}
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
         </div>
 
@@ -340,11 +358,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           left: '60px',
         }}>
           {isEditable && editingContent ? (
-            <InlineEditor
+            <ControlledWysiwygEditor
+              ref={contentEditorRef}
               initialValue={currentContent}
               onSave={handleContentSave}
               onCancel={handleContentCancel}
-              multiline={true}
+              placeholder="Enter content..."
               className="work-life-balance-content-editor"
               style={{
                 marginTop: '31px',
@@ -354,8 +373,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 color: '#ffffff',
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont,
-                position: 'relative'
+                position: 'relative',
+                padding: '8px 12px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
               }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'content', computedStyles)}
             />
           ) : (
             <div
@@ -372,9 +396,9 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 userSelect: 'none',
                 position: 'relative'
               }}
-            >
-              {currentContent}
-            </div>
+              className={isEditable ? 'cursor-pointer hover:opacity-80' : ''}
+              dangerouslySetInnerHTML={{ __html: currentContent }}
+            />
           )}
         </div>
 

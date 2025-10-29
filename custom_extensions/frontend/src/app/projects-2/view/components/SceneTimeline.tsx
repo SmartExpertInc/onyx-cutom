@@ -22,6 +22,9 @@ interface SceneTimelineProps {
   currentSlideId?: string;
   onAddSlide?: (newSlide: ComponentBasedSlide) => void;
   onOpenTemplateSelector?: () => void;
+  // Transition props
+  onTransitionClick?: (transitionIndex: number) => void;
+  activeTransitionIndex?: number | null;
 }
 
 export default function SceneTimeline({ 
@@ -35,7 +38,9 @@ export default function SceneTimeline({
   onSlideSelect,
   currentSlideId,
   onAddSlide,
-  onOpenTemplateSelector
+  onOpenTemplateSelector,
+  onTransitionClick,
+  activeTransitionIndex
 }: SceneTimelineProps) {
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>('');
@@ -211,9 +216,18 @@ export default function SceneTimeline({
               {index < displayScenes.length - 1 && (
                 <div className="flex flex-col items-center gap-2 flex-shrink-0">
                   <div className="relative group flex items-center h-16">
-                    <button className="w-16 h-8 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                    <button 
+                      className={`w-16 h-8 border rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                        activeTransitionIndex === index
+                          ? 'bg-blue-500 border-blue-500'
+                          : 'bg-white border-gray-300 hover:bg-gray-50'
+                      }`}
+                      onClick={() => onTransitionClick?.(index)}
+                    >
                       <svg 
-                        className="w-4 h-4 text-gray-600" 
+                        className={`w-4 h-4 ${
+                          activeTransitionIndex === index ? 'text-white' : 'text-gray-600'
+                        }`}
                         fill="currentColor" 
                         viewBox="0 0 24 24"
                       >
@@ -224,14 +238,16 @@ export default function SceneTimeline({
                     {/* Tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
                       <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        Add transition
+                        {componentBasedSlideDeck?.transitions?.[index]?.type 
+                          ? `Transition: ${componentBasedSlideDeck.transitions[index].type}`
+                          : 'Add transition'}
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
                     </div>
                   </div>
-                                     <div className="h-8 flex items-center justify-center">
-                     {/* Empty space to maintain layout consistency */}
-                   </div>
+                  <div className="h-8 flex items-center justify-center">
+                    {/* Empty space to maintain layout consistency */}
+                  </div>
                 </div>
               )}
             </React.Fragment>

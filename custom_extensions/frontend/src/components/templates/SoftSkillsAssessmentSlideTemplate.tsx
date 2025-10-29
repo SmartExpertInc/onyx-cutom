@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '@/components/editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -125,6 +126,7 @@ function InlineEditor({
 
 export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'How do you assess soft skills in candidates?',
@@ -143,7 +145,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTips, setEditingTips] = useState<number | null>(null);
@@ -156,6 +159,10 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     "Additional tip 2"
   ]);
   const [currentPageNumber, setCurrentPageNumber] = useState('27');
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const tipEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -176,6 +183,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
+    onEditorActive?.(null as any, 'title');
     if (onUpdate) {
       onUpdate({ ...{ title, tips, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
@@ -186,6 +194,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     newTips[index] = { ...newTips[index], text: newTip };
     setCurrentTips(newTips);
     setEditingTips(null);
+    onEditorActive?.(null as any, `tip-${index}`);
     if (onUpdate) {
       onUpdate({ ...{ title, tips, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, tips: newTips });
     }
@@ -194,11 +203,15 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const handleTitleCancel = () => {
     setCurrentTitle(title);
     setEditingTitle(false);
+    onEditorActive?.(null as any, 'title');
   };
 
   const handleTipCancel = () => {
     setCurrentTips(tips);
     setEditingTips(null);
+    if (editingTips !== null) {
+      onEditorActive?.(null as any, `tip-${editingTips}`);
+    }
   };
 
   const handleAdditionalTipSave = (index: number, newTip: string) => {
@@ -262,19 +275,25 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           fontFamily: 'serif'
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
+              placeholder="Enter title..."
               className="title-element"
               style={{
                 fontSize: '61px',
                 color: '#000000',
                 lineHeight: '1.2',
                 fontWeight: 900,
-                fontFamily: 'serif'
+                fontFamily: 'serif',
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
               }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
             <div
@@ -284,9 +303,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}
-            >
-              {currentTitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
         </div>
 
@@ -344,11 +362,16 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                 fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingTips === index ? (
-                  <InlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (tipEditorRefs.current) {
+                        tipEditorRefs.current[index] = el;
+                      }
+                    }}
                     initialValue={tip.text}
                     onSave={(value) => handleTipSave(index, value)}
                     onCancel={handleTipCancel}
-                    multiline={true}
+                    placeholder="Enter tip..."
                     className="card-text"
                     style={{
                       fontSize: '33px',
@@ -358,9 +381,11 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                       lineHeight: '1.4',
                       fontFamily: 'Inter, sans-serif',
                       background: 'transparent',
-                      border: 'none',
-                      outline: 'none'
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      borderRadius: '4px',
+                      padding: '8px 12px'
                     }}
+                    onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `tip-${index}`, computedStyles)}
                   />
                 ) : (
                   <div
@@ -370,9 +395,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
                     }}
-                  >
-                    {tip.text}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: tip.text }}
+                  />
                 )}
               </div>
             </div>

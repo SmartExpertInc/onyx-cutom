@@ -91,6 +91,37 @@ body {
   font-weight: 400;
   font-size: 18px;
 }
+
+
+/* Fix font inheritance for nested elements */
+[style*="font-family"] strong,
+[style*="font-family"] em,
+[style*="font-family"] u,
+[style*="font-family"] s,
+[style*="font-family"] span,
+[style*="font-family"] b,
+[style*="font-family"] i {
+  font-family: inherit;
+}
+
+/* Ensure strong and em tags inherit font from parent */
+strong, b {
+  font-family: inherit;
+}
+
+em, i {
+  font-family: inherit;
+}
+
+u {
+  font-family: inherit;
+}
+
+s, del {
+  font-family: inherit;
+}
+
+
 /* Styles for Project Table Expand/Collapse */
 
 .project-item-row {
@@ -374,38 +405,6 @@ body:has([aria-modal="true"]) [draggable="true"] {
   font-weight: 400 !important;
 }
 
-/* Inter Font Classes for Non-Slide Components */
-.inter-theme {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 400;
-  font-size: 18px;
-}
-
-.inter-theme h1,
-.inter-theme h2,
-.inter-theme h3,
-.inter-theme .slide-title,
-.inter-theme .slide-title-text,
-.inter-theme .slide-title-display {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 18px;
-}
-
-.inter-theme p,
-.inter-theme .slide-content,
-.inter-theme .slide-subtitle,
-.inter-theme .slide-text,
-.inter-theme li,
-.inter-theme span,
-.inter-theme .paragraph-text,
-.inter-theme .bullet-text,
-.inter-theme .number-text {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 18px;
-}
-
 /* TipTap WYSIWYG Editor Styles */
 .wysiwyg-editor {
   outline: none;
@@ -440,10 +439,28 @@ body:has([aria-modal="true"]) [draggable="true"] {
   margin: 0;
 }
 
-.ProseMirror strong {
+.ProseMirror strong,
+.ProseMirror b {
   font-weight: bold;
+  font-family: inherit !important;
 }
 
-.ProseMirror em {
+.ProseMirror em,
+.ProseMirror i {
   font-style: italic;
+  font-family: inherit !important;
+}
+
+.ProseMirror u {
+  text-decoration: underline;
+  font-family: inherit !important;
+}
+
+.ProseMirror s {
+  text-decoration: line-through;
+  font-family: inherit !important;
+}
+
+.ProseMirror span {
+  font-family: inherit !important;
 }
