@@ -31753,6 +31753,37 @@ CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
 
+⚠️⚠️⚠️ CRITICAL WARNING ABOUT THE EXAMPLE ABOVE: ⚠️⚠️⚠️
+The example shows "Market Analysis" with GlobalSensors, PESTLE, Five Forces, and agricultural scenarios.
+🚨 YOU MUST ADAPT THIS TO YOUR ACTUAL TOPIC - DO NOT COPY THE EXAMPLE CONTENT! 🚨
+
+IF YOUR TOPIC IS "AI in Sales":
+❌ DO NOT use Market Analysis, GlobalSensors, PESTLE, Five Forces, agricultural scenarios
+✅ USE: Sales Funnel, Lead Scoring, CRM, AI sales scenarios, chatbot deployment examples
+
+IF YOUR TOPIC IS "AWS":
+❌ DO NOT use Market Analysis, GlobalSensors, PESTLE, Five Forces
+✅ USE: Well-Architected Framework, Cost Optimization, AWS implementation scenarios
+
+IF YOUR TOPIC IS "Python Programming":
+❌ DO NOT use Market Analysis, GlobalSensors, business frameworks
+✅ USE: Testing Pyramid, Code Quality, Python coding scenarios, design patterns
+
+THE EXAMPLE SHOWS YOU:
+✅ How to STRUCTURE content (paragraph-heavy, worked examples, decision frameworks)
+✅ How to ORGANIZE sections (mental models, skill practice, common mistakes)
+✅ What QUALITY looks like (60-100 word bullets, detailed analysis, Bloom's Taxonomy)
+
+THE EXAMPLE DOES NOT SHOW YOU:
+❌ What CONTENT to use - adapt all content to YOUR topic
+❌ What FRAMEWORKS to use - select topic-appropriate frameworks
+❌ What SCENARIOS to create - create scenarios about YOUR topic
+
+VERIFICATION BEFORE GENERATING:
+□ Are my frameworks appropriate for THIS topic? (Not PESTLE/Five Forces unless topic is business strategy)
+□ Are my scenarios about THIS topic? (Not GlobalSensors/market entry unless topic is market strategy)
+□ Would a user recognize this is about THEIR topic?
+
 The example above demonstrates 90+ quality score with:
 - Proper paragraph-heavy structure (not list-heavy)
 - Bloom's Taxonomy progression
