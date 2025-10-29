@@ -2071,62 +2071,149 @@
             font-weight: 500;
         }
         
-        /* Event List Template - EXACT FRONTEND MATCH */
+        /* Event List Template - Two Column Layout with Timeline */
         .event-list-template {
             width: 100%;
             height: 100%;
             background-color: var(--bg-color);
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            font-family: 'Martel Sans', sans-serif;
+            flex-direction: row;
             position: relative;
-            box-sizing: border-box;
+            font-family: 'Martel Sans', sans-serif;
+            overflow: hidden;
         }
         
-        .events-container {
+        .event-list-left-section {
+            width: 33%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background: linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%);
+            padding: 60px 40px;
+            z-index: 2;
+        }
+        
+        .event-list-right-section {
+            width: 67%;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            max-width: 600px;
+            justify-content: center;
+            background: #ffffff;
+            z-index: 1;
         }
         
-        .event-item {
-            margin: 24px 0;
-            text-align: center;
-            width: 100%;
-            position: relative;
+        .event-list-title {
+            font-size: 2.7rem;
+            font-family: 'Martel Sans', sans-serif;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: left;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+            line-height: 1.1;
         }
         
-        .event-item:not(:first-child)::before {
-            content: '';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 1px;
-            background-color: var(--title-color);
-            opacity: 0.3;
-        }
-        
-        .event-date {
-            font-weight: 700;
-            font-size: 40px;
-            color: var(--title-color);
+        .event-list-presenter {
+            font-size: 1.1rem;
+            color: #ffffff;
             margin-bottom: 8px;
             font-family: 'Martel Sans', sans-serif;
-            text-align: center;
+            word-wrap: break-word;
+            line-height: 1.4;
         }
         
-        .event-description {
+        .event-list-subject {
+            font-size: 1.1rem;
+            color: #ffffff;
+            font-family: 'Martel Sans', sans-serif;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .events-timeline-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 112%;
+            position: relative;
+            padding: 80px 20px;
+            padding-right: 148px;
+            min-height: 200px;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 40px;
+            right: 40px;
+            height: 2px;
+            background-color: #0F58F9;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .timeline-step:nth-child(1) { width: 344px; }
+        .timeline-step:nth-child(2) { width: 250px; }
+        .timeline-step:nth-child(3) { width: 355px; }
+        
+        .timeline-number-box {
+            width: 40px;
+            height: 40px;
+            background-color: #0F58F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-number {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1;
+        }
+        
+        .timeline-description {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 115px;
+            margin-top: 120px;
+            margin-left: 72px;
+        }
+        
+        .timeline-description-text {
             font-weight: 400;
-            font-size: 22px;
+            font-size: 1rem;
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
+            word-wrap: break-word;
+            line-height: 1.4;
+            width: 100%;
             text-align: center;
         }
         
@@ -3022,26 +3109,12 @@
             {% elif slide.templateId == 'pyramid' %}
                 <div class="pyramid-template">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
+                        <h1 class="slide-title positioned-element">{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="main-content">
                         <!-- Pyramid Levels -->
                         {% for i in range(5) %}
-                            <div class="pyramid-level positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set levelId = 'draggable-' + slide.slideId + '-' + (i + 1)|string %}
-                                    {% if slide.metadata.elementPositions[levelId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[levelId].x }}px, {{ slide.metadata.elementPositions[levelId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
+                            <div class="pyramid-level positioned-element">
                                 <div style="display: flex; align-items: center;">
                                     <img src="{{ 'message_img.png'|static_image_base64 }}" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
                                     <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
@@ -3057,14 +3130,7 @@
 
                         <!-- Text Blocks -->
                         {% for i in range(5) %}
-                            <div class="pyramid-text-block level-{{ i }} positioned-element"
-                                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set textId = 'draggable-' + slide.slideId + '-' + (i + 6)|string %}
-                                    {% if slide.metadata.elementPositions[textId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[textId].x }}px, {{ slide.metadata.elementPositions[textId].y }}px);"
-                                                        {% endif %}
-                                                    {% endif %}
-                            >
+                            <div class="pyramid-text-block level-{{ i }} positioned-element">
                                 <div class="pyramid-text-heading">
                                     {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading and slide.props.steps[i].heading != 'Click to add heading' %}
                                         {{ slide.props.steps[i].heading }}
@@ -3084,14 +3150,7 @@
 
                         <!-- Triangle Arrows -->
                         {% for i in range(5) %}
-                            <div class="pyramid-triangle level-{{ i }} positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set triangleId = 'draggable-' + slide.slideId + '-' + (i + 11)|string %}
-                                    {% if slide.metadata.elementPositions[triangleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
-                            {% endif %}
-                                {% endif %}
-                            ></div>
+                            <div class="pyramid-triangle level-{{ i }} positioned-element"></div>
                         {% endfor %}
                     </div>
                 </div>
@@ -3205,8 +3264,8 @@
                         </div>
 
                         <!-- Left Project Title -->
-                        <div style="position: absolute; left: 4.8%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 150px;">
+                        <div style="position: absolute; left: 2.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 110px;">
                                 The first project
                             </div>
                         </div>
@@ -3301,25 +3360,46 @@
                 </div>
                 
             {% elif slide.templateId == 'event-list' %}
-                <!-- DEBUG: event-list template -->
-                <!-- DEBUG: slide.props.events = {{ slide.props.events }} -->
+                <!-- Event List Template - Two Column Layout with Timeline -->
                 <div class="event-list-template">
-                    <div class="events-container">
-                        {% if slide.props.events %}
-                            {% for event in slide.props.events %}
-                                <div class="event-item">
-                                    <div class="event-date">{{ event.date or 'Click to add date' }}</div>
-                                    <div class="event-description">{{ event.description or 'Click to add description' }}</div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            {% for i in range(3) %}
-                                <div class="event-item">
-                                    <div class="event-date">January {{ i + 1 }}, 2024</div>
-                                    <div class="event-description">Important milestone or event description</div>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                    <!-- Left section with title, presenter, and subject (blue background) -->
+                    <div class="event-list-left-section">
+                        <div class="event-list-title">{{ slide.props.title or 'Add title' }}</div>
+                        <div class="event-list-presenter">{{ slide.props.presenter or 'Add presenter name' }}</div>
+                        <div class="event-list-subject">{{ slide.props.subject or 'Add subject' }}</div>
+                    </div>
+                    
+                    <!-- Right section with timeline -->
+                    <div class="event-list-right-section">
+                        <div class="events-timeline-container">
+                            <!-- Timeline line -->
+                            <div class="timeline-line"></div>
+                            
+                            <!-- Timeline steps -->
+                            {% if slide.props.events %}
+                                {% for event in slide.props.events[:3] %}
+                                    <div class="timeline-step">
+                                        <div class="timeline-number-box">
+                                            <span class="timeline-number">{{ loop.index }}</span>
+                                        </div>
+                                        <div class="timeline-description">
+                                            <div class="timeline-description-text">{{ event.description or 'description' }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {% for i in range(3) %}
+                                    <div class="timeline-step">
+                                        <div class="timeline-number-box">
+                                            <span class="timeline-number">{{ i + 1 }}</span>
+                                        </div>
+                                        <div class="timeline-description">
+                                            <div class="timeline-description-text">description</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
