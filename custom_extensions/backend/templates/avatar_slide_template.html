@@ -4423,6 +4423,139 @@
             font-size: 16px;
             font-weight: 600;
         }
+
+        /* Resilience Behaviors Slide Template Styles */
+        .resilience-behaviors-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .resilience-behaviors-slide .top-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, #0F58F9, #1023A1);
+        }
+
+        .resilience-behaviors-slide .title {
+            position: absolute;
+            top: 45px;
+            left: 310px;
+            right: 40px;
+            font-size: 37px;
+            max-width: 720px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .resilience-behaviors-slide .subtitle {
+            position: absolute;
+            top: 155px;
+            left: 310px;
+            right: 170px;
+            font-size: 18px;
+            color: #CFDAF7;
+            line-height: 1.6;
+        }
+
+        .resilience-behaviors-slide .avatar-circle {
+            position: absolute;
+            top: 40px;
+            left: 70px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #FFFFFF;
+        }
+
+        .resilience-behaviors-slide .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .resilience-behaviors-slide .bottom-section {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background-color: #E0E7FF;
+            padding: 60px 64px 80px 64px;
+        }
+
+        .resilience-behaviors-slide .bullets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            row-gap: 36px;
+            column-gap: 48px;
+        }
+
+        .resilience-behaviors-slide .bullet-item {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 20px;
+            color: #34353C;
+            font-size: 17px;
+            line-height: 1.4;
+            padding-right: 80px;
+        }
+
+        .resilience-behaviors-slide .bullet-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 3px;
+            background-color: #0F58F9;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            margin-right: 16px;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+
+        .resilience-behaviors-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #5D5D5D;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resilience-behaviors-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .resilience-behaviors-slide .logo-container {
+            position: absolute;
+            bottom: 24px;
+            right: 64px;
+            font-size: 15px;
+        }
+
+        .resilience-behaviors-slide .logo-container span {
+            color: #09090B;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -6489,6 +6622,90 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="page-number-container">
                         <div class="line"></div>
                         <div class="page-number">{{ pageNumber or '17' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'resilience-behaviors-slide' or templateId == 'resilience-behaviors' or templateId == 'resilience' %}
+                <!-- Resilience Behaviors Slide Template - EXACT React Copy -->
+                <div class="resilience-behaviors-slide">
+                    <!-- Top Section - Dark Blue -->
+                    <div class="top-section">
+                        <!-- Avatar -->
+                        <div class="avatar-circle">
+                            {% if profileImagePath %}
+                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile' }}" />
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Title -->
+                        <div class="title">{{ title or 'Research shows that resilient employees engage in three specific behaviors.' }}</div>
+                        
+                        <!-- Subtitle -->
+                        <div class="subtitle">{{ subtitle or 'Research shows that resilient employees engage in three specific behaviors. These help them remain focused and optimistic despite setbacks or uncertainty:' }}</div>
+                    </div>
+                    
+                    <!-- Bottom Section - Light Blue -->
+                    <div class="bottom-section">
+                        <!-- Bullets grid (8 items) -->
+                        <div class="bullets-grid">
+                            {% if bullets and bullets|length > 0 %}
+                                {% for bullet in bullets[:8] %}
+                                    <div class="bullet-item">
+                                        <div class="bullet-number">{{ loop.index }}</div>
+                                        <div>{{ bullet }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default bullets -->
+                                <div class="bullet-item">
+                                    <div class="bullet-number">1</div>
+                                    <div>Pay attention to your health</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">2</div>
+                                    <div>Focus on your physical well-being</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">3</div>
+                                    <div>Practice relaxation techniques</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">4</div>
+                                    <div>Practice reframing threats as challenges</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">5</div>
+                                    <div>Watch your stress levels</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">6</div>
+                                    <div>Mind your mindset</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">7</div>
+                                    <div>Practice self-awareness</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">8</div>
+                                    <div>Get connected</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Page Number -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '38' }}</div>
+                    </div>
+                    
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span>{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
                     </div>
                 </div>
                 
