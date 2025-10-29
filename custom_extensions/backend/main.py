@@ -31798,6 +31798,84 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
         logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+    
+    # Add ABSOLUTE FINAL anti-copying rules for ALL onepager generation
+    # These override ANY previous instructions about using examples, mental models, etc.
+    # Apply to BOTH file-based AND general knowledge generation
+    wizard_message += """
+
+═══════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 ABSOLUTE FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS RULES 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════
+
+CRITICAL: THESE RULES APPLY TO ALL ONEPAGER GENERATION (FILES OR GENERAL KNOWLEDGE).
+
+ABSOLUTE PROHIBITIONS - NEVER DO THESE THINGS:
+❌ NEVER use "PESTLE Analysis" unless the topic IS business/market strategy
+❌ NEVER use "Five Forces Analysis" unless the topic IS competitive strategy
+❌ NEVER create "GlobalSensors Inc." or similar placeholder companies
+❌ NEVER use "SalesTech", "TechCorp", "TechGiant Corp", or other example company names
+❌ NEVER create "market entry" or "market analysis" scenarios unless topic is market strategy
+❌ NEVER create sections titled "Expert Analysis" with market analysis content
+❌ NEVER copy skill practice scenarios from examples - create topic-appropriate ones
+❌ NEVER copy-paste text from examples that creates white background highlighting
+
+EXAMPLE-INDEPENDENCE RULES (CRITICAL):
+The examples show STRUCTURE, not content to copy:
+- If example shows "PESTLE Analysis" but topic is "AI in Sales" → Use Sales Funnel, not PESTLE
+- If example shows "GlobalSensors market entry" but topic is "AWS" → Create AWS scenario, not market entry
+- If example shows "Expert Analysis" section → Create topic-appropriate section name
+- The pedagogical STRUCTURE (mental models, worked examples, skill practice) stays
+- The specific CONTENT (PESTLE, GlobalSensors, market analysis) does NOT
+
+TOPIC-APPROPRIATE CONTENT SELECTION:
+✅ For "AI in Sales" topic → Use: Sales Funnel, Lead Scoring, CRM, Customer Journey
+✅ For "AWS" topic → Use: Well-Architected Framework, Cost Optimization, Security
+✅ For "Python Programming" topic → Use: Testing Pyramid, Code Quality, Design Patterns
+✅ For "Market Strategy" topic → Use: PESTLE, Five Forces, TAM/SAM/SOM
+
+HOW TO MEET REQUIREMENTS (FILE-BASED GENERATION):
+✅ "Mental Models": Extract frameworks mentioned in source files
+   - If source mentions "Sales Funnel" → Explain how to apply it
+   - If source has NO frameworks → Use source concepts as mental models
+
+✅ "Worked Examples": Create scenarios using source content
+   - Extract examples/case studies from source
+   - Build detailed scenarios based on source data
+
+✅ "Skill Practice": Create exercises about source topic
+   - AI in Sales source → Create AI sales scenario
+   - AWS source → Create AWS scenario
+
+HOW TO MEET REQUIREMENTS (GENERAL KNOWLEDGE GENERATION):
+✅ "Mental Models": Select topic-appropriate frameworks
+   - Sales topic → Sales Funnel, Customer Journey
+   - AWS topic → Well-Architected Framework
+   - NOT generic business frameworks for technical topics
+
+✅ "Worked Examples": Create topic-appropriate scenarios
+   - Use realistic examples for THIS topic
+   - NOT market analysis examples for technical topics
+
+✅ "Skill Practice": Create topic-appropriate exercises
+   - Section name should be topic-specific (not "Expert Analysis")
+   - Scenario should be about THIS topic (not market entry)
+
+FORMATTING ISSUE FIX:
+❌ DO NOT use example text verbatim - causes formatting/highlighting issues
+✅ Generate fresh, topic-appropriate content
+
+FINAL VERIFICATION BEFORE GENERATING:
+□ Are my frameworks appropriate for THIS topic? (Not from examples)
+□ Are my section names topic-specific? (Not "Expert Analysis" or "Available Data")
+□ Are my scenarios about THIS topic? (Not market entry if topic is AI/AWS/Python)
+□ Did I avoid placeholder companies? (No GlobalSensors, TechCorp)
+□ Is EVERY piece of content relevant to the requested topic?
+□ Would a user recognize this is about THEIR topic, not a generic business lesson?
+
+THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
+"""
+    logger.info(f"[ONEPAGER_ANTI_COPYING] Added ABSOLUTE FINAL anti-copying rules for all onepager generation")
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():

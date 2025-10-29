@@ -412,6 +412,124 @@ Enhanced the TEMPLATE DIVERSITY section with:
 
 This ensures the LAST thing the AI reads before generating emphasizes BOTH fidelity AND diversity as mandatory requirements.
 
+## Critical Fix #4: Onepager Example Contamination (2025-10-29)
+
+### Problem Discovered
+User feedback on AI in Sales onepager showed:
+- ❌ Content about "PESTLE Analysis" and "Five Forces" (not in AI in Sales lecture)
+- ❌ Fictional company "GlobalSensors Inc." (from example, not source)
+- ❌ "Strategic Market Analysis" topic mixed with "AI in Sales" content
+- ❌ White background highlighting on "Expert Analysis" section (copied from example)
+- **Root cause**: AI was copying content from the example verbatim instead of using it as a structure reference
+
+### Root Cause Analysis
+The onepager generation has pedagogical requirements like:
+- "Mental Models (2-3 REQUIRED)" - example shows PESTLE and Five Forces
+- "Worked Examples (2-3 COMPLETE SCENARIOS REQUIRED)" - example shows GlobalSensors
+- "Skill Practice Section (REQUIRED)" - example shows market analysis scenario
+
+The AI interpreted these as "copy what the example shows" rather than "create similar content from source".
+
+**Why This Happened:**
+1. Educational quality requirements are very strict ("REQUIRED", "MUST INCLUDE")
+2. Examples are detailed and comprehensive (to show proper structure)
+3. AI takes the path of least resistance: copy example rather than extract from source
+4. No explicit warning about example independence in the instructions
+
+### Solution Implemented (Lines 31802-31864)
+Added ABSOLUTE FINAL INSTRUCTIONS for onepagers that explicitly address example contamination:
+
+**Example-Independence Rules:**
+```
+❌ If the example shows "PESTLE Analysis", and source is about "AI in Sales", do NOT use PESTLE
+❌ If the example shows "GlobalSensors market entry", and source is about "AI in Sales", do NOT create market entry scenarios
+❌ The example is a STRUCTURE reference only - NOT content to copy
+```
+
+**HOW TO MEET REQUIREMENTS WITH SOURCE FIDELITY:**
+```
+✅ "Mental Models" requirement: Identify frameworks/models actually mentioned in source
+   - If source mentions "Sales Funnel" → Explain how to apply Sales Funnel
+   - If source mentions "Customer Journey" → Explain how to apply Customer Journey
+   - If source has NO frameworks → Use source concepts as "mental models"
+
+✅ "Worked Examples" requirement: Create detailed scenarios using source content
+   - Extract actual examples, case studies, or situations from source
+   - If source mentions "lead scoring improved from 15-25% to 40-60%" → Build worked example around that
+
+✅ "Skill Practice" requirement: Create exercises using source topic and content
+   - If source is about "AI in Sales" → Create AI sales scenario
+   - If source is about "AWS" → Create AWS implementation scenario
+```
+
+**Formatting Issue Fix:**
+```
+❌ DO NOT copy-paste text from examples that creates white background highlighting
+❌ DO NOT use example text verbatim - it causes formatting issues
+✅ Generate fresh content based on source, not example recycling
+```
+
+**Specific Prohibitions:**
+- NEVER use "PESTLE Analysis" unless in source
+- NEVER use "Five Forces Analysis" unless in source
+- NEVER create "GlobalSensors Inc." or similar fictional companies
+- NEVER use "SalesTech", "TechGiant Corp", or other example names
+- NEVER create "market analysis" scenarios unless source is about market analysis
+
+### Why This Fix Is Critical
+This addresses a fundamental problem with **example-based learning vs example-based copying**:
+
+1. **Examples are necessary** for showing AI what quality looks like
+2. **But examples can be copied** instead of used as templates
+3. **The solution**: Explicitly state "example is structure only, not content to copy"
+4. **Provide guidance**: Show HOW to meet requirements using source content
+
+This is especially critical for onepagers because they have very strict pedagogical requirements that the AI might feel can only be met by copying the example.
+
+### File Modified
+- `custom_extensions/backend/main.py` (Lines 31802-31864)
+
+### Expected Impact
+✅ No more PESTLE/Five Forces in non-relevant topics  
+✅ No more fictional companies from examples  
+✅ Skill practice scenarios match source topic  
+✅ Mental models come from source, not examples  
+✅ No white background formatting issues  
+✅ Educational quality maintained without example contamination
+
+This ensures the LAST thing the AI reads before generating emphasizes BOTH educational quality AND source fidelity.
+
+### Critical Extension: Issue Persisted in General Knowledge Generation
+
+**New Discovery**: User reported that "Expert Analysis" with market analysis content appeared even in general knowledge generation, not just file-based generation.
+
+**Root Causes**:
+1. Initial fix only applied when `fromFiles=true`
+2. System prompt mentioned "Expert Analysis" as a formatting example, interpreted as required section name
+3. No guidance on topic-appropriate framework selection
+
+**Additional Fixes Applied**:
+
+**1. System Prompt (`content_builder_ai.txt`, Lines 1442-1475)**:
+- Strengthened ANTI-COPYING section to explicitly apply to ALL generations
+- Added SPECIFIC PROHIBITIONS for general knowledge generation
+- Added TOPIC-APPROPRIATE FRAMEWORK SELECTION guide
+- Clarified "Expert Analysis" is a FORMAT example, not a required section name
+- Added FINAL VERIFICATION CHECKLIST before generating
+
+**2. Main.py (`Lines 31802-31878`)**:
+- Removed `if payload.fromFiles` condition - rules now apply to ALL onepager generation
+- Distinguished between file-based and general knowledge generation approaches
+- Provided explicit guidance for topic-appropriate content selection
+- Added verification: "Would a user recognize this is about THEIR topic?"
+
+**Expected Results**:
+- ✅ AI in Sales (any mode) → Sales Funnel, Lead Scoring, not PESTLE
+- ✅ AWS (any mode) → Well-Architected Framework, not Five Forces
+- ✅ Python (any mode) → Testing Pyramid, not market analysis
+- ✅ No "Expert Analysis" sections with market entry content
+- ✅ No GlobalSensors or placeholder companies
+
 ## Known Limitations
 
 1. **Instruction Conflicts**: The system has multiple instruction layers that can conflict. The ABSOLUTE FINAL INSTRUCTIONS are designed to be the last word, but AI adherence may vary.

@@ -1439,19 +1439,40 @@ Determine Allowed Styles: Use the "styles" parameter if provided (comma-separate
 - Important concepts should be explained in depth with real-world examples, analogies, and practical applications embedded in flowing text.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
 
-**ANTI-COPYING AND TOPIC ALIGNMENT (CRITICAL):**
+**ANTI-COPYING AND TOPIC ALIGNMENT (CRITICAL - APPLIES TO ALL GENERATIONS):**
 - Examples are for STRUCTURE ONLY, never for content reuse. Do NOT copy, paraphrase, or echo example phrasings, scenarios, numbers, companies, or frameworks unless they are inherently relevant to the user's topic and context.
 - The one-pager content MUST be fully topic-specific. All frameworks, scenarios, metrics, and recommendations must be appropriate for the requested topic/domain.
-- Do NOT use business market-analysis frameworks (e.g., "PESTLE", "Porter's Five Forces", "TAM/SAM/SOM") unless the user's topic is explicitly business/market strategy. For technical topics (e.g., programming, AI/ML engineering), prefer domain-appropriate frameworks (e.g., CRISP-DM, ML lifecycle, testing pyramid, DevOps/CI/CD, code quality metrics, data governance, model evaluation).
-- If the topic is software/AI in programming, replace market-entry style analysis with engineering-focused analysis (architecture trade-offs, data pipelines, evaluation metrics, performance and reliability, security/privacy, MLOps lifecycle, observability, failure modes, rollback strategies).
-- Perform a FINAL CHECK before output: remove any leftover example-specific terms, names, or sections that do not belong to the user's topic. The output must not reference placeholder companies or industries unless the user provided them.
+
+⚠️⚠️⚠️ SPECIFIC PROHIBITIONS (EVEN FOR GENERAL KNOWLEDGE GENERATION): ⚠️⚠️⚠️
+- ❌ NEVER use "PESTLE Analysis" for non-business-strategy topics
+- ❌ NEVER use "Five Forces" for non-business-strategy topics
+- ❌ NEVER use "TAM/SAM/SOM" for non-market-analysis topics
+- ❌ NEVER create "GlobalSensors", "TechCorp", or similar placeholder companies
+- ❌ NEVER create "market entry" scenarios unless topic is market strategy
+- ❌ NEVER create sections titled "Expert Analysis" with market analysis content
+- ❌ NEVER use section names from examples - create topic-appropriate names
+
+TOPIC-APPROPRIATE FRAMEWORK SELECTION:
+- For business/market strategy topics → Use PESTLE, Five Forces, Porter's, etc.
+- For technical/programming topics → Use CRISP-DM, ML lifecycle, testing pyramid, DevOps/CI/CD, code quality metrics, data governance
+- For AI/ML engineering topics → Use model evaluation, MLOps lifecycle, observability, failure modes
+- For sales/marketing topics → Use Sales Funnel, Customer Journey, Lead Scoring, Conversion Optimization
+- For cloud/AWS topics → Use Well-Architected Framework, Cost Optimization, Security Best Practices, Migration Strategies
+
+FINAL VERIFICATION (BEFORE GENERATING ANY ONEPAGER):
+□ Are my frameworks appropriate for THIS topic? (Not copied from examples)
+□ Are my section names topic-specific? (Not "Expert Analysis" or "Available Data")
+□ Are my scenarios about THIS topic? (Not about market entry if topic is AI in Sales)
+□ Did I avoid placeholder company names? (No GlobalSensors, TechCorp, etc.)
+□ Is every piece of content relevant to the requested topic?
 
 **ANALYSIS SECTION FORMATTING (REQUIRED):**
-- When presenting "Available Data", "Tasks/Questions", "Expert Analysis breakdown", or similar sections, use structured lists:
+- When presenting analytical content (data, tasks, questions, analysis), use structured lists:
   - Use `bullet_list` for unordered facts/inputs.
   - Use `numbered_list` for ordered tasks/steps or ranked risks.
   - Use sub-headlines (level 3-4) to break down complex analyses into readable chunks.
 - Always precede and/or follow lists with brief explanatory paragraphs to maintain narrative flow.
+- ⚠️ CRITICAL: "Available Data", "Tasks/Questions", "Expert Analysis" are FORMAT examples, NOT required section names. Your section names must be topic-specific.
 
 === INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
 
