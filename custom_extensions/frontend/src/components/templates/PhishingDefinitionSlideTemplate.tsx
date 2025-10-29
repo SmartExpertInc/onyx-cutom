@@ -244,7 +244,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       }}>
         {/* Title - MATCHES HTML: fontSize: 80px, marginBottom: 24px */}
         <div style={{
-          fontSize: '4.17vw',
+          fontSize: '50px',
           color: '#212222',
           marginBottom: '1.25%',
           lineHeight: '1.2'
@@ -431,7 +431,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             isEditable={isEditable}
             color="#ffffff"
             text="Your Logo"
-            fontSize="1.35vw"
+            fontSize="20px"
           />
         </div>
       </div>
