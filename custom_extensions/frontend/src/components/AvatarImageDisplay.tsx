@@ -98,11 +98,11 @@ const AvatarImageDisplay: React.FC<AvatarImageDisplayProps> = ({
       style={style}
     >
       <img 
-        src={defaultAvatar.selectedVariant.thumbnail} 
+        src={defaultAvatar.selectedVariant.canvas} 
         alt={`${defaultAvatar.avatar.name} - ${defaultAvatar.selectedVariant.name}`}
         className="w-full h-full object-cover"
         onError={(e) => {
-          console.error('🎭 [AVATAR_DISPLAY] Failed to load avatar image:', defaultAvatar.selectedVariant.thumbnail);
+          console.error('🎭 [AVATAR_DISPLAY] Failed to load avatar image:', defaultAvatar.selectedVariant.canvas);
           // Fallback to a placeholder if image fails to load
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
@@ -118,12 +118,6 @@ const AvatarImageDisplay: React.FC<AvatarImageDisplayProps> = ({
           <div className="text-xs mt-1 opacity-75">{defaultAvatar.selectedVariant.name}</div>
         </div>
       </div>
-
-      {/* Avatar info overlay - HIDDEN for clean presentation */}
-      {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-xs">
-        <div className="font-medium">{defaultAvatar.avatar.name}</div>
-        <div className="opacity-75">{defaultAvatar.selectedVariant.name}</div>
-      </div> */}
     </div>
   );
 };
