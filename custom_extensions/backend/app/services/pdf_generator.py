@@ -3124,7 +3124,7 @@ async def generate_pdf_from_html_content(
         logger.info("Viewport set to A4 dimensions")
         
         # Set content from HTML string
-        await page.setContent(html_content, waitUntil='networkidle0')
+        await page.setContent(html_content)
         logger.info("HTML content loaded successfully")
         
         # Wait for any fonts to load
