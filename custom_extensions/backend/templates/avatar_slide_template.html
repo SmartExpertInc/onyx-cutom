@@ -5853,6 +5853,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                 
             {% elif templateId == 'benefits-perks-columns-slide' or templateId == 'benefits-perks-columns' or templateId == 'benefits-and-perks' or templateId == 'benefits-perks' %}
                 <!-- Benefits And Perks Columns Slide Template - EXACT React Copy -->
+                <!-- DEBUG: templateId = {{ templateId }} -->
                 <div class="benefits-perks-columns-slide">
                     <!-- Top section -->
                     <div class="top-section"></div>
@@ -6106,6 +6107,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
             {% else %}
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
+                    <!-- DEBUG: Unknown templateId = {{ templateId }} -->
                     {% if title %}
                         <h1 class="slide-title positioned-element" 
                             {% if metadata and metadata.elementPositions %}
