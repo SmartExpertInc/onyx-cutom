@@ -217,6 +217,24 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     fontFamily: base.fontFamily
   });
 
+  // Calculate number of circles to fill based on percentage
+  const getFilledCirclesCount = (percentStr: string): number => {
+    const numericValue = parseInt(percentStr.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(numericValue) || numericValue < 1) return 1;
+    if (numericValue >= 100) return 10;
+    if (numericValue >= 90) return 9;
+    if (numericValue >= 80) return 8;
+    if (numericValue >= 70) return 7;
+    if (numericValue >= 60) return 6;
+    if (numericValue >= 50) return 5;
+    if (numericValue >= 40) return 4;
+    if (numericValue >= 30) return 3;
+    if (numericValue >= 20) return 2;
+    return 1;
+  };
+
+  const filledCount = getFilledCirclesCount(percent);
+
   // Logo section styling
   const logoSection: React.CSSProperties = {
     position:'absolute',
@@ -291,27 +309,34 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
         {/* Circles row */}
         <div style={circlesContainer}>
-          {/* First circle - filled with percentage */}
-           <div style={circleFilled}>
-             {isEditable && edit?.k==='percent' ? (
-               <ImprovedInlineEditor 
-                 initialValue={percent} 
-                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
-                 onCancel={()=> setEdit(null)} 
-                 className="percent-text"
-                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
-               />
-             ) : (
-               <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
-                 {percent}
-               </div>
-             )}
-           </div>
-          
-          {/* Remaining 9 empty circles */}
-          {[...Array(9)].map((_, i) => (
-            <div key={i} style={circleBase} />
-          ))}
+          {/* Render all 10 circles */}
+          {[...Array(10)].map((_, i) => {
+            const isFilled = i < filledCount;
+            const isLastFilled = i === filledCount - 1;
+            
+            return (
+              <div key={i} style={isFilled ? circleFilled : circleBase}>
+                {/* Show percentage only in the last filled circle */}
+                {isLastFilled && (
+                  <>
+                    {isEditable && edit?.k==='percent' ? (
+                      <ImprovedInlineEditor 
+                        initialValue={percent} 
+                        onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
+                        onCancel={()=> setEdit(null)} 
+                        className="percent-text"
+                        style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
+                      />
+                    ) : (
+                      <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+                        {percent}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
