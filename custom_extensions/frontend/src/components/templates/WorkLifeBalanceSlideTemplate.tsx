@@ -234,7 +234,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         width: '60%',
         height: '100%',
         position: 'relative',
-        zIndex: 2
+        zIndex: 0
       }}>
         {/* Logo placeholder */}
         <div style={{
@@ -284,13 +284,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: themeContent,
+                  backgroundColor: '#ffffff',
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: themeContent,
+                  backgroundColor: '#ffffff',
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
