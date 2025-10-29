@@ -119,11 +119,11 @@ const AvatarImageDisplay: React.FC<AvatarImageDisplayProps> = ({
         </div>
       </div>
 
-      {/* Avatar info overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-xs">
+      {/* Avatar info overlay - HIDDEN for clean presentation */}
+      {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-xs">
         <div className="font-medium">{defaultAvatar.avatar.name}</div>
         <div className="opacity-75">{defaultAvatar.selectedVariant.name}</div>
-      </div>
+      </div> */}
     </div>
   );
 };

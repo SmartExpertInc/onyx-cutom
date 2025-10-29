@@ -411,9 +411,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             width: '100%',
             height: '100%',
             borderRadius: '0px',
-            objectFit: 'cover',
-            position: 'relative',
-            top: '50px'
+            objectFit: 'cover'
           }}
         />
 

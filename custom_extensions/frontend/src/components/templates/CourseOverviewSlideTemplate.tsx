@@ -379,8 +379,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           position="CENTER"
           style={{
             position: 'absolute',
-            bottom: '-12%',
-            height: '100%',
+            bottom: '-2.24%',
+            height: '91%',
             width: 'auto',
             borderRadius: '0.83%'
           }}
