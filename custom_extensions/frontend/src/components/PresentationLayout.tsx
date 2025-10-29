@@ -449,8 +449,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full flex justify-center">
-                      <div className="main-slide-container border border-[#CCCCCC] bg-[#F2F2F4] rounded-md relative" style={{ width: '1200px' }}>
+                    <div className="w-full max-w-7xl">
+                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -502,20 +502,12 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                          <div style={{ width: '1200px', overflow: 'hidden' }}>
-                            <div style={{ 
-                              width: '1920px',
-                              transformOrigin: 'top left',
-                              transform: 'scale(0.625)'
-                            }}>
-                              <ComponentBasedSlideRenderer
-                                slide={slide}
-                                isEditable={isEditable}
-                                onSlideUpdate={handleSlideUpdate}
-                                theme={theme}
-                              />
-                            </div>
-                          </div>
+                          <ComponentBasedSlideRenderer
+                            slide={slide}
+                            isEditable={isEditable}
+                            onSlideUpdate={handleSlideUpdate}
+                            theme={theme}
+                          />
                       </div>
                     </div>
               </div>

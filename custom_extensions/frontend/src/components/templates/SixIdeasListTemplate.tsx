@@ -148,7 +148,11 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
           gridTemplateColumns: '1fr 1fr', 
           gap: '30px'
         }}>
-          {ideas.map((idea, index) => (
+          {ideas.map((idea, index) => {
+            // Add null check for idea
+            if (!idea) return null;
+            
+            return (
             <div key={index} style={{ 
               display: 'flex', 
               flexDirection: 'column',
@@ -247,7 +251,8 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
                 />
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

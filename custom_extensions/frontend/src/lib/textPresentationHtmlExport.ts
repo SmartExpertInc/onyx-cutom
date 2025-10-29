@@ -13,6 +13,7 @@ import {
   TableBlock,
   ListItem,
 } from '@/types/textPresentation';
+import { PURPLE_BOX_CONTENT } from '@/constants/purpleBoxContent';
 
 /**
  * Escapes HTML special characters to prevent XSS
@@ -456,6 +457,52 @@ const renderTable = (block: TableBlock): string => {
 };
 
 /**
+ * Generates HTML for purple boxes section
+ */
+const renderPurpleBoxes = (): string => {
+  const cards = PURPLE_BOX_CONTENT.cards;
+  const gridCols = cards.length === 1 ? '1' : cards.length === 2 ? '2' : cards.length === 3 ? '3' : '4';
+  
+  const containerStyle = `
+    display: grid;
+    grid-template-columns: repeat(${gridCols}, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  `.trim();
+  
+  const cardStyle = `
+    background-color: #CCDBFCCC;
+    border: 1px solid #CCCCCC;
+    border-radius: 8px;
+    padding: 20px;
+  `.trim();
+  
+  const titleStyle = `
+    font-weight: 600;
+    color: #171718;
+    margin-bottom: 8px;
+    font-size: 16px;
+  `.trim();
+  
+  const descriptionStyle = `
+    font-size: 14px;
+    color: #4B5563;
+    line-height: 1.5;
+  `.trim();
+  
+  let html = `<div style="${containerStyle}">`;
+  cards.forEach((card) => {
+    html += `<div style="${cardStyle}">`;
+    html += `<h3 style="${titleStyle}">${escapeHtml(card.title)}</h3>`;
+    html += `<p style="${descriptionStyle}">${escapeHtml(card.description)}</p>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+  
+  return html;
+};
+
+/**
  * Renders a content block based on its type
  */
 const renderContentBlock = async (block: AnyContentBlock): Promise<string> => {
@@ -490,11 +537,19 @@ export const generateTextPresentationHtml = async (
 ): Promise<string> => {
   const documentTitle = title || data.textTitle || 'Text Presentation';
   
+  // Check if purple box section should be included
+  const purpleBoxSection = (data as any)?.purpleBoxSection !== undefined 
+    ? (data as any)?.purpleBoxSection 
+    : true;
+  
   // Generate HTML for all content blocks (with image conversion)
   const contentBlocks = await Promise.all(
     data.contentBlocks.map((block) => renderContentBlock(block))
   );
   const contentHtml = contentBlocks.join('\n');
+  
+  // Generate purple boxes HTML if enabled
+  const purpleBoxesHtml = purpleBoxSection ? renderPurpleBoxes() : '';
   
   // Complete HTML document with styles
   const html = `<!DOCTYPE html>
@@ -515,7 +570,7 @@ export const generateTextPresentationHtml = async (
       line-height: 1.6;
       color: #171718;
       background-color: #FFFFFF;
-      padding: 40px 20px;
+      padding: 40px 8px;
       max-width: 210mm; /* A4 width */
       margin: 0 auto;
     }
@@ -528,7 +583,7 @@ export const generateTextPresentationHtml = async (
       
       @page {
         size: A4;
-        margin: 20mm;
+        margin: 12mm;
       }
     }
     
@@ -542,6 +597,7 @@ export const generateTextPresentationHtml = async (
     <h1 style="font-size: 24px; font-weight: 700; color: #0F58F9; margin-bottom: 16px; padding: 16px 0; border-bottom: 1px solid #CCCCCC;">
       ${escapeHtml(data.textTitle)}
     </h1>
+    ${purpleBoxesHtml}
     ${contentHtml}
   </div>
 </body>
