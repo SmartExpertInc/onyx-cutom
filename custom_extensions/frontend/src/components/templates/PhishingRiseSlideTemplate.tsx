@@ -112,20 +112,19 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     textAlign: 'center'
   };
 
-  // Calculate bar width to fit within grid lines
-  // Need to be more conservative to ensure 6 bars fit
+  // Calculate bar width to fit within grid lines with 4px padding on each side
   const getBarWidth = () => {
-    const totalAvailableSpace = 450; // Conservative space within grid lines
+    const totalAvailableSpace = 442; // Space within grid lines minus 8px (4px padding each side)
     const numBars = currentBars.length;
     const gap = numBars === 6 ? 16 : 20; // Smaller gap for 6 bars
     
     // Calculate bars to spread evenly within the fixed total space
     const totalGapSpace = (6 - 1) * (numBars === 6 ? 16 : 20); // Space taken by gaps when 6 bars
-    const availableForBars = totalAvailableSpace - totalGapSpace; // ~350px
+    const availableForBars = totalAvailableSpace - totalGapSpace;
     
     // Special case: single bar, centered
     if (numBars === 1) {
-      return Math.floor(availableForBars / 3); // ~116px, centered
+      return Math.floor(availableForBars / 3); // centered
     }
     
     // Distribute bar space + saved gap space evenly
@@ -148,6 +147,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     alignItems: 'flex-end',
     justifyContent: currentBars.length === 1 ? 'center' : 'flex-start',
     gap: `${chartGap}px`,
+    paddingLeft: '4px',
+    paddingRight: '4px',
     // no gridlines in the reference; keep background clean
   };
 
@@ -475,7 +476,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               {isEditable && (
                 <button
                   onClick={() => removeBar(idx)}
-                  style={{ position: 'absolute', top: '-25px', right: '-8px', background: '#fff', border: '1px solid #999', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff4444', fontSize: '18px', lineHeight: 1, padding: 0 }}
+                  style={{ position: 'absolute', top: '-25px', right: '-8px', background: '#fff', border: '1px solid #999', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff4444', fontSize: '16px', lineHeight: 1, padding: 0 }}
                   aria-label="Delete bar"
                 >
                   ×
