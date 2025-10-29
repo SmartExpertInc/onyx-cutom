@@ -333,7 +333,7 @@ export const EmptySmartDrive: React.FC<EmptySmartDriveProps> = ({ onUploadClick,
         onClick={onUploadClick}
       >
         {isKnowledgeBase 
-          ? <><Upload strokeWidth={1.5} className="w-4 h-4 mr-2"/> t('interface.knowledgeBasePage.empty.uploadFiles', 'Upload files')</>
+          ? <div className="flex items-center gap-2"><Upload strokeWidth={1.5} className="w-4 h-4"/> {t('interface.knowledgeBasePage.empty.uploadFiles', 'Upload files')}</div>
           : t('interface.smartDrivePage.empty.connect', 'Connect')
         }
       </button>

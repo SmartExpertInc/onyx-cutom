@@ -317,8 +317,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="h-[85vh] min-h-[400px] max-h-[500px] overflow-y-auto survey-modal-scroll">
-            <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto">
+          <div className="rounded-2xl bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 overflow-y-auto survey-modal-scroll">
+            <div className="relative h-[90vh] z-10 w-full max-w-[1280px] rounded-2xl p-0 mx-auto">
             {/* Header with Logo and Progress */}
             <div className="flex-shrink-0 p-8 pb-4">
             {/* ContentBuilder Logo */}

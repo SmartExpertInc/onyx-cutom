@@ -858,10 +858,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           <div className="flex gap-2">
             
               <div className="flex items-center gap-2">
-                {activeTab === 'smart-drive' && !isSelectMode && hasFiles && (
+                {activeTab === 'smart-drive' && !isSelectMode && (
                   <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#878787] bg-white border border-[#878787] cursor-pointer hover:bg-gray-50 h-9">
                     <Upload className="w-4 h-4 mr-2"/>Upload
-                  </Button>)}
+                  </Button>
+                )}
                   <input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
                 {activeTab === 'smart-drive' && !isSelectMode && ( 
                   <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border text-[#878787] border-[#878787] cursor-pointer hover:bg-gray-50 h-9">
@@ -1065,6 +1066,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 sortBy={sortBy} 
                 sortOrder={sortOrder}
                 onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+                onFilesLoaded={handleFilesLoaded}
               />
             )}
           </div>
