@@ -12446,8 +12446,13 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 
 ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
 """
-    elif product_type == "Lesson Presentation":
+    
+    # Add fidelity rules for ALL presentation types (Lesson Presentation AND Video Lesson Presentation)
+    # Handle both naming conventions: "Lesson Presentation"/"Video Lesson Presentation" and "Slides Deck"/"Video Lesson Slides Deck"
+    if product_type in ["Lesson Presentation", "Video Lesson Presentation", "Slides Deck", "Video Lesson Slides Deck"]:
+        print("\n\n\nREACHED!!\n\n\n")
         enhanced_prompt += """
+
 🚨 CRITICAL PRESENTATION FIDELITY RULES 🚨
 
 ABSOLUTE PROHIBITIONS FOR PRESENTATIONS:
@@ -12463,6 +12468,8 @@ DATA FABRICATION PREVENTION:
 ❌ NEVER add specific compliance details like "GDPR, HIPAA, PCI DSS" unless mentioned in source
 ❌ NEVER add future trends like "Serverless Computing", "AI Integration" unless mentioned in source
 ❌ NEVER add specific metrics, costs, or performance data not in source
+❌ NEVER add certification details like "AWS Certified Solutions Architect" unless mentioned in source
+❌ NEVER add support plan details like "Basic Support", "Developer Support" unless mentioned in source
 
 TEMPLATE SELECTION RULES:
 ✅ Use `big-numbers` ONLY if source contains actual statistics (exact values)
