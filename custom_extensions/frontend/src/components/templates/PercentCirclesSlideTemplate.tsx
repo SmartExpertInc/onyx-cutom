@@ -111,7 +111,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     fontWeight:600,
     border:'none',
     color:'#FFFFFF',
-    borderRadius:'50%'
+    borderRadius:'50%',
+    textAlign:'center'
   };
 
   // Avatar positioning - upper right, overlapping border
@@ -341,7 +342,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                       <div 
                         className="percent-text" 
                         onClick={()=> isEditable && setEdit({ k:'percent' })} 
-                        style={{ cursor: isEditable ? 'pointer':'default' }}
+                        style={{ cursor: isEditable ? 'pointer':'default', textAlign:'center' }}
                       >
                         {currentPercent}
                       </div>
