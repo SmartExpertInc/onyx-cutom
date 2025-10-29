@@ -1759,11 +1759,18 @@ def validate_presentation_slides(slides: List[Dict]) -> Dict[str, List[str]]:
     1. big-image-left missing imagePrompt
     2. challenges-solutions having more than 3 pairs
     3. big-image-top in middle positions
+    4. content-slide usage (banned)
+    5. comparison-slide usage (banned)
+    6. title-slide in middle positions
+    7. big-image-left in middle positions
     """
     issues = {
         "big_image_left_missing_prompt": [],
         "challenges_solutions_count": [],
-        "big_image_top_positioning": []
+        "big_image_top_positioning": [],
+        "banned_templates": [],
+        "title_slide_positioning": [],
+        "big_image_left_positioning": []
     }
     
     for i, slide in enumerate(slides):
@@ -1791,6 +1798,26 @@ def validate_presentation_slides(slides: List[Dict]) -> Dict[str, List[str]]:
                 issues["big_image_top_positioning"].append(
                     f"Slide {slide_num}: big-image-top should only be used for first or last slide"
                 )
+        
+        # Check for banned templates
+        if template_id in ['content-slide', 'comparison-slide']:
+            issues["banned_templates"].append(
+                f"Slide {slide_num}: {template_id} is banned and should not be used"
+            )
+        
+        # Check title-slide positioning (not middle positions)
+        if template_id == 'title-slide':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["title_slide_positioning"].append(
+                    f"Slide {slide_num}: title-slide should only be used for first or last slide"
+                )
+        
+        # Check big-image-left positioning (not middle positions)
+        if template_id == 'big-image-left':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["big_image_left_positioning"].append(
+                    f"Slide {slide_num}: big-image-left should only be used for first or last slide"
+                )
     
     return issues
 
@@ -1800,6 +1827,8 @@ def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
     1. Add default imagePrompt to big-image-left slides
     2. Remove excess pairs from challenges-solutions slides
     3. Replace big-image-top in middle with bullet-points-right
+    4. Replace banned templates with appropriate alternatives
+    5. Move position-restricted templates to first/last positions
     """
     fixed_slides = []
     
@@ -1838,6 +1867,42 @@ def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
                 if 'content' in props:
                     del props['content']
             logger.info(f"Fixed big-image-top slide {slide_num}: Replaced with bullet-points-right")
+        
+        # Fix banned templates
+        if template_id in ['content-slide', 'comparison-slide']:
+            # Replace with bullet-points
+            slide['templateId'] = 'bullet-points'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed banned template slide {slide_num}: Replaced {template_id} with bullet-points")
+        
+        # Fix title-slide positioning
+        if template_id == 'title-slide' and slide_num != 1 and slide_num != len(slides):
+            # Replace with hero-title-slide
+            slide['templateId'] = 'hero-title-slide'
+            logger.info(f"Fixed title-slide slide {slide_num}: Replaced with hero-title-slide")
+        
+        # Fix big-image-left positioning
+        if template_id == 'big-image-left' and slide_num != 1 and slide_num != len(slides):
+            # Replace with bullet-points-right
+            slide['templateId'] = 'bullet-points-right'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed big-image-left slide {slide_num}: Replaced with bullet-points-right")
         
         fixed_slides.append(slide)
     
@@ -12380,6 +12445,44 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 6. Ensure slides are numbered sequentially: Slide 1, Slide 2, Slide 3, etc.
 
 ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
+"""
+    elif product_type == "Lesson Presentation":
+        enhanced_prompt += """
+🚨 CRITICAL PRESENTATION FIDELITY RULES 🚨
+
+ABSOLUTE PROHIBITIONS FOR PRESENTATIONS:
+❌ NEVER use `content-slide` template (completely banned)
+❌ NEVER use `comparison-slide` template (completely banned)
+❌ NEVER use `title-slide` in middle positions (only first or last slide)
+❌ NEVER use `big-image-left` in middle positions (only first or last slide)
+❌ NEVER use `big-image-top` in middle positions (only first or last slide)
+
+DATA FABRICATION PREVENTION:
+❌ NEVER add specific percentages like "50% of users" or "three-quarters benefit"
+❌ NEVER add named case studies like "Netflix", "Airbnb", "NASA", "General Electric" unless explicitly mentioned in source
+❌ NEVER add specific compliance details like "GDPR, HIPAA, PCI DSS" unless mentioned in source
+❌ NEVER add future trends like "Serverless Computing", "AI Integration" unless mentioned in source
+❌ NEVER add specific metrics, costs, or performance data not in source
+
+TEMPLATE SELECTION RULES:
+✅ Use `big-numbers` ONLY if source contains actual statistics (exact values)
+✅ Use `table-dark`/`table-light` ONLY for qualitative comparisons (no numerical data)
+✅ Use `challenges-solutions` ONLY if source describes 3+ problems and solutions
+✅ Use `process-steps` ONLY if source describes sequential procedures
+✅ Use `two-column` ONLY if source compares/contrasts 2 items
+✅ Use `four-box-grid` ONLY if source presents 4 related concepts
+✅ Use `timeline` ONLY if source shows 4+ chronological events
+✅ Use `pyramid` ONLY if source shows hierarchical structure
+✅ Use `six-ideas-list` ONLY if source presents 6 key points
+
+VERIFICATION BEFORE EACH SLIDE:
+□ Is this content directly from the source documents?
+□ Am I using the correct template for this content type?
+□ Am I following position restrictions for this template?
+□ Am I avoiding banned templates?
+□ Am I not adding fabricated data or examples?
+
+IF YOU CANNOT ANSWER "YES" TO ALL QUESTIONS - DO NOT CREATE THE SLIDE
 """
     
     # Add closing source fidelity reminder

@@ -28,7 +28,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const tColor = titleColor || currentTheme.colors.titleColor;
-  const txtColor = textColor || currentTheme.colors.contentColor;
+  const txtColor = '#FFFFFF'; // Always use white for six-ideas text as per user requirement
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
   // Inline editing state
