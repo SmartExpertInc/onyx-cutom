@@ -418,7 +418,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   {/* Personal Card */}
                   <div
                     onClick={() => setSelectedCategory('personal')}
-                    className={`relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 cursor-pointer ${
+                    className={`relative p-6 rounded-xl border-2 transition-all duration-300 transform cursor-pointer ${
                       selectedCategory === 'personal'
                     ? 'border-blue-500 bg-blue-50 shadow-xl'
                     : 'border-[var(--border-light)] bg-white hover:border-blue-300 hover:shadow-lg'
@@ -447,7 +447,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   {/* Work Card */}
                   <div
                     onClick={() => setSelectedCategory('work')}
-                    className={`relative p-6 rounded-lg border-2 transition-all duration-300 transform hover:scale-105 cursor-pointer ${
+                    className={`relative p-6 rounded-lg border-2 transition-all duration-300 transform cursor-pointer ${
                       selectedCategory === 'work'
                     ? 'border-blue-500 bg-blue-50 shadow-xl'
                     : 'border-[var(--border-light)] bg-white hover:border-blue-300 hover:shadow-lg'

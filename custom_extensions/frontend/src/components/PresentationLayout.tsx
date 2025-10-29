@@ -449,8 +449,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full max-w-7xl">
-                      <div className="main-slide-container border border-[#CCCCCC] bg-[#F2F2F4] rounded-md relative" style={{ aspectRatio: '16/9' }}>
+                    <div className="w-full max-w-4xl mx-auto">
+                      <div className="main-slide-container border border-[#CCCCCC] bg-[#F2F2F4] rounded-md relative overflow-hidden" style={{ aspectRatio: '16/9', maxWidth: '800px', width: '100%' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -502,12 +502,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                          <ComponentBasedSlideRenderer
-                            slide={slide}
-                            isEditable={isEditable}
-                            onSlideUpdate={handleSlideUpdate}
-                            theme={theme}
-                          />
+                          <div className="w-full h-full">
+                            <ComponentBasedSlideRenderer
+                              slide={slide}
+                              isEditable={isEditable}
+                              onSlideUpdate={handleSlideUpdate}
+                              theme={theme}
+                            />
+                          </div>
                       </div>
                     </div>
               </div>
