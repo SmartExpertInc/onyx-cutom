@@ -1986,6 +1986,22 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "pageNumber": "15"
       }
+    },
+    {
+      "slideId": "slide_16_four_box_grid",
+      "slideNumber": 16,
+      "slideTitle": "Four Key Concepts",
+      "templateId": "four-box-grid",
+      "voiceoverText": "Let's break down the four essential concepts you need to understand. Each box represents a critical component that works together to form the complete picture.",
+      "props": {
+        "title": "Four Key Concepts",
+        "boxes": [
+          { "heading": "Concept A", "text": "First key concept with detailed explanation of its importance" },
+          { "heading": "Concept B", "text": "Second key concept showing how it builds on the first" },
+          { "heading": "Concept C", "text": "Third key concept demonstrating practical application" },
+          { "heading": "Concept D", "text": "Fourth key concept tying everything together" }
+        ]
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -3030,6 +3046,33 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['actorImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'four-box-grid':
+                # Ensure required props and normalize boxes
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Four Key Concepts'
+
+                boxes = normalized_props.get('boxes')
+                if not isinstance(boxes, list) or len(boxes) < 4:
+                    boxes = [
+                        { 'heading': 'Concept A', 'text': 'First key concept with detailed explanation' },
+                        { 'heading': 'Concept B', 'text': 'Second key concept showing how it builds on the first' },
+                        { 'heading': 'Concept C', 'text': 'Third key concept demonstrating practical application' },
+                        { 'heading': 'Concept D', 'text': 'Fourth key concept tying everything together' }
+                    ]
+                fixed_boxes = []
+                for box in boxes[:4]:  # Exactly 4 boxes
+                    if isinstance(box, dict):
+                        fixed_boxes.append({
+                            'heading': str(box.get('heading', 'Heading')),
+                            'text': str(box.get('text', 'Description'))
+                        })
+                    else:
+                        fixed_boxes.append({
+                            'heading': 'Heading',
+                            'text': str(box)
+                        })
+                normalized_props['boxes'] = fixed_boxes
 
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
@@ -24076,7 +24119,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 15 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 16 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -24198,6 +24241,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 15 TEMPLATES ALLOWED):
   • Visual elements: actorImagePath (avatar in left panel with blue background)
   • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data
   • Content guidelines: Title should be concise; description provides context; bars should show progression over time
+
+- four-box-grid: title, boxes[] (array of {heading, text})
+  • Purpose: Present four key concepts or features in a balanced 2x2 grid layout
+  • Structure: Title with four equal boxes arranged in 2 rows and 2 columns
+  • Required props: title (main heading), boxes (EXACTLY 4 boxes with heading and text fields)
+  • Visual elements: None (simple layout focused on content organization)
+  • Usage: Compare features, present quadrants, show four key points, or organize related concepts
+  • Content guidelines: Keep box headings concise (2-5 words); text can be 1-2 sentences; maintain consistent length across boxes
 
 
 
