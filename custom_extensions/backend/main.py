@@ -1852,43 +1852,43 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_10_company_tools_resources",
-      "slideNumber": 10,
-      "slideTitle": "Company Tools & Resources",
-      "templateId": "company-tools-resources-slide",
-      "voiceoverText": "Here are the core tools and resources we rely on. I'll highlight how each category supports your day-to-day work and where to find them.",
-      "props": {
-        "title": "Company tools and resources",
-        "sections": [
-          {
-            "title": "Communication Tools:",
-            "content": "We use Slack and email for daily communication, and Zoom for video meetings.",
-            "backgroundColor": "#E0E7FF",
-            "textColor": "#374151"
-          },
-          {
-            "title": "Project Management:",
-            "content": "Track work with Jira or Trello; plan sprints and monitor burndown charts.",
-            "backgroundColor": "#FFFFFF",
-            "textColor": "#374151"
-          },
-          {
-            "title": "Learning & Development:",
-            "content": "Access LinkedIn Learning and internal workshops for ongoing upskilling.",
-            "backgroundColor": "#FFFFFF",
-            "textColor": "#374151"
-          },
-          {
-            "title": "Knowledge Base:",
-            "content": "Browse our Confluence space for playbooks, standards, and templates.",
-            "backgroundColor": "#E0E7FF",
-            "textColor": "#374151"
-          }
-        ],
-        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "companyLogoPath": "",
-        "pageNumber": "10"
-      }
+        "slideId": "slide_10_company_tools_resources",
+        "slideNumber": 10,
+        "slideTitle": "Company Tools & Resources",
+        "templateId": "company-tools-resources-slide",
+        "voiceoverText": "Let me walk you through the essential tools and resources that power our daily operations. Each of these platforms plays a critical role in ensuring seamless collaboration, efficient project delivery, continuous learning, and knowledge sharing across our entire organization.",
+        "props": {
+            "title": "Company Tools & Resources",
+            "sections": [
+            {
+                "title": "Communication Tools:",
+                "content": "We leverage Slack for instant messaging and channel-based team collaboration, enabling real-time discussions and quick decision-making. Email remains our formal communication channel for external stakeholders and official documentation. For video conferencing, we use Zoom with screen-sharing capabilities, virtual backgrounds, and recording features to support remote collaboration, client presentations, and team meetings across different time zones.",
+                "backgroundColor": "#E0E7FF",
+                "textColor": "#374151"
+            },
+            {
+                "title": "Project Management:",
+                "content": "Our project tracking infrastructure centers on Jira for agile sprint planning, issue tracking, and workflow automation, with customizable boards and detailed reporting dashboards. Trello serves as our lightweight alternative for smaller initiatives and visual task management. Both platforms integrate with our CI/CD pipeline, allowing teams to monitor burndown charts, track velocity metrics, manage backlogs efficiently, and maintain complete transparency across all project phases from inception to delivery.",
+                "backgroundColor": "#FFFFFF",
+                "textColor": "#374151"
+            },
+            {
+                "title": "Learning & Development:",
+                "content": "We invest heavily in continuous professional growth through LinkedIn Learning subscriptions, providing access to thousands of expert-led courses covering technical skills, leadership development, and industry certifications. Our internal workshop series features monthly knowledge-sharing sessions, mentorship programs, and hands-on training labs. Additionally, we offer conference attendance budgets, certification reimbursement, and dedicated learning hours to ensure every team member has opportunities to upskill and stay current with emerging technologies and best practices.",
+                "backgroundColor": "#FFFFFF",
+                "textColor": "#374151"
+            },
+            {
+                "title": "Knowledge Base:",
+                "content": "Our comprehensive Confluence workspace serves as the central repository for all organizational knowledge, including detailed playbooks, coding standards, architecture decision records, onboarding guides, and reusable templates. The knowledge base is organized into logical spaces by department and project, features powerful search capabilities, version control for documentation, and collaborative editing tools. Regular content reviews ensure documentation stays accurate, relevant, and accessible to all team members across the organization.",
+                "backgroundColor": "#E0E7FF",
+                "textColor": "#374151"
+            }
+            ],
+            "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+            "companyLogoPath": "",
+            "pageNumber": "10"
+        }
     },
     {
       "slideId": "slide_11_ai_pharma_market_growth",
@@ -24301,7 +24301,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
     - Explain WHY each pillar is important and HOW it impacts the organization
     - Maintain consistent depth and professional tone across all three sections
     - Think of each column as a mini-essay that fully explores the topic, not just a brief description
-    
+
 - percent-circles: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
   • Purpose: Present statistical data with visual percentage circles and supporting statistics cards
   • Structure: Top section with title and 10 circles (1 filled with percentage + 9 empty), avatar display, bottom section with two statistics cards
@@ -24342,6 +24342,8 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (speaker image), companyLogoPath (branding)
   • Usage: Summarize communication, project management, L&D, or other internal resources
   • Content guidelines: Keep section titles concise; content can be short paragraphs or lists
+  • MANDATORY: sections array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
+  • CRITICAL TEXT LENGTH: Each section's content MUST be comprehensive (85-100 words / 500-600 characters)
 
 - ai-pharma-market-growth-slide: title, bars[] (array of {{year, label, widthPercent}}), [doctorImagePath], [panelBackgroundColor], [pageNumber]
   • Purpose: Display progressive growth or timeline data with horizontal bar chart
