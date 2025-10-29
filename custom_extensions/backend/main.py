@@ -1908,6 +1908,21 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "panelBackgroundColor": "#dfeeff",
         "pageNumber": "11"
       }
+    },
+    {
+      "slideId": "slide_12_critical_thinking",
+      "slideNumber": 12,
+      "slideTitle": "Critical Thinking and Problem Solving",
+      "templateId": "critical-thinking-slide",
+      "voiceoverText": "Critical thinking and problem solving are foundational skills for success. Let's explore how these abilities empower you to analyze information, make informed decisions, and overcome challenges effectively.",
+      "props": {
+        "title": "Critical Thinking\nand Problem Solving",
+        "content": "Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.",
+        "highlightedPhrases": ["analyze information,", "make informed decisions,", "overcome challenges."],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "12"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2815,6 +2830,27 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['doctorImagePath'] = 'https://via.placeholder.com/300x600?text=Doctor'
                 if not normalized_props.get('panelBackgroundColor'):
                     normalized_props['panelBackgroundColor'] = '#dfeeff'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'critical-thinking-slide':
+                # Ensure required props and normalize highlightedPhrases
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Critical Thinking\nand Problem Solving'
+                if not normalized_props.get('content'):
+                    normalized_props['content'] = 'Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.'
+
+                phrases = normalized_props.get('highlightedPhrases')
+                if isinstance(phrases, str):
+                    phrases = [p.strip() for p in phrases.split(',') if p.strip()]
+                if not isinstance(phrases, list) or not phrases:
+                    phrases = ['analyze information,', 'make informed decisions,', 'overcome challenges.']
+                normalized_props['highlightedPhrases'] = [str(p) for p in phrases]
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('companyLogoPath'):
+                    normalized_props['companyLogoPath'] = ''
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = str(slide_index + 1)
 
@@ -23863,7 +23899,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 11 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 12 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23953,6 +23989,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 11 TEMPLATES ALLOWED):
   • Visual elements: doctorImagePath (right-side image), panelBackgroundColor (defaults to light blue)
   • Usage: Show market growth, revenue progression, or any timeline-based metrics
   • Content guidelines: Title can include line breaks; bars should be chronological; labels should be clear monetary/metric values
+
+- critical-thinking-slide: title, content, highlightedPhrases[] (array of strings), [profileImagePath], [companyLogoPath], [pageNumber]
+  • Purpose: Present key concept with highlighted phrases for emphasis
+  • Structure: Light panel with circular profile background, title, and content with highlighted key phrases
+  • Required props: title (multiline heading), content (paragraph text), highlightedPhrases (array of 2-4 phrase strings to highlight)
+  • Visual elements: profileImagePath (profile image with colored background), companyLogoPath (branding)
+  • Usage: Introduce core concepts, highlight critical thinking skills, or emphasize important ideas
+  • Content guidelines: Title supports line breaks; content should be 2-3 sentences; highlightedPhrases should be exact substrings from content
 
 
 
