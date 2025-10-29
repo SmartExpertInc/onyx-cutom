@@ -1827,6 +1827,29 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "logoNew": "",
         "pageNumber": "8"
       }
+    },
+    {
+      "slideId": "slide_9_dei_methods",
+      "slideNumber": 9,
+      "slideTitle": "Methods to Meet DEI Standards",
+      "templateId": "dei-methods",
+      "voiceoverText": "Here are two practical methods you can apply immediately. We'll walk through each briefly so you know exactly what to do and why it works.",
+      "props": {
+        "headerTitle": "Methods to Meet DEI Standards",
+        "section1Title": "Diverse Recruitment:",
+        "section1Lines": [
+          "Source candidates from underrepresented groups.",
+          "Use blind screening to focus on skills."
+        ],
+        "section2Title": "Mentorship & Sponsorship:",
+        "section2Lines": [
+          "Mentor and sponsor diverse talent.",
+          "Create growth and advancement opportunities."
+        ],
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": "",
+        "logoText": "Your Logo"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2630,6 +2653,40 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['pageNumber'] = str(slide_index + 1)
                 # Don't set logoNew - let it be empty so the "Your Logo" placeholder shows
                 
+            elif template_id == 'dei-methods':
+                # Ensure required props exist and correct shapes
+                if not normalized_props.get('headerTitle'):
+                    normalized_props['headerTitle'] = 'Methods to Meet DEI Standards'
+                if not normalized_props.get('section1Title'):
+                    normalized_props['section1Title'] = 'Diverse Recruitment:'
+                s1 = normalized_props.get('section1Lines')
+                if isinstance(s1, str):
+                    s1 = [line.strip() for line in s1.split('\n') if line.strip()]
+                if not (isinstance(s1, list) and s1):
+                    s1 = [
+                        'Source candidates from underrepresented groups.',
+                        'Use blind screening to focus on skills and qualifications.'
+                    ]
+                normalized_props['section1Lines'] = [str(x) for x in s1[:2]]
+
+                if not normalized_props.get('section2Title'):
+                    normalized_props['section2Title'] = 'Mentorship and Sponsorship Programs:'
+                s2 = normalized_props.get('section2Lines')
+                if isinstance(s2, str):
+                    s2 = [line.strip() for line in s2.split('\n') if line.strip()]
+                if not (isinstance(s2, list) and s2):
+                    s2 = [
+                        'Mentor and sponsor diverse talent.',
+                        'Create opportunities for growth & advancement.'
+                    ]
+                normalized_props['section2Lines'] = [str(x) for x in s2[:2]]
+
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                # logoPath can remain empty to show placeholder
+
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
@@ -23675,7 +23732,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 8 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 9 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23740,6 +23797,15 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 8 TEMPLATES ALLOWED):
   • Visual elements: imagePath (relevant thematic or conclusion image), logoPath (branding)
   • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
   • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
+
+
+- dei-methods: headerTitle, section1Title, section1Lines[] (array of 2 strings), section2Title, section2Lines[] (array of 2 strings), [avatarPath], [logoPath], [logoText]
+  • Purpose: Present two key methods/sections with concise bullet lines under each
+  • Structure: Gradient header with title, two content sections with headings and two lines each, optional avatar and logo
+  • Required props: headerTitle (slide heading), section1Title/section1Lines (exactly 2 lines), section2Title/section2Lines (exactly 2 lines)
+  • Visual elements: avatarPath (speaker image), logoPath/logoText (branding)
+  • Usage: Summarize methods, approaches, or policies in two focused sections
+  • Content guidelines: Keep lines concise; ensure each section contains two clear, actionable lines
 
 
 

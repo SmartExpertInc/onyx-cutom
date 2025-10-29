@@ -895,6 +895,7 @@ export type TemplateId =
   | 'interest-growth-slide'
   | 'culture-values-three-columns'
   | 'percent-circles'
+  | 'dei-methods'
 ;
 
 export interface TemplatePreview {
