@@ -46,6 +46,11 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     setCurrentPercent(percent);
   }, [percent]);
 
+  // Debug: Log when edit mode changes
+  useEffect(() => {
+    console.log('PercentCircles - edit state changed:', edit);
+  }, [edit]);
+
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
     width:'100%', 
@@ -341,7 +346,14 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                         style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
                       />
                     ) : (
-                      <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+                      <div 
+                        className="percent-text" 
+                        onClick={()=> {
+                          console.log('PercentCircles - Clicked on percent, isEditable:', isEditable);
+                          isEditable && setEdit({ k:'percent' });
+                        }} 
+                        style={{ cursor: isEditable ? 'pointer':'default' }}
+                      >
                         {currentPercent}
                       </div>
                     )}
