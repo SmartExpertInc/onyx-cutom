@@ -35,7 +35,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   onUpdate,
   theme
 }) => {
-  console.log('🔴 PercentCirclesSlideTemplate RENDERED - percent:', percent, 'isEditable:', isEditable);
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
@@ -46,11 +45,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   useEffect(() => {
     setCurrentPercent(percent);
   }, [percent]);
-
-  // Debug: Log when edit mode changes
-  useEffect(() => {
-    console.log('PercentCircles - edit state changed:', edit);
-  }, [edit]);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -232,7 +226,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Calculate number of circles to fill based on percentage
   const getFilledCirclesCount = (percentStr: string): number => {
     const numericValue = parseInt(percentStr.replace(/[^0-9]/g, ''), 10);
-    console.log('PercentCircles - percentStr:', percentStr, 'numericValue:', numericValue);
     if (isNaN(numericValue) || numericValue < 1) return 1;
     if (numericValue >= 100) return 10;
     if (numericValue >= 90) return 9;
@@ -247,7 +240,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   };
 
   const filledCount = getFilledCirclesCount(currentPercent);
-  console.log('PercentCircles - currentPercent:', currentPercent, 'filledCount:', filledCount);
 
   // Logo section styling
   const logoSection: React.CSSProperties = {
@@ -337,22 +329,18 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                       <ImprovedInlineEditor 
                         initialValue={currentPercent} 
                         onSave={(v)=>{ 
-                          console.log('PercentCircles - Saving new percent:', v);
                           setCurrentPercent(v);
                           onUpdate && onUpdate({ percent:v }); 
                           setEdit(null); 
                         }} 
                         onCancel={()=> setEdit(null)} 
                         className="percent-text"
-                        style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
+                        style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700, textAlign:'center' }} 
                       />
                     ) : (
                       <div 
                         className="percent-text" 
-                        onClick={()=> {
-                          console.log('PercentCircles - Clicked on percent, isEditable:', isEditable);
-                          isEditable && setEdit({ k:'percent' });
-                        }} 
+                        onClick={()=> isEditable && setEdit({ k:'percent' })} 
                         style={{ cursor: isEditable ? 'pointer':'default' }}
                       >
                         {currentPercent}

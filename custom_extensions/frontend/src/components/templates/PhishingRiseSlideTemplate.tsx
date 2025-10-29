@@ -112,6 +112,28 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     textAlign: 'center'
   };
 
+  // Calculate bar width based on number of bars to evenly fill space
+  const getBarWidth = () => {
+    const numBars = currentBars.length;
+    switch (numBars) {
+      case 1:
+        return 120;
+      case 2:
+        return 100;
+      case 3:
+        return 90;
+      case 4:
+        return 85;
+      case 5:
+        return 78;
+      case 6:
+      default:
+        return 70;
+    }
+  };
+
+  const barWidth = getBarWidth();
+
   const chart: React.CSSProperties = {
     position: 'absolute',
     right: '48px',
@@ -408,7 +430,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
               <div
                 style={{
-                  width: '96px',
+                  width: `${barWidth}px`,
                   height: `${b.height}px`,
                   background: 'linear-gradient(to bottom, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 117% )',
                   position: 'relative',
@@ -448,7 +470,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               {isEditable && (
                 <button
                   onClick={() => removeBar(idx)}
-                  style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                  style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#fff', border: '1px solid #999', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff4444', fontSize: '18px', lineHeight: 1, padding: 0 }}
                   aria-label="Delete bar"
                 >
                   ×
@@ -457,7 +479,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             </div>
           ))}
 
-          {isEditable && (
+          {isEditable && currentBars.length < 6 && (
             <button onClick={addBar} style={{ position: 'absolute', right: '12px', top: '12px', background: '#0d0d0d', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}>Add bar</button>
           )}
         </div>

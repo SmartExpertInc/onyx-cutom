@@ -304,6 +304,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                     width: '20px', 
                     height: '20px', 
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    border: '1px solid #999',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
