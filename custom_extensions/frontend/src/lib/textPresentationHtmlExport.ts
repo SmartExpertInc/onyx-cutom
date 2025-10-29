@@ -24,6 +24,41 @@ const escapeHtml = (text: string): string => {
 };
 
 /**
+ * Converts an image URL to a base64 data URI for embedding in PDFs
+ */
+const imageToDataUri = async (imageUrl: string): Promise<string> => {
+  try {
+    // If it's already a data URI, return as-is
+    if (imageUrl.startsWith('data:')) {
+      return imageUrl;
+    }
+    
+    // Convert relative URLs to absolute
+    let absoluteUrl = imageUrl;
+    if (!imageUrl.startsWith('http')) {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      absoluteUrl = imageUrl.startsWith('/') ? `${baseUrl}${imageUrl}` : `${baseUrl}/${imageUrl}`;
+    }
+    
+    // Fetch the image
+    const response = await fetch(absoluteUrl);
+    const blob = await response.blob();
+    
+    // Convert to base64
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Failed to convert image to data URI:', error);
+    // Return original URL as fallback
+    return imageUrl;
+  }
+};
+
+/**
  * Parses text with **bold** markers and returns HTML
  */
 const parseStyledText = (text: string | undefined | null): string => {
@@ -256,7 +291,7 @@ const renderSectionBreak = (block: SectionBreakBlock): string => {
 /**
  * Generates HTML for an image block
  */
-const renderImage = (block: ImageBlock): string => {
+const renderImage = async (block: ImageBlock): Promise<string> => {
   const alignment = block.alignment || 'center';
   const maxWidth = block.maxWidth || '100%';
   const borderRadius = block.borderRadius || '8px';
@@ -278,10 +313,14 @@ const renderImage = (block: ImageBlock): string => {
     border: ${border};
     opacity: ${opacity};
     transform: ${transform};
+    display: inline-block;
   `.trim();
   
+  // Convert image to data URI for reliable PDF embedding
+  const imageSrc = await imageToDataUri(block.src);
+  
   let html = `<div style="${containerStyle}">`;
-  html += `<img src="${escapeHtml(block.src)}" alt="${escapeHtml(block.alt || '')}" style="${imgStyle}" />`;
+  html += `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(block.alt || '')}" style="${imgStyle}" />`;
   if (block.caption) {
     const captionStyle = `
       font-size: 14px;
@@ -363,7 +402,7 @@ const renderTable = (block: TableBlock): string => {
 /**
  * Renders a content block based on its type
  */
-const renderContentBlock = (block: AnyContentBlock): string => {
+const renderContentBlock = async (block: AnyContentBlock): Promise<string> => {
   switch (block.type) {
     case 'headline':
       return renderHeadline(block as HeadlineBlock);
@@ -378,7 +417,7 @@ const renderContentBlock = (block: AnyContentBlock): string => {
     case 'section_break':
       return renderSectionBreak(block as SectionBreakBlock);
     case 'image':
-      return renderImage(block as ImageBlock);
+      return await renderImage(block as ImageBlock);
     case 'table':
       return renderTable(block as TableBlock);
     default:
@@ -389,16 +428,17 @@ const renderContentBlock = (block: AnyContentBlock): string => {
 /**
  * Generates a complete HTML document from TextPresentationData
  */
-export const generateTextPresentationHtml = (
+export const generateTextPresentationHtml = async (
   data: TextPresentationData,
   title?: string
-): string => {
+): Promise<string> => {
   const documentTitle = title || data.textTitle || 'Text Presentation';
   
-  // Generate HTML for all content blocks
-  const contentHtml = data.contentBlocks
-    .map((block) => renderContentBlock(block))
-    .join('\n');
+  // Generate HTML for all content blocks (with image conversion)
+  const contentBlocks = await Promise.all(
+    data.contentBlocks.map((block) => renderContentBlock(block))
+  );
+  const contentHtml = contentBlocks.join('\n');
   
   // Complete HTML document with styles
   const html = `<!DOCTYPE html>

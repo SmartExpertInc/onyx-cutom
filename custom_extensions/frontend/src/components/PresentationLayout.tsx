@@ -502,12 +502,11 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                          <div style={{ width: '1200px', overflow: 'hidden' }}>
+                          <div style={{ width: '100%', position: 'relative' }}>
                             <div style={{ 
                               width: '1920px',
                               transformOrigin: 'top left',
-                              transform: 'scale(0.625)',
-                              display: 'inline-block'
+                              transform: 'scale(0.625)'
                             }}>
                               <ComponentBasedSlideRenderer
                                 slide={slide}

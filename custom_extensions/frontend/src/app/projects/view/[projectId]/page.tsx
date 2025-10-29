@@ -1389,8 +1389,8 @@ export default function ProjectInstanceViewPage() {
         try {
             console.log('🔍 PDF Download Debug - Making request to:', `${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`);
             
-            // Generate HTML content from editableData
-            const htmlContent = generateTextPresentationHtml(
+            // Generate HTML content from editableData (with image conversion to data URIs)
+            const htmlContent = await generateTextPresentationHtml(
                 editableData as TextPresentationData,
                 projectInstanceData.name || 'Text Presentation'
             );
