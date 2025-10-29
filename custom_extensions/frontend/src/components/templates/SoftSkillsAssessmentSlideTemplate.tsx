@@ -305,7 +305,9 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              position: 'relative',
+              top: '50px'
             }}
           />
         </div>
