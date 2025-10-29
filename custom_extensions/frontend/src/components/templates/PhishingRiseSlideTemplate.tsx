@@ -475,7 +475,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               {isEditable && (
                 <button
                   onClick={() => removeBar(idx)}
-                  style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#fff', border: '1px solid #999', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff4444', fontSize: '18px', lineHeight: 1, padding: 0 }}
+                  style={{ position: 'absolute', top: '-25px', right: '-8px', background: '#fff', border: '1px solid #999', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff4444', fontSize: '18px', lineHeight: 1, padding: 0 }}
                   aria-label="Delete bar"
                 >
                   ×
