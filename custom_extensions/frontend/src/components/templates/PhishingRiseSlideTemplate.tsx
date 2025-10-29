@@ -120,7 +120,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     top: '72px',
     display: 'flex',
     alignItems: 'flex-end',
-    gap: '44px',
+    gap: '24px',
     // no gridlines in the reference; keep background clean
   };
 
