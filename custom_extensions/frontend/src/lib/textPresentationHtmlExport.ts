@@ -47,18 +47,32 @@ const parseStyledText = (text: string | undefined | null): string => {
  */
 const renderHeadline = (block: HeadlineBlock): string => {
   const levelMap: { [key: number]: string } = {
-    1: '28px',
-    2: '24px',
-    3: '20px',
-    4: '18px',
+    1: '20px',
+    2: '20px',
+    3: '18px',
+    4: '16px',
   };
   
   const fontSize = block.fontSize || levelMap[block.level] || '20px';
   const backgroundColor = block.backgroundColor || 'transparent';
-  const textColor = block.textColor || '#171718';
-  const fontWeight = block.level === 1 ? 700 : 600;
-  const marginTop = block.level === 1 ? '32px' : '24px';
-  const marginBottom = block.level === 1 ? '16px' : '12px';
+  
+  // Match TextPresentationDisplay colors exactly:
+  // Level 1 & 2: #171718 (dark gray)
+  // Level 3 & 4: #0F58F9 (blue)
+  let textColor = block.textColor;
+  if (!textColor) {
+    if (block.level === 1 || block.level === 2) {
+      textColor = '#171718';
+    } else if (block.level === 3 || block.level === 4) {
+      textColor = '#0F58F9';
+    } else {
+      textColor = '#171718';
+    }
+  }
+  
+  const fontWeight = (block.level === 1 || block.level === 3 || block.level === 4) ? 700 : 600;
+  const marginTop = block.level === 1 ? '16px' : block.level === 2 ? '20px' : '10px';
+  const marginBottom = block.level === 1 ? '8px' : block.level === 2 ? '12px' : '6px';
   
   const style = `
     font-size: ${fontSize};
@@ -93,17 +107,17 @@ const renderParagraph = (block: ParagraphBlock): string => {
  * Generates HTML for an alert block
  */
 const renderAlert = (block: AlertBlock): string => {
-  const alertStyles: { [key: string]: { bg: string; border: string; text: string; icon: string } } = {
-    info: { bg: '#EFF6FF', border: '#3B82F6', text: '#1E40AF', icon: 'ℹ️' },
-    warning: { bg: '#FEF3C7', border: '#F59E0B', text: '#92400E', icon: '⚠️' },
-    success: { bg: '#D1FAE5', border: '#10B981', text: '#065F46', icon: '✓' },
-    danger: { bg: '#FEE2E2', border: '#EF4444', text: '#991B1B', icon: '✕' },
+  const alertStyles: { [key: string]: { bg: string; border: string; } } = {
+    info: { bg: '#dbeafe', border: '#3b82f6', },
+    warning: { bg: '#fef3c7', border: '#f59e0b', },
+    success: { bg: '#d1fae5', border: '#10b981', },
+    danger: { bg: '#fee2e2', border: '#ef4444', },
   };
   
   const alertStyle = alertStyles[block.alertType] || alertStyles.info;
   const backgroundColor = block.backgroundColor || alertStyle.bg;
   const borderColor = block.borderColor || alertStyle.border;
-  const textColor = block.textColor || alertStyle.text;
+  const textColor = block.textColor || '#000000'; // Always black text to match TextPresentationDisplay
   const fontSize = block.fontSize || '16px';
   
   const containerStyle = `
@@ -129,7 +143,7 @@ const renderAlert = (block: AlertBlock): string => {
   
   let html = `<div style="${containerStyle}">`;
   if (block.title) {
-    html += `<div style="${titleStyle}">${alertStyle.icon} ${parseStyledText(block.title)}</div>`;
+    html += `<div style="${titleStyle}">${parseStyledText(block.title)}</div>`;
   }
   html += `<div style="${textStyle}">${parseStyledText(block.text)}</div>`;
   html += `</div>`;
@@ -429,7 +443,7 @@ export const generateTextPresentationHtml = (
 </head>
 <body>
   <div style="max-width: 100%; margin: 0 auto;">
-    <h1 style="font-size: 32px; font-weight: 700; color: #171718; margin-bottom: 24px; text-align: center;">
+    <h1 style="font-size: 24px; font-weight: 700; color: #0F58F9; margin-bottom: 16px; padding: 16px 0; border-bottom: 1px solid #CCCCCC;">
       ${escapeHtml(data.textTitle)}
     </h1>
     ${contentHtml}
