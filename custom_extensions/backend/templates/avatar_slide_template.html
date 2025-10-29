@@ -4558,6 +4558,95 @@
             font-family: 'Inter', sans-serif;
             font-weight: 500;
         }
+
+        /* Stay Safe Tips Slide Template Styles */
+        .stay-safe-tips-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #0E0E0E;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .stay-safe-tips-slide .left-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 66.5%;
+            background-color: #FEFEFE;
+        }
+
+        .stay-safe-tips-slide .title {
+            position: absolute;
+            top: 44px;
+            left: 41px;
+            font-size: 60px;
+            line-height: 1.05;
+            font-weight: 800;
+            color: #202122;
+            max-width: 78%;
+        }
+
+        .stay-safe-tips-slide .tips-grid {
+            position: absolute;
+            top: 165px;
+            left: 44px;
+            width: 61%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            column-gap: 72px;
+            row-gap: 64px;
+        }
+
+        .stay-safe-tips-slide .tip-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stay-safe-tips-slide .tip-number {
+            font-size: 25px;
+            font-weight: 700;
+            color: #5740BC;
+            margin-bottom: 8px;
+        }
+
+        .stay-safe-tips-slide .tip-heading {
+            font-size: 29px;
+            font-weight: 800;
+            color: #202222;
+            margin-bottom: 8px;
+        }
+
+        .stay-safe-tips-slide .tip-description {
+            font-size: 13px;
+            color: #484949;
+            line-height: 1.4;
+            max-width: 95%;
+        }
+
+        .stay-safe-tips-slide .right-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 33.5%;
+            background-color: #0E0E0E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stay-safe-tips-slide .actor-image {
+            width: 100%;
+            height: 92%;
+            object-fit: contain;
+            position: absolute;
+            bottom: -25px;
+        }
     </style>
 </head>
 <body>
@@ -6707,6 +6796,58 @@ Create opportunities for growth & advancement.{% endif %}</div>
                             <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
                         {% else %}
                             <span>{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'stay-safe-tips-slide' or templateId == 'stay-safe-tips' or templateId == 'stay-safe' %}
+                <!-- Stay Safe Tips Slide Template - EXACT React Copy -->
+                <div class="stay-safe-tips-slide">
+                    <!-- Left white content panel -->
+                    <div class="left-panel"></div>
+
+                    <!-- Title -->
+                    <div class="title">{{ title or '4 tips to staysafe online' }}</div>
+
+                    <!-- Tips grid -->
+                    <div class="tips-grid">
+                        {% if tips and tips|length > 0 %}
+                            {% for tip in tips[:4] %}
+                                <div class="tip-item">
+                                    <div class="tip-number">{{ tip.number or (loop.index) }}</div>
+                                    <div class="tip-heading">{{ tip.heading or 'Tip Heading' }}</div>
+                                    <div class="tip-description">{{ tip.description or 'Tip description goes here...' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default tips -->
+                            <div class="tip-item">
+                                <div class="tip-number">1</div>
+                                <div class="tip-heading">Know the scams</div>
+                                <div class="tip-description">Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them.</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-number">2</div>
+                                <div class="tip-heading">Don't click</div>
+                                <div class="tip-description">These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-number">3</div>
+                                <div class="tip-heading">Shop safely</div>
+                                <div class="tip-description">Don't shop on a site unless it has the "https". Also, protect yourself and use a credit card instead of a debit card while shopping online</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-number">4</div>
+                                <div class="tip-heading">Passwords</div>
+                                <div class="tip-description">Do away with the "Fitguy1982" password and use an extremely uncrackable one like 9&4yiw2pyqx# Phrases are good too.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right actor image over black -->
+                    <div class="right-panel">
+                        {% if actorImagePath %}
+                            <img src="{{ actorImagePath }}" alt="{{ actorImageAlt or 'Actor image' }}" class="actor-image" />
                         {% endif %}
                     </div>
                 </div>
