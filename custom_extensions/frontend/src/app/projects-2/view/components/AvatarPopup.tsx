@@ -613,8 +613,12 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px' }}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 overflow-hidden ${className}`}
+          style={{ 
+            borderRadius: '12px', 
+            maxWidth: previewMode ? '500px' : '800px',
+            height: previewMode ? '550px' : '420px'
+          }}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -634,7 +638,7 @@ export default function AvatarPopup({
           left: position?.x || 0,
           top: position?.y || 0,
           width: previewMode ? '500px' : '800px',
-          height: '420px'
+          height: previewMode ? '550px' : '420px'
         }}
       >
         {/* Main content area with sidebar */}
