@@ -1780,6 +1780,25 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "pageNumber": 6,
         "logoPath": ""
       }
+    },
+    {
+      "slideId": "slide_7_percent_circles",
+      "slideNumber": 7,
+      "slideTitle": "Statistics Overview",
+      "templateId": "percent-circles-slide",
+      "voiceoverText": "Let's examine some key statistics that highlight important trends and insights. These numbers tell a compelling story about the current state and future potential in our field.",
+      "props": {
+        "title": "% of Fortune 500 CEOs\nwho are women",
+        "percent": "10%",
+        "bottomCards": [
+          { "value": "3%", "text": "Minorities hold just 3% of executive roles." },
+          { "value": "35%", "text": "Companies with diverse leadership outperform competitors by 35%", "hasArrow": true }
+        ],
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": "",
+        "logoText": "Your Logo",
+        "pageNumber": "7"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2531,6 +2550,25 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['middlePanelColor'] = '#3B46FF'
                 if not normalized_props.get('avatarPath'):
                     normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'percent-circles-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = '% of Fortune 500 CEOs\nwho are women'
+                if not normalized_props.get('percent'):
+                    normalized_props['percent'] = '10%'
+                if not normalized_props.get('bottomCards'):
+                    normalized_props['bottomCards'] = [
+                        { 'value': '3%', 'text': 'Minorities hold just 3% of executive roles.' },
+                        { 'value': '35%', 'text': 'Companies with diverse leadership outperform competitors by 35%', 'hasArrow': True }
+                    ]
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
                 # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
                 
             elif template_id == 'work-life-balance-slide':
@@ -23578,7 +23616,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 6 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 7 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23619,6 +23657,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 6 TEMPLATES ALLOWED):
   • Visual elements: middlePanelColor (accent color for middle column), avatarPath (instructor/representative image), logoPath (branding)
   • Usage: Explain company culture, organizational values, policy frameworks, or any three-part conceptual structure
   • Content guidelines: Each column should present a distinct but related concept; middle column often serves as the central/primary concept; maintain consistent depth and tone across all three sections
+
+- percent-circles-slide: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
+  • Purpose: Present statistical data with visual percentage circles and supporting statistics cards
+  • Structure: Top section with title and 10 circles (1 filled with percentage + 9 empty), avatar display, bottom section with two statistics cards
+  • Required props: title (main heading, supports multiline), percent (percentage value like "10%"), bottomCards (EXACTLY 2 items with 'value' field and 'text' field, optional 'hasArrow' boolean)
+  • Visual elements: avatarPath (instructor/representative image), logoPath (branding), logoText (contextual label)
+  • Usage: Display key statistics, percentage data, diversity metrics, or comparative statistics with visual emphasis
+  • Content guidelines: Title should clearly state what percentage represents; percent should be a meaningful statistic; bottomCards should provide supporting context or related statistics; use hasArrow: true for the most important secondary statistic
 
 - work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
   • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations

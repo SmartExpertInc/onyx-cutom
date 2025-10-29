@@ -894,6 +894,7 @@ export type TemplateId =
   | 'kpi-update-slide'
   | 'interest-growth-slide'
   | 'culture-values-three-columns'
+  | 'percent-circles-slide'
 ;
 
 export interface TemplatePreview {
@@ -1316,5 +1317,17 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   rightText: string;
   middlePanelColor?: string;
   avatarPath?: string;
+  voiceoverText?: string;
+}
+
+export interface PercentCirclesProps extends BaseTemplateProps {
+  title: string;
+  percent: string; // e.g., '10%'
+  bottomCards: Array<{ value: string; text: string; hasArrow?: boolean }>;
+  avatarPath?: string;
+  logoPath?: string;
+  logoText?: string;
+  pageNumber?: string;
+  slideIndex?: number;
   voiceoverText?: string;
 }
