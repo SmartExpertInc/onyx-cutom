@@ -35,6 +35,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   onUpdate,
   theme
 }) => {
+  console.log('🔴 PercentCirclesSlideTemplate RENDERED - percent:', percent, 'isEditable:', isEditable);
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);

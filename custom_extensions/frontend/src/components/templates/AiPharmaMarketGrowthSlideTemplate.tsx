@@ -73,7 +73,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   const getBarHeight = () => {
     switch (currentBars.length) {
       case 1:
-        return 110; // Taller but not too much
+        return 250; // Taller but not too much
       case 2:
         return 130; // Spread across space
       case 3:
