@@ -285,9 +285,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   return (
     <>
-    <div className="flex min-h-screen bg-gray-50 bg-[#F2F2F4] presentation-layout">
+    <div className="flex min-h-screen bg-[#F2F2F4] presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-100 min-h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
+      <div className="w-110 min-h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="pt-4 px-4">
             <button 
@@ -311,9 +311,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-103 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
+              className="absolute -right-113 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
               style={{
-                width: 'calc(100% + 80px)',
+                width: '380px',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}

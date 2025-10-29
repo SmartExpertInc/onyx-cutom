@@ -1943,13 +1943,16 @@ export default function ProjectInstanceViewPage() {
       
       <main 
         className={`min-h-screen font-inter ${
-          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'bg-[#F2F2F4] p-0'
             : 'bg-[#F2F2F4] p-4 md:p-8'
         }`}
       >
         <div className={`mx-auto ${
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'max-w-[1920px]'
             : 'max-w-7xl'
         }`}>

@@ -2,33 +2,39 @@
 
 .presentation-layout {
   height: 100vh;
-  background: #f8f9fa;
+  background: #F2F2F4;
 }
 
-/* Custom Scrollbar for Left Sidebar */
+/* Custom Scrollbar for Left Sidebar - Enhanced gradient style */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #F2F2F4;
+  background: #f8fafc;
   border-radius: 4px;
+  margin: 4px 0;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #CCCCCC;
+  background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
   border-radius: 4px;
-  transition: background-color 0.2s;
+  border: 1px solid #f1f5f9;
+  transition: background 0.2s;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #A5A5A5;
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
 }
 
 /* Firefox custom scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #CCCCCC #F2F2F4;
+  scrollbar-color: #cbd5e1 #f8fafc;
 }
 
 .slide-thumbnail-card {
