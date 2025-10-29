@@ -242,6 +242,32 @@ export default function ProjectInstanceViewPage() {
     };
   }, []);
 
+  // Force app background to #F2F2F4 only while this page is mounted
+  useEffect(() => {
+    const root = typeof document !== 'undefined' ? document.documentElement : null;
+    if (!root) return;
+
+    const computed = getComputedStyle(root);
+    const prev = {
+      start: computed.getPropertyValue('--gradient-start'),
+      mid1: computed.getPropertyValue('--gradient-mid1'),
+      mid2: computed.getPropertyValue('--gradient-mid2'),
+      end: computed.getPropertyValue('--gradient-end'),
+    };
+
+    root.style.setProperty('--gradient-start', '#F2F2F4');
+    root.style.setProperty('--gradient-mid1', '#F2F2F4');
+    root.style.setProperty('--gradient-mid2', '#F2F2F4');
+    root.style.setProperty('--gradient-end', '#F2F2F4');
+
+    return () => {
+      root.style.setProperty('--gradient-start', prev.start.trim() || '#FFF9F5');
+      root.style.setProperty('--gradient-mid1', prev.mid1.trim() || '#ECECFF');
+      root.style.setProperty('--gradient-mid2', prev.mid2.trim() || '#BFD7FF');
+      root.style.setProperty('--gradient-end', prev.end.trim() || '#CCE8FF');
+    };
+  }, []);
+
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
