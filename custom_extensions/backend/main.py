@@ -2021,6 +2021,45 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "logoNew": "",
         "pageNumber": "17"
       }
+    },
+    {
+      "slideId": "slide_18_hybrid_work_best_practices",
+      "slideNumber": 18,
+      "slideTitle": "Hybrid Work Best Practices",
+      "templateId": "hybrid-work-best-practices-slide",
+      "voiceoverText": "Adopting hybrid work requires the right people, processes, and technology. Here are four essential best practices to ensure a successful transition and maintain productivity across your distributed workforce.",
+      "props": {
+        "title": "HYBRID WORK BEST PRACTICES",
+        "subtitle": "",
+        "mainStatement": "To adopt a hybrid work model, you need the right people, processes, and technology.",
+        "practices": [
+          {
+            "number": 1,
+            "title": "Communicate with your employees",
+            "description": "When you roll out hybrid work, your decisions will affect everyone in your workforce."
+          },
+          {
+            "number": 2,
+            "title": "Work with HR and IT",
+            "description": "Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless."
+          },
+          {
+            "number": 3,
+            "title": "Create the right work environment",
+            "description": "Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important."
+          },
+          {
+            "number": 4,
+            "title": "Delight and connect remote",
+            "description": "Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high."
+          }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "teamImagePath": "https://via.placeholder.com/400x200?text=Team",
+        "logoPath": "",
+        "logoText": "Your Logo",
+        "pageNumber": "18"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -3126,6 +3165,47 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = str(slide_index + 1)
                 # logoNew can remain empty to show placeholder
+
+            elif template_id == 'hybrid-work-best-practices-slide':
+                # Ensure required props and normalize practices
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'HYBRID WORK BEST PRACTICES'
+                if not normalized_props.get('mainStatement'):
+                    normalized_props['mainStatement'] = 'To adopt a hybrid work model, you need the right people, processes, and technology.'
+
+                practices = normalized_props.get('practices')
+                if not isinstance(practices, list) or len(practices) < 4:
+                    practices = [
+                        { 'number': 1, 'title': 'Communicate with your employees', 'description': 'When you roll out hybrid work, your decisions will affect everyone in your workforce.' },
+                        { 'number': 2, 'title': 'Work with HR and IT', 'description': 'Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless.' },
+                        { 'number': 3, 'title': 'Create the right work environment', 'description': 'Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important.' },
+                        { 'number': 4, 'title': 'Delight and connect remote', 'description': 'Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high.' }
+                    ]
+                fixed_practices = []
+                for i, practice in enumerate(practices[:4], 1):  # Exactly 4 practices
+                    if isinstance(practice, dict):
+                        fixed_practices.append({
+                            'number': practice.get('number', i),
+                            'title': str(practice.get('title', 'Practice')),
+                            'description': str(practice.get('description', 'Description'))
+                        })
+                    else:
+                        fixed_practices.append({
+                            'number': i,
+                            'title': 'Practice',
+                            'description': str(practice)
+                        })
+                normalized_props['practices'] = fixed_practices
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('teamImagePath'):
+                    normalized_props['teamImagePath'] = 'https://via.placeholder.com/400x200?text=Team'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # logoPath can remain empty to show placeholder
 
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
@@ -24172,7 +24252,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 17 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -24310,6 +24390,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 17 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (profile image with blue background), logoNew (branding), timeline with connecting circles
   • Usage: Show step-by-step guides, sequential solutions, process workflows, or implementation phases
   • Content guidelines: Keep step titles concise (e.g., "Step 1", "Know the Regulations"); descriptions should be actionable; limit to 3 steps for optimal layout
+
+- hybrid-work-best-practices-slide: title, subtitle, mainStatement, practices[] (array of {number, title, description}), [profileImagePath], [teamImagePath], [logoPath], [logoText], [pageNumber]
+  • Purpose: Present best practices or recommendations in a 2x2 grid with supporting statement
+  • Structure: Tag with title, main statement, 4 numbered practices in grid, profile image, and team image
+  • Required props: title (category tag), mainStatement (introductory statement), practices (EXACTLY 4 items with number, title, description)
+  • Visual elements: profileImagePath (profile with blue background), teamImagePath (team photo in bottom-right), logoPath/logoText (branding)
+  • Usage: Display best practices, recommendations, guidelines, or key principles
+  • Content guidelines: Keep practice titles concise; descriptions should be actionable; maintain consistent length across all 4 practices
 
 
 
