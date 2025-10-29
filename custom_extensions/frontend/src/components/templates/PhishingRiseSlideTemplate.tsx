@@ -113,16 +113,15 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   };
 
   // Calculate bar width to evenly spread across the space allocated for 6 bars
-  // Total available width ≈ 816px (for 1920x1080 slide, right half minus padding)
-  // With 6 bars: 5 gaps of 24px = 120px, leaving 696px for bars = 116px per bar
+  // Actual available space is smaller - being conservative with measurements
   const getBarWidth = () => {
-    const totalWidth = 696; // Available space for bars
+    const totalWidth = 480; // Conservative estimate of available space for bars
     const gap = 24;
     const numBars = currentBars.length;
     
     // Special case: single bar should be same width as 2 bars, but centered
     if (numBars === 1) {
-      return 396;
+      return 240;
     }
     
     // Calculate width so bars spread evenly across the full space
