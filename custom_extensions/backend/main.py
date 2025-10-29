@@ -1799,6 +1799,34 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "logoText": "Your Logo",
         "pageNumber": "7"
       }
+    },
+    {
+      "slideId": "slide_8_benefits_list",
+      "slideNumber": 8,
+      "slideTitle": "Benefits Overview",
+      "templateId": "benefits-list-slide",
+      "voiceoverText": "Let's explore the comprehensive benefits package that supports employee wellbeing and professional growth. These benefits are designed to create a supportive work environment where everyone can thrive.",
+      "props": {
+        "title": "Benefits",
+        "subtitle": "Employment",
+        "description": "Here is a list of benefits that you can offer to your employees to maintain small business compliance:",
+        "benefits": [
+          "Workers' compensation",
+          "Unemployment insurance",
+          "Disability insurance",
+          "Health insurance",
+          "COBRA benefits",
+          "Leave of absence"
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "profileImageAlt": "Profile image",
+        "currentStep": 3,
+        "totalSteps": 4,
+        "companyName": "Company name",
+        "benefitsListIcon": "",
+        "logoNew": "",
+        "pageNumber": "8"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2570,6 +2598,37 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = str(slide_index + 1)
                 # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'benefits-list-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Benefits'
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'Employment'
+                if not normalized_props.get('description'):
+                    normalized_props['description'] = 'Here is a list of benefits that you can offer to your employees to maintain small business compliance:'
+                if not normalized_props.get('benefits'):
+                    normalized_props['benefits'] = [
+                        "Workers' compensation",
+                        "Unemployment insurance",
+                        "Disability insurance",
+                        "Health insurance",
+                        "COBRA benefits",
+                        "Leave of absence"
+                    ]
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('profileImageAlt'):
+                    normalized_props['profileImageAlt'] = 'Profile image'
+                if not normalized_props.get('currentStep'):
+                    normalized_props['currentStep'] = 3
+                if not normalized_props.get('totalSteps'):
+                    normalized_props['totalSteps'] = 4
+                if not normalized_props.get('companyName'):
+                    normalized_props['companyName'] = 'Company name'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # Don't set logoNew - let it be empty so the "Your Logo" placeholder shows
                 
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
@@ -23616,7 +23675,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 7 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 8 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23665,6 +23724,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 7 TEMPLATES ALLOWED):
   • Visual elements: avatarPath (instructor/representative image), logoPath (branding), logoText (contextual label)
   • Usage: Display key statistics, percentage data, diversity metrics, or comparative statistics with visual emphasis
   • Content guidelines: Title should clearly state what percentage represents; percent should be a meaningful statistic; bottomCards should provide supporting context or related statistics; use hasArrow: true for the most important secondary statistic
+
+- benefits-list-slide: title, subtitle, description, benefits[] (array of strings), [profileImagePath], [currentStep], [totalSteps], [companyName], [logoNew], [pageNumber]
+  • Purpose: Present comprehensive lists of benefits, features, or items with professional layout and navigation indicators
+  • Structure: Top section with blue gradient background containing title/subtitle/description and navigation squares, profile image, bottom section with benefits list in 3-column grid
+  • Required props: title (main heading), subtitle (category/subject), description (introductory text), benefits (array of 6+ benefit strings)
+  • Visual elements: profileImagePath (instructor/representative image), currentStep/totalSteps (navigation indicators), logoNew (company branding)
+  • Usage: Display employee benefits, product features, service offerings, compliance requirements, or any comprehensive list with professional presentation
+  • Content guidelines: Title should be clear and specific; subtitle should categorize the content; description should introduce the list; benefits should be concise but descriptive; maintain consistent formatting across all list items
 
 - work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
   • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
