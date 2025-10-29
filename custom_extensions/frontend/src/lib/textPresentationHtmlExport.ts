@@ -289,26 +289,85 @@ const renderSectionBreak = (block: SectionBreakBlock): string => {
 };
 
 /**
- * Generates HTML for an image block
+ * Generates HTML for an image block - matches TextPresentationDisplay exactly
  */
 const renderImage = async (block: ImageBlock): Promise<string> => {
   const alignment = block.alignment || 'center';
-  const maxWidth = block.maxWidth || '100%';
+  const layoutMode = block.layoutMode || 'standalone';
+  
+  // Convert image to data URI for reliable PDF embedding
+  const imageSrc = await imageToDataUri(block.src);
+  
   const borderRadius = block.borderRadius || '8px';
-  const boxShadow = block.boxShadow || 'none';
+  const boxShadow = block.boxShadow || '0 2px 4px rgba(0,0,0,0.1)';
   const border = block.border || 'none';
   const opacity = block.opacity || 1;
   const transform = block.transform || 'none';
   
+  // Handle different layout modes - match TextPresentationDisplay exactly
+  if (layoutMode === 'inline-left' || layoutMode === 'inline-right') {
+    // Inline layout - text wraps around image
+    const floatDirection = layoutMode === 'inline-left' ? 'left' : 'right';
+    const marginDirection = layoutMode === 'inline-left' ? 'right' : 'left';
+    const maxWidth = block.maxWidth || '200px';
+    const width = block.width || 'auto';
+    const height = block.height || 'auto';
+    
+    const containerStyle = `
+      margin: 0;
+    `.trim();
+    
+    const imgStyle = `
+      max-width: ${maxWidth};
+      width: ${typeof width === 'number' ? `${width}px` : width};
+      height: ${typeof height === 'number' ? `${height}px` : height};
+      border-radius: ${borderRadius};
+      display: block;
+      box-shadow: ${boxShadow};
+      border: ${border};
+      opacity: ${opacity};
+      transform: ${transform};
+      float: ${floatDirection};
+      margin: 0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'};
+    `.trim();
+    
+    let html = `<div style="${containerStyle}">`;
+    html += `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(block.alt || 'Image')}" style="${imgStyle}" />`;
+    if (block.caption) {
+      const captionStyle = `
+        font-size: 10px;
+        color: #666;
+        text-align: center;
+        margin: 8px 0 0 0;
+        font-style: italic;
+        clear: both;
+      `.trim();
+      html += `<p style="${captionStyle}">${parseStyledText(block.caption)}</p>`;
+    }
+    html += `</div>`;
+    
+    return html;
+  }
+  
+  // Standalone layout - match TextPresentationDisplay exactly
+  const currentWidth = block.width ? (typeof block.width === 'number' ? block.width : parseInt(block.width as string)) : 300;
+  const imageWidth = Math.max(50, Math.min(currentWidth, 800)); // Constrain between 50px and 800px
+  
+  const height = block.height ? (typeof block.height === 'number' ? `${block.height}px` : block.height) : 'auto';
+  const maxWidth = block.maxWidth || '100%';
+  
+  const alignmentClass = alignment === 'left' ? 'text-align: left;' : alignment === 'right' ? 'text-align: right;' : 'text-align: center;';
+  
   const containerStyle = `
-    margin: 24px 0;
-    text-align: ${alignment};
+    margin: 16px 0;
+    ${alignmentClass}
   `.trim();
   
   const imgStyle = `
-    max-width: ${maxWidth};
-    height: auto;
+    width: ${imageWidth}px;
+    height: ${height};
     border-radius: ${borderRadius};
+    max-width: ${maxWidth};
     box-shadow: ${boxShadow};
     border: ${border};
     opacity: ${opacity};
@@ -316,19 +375,16 @@ const renderImage = async (block: ImageBlock): Promise<string> => {
     display: inline-block;
   `.trim();
   
-  // Convert image to data URI for reliable PDF embedding
-  const imageSrc = await imageToDataUri(block.src);
-  
   let html = `<div style="${containerStyle}">`;
-  html += `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(block.alt || '')}" style="${imgStyle}" />`;
+  html += `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(block.alt || 'Uploaded image')}" style="${imgStyle}" />`;
   if (block.caption) {
     const captionStyle = `
-      font-size: 14px;
-      color: #71717A;
+      font-size: 12px;
+      color: #4B5563;
       margin-top: 8px;
       font-style: italic;
     `.trim();
-    html += `<div style="${captionStyle}">${parseStyledText(block.caption)}</div>`;
+    html += `<p style="${captionStyle}">${parseStyledText(block.caption)}</p>`;
   }
   html += `</div>`;
   
