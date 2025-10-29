@@ -1535,24 +1535,47 @@ Failure to include these components is non-compliant. Expand content instead of 
 
 **MANDATORY PEDAGOGICAL ELEMENTS FOR EVERY ONE-PAGER:**
 
+⚠️⚠️⚠️ CRITICAL: These are STRUCTURE requirements, NOT content to copy from examples! ⚠️⚠️⚠️
+⚠️⚠️⚠️ You MUST create topic-appropriate content, NOT copy PESTLE/Five Forces/GlobalSensors! ⚠️⚠️⚠️
+
 1. MENTAL MODELS: Provide 2-3 frameworks/models learners can use to organize their thinking
-   Example: "The 3-Level Feedback Framework: Observation → Impact → Request"
+   ⚠️ MUST BE TOPIC-APPROPRIATE:
+   - AI in Sales → Use "Sales Funnel", "Lead Scoring Matrix", "Customer Journey Map"
+   - AWS/Cloud → Use "Well-Architected Framework", "Cost Optimization Hierarchy"
+   - Python/Tech → Use "Testing Pyramid", "Code Quality Triangle", "Design Pattern Selection"
+   ❌ DO NOT USE: "PESTLE Analysis", "Five Forces" unless topic IS business strategy
+   Example format: "The 3-Level Feedback Framework: Observation → Impact → Request"
 
 2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+   ⚠️ MUST BE ABOUT THIS TOPIC:
+   - AI in Sales → Show AI lead scoring implementation, chatbot deployment
+   - AWS → Show cloud migration, cost optimization analysis
+   - Python → Show code refactoring, testing implementation
+   ❌ DO NOT CREATE: Market entry scenarios, GlobalSensors examples unless topic is market strategy
    Format: Situation → Analysis → Decision → Outcome → Lesson
 
 3. COMMON MISTAKES: List 3-5 frequent errors with:
    • Why people make this mistake (mental trap)
    • How to recognize you're making it
    • How to correct it
+   ⚠️ Mistakes must be specific to THIS topic, not generic business mistakes
 
 4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
    Format: "Use approach A when [conditions]. Use approach B when [conditions]."
+   ⚠️ Criteria must be relevant to THIS topic
 
 5. SKILL PRACTICE: Include 3-5 scenario-based practice items:
-   • Present realistic situation
+   • Present realistic situation (ABOUT THIS TOPIC)
    • Ask what learner would do
    • Provide expert analysis of options
+   ⚠️ CRITICAL SECTION NAME REQUIREMENT:
+   ❌ DO NOT title this "Expert Analysis" with market analysis content
+   ✅ Use topic-specific names: "AI Sales Scenario Analysis", "AWS Implementation Exercise", "Python Coding Challenge"
+   ⚠️ Scenario MUST match the topic:
+   - AI in Sales → Create AI sales scenario
+   - AWS → Create cloud/AWS scenario
+   - Python → Create coding scenario
+   ❌ NEVER create market entry/analysis scenarios for technical topics
 
 6. DEPTH OVER BREADTH: Better to deeply teach 3 concepts than superficially cover 10
 
@@ -3498,24 +3521,47 @@ Failure to include these components is non-compliant. Expand content instead of 
 
 **MANDATORY PEDAGOGICAL ELEMENTS FOR EVERY ONE-PAGER:**
 
+⚠️⚠️⚠️ CRITICAL: These are STRUCTURE requirements, NOT content to copy from examples! ⚠️⚠️⚠️
+⚠️⚠️⚠️ You MUST create topic-appropriate content, NOT copy PESTLE/Five Forces/GlobalSensors! ⚠️⚠️⚠️
+
 1. MENTAL MODELS: Provide 2-3 frameworks/models learners can use to organize their thinking
-   Example: "The 3-Level Feedback Framework: Observation → Impact → Request"
+   ⚠️ MUST BE TOPIC-APPROPRIATE:
+   - AI in Sales → Use "Sales Funnel", "Lead Scoring Matrix", "Customer Journey Map"
+   - AWS/Cloud → Use "Well-Architected Framework", "Cost Optimization Hierarchy"
+   - Python/Tech → Use "Testing Pyramid", "Code Quality Triangle", "Design Pattern Selection"
+   ❌ DO NOT USE: "PESTLE Analysis", "Five Forces" unless topic IS business strategy
+   Example format: "The 3-Level Feedback Framework: Observation → Impact → Request"
 
 2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+   ⚠️ MUST BE ABOUT THIS TOPIC:
+   - AI in Sales → Show AI lead scoring implementation, chatbot deployment
+   - AWS → Show cloud migration, cost optimization analysis
+   - Python → Show code refactoring, testing implementation
+   ❌ DO NOT CREATE: Market entry scenarios, GlobalSensors examples unless topic is market strategy
    Format: Situation → Analysis → Decision → Outcome → Lesson
 
 3. COMMON MISTAKES: List 3-5 frequent errors with:
    • Why people make this mistake (mental trap)
    • How to recognize you're making it
    • How to correct it
+   ⚠️ Mistakes must be specific to THIS topic, not generic business mistakes
 
 4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
    Format: "Use approach A when [conditions]. Use approach B when [conditions]."
+   ⚠️ Criteria must be relevant to THIS topic
 
 5. SKILL PRACTICE: Include 3-5 scenario-based practice items:
-   • Present realistic situation
+   • Present realistic situation (ABOUT THIS TOPIC)
    • Ask what learner would do
    • Provide expert analysis of options
+   ⚠️ CRITICAL SECTION NAME REQUIREMENT:
+   ❌ DO NOT title this "Expert Analysis" with market analysis content
+   ✅ Use topic-specific names: "AI Sales Scenario Analysis", "AWS Implementation Exercise", "Python Coding Challenge"
+   ⚠️ Scenario MUST match the topic:
+   - AI in Sales → Create AI sales scenario
+   - AWS → Create cloud/AWS scenario
+   - Python → Create coding scenario
+   ❌ NEVER create market entry/analysis scenarios for technical topics
 
 6. DEPTH OVER BREADTH: Better to deeply teach 3 concepts than superficially cover 10
 
@@ -5461,24 +5507,47 @@ Failure to include these components is non-compliant. Expand content instead of 
 
 **MANDATORY PEDAGOGICAL ELEMENTS FOR EVERY ONE-PAGER:**
 
+⚠️⚠️⚠️ CRITICAL: These are STRUCTURE requirements, NOT content to copy from examples! ⚠️⚠️⚠️
+⚠️⚠️⚠️ You MUST create topic-appropriate content, NOT copy PESTLE/Five Forces/GlobalSensors! ⚠️⚠️⚠️
+
 1. MENTAL MODELS: Provide 2-3 frameworks/models learners can use to organize their thinking
-   Example: "The 3-Level Feedback Framework: Observation → Impact → Request"
+   ⚠️ MUST BE TOPIC-APPROPRIATE:
+   - AI in Sales → Use "Sales Funnel", "Lead Scoring Matrix", "Customer Journey Map"
+   - AWS/Cloud → Use "Well-Architected Framework", "Cost Optimization Hierarchy"
+   - Python/Tech → Use "Testing Pyramid", "Code Quality Triangle", "Design Pattern Selection"
+   ❌ DO NOT USE: "PESTLE Analysis", "Five Forces" unless topic IS business strategy
+   Example format: "The 3-Level Feedback Framework: Observation → Impact → Request"
 
 2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+   ⚠️ MUST BE ABOUT THIS TOPIC:
+   - AI in Sales → Show AI lead scoring implementation, chatbot deployment
+   - AWS → Show cloud migration, cost optimization analysis
+   - Python → Show code refactoring, testing implementation
+   ❌ DO NOT CREATE: Market entry scenarios, GlobalSensors examples unless topic is market strategy
    Format: Situation → Analysis → Decision → Outcome → Lesson
 
 3. COMMON MISTAKES: List 3-5 frequent errors with:
    • Why people make this mistake (mental trap)
    • How to recognize you're making it
    • How to correct it
+   ⚠️ Mistakes must be specific to THIS topic, not generic business mistakes
 
 4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
    Format: "Use approach A when [conditions]. Use approach B when [conditions]."
+   ⚠️ Criteria must be relevant to THIS topic
 
 5. SKILL PRACTICE: Include 3-5 scenario-based practice items:
-   • Present realistic situation
+   • Present realistic situation (ABOUT THIS TOPIC)
    • Ask what learner would do
    • Provide expert analysis of options
+   ⚠️ CRITICAL SECTION NAME REQUIREMENT:
+   ❌ DO NOT title this "Expert Analysis" with market analysis content
+   ✅ Use topic-specific names: "AI Sales Scenario Analysis", "AWS Implementation Exercise", "Python Coding Challenge"
+   ⚠️ Scenario MUST match the topic:
+   - AI in Sales → Create AI sales scenario
+   - AWS → Create cloud/AWS scenario
+   - Python → Create coding scenario
+   ❌ NEVER create market entry/analysis scenarios for technical topics
 
 6. DEPTH OVER BREADTH: Better to deeply teach 3 concepts than superficially cover 10
 

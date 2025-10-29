@@ -271,11 +271,65 @@ HOW TO MEET REQUIREMENTS (GENERAL KNOWLEDGE GENERATION):
 - AWS (general knowledge) → Well-Architected Framework + AWS Implementation Scenario
 - Python (general knowledge) → Testing Pyramid + Code Quality + Python Exercise
 
+## Critical Update #2: MANDATORY PEDAGOGICAL ELEMENTS Section Lacked Warnings
+
+### New Discovery (2025-10-29 - After Initial Fix)
+User provided screenshot showing that onepagers STILL contained market analysis content even after the first extended fix. The "AI in Sales" onepager still had PESTLE/Five Forces content.
+
+**Root Cause Identified**: 
+The **MANDATORY PEDAGOGICAL ELEMENTS FOR EVERY ONE-PAGER** section (lines 1536-1557) did NOT have any anti-copying warnings attached to it. This section appears AFTER the ANTI-COPYING section and contains requirements like:
+- "1. MENTAL MODELS: Provide 2-3 frameworks/models..."
+- "5. SKILL PRACTICE: Include 3-5 scenario-based practice items..."
+
+The AI was reading these requirements as "fulfill these using ANY content available", which meant copying from examples.
+
+### Final Fix Applied
+
+**System Prompt (`content_builder_ai.txt`, Lines 1536-1577)**: Added explicit warnings to EVERY pedagogical requirement:
+
+```
+**MANDATORY PEDAGOGICAL ELEMENTS FOR EVERY ONE-PAGER:**
+
+⚠️⚠️⚠️ CRITICAL: These are STRUCTURE requirements, NOT content to copy from examples! ⚠️⚠️⚠️
+⚠️⚠️⚠️ You MUST create topic-appropriate content, NOT copy PESTLE/Five Forces/GlobalSensors! ⚠️⚠️⚠️
+
+1. MENTAL MODELS:
+   ⚠️ MUST BE TOPIC-APPROPRIATE:
+   - AI in Sales → Use "Sales Funnel", "Lead Scoring Matrix", "Customer Journey Map"
+   - AWS/Cloud → Use "Well-Architected Framework", "Cost Optimization Hierarchy"
+   ❌ DO NOT USE: "PESTLE Analysis", "Five Forces" unless topic IS business strategy
+
+2. WORKED EXAMPLES:
+   ⚠️ MUST BE ABOUT THIS TOPIC:
+   - AI in Sales → Show AI lead scoring implementation, chatbot deployment
+   ❌ DO NOT CREATE: Market entry scenarios, GlobalSensors examples
+
+5. SKILL PRACTICE:
+   ⚠️ CRITICAL SECTION NAME REQUIREMENT:
+   ❌ DO NOT title this "Expert Analysis" with market analysis content
+   ✅ Use topic-specific names: "AI Sales Scenario Analysis", "AWS Implementation Exercise"
+   ⚠️ Scenario MUST match the topic:
+   - AI in Sales → Create AI sales scenario
+   ❌ NEVER create market entry/analysis scenarios for technical topics
+```
+
+**Changed in 3 locations** (lines 1536-1577, 3499-3540, 5462-5503) using `replace_all`.
+
+### Why This Final Fix Is Essential
+
+1. **Instruction Placement**: The MANDATORY PEDAGOGICAL ELEMENTS section appears AFTER the ANTI-COPYING section in the prompt
+2. **Recency Bias**: AI gives more weight to later instructions
+3. **No Cross-Reference**: The MANDATORY section didn't reference the anti-copying rules, so AI treated them as separate requirements
+4. **Missing Context**: Each requirement now has explicit "MUST BE TOPIC-APPROPRIATE" warnings and examples
+
+This fix ensures that EVERY TIME the AI reads the pedagogical requirements, it also reads the anti-copying warnings directly attached to those requirements.
+
 ## Status
-✅ Implementation Complete (Including Extended Fix)  
+✅ Implementation Complete (Including All Fixes)  
 ✅ Linter Checks Passed  
 ✅ Documentation Updated  
-✅ System Prompt Updated (Lines 1442-1475)  
+✅ System Prompt ANTI-COPYING Section Updated (Lines 1442-1475)  
+✅ System Prompt MANDATORY PEDAGOGICAL ELEMENTS Updated (Lines 1536-1577, 3499-3540, 5462-5503)  
 ✅ Main.py Updated (Lines 31802-31878)  
-⏳ Awaiting User Testing (Both File-Based and General Knowledge)
+⏳ Awaiting User Testing (All Generation Modes)
 
