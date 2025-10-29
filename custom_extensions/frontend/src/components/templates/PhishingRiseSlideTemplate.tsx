@@ -113,20 +113,19 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   };
 
   // Calculate bar width to fit within grid lines
-  // Measured: 5 bars at 80px fit = ~496px total available space
-  // For 6 bars: (496 - 5*24gaps) / 6 bars = 376/6 = ~62px per bar
+  // Need to be more conservative to ensure 6 bars fit
   const getBarWidth = () => {
-    const totalAvailableSpace = 496; // Space within grid lines
-    const gap = 24;
+    const totalAvailableSpace = 450; // Conservative space within grid lines
     const numBars = currentBars.length;
+    const gap = numBars === 6 ? 16 : 20; // Smaller gap for 6 bars
     
     // Calculate bars to spread evenly within the fixed total space
-    const totalGapSpace = (6 - 1) * gap; // Space taken by gaps when 6 bars
-    const availableForBars = totalAvailableSpace - totalGapSpace; // ~376px
+    const totalGapSpace = (6 - 1) * (numBars === 6 ? 16 : 20); // Space taken by gaps when 6 bars
+    const availableForBars = totalAvailableSpace - totalGapSpace; // ~350px
     
     // Special case: single bar, centered
     if (numBars === 1) {
-      return Math.floor(availableForBars / 3); // ~125px, centered
+      return Math.floor(availableForBars / 3); // ~116px, centered
     }
     
     // Distribute bar space + saved gap space evenly
@@ -137,6 +136,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   };
 
   const barWidth = getBarWidth();
+  const chartGap = currentBars.length === 6 ? 16 : 20;
 
   const chart: React.CSSProperties = {
     position: 'absolute',
@@ -147,7 +147,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     display: 'flex',
     alignItems: 'flex-end',
     justifyContent: currentBars.length === 1 ? 'center' : 'flex-start',
-    gap: '24px',
+    gap: `${chartGap}px`,
     // no gridlines in the reference; keep background clean
   };
 
