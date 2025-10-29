@@ -1944,6 +1944,48 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "companyLogoPath": "",
         "pageNumber": "13"
       }
+    },
+    {
+      "slideId": "slide_14_kpi_update",
+      "slideNumber": 14,
+      "slideTitle": "KPI Update",
+      "templateId": "kpi-update-slide",
+      "voiceoverText": "Let's review our key performance indicators. These metrics demonstrate measurable progress and highlight areas where we're achieving significant results.",
+      "props": {
+        "title": "KPI Update",
+        "items": [
+          { "value": "10%", "description": "Improvement in efficiency across all teams this quarter" },
+          { "value": "75", "description": "New features successfully deployed to production" },
+          { "value": "86%", "description": "Customer satisfaction rating, exceeding our target" },
+          { "value": "1M", "description": "Active users reached, marking a major milestone" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "footerLeft": "Company name",
+        "footerCenter": "KPI Report",
+        "footerRight": "February 2023",
+        "pageNumber": "14"
+      }
+    },
+    {
+      "slideId": "slide_15_phishing_rise",
+      "slideNumber": 15,
+      "slideTitle": "Phishing Rise",
+      "templateId": "phishing-rise-slide",
+      "voiceoverText": "Phishing attacks have become a growing threat in recent years. This chart shows the dramatic increase in incidents and financial impact over time, highlighting why awareness and prevention are more critical than ever.",
+      "props": {
+        "title": "Phishing rise",
+        "description": "This has become a growing threat in the world of today. The Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been noted that 93% of phishing emails are now ransomware.",
+        "bars": [
+          { "year": "2019", "valueLabel": "33M$", "height": 160 },
+          { "year": "2020", "valueLabel": "39M$", "height": 200 },
+          { "year": "2021", "valueLabel": "55M$", "height": 330 },
+          { "year": "2022", "valueLabel": "44M$", "height": 270 },
+          { "year": "2023", "valueLabel": "67M$", "height": 420 },
+          { "year": "2024", "valueLabel": "35M$", "height": 210 }
+        ],
+        "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": "15"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2910,6 +2952,82 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('companyLogoPath'):
                     normalized_props['companyLogoPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'kpi-update-slide':
+                # Ensure required props and normalize items
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'KPI Update'
+
+                items = normalized_props.get('items')
+                if not isinstance(items, list) or not items:
+                    items = [
+                        { 'value': '10%', 'description': 'Improvement in efficiency across all teams this quarter' },
+                        { 'value': '75', 'description': 'New features successfully deployed to production' },
+                        { 'value': '86%', 'description': 'Customer satisfaction rating, exceeding our target' },
+                        { 'value': '1M', 'description': 'Active users reached, marking a major milestone' }
+                    ]
+                fixed_items = []
+                for item in items[:4]:  # Limit to 4 KPIs
+                    if isinstance(item, dict):
+                        fixed_items.append({
+                            'value': str(item.get('value', '0')),
+                            'description': str(item.get('description', 'No description'))
+                        })
+                    else:
+                        fixed_items.append({
+                            'value': str(item),
+                            'description': 'No description'
+                        })
+                normalized_props['items'] = fixed_items
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('footerLeft'):
+                    normalized_props['footerLeft'] = 'Company name'
+                if not normalized_props.get('footerCenter'):
+                    normalized_props['footerCenter'] = 'KPI Report'
+                if not normalized_props.get('footerRight'):
+                    normalized_props['footerRight'] = 'February 2023'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'phishing-rise-slide':
+                # Ensure required props and normalize bars
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Phishing rise'
+                if not normalized_props.get('description'):
+                    normalized_props['description'] = 'This has become a growing threat in the world of today. The Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016.'
+
+                bars = normalized_props.get('bars')
+                if not isinstance(bars, list) or not bars:
+                    bars = [
+                        { 'year': '2019', 'valueLabel': '33M$', 'height': 160 },
+                        { 'year': '2020', 'valueLabel': '39M$', 'height': 200 },
+                        { 'year': '2021', 'valueLabel': '55M$', 'height': 330 },
+                        { 'year': '2022', 'valueLabel': '44M$', 'height': 270 },
+                        { 'year': '2023', 'valueLabel': '67M$', 'height': 420 },
+                        { 'year': '2024', 'valueLabel': '35M$', 'height': 210 }
+                    ]
+                fixed_bars = []
+                for bar in bars[:6]:  # Limit to 6 bars
+                    if isinstance(bar, dict):
+                        fixed_bars.append({
+                            'year': str(bar.get('year', '2020')),
+                            'valueLabel': str(bar.get('valueLabel', '0$')),
+                            'height': int(bar.get('height', 200))
+                        })
+                    else:
+                        fixed_bars.append({
+                            'year': '2020',
+                            'valueLabel': str(bar),
+                            'height': 200
+                        })
+                normalized_props['bars'] = fixed_bars
+
+                if not normalized_props.get('actorImagePath'):
+                    normalized_props['actorImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = str(slide_index + 1)
 
@@ -23958,7 +24076,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 13 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 15 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -24064,6 +24182,22 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 13 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (profile image with gradient background), companyLogoPath (branding)
   • Usage: Present benefits, key features, values, or concepts with visual emphasis on the most important one
   • Content guidelines: Keep tag text concise (1-3 words); set isHighlighted: true for the most important tag (typically the last one)
+
+- kpi-update-slide: title, items[] (array of {value, description}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
+  • Purpose: Present KPI metrics with large values and detailed descriptions
+  • Structure: Light panel with title pill, grid layout of values and descriptions, profile image in bottom-left
+  • Required props: title (report name), items (array of 3-4 KPI objects with value like "10%" or "1M" and description text)
+  • Visual elements: profileImagePath (profile image with blue background), footer text for company/report/date
+  • Usage: Display key performance indicators, metrics reports, or quantified results
+  • Content guidelines: Values should be concise metrics; descriptions can be 1-2 sentences; maintain consistent formatting
+
+- phishing-rise-slide: title, description, bars[] (array of {year, valueLabel, height}), [actorImagePath], [pageNumber]
+  • Purpose: Show trend data or threat growth with vertical bar chart
+  • Structure: Two-column layout with narrative on left (light blue panel) and bar chart on right (white panel)
+  • Required props: title (main heading), description (2-3 sentence narrative), bars (array of 4-6 bars with year, valueLabel like "33M$", height in pixels)
+  • Visual elements: actorImagePath (avatar in left panel with blue background)
+  • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data
+  • Content guidelines: Title should be concise; description provides context; bars should show progression over time
 
 
 
