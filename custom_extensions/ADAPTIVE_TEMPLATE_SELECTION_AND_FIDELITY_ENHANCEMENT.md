@@ -287,11 +287,78 @@ Final JSON
 ✅ Diverse slide types while maintaining source fidelity  
 ✅ Educational quality maintained without adding external content  
 
+## Critical Fix #2: Instruction Override Problem (2025-10-29)
+
+### Problem Discovered
+User feedback showed that despite fidelity rules being reached (confirmed via debug), the AI was still:
+1. Adding fabricated case studies ("Netflix", "Airbnb", "NASA", "GE")
+2. Adding compliance details ("ISO 27001", "PCI DSS", "HIPAA")
+3. Adding certification details not in source
+4. Using 10 out of 15 slides as bullet-points (violating max 2 rule)
+
+### Root Cause
+The presentation preview endpoint (`/api/custom/lesson-presentation/preview`) contains extensive instructions that are added to the `wizard_message` AFTER the fidelity rules from `build_enhanced_prompt_with_context()`. These instructions include:
+- "INCLUDE REAL WORKPLACE SCENARIOS" (lines 24318-24322)
+- "PROVIDE COMPREHENSIVE EXPLANATIONS (60-100 WORDS)" (lines 24312-24316)
+- Template diversity requirements without fidelity context
+
+The final prompt order was:
+1. FIDELITY RULES (from `build_enhanced_prompt_with_context`)
+2. SOURCE DOCUMENTS
+3. VERIFICATION CHECKPOINT
+4. **THEN wizard_message with "INCLUDE SCENARIOS" instructions** ← These override fidelity!
+
+### Solution Implemented (Lines 24662-24711)
+Added ABSOLUTE FINAL INSTRUCTIONS at the very end of `wizard_message` that explicitly override previous instructions:
+
+```python
+if payload.fromFiles:
+    wizard_message += """
+    
+🚨🚨🚨 ABSOLUTE FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS RULES 🚨🚨🚨
+
+YOU ARE GENERATING FROM FILES. THIS CHANGES EVERYTHING.
+
+CRITICAL: When fromFiles=true, the "INCLUDE REAL WORKPLACE SCENARIOS" instruction means:
+- Use scenarios ONLY if they appear in the source files
+- DO NOT invent scenarios to meet educational quality requirements
+- DO NOT add case studies unless they are explicitly in the source
+
+ABSOLUTE PROHIBITIONS (OVERRIDE ALL PREVIOUS "INCLUDE" INSTRUCTIONS):
+❌ NEVER add "Netflix", "Airbnb", "NASA", "GE" case studies unless in source
+❌ NEVER add "ISO 27001", "PCI DSS", "HIPAA" compliance unless in source
+❌ NEVER add "AWS Certified" certifications unless in source
+❌ NEVER add support plan details unless in source
+❌ NEVER add specific percentages or durability metrics unless in source
+❌ NEVER add IAM features or security best practices unless in source
+❌ NEVER invent "real workplace scenarios" - use ONLY scenarios from source
+
+TEMPLATE DIVERSITY WITH SOURCE FIDELITY:
+✅ YES to diverse templates (process-steps, challenges-solutions, two-column, etc.)
+✅ YES to maximum 2 bullet-point slides
+✅ BUT: Every slide's CONTENT must come from source files only
+
+COUNT YOUR BULLET-POINT SLIDES:
+Before finalizing, count how many times you used bullet-points or bullet-points-right.
+If it's more than 2, you FAILED the diversity requirement.
+
+FINAL VERIFICATION:
+□ Did I add any case studies not in source? → DELETE THEM
+□ Did I add any compliance standards not in source? → DELETE THEM
+□ Did I add any certifications not in source? → DELETE THEM
+□ Did I add any specific metrics/percentages not in source? → DELETE THEM
+□ Did I use more than 2 bullet-point slides? → CONVERT THEM
+"""
+```
+
+This ensures the LAST thing the AI reads before generating is the fidelity requirements.
+
 ## Known Limitations
 
-1. **AI Creativity**: The AI may still attempt to add content if the source is very sparse. The validation layer will catch and fix violations.
+1. **Instruction Conflicts**: The system has multiple instruction layers that can conflict. The ABSOLUTE FINAL INSTRUCTIONS are designed to be the last word, but AI adherence may vary.
 2. **Qualitative Descriptions**: For data-heavy topics without source data, presentations will use qualitative terms ("High", "Strong") instead of numbers.
 3. **Template Restrictions**: Strict position restrictions may limit design flexibility in some cases.
+4. **Diversity vs Fidelity**: When source content is sparse, the AI must choose between diversity and fidelity. The final instructions prioritize fidelity.
 
 ## Next Steps
 

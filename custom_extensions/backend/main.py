@@ -24658,6 +24658,57 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
     except Exception as e:
         logger.warning(f"[PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+    
+    # Add ABSOLUTE FINAL fidelity rules if generating from files
+    # These override ANY previous instructions about adding scenarios, case studies, etc.
+    if payload.fromFiles:
+        wizard_message += """
+
+═══════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 ABSOLUTE FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS RULES 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════
+
+YOU ARE GENERATING FROM FILES. THIS CHANGES EVERYTHING.
+
+CRITICAL: When fromFiles=true, the "INCLUDE REAL WORKPLACE SCENARIOS" instruction means:
+- Use scenarios ONLY if they appear in the source files
+- DO NOT invent scenarios to meet educational quality requirements
+- DO NOT add case studies unless they are explicitly in the source
+
+ABSOLUTE PROHIBITIONS (OVERRIDE ALL PREVIOUS "INCLUDE" INSTRUCTIONS):
+❌ NEVER add "Netflix", "Airbnb", "NASA", "GE" case studies unless in source
+❌ NEVER add "ISO 27001", "PCI DSS", "HIPAA" compliance unless in source
+❌ NEVER add "AWS Certified" certifications unless in source
+❌ NEVER add support plan details unless in source
+❌ NEVER add specific percentages or durability metrics unless in source
+❌ NEVER add IAM features or security best practices unless in source
+❌ NEVER invent "real workplace scenarios" - use ONLY scenarios from source
+
+TEMPLATE DIVERSITY WITH SOURCE FIDELITY:
+✅ YES to diverse templates (process-steps, challenges-solutions, two-column, etc.)
+✅ YES to maximum 2 bullet-point slides
+✅ BUT: Every slide's CONTENT must come from source files only
+✅ Choose templates based on what content patterns exist in the source
+
+If source is sparse and doesn't support diverse templates:
+→ It's BETTER to have fewer, simpler slides with accurate content
+→ Than to have diverse, rich slides with fabricated content
+
+COUNT YOUR BULLET-POINT SLIDES:
+Before finalizing, count how many times you used bullet-points or bullet-points-right.
+If it's more than 2, you FAILED the diversity requirement.
+Replace excess bullet-point slides with other templates that fit the source content.
+
+FINAL VERIFICATION:
+□ Did I add any case studies not in source? → DELETE THEM
+□ Did I add any compliance standards not in source? → DELETE THEM
+□ Did I add any certifications not in source? → DELETE THEM
+□ Did I add any specific metrics/percentages not in source? → DELETE THEM
+□ Did I use more than 2 bullet-point slides? → CONVERT THEM
+
+THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
+"""
+        logger.info(f"[PRESENTATION_FIDELITY] Added ABSOLUTE FINAL fidelity rules for fromFiles=true")
 
     async def streamer():
         assistant_reply: str = ""
