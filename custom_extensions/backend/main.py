@@ -2002,6 +2002,25 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           { "heading": "Concept D", "text": "Fourth key concept tying everything together" }
         ]
       }
+    },
+    {
+      "slideId": "slide_17_solution_steps",
+      "slideNumber": 17,
+      "slideTitle": "Step-by-step Solution Guide",
+      "templateId": "solution-steps-slide",
+      "voiceoverText": "Here's your practical step-by-step guide to implementing the solution. Follow these three steps in order to achieve the best results.",
+      "props": {
+        "subtitle": "The Solution",
+        "title": "Step-by-step Guide",
+        "steps": [
+          { "title": "Step 1", "description": "Know the Regulations" },
+          { "title": "Step 2", "description": "Conduct Risk Assessments" },
+          { "title": "Step 3", "description": "Provide Training and Education" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoNew": "",
+        "pageNumber": "17"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -3073,6 +3092,40 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                             'text': str(box)
                         })
                 normalized_props['boxes'] = fixed_boxes
+
+            elif template_id == 'solution-steps-slide':
+                # Ensure required props and normalize steps
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'The Solution'
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Step-by-step Guide'
+
+                steps = normalized_props.get('steps')
+                if not isinstance(steps, list) or not steps:
+                    steps = [
+                        { 'title': 'Step 1', 'description': 'Know the Regulations' },
+                        { 'title': 'Step 2', 'description': 'Conduct Risk Assessments' },
+                        { 'title': 'Step 3', 'description': 'Provide Training and Education' }
+                    ]
+                fixed_steps = []
+                for step in steps[:3]:  # Limit to 3 steps
+                    if isinstance(step, dict):
+                        fixed_steps.append({
+                            'title': str(step.get('title', 'Step')),
+                            'description': str(step.get('description', 'Description'))
+                        })
+                    else:
+                        fixed_steps.append({
+                            'title': 'Step',
+                            'description': str(step)
+                        })
+                normalized_props['steps'] = fixed_steps
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # logoNew can remain empty to show placeholder
 
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
@@ -24119,7 +24172,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 16 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 17 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -24249,6 +24302,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 16 TEMPLATES ALLOWED):
   • Visual elements: None (simple layout focused on content organization)
   • Usage: Compare features, present quadrants, show four key points, or organize related concepts
   • Content guidelines: Keep box headings concise (2-5 words); text can be 1-2 sentences; maintain consistent length across boxes
+
+- solution-steps-slide: subtitle, title, steps[] (array of {title, description}), [profileImagePath], [logoNew], [pageNumber]
+  • Purpose: Present sequential solution steps with visual timeline
+  • Structure: Subtitle chip, main title, profile image, horizontal timeline with circles, and step descriptions below
+  • Required props: subtitle (category like "The Solution"), title (main heading), steps (array of 3 steps with title and description)
+  • Visual elements: profileImagePath (profile image with blue background), logoNew (branding), timeline with connecting circles
+  • Usage: Show step-by-step guides, sequential solutions, process workflows, or implementation phases
+  • Content guidelines: Keep step titles concise (e.g., "Step 1", "Know the Regulations"); descriptions should be actionable; limit to 3 steps for optimal layout
 
 
 
