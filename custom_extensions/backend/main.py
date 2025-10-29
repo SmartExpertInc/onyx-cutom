@@ -1850,6 +1850,64 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "logoPath": "",
         "logoText": "Your Logo"
       }
+    },
+    {
+      "slideId": "slide_10_company_tools_resources",
+      "slideNumber": 10,
+      "slideTitle": "Company Tools & Resources",
+      "templateId": "company-tools-resources-slide",
+      "voiceoverText": "Here are the core tools and resources we rely on. I'll highlight how each category supports your day-to-day work and where to find them.",
+      "props": {
+        "title": "Company tools and resources",
+        "sections": [
+          {
+            "title": "Communication Tools:",
+            "content": "We use Slack and email for daily communication, and Zoom for video meetings.",
+            "backgroundColor": "#E0E7FF",
+            "textColor": "#374151"
+          },
+          {
+            "title": "Project Management:",
+            "content": "Track work with Jira or Trello; plan sprints and monitor burndown charts.",
+            "backgroundColor": "#FFFFFF",
+            "textColor": "#374151"
+          },
+          {
+            "title": "Learning & Development:",
+            "content": "Access LinkedIn Learning and internal workshops for ongoing upskilling.",
+            "backgroundColor": "#FFFFFF",
+            "textColor": "#374151"
+          },
+          {
+            "title": "Knowledge Base:",
+            "content": "Browse our Confluence space for playbooks, standards, and templates.",
+            "backgroundColor": "#E0E7FF",
+            "textColor": "#374151"
+          }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "10"
+      }
+    },
+    {
+      "slideId": "slide_11_ai_pharma_market_growth",
+      "slideNumber": 11,
+      "slideTitle": "AI Pharma Market Growth",
+      "templateId": "ai-pharma-market-growth-slide",
+      "voiceoverText": "This chart shows remarkable growth in the AI pharma market over the past decade and projections into the future. Notice how the market has expanded exponentially from millions to billions.",
+      "props": {
+        "title": "AI Pharma\nMarket Growth",
+        "bars": [
+          { "year": "2012", "label": "$10 million", "widthPercent": 24 },
+          { "year": "2016", "label": "$100 million", "widthPercent": 72 },
+          { "year": "2020", "label": "$700 million", "widthPercent": 92 },
+          { "year": "2030", "label": "$9000 billion", "widthPercent": 100 }
+        ],
+        "doctorImagePath": "https://via.placeholder.com/300x600?text=Doctor",
+        "panelBackgroundColor": "#dfeeff",
+        "pageNumber": "11"
+      }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
@@ -2686,6 +2744,79 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Your Logo'
                 # logoPath can remain empty to show placeholder
+
+            elif template_id == 'company-tools-resources-slide':
+                # Ensure required props and normalize sections
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Company tools and resources'
+
+                sections = normalized_props.get('sections')
+                if isinstance(sections, str):
+                    sections = [s.strip() for s in sections.split('\n\n') if s.strip()]
+                if not isinstance(sections, list) or not sections:
+                    sections = [
+                        { 'title': 'Communication Tools:', 'content': 'We use Slack and email for daily communication, and Zoom for video meetings.', 'backgroundColor': '#E0E7FF', 'textColor': '#374151' },
+                        { 'title': 'Project Management:', 'content': 'Track work with Jira or Trello; plan sprints and monitor burndown charts.', 'backgroundColor': '#FFFFFF', 'textColor': '#374151' },
+                        { 'title': 'Learning & Development:', 'content': 'Access LinkedIn Learning and internal workshops for ongoing upskilling.', 'backgroundColor': '#FFFFFF', 'textColor': '#374151' },
+                        { 'title': 'Knowledge Base:', 'content': 'Browse our Confluence space for playbooks, standards, and templates.', 'backgroundColor': '#E0E7FF', 'textColor': '#374151' }
+                    ]
+                fixed_sections = []
+                for sec in sections[:4]:
+                    if isinstance(sec, dict):
+                        fixed_sections.append({
+                            'title': str(sec.get('title', 'Section')),
+                            'content': str(sec.get('content', '')),
+                            'backgroundColor': sec.get('backgroundColor', '#FFFFFF'),
+                            'textColor': sec.get('textColor', '#374151')
+                        })
+                    else:
+                        fixed_sections.append({
+                            'title': 'Section',
+                            'content': str(sec),
+                            'backgroundColor': '#FFFFFF',
+                            'textColor': '#374151'
+                        })
+                normalized_props['sections'] = fixed_sections
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # companyLogoPath may remain empty; UI shows placeholder text
+
+            elif template_id == 'ai-pharma-market-growth-slide':
+                # Ensure required props and normalize bars
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'AI Pharma\nMarket Growth'
+
+                bars = normalized_props.get('bars')
+                if not isinstance(bars, list) or not bars:
+                    bars = [
+                        { 'year': '2012', 'label': '$10 million', 'widthPercent': 24 },
+                        { 'year': '2016', 'label': '$100 million', 'widthPercent': 72 },
+                        { 'year': '2020', 'label': '$700 million', 'widthPercent': 92 },
+                        { 'year': '2030', 'label': '$9000 billion', 'widthPercent': 100 }
+                    ]
+                fixed_bars = []
+                for bar in bars:
+                    if isinstance(bar, dict):
+                        fixed_bars.append({
+                            'year': str(bar.get('year', '2020')),
+                            'label': str(bar.get('label', '$0')),
+                            'widthPercent': int(bar.get('widthPercent', 50))
+                        })
+                    else:
+                        fixed_bars.append({
+                            'year': '2020',
+                            'label': str(bar),
+                            'widthPercent': 50
+                        })
+                normalized_props['bars'] = fixed_bars
+
+                if not normalized_props.get('doctorImagePath'):
+                    normalized_props['doctorImagePath'] = 'https://via.placeholder.com/300x600?text=Doctor'
+                if not normalized_props.get('panelBackgroundColor'):
+                    normalized_props['panelBackgroundColor'] = '#dfeeff'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
 
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
@@ -23732,7 +23863,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 9 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 11 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23806,6 +23937,22 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 9 TEMPLATES ALLOWED):
   • Visual elements: avatarPath (speaker image), logoPath/logoText (branding)
   • Usage: Summarize methods, approaches, or policies in two focused sections
   • Content guidelines: Keep lines concise; ensure each section contains two clear, actionable lines
+
+- company-tools-resources-slide: title, sections[] (array of {title, content, backgroundColor, textColor}), [profileImagePath], [companyLogoPath]
+  • Purpose: Present key internal tools and resources in a 2x2 grid layout
+  • Structure: Blue header with logo and title; four content blocks alternating background styles
+  • Required props: title; sections (ideally 4) with title and content strings
+  • Visual elements: profileImagePath (speaker image), companyLogoPath (branding)
+  • Usage: Summarize communication, project management, L&D, or other internal resources
+  • Content guidelines: Keep section titles concise; content can be short paragraphs or lists
+
+- ai-pharma-market-growth-slide: title, bars[] (array of {year, label, widthPercent}), [doctorImagePath], [panelBackgroundColor], [pageNumber]
+  • Purpose: Display progressive growth or timeline data with horizontal bar chart
+  • Structure: Rounded light panel with title, horizontal bars showing year labels and values, optional right image
+  • Required props: title (multiline heading), bars (array with year, label like "$10 million", widthPercent 0-100)
+  • Visual elements: doctorImagePath (right-side image), panelBackgroundColor (defaults to light blue)
+  • Usage: Show market growth, revenue progression, or any timeline-based metrics
+  • Content guidelines: Title can include line breaks; bars should be chronological; labels should be clear monetary/metric values
 
 
 
