@@ -31,6 +31,9 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
   const txtColor = textColor || currentTheme.colors.contentColor;
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
+  // Filter out null/undefined ideas to prevent errors
+  const validIdeas = ideas.filter(idea => idea !== null && idea !== undefined);
+
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingIdeas, setEditingIdeas] = useState<{ [key: number]: { number: boolean; text: boolean } }>({});
@@ -48,8 +51,13 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
 
   const handleIdeaSave = (index: number, field: 'number' | 'text', value: string) => {
     if (onUpdate) {
-      const updatedIdeas = [...ideas];
-      updatedIdeas[index] = { ...updatedIdeas[index], [field]: value };
+      const updatedIdeas = [...validIdeas];
+      // Add null check to prevent errors
+      if (updatedIdeas[index]) {
+        updatedIdeas[index] = { ...updatedIdeas[index], [field]: value };
+      } else {
+        updatedIdeas[index] = { number: field === 'number' ? value : '01', text: field === 'text' ? value : '' };
+      }
       onUpdate({ ideas: updatedIdeas });
     }
     setEditingIdeas(prev => ({ 
@@ -148,10 +156,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
           gridTemplateColumns: '1fr 1fr', 
           gap: '30px'
         }}>
-          {ideas.map((idea, index) => {
-            // Add null check for idea
-            if (!idea) return null;
-            
+          {validIdeas.map((idea, index) => {
             return (
             <div key={index} style={{ 
               display: 'flex', 

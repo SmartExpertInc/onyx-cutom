@@ -61,11 +61,40 @@ const imageToDataUri = async (imageUrl: string): Promise<string> => {
 
 /**
  * Parses text with **bold** markers and returns HTML
+ * Also handles blue coloring for text before colons when applyBlueColon is true
  */
-const parseStyledText = (text: string | undefined | null): string => {
+const parseStyledText = (text: string | undefined | null, applyBlueColon: boolean = false): string => {
   if (!text) return '';
   
-  // Split by bold markers (**text**)
+  // Check if text contains a colon and apply blue color to text before it
+  const colonIndex = text.indexOf(':');
+  
+  if (colonIndex !== -1 && applyBlueColon) {
+    // Split into before and after the first colon
+    const beforeColon = text.substring(0, colonIndex);
+    const afterColon = text.substring(colonIndex);
+    
+    // Process both parts for bold markers
+    const processSegment = (segment: string): string => {
+      const segments = segment.split(/\*\*(.*?)\*\*/g);
+      return segments
+        .map((seg, index) => {
+          if (index % 2 === 1) {
+            return `<strong style="font-weight: 600; color: #0F58F9;">${escapeHtml(seg)}</strong>`;
+          }
+          return escapeHtml(seg);
+        })
+        .join('');
+    };
+    
+    // Apply blue color to text before colon
+    const beforeColonHtml = `<span style="font-weight: 600; color: #0F58F9;">${processSegment(beforeColon)}</span>`;
+    const afterColonHtml = processSegment(afterColon);
+    
+    return beforeColonHtml + afterColonHtml;
+  }
+  
+  // Original behavior if no colon or applyBlueColon is false
   const segments = text.split(/\*\*(.*?)\*\*/g);
   return segments
     .map((segment, index) => {
@@ -129,14 +158,28 @@ const renderHeadline = (block: HeadlineBlock): string => {
  */
 const renderParagraph = (block: ParagraphBlock): string => {
   const fontSize = block.fontSize || '16px';
-  const style = `
+  const isRecommendation = block.isRecommendation || false;
+  
+  let style = `
     font-size: ${fontSize};
     line-height: 1.6;
     color: #171718;
     margin-bottom: 16px;
   `.trim();
   
-  return `<p style="${style}">${parseStyledText(block.text)}</p>`;
+  // Add blue left border for recommendations
+  if (isRecommendation) {
+    style += `
+      padding-left: 16px;
+      border-left: 4px solid #0F58F9;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      background-color: rgba(243, 244, 246, 0.3);
+    `.trim();
+  }
+  
+  // Apply blue colon for all paragraphs (especially useful in recommendations)
+  return `<p style="${style}">${parseStyledText(block.text, true)}</p>`;
 };
 
 /**
@@ -192,10 +235,31 @@ const renderAlert = (block: AlertBlock): string => {
  */
 const renderBulletList = (block: BulletListBlock): string => {
   const fontSize = block.fontSize || '16px';
-  const listStyle = `
+  
+  // Check if any item contains "recommendation" - match TextPresentationDisplay logic
+  const hasRecommendation = block.items.some(item => 
+    (typeof item === 'string' && item.toLowerCase().includes('recommendation'))
+  );
+  
+  let containerStyle = `
     margin-bottom: 16px;
+  `.trim();
+  
+  // Add blue left border for recommendations
+  if (hasRecommendation) {
+    containerStyle += `
+      border-left: 4px solid #0F58F9;
+      padding-left: 16px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      background-color: rgba(243, 244, 246, 0.3);
+    `.trim();
+  }
+  
+  const listStyle = `
     padding-left: 0;
     list-style: none;
+    margin: 0;
   `.trim();
   
   const itemStyle = `
@@ -217,15 +281,17 @@ const renderBulletList = (block: BulletListBlock): string => {
     flex-shrink: 0;
   `.trim();
   
-  let html = `<ul style="${listStyle}">`;
+  let html = `<div style="${containerStyle}">`;
+  html += `<ul style="${listStyle}">`;
   block.items.forEach((item) => {
     const itemText = typeof item === 'string' ? item : JSON.stringify(item);
     html += `<li style="${itemStyle}">
       <span style="${bulletStyle}"></span>
-      <span>${parseStyledText(itemText)}</span>
+      <span>${parseStyledText(itemText, true)}</span>
     </li>`;
   });
   html += `</ul>`;
+  html += `</div>`;
   
   return html;
 };
@@ -235,11 +301,32 @@ const renderBulletList = (block: BulletListBlock): string => {
  */
 const renderNumberedList = (block: NumberedListBlock): string => {
   const fontSize = block.fontSize || '16px';
-  const listStyle = `
+  
+  // Check if any item contains "recommendation"
+  const hasRecommendation = block.items.some(item => 
+    (typeof item === 'string' && item.toLowerCase().includes('recommendation'))
+  );
+  
+  let containerStyle = `
     margin-bottom: 16px;
+  `.trim();
+  
+  // Add blue left border for recommendations
+  if (hasRecommendation) {
+    containerStyle += `
+      border-left: 4px solid #0F58F9;
+      padding-left: 16px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      background-color: rgba(243, 244, 246, 0.3);
+    `.trim();
+  }
+  
+  const listStyle = `
     padding-left: 0;
     list-style: none;
     counter-reset: list-counter;
+    margin: 0;
   `.trim();
   
   const itemStyle = `
@@ -260,15 +347,17 @@ const renderNumberedList = (block: NumberedListBlock): string => {
     min-width: 24px;
   `.trim();
   
-  let html = `<ol style="${listStyle}">`;
+  let html = `<div style="${containerStyle}">`;
+  html += `<ol style="${listStyle}">`;
   block.items.forEach((item, index) => {
     const itemText = typeof item === 'string' ? item : JSON.stringify(item);
     html += `<li style="${itemStyle}">
       <span style="${numberStyle}">${index + 1}.</span>
-      <span>${parseStyledText(itemText)}</span>
+      <span>${parseStyledText(itemText, true)}</span>
     </li>`;
   });
   html += `</ol>`;
+  html += `</div>`;
   
   return html;
 };
