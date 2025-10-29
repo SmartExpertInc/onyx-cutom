@@ -894,7 +894,7 @@ export type TemplateId =
   | 'kpi-update-slide'
   | 'interest-growth-slide'
   | 'culture-values-three-columns'
-  | 'percent-circles-slide'
+  | 'percent-circles'
 ;
 
 export interface TemplatePreview {

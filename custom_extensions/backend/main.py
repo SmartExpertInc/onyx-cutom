@@ -1785,7 +1785,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_7_percent_circles",
       "slideNumber": 7,
       "slideTitle": "Statistics Overview",
-      "templateId": "percent-circles-slide",
+      "templateId": "percent-circles",
       "voiceoverText": "Let's examine some key statistics that highlight important trends and insights. These numbers tell a compelling story about the current state and future potential in our field.",
       "props": {
         "title": "% of Fortune 500 CEOs\nwho are women",
@@ -2580,7 +2580,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
                 
-            elif template_id == 'percent-circles-slide':
+            elif template_id == 'percent-circles':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
                     normalized_props['title'] = '% of Fortune 500 CEOs\nwho are women'
@@ -23614,7 +23614,7 @@ RECOMMENDED TEMPLATE DISTRIBUTION:
   * phishing-definition-slide (for definitions and key concepts)
   * impact-statements-slide (for statistics and metrics)
   * culture-values-three-columns-slide (for 3-part content)
-  * percent-circles-slide (for percentage-based data)
+  * percent-circles (for percentage-based data)
   * benefits-list-slide (for listing benefits/features)
   * dei-methods-slide (for methodologies)
   * company-tools-resources-slide (for tools/resources)
@@ -23631,7 +23631,7 @@ RECOMMENDED TEMPLATE DISTRIBUTION:
 
 TEMPLATE SELECTION GUIDELINES:
 - Prioritize templates that best express your content structure
-- Use specialty templates when content naturally fits (e.g., percent-circles-slide for percentage data)
+- Use specialty templates when content naturally fits (e.g., percent-circles for percentage data)
 - Avoid defaulting to the same template repeatedly
 - Match template to content type (statistics → impact-statements-slide, definitions → phishing-definition-slide, etc.)
 
@@ -23717,7 +23717,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 8 TEMPLATES ALLOWED):
   • Usage: Explain company culture, organizational values, policy frameworks, or any three-part conceptual structure
   • Content guidelines: Each column should present a distinct but related concept; middle column often serves as the central/primary concept; maintain consistent depth and tone across all three sections
 
-- percent-circles-slide: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
+- percent-circles: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
   • Purpose: Present statistical data with visual percentage circles and supporting statistics cards
   • Structure: Top section with title and 10 circles (1 filled with percentage + 9 empty), avatar display, bottom section with two statistics cards
   • Required props: title (main heading, supports multiline), percent (percentage value like "10%"), bottomCards (EXACTLY 2 items with 'value' field and 'text' field, optional 'hasArrow' boolean)

@@ -157,7 +157,7 @@ export class TemplateExtractor {
       'kpi-update-slide': null,
       'interest-growth-slide': null,
       'culture-values-three-columns': null,
-      'percent-circles-slide': null
+      'percent-circles': null
     };
 
     return extractors[templateId] || null;
