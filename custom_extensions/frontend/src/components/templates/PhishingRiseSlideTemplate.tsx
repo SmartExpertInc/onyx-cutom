@@ -112,22 +112,26 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     textAlign: 'center'
   };
 
-  // Calculate bar width to evenly spread across the space allocated for 6 bars
-  // Actual available space is smaller - being conservative with measurements
+  // Calculate bar width to fit within grid lines
+  // Measured: 5 bars at 80px fit = ~496px total available space
+  // For 6 bars: (496 - 5*24gaps) / 6 bars = 376/6 = ~62px per bar
   const getBarWidth = () => {
-    const totalWidth = 480; // Conservative estimate of available space for bars
+    const totalAvailableSpace = 496; // Space within grid lines
     const gap = 24;
     const numBars = currentBars.length;
     
-    // Special case: single bar should be same width as 2 bars, but centered
+    // Calculate bars to spread evenly within the fixed total space
+    const totalGapSpace = (6 - 1) * gap; // Space taken by gaps when 6 bars
+    const availableForBars = totalAvailableSpace - totalGapSpace; // ~376px
+    
+    // Special case: single bar, centered
     if (numBars === 1) {
-      return 240;
+      return Math.floor(availableForBars / 3); // ~125px, centered
     }
     
-    // Calculate width so bars spread evenly across the full space
-    // Total space used = numBars * barWidth + (numBars - 1) * gap = totalWidth + (5 - (numBars - 1)) * gap
-    const additionalSpace = (6 - numBars) * gap; // Extra space from missing bars and gaps
-    const barWidth = (totalWidth + additionalSpace) / numBars;
+    // Distribute bar space + saved gap space evenly
+    const savedGaps = (6 - numBars) * gap;
+    const barWidth = (availableForBars + savedGaps) / numBars;
     
     return Math.floor(barWidth);
   };
