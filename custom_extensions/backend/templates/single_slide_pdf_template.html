@@ -420,11 +420,20 @@
         
         .pyramid-template .main-content {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
             flex-grow: 1;
             position: relative;
             height: 500px;
+        }
+
+        .pyramid-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .pyramid-level {
@@ -434,63 +443,49 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%);
+            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
 
         .pyramid-level:nth-child(1) { 
-            width: 144px; 
-            height: 75px; 
+            width: 600px; 
+            height: 60px; 
             top: 0px; 
             background: #2A7CFF; 
             z-index: 5; 
-            justify-content: center;
-            clip-path: polygon(24% 0%, 78% 0%, 100% 100%, 0% 100%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            border-radius: 5px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(2) { 
-            width: 228px; 
-            height: 75px; 
-            top: 80px; 
+            width: 500px; 
+            height: 60px; 
+            top: 70px; 
             background: #09ACD8; 
             z-index: 4; 
-            justify-content: center;
-            clip-path: polygon(18% 0%, 83% 0%, 100% 100%, 0% 100%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            border-radius: 5px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(3) { 
-            width: 311px; 
-            height: 75px; 
-            top: 160px; 
+            width: 400px; 
+            height: 60px; 
+            top: 140px; 
             background: #1B94E8; 
             z-index: 3; 
-            justify-content: center;
-            clip-path: polygon(13% 0%, 87% 0%, 100% 100%, 0% 100%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            border-radius: 5px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(4) { 
-            width: 401px; 
-            height: 75px; 
-            top: 240px; 
+            width: 300px; 
+            height: 60px; 
+            top: 210px; 
             background: #3A11C3; 
             z-index: 2; 
-            justify-content: center;
-            clip-path: polygon(11% 0%, 89% 0%, 100% 100%, 0% 100%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            border-radius: 5px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(5) { 
-            width: 493px; 
-            height: 75px; 
-            top: 320px; 
+            width: 200px; 
+            height: 60px; 
+            top: 280px; 
             background: #01298A; 
             z-index: 1; 
-            justify-content: center;
-            clip-path: polygon(9% 0%, 91% 0%, 100% 100%, 0% 100%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            border-radius: 5px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
         }
 
         .pyramid-number-circle {
@@ -509,16 +504,30 @@
 
         .pyramid-text-block {
             position: absolute;
-            width: 25%;
-            max-width: 300px;
+            width: 200px;
             z-index: 10;
         }
 
-        .pyramid-text-block.level-0 { top: -19px; left: 13%; text-align: right; width: 35%; max-width: 250px; }
-        .pyramid-text-block.level-1 { top: 55px; right: 10%; text-align: left; width: 35%; max-width: 250px; }
-        .pyramid-text-block.level-2 { top: 124px; left: 7%; text-align: right; width: 35%; max-width: 250px; }
-        .pyramid-text-block.level-3 { top: 218px; right: 2%; text-align: left; width: 35%; max-width: 250px; }
-        .pyramid-text-block.level-4 { top: 285px; left: 0%; text-align: right; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-0 { 
+            top: 10px; 
+            left: 50px; 
+            text-align: left; 
+        }
+        .pyramid-text-block.level-1 { 
+            top: 80px; 
+            right: 50px; 
+            text-align: right; 
+        }
+        .pyramid-text-block.level-2 { 
+            top: 150px; 
+            left: 50px; 
+            text-align: left; 
+        }
+        .pyramid-text-block.level-3 { 
+            top: 220px; 
+            right: 50px; 
+            text-align: right; 
+        }
 
         .pyramid-text-heading {
             font-size: 1rem;
@@ -543,15 +552,14 @@
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-top: 12px solid #1E88E5;
+            border-top: 12px solid #0F58F9;
             z-index: 10;
         }
 
-        .pyramid-triangle.level-0 { top: 21px; left: 42%; border-top: 12px solid #2A7CFF; }
-        .pyramid-triangle.level-1 { top: 98px; right: 39%; border-top: 12px solid #09ACD8; }
-        .pyramid-triangle.level-2 { top: 168px; left: 36%; border-top: 12px solid #1B94E8; }
-        .pyramid-triangle.level-3 { top: 265px; right: 31%; border-top: 12px solid #3A11C3; }
-        .pyramid-triangle.level-4 { top: 340px; left: 27%; border-top: 12px solid #01298A; }
+        .pyramid-triangle.level-0 { top: 30px; left: 30%; }
+        .pyramid-triangle.level-1 { top: 100px; right: 30%; }
+        .pyramid-triangle.level-2 { top: 170px; left: 30%; }
+        .pyramid-triangle.level-3 { top: 240px; right: 30%; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -2145,18 +2153,17 @@
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            width: 112%;
+            width: 100%;
             position: relative;
-            padding: 80px 20px;
-            padding-right: 148px;
+            padding: 80px 40px;
             min-height: 200px;
         }
         
         .timeline-line {
             position: absolute;
             top: 50%;
-            left: 40px;
-            right: 40px;
+            left: 60px;
+            right: 60px;
             height: 2px;
             background-color: #0F58F9;
             transform: translateY(-50%);
@@ -2171,9 +2178,9 @@
             z-index: 2;
         }
         
-        .timeline-step:nth-child(1) { width: 344px; }
-        .timeline-step:nth-child(2) { width: 250px; }
-        .timeline-step:nth-child(3) { width: 355px; }
+        .timeline-step:nth-child(1) { flex: 1; }
+        .timeline-step:nth-child(2) { flex: 1; }
+        .timeline-step:nth-child(3) { flex: 1; }
         
         .timeline-number-box {
             width: 40px;
@@ -3112,46 +3119,50 @@
                         <h1 class="slide-title positioned-element">{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="main-content">
-                        <!-- Pyramid Levels -->
-                        {% for i in range(5) %}
-                            <div class="pyramid-level positioned-element">
-                                <div style="display: flex; align-items: center;">
-                                    <img src="{{ 'message_img.png'|static_image_base64 }}" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
-                                    <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
-                                        {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
-                                            {{ slide.props.steps[i].number }}
-                                        {% else %}
-                                            {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
-                                        {% endif %}
-                        </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        <!-- Text Blocks -->
-                        {% for i in range(5) %}
-                            <div class="pyramid-text-block level-{{ i }} positioned-element">
-                                <div class="pyramid-text-heading">
-                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading and slide.props.steps[i].heading != 'Click to add heading' %}
-                                        {{ slide.props.steps[i].heading }}
-                                    {% else %}
-                                        Headline
+                        <div class="pyramid-container">
+                            <!-- Pyramid Levels -->
+                            {% for i in range(5) %}
+                                <div class="pyramid-level positioned-element">
+                                    <div style="display: flex; align-items: center;">
+                                        <img src="{{ 'message_img.png'|static_image_base64 }}" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
+                                        <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
+                                            {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
+                                                {{ slide.props.steps[i].number }}
+                                            {% else %}
+                                                {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
                                             {% endif %}
                                         </div>
-                                <div class="pyramid-text-description">
-                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description and slide.props.steps[i].description != 'Click to add description' %}
-                                        {{ slide.props.steps[i].description }}
-                            {% else %}
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                    {% endif %}
+                                    </div>
                                 </div>
-                                </div>
-                        {% endfor %}
+                            {% endfor %}
 
-                        <!-- Triangle Arrows -->
-                        {% for i in range(5) %}
-                            <div class="pyramid-triangle level-{{ i }} positioned-element"></div>
-                        {% endfor %}
+                            <!-- Text Blocks positioned around pyramid -->
+                            <div class="pyramid-text-block level-0 positioned-element">
+                                <div class="pyramid-text-heading">Headline</div>
+                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            </div>
+                            
+                            <div class="pyramid-text-block level-1 positioned-element">
+                                <div class="pyramid-text-heading">Headline</div>
+                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            </div>
+                            
+                            <div class="pyramid-text-block level-2 positioned-element">
+                                <div class="pyramid-text-heading">Headline</div>
+                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            </div>
+                            
+                            <div class="pyramid-text-block level-3 positioned-element">
+                                <div class="pyramid-text-heading">Headline</div>
+                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            </div>
+
+                            <!-- Triangle Arrows pointing to pyramid -->
+                            <div class="pyramid-triangle level-0 positioned-element"></div>
+                            <div class="pyramid-triangle level-1 positioned-element"></div>
+                            <div class="pyramid-triangle level-2 positioned-element"></div>
+                            <div class="pyramid-triangle level-3 positioned-element"></div>
+                        </div>
                     </div>
                 </div>
                 
@@ -3264,74 +3275,100 @@
                         </div>
 
                         <!-- Left Project Title -->
-                        <div style="position: absolute; left: 2.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 110px;">
-                                The first project
+                        <div style="position: absolute; left: 1.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: bold; min-width: 100px;">
+                                {{ slide.props.leftTitle or 'The first project' }}
                             </div>
                         </div>
 
                         <!-- Right Project Title -->
-                        <div style="position: absolute; right: -2%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: center; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 150px;">
-                                The second project
+                        <div style="position: absolute; right: -4%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: bold;">
+                                {{ slide.props.rightTitle or 'The second project' }}
                             </div>
                         </div>
 
-                        <!-- Left Side Text Blocks -->
-                        <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                        <!-- Left Side Text Blocks (Contraindications) -->
+                        {% if slide.props.contraindications and slide.props.contraindications|length > 0 %}
+                            {% for item in slide.props.contraindications[:3] %}
+                                <div style="position: absolute; left: {% if loop.index == 1 %}23%{% elif loop.index == 2 %}26%{% else %}22%{% endif %}; top: {% if loop.index == 1 %}27%{% elif loop.index == 2 %}44%{% else %}62%{% endif %}; z-index: 10; max-width: 200px;">
+                                    <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                        {{ item.title or 'Heading text goes here' }}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                        {{ item.description or 'Lorem ipsum dolor sit amet, consectetur elit, sed do' }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
+                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                    Heading text goes here
+                                </div>
+                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
 
-                        <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                            <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
+                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                    Heading text goes here
+                                </div>
+                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
 
-                        <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                            <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
+                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                    Heading text goes here
+                                </div>
+                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
+                        {% endif %}
 
-                        <!-- Right Side Text Blocks -->
-                        <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                        <!-- Right Side Text Blocks (Indications) -->
+                        {% if slide.props.indications and slide.props.indications|length > 0 %}
+                            {% for item in slide.props.indications[:3] %}
+                                <div style="position: absolute; right: {% if loop.index == 1 %}23%{% elif loop.index == 2 %}26%{% else %}22%{% endif %}; top: {% if loop.index == 1 %}27%{% elif loop.index == 2 %}44%{% else %}62%{% endif %}; z-index: 10; max-width: 200px; text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                        {{ item.title or 'Heading text goes here' }}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                        {{ item.description or 'Lorem ipsum dolor sit amet, consectetur elit, sed do' }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
+                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                    Heading text goes here
+                                </div>
+                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
 
-                        <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                            <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
+                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                    Heading text goes here
+                                </div>
+                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
 
-                        <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                            <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
+                                <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                    Heading text goes here
+                                </div>
+                                <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 
