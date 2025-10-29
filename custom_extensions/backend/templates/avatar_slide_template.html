@@ -35,7 +35,7 @@
         
         /* Global font styles to match frontend */
         * {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-family: 'Inter', sans-serif !important;
         }
         
         /* Override for title elements to use Lora serif like frontend */
@@ -47,16 +47,16 @@
         .company-tools-title, .ai-pharma-title, .critical-thinking-title,
         .benefits-tags-title, .kpi-update-title, .phishing-rise-title,
         .soft-skills-title, .hybrid-work-title {
-            font-family: "Lora", serif !important;
+            font-family: 'Lora', serif !important;
         }
         
         /* Specific overrides for card titles in different columns */
         .card-title-left, .card-title-right {
-            font-family: "Lora", serif !important;
+            font-family: 'Lora', serif !important;
         }
         
         .card-title-middle {
-            font-family: "Lora", serif !important;
+            font-family: 'Lora', serif !important;
         }
         
         /* Video slide container - EXACT VIDEO DIMENSIONS */
@@ -618,7 +618,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             padding: 40px 60px;
         }
 
@@ -632,7 +632,7 @@
 
         .solution-steps-slide .subtitle-container {
             background-color: #FFFFFF;
-            border-radius: 24px;
+            border-radius: 40px;
             padding: 9px 18px;
             display: flex;
             align-items: center;
@@ -647,33 +647,33 @@
         }
 
         .solution-steps-slide .subtitle-text {
-            font-size: 20px;
+            font-size: 28px;
             color: #09090BCC;
             font-weight: 400;
         }
 
         .solution-steps-slide .main-title {
             position: absolute;
-            top: 120px;
+            top: 150px;
             left: 60px;
             right: 60px;
-            font-size: 56px;
+            font-size: 70px;
             color: #09090B;
             line-height: 1.1;
             min-height: 75px;
             max-height: 75px;
             display: flex;
             align-items: center;
-            font-family: "Lora", serif;
+            font-family: 'Lora', serif;
             font-weight: 600;
         }
 
         .solution-steps-slide .profile-image-container {
             position: absolute;
-            top: 70px;
+            top: 35px;
             right: 60px;
-            width: 170px;
-            height: 170px;
+            width: 230px;
+            height: 230px;
             border-radius: 50%;
             background-color: #0F58F9;
             overflow: hidden;
@@ -692,7 +692,7 @@
 
         .solution-steps-slide .timeline-container {
             position: absolute;
-            top: 405px;
+            top: 490px;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100%;
@@ -713,8 +713,8 @@
             position: absolute;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 27px;
-            height: 27px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             background-color: #FFFFFF;
             border: 5px solid #0F58F9;
@@ -765,7 +765,7 @@
             font-weight: 600;
             color: #09090B;
             margin-bottom: 15px;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .solution-steps-slide .step-description {
@@ -773,7 +773,7 @@
             color: rgba(9, 9, 11, 0.7);
             line-height: 1.3;
             max-width: 160px;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .solution-steps-slide .logo-container {
@@ -826,7 +826,7 @@
             font-size: 16px;
             font-weight: 400;
             color: #09090B;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .solution-steps-slide .page-number-container {
@@ -848,7 +848,7 @@
             color: #09090B99;
             font-size: 18px;
             font-weight: 300;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             border-radius: 0; /* No border radius */
             display: block; /* Simple block display */
             /* Remove all text and icon styles */
@@ -1348,7 +1348,56 @@
             aspect-ratio: 16/9;
             background-color: #E0E7FF;
             position: relative;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .culture-values-three-columns-slide *:not(.title-element) {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .culture-values-three-columns-slide .title-element {
+            font-family: 'Lora', serif !important;
+            font-weight: 600 !important;
+        }
+
+        .culture-values-three-columns-slide .title-element * {
+            font-family: 'Lora', serif !important;
+            font-weight: 600 !important;
+        }
+
+        .culture-values-three-columns-slide .section-title {
+            font-family: 'Lora', serif !important;
+            font-weight: 600 !important;
+        }
+
+        .card-title-left {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
+        }
+
+        .card-title-left * {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
+        }
+
+        .card-title-middle {
+            color: #000000 !important;
+            font-weight: 600 !important;
+        }
+
+        .card-title-middle * {
+            color: #000000 !important;
+            font-weight: 600 !important;
+        }
+
+        .card-title-right {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
+        }
+
+        .card-title-right * {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
         }
         
         .culture-values-three-columns-slide .top-section {
@@ -1358,7 +1407,6 @@
             top: 0;
             height: 250px;
             background-color: #E0E7FF;
-            border-bottom: 1px solid #d8d8d8;
         }
         
         .culture-values-three-columns-slide .logo-container {
@@ -1372,19 +1420,19 @@
         .culture-values-three-columns-slide .title {
             position: absolute;
             left: 48px;
-            top: 88px;
-            font-size: 65px;
+            top: 105px;
+            font-size: 90px;
             font-weight: 800;
             color: #242424;
-            font-family: "Lora", serif;
+            font-family: 'Lora', serif;
         }
         
         .culture-values-three-columns-slide .avatar-container {
             position: absolute;
             right: 48px;
-            top: 40px;
-            width: 170px;
-            height: 170px;
+            top: 65px;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #0F58F9;
@@ -1403,7 +1451,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            top: 250px;
+            top: 365px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
         }
@@ -1425,10 +1473,14 @@
         }
         
         .culture-values-three-columns-slide .card-title {
-            font-size: 31px;
+            font-size: 30px;
             font-weight: 800;
             margin-bottom: 16px;
-            font-family: "Lora", serif;
+            font-family: 'Lora', serif;
+        }
+        .card-txt {
+            font-size: 23px;
+            white-space: pre-line;
         }
         
         .culture-values-three-columns-slide .card-title-left {
@@ -1460,8 +1512,192 @@
         
         .culture-values-three-columns-slide .page-number {
             color: #9EBBFC;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
+        }
+        
+        /* Key Skills Data Analysis Slide Template - EXACT React Copy */
+        .key-skills-data-analysis-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background-color: #FFFFFF;
+            color: #26362C;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            display: grid;
+            grid-template-columns: 39.5% 60.5%;
+            gap: 0px;
+            padding: 0px;
+        }
+
+        .key-skills-data-analysis-slide *:not(.title-element) {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .key-skills-data-analysis-slide .title-element {
+            font-family: 'Lora', serif !important;
+            font-weight: 500 !important;
+        }
+
+        .key-skills-data-analysis-slide .left-section {
+            background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%);
+            padding: 56px;
+            position: relative;
+        }
+
+        .key-skills-data-analysis-slide .right-section {
+            background-color: #E0E7FF;
+            padding: 85px 55px;
+        }
+
+        .key-skills-data-analysis-slide .heading {
+            width: 500px;
+            font-size: 105px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.2;
+            position: absolute;
+            top: 100px;
+            left: 56px;
+            max-width: calc(100% - 112px);
+            font-family: 'Lora', serif;
+        }
+
+        .key-skills-data-analysis-slide .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 38px;
+        }
+
+        .key-skills-data-analysis-slide .list-item {
+            display: grid;
+            grid-template-columns: 45px 1fr;
+            align-items: center;
+            column-gap: 35px;
+        }
+
+        .key-skills-data-analysis-slide .number-square {
+            width: 55px;
+            height: 55px;
+            background-color: #0F58F9;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key-skills-data-analysis-slide .number {
+            font-size: 26px;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .key-skills-data-analysis-slide .item-text {
+            font-size: 75px;
+            color: #09090B;
+            font-family: 'Lora', serif;
+            opacity: 0.7;
+            margin-left: 35px;
+        }
+
+        .key-skills-data-analysis-slide .avatar-container {
+            position: absolute;
+            bottom: 85px;
+            left: 56px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            overflow: hidden;
+            border: 2px solid #E5E7EB;
+        }
+
+        .key-skills-data-analysis-slide .avatar-container img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .key-skills-data-analysis-slide .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .key-skills-data-analysis-slide .logo-container img {
+            height: 30px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+
+        .key-skills-data-analysis-slide .logo-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .key-skills-data-analysis-slide .logo-placeholder .circle {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key-skills-data-analysis-slide .logo-placeholder .circle .horizontal-line {
+            width: 12px;
+            height: 2px;
+            background-color: #ffffff;
+            position: absolute;
+        }
+
+        .key-skills-data-analysis-slide .logo-placeholder .circle .vertical-line {
+            width: 2px;
+            height: 12px;
+            background-color: #ffffff;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .key-skills-data-analysis-slide .logo-placeholder .text {
+            font-size: 16px;
+            font-weight: 400;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .key-skills-data-analysis-slide .page-number-container {
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-skills-data-analysis-slide .page-line {
+            width: 20px;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .key-skills-data-analysis-slide .page-number {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 17px;
+            font-weight: 300;
+            font-family: 'Inter', sans-serif;
         }
         
         /* Percent Circles Slide Template - EXACT FRONTEND MATCH */
@@ -1470,7 +1706,7 @@
             height: 100%;
             background-color: #E0E7FF;
             position: relative;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         
         .percent-circles-slide .top-section {
@@ -1489,12 +1725,12 @@
             left: 50px;
             top: 85px;
             right: 550px;
-            font-size: 65px;
+            font-size: 90px;
             font-weight: 1100;
             color: #000000;
             white-space: pre-line;
             line-height: 1.2;
-            font-family: "Lora", serif;
+            font-family: 'Lora', serif;
         }
         
         .percent-circles-slide .circles-container {
@@ -1506,8 +1742,8 @@
         }
         
         .percent-circles-slide .circle-base {
-            width: 90px;
-            height: 90px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             border: 2px solid #0F58F9;
             background-color: #F3F5FF;
@@ -1518,11 +1754,11 @@
         }
         
         .percent-circles-slide .circle-filled {
-            width: 90px;
-            height: 90px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             background-color: #0F58F9;
-            font-size: 23px;
+            font-size: 40px;
             font-weight: 600;
             border: none;
             color: #FFFFFF;
@@ -1536,8 +1772,8 @@
             position: absolute;
             right: 70px;
             top: 60px;
-            width: 170px;
-            height: 170px;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #0F58F9;
@@ -1556,7 +1792,7 @@
             position: absolute;
             left: 44px;
             right: 44px;
-            bottom: 75px;
+            bottom: 142px;
             height: 135px;
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1569,7 +1805,7 @@
             padding: 20px 30px;
             padding-right: 190px;
             display: flex;
-            justify-content: space-between;
+            justify-content: start;
             align-items: center;
             position: relative;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -1580,18 +1816,19 @@
             font-weight: 900;
             color: #000000;
             margin-bottom: 8px;
-            font-family: "Lora", serif;
+            font-family: 'Lora', serif;
         }
         
         .percent-circles-slide .card-text {
             font-size: 18px;
             color: #34353C;
             line-height: 1.3;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 400;
         }
         
         .percent-circles-slide .card-text-first {
+            margin-left: 35px;
             width: 200px;
         }
         
@@ -1623,7 +1860,7 @@
             gap: 8px;
             font-size: 14px;
             color: black;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         
         .percent-circles-slide .page-number-container {
@@ -1633,7 +1870,7 @@
             color: #34353C;
             font-size: 16px;
             font-weight: 400;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1782,8 +2019,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 32px;
-            max-width: 1600px;
-            margin-top: 32px;
+            max-width: 1700px;
+            margin-top: 60px;
         }
         
         .benefits-list-slide .benefit-item {
@@ -1853,7 +2090,8 @@
         }
         
         .impact-statements-slide .title {
-            font-size: 50px;
+            width: 680px;
+            font-size: 80px;
             color: #09090B;
             line-height: 1.2;
             flex: 1;
@@ -1865,6 +2103,7 @@
         }
         
         .impact-statements-slide .profile-gradient-container {
+            margin-bottom: 30px;
             width: 100%;
             height: 471px;
             background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%);
@@ -1907,8 +2146,8 @@
         
         .impact-statements-slide .statement-card {
             background-color: #FFFFFF;
-            border-radius: 13px;
-            padding: 32px;
+            border-radius: 0.68%;
+            padding: 1.67%;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -1924,7 +2163,7 @@
         }
         
         .impact-statements-slide .statement-number {
-            font-size: 60px;
+            font-size: 80px;
             color: #263644;
             display: flex;
             align-items: center;
@@ -1934,7 +2173,7 @@
         }
         
         .impact-statements-slide .statement-description {
-            font-size: 22px;
+            font-size: 35px;
             color: rgba(9, 9, 11, 0.7);
             line-height: 1.4;
             white-space: pre-line;
@@ -1943,7 +2182,7 @@
         
         .impact-statements-slide .logo-container {
             position: absolute;
-            bottom: 32px;
+            bottom: 4px;
             right: 48px;
         }
         
@@ -2002,10 +2241,10 @@
         
         .dei-methods-slide .header-text {
             position: absolute;
-            left: 60px;
-            top: 18%;
+            left: 80px;
+            top: 19%;
             transform: translateY(-50%);
-            font-size: 60px;
+            font-size: 74px;
             font-weight: 600;
             color: #FFFFFF;
             font-family: 'Lora', serif;
@@ -2025,9 +2264,9 @@
         
         .dei-methods-slide .section1-title {
             position: absolute;
-            left: 60px;
-            top: 40px;
-            font-size: 35px;
+            left: 80px;
+            top: 55px;
+            font-size: 50px;
             font-weight: 600;
             color: black;
             font-family: 'Lora', serif;
@@ -2035,9 +2274,9 @@
         
         .dei-methods-slide .section1-lines {
             position: absolute;
-            left: 60px;
-            top: 100px;
-            font-size: 20px;
+            left: 80px;
+            top: 140px;
+            font-size: 26px;
             color: #34353C;
             line-height: 1.6;
             white-space: pre-line;
@@ -2046,9 +2285,9 @@
         
         .dei-methods-slide .section2-title {
             position: absolute;
-            left: 60px;
-            top: 190px;
-            font-size: 35px;
+            left: 80px;
+            top: 270px;
+            font-size: 50px;
             font-weight: 600;
             color: black;
             font-family: 'Lora', serif;
@@ -2056,8 +2295,8 @@
         
         .dei-methods-slide .section2-lines {
             position: absolute;
-            left: 60px;
-            top: 250px;
+            left: 80px;
+            top: 360px;
             font-size: 20px;
             color: #34353C;
             line-height: 1.6;
@@ -2068,9 +2307,9 @@
         .dei-methods-slide .avatar-wrap {
             position: absolute;
             right: 60px;
-            top: 115px;
-            width: 172px;
-            height: 172px;
+            top: 75px;
+            width: 230px;
+            height: 230px;
             border-radius: 50%;
             overflow: hidden;
             background: #FFFFFF;
@@ -2802,7 +3041,7 @@
             top: 80px;
             bottom: 148px;
             display: grid;
-            grid-template-columns: 380px 1fr;
+            grid-template-columns: 1fr 1fr;
             grid-auto-rows: minmax(120px, auto);
             row-gap: 10px;
             column-gap: 15px 72px;
@@ -2810,12 +3049,12 @@
         }
         
         .kpi-update-slide .value {
-            font-size: 66px;
+            font-size: 90px;
             color: #09090B;
             font-weight: 700;
             text-align: right;
             letter-spacing: -3px;
-            line-height: 1;
+            margin-top: -55px;
             white-space: nowrap;
             overflow: hidden;
             margin-bottom: 50px;
@@ -2825,10 +3064,10 @@
         .kpi-update-slide .description {
             color: #09090B;
             line-height: 1.65;
-            font-size: 15px;
-            max-width: 500px;
-            margin-left: 50px;
-            margin-top: -28px;
+            font-size: 21px;
+            max-width: 83%;
+            margin-left: 70px;
+            margin-top: -70px;
             font-family: 'Inter', sans-serif;
         }
         
@@ -2845,9 +3084,9 @@
             position: absolute;
             left: 56px;
             bottom: 215px;
-            width: 140px;
+            width: 220px;
             background-color: #0F58F9;
-            height: 140px;
+            height: 220px;
             border-radius: 50%;
             overflow: hidden;
         }
@@ -2911,7 +3150,7 @@
         }
         
         .phishing-rise-slide .title {
-            font-size: 47px;
+            font-size: 75px;
             font-weight: 700;
             letter-spacing: -0.5px;
             color: #09090B;
@@ -2920,20 +3159,20 @@
         
         .phishing-rise-slide .description {
             margin-top: 10px;
-            max-width: 410px;
+            max-width: 620px;
             line-height: 1.7;
             color: #09090B;
-            font-size: 18px;
+            font-size: 27px;
             min-height: 104px;
             font-family: 'Inter', sans-serif;
         }
         
         .phishing-rise-slide .avatar-holder {
             position: absolute;
-            left: 72px;
-            bottom: 70px;
-            width: 140px;
-            height: 140px;
+            left: 100px;
+            bottom: 100px;
+            width: 220px;
+            height: 220px;
             background-color: #0F58F9;
             border-radius: 50%;
             overflow: hidden;
@@ -3056,17 +3295,17 @@
         }
         
         .soft-skills-assessment-slide .title {
-            font-size: 61px;
+            font-size: 110px;
             color: #000000;
             line-height: 1.2;
-            max-width: 44%;
-            font-weight: 900;
+            max-width: 66%;
             font-family: 'Lora', serif;
         }
         
         .soft-skills-assessment-slide .profile-image {
-            width: 170px;
-            height: 170px;
+            width: 240px;
+            height: 240px;
+            margin-top: 15px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #0F58F9;
@@ -3083,7 +3322,7 @@
             display: flex;
             gap: 30px;
             height: 55%;
-            margin-top: -35px;
+            margin-top: 10px;
         }
         
         .soft-skills-assessment-slide .tip-card {
@@ -3104,7 +3343,7 @@
         }
         
         .soft-skills-assessment-slide .tip-text {
-            font-size: 37px;
+            font-size: 64px;
             font-weight: 700;
             line-height: 1.4;
             font-family: 'Inter', sans-serif;
@@ -3135,7 +3374,7 @@
             position: absolute;
             bottom: 24px;
             left: 0px;
-            font-size: 16px;
+            font-size: 25px;
             color: rgba(0, 0, 0, 0.6);
             font-family: 'Inter', sans-serif;
             font-weight: 400;
@@ -3311,7 +3550,7 @@
         }
         
         .hybrid-work-slide .main-statement {
-            font-size: 56px;
+            font-size: 54px;
             max-width: 640px;
             color: black;
             line-height: 1.2;
@@ -3432,8 +3671,17 @@
             aspect-ratio: 16/9;
             position: relative;
             background-color: #ffffff;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
+        }
+
+        .high-performing-teams-slide *:not(.title-element) {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .high-performing-teams-slide .title-element {
+            font-family: 'Lora', serif !important;
+            font-weight: 500 !important;
         }
 
         .high-performing-teams-slide .top-part {
@@ -3441,14 +3689,14 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 29%;
+            height: 40%;
             background: linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%);
             overflow: hidden;
         }
 
         .high-performing-teams-slide .bottom-part {
             position: absolute;
-            top: 29%;
+            top: 40%;
             left: 0;
             right: 0;
             bottom: 0;
@@ -3467,7 +3715,7 @@
             max-width: 900px;
             line-height: 1.2;
             white-space: pre-line;
-            font-family: "Lora", serif;
+            font-family: 'Lora', serif;
         }
 
         .high-performing-teams-slide .description {
@@ -3572,7 +3820,7 @@
             font-size: 16px;
             font-weight: 400;
             color: #09090B;
-            font-family: "Inter", sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .high-performing-teams-slide .page-number-container {
@@ -3594,7 +3842,823 @@
             color: #09090B99;
             font-size: 17px;
             font-weight: 300;
-            font-family: "Inter", sans-serif;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Problems Grid Slide Template - EXACT React Copy */
+        .problems-grid-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #E0E7FF;
+            color: #09090B;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+        }
+
+        .problems-grid-slide .tag {
+            position: absolute;
+            left: 40px;
+            top: 40px;
+            background: none;
+            color: #34353C;
+            padding: 7px 18px;
+            font-size: 16px;
+            border-radius: 50px;
+            border: 1px solid black;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .problems-grid-slide .tag-indicator {
+            background: #0F58F9;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-top: 8px;
+        }
+
+        .problems-grid-slide .title {
+            position: absolute;
+            left: 40px;
+            top: 100px;
+            font-size: 45px;
+            font-weight: 800;
+            color: #09090B;
+            font-family: 'Lora', serif;
+        }
+
+        .problems-grid-slide .grid {
+            position: absolute;
+            left: 40px;
+            top: 215px;
+            width: 65%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .problems-grid-slide .card {
+            background: #FFFFFF;
+            border-radius: 6px;
+            height: 385px;
+            padding: 17px 28px;
+        }
+
+        .problems-grid-slide .card .num-box {
+            width: 45px;
+            height: 45px;
+            background: #0F58F9;
+            color: #FFFFFF;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 2px;
+        }
+
+        .problems-grid-slide .card .card-title {
+            margin-top: 12px;
+            font-size: 45px;
+            font-weight: 700;
+            margin-top: 20px;
+            color: #09090B;
+            font-family: 'Lora', serif;
+        }
+
+        .problems-grid-slide .card .card-body {
+            margin-top: 14px;
+            font-size: 30px;
+            margin-top: 20px;
+            color: #34353C;
+            line-height: 1.4;
+            max-width: 740px;
+        }
+
+        .problems-grid-slide .right-text {
+            position: absolute;
+            right: 98px;
+            bottom: 100px;
+            width: 500px;
+            font-size: 25px;
+            color: #34353C;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .problems-grid-slide .avatar {
+            position: absolute;
+            right: 64px;
+            top: 45px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #0F58F9;
+        }
+
+        .problems-grid-slide .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .problems-grid-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #5F616D;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .problems-grid-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .problems-grid-slide .page-number {
+            color: #5F616D;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Soft Skills Types Slide Template - EXACT React Copy */
+        .soft-skills-types-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .soft-skills-types-slide .logo-container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #09090B;
+            font-size: 17px;
+        }
+
+        .soft-skills-types-slide .title {
+            position: absolute;
+            top: 96px;
+            left: 56px;
+            font-size: 90px;
+            line-height: 1.1;
+            font-weight: 800;
+            color: #09090B;
+            font-family: 'Lora', serif;
+            width: fit-content;
+            max-width: 1200px;
+        }
+
+        .soft-skills-types-slide .avatar {
+            position: absolute;
+            top: 40px;
+            right: 44px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+            overflow: hidden;
+        }
+
+        .soft-skills-types-slide .avatar img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .soft-skills-types-slide .cards-row {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .soft-skills-types-slide .card {
+            position: relative;
+            background-color: #E5E5E5;
+            border-radius: 0px;
+            overflow: hidden;
+        }
+
+        .soft-skills-types-slide .card img {
+            width: 100%;
+            height: 100%;
+            border-radius: 0px;
+            object-fit: cover;
+        }
+
+        .soft-skills-types-slide .card-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #FFFFFF;
+            padding: 6px 10px;
+            font-size: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .soft-skills-types-slide .card-label svg {
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .soft-skills-types-slide .card-label span {
+            font-size: 35px;
+        }
+
+        /* Benefits And Perks Columns Slide Template - EXACT React Copy */
+        .benefits-perks-columns-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #EFEFEF;
+            color: #111;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+        }
+
+        .benefits-perks-columns-slide .top-section {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 250px;
+            background: #E0E7FF;
+            border-bottom: 1px solid #d8d8d8;
+        }
+
+        .benefits-perks-columns-slide .logo-container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #09090B;
+            font-size: 17px;
+        }
+
+        .benefits-perks-columns-slide .heading {
+            position: absolute;
+            left: 48px;
+            top: 90px;
+            font-size: 58px;
+            font-weight: 800;
+            color: #09090B;
+            line-height: 1.2;
+            max-width: 900px;
+            font-family: 'Lora', serif;
+        }
+
+        .benefits-perks-columns-slide .avatar {
+            position: absolute;
+            top: 36px;
+            right: 48px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+            overflow: hidden;
+        }
+
+        .benefits-perks-columns-slide .avatar img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .benefits-perks-columns-slide .columns-grid {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 250px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        .benefits-perks-columns-slide .column {
+            padding: 32px;
+            background: #0F58F9;
+            color: #FFFFFF;
+            position: relative;
+        }
+
+        .benefits-perks-columns-slide .column.accent {
+            background: #FFFFFF;
+            color: #0F58F9;
+        }
+
+        .benefits-perks-columns-slide .number-badge {
+            width: 35px;
+            height: 35px;
+            border-radius: 4px;
+            background: #FFFFFF;
+            color: #0F58F9;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .benefits-perks-columns-slide .column.accent .number-badge {
+            background: #0F58F9;
+            color: #FFFFFF;
+        }
+
+        .benefits-perks-columns-slide .column-title {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .benefits-perks-columns-slide .column.accent .column-title {
+            color: #09090B;
+        }
+
+        .benefits-perks-columns-slide .column-body {
+            font-size: 16px;
+            opacity: 0.7;
+            line-height: 1.3;
+            position: absolute;
+            top: 268px;
+            left: 32px;
+            right: 32px;
+        }
+
+        .benefits-perks-columns-slide .column.accent .column-body {
+            color: #09090B;
+            opacity: 0.7;
+        }
+
+        /* Soft Skills Develop Slide Template - EXACT React Copy */
+        .soft-skills-develop-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #FFFFFF;
+            color: #1F2937;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 50%;
+        }
+
+        .soft-skills-develop-slide .left-section {
+            padding: 72px 85px 72px 50px;
+            position: relative;
+        }
+
+        .soft-skills-develop-slide .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .soft-skills-develop-slide .title {
+            font-size: 85px;
+            font-weight: 800;
+            color: #222;
+            line-height: 0.95;
+            white-space: pre-line;
+            margin-top: 20px;
+            font-family: 'Lora', serif;
+        }
+
+        .soft-skills-develop-slide .items-grid {
+            margin-top: 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px 80px;
+        }
+
+        .soft-skills-develop-slide .item-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: black;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .soft-skills-develop-slide .item-body {
+            margin-top: 10px;
+            font-size: 20px;
+            width: 340px;
+            color: #3A3A3C;
+            line-height: 1.5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .soft-skills-develop-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #1F2937;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .soft-skills-develop-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .soft-skills-develop-slide .page-number {
+            color: #1F2937;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .soft-skills-develop-slide .right-section {
+            position: relative;
+        }
+
+        .soft-skills-develop-slide .image-area {
+            position: absolute;
+            left: -18px;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, #0F58F9, #1023A1);
+            height: 100%;
+        }
+
+        .soft-skills-develop-slide .image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Oral Hygiene Signs Slide Template - EXACT React Copy */
+        .oral-hygiene-signs-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #FFFFFF;
+            color: #111;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+        }
+
+        .oral-hygiene-signs-slide .heading {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            font-size: 78px;
+            width: 100%;
+            font-weight: 800;
+            color: #1F2937;
+            line-height: 1.05;
+            white-space: pre-line;
+        }
+
+        .oral-hygiene-signs-slide .avatar {
+            position: absolute;
+            right: 56px;
+            top: 48px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #4B71D6;
+        }
+
+        .oral-hygiene-signs-slide .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .oral-hygiene-signs-slide .items-grid {
+            position: absolute;
+            left: 56px;
+            right: 56px;
+            bottom: 56px;
+            top: 285px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 72px;
+        }
+
+        .oral-hygiene-signs-slide .items-list {
+            display: grid;
+            row-gap: 22px;
+        }
+
+        .oral-hygiene-signs-slide .item-row {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            column-gap: 18px;
+            align-items: center;
+        }
+
+        .oral-hygiene-signs-slide .item-number {
+            font-size: 140px;
+            font-weight: 800;
+            color: #5B78E6;
+        }
+
+        .oral-hygiene-signs-slide .item-title {
+            font-size: 40px;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .oral-hygiene-signs-slide .item-body {
+            width: 90%;
+            font-size: 25px;
+            color: #6B7280;
+            line-height: 1.6;
+        }
+
+        .oral-hygiene-signs-slide .logo-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .oral-hygiene-signs-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #5F616D;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .oral-hygiene-signs-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .oral-hygiene-signs-slide .page-number {
+            color: #5F616D;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Resilience Behaviors Slide Template Styles */
+        .resilience-behaviors-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .resilience-behaviors-slide .top-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, #0F58F9, #1023A1);
+        }
+
+        .resilience-behaviors-slide .title {
+            position: absolute;
+            top: 66px;
+            left: 370px;
+            right: 40px;
+            font-size: 47px;
+            max-width: 720px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .resilience-behaviors-slide .subtitle {
+            width: 50%;
+            position: absolute;
+            top: 260px;
+            left: 370px;
+            right: 170px;
+            font-size: 25px;
+            color: #CFDAF7;
+            line-height: 1.6;
+        }
+
+        .resilience-behaviors-slide .avatar-circle {
+            position: absolute;
+            top: 90px;
+            left: 70px;
+            width: 230px;
+            height: 230px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #FFFFFF;
+        }
+
+        .resilience-behaviors-slide .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .resilience-behaviors-slide .bottom-section {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background-color: #E0E7FF;
+            padding: 60px 64px 80px 64px;
+        }
+
+        .resilience-behaviors-slide .bullets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            row-gap: 75px;
+            column-gap: 48px;
+        }
+
+        .resilience-behaviors-slide .bullet-item {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            width: 292px;
+            gap: 20px;
+            color: #34353C;
+            font-size: 30px;
+            line-height: 1.4;
+            padding-right: 80px;
+        }
+
+        .resilience-behaviors-slide .bullet-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 3px;
+            background-color: #0F58F9;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            margin-right: 16px;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+
+        .resilience-behaviors-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #5D5D5D;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resilience-behaviors-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .resilience-behaviors-slide .logo-container {
+            position: absolute;
+            bottom: 24px;
+            right: 64px;
+            font-size: 15px;
+        }
+
+        .resilience-behaviors-slide .logo-container span {
+            color: #09090B;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        /* Stay Safe Tips Slide Template Styles */
+        .stay-safe-tips-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #0E0E0E;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .stay-safe-tips-slide .left-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 66.5%;
+            background-color: #FEFEFE;
+        }
+
+        .stay-safe-tips-slide .title {
+            position: absolute;
+            top: 44px;
+            left: 41px;
+            font-size: 115px;
+            line-height: 1.05;
+            font-weight: 800;
+            color: #202122;
+            max-width: 78%;
+        }
+
+        .stay-safe-tips-slide .tips-grid {
+            position: absolute;
+            top: 240px;
+            left: 44px;
+            width: 61%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            column-gap: 72px;
+            row-gap: 64px;
+        }
+
+        .stay-safe-tips-slide .tip-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stay-safe-tips-slide .tip-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #5740BC;
+            margin-bottom: 8px;
+        }
+
+        .stay-safe-tips-slide .tip-heading {
+            font-size: 36px;
+            font-weight: 800;
+            color: #202222;
+            margin-bottom: 8px;
+        }
+
+        .stay-safe-tips-slide .tip-description {
+            font-size: 22px;
+            color: #484949;
+            line-height: 1.4;
+            max-width: 96%;
+        }
+
+        .stay-safe-tips-slide .right-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 33.5%;
+            background-color: #0E0E0E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stay-safe-tips-slide .actor-image {
+            width: 100%;
+            height: 92%;
+            object-fit: contain;
+            position: absolute;
+            bottom: -25px;
         }
     </style>
 </head>
@@ -4130,7 +5194,7 @@
                     </div>
                     
                     <!-- Title -->
-                    <div class="title">{{ title or 'Our culture and values' }}</div>
+                    <div class="title title-element">{{ title or 'Our culture and values' }}</div>
                     
                     <!-- Avatar container -->
                     <div class="avatar-container">
@@ -4144,19 +5208,19 @@
                         <!-- Left column -->
                         <div class="column">
                             <div class="card-title card-title-left">{{ leftTitle or 'Code of Conduct' }}</div>
-                            <div>{{ leftText or 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner and to uphold the following principles: ...' }}</div>
+                            <div class="card-txt">{{ leftText or 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner and to uphold the following principles: ...' }}</div>
                         </div>
                         
                         <!-- Middle column -->
                         <div class="column-middle">
                             <div class="card-title card-title-middle">{{ middleTitle or 'HR Policies' }}</div>
-                            <div>{{ middleText or 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees ...' }}</div>
+                            <div class="card-txt">{{ middleText or 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees ...' }}</div>
                         </div>
                         
                         <!-- Right column -->
                         <div class="column">
                             <div class="card-title card-title-right">{{ rightTitle or 'IT Policies' }}</div>
-                            <div>{{ rightText or 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data ...' }}</div>
+                            <div class="card-txt">{{ rightText or 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data ...' }}</div>
                         </div>
                     </div>
                     
@@ -4164,6 +5228,89 @@
                     <div class="page-number-container">
                         <div class="page-line"></div>
                         <div class="page-number">{{ pageNumber or '40' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'key-skills-data-analysis-slide' or templateId == 'key-skills-data-analysis' %}
+                <div class="key-skills-data-analysis-slide">
+                    <!-- Left Section - Heading and Avatar -->
+                    <div class="left-section">
+                        <!-- Heading -->
+                        <div class="heading title-element">{{ heading or 'Key skills\nfor data analysis:' }}</div>
+                        
+                        <!-- Avatar container -->
+                        <div class="avatar-container">
+                            {% if avatarImagePath %}
+                                <img src="{{ avatarImagePath }}" alt="{{ avatarAlt or 'Avatar' }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Right Section - Numbered List -->
+                    <div class="right-section list-container">
+                        {% for item in items %}
+                            <div class="list-item">
+                                <div class="number-square">
+                                    <div class="number">{{ loop.index }}</div>
+                                </div>
+                                <div class="item-text title-element">{{ item }}</div>
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- Default items if none provided -->
+                        {% if not items %}
+                            <div class="list-item">
+                                <div class="number-square">
+                                    <div class="number">1</div>
+                                </div>
+                                <div class="item-text title-element">Sorting and filtering data.</div>
+                            </div>
+                            <div class="list-item">
+                                <div class="number-square">
+                                    <div class="number">2</div>
+                                </div>
+                                <div class="item-text title-element">Formulas and functions.</div>
+                            </div>
+                            <div class="list-item">
+                                <div class="number-square">
+                                    <div class="number">3</div>
+                                </div>
+                                <div class="item-text title-element">Pivot tables.</div>
+                            </div>
+                            <div class="list-item">
+                                <div class="number-square">
+                                    <div class="number">4</div>
+                                </div>
+                                <div class="item-text title-element">Data validation.</div>
+                            </div>
+                            <div class="list-item">
+                                <div class="number-square">
+                                    <div class="number">5</div>
+                                </div>
+                                <div class="item-text title-element">Charts and graphs.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <div class="circle">
+                                    <div class="horizontal-line"></div>
+                                    <div class="vertical-line"></div>
+                                </div>
+                                <span class="text">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '36' }}</div>
                     </div>
                 </div>
                 
@@ -4222,7 +5369,7 @@
                             </div>
                             <div class="white-card">
                                 <div class="card-text card-text-second">Companies with diverse leadership outperform competitors by 35%</div>
-                                <div class="arrow-icon">&rarr;</div>
+                                <div class="arrow-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></div>
                             </div>
                         {% endif %}
                     </div>
@@ -4494,14 +5641,14 @@
                     <!-- Logo in bottom-right corner -->
                     <div class="logo-container">
                         {% if logoNew %}
-                            <img src="{{ logoNew }}" alt="Logo" style="height: 45px; max-width: 180px; object-fit: contain;">
+                            <img src="{{ logoNew }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
                         {% else %}
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="width: 45px; height: 45px; border: 3px solid #09090B; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
-                                    <div style="width: 18px; height: 3px; background-color: #09090B; position: absolute;"></div>
-                                    <div style="width: 3px; height: 18px; background-color: #09090B; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 30px; height: 30px; border: 2px solid #09090B; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 12px; height: 2px; background-color: #09090B; position: absolute;"></div>
+                                    <div style="width: 2px; height: 12px; background-color: #09090B; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
                                 </div>
-                                <span style="font-size: 24px; font-weight: 400; color: #09090B;">Your Logo</span>
+                                <span style="font-size: 16px; font-weight: 400; color: #09090B;">Your Logo</span>
                             </div>
                         {% endif %}
                     </div>
@@ -4708,7 +5855,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 <div style="width: 12px; height: 2px; background-color: #000000; position: absolute;"></div>
                                 <div style="width: 2px; height: 12px; background-color: #000000; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
                             </div>
-                            <span style="font-size: 14px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
+                            <span style="font-size: 19px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
                         {% endif %}
                     </div>
                 </div>
@@ -5086,10 +6233,10 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         </div>
                         
                         <div style="position: absolute; right: 48px; left: 96px; bottom: 72px; top: 72px; pointer-events: none;">
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: -33.5px;"></div>
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 93.5px;"></div>
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 222.5px;"></div>
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 352.5px;"></div>
+                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: -4%;"></div>
+                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 21%;"></div>
+                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 46%;"></div>
+                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 71%;"></div>
                         </div>
                         
                         <div class="chart">
@@ -5148,7 +6295,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                     <div style="width: 12px; height: 2px; background-color: #000000; position: absolute;"></div>
                                     <div style="width: 2px; height: 12px; background-color: #000000; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
                                 </div>
-                                <span style="font-size: 14px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
+                                <span style="font-size: 19px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -5278,6 +6425,372 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     </div>
                 </div>
                 
+            {% elif templateId == 'benefits-perks-columns-slide' or templateId == 'benefits-perks-columns' or templateId == 'benefits-and-perks' or templateId == 'benefits-perks' %}
+                <!-- Benefits And Perks Columns Slide Template - EXACT React Copy -->
+                <!-- DEBUG: templateId = {{ templateId }} -->
+                <div class="benefits-perks-columns-slide">
+                    <!-- Top section -->
+                    <div class="top-section"></div>
+
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span style="color: #09090B; font-size: 17px;">{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Heading -->
+                    <div class="heading">{{ heading or 'Our culture and values' }}</div>
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Columns Grid -->
+                    <div class="columns-grid">
+                        {% if columns and columns|length > 0 %}
+                            {% for column in columns[:4] %}
+                                <div class="column{% if column.accent %} accent{% endif %}">
+                                    <div class="number-badge">{{ loop.index }}</div>
+                                    <div class="column-title">{{ column.title or 'Benefit Title' }}</div>
+                                    <div class="column-body">{{ column.body or 'Benefit description goes here...' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default columns -->
+                            <div class="column">
+                                <div class="number-badge">1</div>
+                                <div class="column-title">Health and Wellness</div>
+                                <div class="column-body">Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).</div>
+                            </div>
+                            <div class="column accent">
+                                <div class="number-badge">2</div>
+                                <div class="column-title">Financial Benefits</div>
+                                <div class="column-body">401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.</div>
+                            </div>
+                            <div class="column">
+                                <div class="number-badge">3</div>
+                                <div class="column-title">Time off and work-life balance</div>
+                                <div class="column-body">Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.</div>
+                            </div>
+                            <div class="column accent">
+                                <div class="number-badge">4</div>
+                                <div class="column-title">Professional Development</div>
+                                <div class="column-body">Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'soft-skills-types-slide' or templateId == 'soft-skills-types' or templateId == 'soft-skills' or templateId == 'skills-types' %}
+                <!-- Soft Skills Types Slide Template - EXACT React Copy -->
+                <div class="soft-skills-types-slide">
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span style="color: #09090B; font-size: 17px;">Your Logo</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Title -->
+                    <div class="title">{{ title or 'Types of Soft Skills' }}</div>
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile' }}" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Cards Row -->
+                    <div class="cards-row">
+                        {% if cards and cards|length > 0 %}
+                            {% for card in cards[:3] %}
+                                <div class="card">
+                                    {% if card.imagePath %}
+                                        <img src="{{ card.imagePath }}" alt="{{ card.label or 'Card image' }}" />
+                                    {% endif %}
+                                    <div class="card-label">
+                                        <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                        </svg>
+                                        <span>{{ card.label or 'Soft Skill' }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default cards -->
+                            <div class="card">
+                                <div class="card-label">
+                                    <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                    </svg>
+                                    <span>Time management</span>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-label">
+                                    <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                    </svg>
+                                    <span>Team work</span>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-label">
+                                    <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                    </svg>
+                                    <span>Work ethic</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'problems-grid-slide' or templateId == 'problems-grid' or templateId == 'problems' or templateId == 'problems-slide' %}
+                <!-- Problems Grid Slide Template - EXACT React Copy -->
+                <div class="problems-grid-slide">
+                    <!-- Tag -->
+                    <div class="tag">
+                        <div class="tag-indicator"></div>
+                        <div class="tag-text">{{ tag or 'The problem' }}</div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="title">{{ title or 'Problem Name' }}</div>
+
+                    <!-- Grid of cards -->
+                    <div class="grid">
+                        {% if cards and cards|length > 0 %}
+                            {% for card in cards %}
+                                <div class="card">
+                                    <div class="num-box">{{ card.number or loop.index }}</div>
+                                    <div class="card-title">{{ card.title or 'Problem Name' }}</div>
+                                    <div class="card-body">{{ card.body or "In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success." }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default cards -->
+                            <div class="card">
+                                <div class="num-box">1</div>
+                                <div class="card-title">Problem Name</div>
+                                <div class="card-body">In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success.</div>
+                            </div>
+                            <div class="card">
+                                <div class="num-box">2</div>
+                                <div class="card-title">Problem Name</div>
+                                <div class="card-body">In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success.</div>
+                            </div>
+                            <div class="card">
+                                <div class="num-box">3</div>
+                                <div class="card-title">Problem Name</div>
+                                <div class="card-body">In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success.</div>
+                            </div>
+                            <div class="card">
+                                <div class="num-box">4</div>
+                                <div class="card-title">Problem Name</div>
+                                <div class="card-body">In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right text -->
+                    <div class="right-text">{{ rightText or "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and bigges\niatoerostornsuestroner\nproductivitytounhappycustomers.Butdon'tworry – we're here to help." }}</div>
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '12' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'soft-skills-develop-slide' or templateId == 'soft-skills-develop' or templateId == 'soft-skills-development' %}
+                <!-- Soft Skills Develop Slide Template - EXACT React Copy -->
+                <div class="soft-skills-develop-slide">
+                    <!-- Left Section -->
+                    <div class="left-section">
+                        <!-- Logo -->
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                            {% else %}
+                                <span style="color: #000000; font-family: 'Inter', sans-serif; font-weight: 500;">{{ logoText or 'Your Logo' }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Title -->
+                        <div class="title">{{ title or 'How To Develop\nSoft Skills' }}</div>
+
+                        <!-- Items Grid -->
+                        <div class="items-grid">
+                            {% if items and items|length > 0 %}
+                                {% for item in items %}
+                                    <div>
+                                        <div class="item-title">{{ item.title or 'Item Title' }}</div>
+                                        <div class="item-body">{{ item.body or 'Item description goes here...' }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default items -->
+                                <div>
+                                    <div class="item-title">Be an Active Listener</div>
+                                    <div class="item-body">Active listening helps better understand others and fosters meaningful connections.</div>
+                                </div>
+                                <div>
+                                    <div class="item-title">Seek Feedback</div>
+                                    <div class="item-body">Seeking feedback helps identify areas for improvement and personal growth</div>
+                                </div>
+                                <div>
+                                    <div class="item-title">Join Training Programs</div>
+                                    <div class="item-body">Training programs and courses provide structured learning and expert insights on soft skills</div>
+                                </div>
+                                <div>
+                                    <div class="item-title">Practice Empathy</div>
+                                    <div class="item-body">Empathy and patience build trust and create positive relationships with others.</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Page Number -->
+                        <div class="page-number-container">
+                            <div class="page-line"></div>
+                            <div class="page-number">{{ pageNumber or '35' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="right-section">
+                        <div class="image-area">
+                            {% if rightImagePath %}
+                                <img src="{{ rightImagePath }}" alt="Right image" />
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'oral-hygiene-signs-slide' or templateId == 'oral-hygiene-signs' or templateId == 'oral-hygiene' %}
+                <!-- Oral Hygiene Signs Slide Template - EXACT React Copy -->
+                <div class="oral-hygiene-signs-slide">
+                    <!-- Heading -->
+                    <div class="heading">{{ heading or 'What are the signs of\npoor oral hygiene?' }}</div>
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Items Grid -->
+                    <div class="items-grid">
+                        <!-- Left Items -->
+                        <div class="items-list">
+                            {% if leftItems and leftItems|length > 0 %}
+                                {% for item in leftItems %}
+                                    <div class="item-row">
+                                        <div class="item-number">{{ item.number or '0' ~ (loop.index) }}</div>
+                                        <div>
+                                            <div class="item-title">{{ item.title or 'Item Title' }}</div>
+                                            <div class="item-body">{{ item.body or 'Item description goes here...' }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default left items -->
+                                <div class="item-row">
+                                    <div class="item-number">01</div>
+                                    <div>
+                                        <div class="item-title">Bleeding gums</div>
+                                        <div class="item-body">The main cause of bleeding gums is the buildup of plaque...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">02</div>
+                                    <div>
+                                        <div class="item-title">Tooth decay</div>
+                                        <div class="item-body">Cavities are permanently damaged areas ...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">03</div>
+                                    <div>
+                                        <div class="item-title">Chronic bad breath</div>
+                                        <div class="item-body">Problems with your teeth or gums ...</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Right Items -->
+                        <div class="items-list">
+                            {% if rightItems and rightItems|length > 0 %}
+                                {% for item in rightItems %}
+                                    <div class="item-row">
+                                        <div class="item-number">{{ item.number or '0' ~ (loop.index + 3) }}</div>
+                                        <div>
+                                            <div class="item-title">{{ item.title or 'Item Title' }}</div>
+                                            <div class="item-body">{{ item.body or 'Item description goes here...' }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default right items -->
+                                <div class="item-row">
+                                    <div class="item-number">04</div>
+                                    <div>
+                                        <div class="item-title">Loose teeth</div>
+                                        <div class="item-body">For adults, a loose tooth occurs when ...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">05</div>
+                                    <div>
+                                        <div class="item-title">Gum recession</div>
+                                        <div class="item-body">A form of gum disease ...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">06</div>
+                                    <div>
+                                        <div class="item-title">Toothache</div>
+                                        <div class="item-body">Minor toothaches can come from ...</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span style="color: #000000; font-family: 'Inter', sans-serif; font-weight: 500;">{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number in bottom-left corner -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '15' }}</div>
+                    </div>
+                </div>
+                
             {% elif templateId == 'high-performing-teams' or templateId == 'high-performing-teams-slide' %}
                 <div class="high-performing-teams-slide">
                     <!-- Top part with blue gradient background -->
@@ -5287,22 +6800,22 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="bottom-part"></div>
                     
                     <!-- Title in top section -->
-                    <div class="title">{{ title or 'The Power of High-Performing Teams' }}</div>
+                    <div class="title title-element">{{ title or 'The Power of High-\nPerforming Teams' }}</div>
                     
                     <!-- Description in top section -->
-                    <div class="description">{{ content or 'Great teams drive innovation, boost productivity, and create lasting impact.' }}</div>
+                    <div class="description">{{ content or 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.' }}</div>
                     
                     <!-- White panel in center -->
                     <div class="panel">
                         <!-- Background SVG pattern -->
                         <div class="background-svg">
-                            <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                 <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
                                 <defs>
                                     <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
-                                        <use href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
+                                        <use xlink:href="#image0_550_295" transform="matrix(0.000714286 0 0 0.00167347 0 -0.12381)"/>
                                     </pattern>
-                                    <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
+                                    <image id="image0_550_295" width="1400" height="700" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAK8CAYAAABV1dcbAA..."/>
                                 </defs>
                             </svg>
                         </div>
@@ -5310,15 +6823,15 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     
                     <!-- Avatar container -->
                     <div class="avatar-container">
-                        {% if avatarImagePath %}
-                            <img src="{{ avatarImagePath }}" alt="Avatar" />
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" />
                         {% endif %}
                     </div>
                     
                     <!-- Logo container -->
                     <div class="logo-container">
-                        {% if logoPath %}
-                            <img src="{{ logoPath }}" alt="Company Logo" />
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Company Logo" />
                         {% else %}
                             <div class="logo-placeholder">
                                 <div class="circle">
@@ -5333,13 +6846,150 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <!-- Page number -->
                     <div class="page-number-container">
                         <div class="line"></div>
-                        <div class="page-number">{{ pageNumber or '1' }}</div>
+                        <div class="page-number">{{ pageNumber or '17' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'resilience-behaviors-slide' or templateId == 'resilience-behaviors' or templateId == 'resilience' %}
+                <!-- Resilience Behaviors Slide Template - EXACT React Copy -->
+                <div class="resilience-behaviors-slide">
+                    <!-- Top Section - Dark Blue -->
+                    <div class="top-section">
+                        <!-- Avatar -->
+                        <div class="avatar-circle">
+                            {% if profileImagePath %}
+                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile' }}" />
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Title -->
+                        <div class="title">{{ title or 'Research shows that resilient employees engage in three specific behaviors.' }}</div>
+                        
+                        <!-- Subtitle -->
+                        <div class="subtitle">{{ subtitle or 'Research shows that resilient employees engage in three specific behaviors. These help them remain focused and optimistic despite setbacks or uncertainty:' }}</div>
+                    </div>
+                    
+                    <!-- Bottom Section - Light Blue -->
+                    <div class="bottom-section">
+                        <!-- Bullets grid (8 items) -->
+                        <div class="bullets-grid">
+                            {% if bullets and bullets|length > 0 %}
+                                {% for bullet in bullets[:8] %}
+                                    <div class="bullet-item">
+                                        <div class="bullet-number">{{ loop.index }}</div>
+                                        <div>{{ bullet }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default bullets -->
+                                <div class="bullet-item">
+                                    <div class="bullet-number">1</div>
+                                    <div>Pay attention to your health</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">2</div>
+                                    <div>Focus on your physical well-being</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">3</div>
+                                    <div>Practice relaxation techniques</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">4</div>
+                                    <div>Practice reframing threats as challenges</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">5</div>
+                                    <div>Watch your stress levels</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">6</div>
+                                    <div>Mind your mindset</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">7</div>
+                                    <div>Practice self-awareness</div>
+                                </div>
+                                <div class="bullet-item">
+                                    <div class="bullet-number">8</div>
+                                    <div>Get connected</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Page Number -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '38' }}</div>
+                    </div>
+                    
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span>{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'stay-safe-tips-slide' or templateId == 'stay-safe-tips' or templateId == 'stay-safe' %}
+                <!-- Stay Safe Tips Slide Template - EXACT React Copy -->
+                <div class="stay-safe-tips-slide">
+                    <!-- Left white content panel -->
+                    <div class="left-panel"></div>
+
+                    <!-- Title -->
+                    <div class="title">{{ title or '4 tips to staysafe online' }}</div>
+
+                    <!-- Tips grid -->
+                    <div class="tips-grid">
+                        {% if tips and tips|length > 0 %}
+                            {% for tip in tips[:4] %}
+                                <div class="tip-item">
+                                    <div class="tip-number">{{ tip.number or (loop.index) }}</div>
+                                    <div class="tip-heading">{{ tip.heading or 'Tip Heading' }}</div>
+                                    <div class="tip-description">{{ tip.description or 'Tip description goes here...' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default tips -->
+                            <div class="tip-item">
+                                <div class="tip-number">1</div>
+                                <div class="tip-heading">Know the scams</div>
+                                <div class="tip-description">Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them.</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-number">2</div>
+                                <div class="tip-heading">Don't click</div>
+                                <div class="tip-description">These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-number">3</div>
+                                <div class="tip-heading">Shop safely</div>
+                                <div class="tip-description">Don't shop on a site unless it has the "https". Also, protect yourself and use a credit card instead of a debit card while shopping online</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-number">4</div>
+                                <div class="tip-heading">Passwords</div>
+                                <div class="tip-description">Do away with the "Fitguy1982" password and use an extremely uncrackable one like 9&4yiw2pyqx# Phrases are good too.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right actor image over black -->
+                    <div class="right-panel">
+                        {% if actorImagePath %}
+                            <img src="{{ actorImagePath }}" alt="{{ actorImageAlt or 'Actor image' }}" class="actor-image" />
+                        {% endif %}
                     </div>
                 </div>
                 
             {% else %}
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
+                    <!-- DEBUG: Unknown templateId = {{ templateId }} -->
                     {% if title %}
                         <h1 class="slide-title positioned-element" 
                             {% if metadata and metadata.elementPositions %}
