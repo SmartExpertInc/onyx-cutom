@@ -285,9 +285,14 @@ const renderBulletList = (block: BulletListBlock): string => {
   html += `<ul style="${listStyle}">`;
   block.items.forEach((item) => {
     const itemText = typeof item === 'string' ? item : JSON.stringify(item);
-    html += `<li style="${itemStyle}">
-      <span style="${bulletStyle}"></span>
-      <span>${parseStyledText(itemText, true)}</span>
+    const isRecommendationItem = typeof item === 'string' && item.toLowerCase().includes('recommendation');
+    
+    html += `<li style="${itemStyle}">`;
+    // Only show bullet if it's NOT a recommendation item
+    if (!isRecommendationItem) {
+      html += `<span style="${bulletStyle}"></span>`;
+    }
+    html += `<span>${parseStyledText(itemText, true)}</span>
     </li>`;
   });
   html += `</ul>`;
@@ -351,9 +356,14 @@ const renderNumberedList = (block: NumberedListBlock): string => {
   html += `<ol style="${listStyle}">`;
   block.items.forEach((item, index) => {
     const itemText = typeof item === 'string' ? item : JSON.stringify(item);
-    html += `<li style="${itemStyle}">
-      <span style="${numberStyle}">${index + 1}.</span>
-      <span>${parseStyledText(itemText, true)}</span>
+    const isRecommendationItem = typeof item === 'string' && item.toLowerCase().includes('recommendation');
+    
+    html += `<li style="${itemStyle}">`;
+    // Only show number if it's NOT a recommendation item
+    if (!isRecommendationItem) {
+      html += `<span style="${numberStyle}">${index + 1}.</span>`;
+    }
+    html += `<span>${parseStyledText(itemText, true)}</span>
     </li>`;
   });
   html += `</ol>`;
@@ -659,7 +669,7 @@ export const generateTextPresentationHtml = async (
       line-height: 1.6;
       color: #171718;
       background-color: #FFFFFF;
-      padding: 40px 8px;
+      padding: 40px 3px;
       max-width: 210mm; /* A4 width */
       margin: 0 auto;
     }
@@ -672,7 +682,7 @@ export const generateTextPresentationHtml = async (
       
       @page {
         size: A4;
-        margin: 12mm;
+        margin: 8mm;
       }
     }
     

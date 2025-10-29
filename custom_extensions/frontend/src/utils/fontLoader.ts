@@ -4,13 +4,13 @@
 export const MONT_FONTS = {
   regular: 'Mont Regular',
   bold: 'Mont Bold',
-  thin: 'Mont Thin',
+  // thin: 'Mont Thin', // Removed - not used
 } as const;
 
 export const MONT_FONT_URLS = {
   regular: '/fonts/fonnts.com-Mont_Regular.ttf',
   bold: '/fonts/fonnts.com-Mont_Bold.ttf',
-  thin: '/fonts/fonnts.com-Mont_Thin.ttf',
+  // thin: '/fonts/fonnts.com-Mont_Thin.ttf', // Removed - not used
 } as const;
 
 /**

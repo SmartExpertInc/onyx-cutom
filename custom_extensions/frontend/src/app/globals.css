@@ -27,6 +27,7 @@
   font-display: swap;
 }
 
+/* Removed Mont Thin font - not used in application
 @font-face {
   font-family: 'Mont Thin';
   src: url('/fonts/fonnts.com-Mont_Thin.ttf') format('truetype');
@@ -34,6 +35,7 @@
   font-style: normal;
   font-display: swap;
 }
+*/
 
 /* Mont Blanc variants (additional weights if needed) */
 @font-face {
