@@ -155,7 +155,9 @@ export class TemplateExtractor {
       'phishing-rise-slide': null,
       'ai-pharma-market-growth-slide': null,
       'kpi-update-slide': null,
-      'interest-growth-slide': null
+      'interest-growth-slide': null,
+      'culture-values-three-columns': null,
+      'percent-circles-slide': null
     };
 
     return extractors[templateId] || null;
