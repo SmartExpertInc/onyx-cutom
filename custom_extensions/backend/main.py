@@ -1731,8 +1731,27 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_4_soft_skills_assessment",
+      "slideId": "slide_4_culture_values",
       "slideNumber": 4,
+      "slideTitle": "Culture & Values",
+      "templateId": "culture-values-three-columns",
+      "voiceoverText": "Our organizational culture is built on three fundamental pillars that guide everything we do. These core values shape our decision-making, interactions, and commitment to excellence in all our endeavors.",
+      "props": {
+        "title": "Our Culture & Values",
+        "leftTitle": "Code of Conduct",
+        "leftText": "We maintain the highest ethical standards in all our business practices. Our code of conduct ensures transparency, integrity, and accountability in every interaction.",
+        "middleTitle": "HR Policies",
+        "middleText": "Our human resources policies are designed to support employee wellbeing, professional development, and work-life balance. We believe in creating an inclusive environment where everyone can thrive.",
+        "rightTitle": "IT Policies",
+        "rightText": "Information security and data protection are paramount. Our IT policies ensure secure access, proper data handling, and compliance with industry standards and regulations.",
+        "middlePanelColor": "#3B46FF",
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": ""
+      }
+    },
+    {
+      "slideId": "slide_5_soft_skills_assessment",
+      "slideNumber": 5,
       "slideTitle": "Assessment Tips",
       "templateId": "soft-skills-assessment-slide",
       "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
@@ -1743,14 +1762,14 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           { "text": "Second key recommendation for better results", "isHighlighted": false }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "pageNumber": 4,
+        "pageNumber": 5,
         "logoPath": "",
         "logoText": "Assessment Guide"
       }
     },
     {
-      "slideId": "slide_5_work_life_balance",
-      "slideNumber": 5,
+      "slideId": "slide_6_work_life_balance",
+      "slideNumber": 6,
       "slideTitle": "Conclusion",
       "templateId": "work-life-balance-slide",
       "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
@@ -1758,7 +1777,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "title": "Conclusion and Next Steps",
         "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
         "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
-        "pageNumber": 5,
+        "pageNumber": 6,
         "logoPath": ""
       }
     }
@@ -2492,6 +2511,28 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Assessment Guide'
                     
+            elif template_id == 'culture-values-three-columns':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Our Culture & Values'
+                if not normalized_props.get('leftTitle'):
+                    normalized_props['leftTitle'] = 'Code of Conduct'
+                if not normalized_props.get('leftText'):
+                    normalized_props['leftText'] = 'We maintain the highest ethical standards in all our business practices. Our code of conduct ensures transparency, integrity, and accountability in every interaction.'
+                if not normalized_props.get('middleTitle'):
+                    normalized_props['middleTitle'] = 'HR Policies'
+                if not normalized_props.get('middleText'):
+                    normalized_props['middleText'] = 'Our human resources policies are designed to support employee wellbeing, professional development, and work-life balance. We believe in creating an inclusive environment where everyone can thrive.'
+                if not normalized_props.get('rightTitle'):
+                    normalized_props['rightTitle'] = 'IT Policies'
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'Information security and data protection are paramount. Our IT policies ensure secure access, proper data handling, and compliance with industry standards and regulations.'
+                if not normalized_props.get('middlePanelColor'):
+                    normalized_props['middlePanelColor'] = '#3B46FF'
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
@@ -23465,7 +23506,37 @@ General Rules:
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
+VIDEO LESSON TEMPLATE DIVERSITY (CRITICAL - MAINTAIN VARIETY):
+- You MUST use a wide variety of templates from the 18 available video lesson templates below.
+- DO NOT repeat the same template unless absolutely necessary for content structure.
+- For typical video lessons (5-15 slides), aim to use each template AT MOST ONCE or TWICE.
 
+RECOMMENDED TEMPLATE DISTRIBUTION:
+- Start with: course-overview-slide (opening/welcome)
+- Content slides: Use diverse templates that fit your content:
+  * phishing-definition-slide (for definitions and key concepts)
+  * impact-statements-slide (for statistics and metrics)
+  * culture-values-three-columns-slide (for 3-part content)
+  * percent-circles-slide (for percentage-based data)
+  * benefits-list-slide (for listing benefits/features)
+  * dei-methods-slide (for methodologies)
+  * company-tools-resources-slide (for tools/resources)
+  * ai-pharma-market-growth-slide (for growth/trend data)
+  * critical-thinking-slide (for analytical content)
+  * benefits-tags-slide (for tag-style benefits)
+  * kpi-update-slide (for KPI/metrics updates)
+  * phishing-rise-slide (for rising trends/statistics)
+  * four-box-grid-slide (for 4-part content)
+  * solution-steps-slide (for step-by-step solutions)
+  * soft-skills-assessment-slide (for tips/recommendations)
+  * hybrid-work-best-practices-slide (for best practices)
+- End with: work-life-balance-slide (conclusion/next steps)
+
+TEMPLATE SELECTION GUIDELINES:
+- Prioritize templates that best express your content structure
+- Use specialty templates when content naturally fits (e.g., percent-circles-slide for percentage data)
+- Avoid defaulting to the same template repeatedly
+- Match template to content type (statistics → impact-statements-slide, definitions → phishing-definition-slide, etc.)
 
 PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
 Based on presentation design best practices, follow these rules for selecting appropriate images:
@@ -23507,7 +23578,7 @@ Before you start generating slides, note the slidesCount parameter. You MUST gen
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 6 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -23541,6 +23612,14 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
   • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
 
+- culture-values-three-columns: title, leftTitle, leftText, middleTitle, middleText, rightTitle, rightText, [middlePanelColor], [avatarPath], [logoPath]
+  • Purpose: Present organizational culture, values, policies, or three-pillar concepts with structured content
+  • Structure: Top bar with logo and title, three equal columns with colored middle panel and avatar display
+  • Required props: title (main heading), leftTitle/leftText (first pillar), middleTitle/middleText (central concept), rightTitle/rightText (third pillar)
+  • Visual elements: middlePanelColor (accent color for middle column), avatarPath (instructor/representative image), logoPath (branding)
+  • Usage: Explain company culture, organizational values, policy frameworks, or any three-part conceptual structure
+  • Content guidelines: Each column should present a distinct but related concept; middle column often serves as the central/primary concept; maintain consistent depth and tone across all three sections
+
 - work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
   • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
   • Structure: Content-rich slide with gradient background, visual arch design, and avatar display for lengthy text
@@ -23549,17 +23628,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
   • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
 
-MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
-- Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
-  1. FIRST SLIDE: course-overview-slide (Welcome and course introduction)
-  2. SECOND SLIDE: impact-statements-slide (Key statistics and impact metrics)
-  3. THIRD SLIDE: phishing-definition-slide (Core definitions and concepts)
-  4. FOURTH SLIDE: soft-skills-assessment-slide (Critical tips and recommendations)
-  5. FIFTH SLIDE: work-life-balance-slide (Conclusion and next steps)
-- NO template repetition allowed - each template used EXACTLY ONCE
-- NO additional slides beyond these 5 - maintain strict 5-slide structure
-- NO substitutions - you must use these exact 5 templates in this exact order
-- This structure ensures comprehensive coverage: Introduction → Data → Education → Application → Conclusion
+
 
 VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.

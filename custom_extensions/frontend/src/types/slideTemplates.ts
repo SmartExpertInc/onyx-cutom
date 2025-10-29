@@ -893,6 +893,7 @@ export type TemplateId =
   | 'ai-pharma-market-growth-slide'
   | 'kpi-update-slide'
   | 'interest-growth-slide'
+  | 'culture-values-three-columns'
 ;
 
 export interface TemplatePreview {
@@ -1301,4 +1302,19 @@ export interface InterestGrowthSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   rightPanelColor?: string;
+}
+
+export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
+  logoText?: string;
+  logoPath?: string;
+  title: string;
+  leftTitle: string;
+  leftText: string;
+  middleTitle: string;
+  middleText: string;
+  rightTitle: string;
+  rightText: string;
+  middlePanelColor?: string;
+  avatarPath?: string;
+  voiceoverText?: string;
 }
