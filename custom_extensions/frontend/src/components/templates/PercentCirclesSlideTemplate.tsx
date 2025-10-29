@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/PercentCirclesSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
@@ -40,6 +40,11 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const [currentPercent, setCurrentPercent] = useState(percent);
+
+  // Sync percent prop with local state
+  useEffect(() => {
+    setCurrentPercent(percent);
+  }, [percent]);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -221,6 +226,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Calculate number of circles to fill based on percentage
   const getFilledCirclesCount = (percentStr: string): number => {
     const numericValue = parseInt(percentStr.replace(/[^0-9]/g, ''), 10);
+    console.log('PercentCircles - percentStr:', percentStr, 'numericValue:', numericValue);
     if (isNaN(numericValue) || numericValue < 1) return 1;
     if (numericValue >= 100) return 10;
     if (numericValue >= 90) return 9;
@@ -235,6 +241,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   };
 
   const filledCount = getFilledCirclesCount(currentPercent);
+  console.log('PercentCircles - currentPercent:', currentPercent, 'filledCount:', filledCount);
 
   // Logo section styling
   const logoSection: React.CSSProperties = {
@@ -324,6 +331,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                       <ImprovedInlineEditor 
                         initialValue={currentPercent} 
                         onSave={(v)=>{ 
+                          console.log('PercentCircles - Saving new percent:', v);
                           setCurrentPercent(v);
                           onUpdate && onUpdate({ percent:v }); 
                           setEdit(null); 
