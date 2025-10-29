@@ -460,3 +460,12 @@ input:disabled + .slider {
 .ProseMirror em {
   font-style: italic;
 }
+
+/* PresentationLayout page background override */
+html.presentation-html-bg {
+  background-color: #F2F2F4 !important;
+}
+
+html.presentation-html-bg body {
+  background-color: #F2F2F4 !important;
+}

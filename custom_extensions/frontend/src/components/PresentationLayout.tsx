@@ -24,6 +24,15 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   theme = 'default',
   projectId
 }) => {
+  // Apply a background color on the html/body while this layout is mounted
+  useEffect(() => {
+    const htmlEl = document.documentElement;
+    htmlEl.classList.add('presentation-html-bg');
+    return () => {
+      htmlEl.classList.remove('presentation-html-bg');
+    };
+  }, []);
+
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
