@@ -277,7 +277,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   if (!deck || !deck.slides || deck.slides.length === 0) {
     return (
-      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
+      <div className="flex items-center justify-center h-96 bg-[#F2F2F4] rounded-xl">
         <div className="text-gray-500">No slides available</div>
       </div>
     );
@@ -410,7 +410,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         position: 'absolute',
                         top: 0,
                         left: 0,
-                        backgroundColor: '#f0f0f0'
+                        backgroundColor: '#F2F2F4'
                     }}>
                       <ComponentBasedSlideRenderer
                         slide={slide}
