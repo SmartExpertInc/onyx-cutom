@@ -217,6 +217,35 @@ Together, these create **multiple checkpoints** at different stages of the promp
 - Late (absolute final): Final verification
 - Critical (JSON warning): Content-specific prevention at point of exposure
 
+## Critical Enhancement: Topic Misinterpretation
+
+### Additional Problem Discovered
+User reported that the AI was treating "Market Analysis" as the topic itself, leading to outputs like:
+- "AI in Sales" → "Market Analysis of AI in Sales" (wrong!)
+- The AI thought it needed to do market analysis OF the topic, not teach the topic itself
+
+### Root Cause
+The example title is "Steps to Conduct Effective Market Analysis" - the AI interpreted this as:
+- ❌ "Market Analysis is the thing to teach, so I should do market analysis of [user's topic]"
+- ✅ SHOULD BE: "Market Analysis is just one example topic, I should teach [user's actual topic]"
+
+### Enhanced Warning (Lines 31756-31782)
+
+Added explicit clarification:
+```
+THE EXAMPLE TOPIC: "Market Analysis" (teaching how to analyze markets)
+YOUR ACTUAL TOPIC: [Whatever the user requested - AI in Sales, AWS, Python, etc.]
+
+DO NOT THINK: "I need to do market analysis of [my topic]"
+INSTEAD THINK: "I need to teach [my topic] using the same structure the example used"
+
+IF YOUR TOPIC IS "AI in Sales":
+❌ DO NOT create: "Market Analysis of AI in Sales" or "How to analyze the AI sales market"
+✅ CREATE: "AI in Sales" lesson teaching Sales Funnel, Lead Scoring, CRM integration
+```
+
+This makes it crystal clear that "Market Analysis" is the **example topic being taught**, not a **methodology to apply** to the user's topic.
+
 ## Status
 
 ✅ Implementation Complete  
@@ -224,7 +253,10 @@ Together, these create **multiple checkpoints** at different stages of the promp
 ✅ Strategic Placement (immediately after example)  
 ✅ Concrete Alternatives Provided  
 ✅ Meta-Explanation Included  
+✅ Topic Misinterpretation Clarified (Critical Enhancement)  
 ⏳ Awaiting User Testing
 
-This should finally resolve the GlobalSensors copying issue by addressing the root cause: the AI was following the concrete example because no warning appeared when it actually saw that example.
+This should finally resolve the GlobalSensors copying issue by addressing BOTH root causes:
+1. The AI was following the concrete example because no warning appeared when it saw it
+2. The AI was misinterpreting "Market Analysis" as a methodology rather than as the example topic
 

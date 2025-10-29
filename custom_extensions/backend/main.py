@@ -31057,11 +31057,11 @@ CRITICAL REQUIREMENTS:
 # Pedagogical elements: Mental models, worked examples, common mistakes, decision frameworks
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "Steps to Conduct Effective Market Analysis",
+  "textTitle": "[TOPIC NAME] - Comprehensive Guide",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO MARKET ANALYSIS" },
-    { "type": "paragraph", "text": "Market analysis is a crucial skill in the corporate world, enabling businesses to make informed decisions, understand their competitors, and identify new opportunities. It involves collecting, analyzing, and interpreting data about the market, including sales growth, trends, and patterns. By mastering market analysis, businesses can make informed decisions, identify new opportunities, understand their competitors, and anticipate future market conditions. This presentation delves into the steps necessary for effective market analysis, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
-    { "type": "paragraph", "text": "The fundamental challenge every business faces is understanding not just what the market looks like today, but how it will evolve and where the best opportunities lie. Market analysis transforms raw data and observations into strategic insights that drive decision-making. By the end of this guide, you'll have a systematic framework for conducting thorough market analysis that uncovers opportunities others miss." },
+    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO [YOUR TOPIC]" },
+    { "type": "paragraph", "text": "[Your topic] is a crucial skill/concept in [your domain], enabling practitioners to [key benefits and outcomes]. It involves [core activities and processes]. By mastering [your topic], professionals can [specific achievements and capabilities]. This lesson delves into [your topic] with a structured approach, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
+    { "type": "paragraph", "text": "The fundamental challenge every practitioner faces is understanding not just the basic concepts, but how to apply them effectively in real-world situations. This guide provides you with a systematic framework for [mastering your topic] that goes beyond theory to practical application. By the end of this lesson, you'll have [specific outcomes related to your topic]." },
     
     { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
     { "type": "paragraph", "text": "Before diving into the steps, let's establish a common vocabulary. Market Analysis is the process of gathering, interpreting, and utilizing information about a market, including trends, competitor behavior, and customer preferences. Understanding this concept helps stakeholders align on objectives and methodology. Market Size refers to the volume or value of a specific market, indicating potential sales opportunities. This metric helps businesses assess whether a market is worth entering and how much they can realistically capture. Market Growth is the rate at which a market's size is increasing over time, reflecting industry health and future potential. High-growth markets attract more investment but also more competition, making timing critical." },
@@ -31754,20 +31754,32 @@ You MUST output ONLY a single JSON object for the Text Presentation preview, str
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
 
 ⚠️⚠️⚠️ CRITICAL WARNING ABOUT THE EXAMPLE ABOVE: ⚠️⚠️⚠️
-The example shows "Market Analysis" with GlobalSensors, PESTLE, Five Forces, and agricultural scenarios.
-🚨 YOU MUST ADAPT THIS TO YOUR ACTUAL TOPIC - DO NOT COPY THE EXAMPLE CONTENT! 🚨
+The example shows "Market Analysis" as the TOPIC being taught.
+🚨 "Market Analysis" is just ONE example topic - YOU MUST REPLACE IT WITH YOUR ACTUAL TOPIC! 🚨
+
+THE EXAMPLE TOPIC: "Market Analysis" (teaching how to analyze markets)
+YOUR ACTUAL TOPIC: [Whatever the user requested - AI in Sales, AWS, Python, etc.]
+
+DO NOT THINK: "I need to do market analysis of [my topic]"
+INSTEAD THINK: "I need to teach [my topic] using the same structure the example used"
 
 IF YOUR TOPIC IS "AI in Sales":
-❌ DO NOT use Market Analysis, GlobalSensors, PESTLE, Five Forces, agricultural scenarios
-✅ USE: Sales Funnel, Lead Scoring, CRM, AI sales scenarios, chatbot deployment examples
+❌ DO NOT create: "Market Analysis of AI in Sales" or "How to analyze the AI sales market"
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, agricultural scenarios, market entry analysis
+✅ CREATE: "AI in Sales" lesson teaching Sales Funnel, Lead Scoring, CRM integration, AI chatbot deployment
+✅ USE: AI sales scenarios, CRM examples, lead scoring case studies, sales automation workflows
 
 IF YOUR TOPIC IS "AWS":
-❌ DO NOT use Market Analysis, GlobalSensors, PESTLE, Five Forces
-✅ USE: Well-Architected Framework, Cost Optimization, AWS implementation scenarios
+❌ DO NOT create: "Market Analysis of AWS" or "How to analyze the cloud market"
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, market analysis frameworks
+✅ CREATE: "AWS" lesson teaching cloud architecture, services, best practices
+✅ USE: Well-Architected Framework, EC2/S3/RDS examples, cost optimization scenarios, cloud migration case studies
 
 IF YOUR TOPIC IS "Python Programming":
-❌ DO NOT use Market Analysis, GlobalSensors, business frameworks
-✅ USE: Testing Pyramid, Code Quality, Python coding scenarios, design patterns
+❌ DO NOT create: "Market Analysis of Python" or business strategy content
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, market/business frameworks
+✅ CREATE: "Python Programming" lesson teaching syntax, best practices, design patterns
+✅ USE: Code examples, testing pyramid, refactoring scenarios, debugging case studies
 
 THE EXAMPLE SHOWS YOU:
 ✅ How to STRUCTURE content (paragraph-heavy, worked examples, decision frameworks)
