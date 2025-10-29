@@ -4207,6 +4207,110 @@
             color: #09090B;
             opacity: 0.7;
         }
+
+        /* Soft Skills Develop Slide Template - EXACT React Copy */
+        .soft-skills-develop-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #FFFFFF;
+            color: #1F2937;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 520px;
+        }
+
+        .soft-skills-develop-slide .left-section {
+            padding: 72px 85px 72px 50px;
+            position: relative;
+        }
+
+        .soft-skills-develop-slide .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .soft-skills-develop-slide .title {
+            font-size: 60px;
+            font-weight: 800;
+            color: #222;
+            line-height: 0.95;
+            white-space: pre-line;
+            margin-top: 20px;
+            font-family: 'Lora', serif;
+        }
+
+        .soft-skills-develop-slide .items-grid {
+            margin-top: 70px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 46px 60px;
+        }
+
+        .soft-skills-develop-slide .item-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: black;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .soft-skills-develop-slide .item-body {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #3A3A3C;
+            line-height: 1.5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .soft-skills-develop-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #1F2937;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .soft-skills-develop-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .soft-skills-develop-slide .page-number {
+            color: #1F2937;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .soft-skills-develop-slide .right-section {
+            position: relative;
+        }
+
+        .soft-skills-develop-slide .image-area {
+            position: absolute;
+            left: -18px;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, #0F58F9, #1023A1);
+            height: 100%;
+        }
+
+        .soft-skills-develop-slide .image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
@@ -6042,6 +6146,70 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="page-number-container">
                         <div class="page-line"></div>
                         <div class="page-number">{{ pageNumber or '12' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'soft-skills-develop-slide' or templateId == 'soft-skills-develop' or templateId == 'soft-skills-development' %}
+                <!-- Soft Skills Develop Slide Template - EXACT React Copy -->
+                <div class="soft-skills-develop-slide">
+                    <!-- Left Section -->
+                    <div class="left-section">
+                        <!-- Logo -->
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                            {% else %}
+                                <span style="color: #000000; font-family: 'Inter', sans-serif; font-weight: 500;">{{ logoText or 'Your Logo' }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Title -->
+                        <div class="title">{{ title or 'How To Develop\nSoft Skills' }}</div>
+
+                        <!-- Items Grid -->
+                        <div class="items-grid">
+                            {% if items and items|length > 0 %}
+                                {% for item in items %}
+                                    <div>
+                                        <div class="item-title">{{ item.title or 'Item Title' }}</div>
+                                        <div class="item-body">{{ item.body or 'Item description goes here...' }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default items -->
+                                <div>
+                                    <div class="item-title">Be an Active Listener</div>
+                                    <div class="item-body">Active listening helps better understand others and fosters meaningful connections.</div>
+                                </div>
+                                <div>
+                                    <div class="item-title">Seek Feedback</div>
+                                    <div class="item-body">Seeking feedback helps identify areas for improvement and personal growth</div>
+                                </div>
+                                <div>
+                                    <div class="item-title">Join Training Programs</div>
+                                    <div class="item-body">Training programs and courses provide structured learning and expert insights on soft skills</div>
+                                </div>
+                                <div>
+                                    <div class="item-title">Practice Empathy</div>
+                                    <div class="item-body">Empathy and patience build trust and create positive relationships with others.</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Page Number -->
+                        <div class="page-number-container">
+                            <div class="page-line"></div>
+                            <div class="page-number">{{ pageNumber or '35' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="right-section">
+                        <div class="image-area">
+                            {% if rightImagePath %}
+                                <img src="{{ rightImagePath }}" alt="Right image" />
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 
