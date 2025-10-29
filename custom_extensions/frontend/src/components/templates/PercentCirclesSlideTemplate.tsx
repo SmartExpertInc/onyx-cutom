@@ -39,6 +39,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  const [currentPercent, setCurrentPercent] = useState(percent);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -233,7 +234,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     return 1;
   };
 
-  const filledCount = getFilledCirclesCount(percent);
+  const filledCount = getFilledCirclesCount(currentPercent);
 
   // Logo section styling
   const logoSection: React.CSSProperties = {
@@ -321,15 +322,19 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                   <>
                     {isEditable && edit?.k==='percent' ? (
                       <ImprovedInlineEditor 
-                        initialValue={percent} 
-                        onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
+                        initialValue={currentPercent} 
+                        onSave={(v)=>{ 
+                          setCurrentPercent(v);
+                          onUpdate && onUpdate({ percent:v }); 
+                          setEdit(null); 
+                        }} 
                         onCancel={()=> setEdit(null)} 
                         className="percent-text"
                         style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
                       />
                     ) : (
                       <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
-                        {percent}
+                        {currentPercent}
                       </div>
                     )}
                   </>
