@@ -1617,6 +1617,15 @@ export const en = {
         title: "Your Smart Drive is empty",
         noMaterials: "You haven't added any materials yet.",
         goToKnowledgeBase: "Go to your Knowledge Base to upload files and manage your content.",
+        connect: "Connect",
+      },
+    },
+
+    // Knowledge Base Page
+    knowledgeBasePage: {
+      empty: {
+        title: "No files yet",
+        description: "Drag and drop files here or click \"Create\" to add them.",
         uploadFiles: "Upload files",
       },
     },

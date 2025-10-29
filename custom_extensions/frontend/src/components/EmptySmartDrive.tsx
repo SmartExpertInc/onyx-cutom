@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Upload } from 'lucide-react';
 
 const XLSFileIcon = () => (
   <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -245,8 +246,15 @@ const PNGFileIcon = () => (
   </svg>
 );
 
-export const EmptySmartDrive = () => {
+interface EmptySmartDriveProps {
+  onUploadClick?: () => void;
+  variant?: 'smartdrive' | 'knowledgebase';
+}
+
+export const EmptySmartDrive: React.FC<EmptySmartDriveProps> = ({ onUploadClick, variant = 'smartdrive' }) => {
   const { t } = useLanguage();
+  
+  const isKnowledgeBase = variant === 'knowledgebase';
   
   return (
     <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: '60vh' }}>
@@ -294,25 +302,40 @@ export const EmptySmartDrive = () => {
 
       {/* Title below SVG */}
       <h3 className="text-xl font-semibold text-[#0D001B] mt-4">
-        {t('interface.smartDrivePage.empty.title', 'Your Smart Drive is empty')}
+        {isKnowledgeBase 
+          ? t('interface.knowledgeBasePage.empty.title', 'No files yet')
+          : t('interface.smartDrivePage.empty.title', 'Your Smart Drive is empty')
+        }
       </h3>
 
       {/* Description text */}
       <div className="text-center mt-2 mb-4">
-        <p className="text-sm" style={{ color: '#353537CC' }}>
-          {t('interface.smartDrivePage.empty.noMaterials', "You haven't added any materials yet.")}
-        </p>
-        <p className="text-sm" style={{ color: '#353537CC' }}>
-          {t('interface.smartDrivePage.empty.goToKnowledgeBase', 'Go to your Knowledge Base to upload files and manage your content.')}
-        </p>
+        {isKnowledgeBase ? (
+          <p className="text-sm" style={{ color: '#353537CC' }}>
+            {t('interface.knowledgeBasePage.empty.description', 'Drag and drop files here or click "Create" to add them.')}
+          </p>
+        ) : (
+          <>
+            <p className="text-sm" style={{ color: '#353537CC' }}>
+              {t('interface.smartDrivePage.empty.noMaterials', "You haven't added any materials yet.")}
+            </p>
+            <p className="text-sm" style={{ color: '#353537CC' }}>
+              {t('interface.smartDrivePage.empty.goToKnowledgeBase', 'Go to your Knowledge Base to upload files and manage your content.')}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Upload files button */}
       <button
         className="px-4 py-2 rounded-md text-sm font-medium text-white"
         style={{ backgroundColor: '#0F58F9' }}
+        onClick={onUploadClick}
       >
-        {t('interface.smartDrivePage.empty.uploadFiles', 'Upload files')}
+        {isKnowledgeBase 
+          ? <><Upload strokeWidth={1.5} className="w-4 h-4 mr-2"/> t('interface.knowledgeBasePage.empty.uploadFiles', 'Upload files')</>
+          : t('interface.smartDrivePage.empty.connect', 'Connect')
+        }
       </button>
     </div>
   );

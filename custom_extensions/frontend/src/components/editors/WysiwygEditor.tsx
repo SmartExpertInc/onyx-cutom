@@ -238,7 +238,7 @@ export function WysiwygEditor({
             borderRadius: '6px',
             padding: '4px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            zIndex: 10000,
+            zIndex: 1000000,
             pointerEvents: 'auto',
           }}
           onMouseDown={(e) => e.preventDefault()}
@@ -584,7 +584,7 @@ export function WysiwygEditor({
           </button>
 
            <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
-            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', marginTop: '2px' }}>
+            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', marginTop: '3px' }}>
               <svg width="13" height="15" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0.658961 1.12109C0.293787 1.12109 0 1.421 0 1.79378C0 2.16656 0.293787 2.46647 0.658961 2.46647H7.24857C7.61374 2.46647 7.90753 2.16656 7.90753 1.79378C7.90753 1.421 7.61374 1.12109 7.24857 1.12109H0.658961ZM0.658961 4.70877C0.293787 4.70877 0 5.00868 0 5.38146C0 5.75424 0.293787 6.05415 0.658961 6.05415H11.6416C12.0068 6.05415 12.3006 5.75424 12.3006 5.38146C12.3006 5.00868 12.0068 4.70877 11.6416 4.70877H0.658961ZM0 8.96913C0 9.34192 0.293787 9.64182 0.658961 9.64182H7.24857C7.61374 9.64182 7.90753 9.34192 7.90753 8.96913C7.90753 8.59635 7.61374 8.29644 7.24857 8.29644H0.658961C0.293787 8.29644 0 8.59635 0 8.96913ZM0.658961 11.8841C0.293787 11.8841 0 12.184 0 12.5568C0 12.9296 0.293787 13.2295 0.658961 13.2295H11.6416C12.0068 13.2295 12.3006 12.9296 12.3006 12.5568C12.3006 12.184 12.0068 11.8841 11.6416 11.8841H0.658961Z" fill="#434343"/>
               </svg>
@@ -596,7 +596,7 @@ export function WysiwygEditor({
               </svg>
             </div>
             <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
-            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', marginTop: '2px' }}>
+            <div style={{ display: 'flex', gap: '4px', height: '25px',padding: '0 10px', marginTop: '3px' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_396_47086)">
               <path opacity="0.5" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H3.2V3.2H0V0ZM6.4 3.2H3.2V6.4H0V9.6H3.2V12.8H0V16H3.2V12.8H6.4V16H9.6V12.8H12.8V16H16V12.8H12.8V9.6H16V6.4H12.8V3.2H16V0H12.8V3.2H9.6V0H6.4V3.2ZM6.4 6.4V3.2H9.6V6.4H6.4ZM6.4 9.6H3.2V6.4H6.4V9.6ZM9.6 9.6V6.4H12.8V9.6H9.6ZM9.6 9.6H6.4V12.8H9.6V9.6Z" fill="url(#paint0_linear_396_47086)"/>
@@ -663,7 +663,6 @@ export function WysiwygEditor({
               padding: '0 8px',
               transition: 'all 0.2s ease',
               gap: '4px',
-              border: '1px solid #E0E0E0'
             }}
             title="Effects"
           >

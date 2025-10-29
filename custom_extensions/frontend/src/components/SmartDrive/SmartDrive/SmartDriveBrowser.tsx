@@ -42,6 +42,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FolderSelectionModal } from '@/components/ui/folder-selection-modal';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { EmptySmartDrive } from '../../EmptySmartDrive';
 
 // Utility function to format file sizes
 const formatSize = (bytes: number | null | undefined): string => {
@@ -89,6 +90,8 @@ interface SmartDriveBrowserProps {
 	searchQuery?: string;
 	sortBy?: string;
 	sortOrder?: 'asc' | 'desc';
+	onFilesLoaded?: (hasFiles: boolean) => void;
+	emptyStateVariant?: 'smartdrive' | 'knowledgebase';
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -112,6 +115,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	searchQuery = '',
 	sortBy = 'name',
 	sortOrder = 'asc',
+	onFilesLoaded,
+	emptyStateVariant = 'knowledgebase',
 }) => {
 	const { t } = useLanguage();
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
@@ -177,13 +182,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				}
 			}
 			setFolderItemCounts(folderCounts);
+			
+			// Notify parent if there are any files (not just folders)
+			const hasFiles = files.some((item: SmartDriveItem) => item.type === 'file');
+			if (onFilesLoaded) {
+				onFilesLoaded(hasFiles);
+			}
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);
+			if (onFilesLoaded) {
+				onFilesLoaded(false);
+			}
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [onFilesLoaded]);
 
 	const fetchFolderContents = useCallback(async (folderPath: string) => {
 		setLoading(true);
@@ -849,8 +863,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
 						<div className="p-10 text-center text-red-500">{error}</div>
+					) : items.length === 0 || !items.some(item => item.type === 'file') ? (
+						<EmptySmartDrive onUploadClick={onUploadClick} variant={emptyStateVariant} />
 					) : filtered.length === 0 ? (
-						<div className="p-10 text-center text-slate-600">This folder is empty</div>
+						<div className="p-10 text-center text-slate-600">No files match your search</div>
 					) : (
 						<div className="space-y-6">
 							{/* Back Button - Show when a folder is selected or not at root */}
@@ -1130,8 +1146,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
 						<div className="p-10 text-center text-red-500">{error}</div>
+					) : items.length === 0 || !items.some(item => item.type === 'file') ? (
+						<EmptySmartDrive onUploadClick={onUploadClick} variant={emptyStateVariant} />
 					) : filtered.length === 0 ? (
-						<div className="p-10 text-center text-slate-600">This folder is empty</div>
+						<div className="p-10 text-center text-slate-600">No files match your search</div>
 					) : (
 						<div className="flex flex-col min-h-0 flex-1">
 							{/* Back Button - Show when not at root */}

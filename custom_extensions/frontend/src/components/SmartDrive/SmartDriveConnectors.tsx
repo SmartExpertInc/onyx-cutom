@@ -100,6 +100,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [entitlements, setEntitlements] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [hasFiles, setHasFiles] = useState(false);
 
   // Notify parent when tab changes
   useEffect(() => {
@@ -119,6 +120,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       onFileSelect(fileObjects);
     }
   }, [onFileSelect]);
+  
+  // Handle files loaded callback from SmartDriveBrowser
+  const handleFilesLoaded = useCallback((filesExist: boolean) => {
+    setHasFiles(filesExist);
+  }, []);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     if (typeof window === 'undefined') return 'grid';
     const saved = localStorage.getItem('smartDriveViewMode');
@@ -808,6 +814,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             sortBy={sortBy} 
             sortOrder={sortOrder}
             onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+            onFilesLoaded={handleFilesLoaded}
           />
         )}
       </div>
@@ -851,7 +858,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           <div className="flex gap-2">
             
               <div className="flex items-center gap-2">
-                {activeTab === 'smart-drive' && !isSelectMode && (
+                {activeTab === 'smart-drive' && !isSelectMode && hasFiles && (
                   <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#878787] bg-white border border-[#878787] cursor-pointer hover:bg-gray-50 h-9">
                     <Upload className="w-4 h-4 mr-2"/>Upload
                   </Button>)}

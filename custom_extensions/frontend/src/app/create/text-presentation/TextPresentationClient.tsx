@@ -1806,7 +1806,7 @@ export default function TextPresentationClient() {
                 <button
                   type="button"
                   onClick={handleAddSection}
-                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <span className="text-lg">+</span>
                   <span>{t('interface.generate.addSection', 'Add Section')}</span>

@@ -1622,7 +1622,7 @@ export default function QuizClient() {
                       <button
                         type="button"
                      onClick={handleAddQuestion}
-                     className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#719AF5] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                     className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#719AF5] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
                    >
                      <span className="text-lg">+</span>
                      <span>{t('interface.generate.addQuestion', 'Add Question')}</span>
