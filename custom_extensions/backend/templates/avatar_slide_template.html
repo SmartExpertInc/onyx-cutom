@@ -3977,6 +3977,106 @@
             font-size: 16px;
             font-weight: 600;
         }
+
+        /* Soft Skills Types Slide Template - EXACT React Copy */
+        .soft-skills-types-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .soft-skills-types-slide .logo-container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #09090B;
+            font-size: 17px;
+        }
+
+        .soft-skills-types-slide .title {
+            position: absolute;
+            top: 96px;
+            left: 56px;
+            font-size: 60px;
+            line-height: 1.1;
+            font-weight: 800;
+            color: #09090B;
+            font-family: 'Lora', serif;
+            width: fit-content;
+            max-width: 1200px;
+        }
+
+        .soft-skills-types-slide .avatar {
+            position: absolute;
+            top: 40px;
+            right: 44px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+            overflow: hidden;
+        }
+
+        .soft-skills-types-slide .avatar img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .soft-skills-types-slide .cards-row {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .soft-skills-types-slide .card {
+            position: relative;
+            background-color: #E5E5E5;
+            border-radius: 0px;
+            overflow: hidden;
+            height: 400px;
+        }
+
+        .soft-skills-types-slide .card img {
+            width: 100%;
+            height: 100%;
+            border-radius: 0px;
+            object-fit: cover;
+        }
+
+        .soft-skills-types-slide .card-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #FFFFFF;
+            padding: 6px 10px;
+            font-size: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .soft-skills-types-slide .card-label svg {
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .soft-skills-types-slide .card-label span {
+            font-size: 23px;
+        }
     </style>
 </head>
 <body>
@@ -5618,6 +5718,74 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="page-number-container">
                         <div class="page-line"></div>
                         <div class="page-number">{{ pageNumber or '23' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'soft-skills-types-slide' or templateId == 'soft-skills-types' %}
+                <!-- Soft Skills Types Slide Template - EXACT React Copy -->
+                <div class="soft-skills-types-slide">
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span style="color: #09090B; font-size: 17px;">Your Logo</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Title -->
+                    <div class="title">{{ title or 'Types of Soft Skills' }}</div>
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile' }}" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Cards Row -->
+                    <div class="cards-row">
+                        {% if cards and cards|length > 0 %}
+                            {% for card in cards[:3] %}
+                                <div class="card">
+                                    {% if card.imagePath %}
+                                        <img src="{{ card.imagePath }}" alt="{{ card.label or 'Card image' }}" />
+                                    {% endif %}
+                                    <div class="card-label">
+                                        <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                        </svg>
+                                        <span>{{ card.label or 'Soft Skill' }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default cards -->
+                            <div class="card">
+                                <div class="card-label">
+                                    <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                    </svg>
+                                    <span>Time management</span>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-label">
+                                    <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                    </svg>
+                                    <span>Team work</span>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-label">
+                                    <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+                                    </svg>
+                                    <span>Work ethic</span>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
