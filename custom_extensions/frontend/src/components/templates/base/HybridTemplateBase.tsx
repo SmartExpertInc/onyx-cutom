@@ -51,7 +51,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       gridSize: 20,
       snapToGrid: false,
       showGrid: false,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#F2F2F4',
       padding: { top: 40, right: 40, bottom: 40, left: 40 }
     }
   );

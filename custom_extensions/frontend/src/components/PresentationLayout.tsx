@@ -311,9 +311,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-93 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
+              className="absolute -right-100 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
               style={{
-                width: '380px',
+                width: '400px',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -450,7 +450,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
                     <div className="w-full max-w-6xl">
-                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9' }}>
+                      <div className="border border-[#CCCCCC] rounded-md relative">
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
