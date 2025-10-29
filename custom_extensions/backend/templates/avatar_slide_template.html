@@ -4217,7 +4217,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             position: relative;
             display: grid;
-            grid-template-columns: 1fr 520px;
+            grid-template-columns: 1fr 50%;
         }
 
         .soft-skills-develop-slide .left-section {
@@ -4310,6 +4310,118 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        /* Oral Hygiene Signs Slide Template - EXACT React Copy */
+        .oral-hygiene-signs-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #FFFFFF;
+            color: #111;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+        }
+
+        .oral-hygiene-signs-slide .heading {
+            position: absolute;
+            top: 30px;
+            font-size: 58px;
+            width: 600px;
+            font-weight: 800;
+            color: #1F2937;
+            line-height: 1.05;
+            white-space: pre-line;
+        }
+
+        .oral-hygiene-signs-slide .avatar {
+            position: absolute;
+            right: 56px;
+            top: 48px;
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #4B71D6;
+        }
+
+        .oral-hygiene-signs-slide .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .oral-hygiene-signs-slide .items-grid {
+            position: absolute;
+            left: 56px;
+            right: 56px;
+            bottom: 56px;
+            top: 285px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 72px;
+        }
+
+        .oral-hygiene-signs-slide .items-list {
+            display: grid;
+            row-gap: 22px;
+        }
+
+        .oral-hygiene-signs-slide .item-row {
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            column-gap: 18px;
+            align-items: center;
+        }
+
+        .oral-hygiene-signs-slide .item-number {
+            font-size: 64px;
+            font-weight: 800;
+            color: #5B78E6;
+        }
+
+        .oral-hygiene-signs-slide .item-title {
+            font-size: 18px;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .oral-hygiene-signs-slide .item-body {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.6;
+        }
+
+        .oral-hygiene-signs-slide .logo-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .oral-hygiene-signs-slide .page-number-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0px;
+            color: #5F616D;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .oral-hygiene-signs-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #5F616D;
+        }
+
+        .oral-hygiene-signs-slide .page-number {
+            color: #5F616D;
+            font-size: 16px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -6210,6 +6322,114 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 <img src="{{ rightImagePath }}" alt="Right image" />
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'oral-hygiene-signs-slide' or templateId == 'oral-hygiene-signs' or templateId == 'oral-hygiene' %}
+                <!-- Oral Hygiene Signs Slide Template - EXACT React Copy -->
+                <div class="oral-hygiene-signs-slide">
+                    <!-- Heading -->
+                    <div class="heading">{{ heading or 'What are the signs of\npoor oral hygiene?' }}</div>
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Items Grid -->
+                    <div class="items-grid">
+                        <!-- Left Items -->
+                        <div class="items-list">
+                            {% if leftItems and leftItems|length > 0 %}
+                                {% for item in leftItems %}
+                                    <div class="item-row">
+                                        <div class="item-number">{{ item.number or '0' ~ (loop.index) }}</div>
+                                        <div>
+                                            <div class="item-title">{{ item.title or 'Item Title' }}</div>
+                                            <div class="item-body">{{ item.body or 'Item description goes here...' }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default left items -->
+                                <div class="item-row">
+                                    <div class="item-number">01</div>
+                                    <div>
+                                        <div class="item-title">Bleeding gums</div>
+                                        <div class="item-body">The main cause of bleeding gums is the buildup of plaque...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">02</div>
+                                    <div>
+                                        <div class="item-title">Tooth decay</div>
+                                        <div class="item-body">Cavities are permanently damaged areas ...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">03</div>
+                                    <div>
+                                        <div class="item-title">Chronic bad breath</div>
+                                        <div class="item-body">Problems with your teeth or gums ...</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Right Items -->
+                        <div class="items-list">
+                            {% if rightItems and rightItems|length > 0 %}
+                                {% for item in rightItems %}
+                                    <div class="item-row">
+                                        <div class="item-number">{{ item.number or '0' ~ (loop.index + 3) }}</div>
+                                        <div>
+                                            <div class="item-title">{{ item.title or 'Item Title' }}</div>
+                                            <div class="item-body">{{ item.body or 'Item description goes here...' }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default right items -->
+                                <div class="item-row">
+                                    <div class="item-number">04</div>
+                                    <div>
+                                        <div class="item-title">Loose teeth</div>
+                                        <div class="item-body">For adults, a loose tooth occurs when ...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">05</div>
+                                    <div>
+                                        <div class="item-title">Gum recession</div>
+                                        <div class="item-body">A form of gum disease ...</div>
+                                    </div>
+                                </div>
+                                <div class="item-row">
+                                    <div class="item-number">06</div>
+                                    <div>
+                                        <div class="item-title">Toothache</div>
+                                        <div class="item-body">Minor toothaches can come from ...</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 20px;" />
+                        {% else %}
+                            <span style="color: #000000; font-family: 'Inter', sans-serif; font-weight: 500;">{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number in bottom-left corner -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '15' }}</div>
                     </div>
                 </div>
                 
