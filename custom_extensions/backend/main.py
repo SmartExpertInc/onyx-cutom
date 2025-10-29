@@ -1731,23 +1731,23 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_4_culture_values",
-      "slideNumber": 4,
-      "slideTitle": "Culture & Values",
-      "templateId": "culture-values-three-columns",
-      "voiceoverText": "Our organizational culture is built on three fundamental pillars that guide everything we do. These core values shape our decision-making, interactions, and commitment to excellence in all our endeavors.",
-      "props": {
+    "slideId": "slide_4_culture_values",
+    "slideNumber": 4,
+    "slideTitle": "Culture & Values",
+    "templateId": "culture-values-three-columns",
+    "voiceoverText": "Our organizational culture is built on three fundamental pillars that guide everything we do. These core values shape our decision-making, interactions, and commitment to excellence in all our endeavors. They represent not just aspirations, but the lived reality of how we operate every single day.",
+    "props": {
         "title": "Our Culture & Values",
         "leftTitle": "Code of Conduct",
-        "leftText": "We maintain the highest ethical standards in all our business practices. Our code of conduct ensures transparency, integrity, and accountability in every interaction.",
+        "leftText": "We maintain the highest ethical standards in all our business practices, ensuring that every decision we make reflects our commitment to integrity and transparency. Our code of conduct goes beyond compliance—it's a framework that ensures accountability in every interaction, from internal team collaboration to client relationships. We believe that ethical behavior isn't just about following rules; it's about creating a culture where doing the right thing is second nature, where every team member feels empowered to speak up, and where trust is built through consistent, principled action across all levels of the organization.",
         "middleTitle": "HR Policies",
-        "middleText": "Our human resources policies are designed to support employee wellbeing, professional development, and work-life balance. We believe in creating an inclusive environment where everyone can thrive.",
+        "middleText": "Our human resources policies are meticulously designed to support comprehensive employee wellbeing, continuous professional development, and sustainable work-life balance. We recognize that our people are our greatest asset, which is why we've created an inclusive environment where diversity is celebrated, growth opportunities are abundant, and every individual can thrive both personally and professionally. From flexible working arrangements and mental health support to career advancement programs and skill development initiatives, our HR framework ensures that every team member has the resources, support, and opportunities they need to reach their full potential while maintaining a healthy, fulfilling life outside of work.",
         "rightTitle": "IT Policies",
-        "rightText": "Information security and data protection are paramount. Our IT policies ensure secure access, proper data handling, and compliance with industry standards and regulations.",
+        "rightText": "Information security and data protection are absolutely paramount in today's digital landscape, which is why our IT policies are comprehensive, continuously updated, and rigorously enforced. We ensure secure access through multi-factor authentication, proper data handling through encryption and access controls, and full compliance with industry standards including GDPR, ISO 27001, and sector-specific regulations. Our approach to cybersecurity is proactive rather than reactive—we conduct regular security audits, provide ongoing training to all staff members, implement cutting-edge threat detection systems, and maintain robust incident response protocols. This commitment to digital security protects not only our organization but also the sensitive data and trust that our clients, partners, and employees place in us every single day.",
         "middlePanelColor": "#3B46FF",
         "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
         "logoPath": ""
-      }
+    }
     },
     {
       "slideId": "slide_5_soft_skills_assessment",
@@ -24292,8 +24292,16 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Required props: title (main heading), leftTitle/leftText (first pillar), middleTitle/middleText (central concept), rightTitle/rightText (third pillar)
   • Visual elements: middlePanelColor (accent color for middle column), avatarPath (instructor/representative image), logoPath (branding)
   • Usage: Explain company culture, organizational values, policy frameworks, or any three-part conceptual structure
-  • Content guidelines: Each column should present a distinct but related concept; middle column often serves as the central/primary concept; maintain consistent depth and tone across all three sections
-
+  • Content guidelines: 
+    - CRITICAL TEXT LENGTH: Each column's text (leftText, middleText, rightText) MUST be comprehensive and detailed (100-120 words / 600-700 characters each)
+    - DO NOT write short summaries - each column should provide thorough explanation with specific examples, benefits, and implementation details
+    - Each column should present a distinct but related concept with depth and substance
+    - Middle column often serves as the central/primary concept and should be particularly detailed
+    - Include concrete examples of how each value/policy is implemented in practice
+    - Explain WHY each pillar is important and HOW it impacts the organization
+    - Maintain consistent depth and professional tone across all three sections
+    - Think of each column as a mini-essay that fully explores the topic, not just a brief description
+    
 - percent-circles: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
   • Purpose: Present statistical data with visual percentage circles and supporting statistics cards
   • Structure: Top section with title and 10 circles (1 filled with percentage + 9 empty), avatar display, bottom section with two statistics cards
