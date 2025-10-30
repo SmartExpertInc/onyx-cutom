@@ -1647,15 +1647,15 @@
             flex-direction: column;
             height: 100%;
             background-color: #1a2b6b;
-            padding: 0;
+            padding: 40px;
             box-sizing: border-box;
         }
         
         .six-ideas-top-section {
-            flex: 0 0 60%;
-            padding: 40px 60px;
-            display: flex;
-            flex-direction: column;
+            flex: 0 0 auto;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         
         .six-ideas-title {
@@ -1664,15 +1664,14 @@
             font-size: 2.5rem;
             font-weight: 700;
             font-family: Georgia, serif;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             text-transform: uppercase;
         }
         
         .ideas-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px 60px;
-            flex: 1;
+            gap: 30px;
         }
         
         .idea-item {
@@ -1684,22 +1683,22 @@
         .idea-header {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             width: 100%;
         }
         
         .idea-number {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 700;
             color: #ffffff;
             margin-right: 12px;
             font-family: Arial, sans-serif;
-            min-width: 50px;
+            min-width: 40px;
         }
         
         .idea-line {
             flex: 1;
-            height: 1px;
+            height: 2px;
             background-color: #ffffff;
         }
         
@@ -1711,11 +1710,11 @@
         }
         
         .six-ideas-bottom-section {
-            flex: 0 0 40%;
-            padding: 20px 60px 40px 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex: 1 1 auto;
+            width: 100%;
+            height: 500px;
+            border-radius: 8px;
+            overflow: hidden;
         }
         
         .image-section {
@@ -1723,7 +1722,6 @@
             height: 100%;
             border-radius: 8px;
             overflow: hidden;
-            background: linear-gradient(to bottom, #e8f4f8 0%, #dfe6f5 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2228,9 +2226,9 @@
         
         .timeline-line {
             position: absolute;
-            top: 70%;
-            left: 20px;
-            right: 50px;
+            top: 75%;
+            left: 10px;
+            right: 70px;
             height: 2px;
             background-color: #0F58F9;
             transform: translateY(-50%);
@@ -2327,8 +2325,8 @@
 
 .timeline-line {
     position: absolute;
-    top: 140px;
-    left: calc(50% - 160px);
+    top: 155px;
+    left: calc(50% - 200px);
     width: 115%;
     height: 2px;
     background: #0F58F9;
@@ -3178,14 +3176,11 @@
             
                 
             {% elif slide.templateId == 'pyramid' %}
-                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <div class="pyramid-template">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        {% set titleId1 = 'title' %}
-                        {% set titleId2 = slide.slideId + '-title' %}
-                        {% set titleId3 = 'draggable-' + slide.slideId + '-title' %}
-                        {% set titlePos = (slide.metadata.elementPositions[titleId1] if slide.metadata and slide.metadata.elementPositions and titleId1 in slide.metadata.elementPositions else (slide.metadata.elementPositions[titleId2] if slide.metadata and slide.metadata.elementPositions and titleId2 in slide.metadata.elementPositions else (slide.metadata.elementPositions[titleId3] if slide.metadata and slide.metadata.elementPositions and titleId3 in slide.metadata.elementPositions else none))) %}
-                        {% set titleColor = (slide.metadata.elementColors[titleId1] if slide.metadata and slide.metadata.elementColors and titleId1 in slide.metadata.elementColors else (slide.metadata.elementColors[titleId2] if slide.metadata and slide.metadata.elementColors and titleId2 in slide.metadata.elementColors else (slide.metadata.elementColors[titleId3] if slide.metadata and slide.metadata.elementColors and titleId3 in slide.metadata.elementColors else none))) %}
+                        {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                        {% set titlePos = slide.metadata.elementPositions[titleId] if slide.metadata and slide.metadata.elementPositions and titleId in slide.metadata.elementPositions else none %}
+                        {% set titleColor = slide.metadata.elementColors[titleId] if slide.metadata and slide.metadata.elementColors and titleId in slide.metadata.elementColors else none %}
                         <h1 class="slide-title positioned-element"
                             style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
                         >{{ slide.props.title|safe }}</h1>
@@ -3219,11 +3214,26 @@
 
                             <!-- Text Blocks positioned around pyramid -->
                             {% for i in range(5) %}
-                                {% set textId1 = 'pyramid-item-' + (i + 1)|string %}
-                                {% set textId2 = slide.slideId + '-pyramid-text-' + i|string %}
-                                {% set textId3 = 'pyramid-text-' + i|string %}
-                                {% set textPos = (slide.metadata.elementPositions[textId1] if slide.metadata and slide.metadata.elementPositions and textId1 in slide.metadata.elementPositions else (slide.metadata.elementPositions[textId2] if slide.metadata and slide.metadata.elementPositions and textId2 in slide.metadata.elementPositions else (slide.metadata.elementPositions[textId3] if slide.metadata and slide.metadata.elementPositions and textId3 in slide.metadata.elementPositions else none))) %}
-                                {% set textColor = (slide.metadata.elementColors[textId1] if slide.metadata and slide.metadata.elementColors and textId1 in slide.metadata.elementColors else (slide.metadata.elementColors[textId2] if slide.metadata and slide.metadata.elementColors and textId2 in slide.metadata.elementColors else (slide.metadata.elementColors[textId3] if slide.metadata and slide.metadata.elementColors and textId3 in slide.metadata.elementColors else none))) %}
+                                {% set textPos = none %}
+                                {% set textColor = none %}
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% for key in slide.metadata.elementPositions.keys() %}
+                                        {% if ('pyramid-item-' + (i + 1)|string) in key or ('pyramid-text-' + i|string) in key %}
+                                            {% if textPos is none %}
+                                                {% set textPos = slide.metadata.elementPositions[key] %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if slide.metadata and slide.metadata.elementColors %}
+                                    {% for key in slide.metadata.elementColors.keys() %}
+                                        {% if ('pyramid-item-' + (i + 1)|string) in key or ('pyramid-text-' + i|string) in key %}
+                                            {% if textColor is none %}
+                                                {% set textColor = slide.metadata.elementColors[key] %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 <div class="pyramid-text-block level-{{ i }} positioned-element"
                                     style="{% if textPos %}transform: translate({{ textPos.x }}px, {{ textPos.y }}px);{% endif %}"
                                 >
@@ -3350,7 +3360,6 @@
                 </div>
                 
             {% elif slide.templateId == 'contraindications-indications' %}
-                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <div class="contraindications-indications-template">
                     <div class="main-content">
                         <!-- Central Image Container -->
@@ -3378,130 +3387,84 @@
                         </div>
 
                         <!-- Left Project Title -->
-                        {% set leftTitleId = slide.slideId + '-left-title' %}
+                        {% set leftTitleId = 'draggable-' + slide.slideId + '-0' %}
+                        {% set leftTitlePos = slide.metadata.elementPositions[leftTitleId] if slide.metadata and slide.metadata.elementPositions and leftTitleId in slide.metadata.elementPositions else none %}
+                        {% set leftTitleColor = slide.metadata.elementColors[leftTitleId] if slide.metadata and slide.metadata.elementColors and leftTitleId in slide.metadata.elementColors else none %}
                         <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftTitleId] %}
-                                style="position: absolute; left: 2.8%; top: 50%; transform: translate({{ slide.metadata.elementPositions[leftTitleId].x }}px, {{ slide.metadata.elementPositions[leftTitleId].y }}px) translateY(-50%); z-index: 10;"
+                            {% if leftTitlePos %}
+                                style="position: absolute; left: 2.8%; top: 50%; transform: translate({{ leftTitlePos.x }}px, {{ leftTitlePos.y }}px) translateY(-50%); z-index: 10;"
                             {% else %}
                                 style="position: absolute; left: 2.8%; top: 50%; transform: translateY(-50%); z-index: 10;"
                             {% endif %}
                         >
-                            <div style="width: 170px; font-size: 1.5rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftTitleId] %}color: {{ slide.metadata.elementColors[leftTitleId] }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: medium; min-width: 100px;">
+                            <div style="width: 170px; font-size: 1.5rem; {% if leftTitleColor %}color: {{ leftTitleColor }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: medium; min-width: 100px;">
                                 The first project
                             </div>
                         </div>
 
                         <!-- Right Project Title -->
-                        {% set rightTitleId = slide.slideId + '-right-title' %}
+                        {% set rightTitleId = 'draggable-' + slide.slideId + '-1' %}
+                        {% set rightTitlePos = slide.metadata.elementPositions[rightTitleId] if slide.metadata and slide.metadata.elementPositions and rightTitleId in slide.metadata.elementPositions else none %}
+                        {% set rightTitleColor = slide.metadata.elementColors[rightTitleId] if slide.metadata and slide.metadata.elementColors and rightTitleId in slide.metadata.elementColors else none %}
                         <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightTitleId] %}
-                                style="position: absolute; right: -3.1%; top: 50%; transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px) translateY(-50%); z-index: 10;"
+                            {% if rightTitlePos %}
+                                style="position: absolute; right: -3.1%; top: 50%; transform: translate({{ rightTitlePos.x }}px, {{ rightTitlePos.y }}px) translateY(-50%); z-index: 10;"
                             {% else %}
                                 style="position: absolute; right: -3.1%; top: 50%; transform: translateY(-50%); z-index: 10;"
                             {% endif %}
                         >
-                            <div style="width: 200px; font-size: 1.5rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightTitleId] %}color: {{ slide.metadata.elementColors[rightTitleId] }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: medium;">
+                            <div style="width: 200px; font-size: 1.5rem; {% if rightTitleColor %}color: {{ rightTitleColor }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: medium;">
                                 The second project
                             </div>
                         </div>
 
                         <!-- Left Side Text Blocks -->
-                        {% set leftBlock1Id = slide.slideId + '-left-block-0' %}
-                        <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftBlock1Id] %}
-                                style="position: absolute; left: 23%; top: 27%; transform: translate({{ slide.metadata.elementPositions[leftBlock1Id].x }}px, {{ slide.metadata.elementPositions[leftBlock1Id].y }}px); z-index: 10; max-width: 200px;"
-                            {% else %}
-                                style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;"
-                            {% endif %}
-                        >
-                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock1Id] %}color: {{ slide.metadata.elementColors[leftBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                        {% set leftBaseIndex = 2 %}
+                        {% for i in range(3) %}
+                            {% set headingIndex = leftBaseIndex + (i * 2) %}
+                            {% set descIndex = leftBaseIndex + (i * 2) + 1 %}
+                            {% set headingId = 'draggable-' + slide.slideId + '-' + headingIndex|string %}
+                            {% set descId = 'draggable-' + slide.slideId + '-' + descIndex|string %}
+                            {% set leftPositions = [{'left': '23%', 'top': '27%'}, {'left': '26%', 'top': '44%'}, {'left': '22%', 'top': '62%'}] %}
+                            {% set blockPos = leftPositions[i] %}
+                            
+                            <div style="position: absolute; left: {{ blockPos.left }}; top: {{ blockPos.top }}; z-index: 10; max-width: 200px;">
+                                {% set headingPos = slide.metadata.elementPositions[headingId] if slide.metadata and slide.metadata.elementPositions and headingId in slide.metadata.elementPositions else none %}
+                                {% set headingColor = slide.metadata.elementColors[headingId] if slide.metadata and slide.metadata.elementColors and headingId in slide.metadata.elementColors else none %}
+                                <div class="positioned-element" style="font-size: 0.9rem; font-weight: bold; {% if headingColor %}color: {{ headingColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;{% if headingPos %} transform: translate({{ headingPos.x }}px, {{ headingPos.y }}px);{% endif %}">
+                                    Heading text goes here
+                                </div>
+                                {% set descPos = slide.metadata.elementPositions[descId] if slide.metadata and slide.metadata.elementPositions and descId in slide.metadata.elementPositions else none %}
+                                {% set descColor = slide.metadata.elementColors[descId] if slide.metadata and slide.metadata.elementColors and descId in slide.metadata.elementColors else none %}
+                                <div class="positioned-element" style="font-size: 0.8rem; {% if descColor %}color: {{ descColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;{% if descPos %} transform: translate({{ descPos.x }}px, {{ descPos.y }}px);{% endif %}">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock1Id] %}color: {{ slide.metadata.elementColors[leftBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
-
-                        {% set leftBlock2Id = slide.slideId + '-left-block-1' %}
-                        <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftBlock2Id] %}
-                                style="position: absolute; left: 26%; top: 44%; transform: translate({{ slide.metadata.elementPositions[leftBlock2Id].x }}px, {{ slide.metadata.elementPositions[leftBlock2Id].y }}px); z-index: 10; max-width: 200px;"
-                            {% else %}
-                                style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;"
-                            {% endif %}
-                        >
-                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock2Id] %}color: {{ slide.metadata.elementColors[leftBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
-                            </div>
-                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock2Id] %}color: {{ slide.metadata.elementColors[leftBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
-
-                        {% set leftBlock3Id = slide.slideId + '-left-block-2' %}
-                        <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftBlock3Id] %}
-                                style="position: absolute; left: 22%; top: 62%; transform: translate({{ slide.metadata.elementPositions[leftBlock3Id].x }}px, {{ slide.metadata.elementPositions[leftBlock3Id].y }}px); z-index: 10; max-width: 200px;"
-                            {% else %}
-                                style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;"
-                            {% endif %}
-                        >
-                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock3Id] %}color: {{ slide.metadata.elementColors[leftBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
-                            </div>
-                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock3Id] %}color: {{ slide.metadata.elementColors[leftBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
+                        {% endfor %}
 
                         <!-- Right Side Text Blocks -->
-                        {% set rightBlock1Id = slide.slideId + '-right-block-0' %}
-                        <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightBlock1Id] %}
-                                style="position: absolute; right: 23%; top: 27%; transform: translate({{ slide.metadata.elementPositions[rightBlock1Id].x }}px, {{ slide.metadata.elementPositions[rightBlock1Id].y }}px); z-index: 10; max-width: 200px; text-align: right;"
-                            {% else %}
-                                style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;"
-                            {% endif %}
-                        >
-                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock1Id] %}color: {{ slide.metadata.elementColors[rightBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
+                        {% set rightBaseIndex = 8 %}
+                        {% for i in range(3) %}
+                            {% set headingIndex = rightBaseIndex + (i * 2) %}
+                            {% set descIndex = rightBaseIndex + (i * 2) + 1 %}
+                            {% set headingId = 'draggable-' + slide.slideId + '-' + headingIndex|string %}
+                            {% set descId = 'draggable-' + slide.slideId + '-' + descIndex|string %}
+                            {% set rightPositions = [{'right': '23%', 'top': '27%'}, {'right': '26%', 'top': '44%'}, {'right': '22%', 'top': '62%'}] %}
+                            {% set blockPos = rightPositions[i] %}
+                            
+                            <div style="position: absolute; right: {{ blockPos.right }}; top: {{ blockPos.top }}; z-index: 10; max-width: 200px; text-align: right;">
+                                {% set headingPos = slide.metadata.elementPositions[headingId] if slide.metadata and slide.metadata.elementPositions and headingId in slide.metadata.elementPositions else none %}
+                                {% set headingColor = slide.metadata.elementColors[headingId] if slide.metadata and slide.metadata.elementColors and headingId in slide.metadata.elementColors else none %}
+                                <div class="positioned-element" style="font-size: 0.9rem; font-weight: bold; {% if headingColor %}color: {{ headingColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;{% if headingPos %} transform: translate({{ headingPos.x }}px, {{ headingPos.y }}px);{% endif %}">
+                                    Heading text goes here
+                                </div>
+                                {% set descPos = slide.metadata.elementPositions[descId] if slide.metadata and slide.metadata.elementPositions and descId in slide.metadata.elementPositions else none %}
+                                {% set descColor = slide.metadata.elementColors[descId] if slide.metadata and slide.metadata.elementColors and descId in slide.metadata.elementColors else none %}
+                                <div class="positioned-element" style="font-size: 0.8rem; {% if descColor %}color: {{ descColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;{% if descPos %} transform: translate({{ descPos.x }}px, {{ descPos.y }}px);{% endif %}">
+                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock1Id] %}color: {{ slide.metadata.elementColors[rightBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
-
-                        {% set rightBlock2Id = slide.slideId + '-right-block-1' %}
-                        <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightBlock2Id] %}
-                                style="position: absolute; right: 26%; top: 44%; transform: translate({{ slide.metadata.elementPositions[rightBlock2Id].x }}px, {{ slide.metadata.elementPositions[rightBlock2Id].y }}px); z-index: 10; max-width: 200px; text-align: right;"
-                            {% else %}
-                                style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;"
-                            {% endif %}
-                        >
-                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock2Id] %}color: {{ slide.metadata.elementColors[rightBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
-                            </div>
-                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock2Id] %}color: {{ slide.metadata.elementColors[rightBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
-
-                        {% set rightBlock3Id = slide.slideId + '-right-block-2' %}
-                        <div class="positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightBlock3Id] %}
-                                style="position: absolute; right: 22%; top: 62%; transform: translate({{ slide.metadata.elementPositions[rightBlock3Id].x }}px, {{ slide.metadata.elementPositions[rightBlock3Id].y }}px); z-index: 10; max-width: 200px; text-align: right;"
-                            {% else %}
-                                style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;"
-                            {% endif %}
-                        >
-                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock3Id] %}color: {{ slide.metadata.elementColors[rightBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
-                                Heading text goes here
-                            </div>
-                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock3Id] %}color: {{ slide.metadata.elementColors[rightBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
-                                Lorem ipsum dolor sit amet, consectetur elit, sed do
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
                 
@@ -3530,57 +3493,62 @@
                 </div>
                 
             {% elif slide.templateId == 'event-list' %}
-                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <!-- Event List Template - Two Column Layout with Timeline -->
                 <div class="event-list-template">
                     <!-- Left section with title, presenter, and subject (blue background) -->
                     <div class="event-list-left-section">
-                        {% set titleId = slide.slideId + '-title' %}
+                        {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                        {% set titlePos = slide.metadata.elementPositions[titleId] if slide.metadata and slide.metadata.elementPositions and titleId in slide.metadata.elementPositions else none %}
+                        {% set titleColor = slide.metadata.elementColors[titleId] if slide.metadata and slide.metadata.elementColors and titleId in slide.metadata.elementColors else none %}
                         <div class="event-list-title positioned-element"
-                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[titleId] %} color: {{ slide.metadata.elementColors[titleId] }};{% endif %}"
+                            style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
                         >{{ (slide.props.title or 'Add title')|safe }}</div>
-                        {% set presenterId = slide.slideId + '-presenter' %}
+                        
+                        {% set presenterId = 'draggable-' + slide.slideId + '-1' %}
+                        {% set presenterPos = slide.metadata.elementPositions[presenterId] if slide.metadata and slide.metadata.elementPositions and presenterId in slide.metadata.elementPositions else none %}
+                        {% set presenterColor = slide.metadata.elementColors[presenterId] if slide.metadata and slide.metadata.elementColors and presenterId in slide.metadata.elementColors else none %}
                         <div class="event-list-presenter positioned-element"
-                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[presenterId] %}transform: translate({{ slide.metadata.elementPositions[presenterId].x }}px, {{ slide.metadata.elementPositions[presenterId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[presenterId] %} color: {{ slide.metadata.elementColors[presenterId] }};{% endif %}"
+                            style="{% if presenterPos %}transform: translate({{ presenterPos.x }}px, {{ presenterPos.y }}px);{% endif %}{% if presenterColor %} color: {{ presenterColor }};{% endif %}"
                         >{{ (slide.props.presenter or 'Add presenter name')|safe }}</div>
-                        {% set subjectId = slide.slideId + '-subject' %}
+                        
+                        {% set subjectId = 'draggable-' + slide.slideId + '-2' %}
+                        {% set subjectPos = slide.metadata.elementPositions[subjectId] if slide.metadata and slide.metadata.elementPositions and subjectId in slide.metadata.elementPositions else none %}
+                        {% set subjectColor = slide.metadata.elementColors[subjectId] if slide.metadata and slide.metadata.elementColors and subjectId in slide.metadata.elementColors else none %}
                         <div class="event-list-subject positioned-element"
-                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subjectId] %}transform: translate({{ slide.metadata.elementPositions[subjectId].x }}px, {{ slide.metadata.elementPositions[subjectId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[subjectId] %} color: {{ slide.metadata.elementColors[subjectId] }};{% endif %}"
+                            style="{% if subjectPos %}transform: translate({{ subjectPos.x }}px, {{ subjectPos.y }}px);{% endif %}{% if subjectColor %} color: {{ subjectColor }};{% endif %}"
                         >{{ (slide.props.subject or 'Add subject')|safe }}</div>
                     </div>
                     
                     <!-- Right section with timeline -->
                     <div class="event-list-right-section">
-                        <div class="events-timeline-container">
+                        {% set timelineId = 'draggable-' + slide.slideId + '-3' %}
+                        {% set timelinePos = slide.metadata.elementPositions[timelineId] if slide.metadata and slide.metadata.elementPositions and timelineId in slide.metadata.elementPositions else none %}
+                        <div class="events-timeline-container positioned-element"
+                            style="{% if timelinePos %}transform: translate({{ timelinePos.x }}px, {{ timelinePos.y }}px);{% endif %}"
+                        >
                             <!-- Timeline line -->
                             <div class="timeline-line"></div>
                             
                             <!-- Timeline steps -->
                             {% if slide.props.events %}
                                 {% for event in slide.props.events[:3] %}
-                                    {% set eventId = slide.slideId + '-event-' + loop.index0|string %}
-                                    <div class="timeline-step positioned-element"
-                                        style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[eventId] %}transform: translate({{ slide.metadata.elementPositions[eventId].x }}px, {{ slide.metadata.elementPositions[eventId].y }}px);{% endif %}"
-                                    >
+                                    <div class="timeline-step">
                                         <div class="timeline-number-box">
                                             <span class="timeline-number">{{ loop.index }}</span>
                                         </div>
                                         <div class="timeline-description">
-                                            <div class="timeline-description-text" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[eventId] %}color: {{ slide.metadata.elementColors[eventId] }};{% endif %}">{{ (event.description or 'description')|safe }}</div>
+                                            <div class="timeline-description-text">{{ (event.description or 'description')|safe }}</div>
                                         </div>
                                     </div>
                                 {% endfor %}
                             {% else %}
                                 {% for i in range(3) %}
-                                    {% set eventId = slide.slideId + '-event-' + i|string %}
-                                    <div class="timeline-step positioned-element"
-                                        style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[eventId] %}transform: translate({{ slide.metadata.elementPositions[eventId].x }}px, {{ slide.metadata.elementPositions[eventId].y }}px);{% endif %}"
-                                    >
+                                    <div class="timeline-step">
                                         <div class="timeline-number-box">
                                             <span class="timeline-number">{{ i + 1 }}</span>
                                         </div>
                                         <div class="timeline-description">
-                                            <div class="timeline-description-text" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[eventId] %}color: {{ slide.metadata.elementColors[eventId] }};{% endif %}">description</div>
+                                            <div class="timeline-description-text">description</div>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -3908,14 +3876,28 @@
                 </div>
                 
             {% elif slide.templateId == 'six-ideas-list' or slide.templateId == 'list-numbered-6' %}
-                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <!-- Six Ideas List Template -->
                 <div class="six-ideas-container">
                     <!-- Top Section - Dark Blue Background with Title and Ideas -->
                     <div class="six-ideas-top-section">
-                        {% set titleId = slide.slideId + '-title' %}
+                        {% set titlePos = none %}
+                        {% set titleColor = none %}
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% for key in slide.metadata.elementPositions.keys() %}
+                                {% if 'title' in key and titlePos is none %}
+                                    {% set titlePos = slide.metadata.elementPositions[key] %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if slide.metadata and slide.metadata.elementColors %}
+                            {% for key in slide.metadata.elementColors.keys() %}
+                                {% if 'title' in key and titleColor is none %}
+                                    {% set titleColor = slide.metadata.elementColors[key] %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                         <h1 class="six-ideas-title positioned-element"
-                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[titleId] %} color: {{ slide.metadata.elementColors[titleId] }};{% endif %}"
+                            style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
                         >{{ (slide.props.title or 'SIX DIFFERENT IDEAS')|safe }}</h1>
                         
                         <div class="ideas-grid">
@@ -3930,15 +3912,34 @@
                             ] %}
                             
                             {% for i in range(6) %}
-                                {% set ideaId = slide.slideId + '-idea-' + i|string %}
+                                {% set ideaPos = none %}
+                                {% set ideaColor = none %}
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% for key in slide.metadata.elementPositions.keys() %}
+                                        {% if ('idea-text-' + (i + 1)|string) in key or ('idea-' + i|string) in key %}
+                                            {% if ideaPos is none %}
+                                                {% set ideaPos = slide.metadata.elementPositions[key] %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if slide.metadata and slide.metadata.elementColors %}
+                                    {% for key in slide.metadata.elementColors.keys() %}
+                                        {% if ('idea-text-' + (i + 1)|string) in key or ('idea-' + i|string) in key %}
+                                            {% if ideaColor is none %}
+                                                {% set ideaColor = slide.metadata.elementColors[key] %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 <div class="idea-item positioned-element"
-                                    style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[ideaId] %}transform: translate({{ slide.metadata.elementPositions[ideaId].x }}px, {{ slide.metadata.elementPositions[ideaId].y }}px);{% endif %}"
+                                    style="{% if ideaPos %}transform: translate({{ ideaPos.x }}px, {{ ideaPos.y }}px);{% endif %}"
                                 >
                                     <div class="idea-header">
                                         <div class="idea-number">{{ '%02d'|format(i + 1) }}</div>
                                         <div class="idea-line"></div>
                                     </div>
-                                    <div class="idea-text" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[ideaId] %}color: {{ slide.metadata.elementColors[ideaId] }};{% endif %}">
+                                    <div class="idea-text" style="{% if ideaColor %}color: {{ ideaColor }};{% endif %}">
                                         {% if ideas and ideas|length > i %}
                                             {% if ideas[i] is mapping and ideas[i].text %}
                                                 {{ ideas[i].text|safe }}
