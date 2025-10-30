@@ -3174,13 +3174,23 @@
             {% elif slide.templateId == 'pyramid' %}
                 <div class="pyramid-template">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element">{{ slide.props.title }}</h1>
+                        <h1 class="slide-title positioned-element"
+                            {% set titleId = slide.slideId + '-title' %}
+                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[titleId] %} color: {{ slide.metadata.elementColors[titleId] }};{% endif %}"
+                        >{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="main-content">
                         <div class="pyramid-container">
                             <!-- Pyramid Levels -->
                             {% for i in range(5) %}
-                                <div class="pyramid-level positioned-element">
+                                <div class="pyramid-level positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set levelId = slide.slideId + '-pyramid-level-' + i|string %}
+                                        {% if slide.metadata.elementPositions[levelId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[levelId].x }}px, {{ slide.metadata.elementPositions[levelId].y }}px) translateX(-50%);"
+                                        {% endif %}
+                                    {% endif %}
+                                >
                                     <div style="display: flex; align-items: center;">
                                         <img src="{{ 'message-circle.png'|static_image_base64 }}" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
                                         <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
@@ -3195,31 +3205,71 @@
                             {% endfor %}
 
                             <!-- Text Blocks positioned around pyramid -->
-                            <div class="pyramid-text-block level-0 positioned-element">
-                                <div class="pyramid-text-heading">Headline</div>
-                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            {% set textId0 = slide.slideId + '-pyramid-text-0' %}
+                            <div class="pyramid-text-block level-0 positioned-element"
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[textId0] %}transform: translate({{ slide.metadata.elementPositions[textId0].x }}px, {{ slide.metadata.elementPositions[textId0].y }}px);{% endif %}"
+                            >
+                                <div class="pyramid-text-heading" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId0] %}color: {{ slide.metadata.elementColors[textId0] }};{% endif %}">Headline</div>
+                                <div class="pyramid-text-description" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId0] %}color: {{ slide.metadata.elementColors[textId0] }};{% endif %}">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
                             </div>
                             
-                            <div class="pyramid-text-block level-1 positioned-element">
-                                <div class="pyramid-text-heading">Headline</div>
-                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            {% set textId1 = slide.slideId + '-pyramid-text-1' %}
+                            <div class="pyramid-text-block level-1 positioned-element"
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[textId1] %}transform: translate({{ slide.metadata.elementPositions[textId1].x }}px, {{ slide.metadata.elementPositions[textId1].y }}px);{% endif %}"
+                            >
+                                <div class="pyramid-text-heading" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId1] %}color: {{ slide.metadata.elementColors[textId1] }};{% endif %}">Headline</div>
+                                <div class="pyramid-text-description" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId1] %}color: {{ slide.metadata.elementColors[textId1] }};{% endif %}">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
                             </div>
                             
-                            <div class="pyramid-text-block level-2 positioned-element">
-                                <div class="pyramid-text-heading">Headline</div>
-                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            {% set textId2 = slide.slideId + '-pyramid-text-2' %}
+                            <div class="pyramid-text-block level-2 positioned-element"
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[textId2] %}transform: translate({{ slide.metadata.elementPositions[textId2].x }}px, {{ slide.metadata.elementPositions[textId2].y }}px);{% endif %}"
+                            >
+                                <div class="pyramid-text-heading" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId2] %}color: {{ slide.metadata.elementColors[textId2] }};{% endif %}">Headline</div>
+                                <div class="pyramid-text-description" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId2] %}color: {{ slide.metadata.elementColors[textId2] }};{% endif %}">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
                             </div>
                             
-                            <div class="pyramid-text-block level-3 positioned-element">
-                                <div class="pyramid-text-heading">Headline</div>
-                                <div class="pyramid-text-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
+                            {% set textId3 = slide.slideId + '-pyramid-text-3' %}
+                            <div class="pyramid-text-block level-3 positioned-element"
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[textId3] %}transform: translate({{ slide.metadata.elementPositions[textId3].x }}px, {{ slide.metadata.elementPositions[textId3].y }}px);{% endif %}"
+                            >
+                                <div class="pyramid-text-heading" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId3] %}color: {{ slide.metadata.elementColors[textId3] }};{% endif %}">Headline</div>
+                                <div class="pyramid-text-description" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId3] %}color: {{ slide.metadata.elementColors[textId3] }};{% endif %}">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</div>
                             </div>
 
                             <!-- Triangle Arrows pointing to pyramid -->
-                            <div class="pyramid-triangle level-0 positioned-element"></div>
-                            <div class="pyramid-triangle level-1 positioned-element"></div>
-                            <div class="pyramid-triangle level-2 positioned-element"></div>
-                            <div class="pyramid-triangle level-3 positioned-element"></div>
+                            <div class="pyramid-triangle level-0 positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = slide.slideId + '-pyramid-triangle-0' %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            ></div>
+                            <div class="pyramid-triangle level-1 positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = slide.slideId + '-pyramid-triangle-1' %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            ></div>
+                            <div class="pyramid-triangle level-2 positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = slide.slideId + '-pyramid-triangle-2' %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            ></div>
+                            <div class="pyramid-triangle level-3 positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = slide.slideId + '-pyramid-triangle-3' %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            ></div>
                         </div>
                     </div>
                 </div>
@@ -3328,76 +3378,143 @@
                         <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: linear-gradient(to bottom, transparent, #0F58F9, transparent); z-index: 10;"></div>
 
                         <!-- VS Button - Center -->
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;">
+                        <div class="positioned-element" 
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set vsId = slide.slideId + '-vs-button' %}
+                                {% if slide.metadata.elementPositions[vsId] %}
+                                    style="position: absolute; top: 50%; left: 50%; transform: translate({{ slide.metadata.elementPositions[vsId].x }}px, {{ slide.metadata.elementPositions[vsId].y }}px) translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;"
+                                {% else %}
+                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;"
+                                {% endif %}
+                            {% else %}
+                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;"
+                            {% endif %}
+                        >
                             VS
                         </div>
 
                         <!-- Left Project Title -->
-                        <div style="position: absolute; left: 2.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 170px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: medium; min-width: 100px;">
+                        {% set leftTitleId = slide.slideId + '-left-title' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftTitleId] %}
+                                style="position: absolute; left: 2.8%; top: 50%; transform: translate({{ slide.metadata.elementPositions[leftTitleId].x }}px, {{ slide.metadata.elementPositions[leftTitleId].y }}px) translateY(-50%); z-index: 10;"
+                            {% else %}
+                                style="position: absolute; left: 2.8%; top: 50%; transform: translateY(-50%); z-index: 10;"
+                            {% endif %}
+                        >
+                            <div style="width: 170px; font-size: 1.5rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftTitleId] %}color: {{ slide.metadata.elementColors[leftTitleId] }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: medium; min-width: 100px;">
                                 The first project
                             </div>
                         </div>
 
                         <!-- Right Project Title -->
-                        <div style="position: absolute; right: -3.2%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: medium;">
+                        {% set rightTitleId = slide.slideId + '-right-title' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightTitleId] %}
+                                style="position: absolute; right: -3.1%; top: 50%; transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px) translateY(-50%); z-index: 10;"
+                            {% else %}
+                                style="position: absolute; right: -3.1%; top: 50%; transform: translateY(-50%); z-index: 10;"
+                            {% endif %}
+                        >
+                            <div style="width: 200px; font-size: 1.5rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightTitleId] %}color: {{ slide.metadata.elementColors[rightTitleId] }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: medium;">
                                 The second project
                             </div>
                         </div>
 
                         <!-- Left Side Text Blocks -->
-                        <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                        {% set leftBlock1Id = slide.slideId + '-left-block-0' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftBlock1Id] %}
+                                style="position: absolute; left: 23%; top: 27%; transform: translate({{ slide.metadata.elementPositions[leftBlock1Id].x }}px, {{ slide.metadata.elementPositions[leftBlock1Id].y }}px); z-index: 10; max-width: 200px;"
+                            {% else %}
+                                style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;"
+                            {% endif %}
+                        >
+                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock1Id] %}color: {{ slide.metadata.elementColors[leftBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
                                 Heading text goes here
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock1Id] %}color: {{ slide.metadata.elementColors[leftBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
                                 Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
 
-                        <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                        {% set leftBlock2Id = slide.slideId + '-left-block-1' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftBlock2Id] %}
+                                style="position: absolute; left: 26%; top: 44%; transform: translate({{ slide.metadata.elementPositions[leftBlock2Id].x }}px, {{ slide.metadata.elementPositions[leftBlock2Id].y }}px); z-index: 10; max-width: 200px;"
+                            {% else %}
+                                style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;"
+                            {% endif %}
+                        >
+                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock2Id] %}color: {{ slide.metadata.elementColors[leftBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
                                 Heading text goes here
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock2Id] %}color: {{ slide.metadata.elementColors[leftBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
                                 Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
 
-                        <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                        {% set leftBlock3Id = slide.slideId + '-left-block-2' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[leftBlock3Id] %}
+                                style="position: absolute; left: 22%; top: 62%; transform: translate({{ slide.metadata.elementPositions[leftBlock3Id].x }}px, {{ slide.metadata.elementPositions[leftBlock3Id].y }}px); z-index: 10; max-width: 200px;"
+                            {% else %}
+                                style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;"
+                            {% endif %}
+                        >
+                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock3Id] %}color: {{ slide.metadata.elementColors[leftBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
                                 Heading text goes here
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[leftBlock3Id] %}color: {{ slide.metadata.elementColors[leftBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
                                 Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
 
                         <!-- Right Side Text Blocks -->
-                        <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                        {% set rightBlock1Id = slide.slideId + '-right-block-0' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightBlock1Id] %}
+                                style="position: absolute; right: 23%; top: 27%; transform: translate({{ slide.metadata.elementPositions[rightBlock1Id].x }}px, {{ slide.metadata.elementPositions[rightBlock1Id].y }}px); z-index: 10; max-width: 200px; text-align: right;"
+                            {% else %}
+                                style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;"
+                            {% endif %}
+                        >
+                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock1Id] %}color: {{ slide.metadata.elementColors[rightBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
                                 Heading text goes here
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock1Id] %}color: {{ slide.metadata.elementColors[rightBlock1Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
                                 Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
 
-                        <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                        {% set rightBlock2Id = slide.slideId + '-right-block-1' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightBlock2Id] %}
+                                style="position: absolute; right: 26%; top: 44%; transform: translate({{ slide.metadata.elementPositions[rightBlock2Id].x }}px, {{ slide.metadata.elementPositions[rightBlock2Id].y }}px); z-index: 10; max-width: 200px; text-align: right;"
+                            {% else %}
+                                style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;"
+                            {% endif %}
+                        >
+                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock2Id] %}color: {{ slide.metadata.elementColors[rightBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
                                 Heading text goes here
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock2Id] %}color: {{ slide.metadata.elementColors[rightBlock2Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
                                 Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
 
-                        <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
-                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                        {% set rightBlock3Id = slide.slideId + '-right-block-2' %}
+                        <div class="positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[rightBlock3Id] %}
+                                style="position: absolute; right: 22%; top: 62%; transform: translate({{ slide.metadata.elementPositions[rightBlock3Id].x }}px, {{ slide.metadata.elementPositions[rightBlock3Id].y }}px); z-index: 10; max-width: 200px; text-align: right;"
+                            {% else %}
+                                style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;"
+                            {% endif %}
+                        >
+                            <div style="font-size: 0.9rem; font-weight: bold; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock3Id] %}color: {{ slide.metadata.elementColors[rightBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;">
                                 Heading text goes here
                             </div>
-                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                            <div style="font-size: 0.8rem; {% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[rightBlock3Id] %}color: {{ slide.metadata.elementColors[rightBlock3Id] }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;">
                                 Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
@@ -3433,9 +3550,18 @@
                 <div class="event-list-template">
                     <!-- Left section with title, presenter, and subject (blue background) -->
                     <div class="event-list-left-section">
-                        <div class="event-list-title">{{ slide.props.title or 'Add title' }}</div>
-                        <div class="event-list-presenter">{{ slide.props.presenter or 'Add presenter name' }}</div>
-                        <div class="event-list-subject">{{ slide.props.subject or 'Add subject' }}</div>
+                        {% set titleId = slide.slideId + '-title' %}
+                        <div class="event-list-title positioned-element"
+                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[titleId] %} color: {{ slide.metadata.elementColors[titleId] }};{% endif %}"
+                        >{{ slide.props.title or 'Add title' }}</div>
+                        {% set presenterId = slide.slideId + '-presenter' %}
+                        <div class="event-list-presenter positioned-element"
+                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[presenterId] %}transform: translate({{ slide.metadata.elementPositions[presenterId].x }}px, {{ slide.metadata.elementPositions[presenterId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[presenterId] %} color: {{ slide.metadata.elementColors[presenterId] }};{% endif %}"
+                        >{{ slide.props.presenter or 'Add presenter name' }}</div>
+                        {% set subjectId = slide.slideId + '-subject' %}
+                        <div class="event-list-subject positioned-element"
+                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subjectId] %}transform: translate({{ slide.metadata.elementPositions[subjectId].x }}px, {{ slide.metadata.elementPositions[subjectId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[subjectId] %} color: {{ slide.metadata.elementColors[subjectId] }};{% endif %}"
+                        >{{ slide.props.subject or 'Add subject' }}</div>
                     </div>
                     
                     <!-- Right section with timeline -->
@@ -3447,23 +3573,29 @@
                             <!-- Timeline steps -->
                             {% if slide.props.events %}
                                 {% for event in slide.props.events[:3] %}
-                                    <div class="timeline-step">
+                                    {% set eventId = slide.slideId + '-event-' + loop.index0|string %}
+                                    <div class="timeline-step positioned-element"
+                                        style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[eventId] %}transform: translate({{ slide.metadata.elementPositions[eventId].x }}px, {{ slide.metadata.elementPositions[eventId].y }}px);{% endif %}"
+                                    >
                                         <div class="timeline-number-box">
                                             <span class="timeline-number">{{ loop.index }}</span>
                                         </div>
                                         <div class="timeline-description">
-                                            <div class="timeline-description-text">{{ event.description or 'description' }}</div>
+                                            <div class="timeline-description-text" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[eventId] %}color: {{ slide.metadata.elementColors[eventId] }};{% endif %}">{{ event.description or 'description' }}</div>
                                         </div>
                                     </div>
                                 {% endfor %}
                             {% else %}
                                 {% for i in range(3) %}
-                                    <div class="timeline-step">
+                                    {% set eventId = slide.slideId + '-event-' + i|string %}
+                                    <div class="timeline-step positioned-element"
+                                        style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[eventId] %}transform: translate({{ slide.metadata.elementPositions[eventId].x }}px, {{ slide.metadata.elementPositions[eventId].y }}px);{% endif %}"
+                                    >
                                         <div class="timeline-number-box">
                                             <span class="timeline-number">{{ i + 1 }}</span>
                                         </div>
                                         <div class="timeline-description">
-                                            <div class="timeline-description-text">description</div>
+                                            <div class="timeline-description-text" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[eventId] %}color: {{ slide.metadata.elementColors[eventId] }};{% endif %}">description</div>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -3795,7 +3927,10 @@
                 <div class="six-ideas-container">
                     <!-- Top Section - Dark Blue Background with Title and Ideas -->
                     <div class="six-ideas-top-section">
-                        <h1 class="six-ideas-title">{{ slide.props.title or 'SIX DIFFERENT IDEAS' }}</h1>
+                        {% set titleId = slide.slideId + '-title' %}
+                        <h1 class="six-ideas-title positioned-element"
+                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[titleId] %} color: {{ slide.metadata.elementColors[titleId] }};{% endif %}"
+                        >{{ slide.props.title or 'SIX DIFFERENT IDEAS' }}</h1>
                         
                         <div class="ideas-grid">
                             {% set ideas = slide.props.ideas if slide.props.ideas else [] %}
@@ -3809,12 +3944,15 @@
                             ] %}
                             
                             {% for i in range(6) %}
-                                <div class="idea-item">
+                                {% set ideaId = slide.slideId + '-idea-' + i|string %}
+                                <div class="idea-item positioned-element"
+                                    style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[ideaId] %}transform: translate({{ slide.metadata.elementPositions[ideaId].x }}px, {{ slide.metadata.elementPositions[ideaId].y }}px);{% endif %}"
+                                >
                                     <div class="idea-header">
                                         <div class="idea-number">{{ '%02d'|format(i + 1) }}</div>
                                         <div class="idea-line"></div>
                                     </div>
-                                    <div class="idea-text">
+                                    <div class="idea-text" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[ideaId] %}color: {{ slide.metadata.elementColors[ideaId] }};{% endif %}">
                                         {% if ideas and ideas|length > i %}
                                             {% if ideas[i] is mapping and ideas[i].text %}
                                                 {{ ideas[i].text }}
@@ -3832,7 +3970,14 @@
                     
                     <!-- Bottom Section - Image Area -->
                     <div class="six-ideas-bottom-section">
-                        <div class="image-section">
+                        <div class="image-section positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set imageId = slide.slideId + '-image' %}
+                                {% if slide.metadata.elementPositions[imageId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             {% if slide.props.imagePath or slide.props.imageUrl %}
                                 <img src="{{ slide.props.imagePath or slide.props.imageUrl }}" 
                                      alt="Slide image" 
