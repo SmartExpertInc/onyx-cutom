@@ -448,41 +448,41 @@
         }
 
         .pyramid-level:nth-child(1) { 
-            width: 200px; 
+            width: 220px; 
             height: 60px; 
-            top: 0px; 
+            top: 10px; 
             background: #2A7CFF; 
             z-index: 5; 
             clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(2) { 
-            width: 300px; 
+            width: 320px; 
             height: 60px; 
-            top: 60px; 
+            top: 90px; 
             background: #09ACD8; 
             z-index: 4; 
             clip-path: polygon(16.67% 0%, 83.33% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(3) { 
-            width: 400px; 
+            width: 420px; 
             height: 60px; 
-            top: 120px; 
+            top: 150px; 
             background: #1B94E8; 
             z-index: 3; 
             clip-path: polygon(12.5% 0%, 87.5% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(4) { 
-            width: 500px; 
+            width: 520px; 
             height: 60px; 
-            top: 180px; 
+            top: 210px; 
             background: #3A11C3; 
             z-index: 2; 
             clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(5) { 
-            width: 600px; 
+            width: 620px; 
             height: 60px; 
-            top: 240px; 
+            top: 270px; 
             background: #01298A; 
             z-index: 1; 
             clip-path: polygon(8.33% 0%, 91.67% 0%, 100% 100%, 0% 100%);
@@ -509,29 +509,29 @@
         }
 
         .pyramid-text-block.level-0 {
-            top: 0px;
-            lext: 20px;
-            text-align: left;
+            top: 20px;
+            left: 20px;
+            text-align: right;
         }
         .pyramid-text-block.level-1 {
-            top: 45px;
+            top: 65px;
             right: 40px;
             text-align: left;
         }
         .pyramid-text-block.level-2 {
-            top: 142px;
+            top: 162px;
             left: 60px;
-            text-align: left;
+            text-align: right;
         }
         .pyramid-text-block.level-3 {
-            top: 205px;
+            top: 225px;
             right: 80px;
             text-align: left;
         }
         .pyramid-text-block.level-4 {
-            top: 300px;
+            top: 320px;
             left: 100px;
-            text-align: left;
+            text-align: right;
         }
 
         .pyramid-text-heading {
@@ -561,11 +561,11 @@
             z-index: 10;
         }
 
-        .pyramid-triangle.level-0 { top: 20px; right: 20px; }
-        .pyramid-triangle.level-1 { top: 85px; left: 40px; }
+        .pyramid-triangle.level-0 { top: 20px; left: 20px; }
+        .pyramid-triangle.level-1 { top: 85px; right: 40px; }
         .pyramid-triangle.level-2 { top: 160px; left: 60px; }
-        .pyramid-triangle.level-3 { top: 245px; left: 80px; }
-        .pyramid-triangle.level-4 { top: 340px; right: 100px; }
+        .pyramid-triangle.level-3 { top: 245px; right: 80px; }
+        .pyramid-triangle.level-4 { top: 340px; left: 100px; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -1621,7 +1621,8 @@
         
         .pyramid-level {
             background: rgba(0,0,0,0.08);
-            border-radius: 8px; /* Exact frontend match */
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
             padding: 20px; /* Exact frontend match */
             text-align: center;
             width: 100%;
@@ -1648,7 +1649,7 @@
             width: 100%;
             height: 100vh;
             min-height: 100%;
-            background-color: #1a2b6b;
+            background-color: linear-gradient(90deg, #002D91 0%, #000C5B 100%);;
             padding: 40px 40px 0 40px;
             box-sizing: border-box;
             position: relative;
@@ -1714,7 +1715,7 @@
         
         .six-ideas-bottom-section {
             flex: 1 1 auto;
-            width: calc(100% + 80px);
+            width: calc(100% + 140px);
             min-height: 300px;
             border-radius: 0;
             overflow: hidden;
