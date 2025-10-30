@@ -31809,8 +31809,8 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
     
     # If generating from files, append STRICT SOURCE FIDELITY rules (mirror presentation fidelity)
     try:
+        print("\n\n\n\nHERE\n\n\n", getattr(payload, 'fromFiles', False))
         if getattr(payload, 'fromFiles', False):
-            print("\n\n\n\nHERE\n\n\n")
             wizard_message += """
 
 ════════════════════════════════════════════════════════════════════════════
@@ -31858,11 +31858,6 @@ FINAL FIDELITY CHECKLIST (MUST PASS ALL):
     # These override ANY previous instructions about using examples, mental models, etc.
     # Apply to BOTH file-based AND general knowledge generation
     wizard_message += """
-
-═══════════════════════════════════════════════════════════════════════════
-🚨🚨🚨 ABSOLUTE FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS RULES 🚨🚨🚨
-═══════════════════════════════════════════════════════════════════════════
-
 CRITICAL: THESE RULES APPLY TO ALL ONEPAGER GENERATION (FILES OR GENERAL KNOWLEDGE).
 
 ABSOLUTE PROHIBITIONS - NEVER DO THESE THINGS:
