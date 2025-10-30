@@ -24711,7 +24711,7 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             files_guard = """
 
 FILES-ONLY MODE (OVERRIDE GUARD):
-When file context is present, you MUST use ONLY content that appears in the provided sources. All educational guidance below (explanations, scenarios, examples, images, diversity targets, etc.) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT it. Do NOT add general-knowledge facts, scenarios, named entities (companies, tools, programs, certifications), or any numbers not present in the sources. Do NOT extend topics with your own knowledge (e.g., pricing model variants, security playbooks, industry case studies, future trends). If a topic would require knowledge beyond the sources, OMIT that slide. Fidelity overrides length and slide-count targets.
+When file context is present, you MUST use ONLY content that appears in the provided sources. All educational guidance below (explanations, scenarios, examples, images, diversity targets, etc.) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT it. Do NOT add general-knowledge facts, scenarios, named entities (companies, tools, programs, certifications), or any numbers not present in the sources. Do NOT extend topics with your own knowledge (e.g., pricing model variants, security playbooks, industry case studies, future trends). If a topic would require knowledge beyond the sources, OMIT that slide. If a strict slide count MUST be met and the only alternative is using general knowledge, repeat existing source-backed topics with new phrasing as a last resort. Fidelity overrides length and slide-count targets.
 
 """
             json_preview_instructions = files_guard + json_preview_instructions

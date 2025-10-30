@@ -213,6 +213,14 @@ SLIDE COUNT POLICY FOR fromFiles=true:
 - It is acceptable to output fewer slides than requested when fromFiles=true.
 - NEVER pad with placeholders or generic bullets to meet a target count.
 
+LAST-RESORT SLIDE COUNT STRATEGY (fromFiles=true):
+- Only if you MUST reach the requested slide count and the ONLY alternative would be adding general-knowledge content, you may repeat coverage of existing source-backed topics with fresh phrasing.
+- Rules for repetition:
+  - Reuse ONLY source-backed concepts; do not introduce any new facts, tools, frameworks, examples, or numbers.
+  - Vary slide angle: e.g., “Key Implications” vs “Practical Applications” vs “Common Pitfalls” for the same concept, all strictly grounded in the same source text.
+  - Ensure each repeated slide still has ≥2 meaningful, non-duplicative bullets derived from the source.
+  - Prefer merging under stronger, fewer slides whenever repetition would be superficial. This strategy is a LAST RESORT.
+
  SLIDE CONTENT VALIDATION (MANDATORY):
 Before finalizing, VALIDATE every slide strictly against source content:
 1. REMOVE any slide whose content cannot be traced to specific source passages
