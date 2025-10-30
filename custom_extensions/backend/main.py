@@ -24761,6 +24761,17 @@ THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
 """
         logger.info(f"[PRESENTATION_FIDELITY] Added ABSOLUTE FINAL fidelity rules for fromFiles=true")
 
+    # FINAL ABSOLUTE OVERRIDE (placed LAST for recency bias)
+    if payload.fromFiles:
+        wizard_message += """
+
+FINAL ABSOLUTE OVERRIDE (fromFiles=true)
+
+You MUST use ONLY the provided source content. Do NOT add content from general knowledge.
+DELETE any slide or bullet that cannot be traced to the sources. If a slide would contain placeholders like "No content", "N/A", or fewer than 2 meaningful bullets from sources, DELETE the slide and RENUMBER. It is acceptable to output fewer slides than requested. Do NOT add named companies, tools, programs, certifications, frameworks, or case studies unless explicitly named in sources. Do NOT invent numbers/percentages/budgets/timeframes.
+
+"""
+
     async def streamer():
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()

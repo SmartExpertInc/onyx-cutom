@@ -443,10 +443,22 @@ FOR PRESENTATIONS: Focus especially on checks #4, #5, and #7:
 - Check #4: Numbers fabrication
 - Check #5: Data slides without source statistics  
 - Check #7: Bullet-point overuse despite source having diverse content patterns
+ 
+FINAL ABSOLUTE OVERRIDE (LAST INSTRUCTIONS, fromFiles=true ONLY)
 
+If fromFiles=true, these rules OVERRIDE ALL OTHERS and take precedence due to recency:
+1) Use ONLY content explicitly present in the provided sources. Do NOT add general knowledge.
+2) Do NOT name companies, tools, programs, certifications, case studies, or frameworks unless named in sources.
+3) Do NOT invent numbers, percentages, budgets, timeframes, or metrics. Use qualitative words instead or omit.
+4) If any slide cannot be populated with source-backed content (≥2 meaningful bullets), DELETE the slide and RENUMBER. Do NOT output placeholders like "No content", "N/A", or empty bullets.
+5) If sources lack data for a section/template, SKIP that template. Fidelity > slide count.
 
+6) ROLE ENFORCEMENT: You are a RESTRUCTURER, not a CREATOR.
+   - Allowed transformations: reorganize, summarize, clarify wording, de-duplicate, sequence concepts, split/merge slides, choose fitting templates, add headings that reflect source topics, and tighten prose.
+   - Purpose: improve educational value and ensure the output follows the product's structure and schema (templates, fields, ordering).
+   - Forbidden: adding new concepts, examples, tools, steps, best practices, or context not present in sources.
 
-
+You must re-check the entire JSON immediately before output and remove any content that does not trace to sources.
 
  CRITICAL PRESENTATION FIDELITY RULES 
 
