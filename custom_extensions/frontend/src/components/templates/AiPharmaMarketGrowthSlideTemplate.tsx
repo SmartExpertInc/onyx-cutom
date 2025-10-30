@@ -434,8 +434,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             position: 'absolute',
             bottom: '0',
             height: '100%',
-            width: 'auto',
-            objectFit: 'contain'
+            width: 'auto'
           }}
         />
       </div>
