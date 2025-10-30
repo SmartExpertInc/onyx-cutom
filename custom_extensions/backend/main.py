@@ -24962,7 +24962,13 @@ THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 chunks_received = 0
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation", model="gpt-4o-mini"):
+                async for chunk_data in stream_hybrid_response(
+                    wizard_message,
+                    file_context,
+                    "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation",
+                    model="gpt-4o-mini",
+                    wizard_payload=wizard_dict
+                ):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -25003,7 +25009,7 @@ THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
             try:
                 chunks_received = 0
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wizard_dict):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
