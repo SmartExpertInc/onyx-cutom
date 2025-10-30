@@ -1895,6 +1895,7 @@ export default function ProjectInstanceViewPage() {
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
+            productId={projectId}
           />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
@@ -1921,6 +1922,7 @@ export default function ProjectInstanceViewPage() {
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
+            productId={projectId}
           />
         );
       case COMPONENT_NAME_QUIZ:
