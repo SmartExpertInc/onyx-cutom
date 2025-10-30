@@ -2639,8 +2639,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   
 
   // New: Culture & Values with three columns and avatar
-  'culture-values-three-columns': {
-    id: 'culture-values-three-columns',
+  'culture-values-three-columns-slide': {
+    id: 'culture-values-three-columns-slide',
     name: 'Culture & Values (3 columns)',
     description: 'Top bar with logo and title, three equal columns with a colored middle panel and avatar',
     category: 'content',
@@ -2817,8 +2817,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   ,
 
   // New: Problems Grid (tag, title, 2x2 cards, right paragraph, avatar)
-  'problems-grid': {
-    id: 'problems-grid',
+  'problems-grid-slide': {
+    id: 'problems-grid-slide',
     name: 'Problems Grid',
     description: 'Dark layout with tag, large title, 4 cards, right paragraph and avatar',
     category: 'content',
@@ -2865,8 +2865,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   // New: Company Timeline
 
   // New: DEI Methods
-  'dei-methods': {
-    id: 'dei-methods',
+  'dei-methods-slide': {
+    id: 'dei-methods-slide',
     name: 'DEI Methods',
     description: 'Green header card with two sections and avatar rings',
     category: 'content',
