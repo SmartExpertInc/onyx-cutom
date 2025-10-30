@@ -152,27 +152,27 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
     # Provided mapping (explicit IDs)
     provided_map = {
         # credits
-        "price_1SGHlMH2U2KQUmUhkXKhj4g3": ("credits", 100),
-        "price_1SGHm0H2U2KQUmUhG5utzGFf": ("credits", 300),
-        "price_1SGHmYH2U2KQUmUh89PNgGAx": ("credits", 1000),
+        "price_1SNvJURs3JMUTmUv3O1gjGrw": ("credits", 100),
+        "price_1SNvJFRs3JMUTmUvXMQigg7f": ("credits", 300),
+        "price_1SNvIpRs3JMUTmUvp7GcaP4h": ("credits", 1000),
         # storage (monthly)
         "price_1SGHjIH2U2KQUmUhpWRcRxxH": ("storage", 1),
-        "price_1SGHk9H2U2KQUmUhLrwnk2tQ": ("storage", 5),
-        "price_1SGHkgH2U2KQUmUh0hI2Mp07": ("storage", 10),
+        "price_1SNvKWRs3JMUTmUvJyiNeqWq": ("storage", 5),
+        "price_1SNvKCRs3JMUTmUvfNJqJ127": ("storage", 10),
         # connectors (monthly)
-        "price_1SGHegH2U2KQUmUh4guOuoV7": ("connectors", 1),
-        "price_1SGHgFH2U2KQUmUhS0Blys9w": ("connectors", 5),
-        "price_1SGHgZH2U2KQUmUhSuFJ6SOi": ("connectors", 10),
+        "price_1SNvMBRs3JMUTmUviPBKNjfy": ("connectors", 1),
+        "price_1SNvLgRs3JMUTmUvtyzgwvnd": ("connectors", 5),
+        "price_1SNvLTRs3JMUTmUvHmhigeTk": ("connectors", 10),
     }
     for pid, (ptype, units) in provided_map.items():
         addon_map[pid] = {"type": ptype, "units": units}
 
     # Hard-wired tier price IDs
     price_to_tier: dict[str, str] = {
-        "price_1SEBM4H2U2KQUmUhkn6A7Hlm": "pro_monthly",      # Pro
-        "price_1SEBTeH2U2KQUmUhi02e1uC9": "business_monthly", # Business
-        "price_1SEBUCH2U2KQUmUhkym5Q9TS": "pro_yearly",       # Pro Yearly
-        "price_1SEBUoH2U2KQUmUhMktbhCsm": "business_yearly",  # Business Yearly
+        "price_1SNvOKRs3JMUTmUvYiwoB3Rl": "pro_monthly",      # Pro
+        "price_1SNvO7Rs3JMUTmUvCASBdYG0": "business_monthly", # Business
+        "price_1SNvOkRs3JMUTmUvt8N2h2vX": "pro_yearly",       # Pro Yearly
+        "price_1SNvNCRs3JMUTmUvvvHtI01M": "business_yearly",  # Business Yearly
     }
     # Also support env vars as fallback
     def _tier(price_id: Optional[str], tier: str):
@@ -33068,15 +33068,15 @@ def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
     key = sku.lower()
     # Direct mapping to provided price IDs
     sku_map = {
-        'credits_100': 'price_1SGHlMH2U2KQUmUhkXKhj4g3',
-        'credits_300': 'price_1SGHm0H2U2KQUmUhG5utzGFf',
-        'credits_1000': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
-        'storage_1gb': 'price_1SGHjIH2U2KQUmUhpWRcRxxH',
-        'storage_5gb': 'price_1SGHk9H2U2KQUmUhLrwnk2tQ',
-        'storage_10gb': 'price_1SGHkgH2U2KQUmUh0hI2Mp07',
-        'connectors_1': 'price_1SGHegH2U2KQUmUh4guOuoV7',
-        'connectors_5': 'price_1SGHgFH2U2KQUmUhS0Blys9w',
-        'connectors_10': 'price_1SGHgZH2U2KQUmUhSuFJ6SOi',
+        'credits_100': 'price_1SNvJURs3JMUTmUv3O1gjGrw',
+        'credits_300': 'price_1SNvJFRs3JMUTmUvXMQigg7f',
+        'credits_1000': 'price_1SNvIpRs3JMUTmUvp7GcaP4h',
+        'storage_1gb': 'price_1SNvKnRs3JMUTmUvR0WD35Ap',
+        'storage_5gb': 'price_1SNvKWRs3JMUTmUvJyiNeqWq',
+        'storage_10gb': 'price_1SNvKCRs3JMUTmUvfNJqJ127',
+        'connectors_1': 'price_1SNvMBRs3JMUTmUviPBKNjfy',
+        'connectors_5': 'price_1SNvLgRs3JMUTmUvtyzgwvnd',
+        'connectors_10': 'price_1SNvLTRs3JMUTmUvHmhigeTk',
     }
     # Fallback to env if present
     env_overrides = {
@@ -33748,7 +33748,7 @@ async def stripe_webhook(
                     # Track directly with user_id since we're in a webhook context
                     mixpanel_helper.track_to_mp(
                         onyx_user_id,
-                        "Payment Successful",
+                        "Payment Succeeded",
                         {
                             "Mode": "Subscription",
                             "Plan Type": plan.capitalize(),
@@ -33799,7 +33799,7 @@ async def stripe_webhook(
                         # Track directly with user_id since we're in a webhook context
                         mixpanel_helper.track_to_mp(
                             onyx_user_id,
-                            "Payment Successful",
+                            "Payment Succeeded",
                             {
                                 "Mode": "Payment",
                                 "Addon Type": "Credits",
