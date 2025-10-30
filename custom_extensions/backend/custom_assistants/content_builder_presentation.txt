@@ -208,6 +208,11 @@ FORBIDDEN IN MIDDLE:
 - `big-image-left`/`big-image-top`: only position 1 or N
 - Every slide must use source content only
 
+SLIDE COUNT POLICY FOR fromFiles=true:
+- Fidelity overrides the requested slide count. If you cannot confidently populate a slide with source-backed content, DO NOT create that slide.
+- It is acceptable to output fewer slides than requested when fromFiles=true.
+- NEVER pad with placeholders or generic bullets to meet a target count.
+
  SLIDE CONTENT VALIDATION (MANDATORY):
 Before finalizing, VALIDATE every slide strictly against source content:
 1. REMOVE any slide whose content cannot be traced to specific source passages
