@@ -31842,6 +31842,16 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
+        # Prepend strict files-only guard to one-pager preview instructions when generating from files
+        if getattr(payload, 'fromFiles', None):
+            files_guard_text = """
+
+FILES-ONLY MODE (OVERRIDE GUARD for Text Presentation):
+When fromFiles=true, you MUST use ONLY content that appears in the provided sources. All educational guidance below (examples, frameworks, practice, common mistakes, procedures, recommendations, numbers) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT the entire section. Do NOT add general-knowledge facts, named entities (companies, tools, programs, certifications), worked examples, or ANY numbers/percentages unless they appear verbatim in the sources. Fidelity overrides length and density targets.
+
+"""
+            json_preview_instructions_text = files_guard_text + json_preview_instructions_text
+
         wizard_message = wizard_message + json_preview_instructions_text
         logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
     except Exception as e:
