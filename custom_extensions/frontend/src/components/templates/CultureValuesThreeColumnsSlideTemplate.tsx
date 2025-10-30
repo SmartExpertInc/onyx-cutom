@@ -1,12 +1,25 @@
 // custom_extensions/frontend/src/components/templates/CultureValuesThreeColumnsSlideTemplate.tsx
 
 import React, { useState } from 'react';
-import { CultureValuesThreeColumnsProps } from '@/types/slideTemplates';
+import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
+
+export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
+  logoText?: string;
+  logoPath?: string;
+  title: string;
+  leftTitle: string;
+  leftText: string;
+  middleTitle: string;
+  middleText: string;
+  rightTitle: string;
+  rightText: string;
+  middlePanelColor?: string;
+  avatarPath?: string;
+}
 
 export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
@@ -41,7 +54,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontWeight:800, color:'#242424' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'40px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset', zIndex: 10 };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'40px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
   const col: React.CSSProperties = { padding: '30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'#0F58F9' };
@@ -140,16 +153,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           )}
         </div>
         <div style={avatarWrap}>
-          <AvatarImageDisplay
-            size="MEDIUM"
-            position="CENTER"
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
+          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate && onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ marginTop:'3px', width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
         </div>
 
         <div className="card-value-text" style={grid}>

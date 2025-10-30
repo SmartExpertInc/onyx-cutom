@@ -2647,37 +2647,20 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🏛️',
     component: CultureValuesThreeColumnsSlideTemplate,
     defaultProps: {
-      logoText: 'Your Logo',
-      logoPath: '',
+      logoText: 'Logo',
       title: 'Our culture and values',
-      leftTitle: 'Code of Conduct',
       leftText: 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner...',
-      middleTitle: 'HR Policies',
       middleText: 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees...',
-      rightTitle: 'IT Policies',
       rightText: 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data...',
-      middlePanelColor: '#3B46FF',
-      avatarPath: ''
+      middlePanelColor: '#3B46FF'
     },
     propSchema: {
-      logoText: { type: 'text', label: 'Logo Text' },
-      logoPath: { type: 'image', label: 'Logo Image' },
+      logoText: { type: 'text', label: 'Logo' },
       title: { type: 'text', label: 'Title', required: true },
-      leftTitle: { type: 'text', label: 'Left Column Title', required: true },
-      leftText: { type: 'text', label: 'Left Column Text', required: true },
-      middleTitle: { type: 'text', label: 'Middle Column Title', required: true },
-      middleText: { type: 'text', label: 'Middle Column Text', required: true },
-      rightTitle: { type: 'text', label: 'Right Column Title', required: true },
-      rightText: { type: 'text', label: 'Right Column Text', required: true },
-      middlePanelColor: { type: 'color', label: 'Middle Panel Color' },
-      avatarPath: { type: 'image', label: 'Avatar Image' }
-    },
-    avatarPosition: {
-      x: 1702,      // Right side: 1920 - 48 (right padding) - 170 (width) = 1702
-      y: 40,        // Top position
-      width: 170,   // Avatar width
-      height: 170,  // Avatar height
-      backgroundColor: '#0F58F9'  // Blue background for avatar
+      leftText: { type: 'text', label: 'Left Text', required: true },
+      middleText: { type: 'text', label: 'Middle Text', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      middlePanelColor: { type: 'color', label: 'Middle Panel' }
     }
   }
   ,
