@@ -31852,7 +31852,7 @@ FINAL FIDELITY CHECKLIST (MUST PASS ALL):
             logger.info("[ONEPAGER_FIDELITY] Appended strict source fidelity rules for fromFiles generation")
     except Exception as e:
         logger.warning(f"[ONEPAGER_FIDELITY] Failed to append fidelity rules: {e}")
-
+    
     # Add ABSOLUTE FINAL anti-copying rules for ALL onepager generation
     # These override ANY previous instructions about using examples, mental models, etc.
     # Apply to BOTH file-based AND general knowledge generation
