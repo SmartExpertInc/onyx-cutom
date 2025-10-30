@@ -2671,6 +2671,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       rightText: { type: 'text', label: 'Right Column Text', required: true },
       middlePanelColor: { type: 'color', label: 'Middle Panel Color' },
       avatarPath: { type: 'image', label: 'Avatar Image' }
+    },
+    avatarPosition: {
+      x: 1702,      // Right side: 1920 - 48 (right padding) - 170 (width) = 1702
+      y: 40,        // Top position
+      width: 170,   // Avatar width
+      height: 170,  // Avatar height
+      backgroundColor: '#0F58F9'  // Blue background for avatar
     }
   }
   ,
