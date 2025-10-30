@@ -2078,7 +2078,8 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
   ],
   "currentSlideId": "slide_1_course_overview",
   "detectedLanguage": "en",
-  "hasVoiceover": true
+  "hasVoiceover": true,
+  "templateVersion": "v2"
 }
 """
 
