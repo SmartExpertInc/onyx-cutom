@@ -1481,9 +1481,6 @@ export default function ProjectInstanceViewPage() {
       return;
     }
 
-    // Track save draft event
-    trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf');
-
     // Special handling for slide decks and video lesson presentations  
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
         projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
@@ -1555,6 +1552,9 @@ export default function ProjectInstanceViewPage() {
                 reader.releaseLock();
             }
 
+            // Track save draft event
+            trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf', 'Completed');
+
             // Set the download ready state instead of trying to open window immediately
             console.log('PDF generation completed, setting download ready state');
             if (downloadUrl) {
@@ -1579,9 +1579,14 @@ export default function ProjectInstanceViewPage() {
             setIsExportingPdf(false);
             setPdfDownloadReady(null);
             setPdfProgress(null);
+            // Track save draft event
+            trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf', 'Failed');
         }
         return;
     }
+
+    // Track save draft event
+    trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf', 'Completed');
 
     // Original PDF download logic for other component types
     const nameForSlug = projectInstanceData.name || 'document';

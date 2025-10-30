@@ -267,10 +267,11 @@ export const trackOpenProductEditor = async () => {
   );
 };
 
-export const trackSaveDraft = async (productType: string, exportFormat: string) => {
+export const trackSaveDraft = async (productType: string, exportFormat: string, action: string) => {
   const props = {
     "Product Type": productType,
-    "Export Format": exportFormat
+    "Export Format": exportFormat,
+    "Action": action
   };
 
   await track(

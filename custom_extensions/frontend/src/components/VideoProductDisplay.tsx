@@ -110,6 +110,8 @@ export default function VideoProductDisplay({
       if (!response.ok) {
         throw new Error(`Download failed: ${response.status}`);
       }
+      // Track save draft event
+      trackSaveDraft("Video Lesson", 'mp4', 'Completed');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -123,6 +125,8 @@ export default function VideoProductDisplay({
     } catch (error) {
       console.error('Download failed:', error);
       alert('Download failed. Please try again.');
+      // Track save draft event
+      trackSaveDraft("Video Lesson", 'mp4', 'Failed');
     }
   };
 
