@@ -212,12 +212,17 @@ FORBIDDEN IN MIDDLE:
 Before finalizing, VALIDATE every slide strictly against source content:
 1. REMOVE any slide whose content cannot be traced to specific source passages
 2. DO NOT create placeholder slides for uncovered topics
-3. FOR BID bullet lists that are empty, whitespace-only, or contain placeholders like "No content available", "N/A", "TBD"
+3. FORBID bullet lists that are empty, whitespace-only, or contain placeholders like "No content", "No content available", "N/A", "TBD"
 4. IF a slide would have fewer than 2 meaningful bullet items from sources, either:
    - MERGE that content into a neighboring slide, or
    - DELETE the slide entirely
 5. DO NOT add images or titles for topics not present in sources
 6. AFTER removals, RENUMBER slideNumber sequentially and update any slideId/metadata consistently
+
+ADDITIONAL SOURCE FIDELITY ENFORCEMENT (fromFiles=true):
+- DO NOT add named case studies or companies (e.g., Netflix, Airbnb, NASA) unless explicitly present in sources.
+- DO NOT add ecosystem/program details (e.g., AWS Support Plans, AWS Training/Certification, partner programs) unless explicitly present in sources.
+- If a planned slide relies on content not present in sources, SKIP creating that slide entirely (do not output a placeholder) and proceed without it.
 
  EDUCATIONAL RESTRUCTURING WITH FILES:
 When restructuring file content, you MAY:
