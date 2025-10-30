@@ -1,25 +1,11 @@
 // custom_extensions/frontend/src/components/templates/CultureValuesThreeColumnsSlideTemplate.tsx
 
 import React, { useState } from 'react';
-import { BaseTemplateProps } from '@/types/slideTemplates';
+import { CultureValuesThreeColumnsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
-
-export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
-  logoText?: string;
-  logoPath?: string;
-  title: string;
-  leftTitle: string;
-  leftText: string;
-  middleTitle: string;
-  middleText: string;
-  rightTitle: string;
-  rightText: string;
-  middlePanelColor?: string;
-  avatarPath?: string;
-}
 
 export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
