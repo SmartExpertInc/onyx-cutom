@@ -448,41 +448,41 @@
         }
 
         .pyramid-level:nth-child(1) { 
-            width: 220px; 
+            width: 240px; 
             height: 70px; 
-            top: 70px; 
+            top: 90px; 
             background: #2A7CFF; 
             z-index: 5; 
             clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(2) { 
-            width: 320px; 
+            width: 340px; 
             height: 70px; 
-            top: 150px; 
+            top: 170px; 
             background: #09ACD8; 
             z-index: 4; 
             clip-path: polygon(16.67% 0%, 83.33% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(3) { 
-            width: 420px; 
+            width: 440px; 
             height: 70px; 
-            top: 230px; 
+            top: 250px; 
             background: #1B94E8; 
             z-index: 3; 
             clip-path: polygon(12.5% 0%, 87.5% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(4) { 
-            width: 520px; 
+            width: 540px; 
             height: 70px; 
-            top: 310px; 
+            top: 330px; 
             background: #3A11C3; 
             z-index: 2; 
             clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
         }
         .pyramid-level:nth-child(5) { 
-            width: 620px; 
+            width: 640px; 
             height: 70px; 
-            top: 390px; 
+            top: 410px; 
             background: #01298A; 
             z-index: 1; 
             clip-path: polygon(8.33% 0%, 91.67% 0%, 100% 100%, 0% 100%);
@@ -510,27 +510,27 @@
 
         .pyramid-text-block.level-0 {
             top: 380px;
-            left: 100px;
+            left: 50px;
             text-align: right;
         }
         .pyramid-text-block.level-1 {
             top: 260px;
-            right: 80px;
+            right: 30px;
             text-align: left;
         }
         .pyramid-text-block.level-2 {
             top: 160px;
-            left: 60px;
+            left: -60px;
             text-align: right;
         }
         .pyramid-text-block.level-3 {
             top: 80px;
-            right: 40px;
+            right: -40px;
             text-align: left;
         }
         .pyramid-text-block.level-4 {
             top: 20px;
-            left: 20px;
+            left: -20px;
             text-align: right;
         }
 
@@ -557,15 +557,15 @@
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-top: 12px solid #0F58F9;
+            /* border-top: 12px solid #0F58F9; */
             z-index: 10;
         }
 
-        .pyramid-triangle.level-4 { top: 40px; left: 20px; background: #2A7CFF; }
-        .pyramid-triangle.level-3 { top: 100px; right: 40px; background: #09ACD8;  }
-        .pyramid-triangle.level-2 { top: 180px; left: 60px; background: #1B94E8; }
-        .pyramid-triangle.level-1 { top: 280px; right: 80px; background: #3A11C3;}
-        .pyramid-triangle.level-0 { top: 400px; left: 100px; background: #01298A; }
+        .pyramid-triangle.level-4 { top: 40px; left: -20px; border-top: #2A7CFF; }
+        .pyramid-triangle.level-3 { top: 100px; right: -40px; border-top: #09ACD8;  }
+        .pyramid-triangle.level-2 { top: 180px; left: -60px; border-top: #1B94E8; }
+        .pyramid-triangle.level-1 { top: 280px; right: -80px; border-top: #3A11C3;}
+        .pyramid-triangle.level-0 { top: 400px; left: -100px; border-top: #01298A; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -3217,8 +3217,8 @@
                                     {% endif %}
                                 >
                                     <div style="display: flex; align-items: center;">
-                                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; flex-shrink: 0;">
-                                            <path d="M21 11.5C21 16.7467 16.9706 21 12 21C10.3126 21 8.73389 20.5668 7.37021 19.7936L3 21L4.20641 16.6298C3.43313 15.2661 3 13.6874 3 12C3 6.75329 7.02944 3 12 3C16.9706 3 21 6.75329 21 11.5Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; flex-shrink: 0;">
+                                            <path d="M21 11.5C21 16.7467 16.9706 21 12 21C10.3126 21 8.73389 20.5668 7.37021 19.7936L3 21L4.20641 16.6298C3.43313 15.2661 3 13.6874 3 12C3 6.75329 7.02944 3 12 3C16.9706 3 21 6.75329 21 11.5Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                         <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
                                             {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}

@@ -715,7 +715,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         </div>
 
         {/* Bullets */}
-        <div data-draggable="true" style={{ width: '100% !important', minWidth: '300px !important', maxWidth: '600px !important'}}>
+        <div data-draggable="true" style={{ width: '100%', minWidth: '300px', maxWidth: '600px' }}>
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle="arrow"
