@@ -528,6 +528,11 @@
             right: 50px; 
             text-align: right; 
         }
+        .pyramid-text-block.level-4 { 
+            top: 290px; 
+            left: 50px; 
+            text-align: left; 
+        }
 
         .pyramid-text-heading {
             font-size: 1rem;
@@ -560,6 +565,7 @@
         .pyramid-triangle.level-1 { top: 100px; right: 30%; }
         .pyramid-triangle.level-2 { top: 170px; left: 30%; }
         .pyramid-triangle.level-3 { top: 240px; right: 30%; }
+        .pyramid-triangle.level-4 { top: 310px; left: 30%; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -2222,9 +2228,9 @@
         
         .timeline-line {
             position: absolute;
-            top: 60%;
+            top: 70%;
             left: 20px;
-            right: 10px;
+            right: 50px;
             height: 2px;
             background-color: #0F58F9;
             transform: translateY(-50%);
@@ -2321,8 +2327,8 @@
 
 .timeline-line {
     position: absolute;
-    top: 100px;
-    left: calc(50% - 60px);
+    top: 140px;
+    left: calc(50% - 160px);
     width: 115%;
     height: 2px;
     background: #0F58F9;
@@ -3172,11 +3178,16 @@
             
                 
             {% elif slide.templateId == 'pyramid' %}
+                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <div class="pyramid-template">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        {% set titleId1 = 'title' %}
+                        {% set titleId2 = slide.slideId + '-title' %}
+                        {% set titleId3 = 'draggable-' + slide.slideId + '-title' %}
+                        {% set titlePos = (slide.metadata.elementPositions[titleId1] if slide.metadata and slide.metadata.elementPositions and titleId1 in slide.metadata.elementPositions else (slide.metadata.elementPositions[titleId2] if slide.metadata and slide.metadata.elementPositions and titleId2 in slide.metadata.elementPositions else (slide.metadata.elementPositions[titleId3] if slide.metadata and slide.metadata.elementPositions and titleId3 in slide.metadata.elementPositions else none))) %}
+                        {% set titleColor = (slide.metadata.elementColors[titleId1] if slide.metadata and slide.metadata.elementColors and titleId1 in slide.metadata.elementColors else (slide.metadata.elementColors[titleId2] if slide.metadata and slide.metadata.elementColors and titleId2 in slide.metadata.elementColors else (slide.metadata.elementColors[titleId3] if slide.metadata and slide.metadata.elementColors and titleId3 in slide.metadata.elementColors else none))) %}
                         <h1 class="slide-title positioned-element"
-                            {% set titleId = slide.slideId + '-title' %}
-                            style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[titleId] %} color: {{ slide.metadata.elementColors[titleId] }};{% endif %}"
+                            style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
                         >{{ slide.props.title|safe }}</h1>
                     {% endif %}
                     <div class="main-content">
@@ -3207,19 +3218,23 @@
                             {% endfor %}
 
                             <!-- Text Blocks positioned around pyramid -->
-                            {% for i in range(4) %}
-                                {% set textId = slide.slideId + '-pyramid-text-' + i|string %}
+                            {% for i in range(5) %}
+                                {% set textId1 = 'pyramid-item-' + (i + 1)|string %}
+                                {% set textId2 = slide.slideId + '-pyramid-text-' + i|string %}
+                                {% set textId3 = 'pyramid-text-' + i|string %}
+                                {% set textPos = (slide.metadata.elementPositions[textId1] if slide.metadata and slide.metadata.elementPositions and textId1 in slide.metadata.elementPositions else (slide.metadata.elementPositions[textId2] if slide.metadata and slide.metadata.elementPositions and textId2 in slide.metadata.elementPositions else (slide.metadata.elementPositions[textId3] if slide.metadata and slide.metadata.elementPositions and textId3 in slide.metadata.elementPositions else none))) %}
+                                {% set textColor = (slide.metadata.elementColors[textId1] if slide.metadata and slide.metadata.elementColors and textId1 in slide.metadata.elementColors else (slide.metadata.elementColors[textId2] if slide.metadata and slide.metadata.elementColors and textId2 in slide.metadata.elementColors else (slide.metadata.elementColors[textId3] if slide.metadata and slide.metadata.elementColors and textId3 in slide.metadata.elementColors else none))) %}
                                 <div class="pyramid-text-block level-{{ i }} positioned-element"
-                                    style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[textId] %}transform: translate({{ slide.metadata.elementPositions[textId].x }}px, {{ slide.metadata.elementPositions[textId].y }}px);{% endif %}"
+                                    style="{% if textPos %}transform: translate({{ textPos.x }}px, {{ textPos.y }}px);{% endif %}"
                                 >
-                                    <div class="pyramid-text-heading" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId] %}color: {{ slide.metadata.elementColors[textId] }};{% endif %}">
+                                    <div class="pyramid-text-heading" style="{% if textColor %}color: {{ textColor }};{% endif %}">
                                         {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading %}
                                             {{ slide.props.steps[i].heading|safe }}
                                         {% else %}
                                             Headline
                                         {% endif %}
                                     </div>
-                                    <div class="pyramid-text-description" style="{% if slide.metadata and slide.metadata.elementColors and slide.metadata.elementColors[textId] %}color: {{ slide.metadata.elementColors[textId] }};{% endif %}">
+                                    <div class="pyramid-text-description" style="{% if textColor %}color: {{ textColor }};{% endif %}">
                                         {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description %}
                                             {{ slide.props.steps[i].description|safe }}
                                         {% else %}
@@ -3230,38 +3245,14 @@
                             {% endfor %}
 
                             <!-- Triangle Arrows pointing to pyramid -->
-                            <div class="pyramid-triangle level-0 positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set triangleId = slide.slideId + '-pyramid-triangle-0' %}
-                                    {% if slide.metadata.elementPositions[triangleId] %}
+                            {% for i in range(5) %}
+                                {% set triangleId = slide.slideId + '-pyramid-triangle-' + i|string %}
+                                <div class="pyramid-triangle level-{{ i }} positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[triangleId] %}
                                         style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
                                     {% endif %}
-                                {% endif %}
-                            ></div>
-                            <div class="pyramid-triangle level-1 positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set triangleId = slide.slideId + '-pyramid-triangle-1' %}
-                                    {% if slide.metadata.elementPositions[triangleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
-                                    {% endif %}
-                                {% endif %}
-                            ></div>
-                            <div class="pyramid-triangle level-2 positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set triangleId = slide.slideId + '-pyramid-triangle-2' %}
-                                    {% if slide.metadata.elementPositions[triangleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
-                                    {% endif %}
-                                {% endif %}
-                            ></div>
-                            <div class="pyramid-triangle level-3 positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set triangleId = slide.slideId + '-pyramid-triangle-3' %}
-                                    {% if slide.metadata.elementPositions[triangleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
-                                    {% endif %}
-                                {% endif %}
-                            ></div>
+                                ></div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -3359,6 +3350,7 @@
                 </div>
                 
             {% elif slide.templateId == 'contraindications-indications' %}
+                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <div class="contraindications-indications-template">
                     <div class="main-content">
                         <!-- Central Image Container -->
@@ -3538,6 +3530,7 @@
                 </div>
                 
             {% elif slide.templateId == 'event-list' %}
+                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <!-- Event List Template - Two Column Layout with Timeline -->
                 <div class="event-list-template">
                     <!-- Left section with title, presenter, and subject (blue background) -->
@@ -3915,6 +3908,7 @@
                 </div>
                 
             {% elif slide.templateId == 'six-ideas-list' or slide.templateId == 'list-numbered-6' %}
+                <!-- DEBUG: All elementPositions keys: {% if slide.metadata and slide.metadata.elementPositions %}{% for key in slide.metadata.elementPositions.keys() %}{{ key }}, {% endfor %}{% endif %} -->
                 <!-- Six Ideas List Template -->
                 <div class="six-ideas-container">
                     <!-- Top Section - Dark Blue Background with Title and Ideas -->
