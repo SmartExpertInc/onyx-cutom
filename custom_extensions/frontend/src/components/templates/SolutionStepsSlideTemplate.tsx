@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { SolutionStepsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
@@ -97,12 +98,6 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   const handlePageNumberCancel = () => {
     setCurrentPageNumber(pageNumber);
     setEditingPageNumber(false);
-  };
-
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
   };
 
   const handleLogoNewUploaded = (newLogoPath: string) => {
@@ -241,7 +236,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         )}
       </div>
 
-      {/* Profile Image */}
+      {/* Avatar */}
       <div style={{
         position: 'absolute',
         top: '40px',
@@ -252,21 +247,15 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         backgroundColor: '#0F58F9',
         overflow: 'hidden',
       }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={handleProfileImageUploaded}
-          size="LARGE"
+        <AvatarImageDisplay
+          size="MEDIUM"
           position="CENTER"
-          description="Profile photo"
-          isEditable={isEditable}
           style={{
-            width: '110%',
-            height: '110%',
+            width: '88%',
+            height: '135%',
             borderRadius: '50%',
             position: 'relative',
-            bottom: '-10px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            bottom: '0px',
             objectFit: 'cover'
           }}
         />

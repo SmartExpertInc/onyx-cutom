@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
@@ -228,12 +229,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     setEditingPractices(null);
   };
 
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, mainStatement, practices, profileImagePath, profileImageAlt, teamImagePath, teamImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
   const handleTeamImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, mainStatement, practices, profileImagePath, profileImageAlt, teamImagePath, teamImageAlt, backgroundColor, titleColor, contentColor, accentColor }, teamImagePath: newImagePath });
@@ -329,7 +324,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             </div>
           </div>
 
-          {/* Profile image at bottom */}
+          {/* Avatar at bottom */}
           <div style={{
             width: '155px',
             height: '155px',
@@ -338,18 +333,17 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             alignSelf: 'flex-start',
             position: 'absolute',
             bottom: '25px',
+            backgroundColor: '#ffffff'
           }}>
-            <ClickableImagePlaceholder
-              imagePath={profileImagePath}
-              onImageUploaded={handleProfileImageUploaded}
-              size="LARGE"
+            <AvatarImageDisplay
+              size="MEDIUM"
               position="CENTER"
-              description="Profile photo"
-              isEditable={isEditable}
               style={{
-                width: '100%',
-                height: '100%',
+                width: '88%',
+                height: '135%',
                 borderRadius: '50%',
+                position: 'relative',
+                bottom: '0px',
                 objectFit: 'cover'
               }}
             />
