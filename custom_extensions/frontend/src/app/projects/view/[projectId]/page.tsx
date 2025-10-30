@@ -19,7 +19,6 @@ import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
-import VideoProductDisplay from '@/components/VideoProductDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
@@ -33,9 +32,10 @@ import workspaceService, {
   ProductAccessCreate 
 } from '../../../../services/workspaceService';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette, XCircle } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
 import { VideoDownloadButton } from '@/components/VideoDownloadButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
+// import PresentationLayout from '@/components/PresentationLayout';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
@@ -43,6 +43,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
+import { ProductViewHeader } from '@/components/ProductViewHeader';
+import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -104,7 +106,6 @@ const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
 const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
 const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
-const COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 const COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay";
@@ -241,6 +242,32 @@ export default function ProjectInstanceViewPage() {
     };
   }, []);
 
+  // Force app background to #F2F2F4 only while this page is mounted
+  useEffect(() => {
+    const root = typeof document !== 'undefined' ? document.documentElement : null;
+    if (!root) return;
+
+    const computed = getComputedStyle(root);
+    const prev = {
+      start: computed.getPropertyValue('--gradient-start'),
+      mid1: computed.getPropertyValue('--gradient-mid1'),
+      mid2: computed.getPropertyValue('--gradient-mid2'),
+      end: computed.getPropertyValue('--gradient-end'),
+    };
+
+    root.style.setProperty('--gradient-start', '#F2F2F4');
+    root.style.setProperty('--gradient-mid1', '#F2F2F4');
+    root.style.setProperty('--gradient-mid2', '#F2F2F4');
+    root.style.setProperty('--gradient-end', '#F2F2F4');
+
+    return () => {
+      root.style.setProperty('--gradient-start', prev.start.trim() || '#FFF9F5');
+      root.style.setProperty('--gradient-mid1', prev.mid1.trim() || '#ECECFF');
+      root.style.setProperty('--gradient-mid2', prev.mid2.trim() || '#BFD7FF');
+      root.style.setProperty('--gradient-end', prev.end.trim() || '#CCE8FF');
+    };
+  }, []);
+
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
@@ -273,6 +300,7 @@ export default function ProjectInstanceViewPage() {
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
+
 
 
   // State for the absolute chat URL
@@ -656,11 +684,6 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const instanceApiUrl = `${CUSTOM_BACKEND_URL}/projects/view/${currentProjectIdStr}`;
-      console.log('🎬 [CRITICAL DEBUG] Frontend requesting project data:', {
-        currentProjectIdStr,
-        instanceApiUrl,
-        timestamp: new Date().toISOString()
-      });
       const instanceResPromise = fetch(instanceApiUrl, { cache: 'no-store', headers: commonHeaders });
       const listApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
       const listResPromise = fetch(listApiUrl, { cache: 'no-store', headers: commonHeaders });
@@ -678,11 +701,6 @@ export default function ProjectInstanceViewPage() {
       
       // Check if this is a landing page project and redirect accordingly
       if (instanceData.name && instanceData.name.includes("AI-Аудит Landing Page")) {
-        if (instanceData.name.includes("Commercial Proposal")) {
-          console.log('🔄 [COMMERCIAL PROPOSAL DETECTED] Redirecting to commercial proposal page:', instanceData.project_id);
-          router.push(`/create/commercial-proposal/${instanceData.project_id}`);
-          return;
-        }
         console.log('🔄 [LANDING PAGE DETECTED] Redirecting to dynamic landing page:', instanceData.project_id);
         router.push(`/create/audit-2-dynamic/${instanceData.project_id}`);
         return;
@@ -705,33 +723,6 @@ export default function ProjectInstanceViewPage() {
         componentName: instanceData.component_name,
         hasDetails: !!instanceData.details
       });
-      
-      // 🔍 CRITICAL DEBUG: Verify project ID match
-      console.log('🎬 [CRITICAL DEBUG] Project ID verification:', {
-        requestedProjectId: currentProjectIdStr,
-        receivedProjectId: instanceData.project_id,
-        projectIdMatch: currentProjectIdStr === instanceData.project_id?.toString(),
-        componentName: instanceData.component_name,
-        hasDetails: !!instanceData.details
-      });
-      
-      // 🔍 CRITICAL DEBUG: For video products, log the exact data structure
-      if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
-        const videoDetails = instanceData.details as any;
-        console.log('🎬 [CRITICAL DEBUG] Video product data analysis:', {
-          componentName: instanceData.component_name,
-          hasDetails: !!instanceData.details,
-          detailsType: typeof instanceData.details,
-          detailsKeys: instanceData.details ? Object.keys(instanceData.details) : 'no details',
-          detailsContent: instanceData.details,
-          hasVideoUrl: videoDetails?.videoUrl ? 'YES' : 'NO',
-          hasVideoJobId: videoDetails?.videoJobId ? 'YES' : 'NO',
-          hasThumbnailUrl: videoDetails?.thumbnailUrl ? 'YES' : 'NO',
-          videoUrlValue: videoDetails?.videoUrl,
-          videoJobIdValue: videoDetails?.videoJobId,
-          thumbnailUrlValue: videoDetails?.thumbnailUrl
-        });
-      }
 
       setProjectInstanceData(instanceData);
 
@@ -795,65 +786,6 @@ export default function ProjectInstanceViewPage() {
               : 'No content blocks or not array'
           });
           setEditableData(copiedDetails as TextPresentationData);
-        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
-          console.log('🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details:', {
-            copiedDetails,
-            copiedDetailsStringified: JSON.stringify(copiedDetails, null, 2),
-            videoJobId: copiedDetails?.videoJobId,
-            videoUrl: copiedDetails?.videoUrl,
-            thumbnailUrl: copiedDetails?.thumbnailUrl,
-            component_name: copiedDetails?.component_name
-          });
-          
-          // 🔍 CRITICAL DEBUG: Log the exact data being set
-          console.log('🎬 [VIDEO_PRODUCT_DATA] About to set editableData with:', {
-            type: typeof copiedDetails,
-            keys: Object.keys(copiedDetails || {}),
-            hasVideoUrl: 'videoUrl' in (copiedDetails || {}),
-            hasThumbnailUrl: 'thumbnailUrl' in (copiedDetails || {}),
-            hasVideoJobId: 'videoJobId' in (copiedDetails || {}),
-            videoUrlValue: copiedDetails?.videoUrl,
-            thumbnailUrlValue: copiedDetails?.thumbnailUrl,
-            videoJobIdValue: copiedDetails?.videoJobId
-          });
-          
-          // 🔧 FIX: Check if we have video data, if not, check for nested data or use fallback
-          if (copiedDetails?.videoUrl && copiedDetails?.videoJobId) {
-            // We have proper video data
-            setEditableData(copiedDetails as any);
-          } else {
-            // 🔍 DEBUG: Check if video data is nested somewhere else
-            console.log('🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found in copiedDetails, checking for nested data...');
-            console.log('🎬 [VIDEO_PRODUCT_DATA] Full copiedDetails structure:', JSON.stringify(copiedDetails, null, 2));
-            
-            // Check if video data is in a nested property
-            let videoData = null;
-            if (copiedDetails && typeof copiedDetails === 'object') {
-              // Look for video data in any nested object
-              for (const [key, value] of Object.entries(copiedDetails)) {
-                if (value && typeof value === 'object' && ('videoUrl' in value || 'videoJobId' in value)) {
-                  console.log(`🎬 [VIDEO_PRODUCT_DATA] ⚠️ FOUND VIDEO DATA IN NESTED PROPERTY '${key}':`, value);
-                  videoData = value;
-                  break;
-                }
-              }
-            }
-            
-            if (videoData) {
-              setEditableData(videoData as any);
-            } else {
-              // Fallback: create default video product data
-              console.log('🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found anywhere, using fallback');
-              setEditableData({
-                videoJobId: 'unknown',
-                videoUrl: '',
-                thumbnailUrl: '',
-                generatedAt: new Date().toISOString(),
-                sourceSlides: [],
-                component_name: 'VideoProductDisplay'
-              } as any);
-            }
-          }
         } else {
           setEditableData(copiedDetails);
         }
@@ -871,16 +803,6 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
           setEditableData({ textTitle: instanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
-        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
-          console.log('🎬 [VIDEO_PRODUCT_DATA] No details data, setting default video product data');
-          setEditableData({ 
-            videoJobId: 'unknown',
-            videoUrl: '',
-            thumbnailUrl: '',
-            generatedAt: new Date().toISOString(),
-            sourceSlides: [],
-            component_name: 'VideoProductDisplay'
-          } as any);
         } else {
           setEditableData(null);
         }
@@ -1471,8 +1393,90 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handlePdfDownload = async () => {
-    if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
+    console.log('🔍 PDF Download Debug - Start:', {
+      projectInstanceData: projectInstanceData?.component_name,
+      projectId: projectInstanceData?.project_id,
+      projectIdType: typeof projectInstanceData?.project_id,
+      componentName: projectInstanceData?.component_name
+    });
+
+    if (!projectInstanceData || !projectInstanceData.project_id) {
+      console.error('🔍 PDF Download Debug - Missing data:', { projectInstanceData, projectId: projectInstanceData?.project_id });
       alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
+      return;
+    }
+
+    // Special handling for text presentations
+    if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+        console.log('🔍 PDF Download Debug - Text Presentation detected, starting PDF generation...');
+        setIsExportingPdf(true);
+        setPdfProgress({ current: 0, total: 1, message: 'Generating PDF...' });
+        
+        try {
+            console.log('🔍 PDF Download Debug - Making request to:', `${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`);
+            
+            // Generate HTML content from editableData (with image conversion to data URIs)
+            const htmlContent = await generateTextPresentationHtml(
+                editableData as TextPresentationData,
+                projectInstanceData.name || 'Text Presentation'
+            );
+            
+            console.log('🔍 PDF Download Debug - Generated HTML content length:', htmlContent.length);
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/text-presentation/${projectInstanceData.project_id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    html_content: htmlContent,
+                    filename: projectInstanceData.name || 'text-presentation'
+                })
+            });
+
+            console.log('🔍 PDF Download Debug - Response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('🔍 PDF Download Debug - Error response:', errorText);
+                throw new Error(`PDF generation failed: ${response.status} - ${errorText}`);
+            }
+
+            // Get the response JSON with download URL
+            const responseData = await response.json();
+            console.log('🔍 PDF Download Debug - Response data:', responseData);
+            
+            if (responseData.download_url) {
+                // Download the generated PDF
+                const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}${responseData.download_url}`, {
+                    credentials: 'same-origin'
+                });
+                
+                if (!downloadResponse.ok) {
+                    throw new Error('Failed to download PDF');
+                }
+                
+                const blob = await downloadResponse.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = responseData.filename || `${projectInstanceData.name || 'text-presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+            
+            // Close the modal
+            setIsExportingPdf(false);
+            setPdfProgress(null);
+        } catch (error) {
+            console.error('Error generating text presentation PDF:', error);
+            alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+            setIsExportingPdf(false);
+            setPdfProgress(null);
+        }
       return;
     }
 
@@ -1678,6 +1682,7 @@ export default function ProjectInstanceViewPage() {
   };
 
 
+
   if (pageState === 'initial_loading' || pageState === 'fetching') {
     return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">{t('interface.projectView.loadingProject', 'Loading project details...')}</div></div>;
   }
@@ -1763,15 +1768,8 @@ export default function ProjectInstanceViewPage() {
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
-        // For slide decks, use the new SmartSlideDeckViewer with component-based templates
+        // For slide decks, use SmartSlideDeckViewer
         return (
-          <div style={{
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
             <SmartSlideDeckViewer
               deck={slideDeckData}
               isEditable={true}
@@ -1819,27 +1817,18 @@ export default function ProjectInstanceViewPage() {
 
                 tempAutoSave();
               }}
-              // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
               theme={currentTheme}
               projectId={projectId}
             />
-          </div>
         );
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
         const videoLessonPresentationData = editableData as ComponentBasedSlideDeck | null;
         if (!videoLessonPresentationData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noVideoLessonData', 'No video lesson data available')}</div>;
         }
-        // For video lesson presentations, use the same SmartSlideDeckViewer but with voiceover support
+        // For video lesson presentations, use SmartSlideDeckViewer with voiceover support
         return (
-          <div style={{
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
             <SmartSlideDeckViewer
               deck={videoLessonPresentationData}
               isEditable={true}
@@ -1887,19 +1876,22 @@ export default function ProjectInstanceViewPage() {
 
                 tempAutoSave();
               }}
-              // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
               theme="dark-purple"
-              hasVoiceover={true} // Enable voiceover features
+            hasVoiceover={true}
               projectId={projectId}
             />
-          </div>
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
+        // Set purpleBoxSection to true for now (user will change this later)
+        const textPresentationDataWithBox = textPresentationData ? {
+          ...textPresentationData,
+          purpleBoxSection: true
+        } : null;
         return (
           <TextPresentationDisplay
-            dataToDisplay={textPresentationData}
+            dataToDisplay={textPresentationDataWithBox}
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
@@ -1944,19 +1936,6 @@ export default function ProjectInstanceViewPage() {
             parentProjectName={parentProjectNameForCurrentView}
           />
         );
-      case COMPONENT_NAME_VIDEO_PRODUCT:
-        const videoProductData = editableData as any; // Video product data is stored as a dictionary
-        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData:', editableData);
-        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type:', typeof editableData);
-        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys:', editableData ? Object.keys(editableData) : 'null');
-        return (
-          <VideoProductDisplay
-            dataToDisplay={videoProductData}
-            isEditing={isEditing}
-            onTextChange={handleTextChange}
-            parentProjectName={parentProjectName}
-          />
-        );
       default:
         return <DefaultDisplayComponent instanceData={projectInstanceData} t={t} />;
     }
@@ -1971,225 +1950,43 @@ export default function ProjectInstanceViewPage() {
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
   return (
-    <main 
-      className="p-4 md:p-8 min-h-screen font-inter"
-      style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
-      }}
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-
-          <div className="flex items-center gap-x-4">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {t('interface.projectView.back', 'Back')}
-            </button>
-            
-            <button
-              onClick={() => {
-                console.log('Open Products button clicked - navigating to /projects');
-                window.location.href = '/projects';
-              }}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <FolderOpen size={14} style={{ color: '#0F58F9' }} />
-              {t('interface.projectView.openProducts', 'Open Products')}
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {/* Edit button for editable content types */}
-            {canEditContent && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-                style={{
-                  color: '#0F58F9',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
-              >
-                {isEditing ? (
-                  <>
-                    <Save size={14} style={{ color: '#0F58F9' }} />
-                    {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
-                  </>
-                ) : (
-                  <>
-                    <Edit size={14} style={{ color: '#0F58F9' }} />
-                    {t('interface.projectView.editContent', 'Edit Content')}
-                  </>
-                )}
-              </button>
-            )}
-
-            {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-              projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
-                <VideoDownloadButton
-                  projectName={projectInstanceData.name}
-                  onError={(error) => {
-                    console.error('Video generation error:', error);
-                    alert(`Video generation failed: ${error}`);
-                  }}
-                  onSuccess={(downloadUrl) => {
-                    console.log('Video generated successfully:', downloadUrl);
-                  }}
-                />
-              ) : (
-                <button
-                  onClick={handlePdfDownload}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-                  style={{
-                    backgroundColor: '#0F58F9',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                  title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
-                >
-                 <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
-                </button>
-              )
-            )}
-
-            {/* Smart Edit button for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
-              <button
-                onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#8B5CF6',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
-              >
-                <Sparkles size={14} style={{ color: 'white' }} /> {t('interface.projectView.smartEdit', 'Smart Edit')}
-              </button>
-            )}
-
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && scormEnabled && (
-              <ToastProvider>
-                <ScormDownloadButton
-                  courseOutlineId={Number(projectId)}
-                  label={t('interface.projectView.exportScorm', 'Export to SCORM 2004')}
-                  className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
-                  style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
-                />
-              </ToastProvider>
-            )}
-
-
-            {/* Theme Picker button for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <DropdownMenu open={showTrainingPlanThemePicker} onOpenChange={setShowTrainingPlanThemePicker}>
-                <DropdownMenuTrigger asChild>
-                <button
-                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                    style={{
-                      color: '#0F58F9',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      lineHeight: '140%',
-                      letterSpacing: '0.05em'
-                    }}
-                  title="Change theme"
-                >
-                  <Palette size={14} style={{ color: '#0F58F9' }} /> Theme
-                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
-                </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-20" style={{ backgroundColor: 'white' }}>
-                  <div className="space-y-1">
-                  {[
-                      { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
-                      { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
-                      { id: 'wine', label: 'Wine', color: '#0540AB' },
-                      { id: 'vanilla', label: 'Vanilla (Engenuity)', color: '#8776A0' },
-                      { id: 'terracotta', label: 'Terracotta (Deloitte)', color: '#2D7C21' },
-                      { id: 'zephyr', label: 'Zephyr', color: '#0540AB' }
-                    ].map((theme) => {
-                      const trainingPlanData = editableData as TrainingPlanData | null;
-                      const currentTheme = trainingPlanData?.theme || 'cherry';
-                      const isSelected = currentTheme === theme.id;
-                      
-                      return (
-                        <button
-                          key={theme.id}
-                          onClick={() => handleTrainingPlanThemeChange(theme.id)}
-                        className={`w-full py-1.5 pr-8 pl-2 text-left text-sm hover:bg-gray-50 rounded cursor-pointer flex items-center gap-2 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
-                        >
-                          <div
-                            className="w-4 h-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: theme.color }}
-                          />
-                          <span className="flex-1">{theme.label}</span>
-                          {isSelected && (
-                          <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
-            {/* Role Visibility Dropdown - only for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && (
-              <>
-                <button
-                  onClick={() => setRoleAccess(!roleAccess)}
-                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                  style={{
-                    color: '#0F58F9',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                  title={t('interface.projectView.configureAccessControl', 'Configure access control')}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {t('interface.projectView.ManageAccess', 'Manage Access')}
-                </button>
-
-                {/* Role Access Modal */}
-                {roleAccess && createPortal(
+    <>
+      <ProductViewHeader
+        projectData={projectInstanceData}
+        editableData={editableData as TrainingPlanData | null}
+        productId={projectId}
+        scormEnabled={scormEnabled}
+        componentName={COMPONENT_NAME_TRAINING_PLAN}
+        allowedComponentNames={[
+          COMPONENT_NAME_TRAINING_PLAN,
+          COMPONENT_NAME_SLIDE_DECK,
+          COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
+          COMPONENT_NAME_QUIZ,
+          COMPONENT_NAME_TEXT_PRESENTATION
+        ]}
+        t={t}
+        onPdfExport={handlePdfDownload}
+        isEditing={isEditing}
+        onEditOrSave={handleToggleEdit}
+      />
+      
+      <main 
+        className={`min-h-screen font-inter ${
+          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+            ? 'bg-[#F2F2F4] p-0'
+            : 'bg-[#F2F2F4] p-4 md:p-8'
+        }`}
+      >
+        <div className={`mx-auto ${
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+            ? 'max-w-[1920px]'
+            : 'max-w-7xl'
+        }`}>
+          {/* Role Access Modal - kept for functionality */}
+          {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && roleAccess && createPortal(
                   <div
                     className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
                     onClick={() => setRoleAccess(false)}
@@ -2478,171 +2275,6 @@ export default function ProjectInstanceViewPage() {
                   </div>,
                   document.body
                 )}
-              </>
-            )}
-
-            {/* Column Visibility Dropdown - only for Course Outline (Training Plan) products */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <DropdownMenu open={showColumnDropdown} onOpenChange={setShowColumnDropdown}>
-                <DropdownMenuTrigger asChild>
-                <button
-                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                    style={{
-                      color: '#0F58F9',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      lineHeight: '140%',
-                      letterSpacing: '0.05em'
-                    }}
-                  title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
-                >
-                  <Info size={14} style={{ color: '#0F58F9' }} />
-                  {t('interface.projectView.columns', 'Columns')}
-                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
-                </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
-                  <div className="space-y-1">
-                      {/* Training Plan specific columns */}
-                      {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-                        <>
-                          {colAssessmentTypeEnabled && (
-                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={columnVisibility.knowledgeCheck}
-                                onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
-                            </label>
-                          )}
-                          {colContentVolumeEnabled && (
-                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={columnVisibility.contentAvailability}
-                                onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
-                            </label>
-                          )}
-                          {colSourceEnabled && (
-                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={columnVisibility.informationSource}
-                                onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{columnLabels.source}</span>
-                            </label>
-                          )}
-                          {colEstCreationTimeEnabled && (
-                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={columnVisibility.estCreationTime}
-                                onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
-                            </label>
-                          )}
-                          {colEstCompletionTimeEnabled && (
-                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={columnVisibility.estCompletionTime}
-                                onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
-                            </label>
-                          )}
-                          {colQualityTierEnabled && (
-                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={columnVisibility.qualityTier}
-                                onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
-                            </label>
-                          )}
-                        </>
-                      )}
-
-                      {/* Common columns for all component types */}
-                      {colQuizEnabled && (
-                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.quiz}
-                            onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
-                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">Quiz</span>
-                        </label>
-                      )}
-                      {colOnePagerEnabled && (
-                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.onePager}
-                            onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
-                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">One-Pager</span>
-                        </label>
-                      )}
-                      {colVideoPresentationEnabled && (
-                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.videoPresentation}
-                            onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
-                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">Video Lesson</span>
-                        </label>
-                      )}
-                      {colLessonPresentationEnabled && (
-                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.lessonPresentation}
-                            onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
-                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">Presentation</span>
-                        </label>
-                      )}
-                    </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            {/* Move to Trash button for non-outline microproducts placed as right-most */}
-            {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
-              <button
-                onClick={handleMoveToTrash}
-                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  color: '#DC2626',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={t('interface.projectView.moveToTrashTooltip', 'Move this product to Trash')}
-              >
-                <Trash2 size={14} style={{ color: '#DC2626' }} /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
-              </button>
-            )}
-          </div>
-        </div>
 
         {saveError &&
           <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm flex items-center">
@@ -2652,7 +2284,11 @@ export default function ProjectInstanceViewPage() {
         }
 
         {/* Smart Prompt Editor - render outside the white content container */}
-        {showSmartEditor && projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+        {showSmartEditor && projectInstanceData && (
+          projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN ||
+          projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+        ) && (
           <SmartPromptEditor
             projectId={projectInstanceData.project_id}
             onContentUpdate={handleSmartEditContentUpdate}
@@ -2666,7 +2302,7 @@ export default function ProjectInstanceViewPage() {
         <div className={`p-4 sm:p-6 md:p-8 rounded-xl ${
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
-            ? 'bg-white' 
+            ? 'bg-[#F2F2F4]' 
             : 'bg-transparent'
         }`}>
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
@@ -2684,7 +2320,7 @@ export default function ProjectInstanceViewPage() {
         onDownload={handleDownloadPdf}
         onClose={handleClosePdfModal}
       />
-
     </main>
+    </>
   );
 }
