@@ -4661,6 +4661,122 @@
             bottom: -25px;
         }
 
+        /* Resources List Slide */
+        .resources-list-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .resources-list-slide .title-element {
+            font-family: 'Lora', serif !important;
+            font-weight: 500 !important;
+        }
+        .resources-list-slide .logo-left {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .resources-list-slide .logo-left img {
+            height: 30px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+        .resources-list-slide .logo-circle {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .resources-list-slide .logo-plus-h { width: 12px; height: 2px; background-color: #ffffff; position: absolute; }
+        .resources-list-slide .logo-plus-v { width: 2px; height: 12px; background-color: #ffffff; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        .resources-list-slide .logo-text { font-size: 16px; font-weight: 400; color: #ffffff; }
+        .resources-list-slide .profile {
+            position: absolute;
+            top: 40px;
+            right: 60px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            overflow: hidden;
+        }
+        .resources-list-slide .profile img { width: 110%; height: 110%; border-radius: 50%; position: relative; bottom: -10px; left: 50%; transform: translateX(-50%); object-fit: cover; }
+        .resources-list-slide .title { position: absolute; left: 56px; top: 87px; font-size: 56px; font-weight: 800; color: #FFFFFF; }
+        .resources-list-slide .list { position: absolute; top: 253px; left: 56px; right: 56px; display: flex; flex-direction: column; gap: 28px; }
+        .resources-list-slide .item { background-color: #FFFFFF; color: #09090B; border-radius: 6px; padding: 20px 25px; font-size: 30px; font-weight: 600; }
+        .resources-list-slide .page { position: absolute; bottom: 15px; left: 0px; display: flex; align-items: center; gap: 8px; }
+        .resources-list-slide .page .line { width: 20px; height: 1px; background-color: rgba(255, 255, 255, 0.6); }
+        .resources-list-slide .page .num { color: rgba(255, 255, 255, 0.6); font-size: 17px; font-weight: 300; font-family: 'Inter', sans-serif; }
+
+        /* Table of Contents Slide */
+        .table-of-contents-slide-template {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .table-of-contents-slide-template .title-element { font-family: 'Lora', serif !important; font-weight: 500 !important; }
+        .table-of-contents-slide-template .logo-left { position: absolute; top: 20px; left: 30px; display: flex; align-items: center; gap: 10px; }
+        .table-of-contents-slide-template .logo-left img { height: 30px; max-width: 120px; object-fit: contain; }
+        .table-of-contents-slide-template .logo-circle { width: 30px; height: 30px; border: 2px solid #09090B; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; }
+        .table-of-contents-slide-template .logo-plus-h { width: 12px; height: 2px; background-color: #09090B; position: absolute; }
+        .table-of-contents-slide-template .logo-plus-v { width: 2px; height: 12px; background-color: #09090B; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        .table-of-contents-slide-template .logo-text { font-size: 16px; font-weight: 400; color: #09090B; }
+        .table-of-contents-slide-template .main-title { position: absolute; top: 160px; left: 60px; font-size: 58px; font-weight: bold; color: #1C1B1A; line-height: 1.1; }
+        .table-of-contents-slide-template .buttons { position: absolute; top: 270px; left: 60px; width: 530px; display: grid; grid-template-columns: 250px 250px; gap: 30px; }
+        .table-of-contents-slide-template .button { background-color: #0F58F9; border-radius: 4px; padding: 15px; display: flex; align-items: center; justify-content: center; }
+        .table-of-contents-slide-template .button-text { font-size: 25px; font-weight: 500; color: #FFFFFF; text-align: center; }
+        .table-of-contents-slide-template .profile-box { position: absolute; top: 90px; right: 60px; width: 445px; height: 500px; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%); overflow: hidden; border-radius: 8px; }
+        .table-of-contents-slide-template .page { position: absolute; bottom: 15px; left: 0px; display: flex; align-items: center; gap: 8px; }
+        .table-of-contents-slide-template .page .line { width: 20px; height: 1px; background-color: rgba(9, 9, 11, 0.6); }
+        .table-of-contents-slide-template .page .num { color: rgba(9, 9, 11, 0.6); font-size: 19px; font-weight: 300; font-family: 'Inter', sans-serif; }
+
+        /* Course Rules Timeline Slide */
+        .course-rules-timeline-slide { width: 100%; aspect-ratio: 16/9; background-color: #E0E7FF; position: relative; overflow: visible; font-family: 'Inter', sans-serif; }
+        .course-rules-timeline-slide .step-text { font-family: 'Lora', serif !important; font-weight: 600 !important; color: black !important; }
+        .course-rules-timeline-slide .actor { position: absolute; left: 0px; bottom: 0px; height: 100%; width: 50%; background: linear-gradient(to bottom, #0F58F9, #1023A1); }
+        .course-rules-timeline-slide .line { position: absolute; left: 56%; top: 155px; bottom: 0px; width: 3px; background-color: #0F58F9; }
+        .course-rules-timeline-slide .step-num { width: 50px; height: 50px; border-radius: 2px; background-color: #0F58F9; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 33px; }
+        .course-rules-timeline-slide .step { position: absolute; left: 61%; display: flex; align-items: center; gap: 40px; }
+        .course-rules-timeline-slide .step-1 { top: 160px; }
+        .course-rules-timeline-slide .step-2 { top: 300px; }
+        .course-rules-timeline-slide .step-3 { top: 440px; }
+        .course-rules-timeline-slide .num-pos { position: absolute; left: calc(50% + 45px); }
+        .course-rules-timeline-slide .num-1 { top: 155px; }
+        .course-rules-timeline-slide .num-2 { top: 295px; }
+        .course-rules-timeline-slide .num-3 { top: 435px; }
+        .course-rules-timeline-slide .page { position: absolute; bottom: 24px; right: 0px; display: flex; align-items: center; gap: 8px; color: #5F616D; font-size: 16px; font-weight: 600; }
+        .course-rules-timeline-slide .page .line { width: 15px; height: 1px; background-color: #5F616D; }
+
+        /* Impact Metrics Right Image Slide */
+        .impact-metrics-right-image { width: 100%; aspect-ratio: 16/9; background-color: #E0E7FF; position: relative; color: #333333; font-family: 'Inter', sans-serif; display: grid; grid-template-columns: 1fr 540px; gap: 40px; padding: 80px 60px; }
+        .impact-metrics-right-image .metric-text { font-family: 'Lora', serif !important; font-weight: 600 !important; }
+        .impact-metrics-right-image .metrics-col { display: flex; flex-direction: column; gap: 60px; align-items: flex-start; justify-content: center; }
+        .impact-metrics-right-image .metric-row { display: flex; align-items: flex-start; gap: 35px; }
+        .impact-metrics-right-image .bullet { width: 30px; height: 30px; border-radius: 50%; background-color: #0F58F9; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .impact-metrics-right-image .metric-text-val { font-size: 45px; font-weight: 600; line-height: 1.1; color: black; max-width: 880px; }
+        .impact-metrics-right-image .title { font-size: 56px; font-weight: 800; margin-bottom: 30px; color: black; }
+        .impact-metrics-right-image .right-wrap { position: absolute; width: 430px; height: 75%; top: 50%; transform: translateY(-50%); right: 60px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .impact-metrics-right-image .panel { position: absolute; inset: 0 0 0 0; border-radius: 11px; background: linear-gradient(to bottom, #0F58F9, #1023A1); }
+        .impact-metrics-right-image .right-image { position: absolute; bottom: -26px; height: 95%; object-fit: contain; }
+        .impact-metrics-right-image .logo-left { position: absolute; top: 20px; left: 22px; display: flex; align-items: center; gap: 8px; }
+        .impact-metrics-right-image .page { position: absolute; bottom: 24px; left: 0px; display: flex; align-items: center; gap: 8px; color: #34353C; font-size: 16px; font-weight: 400; }
+        .impact-metrics-right-image .page .line { width: 15px; height: 1px; background-color: #5F616D; }
+
         /* Topics Slide Template - EXACT React Copy */
         .topics-slide {
             width: 100%;
@@ -4732,7 +4848,8 @@
         .topics-slide .topics-list {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 45px;
+            margin-top: 20px;
         }
         .topics-slide .topic-item {
             display: flex;
@@ -4740,7 +4857,7 @@
             gap: 16px;
         }
         .topics-slide .topic-text {
-            font-size: 24px;
+            font-size: 33px;
             font-weight: 400;
             color: rgba(9, 9, 11, 0.8);
             line-height: 1.4;
@@ -7101,6 +7218,166 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     </div>
                 </div>
                 
+            {% elif templateId == 'resources-list-slide' %}
+                <div class="resources-list-slide">
+                    <div class="logo-left">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="{{ logoAlt or 'Your Logo' }}" />
+                        {% else %}
+                            <div class="logo-circle">
+                                <div class="logo-plus-h"></div>
+                                <div class="logo-plus-v"></div>
+                            </div>
+                            <span class="logo-text">Your Logo</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="profile">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" />
+                        {% endif %}
+                    </div>
+
+                    <div class="title title-element">{{ title or 'Resources' }}</div>
+
+                    <div class="list">
+                        {% if resources and resources|length > 0 %}
+                            {% for r in resources[:3] %}
+                                <div class="item">{{ r.text }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="item">Resource 1: [Website/Book Title] - [Link/Author Name]</div>
+                            <div class="item">Resource 2: [Website/Book Title] - [Link/Author Name]</div>
+                            <div class="item">Resource 3: [Website/Book Title] - [Link/Author Name]</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="page">
+                        <div class="line"></div>
+                        <div class="num">{{ pageNumber or '14' }}</div>
+                    </div>
+                </div>
+
+            {% elif templateId == 'table-of-contents-slide' %}
+                <div class="table-of-contents-slide-template">
+                    <div class="logo-left">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="{{ logoAlt or 'Your Logo' }}" />
+                        {% else %}
+                            <div class="logo-circle">
+                                <div class="logo-plus-h"></div>
+                                <div class="logo-plus-v"></div>
+                            </div>
+                            <span class="logo-text">Your Logo</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="main-title title-element">{{ title or 'Table of Contents' }}</div>
+
+                    <div class="buttons">
+                        {% for btn in (buttons or []) %}
+                            <div class="button"><div class="button-text">{{ btn.text }}</div></div>
+                        {% endfor %}
+                        {% if not buttons or buttons|length == 0 %}
+                            <div class="button"><div class="button-text">The Problem</div></div>
+                            <div class="button"><div class="button-text">Benefits</div></div>
+                            <div class="button"><div class="button-text">Best Practices</div></div>
+                            <div class="button"><div class="button-text">Methods</div></div>
+                            <div class="button"><div class="button-text">Achieving Success</div></div>
+                            <div class="button"><div class="button-text">The Future</div></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="profile-box">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" style="height:100%; position:absolute; bottom:-25px;" />
+                        {% endif %}
+                    </div>
+
+                    <div class="page">
+                        <div class="line"></div>
+                        <div class="num">{{ pageNumber or '30' }}</div>
+                    </div>
+                </div>
+
+            {% elif templateId == 'course-rules-timeline-slide' %}
+                <div class="course-rules-timeline-slide">
+                    <div class="course-rules-timeline-slide-logo" style="position:absolute; top:20px; right:25px; z-index:10; display:flex; align-items:center; gap:10px;">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="{{ companyLogoAlt or 'Company logo' }}" style="height: 30px; max-width: 120px; object-fit: contain;" />
+                        {% else %}
+                            <span style="font-size:15px; font-family:'Inter', sans-serif; color:#000">{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="actor">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Actor' }}" style="width:100%; height:100%; object-fit: contain;" />
+                        {% endif %}
+                    </div>
+
+                    <div class="line"></div>
+
+                    <div class="num-pos num-1"><div class="step-num">1</div></div>
+                    <div class="num-pos num-2"><div class="step-num">2</div></div>
+                    <div class="num-pos num-3"><div class="step-num">3</div></div>
+
+                    <div class="step step-1"><div class="step-text">Rules of the course</div></div>
+                    <div class="step step-2"><div class="step-text">Prerequisite courses</div></div>
+                    <div class="step step-3"><div class="step-text">Course expectations</div></div>
+
+                    <div class="page">
+                        <div>{{ pageNumber or '34' }}</div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+
+            {% elif templateId == 'impact-metrics-right-image' %}
+                <div class="impact-metrics-right-image">
+                    <div class="impact-metrics-right-image-logo" style="position:absolute; top:20px; left:22px; display:flex; align-items:center; gap:8px; z-index:10;">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;" />
+                        {% else %}
+                            <span style="font-size:15px; font-family:'Inter', sans-serif; color:#000">{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="metrics-col">
+                        {% if showTitle and title %}
+                            <div class="title">{{ title }}</div>
+                        {% endif %}
+                        {% for m in (metrics or []) %}
+                            <div class="metric-row">
+                                <div class="bullet">
+                                    <svg width="12" height="13" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3.03763 0.538462C3.46535 -0.179487 4.53465 -0.179487 4.96237 0.538461L7.84946 5.38461C8.27718 6.10256 7.74253 7 6.8871 7L1.1129 7C0.257468 7 -0.277182 6.10256 0.150536 5.38462L3.03763 0.538462Z" fill="white"/>
+                                    </svg>
+                                </div>
+                                <div style="margin-top:-10px;">
+                                    <div class="metric-text metric-text-val">{{ m.text }}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if not metrics or metrics|length == 0 %}
+                            <div class="metric-row"><div class="bullet"><svg width="12" height="13" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.03763 0.538462C3.46535 -0.179487 4.53465 -0.179487 4.96237 0.538461L7.84946 5.38461C8.27718 6.10256 7.74253 7 6.8871 7L1.1129 7C0.257468 7 -0.277182 6.10256 0.150536 5.38462L3.03763 0.538462Z" fill="white"/></svg></div><div style="margin-top:-10px;"><div class="metric-text metric-text-val">300% increase in online visibility</div></div></div>
+                            <div class="metric-row"><div class="bullet"><svg width="12" height="13" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.03763 0.538462C3.46535 -0.179487 4.53465 -0.179487 4.96237 0.538461L7.84946 5.38461C8.27718 6.10256 7.74253 7 6.8871 7L1.1129 7C0.257468 7 -0.277182 6.10256 0.150536 5.38462L3.03763 0.538462Z" fill="white"/></svg></div><div style="margin-top:-10px;"><div class="metric-text metric-text-val">$5 for every $1 spent average ROI</div></div></div>
+                            <div class="metric-row"><div class="bullet"><svg width="12" height="13" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.03763 0.538462C3.46535 -0.179487 4.53465 -0.179487 4.96237 0.538461L7.84946 5.38461C8.27718 6.10256 7.74253 7 6.8871 7L1.1129 7C0.257468 7 -0.277182 6.10256 0.150536 5.38462L3.03763 0.538462Z" fill="white"/></svg></div><div style="margin-top:-10px;"><div class="metric-text metric-text-val">95% increase in customer loyalty</div></div></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="right-wrap">
+                        <div class="panel"></div>
+                        {% if rightImagePath %}
+                            <img src="{{ rightImagePath }}" alt="{{ rightImageAlt or 'Right image' }}" class="right-image" />
+                        {% endif %}
+                    </div>
+
+                    <div class="page">
+                        <div class="line"></div>
+                        <div>{{ pageNumber or '1' }}</div>
+                    </div>
+                </div>
+
             {% else %}
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
