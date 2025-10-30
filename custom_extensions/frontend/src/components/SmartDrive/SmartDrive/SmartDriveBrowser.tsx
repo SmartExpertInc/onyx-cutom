@@ -197,6 +197,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
 			});
 			if (!res.ok) throw new Error(await res.text());
+			// track successfully create folder event
+			trackSmartDrive('Create Folder');
 			setMkdirOpen(false);
 			setMkdirName('');
 			await fetchList(currentPath);
@@ -795,7 +797,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<Upload className="w-4 h-4 mr-2"/>Upload
 					</Button>
 					<input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
-					<Button variant="outline" onClick={()=>{ trackSmartDrive('New Folder'); setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
+					<Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
 						<Plus className="w-4 h-4 mr-2"/>New Folder
 					</Button>
 					{/* Per-row actions now handle the rest */}
