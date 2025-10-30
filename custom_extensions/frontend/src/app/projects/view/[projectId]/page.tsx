@@ -43,7 +43,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
-import { trackOpenProductEditor } from '@/lib/mixpanelClient';
+import { trackOpenProductEditor, trackSaveDraft } from '@/lib/mixpanelClient';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -1478,6 +1478,9 @@ export default function ProjectInstanceViewPage() {
       alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
       return;
     }
+
+    // Track save draft event
+    trackSaveDraft(sessionStorage.getItem('activeProductType') || 'unknown', 'pdf');
 
     // Special handling for slide decks and video lesson presentations  
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 

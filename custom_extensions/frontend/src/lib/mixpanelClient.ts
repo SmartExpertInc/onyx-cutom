@@ -266,3 +266,29 @@ export const trackOpenProductEditor = async () => {
     { transport: "sendBeacon", send_immediately: true }
   );
 };
+
+export const trackSaveDraft = async (productType: string, exportFormat: string) => {
+  const props = {
+    "Product Type": productType,
+    "Export Format": exportFormat
+  };
+
+  await track(
+    "Save Draft", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackImportFiles = async (importType: string, fileFormat: string[]) => {
+  const props = {
+    "Import Type": importType,
+    "Formats": fileFormat
+  };
+
+  await track(
+    "Import Files", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
