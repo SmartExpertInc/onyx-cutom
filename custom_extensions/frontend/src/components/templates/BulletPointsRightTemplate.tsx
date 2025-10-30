@@ -428,7 +428,7 @@ function UnifiedBulletEditor({
                       resize: 'none',
                       overflow: 'hidden',
                       flex: 1,
-                      minWidth: 0,
+                      minWidth: '400px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       minHeight: '1.6em',
