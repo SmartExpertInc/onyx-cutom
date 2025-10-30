@@ -12440,6 +12440,10 @@ NOW GENERATE THE REQUESTED PRODUCT:
         for i, summary in enumerate(file_context["file_summaries"], 1):
             enhanced_prompt += f"{i}. {summary}\n"
         enhanced_prompt += "\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['file_summaries'])} summaries | first_len={len(file_context['file_summaries'][0]) if file_context['file_summaries'] else 0}")
+        except Exception:
+            pass
     
     # Add folder contexts
     if file_context.get("folder_contexts"):
@@ -12451,6 +12455,24 @@ NOW GENERATE THE REQUESTED PRODUCT:
     # Add key topics
     if file_context.get("key_topics"):
         enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['key_topics'])} key topics")
+        except Exception:
+            pass
+
+    # Add extracted content block (verbatim excerpts), clipped to safe size
+    file_contents = file_context.get("file_contents") or []
+    if file_contents:
+        # Join and trim to ~20k chars to stay within token limits
+        joined = "\n\n".join([c for c in file_contents if c])
+        max_len = 20000
+        used_text = joined[:max_len]
+        enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+        enhanced_prompt += used_text + "\n\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using extracted content | total_len={len(joined)} | used_len={len(used_text)} | clipped={len(joined) > len(used_text)}")
+        except Exception:
+            pass
     
     # Add specific instructions for the product type with enhanced formatting guidance
     if product_type == "Course Outline":
@@ -24680,7 +24702,12 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
 - The root object MUST include hasVoiceover: true.
 """
         # Prepend a strict guard when generating from files to avoid any contradiction
-        if payload.fromFiles:
+        has_file_context = bool(
+            getattr(payload, 'fromFiles', None) or
+            getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None) or
+            (getattr(payload, 'fromConnectors', None) and (getattr(payload, 'connectorSources', None) or getattr(payload, 'selectedFiles', None)))
+        )
+        if has_file_context:
             files_guard = """
 
 FILES-ONLY MODE (OVERRIDE GUARD):
@@ -24688,6 +24715,10 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
 
 """
             json_preview_instructions = files_guard + json_preview_instructions
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | has_file_context={has_file_context} | fromFiles={getattr(payload, 'fromFiles', None)} | fileIds={getattr(payload, 'fileIds', None)} | folderIds={getattr(payload, 'folderIds', None)} | fromConnectors={getattr(payload, 'fromConnectors', None)} | selectedFiles={getattr(payload, 'selectedFiles', None)}")
+            except Exception:
+                pass
             try:
                 logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard)} | instr_len={len(json_preview_instructions)}")
             except Exception:
@@ -31859,7 +31890,12 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
         # Prepend strict files-only guard to one-pager preview instructions when generating from files
-        if getattr(payload, 'fromFiles', None):
+        has_file_context_text = bool(
+            getattr(payload, 'fromFiles', None) or
+            getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None) or
+            (getattr(payload, 'fromConnectors', None) and (getattr(payload, 'connectorSources', None) or getattr(payload, 'selectedFiles', None)))
+        )
+        if has_file_context_text:
             files_guard_text = """
 
 FILES-ONLY MODE (OVERRIDE GUARD for Text Presentation):
@@ -31867,6 +31903,10 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
 
 """
             json_preview_instructions_text = files_guard_text + json_preview_instructions_text
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | has_file_context={has_file_context_text} | fromFiles={getattr(payload, 'fromFiles', None)} | fileIds={getattr(payload, 'fileIds', None)} | folderIds={getattr(payload, 'folderIds', None)} | fromConnectors={getattr(payload, 'fromConnectors', None)} | selectedFiles={getattr(payload, 'selectedFiles', None)}")
+            except Exception:
+                pass
             try:
                 logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard_text)} | instr_len={len(json_preview_instructions_text)}")
             except Exception:
