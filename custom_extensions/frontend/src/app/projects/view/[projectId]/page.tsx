@@ -1483,9 +1483,8 @@ export default function ProjectInstanceViewPage() {
     }
     */
 
-    // Special handling for slide decks and video lesson presentations  
-    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
-        projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
+    // Special handling for slide decks
+    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
         const theme = slideDeckData?.theme || 'dark-purple';
         
@@ -1826,6 +1825,7 @@ export default function ProjectInstanceViewPage() {
             />
         );
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
+        /* COMMENTED OUT: Original SmartSlideDeckViewer implementation
         const videoLessonPresentationData = editableData as ComponentBasedSlideDeck | null;
         if (!videoLessonPresentationData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noVideoLessonData', 'No video lesson data available')}</div>;
@@ -1881,9 +1881,21 @@ export default function ProjectInstanceViewPage() {
               }}
               showFormatInfo={true}
               theme="dark-purple"
-            hasVoiceover={true}
+              hasVoiceover={true}
               projectId={projectId}
             />
+        );
+        */
+        // NEW: Using VideoLessonDisplay for video lesson presentations
+        const videoLessonPresentationData = editableData as VideoLessonData | null;
+        return (
+          <VideoLessonDisplay
+            dataToDisplay={videoLessonPresentationData}
+            isEditing={isEditing}
+            onTextChange={handleTextChange}
+            parentProjectName={parentProjectName}
+            lessonNumber={lessonNumber}
+          />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
@@ -1963,7 +1975,6 @@ export default function ProjectInstanceViewPage() {
         allowedComponentNames={[
           COMPONENT_NAME_TRAINING_PLAN,
           COMPONENT_NAME_SLIDE_DECK,
-          COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
           COMPONENT_NAME_QUIZ,
           COMPONENT_NAME_TEXT_PRESENTATION
         ]}
@@ -1976,15 +1987,13 @@ export default function ProjectInstanceViewPage() {
       <main 
         className={`min-h-screen font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
             ? 'bg-[#F2F2F4] p-0'
             : 'bg-[#F2F2F4] p-4 md:p-8'
         }`}
       >
         <div className={`mx-auto ${
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
             ? 'max-w-[1920px]'
             : 'max-w-7xl'
         }`}>
@@ -2289,8 +2298,7 @@ export default function ProjectInstanceViewPage() {
         {/* Smart Prompt Editor - render outside the white content container */}
         {showSmartEditor && projectInstanceData && (
           projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN ||
-          projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+          projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK
         ) && (
           <SmartPromptEditor
             projectId={projectInstanceData.project_id}
