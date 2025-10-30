@@ -43,6 +43,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
+import { trackOpenProductEditor } from '@/lib/mixpanelClient';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -1425,6 +1426,9 @@ export default function ProjectInstanceViewPage() {
       alert(`${t('interface.projectView.contentEditingSupported', 'Content editing is currently supported for')} ${editableComponentTypes.join(', ')} ${t('interface.projectView.typesOnThisPage', 'types on this page.')}`);
       return;
     }
+    
+    // Track open product editor event
+    trackOpenProductEditor();
 
     if (isEditing) {
       handleSave();

@@ -12,7 +12,7 @@ import ConnectorManagementPage from './connector-management/ConnectorManagementP
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
+import { timeEvent, trackConnectConnector } from '@/lib/mixpanelClient';
 
 interface ConnectorConfig {
   id: string;
@@ -558,7 +558,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       const result = await response.json();
       console.log("Connector created successfully:", result);
       if (connector) {
-        await trackConnector("Completed", connector.id, connector.name);
+        await trackConnectConnector("Completed", connector.id, connector.name);
       }
 
       // Close the modal and refresh the connector list
@@ -568,7 +568,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     } catch (error) {
       if (connector) {
         setIsConnectorFailed(true);
-        await trackConnector("Failed", connector.id, connector.name);
+        await trackConnectConnector("Failed", connector.id, connector.name);
       }
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
@@ -1075,7 +1075,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 </h2>
                 <button
                   onClick={() => {
-                    !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                    !isConnectorFailed && trackConnectConnector("Clicked", selectedConnector.id, selectedConnector.name);
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
@@ -1091,7 +1091,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 connectorId={selectedConnector.id}
                 onSubmit={handleConnectorSubmit}
                 onCancel={() => {
-                  !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                  !isConnectorFailed && trackConnectConnector("Clicked", selectedConnector.id, selectedConnector.name);
                   setShowConnectorModal(false);
                   setSelectedConnector(null);
                 }}

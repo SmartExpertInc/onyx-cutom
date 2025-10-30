@@ -8,6 +8,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { ConnectorCard } from "@/components/ui/connector-card";
 import {TextIcon, ClockIcon } from "@/components/ui/custom-icons";
+import { trackSyncConnector } from "@/lib/mixpanelClient";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -178,6 +179,9 @@ export default function ConnectorManagementPage({
   // Handle indexing
   const handleIndexing = async (fromBeginning: boolean = false) => {
     if (!ccPair) return;
+
+    // track indexing event
+    trackSyncConnector(ccPair.connector.id, ccPair.connector.name);
 
     try {
       const result = await triggerIndexing(
