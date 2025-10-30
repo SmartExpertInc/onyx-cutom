@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BenefitsTagsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 
@@ -200,12 +201,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     setEditingTags(null);
   };
 
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
   const handleCompanyLogoUploaded = (newLogoPath: string) => {
     setCurrentCompanyLogoPath(newLogoPath);
     if (onUpdate) {
@@ -257,7 +252,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           )}
         </div>
 
-        {/* Profile image */}
+        {/* Avatar */}
         <div style={{
           width: '155px',
           height: '155px',
@@ -265,18 +260,17 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           overflow: 'hidden',
           position: 'absolute',
           left: '60px',
+          backgroundColor: '#ffffff'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
-              width: '100%',
-              height: '100%',
+              width: '88%',
+              height: '135%',
               borderRadius: '50%',
+              position: 'relative',
+              bottom: '0px',
               objectFit: 'cover'
             }}
           />

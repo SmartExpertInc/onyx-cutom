@@ -91,7 +91,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     position: 'absolute',
     left: '64px',
     top: '275px',
-    width: '46%',
+    width: '43%',
     display: 'flex',
     flexDirection: 'column',
     gap: '0px'

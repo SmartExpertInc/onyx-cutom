@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CriticalThinkingSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 
@@ -208,12 +209,6 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     setEditingHighlightedPhrases(null);
   };
 
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, content, highlightedPhrases, profileImagePath, profileImageAlt, companyLogoPath, companyLogoAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
   const handleCompanyLogoUploaded = (newLogoPath: string) => {
     setCurrentCompanyLogoPath(newLogoPath);
     if (onUpdate) {
@@ -296,7 +291,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
   return (
     <div className="critical-thinking-slide-template" style={slideStyles}>
-             {/* Profile Image - Top Left */}
+             {/* Avatar - Top Left */}
        <div style={{
          position: 'absolute',
          top: '40px',
@@ -304,23 +299,19 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
          width: '120px',
          height: '120px',
          borderRadius: '50%',
-         display: 'flex',
-         alignItems: 'center',
-         justifyContent: 'center'
+         overflow: 'hidden',
+         backgroundColor: '#ffffff'
        }}>
-         <ClickableImagePlaceholder
-           imagePath={profileImagePath}
-           onImageUploaded={handleProfileImageUploaded}
-           size="LARGE"
+         <AvatarImageDisplay
+           size="MEDIUM"
            position="CENTER"
-           description="Profile"
-           isEditable={isEditable}
            style={{
-             width: '100%',
-             height: '100%',
+             width: '88%',
+             height: '135%',
              borderRadius: '50%',
-             objectFit: 'cover',
-             overflow: 'hidden'
+             position: 'relative',
+             bottom: '0px',
+             objectFit: 'cover'
            }}
          />
        </div>
