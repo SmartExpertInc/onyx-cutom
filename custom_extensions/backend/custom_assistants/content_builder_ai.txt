@@ -1099,6 +1099,39 @@ ENFORCEMENT: If ANY verification fails, you MUST:
 - Remove the fabricated data, OR  
 - Delete the entire slide
 
+🚨 CRITICAL: SOURCE FIDELITY ≠ BULLET-POINT-ONLY PRESENTATIONS 🚨
+═══════════════════════════════════════════════════════════════════════════
+
+Many AI models misinterpret source fidelity rules as "only use bullet-points because other templates might require fabrication."
+
+THIS IS WRONG.
+
+Source fidelity means: Use ONLY source content.
+It does NOT mean: Use only bullet-point slides.
+
+YOU MUST CREATE DIVERSE, ENGAGING PRESENTATIONS USING SOURCE CONTENT.
+
+REFER TO: "🎨 ADAPTIVE TEMPLATE SELECTION FOR fromFiles=true" (earlier in this document)
+That section details how to select diverse templates based on source content patterns.
+
+REQUIRED DIVERSITY (even with strict fidelity):
+✅ Minimum 3 different slide types
+✅ Maximum 2 bullet-point slides total
+✅ Use Category B templates: challenges-solutions, process-steps, two-column, four-box-grid, timeline, pyramid, six-ideas-list
+✅ Use visual templates when appropriate: big-image-left, big-image-top (position 1 or N only)
+
+EXAMPLES OF DIVERSE SLIDES FROM SOURCE CONTENT:
+
+IF source describes "3 problems and 3 solutions" → USE `challenges-solutions` template
+IF source describes "step-by-step process" → USE `process-steps` template  
+IF source compares "2 approaches" → USE `two-column` template
+IF source presents "4 related concepts" → USE `four-box-grid` template
+IF source shows "chronological events" → USE `timeline` template
+IF source has "hierarchical structure" → USE `pyramid` template
+
+DO NOT default to bullet-points just because you're restricted to source content.
+Match your template to the SOURCE CONTENT PATTERN.
+
 ═══════════════════════════════════════════════════════════════════════════
 
 🔴🔴🔴 FINAL ENFORCEMENT CHECKPOINT: SOURCE FIDELITY (fromFiles=true) 🔴🔴🔴
@@ -1143,10 +1176,20 @@ STOP AND CHECK YOUR CONTENT NOW:
    □ Did I create "Skill Practice", "Worked Examples", "Common Mistakes", or "Mental Models" sections without source material?
    → If YES: DELETE those entire sections
 
+7. DIVERSITY CHECK (PRESENTATIONS ONLY):
+   □ Did I use more than 2 bullet-point slides?
+   □ Did I use fewer than 3 different slide types?
+   □ Did I ignore source content patterns that match narrative templates (challenges-solutions, process-steps, etc.)?
+   □ Did I default to bullet-points when source content had clear patterns for other templates?
+   → If YES: REDESIGN slides to use appropriate templates matching source content patterns
+
 YOU CANNOT PROCEED PAST THIS CHECKPOINT UNTIL ALL CHECKS PASS.
 If any check failed, you MUST go back and remove the violating content NOW.
 
-FOR PRESENTATIONS: Focus especially on checks #4 and #5 - data fabrication in slides is the most common violation.
+FOR PRESENTATIONS: Focus especially on checks #4, #5, and #7:
+- Check #4: Numbers fabrication
+- Check #5: Data slides without source statistics  
+- Check #7: Bullet-point overuse despite source having diverse content patterns
 
 ═══════════════════════════════════════════════════════════════════════════
 
