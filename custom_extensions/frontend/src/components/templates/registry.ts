@@ -2647,21 +2647,30 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🏛️',
     component: CultureValuesThreeColumnsSlideTemplate,
     defaultProps: {
-      logoText: 'Logo',
+      logoText: 'Your Logo',
+      logoPath: '',
       title: 'Our culture and values',
+      leftTitle: 'Code of Conduct',
       leftText: 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner...',
+      middleTitle: 'HR Policies',
       middleText: 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees...',
+      rightTitle: 'IT Policies',
       rightText: 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data...',
-      middlePanelColor: '#3B46FF'
+      middlePanelColor: '#3B46FF',
+      avatarPath: ''
     },
     propSchema: {
-      logoText: { type: 'text', label: 'Logo' },
+      logoText: { type: 'text', label: 'Logo Text' },
+      logoPath: { type: 'image', label: 'Logo Image' },
       title: { type: 'text', label: 'Title', required: true },
-      leftText: { type: 'text', label: 'Left Text', required: true },
-      middleText: { type: 'text', label: 'Middle Text', required: true },
-      rightText: { type: 'text', label: 'Right Text', required: true },
-      middlePanelColor: { type: 'color', label: 'Middle Panel' },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      leftTitle: { type: 'text', label: 'Left Column Title', required: true },
+      leftText: { type: 'text', label: 'Left Column Text', required: true },
+      middleTitle: { type: 'text', label: 'Middle Column Title', required: true },
+      middleText: { type: 'text', label: 'Middle Column Text', required: true },
+      rightTitle: { type: 'text', label: 'Right Column Title', required: true },
+      rightText: { type: 'text', label: 'Right Column Text', required: true },
+      middlePanelColor: { type: 'color', label: 'Middle Panel Color' },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
     }
   }
   ,
