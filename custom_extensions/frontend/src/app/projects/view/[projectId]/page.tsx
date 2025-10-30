@@ -1426,13 +1426,12 @@ export default function ProjectInstanceViewPage() {
       alert(`${t('interface.projectView.contentEditingSupported', 'Content editing is currently supported for')} ${editableComponentTypes.join(', ')} ${t('interface.projectView.typesOnThisPage', 'types on this page.')}`);
       return;
     }
-    
-    // Track open product editor event
-    trackOpenProductEditor();
 
     if (isEditing) {
       handleSave();
     } else {
+      // Track open product editor event
+      trackOpenProductEditor();
       const lang = projectInstanceData.details?.detectedLanguage || 'en';
       if (projectInstanceData.details) {
         setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
