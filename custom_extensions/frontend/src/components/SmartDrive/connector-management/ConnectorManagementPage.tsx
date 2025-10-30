@@ -181,7 +181,7 @@ export default function ConnectorManagementPage({
     if (!ccPair) return;
 
     // track indexing event
-    trackSyncConnector(ccPair.connector.id, ccPair.connector.name);
+    trackSyncConnector(ccPair.connector.id.toString(), ccPair.connector.name);
 
     try {
       const result = await triggerIndexing(
