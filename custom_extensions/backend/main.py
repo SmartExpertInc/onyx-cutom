@@ -31807,6 +31807,53 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
     
+    # If generating from files, append STRICT SOURCE FIDELITY rules (mirror presentation fidelity)
+    try:
+        if getattr(payload, 'fromFiles', False):
+            print("\n\n\n\nHERE\n\n\n")
+            wizard_message += """
+
+════════════════════════════════════════════════════════════════════════════
+📚 STRICT SOURCE FIDELITY MODE (fromFiles=true)
+════════════════════════════════════════════════════════════════════════════
+
+ROLE: You are a RESTRUCTURER, not a CREATOR. Use ONLY what is in the source files.
+
+ABSOLUTE RULES (NO EXCEPTIONS):
+1) Do NOT add frameworks, models, or tools not present in sources
+   - Examples: Do NOT introduce AWS Well-Architected, Five Forces, PESTLE, etc., unless the sources explicitly describe them
+2) Do NOT invent numbers, budgets, metrics, or quantitative examples
+3) Do NOT create fictional companies, people, or scenarios
+4) Do NOT add new sections that are not supported by sources
+   - If sources lack: worked examples, practice scenarios, common mistakes, recommendations, mental models → OMIT those sections entirely
+5) Do NOT name specific services/tools not mentioned in sources
+   - If sources say only "cloud monitoring", do NOT introduce CloudWatch/Budgets/Cost Explorer by name
+6) Do NOT use general knowledge to "fill out" content or meet length targets
+
+ALLOWED ACTIONS:
+• Reorder, summarize, clarify, and structure the exact source content
+• Combine duplicate points; improve flow and readability
+• Convert implicit steps into explicit sentences, ONLY if directly inferable without adding new facts
+
+LENGTH vs FIDELITY PRIORITY:
+• Fidelity overrides length. Short, accurate output is preferred over long, speculative content
+• Never fabricate content to satisfy distribution targets. Skip any element that lacks evidence in sources
+
+OMISSION POLICY:
+• If a required educational element is not present in sources, OMIT it silently
+• Do NOT write "not covered"; simply exclude the section
+
+FINAL FIDELITY CHECKLIST (MUST PASS ALL):
+□ Every fact appears in sources? (no added frameworks/tools/examples/numbers)
+□ All section types included ONLY if supported by sources?
+□ No fictional scenarios or placeholder companies?
+□ Service and tool names appear verbatim in sources?
+□ If a section lacked support, it was omitted rather than invented?
+"""
+            logger.info("[ONEPAGER_FIDELITY] Appended strict source fidelity rules for fromFiles generation")
+    except Exception as e:
+        logger.warning(f"[ONEPAGER_FIDELITY] Failed to append fidelity rules: {e}")
+
     # Add ABSOLUTE FINAL anti-copying rules for ALL onepager generation
     # These override ANY previous instructions about using examples, mental models, etc.
     # Apply to BOTH file-based AND general knowledge generation
