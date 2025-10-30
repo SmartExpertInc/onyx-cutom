@@ -235,7 +235,7 @@ export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: S
           </div>
         )}
       </div>
-      
+      <h1>Old Template</h1>
       {/* Logo */}
       <div className='dei-methods-slide-logo' style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
         <YourLogo
