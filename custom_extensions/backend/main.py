@@ -24425,7 +24425,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
       * 4 bars: OPTIMAL for visual clarity and trend demonstration
       * 5+ bars: FORBIDDEN - creates visual clutter and reduces readability
     - Title: Keep concise (2-5 words) describing the trend or threat
-    
+    - CRITICAL DESCRIPTION LENGTH: description MUST be 20-30 words (150-200 characters)
 
 - four-box-grid: title, boxes[] (array of {{heading, text}})
   • Purpose: Present four key concepts or features in a balanced 2x2 grid layout
