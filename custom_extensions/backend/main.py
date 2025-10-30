@@ -5401,6 +5401,10 @@ def get_assistant_instructions(wizard_payload=None):
     # Detect product type from wizard payload
     if wizard_payload:
         product = wizard_payload.get('product', '').lower()
+        try:
+            logger.info(f"[GET_INSTRUCTIONS] wizard_payload.product='{product}' | base_len={len(instructions)}")
+        except Exception:
+            pass
         
         # Map product names to file names
         product_file_map = {
@@ -5421,7 +5425,10 @@ def get_assistant_instructions(wizard_payload=None):
                 with open(product_path, 'r', encoding='utf-8') as f:
                     product_instructions = f.read()
                     instructions += "\n\n" + product_instructions
-                    logger.info(f"[GET_INSTRUCTIONS] Loaded product file: {product_file}")
+                    try:
+                        logger.info(f"[GET_INSTRUCTIONS] Loaded product file: {product_file} | product_len={len(product_instructions)} | combined_len={len(instructions)}")
+                    except Exception:
+                        pass
             except FileNotFoundError:
                 logger.warning(f"[GET_INSTRUCTIONS] Product file not found: {product_path}")
     
@@ -5446,6 +5453,11 @@ async def stream_openai_response(prompt: str, model: str = None, wizard_payload:
         
         # Read assistant instructions (base + product-specific)
         system_prompt = get_assistant_instructions(wizard_payload=wizard_payload)
+        try:
+            product_logged = (wizard_payload or {}).get('product') if wizard_payload else None
+            logger.info(f"[OPENAI_STREAM] System prompt loaded | product='{product_logged}' | sys_len={len(system_prompt)}")
+        except Exception:
+            pass
 
                 # Check for preservation mode instructions
         enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
@@ -24676,6 +24688,10 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
 
 """
             json_preview_instructions = files_guard + json_preview_instructions
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard)} | instr_len={len(json_preview_instructions)}")
+            except Exception:
+                pass
 
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
@@ -31851,6 +31867,10 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
 
 """
             json_preview_instructions_text = files_guard_text + json_preview_instructions_text
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard_text)} | instr_len={len(json_preview_instructions_text)}")
+            except Exception:
+                pass
 
         wizard_message = wizard_message + json_preview_instructions_text
         logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
