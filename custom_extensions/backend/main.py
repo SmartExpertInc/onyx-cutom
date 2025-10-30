@@ -24667,6 +24667,16 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Use inclusive language ("we", "you", "let's"), smooth transitions, and approximately 30–60 seconds speaking time per slide.
 - The root object MUST include hasVoiceover: true.
 """
+        # Prepend a strict guard when generating from files to avoid any contradiction
+        if payload.fromFiles:
+            files_guard = """
+
+FILES-ONLY MODE (OVERRIDE GUARD):
+When fromFiles=true, you MUST use ONLY content that appears in the provided sources. All educational guidance below (explanations, scenarios, examples, images, diversity targets, etc.) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT it. Do NOT add general-knowledge facts, scenarios, named entities (companies, tools, programs, certifications), or any numbers not present in the sources. Fidelity overrides length and slide-count targets.
+
+"""
+            json_preview_instructions = files_guard + json_preview_instructions
+
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
     except Exception as e:
