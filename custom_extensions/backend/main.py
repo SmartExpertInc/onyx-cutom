@@ -5378,10 +5378,64 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
+def get_assistant_instructions(wizard_payload=None):
+    """
+    Load base instructions + product-specific instructions based on wizard payload.
+    
+    Args:
+        wizard_payload: Optional dict with 'product' key to determine which product file to load
+        
+    Returns:
+        Combined system instructions as a string
+    """
+    base_path = "custom_assistants/content_builder_base.txt"
+    
+    # Read base instructions
+    try:
+        with open(base_path, 'r', encoding='utf-8') as f:
+            instructions = f.read()
+    except FileNotFoundError:
+        logger.warning(f"[GET_INSTRUCTIONS] Base file not found: {base_path}")
+        return "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+    
+    # Detect product type from wizard payload
+    if wizard_payload:
+        product = wizard_payload.get('product', '').lower()
+        
+        # Map product names to file names
+        product_file_map = {
+            'slides deck': 'content_builder_presentation.txt',
+            'lesson presentation': 'content_builder_presentation.txt',
+            'video lesson presentation': 'content_builder_presentation.txt',
+            'video lesson slides deck': 'content_builder_presentation.txt',
+            'text presentation': 'content_builder_onepager.txt',
+            'quiz': 'content_builder_quiz.txt',
+            'course outline': 'content_builder_outline.txt',
+            'video lesson script': 'content_builder_video.txt',
+        }
+        
+        product_file = product_file_map.get(product)
+        if product_file:
+            product_path = f"custom_assistants/{product_file}"
+            try:
+                with open(product_path, 'r', encoding='utf-8') as f:
+                    product_instructions = f.read()
+                    instructions += "\n\n" + product_instructions
+                    logger.info(f"[GET_INSTRUCTIONS] Loaded product file: {product_file}")
+            except FileNotFoundError:
+                logger.warning(f"[GET_INSTRUCTIONS] Product file not found: {product_path}")
+    
+    return instructions
+
+async def stream_openai_response(prompt: str, model: str = None, wizard_payload: dict = None):
     """
     Stream response directly from OpenAI API.
     Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
+    
+    Args:
+        prompt: User/wizard message to send
+        model: OpenAI model to use
+        wizard_payload: Optional wizard payload dict for loading product-specific instructions
     """
     try:
         client = get_openai_client()
@@ -5390,14 +5444,8 @@ async def stream_openai_response(prompt: str, model: str = None):
         logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
         logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
         
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        # Read assistant instructions (base + product-specific)
+        system_prompt = get_assistant_instructions(wizard_payload=wizard_payload)
 
                 # Check for preservation mode instructions
         enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
@@ -12447,50 +12495,7 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
 """
     
-    # Add fidelity rules for ALL presentation types (Lesson Presentation AND Video Lesson Presentation)
-    # Handle both naming conventions: "Lesson Presentation"/"Video Lesson Presentation" and "Slides Deck"/"Video Lesson Slides Deck"
-    if product_type in ["Lesson Presentation", "Video Lesson Presentation", "Slides Deck", "Video Lesson Slides Deck"]:
-        print("\n\n\nREACHED!!\n\n\n")
-        enhanced_prompt += """
-
-🚨 CRITICAL PRESENTATION FIDELITY RULES 🚨
-
-ABSOLUTE PROHIBITIONS FOR PRESENTATIONS:
-❌ NEVER use `content-slide` template (completely banned)
-❌ NEVER use `comparison-slide` template (completely banned)
-❌ NEVER use `title-slide` in middle positions (only first or last slide)
-❌ NEVER use `big-image-left` in middle positions (only first or last slide)
-❌ NEVER use `big-image-top` in middle positions (only first or last slide)
-
-DATA FABRICATION PREVENTION:
-❌ NEVER add specific percentages like "50% of users" or "three-quarters benefit"
-❌ NEVER add named case studies like "Netflix", "Airbnb", "NASA", "General Electric" unless explicitly mentioned in source
-❌ NEVER add specific compliance details like "GDPR, HIPAA, PCI DSS" unless mentioned in source
-❌ NEVER add future trends like "Serverless Computing", "AI Integration" unless mentioned in source
-❌ NEVER add specific metrics, costs, or performance data not in source
-❌ NEVER add certification details like "AWS Certified Solutions Architect" unless mentioned in source
-❌ NEVER add support plan details like "Basic Support", "Developer Support" unless mentioned in source
-
-TEMPLATE SELECTION RULES:
-✅ Use `big-numbers` ONLY if source contains actual statistics (exact values)
-✅ Use `table-dark`/`table-light` ONLY for qualitative comparisons (no numerical data)
-✅ Use `challenges-solutions` ONLY if source describes 3+ problems and solutions
-✅ Use `process-steps` ONLY if source describes sequential procedures
-✅ Use `two-column` ONLY if source compares/contrasts 2 items
-✅ Use `four-box-grid` ONLY if source presents 4 related concepts
-✅ Use `timeline` ONLY if source shows 4+ chronological events
-✅ Use `pyramid` ONLY if source shows hierarchical structure
-✅ Use `six-ideas-list` ONLY if source presents 6 key points
-
-VERIFICATION BEFORE EACH SLIDE:
-□ Is this content directly from the source documents?
-□ Am I using the correct template for this content type?
-□ Am I following position restrictions for this template?
-□ Am I avoiding banned templates?
-□ Am I not adding fabricated data or examples?
-
-IF YOU CANNOT ANSWER "YES" TO ALL QUESTIONS - DO NOT CREATE THE SLIDE
-"""
+    # Presentation fidelity rules are now in product-specific txt files
     
     # Add closing source fidelity reminder
     enhanced_prompt += """
@@ -12554,9 +12559,16 @@ NOW GENERATE THE REQUESTED PRODUCT:
     
     return enhanced_prompt
 
-async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini"):
+async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini", wizard_payload: dict = None):
     """
     Stream response using OpenAI with enhanced context from Onyx file extraction.
+    
+    Args:
+        prompt: The wizard message containing WIZARD_REQUEST and JSON payload
+        file_context: File context extracted from Onyx
+        product_type: Type of product being generated
+        model: OpenAI model to use
+        wizard_payload: Optional wizard payload dict for loading product-specific instructions
     """
     try:
         # Build enhanced prompt with file context
@@ -12568,7 +12580,7 @@ async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any]
         logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
         
         # Use OpenAI with enhanced prompt
-        async for chunk_data in stream_openai_response(enhanced_prompt, model):
+        async for chunk_data in stream_openai_response(enhanced_prompt, model, wizard_payload=wizard_payload):
             yield chunk_data
             
     except Exception as e:
@@ -17469,7 +17481,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
             
             try:
                 logger.info(f"[OPENAI_STREAM_DEBUG] Starting to iterate over chunks")
-                async for chunk_data in stream_openai_response(enhanced_wizard_message):
+                async for chunk_data in stream_openai_response(enhanced_wizard_message, wizard_payload=wiz_payload):
                     logger.info(f"[OPENAI_STREAM_DEBUG] Received chunk: {chunk_data.get('type', 'unknown')}")
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
@@ -22441,7 +22453,7 @@ async def generate_and_finalize_course_outline_for_position(
     prompt = json.dumps(wizard_request, ensure_ascii=False)
 
     outline_text = ""
-    async for chunk_data in stream_openai_response(prompt):
+    async for chunk_data in stream_openai_response(prompt, wizard_payload={"product": "Course Outline"}):
         if chunk_data.get("type") == "delta":
             outline_text += chunk_data["text"]
         elif chunk_data.get("type") == "error":
@@ -23005,7 +23017,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             try:
                 # Use OpenAI streaming for finalization instead of Onyx
                 logger.info(f"[FINALIZE_OPENAI_STREAM] ✅ USING OPENAI DIRECT STREAMING for finalization")
-                async for chunk_data in stream_openai_response(wizard_message):
+                async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -24991,7 +25003,7 @@ THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
             try:
                 chunks_received = 0
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -25159,7 +25171,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         )
                         # Collect once-off response
                         regenerated_text = ""
-                        async for chunk in stream_openai_response(wizard_message):
+                        async for chunk in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                             if chunk.get("type") == "delta":
                                 regenerated_text += chunk.get("text", "")
                         cleaned = regenerated_text.strip()
@@ -30312,7 +30324,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -30422,7 +30434,7 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         # NEW: Use OpenAI directly for quiz editing
         logger.info(f"[QUIZ_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for quiz editing")
         try:
-            async for chunk_data in stream_openai_response(wizard_message):
+            async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
                     assistant_reply += delta_text
@@ -31807,124 +31819,7 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
     
-    # If generating from files, append STRICT SOURCE FIDELITY rules (mirror presentation fidelity)
-    try:
-        if getattr(payload, 'selectedFiles', False):
-            wizard_message += """
-
-════════════════════════════════════════════════════════════════════════════
-📚 STRICT SOURCE FIDELITY MODE (fromFiles=true)
-════════════════════════════════════════════════════════════════════════════
-
-ROLE: You are a RESTRUCTURER, not a CREATOR. Use ONLY what is in the source files.
-
-ABSOLUTE RULES (NO EXCEPTIONS):
-1) Do NOT add frameworks, models, or tools not present in sources
-   - Examples: Do NOT introduce AWS Well-Architected, Five Forces, PESTLE, etc., unless the sources explicitly describe them
-2) Do NOT invent numbers, budgets, metrics, or quantitative examples
-3) Do NOT create fictional companies, people, or scenarios
-4) Do NOT add new sections that are not supported by sources
-   - If sources lack: worked examples, practice scenarios, common mistakes, recommendations, mental models → OMIT those sections entirely
-5) Do NOT name specific services/tools not mentioned in sources
-   - If sources say only "cloud monitoring", do NOT introduce CloudWatch/Budgets/Cost Explorer by name
-6) Do NOT use general knowledge to "fill out" content or meet length targets
-
-ALLOWED ACTIONS:
-• Reorder, summarize, clarify, and structure the exact source content
-• Combine duplicate points; improve flow and readability
-• Convert implicit steps into explicit sentences, ONLY if directly inferable without adding new facts
-
-LENGTH vs FIDELITY PRIORITY:
-• Fidelity overrides length. Short, accurate output is preferred over long, speculative content
-• Never fabricate content to satisfy distribution targets. Skip any element that lacks evidence in sources
-
-OMISSION POLICY:
-• If a required educational element is not present in sources, OMIT it silently
-• Do NOT write "not covered"; simply exclude the section
-
-FINAL FIDELITY CHECKLIST (MUST PASS ALL):
-□ Every fact appears in sources? (no added frameworks/tools/examples/numbers)
-□ All section types included ONLY if supported by sources?
-□ No fictional scenarios or placeholder companies?
-□ Service and tool names appear verbatim in sources?
-□ If a section lacked support, it was omitted rather than invented?
-"""
-            logger.info("[ONEPAGER_FIDELITY] Appended strict source fidelity rules for fromFiles generation")
-    except Exception as e:
-        logger.warning(f"[ONEPAGER_FIDELITY] Failed to append fidelity rules: {e}")
-    
-    # Add ABSOLUTE FINAL anti-copying rules for ALL onepager generation
-    # These override ANY previous instructions about using examples, mental models, etc.
-    # Apply to BOTH file-based AND general knowledge generation
-    wizard_message += """
-CRITICAL: THESE RULES APPLY TO ALL ONEPAGER GENERATION (FILES OR GENERAL KNOWLEDGE).
-
-ABSOLUTE PROHIBITIONS - NEVER DO THESE THINGS:
-❌ NEVER use "PESTLE Analysis" unless the topic IS business/market strategy
-❌ NEVER use "Five Forces Analysis" unless the topic IS competitive strategy
-❌ NEVER create "GlobalSensors Inc." or similar placeholder companies
-❌ NEVER use "SalesTech", "TechCorp", "TechGiant Corp", or other example company names
-❌ NEVER create "market entry" or "market analysis" scenarios unless topic is market strategy
-❌ NEVER create sections titled "Expert Analysis" with market analysis content
-❌ NEVER copy skill practice scenarios from examples - create topic-appropriate ones
-❌ NEVER copy-paste text from examples that creates white background highlighting
-
-EXAMPLE-INDEPENDENCE RULES (CRITICAL):
-The examples show STRUCTURE, not content to copy:
-- If example shows "PESTLE Analysis" but topic is "AI in Sales" → Use Sales Funnel, not PESTLE
-- If example shows "GlobalSensors market entry" but topic is "AWS" → Create AWS scenario, not market entry
-- If example shows "Expert Analysis" section → Create topic-appropriate section name
-- The pedagogical STRUCTURE (mental models, worked examples, skill practice) stays
-- The specific CONTENT (PESTLE, GlobalSensors, market analysis) does NOT
-
-TOPIC-APPROPRIATE CONTENT SELECTION:
-✅ For "AI in Sales" topic → Use: Sales Funnel, Lead Scoring, CRM, Customer Journey
-✅ For "AWS" topic → Use: Well-Architected Framework, Cost Optimization, Security
-✅ For "Python Programming" topic → Use: Testing Pyramid, Code Quality, Design Patterns
-✅ For "Market Strategy" topic → Use: PESTLE, Five Forces, TAM/SAM/SOM
-
-HOW TO MEET REQUIREMENTS (FILE-BASED GENERATION):
-✅ "Mental Models": Extract frameworks mentioned in source files
-   - If source mentions "Sales Funnel" → Explain how to apply it
-   - If source has NO frameworks → Use source concepts as mental models
-
-✅ "Worked Examples": Create scenarios using source content
-   - Extract examples/case studies from source
-   - Build detailed scenarios based on source data
-
-✅ "Skill Practice": Create exercises about source topic
-   - AI in Sales source → Create AI sales scenario
-   - AWS source → Create AWS scenario
-
-HOW TO MEET REQUIREMENTS (GENERAL KNOWLEDGE GENERATION):
-✅ "Mental Models": Select topic-appropriate frameworks
-   - Sales topic → Sales Funnel, Customer Journey
-   - AWS topic → Well-Architected Framework
-   - NOT generic business frameworks for technical topics
-
-✅ "Worked Examples": Create topic-appropriate scenarios
-   - Use realistic examples for THIS topic
-   - NOT market analysis examples for technical topics
-
-✅ "Skill Practice": Create topic-appropriate exercises
-   - Section name should be topic-specific (not "Expert Analysis")
-   - Scenario should be about THIS topic (not market entry)
-
-FORMATTING ISSUE FIX:
-❌ DO NOT use example text verbatim - causes formatting/highlighting issues
-✅ Generate fresh, topic-appropriate content
-
-FINAL VERIFICATION BEFORE GENERATING:
-□ Are my frameworks appropriate for THIS topic? (Not from examples)
-□ Are my section names topic-specific? (Not "Expert Analysis" or "Available Data")
-□ Are my scenarios about THIS topic? (Not market entry if topic is AI/AWS/Python)
-□ Did I avoid placeholder companies? (No GlobalSensors, TechCorp)
-□ Is EVERY piece of content relevant to the requested topic?
-□ Would a user recognize this is about THEIR topic, not a generic business lesson?
-
-THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
-"""
-    logger.info(f"[ONEPAGER_ANTI_COPYING] Added ABSOLUTE FINAL anti-copying rules for all onepager generation")
+    # Onepager fidelity rules are now in product-specific txt files
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -32073,7 +31968,7 @@ THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini"):
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -32107,7 +32002,7 @@ THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -32193,7 +32088,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         # NEW: Use OpenAI directly for text presentation editing
         logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for text presentation editing")
         try:
-            async for chunk_data in stream_openai_response(wizard_message):
+            async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
                     assistant_reply += delta_text
@@ -36896,14 +36791,8 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
         logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI request with model {model}")
         logger.info(f"[OPENAI_DIRECT] Prompt length: {len(prompt)} chars")
         
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_DIRECT] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        # Read assistant instructions (base + product-specific)
+        system_prompt = get_assistant_instructions()
         
         # Create the chat completion (non-streaming)
         response = await client.chat.completions.create(
