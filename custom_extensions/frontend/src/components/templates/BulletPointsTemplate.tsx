@@ -424,8 +424,15 @@ function UnifiedBulletEditor({
   return (
     <div 
       onClick={startEditing}
-      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+      className={isEditable ? 'cursor-pointer' : ''}
+      style={{ 
+        padding: '4px', 
+        borderRadius: '4px', 
+        border: '1px solid transparent',
+        width: '100%', 
+        minWidth: 0, 
+        boxSizing: 'border-box' 
+      }}
     >
       <ul style={{
         listStyle: 'none',

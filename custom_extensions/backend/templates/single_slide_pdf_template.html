@@ -504,34 +504,34 @@
 
         .pyramid-text-block {
             position: absolute;
-            width: 200px;
+            width: 290px;
             z-index: 10;
         }
 
         .pyramid-text-block.level-0 {
             top: 0px;
-            right: 20px;
-            text-align: right;
+            lext: 20px;
+            text-align: left;
         }
         .pyramid-text-block.level-1 {
-            top: 55px;
-            left: 20px;
+            top: 45px;
+            right: 40px;
             text-align: left;
         }
         .pyramid-text-block.level-2 {
-            top: 110px;
-            left: 20px;
+            top: 142px;
+            left: 60px;
             text-align: left;
         }
         .pyramid-text-block.level-3 {
-            top: 165px;
-            left: 20px;
+            top: 205px;
+            right: 80px;
             text-align: left;
         }
         .pyramid-text-block.level-4 {
-            top: 220px;
-            right: 20px;
-            text-align: right;
+            top: 300px;
+            left: 100px;
+            text-align: left;
         }
 
         .pyramid-text-heading {
@@ -561,11 +561,11 @@
             z-index: 10;
         }
 
-        .pyramid-triangle.level-0 { top: 20px; right: 240px; }
-        .pyramid-triangle.level-1 { top: 75px; left: 240px; }
-        .pyramid-triangle.level-2 { top: 130px; left: 240px; }
-        .pyramid-triangle.level-3 { top: 185px; left: 240px; }
-        .pyramid-triangle.level-4 { top: 240px; right: 240px; }
+        .pyramid-triangle.level-0 { top: 20px; right: 20px; }
+        .pyramid-triangle.level-1 { top: 85px; left: 40px; }
+        .pyramid-triangle.level-2 { top: 160px; left: 60px; }
+        .pyramid-triangle.level-3 { top: 245px; left: 80px; }
+        .pyramid-triangle.level-4 { top: 340px; right: 100px; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -1649,7 +1649,7 @@
             height: 100vh;
             min-height: 100%;
             background-color: #1a2b6b;
-            padding: 40px;
+            padding: 40px 40px 0 40px;
             box-sizing: border-box;
             position: relative;
         }
@@ -1718,10 +1718,11 @@
             min-height: 300px;
             border-radius: 0;
             overflow: hidden;
-            margin: 20px -40px -40px -40px;
+            margin: 20px -40px 0 -40px;
             padding: 0;
             display: flex;
             flex-direction: column;
+            align-items: stretch;
         }
         
         .image-section {
@@ -2242,8 +2243,8 @@
         .timeline-line {
             position: absolute;
             top: 75%;
-            left: 5px;
-            right: 150px;
+            left: 0px;
+            right: 170px;
             height: 2px;
             background-color: #0F58F9;
             transform: translateY(-50%);
@@ -2341,7 +2342,7 @@
 .timeline-line {
     position: absolute;
     top: 155px;
-    left: calc(50% - 360px);
+    left: calc(50% - 390px);
     width: 115%;
     height: 2px;
     background: #0F58F9;
