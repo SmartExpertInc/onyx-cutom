@@ -756,18 +756,36 @@ Based on Steps 1 & 2, determine which templates you can use.
 **CATEGORY A: Data-Visualization Templates**
 (Use ONLY if source contains real statistics)
 
+🚨 CRITICAL: These templates display data. DO NOT USE if source lacks actual numbers/statistics.
+
 1. `big-numbers` - Use ONLY with actual source statistics (exact values, no fabrication)
    - Format: {"value": "[exact number from source]", "label": "...", "description": "..."}
-   - If no statistics in source → DO NOT USE
+   - REQUIRED: Source MUST contain the exact number/statistic being displayed
+   - ❌ NEVER fabricate: "50% improvement", "10,000 users", "$500M market", "99.9% uptime"
+   - ❌ NEVER estimate: "approximately 5,000", "around 70%", "roughly $2M"
+   - ❌ NEVER use qualitative terms as numbers: "High" → "80%", "Many" → "thousands"
+   - If no statistics in source → DO NOT USE this template
+   - If source says "cost-effective" but no $ amount → DO NOT USE this template
+   - If source says "many users" but no count → DO NOT USE this template
 
-2. `table-dark` / `table-light` - RESTRICTED to qualitative comparisons
-   - ALLOWED: Feature comparisons with text descriptions
-   - BANNED: Any numerical data, percentages, performance metrics
+2. `table-dark` / `table-light` - RESTRICTED to qualitative comparisons ONLY
+   - ✅ ALLOWED: Feature comparisons with text descriptions ("Supports X", "Includes Y")
+   - ❌ BANNED: Any numerical data in cells (no numbers, percentages, metrics)
+   - ❌ BANNED: Performance comparisons ("3.5 GHz vs 4.0 GHz", "100ms vs 50ms")
+   - ❌ BANNED: Cost comparisons ("$10/month vs $20/month")
+   - ❌ BANNED: Metric comparisons ("99.9% vs 99.99%", "1TB vs 5TB")
+   - Example ALLOWED: "Feature | Service A | Service B" with text like "Available", "Not Available"
+   - Example BANNED: "Feature | Service A | Service B" with "$10", "5TB", "99.9%"
 
-3. BANNED FOR fromFiles=true:
-   - `metrics-analytics` - NEVER USE (requires dashboard data)
-   - `market-share` - NEVER USE (requires market research)
-   - `pie-chart-infographics` - NEVER USE (requires percentages)
+3. ABSOLUTELY BANNED FOR fromFiles=true (NEVER USE UNDER ANY CIRCUMSTANCES):
+   - `metrics-analytics` - NEVER USE (requires dashboard/analytics data)
+   - `market-share` - NEVER USE (requires market research percentages)
+   - `pie-chart-infographics` - NEVER USE (requires percentage breakdowns)
+   - `bar-chart` - NEVER USE (requires quantitative comparisons)
+   - `line-graph` - NEVER USE (requires time-series data)
+   - ANY template that inherently displays numbers/charts/graphs
+
+🔴 ENFORCEMENT: If you use ANY Category A template, you MUST be able to point to the EXACT sentence in the source that contains the number/statistic being displayed.
 
 **CATEGORY B: Narrative-Visual Templates**
 (Primary diversity source for conceptual content)
@@ -996,8 +1014,13 @@ DATA TEMPLATE CHECKS:
 □ If source lacks statistics: NO `metrics-analytics` present
 □ If source lacks statistics: NO `market-share` present
 □ If source lacks statistics: NO `pie-chart-infographics` present
-□ If `big-numbers` used: values are exact from source (no fabrication)
-□ If tables used: only qualitative text (no invented numbers)
+□ If source lacks statistics: NO `bar-chart` present
+□ If source lacks statistics: NO `line-graph` present
+□ If `big-numbers` used: values are exact from source (no fabrication, no estimation)
+□ If `big-numbers` used: you can cite the exact source sentence with that number
+□ If tables used: only qualitative text (no numbers, percentages, or metrics in cells)
+□ NO qualitative terms converted to numbers ("many" → "thousands", "high" → "80%")
+□ NO cost/performance/metric data in tables unless exact values from source
 
 DIVERSITY CHECKS:
 □ Minimum 3 different slide types used
@@ -1029,6 +1052,55 @@ educational effectiveness, NOT in adding information.
 
 ═══════════════════════════════════════════════════════════════════════════
 
+🚨 MANDATORY PER-SLIDE VERIFICATION FOR PRESENTATIONS (fromFiles=true) 🚨
+═══════════════════════════════════════════════════════════════════════════
+
+BEFORE creating EACH slide, you MUST verify:
+
+FOR DATA-VISUALIZATION SLIDES (big-numbers, tables with numbers, charts):
+1. Does the source contain the EXACT number/statistic I want to display?
+   □ If NO → DO NOT USE this template, choose a narrative template instead
+   □ If source says "cost-effective" without $ → CANNOT use big-numbers
+   □ If source says "many users" without count → CANNOT use big-numbers
+   □ If source says "improved performance" without % → CANNOT use big-numbers
+
+2. Can I cite the exact sentence in source where this number appears?
+   □ If NO → DO NOT USE this number, it's fabricated
+   □ Must be able to say: "Source says: '[exact quote with number]'"
+
+3. Am I converting qualitative terms to numbers?
+   □ "High availability" → "99.9%" = FORBIDDEN
+   □ "Many users" → "10,000+" = FORBIDDEN
+   □ "Cost-effective" → "$500/month" = FORBIDDEN
+   □ "Fast" → "100ms latency" = FORBIDDEN
+   □ If YES to any → REMOVE the number, use qualitative text
+
+FOR TABLE SLIDES (table-dark, table-light):
+1. Do any table cells contain numbers, percentages, or metrics?
+   □ If YES → DELETE those numbers OR choose different template
+   □ ALLOWED: "Available", "Supported", "Yes", "No", "Included"
+   □ FORBIDDEN: "$10", "5TB", "99.9%", "100ms", "3.5GHz"
+
+2. Is this a performance/cost/metric comparison with data?
+   □ If YES → DO NOT USE table template, use narrative template
+
+FOR ALL SLIDES:
+1. Does every bullet point trace to source content?
+   □ If NO → DELETE that bullet point
+   
+2. Did I add framework/tool names not in source?
+   □ If YES → REMOVE those specific names
+
+3. Did I invent an example or scenario?
+   □ If YES → DELETE that slide entirely
+
+ENFORCEMENT: If ANY verification fails, you MUST:
+- Choose a different template (likely narrative/text-based), OR
+- Remove the fabricated data, OR  
+- Delete the entire slide
+
+═══════════════════════════════════════════════════════════════════════════
+
 🔴🔴🔴 FINAL ENFORCEMENT CHECKPOINT: SOURCE FIDELITY (fromFiles=true) 🔴🔴🔴
 ═══════════════════════════════════════════════════════════════════════════
 
@@ -1039,7 +1111,7 @@ STOP AND CHECK YOUR CONTENT NOW:
 1. FRAMEWORKS CHECK:
    □ Did I add ANY framework/methodology name not explicitly taught in sources?
    □ Examples to remove: "Well-Architected Framework", "PESTLE", "Five Forces", "SOLID", "Sales Funnel", "Testing Pyramid", "AIDA"
-   → If YES: DELETE those sections immediately
+   → If YES: DELETE those sections/slides immediately
 
 2. TOOLS CHECK:
    □ Did I name ANY specific tool/service/product not mentioned by name in sources?
@@ -1050,19 +1122,31 @@ STOP AND CHECK YOUR CONTENT NOW:
    □ Did I create ANY worked example, scenario, or case study not in sources?
    □ Did I invent ANY company name, person name, or fictional entity?
    □ Examples to remove: "Tech Startup XYZ", "ShopSmart", "Sarah the Sales Manager", made-up migration scenarios
-   → If YES: DELETE entire example sections
+   → If YES: DELETE entire example sections/slides
 
-4. NUMBERS CHECK:
+4. NUMBERS CHECK (CRITICAL FOR PRESENTATIONS):
    □ Did I add ANY budget, user count, metric, percentage, or quantitative data not in sources?
+   □ Did I use `big-numbers` template with fabricated/estimated statistics?
+   □ Did I put numbers in table cells that aren't in source?
+   □ Did I convert qualitative terms to numbers ("many" → "thousands", "high" → "80%")?
    □ Examples to remove: "$200,000 budget", "10,000 users", "500GB data", "99.9% uptime", "3-month timeline"
-   → If YES: DELETE all invented numbers
+   → If YES: DELETE all invented numbers OR delete the entire slide OR switch to narrative template
 
-5. SECTIONS CHECK:
+5. DATA SLIDES CHECK (PRESENTATIONS ONLY):
+   □ Did I use `big-numbers` without exact source statistics?
+   □ Did I use `metrics-analytics`, `market-share`, `pie-chart-infographics`, or any chart template?
+   □ Did I put numeric data in table cells without source numbers?
+   □ Can I cite the exact source sentence for every number displayed?
+   → If ANY answer is YES or NO (last question): DELETE those slides or switch to narrative templates
+
+6. SECTIONS CHECK (TEXT PRESENTATIONS ONLY):
    □ Did I create "Skill Practice", "Worked Examples", "Common Mistakes", or "Mental Models" sections without source material?
    → If YES: DELETE those entire sections
 
 YOU CANNOT PROCEED PAST THIS CHECKPOINT UNTIL ALL CHECKS PASS.
 If any check failed, you MUST go back and remove the violating content NOW.
+
+FOR PRESENTATIONS: Focus especially on checks #4 and #5 - data fabrication in slides is the most common violation.
 
 ═══════════════════════════════════════════════════════════════════════════
 
