@@ -197,15 +197,16 @@ export const trackConnectConnector = async (action: string, connectorId: string,
   );
 };
 
-export const trackSyncConnector = async (connectorId: string, connectorName: string) => {
+export const trackSyncConnector = async (action: string, connectorId: string, connectorName: string) => {
   const props = {
     "Feature Category": "Smart Drive",
     "Connector Id": connectorId,
-    "Connector Name": connectorName
+    "Connector Name": connectorName,
+    "Action Type": action
   };
 
   await track(
-    "Sync Connector", 
+    "Sync Connector",
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );

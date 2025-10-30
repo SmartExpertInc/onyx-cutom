@@ -181,7 +181,11 @@ export default function ConnectorManagementPage({
     if (!ccPair) return;
 
     // track indexing event
-    trackSyncConnector(ccPair.connector.id.toString(), ccPair.connector.name);
+    if (fromBeginning) {
+      trackSyncConnector('Full Re-index', ccPair.connector.id.toString(), ccPair.connector.name);
+    } else {
+      trackSyncConnector('Index', ccPair.connector.id.toString(), ccPair.connector.name);
+    }
 
     try {
       const result = await triggerIndexing(
