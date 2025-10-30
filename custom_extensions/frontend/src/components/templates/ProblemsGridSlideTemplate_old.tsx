@@ -37,8 +37,6 @@ export const ProblemsGridSlideTemplate_old: React.FC<ProblemsGridSlideProps & { 
   onUpdate,
   theme
 }) => {
-  console.log('🔴 ProblemsGridSlideTemplate_old (OLD) rendered with:', { slideId, rightText, avatarPath });
-  
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editTag, setEditTag] = useState(false);

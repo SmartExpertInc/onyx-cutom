@@ -37,8 +37,6 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   onUpdate,
   theme
 }) => {
-  console.log('🔵 DeiMethodsSlideTemplate (NEW) rendered with avatarPath:', avatarPath);
-  
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
