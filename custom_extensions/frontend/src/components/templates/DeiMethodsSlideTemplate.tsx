@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 
 export interface DeiMethodsProps extends BaseTemplateProps {
@@ -102,7 +102,18 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       {/* Header section */}
       <div style={header} />
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <AvatarImageDisplay
+          size="MEDIUM"
+          position="CENTER"
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
+        />
       </div>
 
       {isEditable && editKey==='headerTitle' ? (
