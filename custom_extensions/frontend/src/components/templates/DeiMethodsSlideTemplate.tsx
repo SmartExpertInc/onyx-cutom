@@ -126,7 +126,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
           <div className="title-element" onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
         </div>
       )}
-
+<h1>New Template</h1>
       {/* Content block wrapper */}
       <div style={contentBlock}>
         <div style={section1TitleStyle}>
@@ -142,6 +142,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
             <div className="title-element" onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
           )}
         </div>
+        <h1>New Template</h1>
         {isEditable && editKey==='s1l' ? (
           <ImprovedInlineEditor 
             initialValue={section1Lines.join('\n')} 
@@ -163,7 +164,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
             <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
           </div>
         )}
-
+<h1>New Template</h1>
         <div style={section2TitleStyle}>
           {isEditable && editKey==='s2t' ? (
             <ImprovedInlineEditor 
@@ -199,7 +200,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
           </div>
         )}
       </div>
-
+      <h1>New Template</h1>
       {/* Footer with page number and logo */}
       <div style={{
         position: 'absolute',
