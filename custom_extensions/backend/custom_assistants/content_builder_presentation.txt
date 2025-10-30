@@ -333,7 +333,8 @@ DATA TEMPLATE CHECKS:
  If `big-numbers` used: you can cite the exact source sentence with that number
  If tables used: only qualitative text (no numbers, percentages, or metrics in cells)
  NO qualitative terms converted to numbers ("many"  "thousands", "high"  "80%")
- NO cost/performance/metric data in tables unless exact values from source
+NO cost/performance/metric data in tables unless exact values from source
+NO percentage strings (e.g., "50%", "30%") anywhere in any slide text unless that exact value appears in sources
 
 DIVERSITY CHECKS:
  Minimum 3 different slide types used
@@ -450,6 +451,9 @@ If fromFiles=true, these rules OVERRIDE ALL OTHERS and take precedence due to re
 1) Use ONLY content explicitly present in the provided sources. Do NOT add general knowledge.
 2) Do NOT name companies, tools, programs, certifications, case studies, or frameworks unless named in sources.
 3) Do NOT invent numbers, percentages, budgets, timeframes, or metrics. Use qualitative words instead or omit.
+   - If a number/percentage is NOT present verbatim in sources, you MUST convert it to qualitative phrasing (e.g., "Improved"/"Higher"/"Growing").
+   - ABSOLUTE BAN: Percentages anywhere in the deck when fromFiles=true unless the exact percent appears in sources.
+   - ABSOLUTE BAN: Multipliers (e.g., "2x", "3x"), growth rates, or ranges unless exactly present in sources.
 4) If any slide cannot be populated with source-backed content (≥2 meaningful bullets), DELETE the slide and RENUMBER. Do NOT output placeholders like "No content", "N/A", or empty bullets.
 5) If sources lack data for a section/template, SKIP that template. Fidelity > slide count.
 
@@ -494,7 +498,8 @@ VERIFICATION BEFORE EACH SLIDE:
  Am I using the correct template for this content type?
  Am I following position restrictions for this template?
  Am I avoiding banned templates?
- Am I not adding fabricated data or examples?
+Am I not adding fabricated data or examples?
+Does the slide text contain any percentages (e.g., "50%", "30%") or numeric claims not in sources? If yes, delete/convert to qualitative.
 
 IF YOU CANNOT ANSWER "YES" TO ALL QUESTIONS - DO NOT CREATE THE SLIDE
 
