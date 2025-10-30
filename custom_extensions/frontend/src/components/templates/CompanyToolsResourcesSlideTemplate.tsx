@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CompanyToolsResourcesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 import YourLogo from '../YourLogo';
@@ -93,13 +93,6 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       onUpdate({ ...{ title, sections, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, sections: newSections });
     }
   };
-
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, sections, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
 
   return (
     <>
@@ -195,7 +188,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         )}
       </div>
 
-      {/* Profile Image */}
+      {/* Avatar */}
       <div style={{
         position: 'absolute',
         top: '40px',
@@ -207,17 +200,15 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         backgroundColor: '#FFFFFF',
         zIndex: 10,
       }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={handleProfileImageUploaded}
-          size="LARGE"
+        <AvatarImageDisplay
+          size="MEDIUM"
           position="CENTER"
-          description="Profile photo"
-          isEditable={isEditable}
           style={{
-            width: '100%',
-            height: '100%',
+            width: '88%',
+            height: '135%',
             borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
             objectFit: 'cover'
           }}
         />
