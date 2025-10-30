@@ -66,7 +66,7 @@ const VideoLessonDisplay = ({
           {/* Left: Video Lesson Title */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              {dataToDisplay?.title || 'Video Lesson Title'}
+              {dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
             </h2>
           </div>
           
