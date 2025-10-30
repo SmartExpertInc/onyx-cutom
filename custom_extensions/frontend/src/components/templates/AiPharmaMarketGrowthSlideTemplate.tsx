@@ -91,7 +91,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     position: 'absolute',
     left: '64px',
     top: '275px',
-    width: '56%',
+    width: '46%',
     display: 'flex',
     flexDirection: 'column',
     gap: '0px'
@@ -99,7 +99,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
   const rightImageArea: React.CSSProperties = {
     position: 'absolute',
-    right: '90px',
+    right: '-10px',
     top: '30px',
     bottom: '97px',
     height: '96%',
@@ -431,10 +431,8 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
           size="LARGE"
           position="CENTER"
           style={{
-            position: 'absolute',
-            bottom: '0',
-            height: '100%',
-            width: 'auto'
+            width: '100%',
+            height: '100%'
           }}
         />
       </div>
