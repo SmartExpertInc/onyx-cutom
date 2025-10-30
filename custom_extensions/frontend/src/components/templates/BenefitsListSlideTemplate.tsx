@@ -57,12 +57,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    background: themeBg,
+    aspectRatio: '16/9',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -363,11 +362,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             <div
               key={i}
               style={{
-                width: '45px',
-                height: '45px',
-                borderRadius: '50%',
-                border: `2px solid ${themeBg}`,
-                background: i + 1 === currentStep ? themeBg : 'transparent',
+                width: '55px',
+                height: '55px',
+                borderRadius: '2px',
+                border: `2px solid #ffffff`,
+                backgroundColor: i + 1 === currentStep ? "#ffffff" : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -417,7 +416,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        background: themeBg,
+        backgroundColor: '#E0E7FF',
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',

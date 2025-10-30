@@ -3208,7 +3208,7 @@ const OLD_TEMPLATE_COMPONENTS: Record<string, any> = {
   'metrics-analytics': MetricsAnalyticsTemplate_old,
   'oral-hygiene-signs': OralHygieneSignsSlideTemplate_old,
   'org-chart': OrgChartTemplate_old,
-  'percent-circles': PercentCirclesSlideTemplate_old,
+  'percent-circles': PercentCirclesSlideTemplate,
   'phishing-definition': PhishingDefinitionSlideTemplate_old,
   'phishing-rise': PhishingRiseSlideTemplate_old,
   'pie-chart-infographics': PieChartInfographicsTemplate_old,

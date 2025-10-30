@@ -234,7 +234,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         width: '60%',
         height: '100%',
         position: 'relative',
-        zIndex: 2
+        zIndex: 0
       }}>
         {/* Logo placeholder */}
         <div style={{
@@ -244,7 +244,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: '#ffffff'
+          color: '#ffffff',
+          zIndex: 0
         }}>
           {logoPath ? (
             // Show uploaded logo image
@@ -284,13 +285,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: themeContent,
+                  backgroundColor: '#ffffff',
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: themeContent,
+                  backgroundColor: '#ffffff',
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
@@ -308,7 +309,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           top: '22%',
           left: '60px',
           transform: 'translateY(-50%)',
-          marginBottom: '40px'
+          marginBottom: '40px',
+          zIndex: 0
         }}>
           {isEditable && editingTitle ? (
             <ControlledWysiwygEditor
@@ -356,6 +358,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           position: 'absolute',
           top: '39%',
           left: '60px',
+          zIndex: 0
         }}>
           {isEditable && editingContent ? (
             <ControlledWysiwygEditor
@@ -409,7 +412,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           left: '0px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '8px',
+          zIndex: 0
         }}>
           {/* Small line */}
           <div style={{
@@ -456,7 +460,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        overflow: 'visible'
       }}>
         {/* Arch background */}
         <div style={{

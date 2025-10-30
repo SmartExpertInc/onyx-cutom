@@ -69,6 +69,23 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     color: '#09090B',
   };
 
+  // Calculate bar height based on number of bars
+  const getBarHeight = () => {
+    switch (currentBars.length) {
+      case 1:
+        return 250; // Taller but not too much
+      case 2:
+        return 130; // Spread across space
+      case 3:
+        return 100; // Evenly spread
+      case 4:
+      default:
+        return 78; // Default height
+    }
+  };
+
+  const barHeight = getBarHeight();
+
   const barsArea: React.CSSProperties = {
     position: 'absolute',
     left: '64px',
@@ -274,7 +291,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               )}
             </div>
 
-            <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
+            <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: `${barHeight}px`, borderRadius: '6px', position: 'relative' }}>
               {/* Delete button - appears on hover in top-left corner of chart */}
               {isEditable && (
                 <div
@@ -287,6 +304,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                     width: '20px', 
                     height: '20px', 
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    border: '1px solid #999',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
@@ -396,7 +414,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
           </div>
         ))}
 
-        {isEditable && (
+        {isEditable && currentBars.length < 4 && (
           <button
             onClick={() => { const nb=[...currentBars, { year: '2035', label: 'New item', widthPercent: 50 }]; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
             style={{ alignSelf: 'flex-start', marginLeft: '50px', background: '#2c3e55', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}

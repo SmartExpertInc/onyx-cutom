@@ -350,7 +350,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           ))}
         </div>
 
-        {/* Profile image at bottom left - MATCHES HTML: bottom: 149px, left: 96px, width: 256px, height: 256px */}
+        {/* Avatar at bottom left - MATCHES HTML: bottom: 149px, left: 96px, width: 256px, height: 256px */}
         <div style={{
           position: 'absolute',
           bottom: '7.76%',
@@ -361,13 +361,9 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           overflow: 'hidden',
           backgroundColor: '#ffffff'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
+          <AvatarImageDisplay
             size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
               width: '88%',
               height: '135%',
@@ -427,15 +423,19 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         </div>
       </div>
 
-      {/* Right section with avatar */}
+      {/* Right section with image placeholder */}
       <div style={{
         width: '50%',
         height: '100%',
         position: 'relative'
       }}>
-        <AvatarImageDisplay
+        <ClickableImagePlaceholder
+          imagePath={rightImagePath}
+          onImageUploaded={handleRightImageUploaded}
           size="LARGE"
           position="CENTER"
+          description="Right side image"
+          isEditable={isEditable}
           style={{
             width: '100%',
             height: '100%',
