@@ -420,7 +420,12 @@ function UnifiedBulletEditor({
                     placeholder={index === 0 ? "Enter bullet points... Press Enter for new line" : ""}
                     className="bullet-edit-textarea"
                     style={{
-                      ...bulletTextStyles,
+                      fontFamily: bulletTextStyles.fontFamily,
+                      fontSize: bulletTextStyles.fontSize,
+                      marginTop: bulletTextStyles.marginTop,
+                      opacity: bulletTextStyles.opacity,
+                      color: bulletTextStyles.color,
+                      lineHeight: bulletTextStyles.lineHeight,
                       background: 'transparent',
                       border: 'none',
                       outline: 'none',
@@ -428,15 +433,16 @@ function UnifiedBulletEditor({
                       resize: 'none',
                       overflow: 'hidden',
                       flex: 1,
-                      minWidth: '450px',
+                      minWidth: 0,
+                      maxWidth: '100%',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
-                      minHeight: '1.6em',
                       boxSizing: 'border-box',
                       display: 'block',
                       padding: '0',
                       margin: '0',
-                      height: 'auto'
+                      height: 'auto',
+                      verticalAlign: 'top'
                     }}
                     rows={1}
                     onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
