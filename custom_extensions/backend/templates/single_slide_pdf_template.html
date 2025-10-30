@@ -1640,21 +1640,33 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            padding: 40px;
+            background-color: #1a2b6b;
+            padding: 0;
             box-sizing: border-box;
         }
         
-        .slide-title-section {
+        .six-ideas-top-section {
+            flex: 0 0 60%;
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .six-ideas-title {
             text-align: center;
+            color: #ffffff;
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: Georgia, serif;
             margin-bottom: 40px;
+            text-transform: uppercase;
         }
         
         .ideas-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px; /* Exact frontend match */
+            gap: 40px 60px;
             flex: 1;
-            margin-bottom: 20px;
         }
         
         .idea-item {
@@ -1666,46 +1678,95 @@
         .idea-header {
             display: flex;
             align-items: center;
-            margin-bottom: 12px; /* Exact frontend match */
+            margin-bottom: 12px;
             width: 100%;
         }
         
         .idea-number {
-            font-size: 24px; /* Exact frontend match */
+            font-size: 32px;
             font-weight: 700;
-            color: var(--title-color);
-            margin-right: 12px; /* Exact frontend match */
-            font-family: 'Kanit', sans-serif;
+            color: #ffffff;
+            margin-right: 12px;
+            font-family: Arial, sans-serif;
+            min-width: 50px;
         }
         
         .idea-line {
             flex: 1;
-            height: 2px;
-            background-color: var(--title-color);
+            height: 1px;
+            background-color: #ffffff;
         }
         
         .idea-text {
-            font-size: 16px; /* Exact frontend match */
-            color: var(--content-color);
+            font-size: 16px;
+            color: #ffffff;
             line-height: 1.4;
-            font-family: 'Martel Sans', sans-serif;
+            font-family: Arial, sans-serif;
+        }
+        
+        .six-ideas-bottom-section {
+            flex: 0 0 40%;
+            padding: 20px 60px 40px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .image-section {
             width: 100%;
-            height: 300px; /* Exact frontend match */
-            border-radius: 8px; /* Exact frontend match */
+            height: 100%;
+            border-radius: 8px;
             overflow: hidden;
-            border: 2px dashed #adb5bd;
+            background: linear-gradient(to bottom, #e8f4f8 0%, #dfe6f5 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #6c757d;
-            font-size: 16px;
         }
         
         .image-placeholder {
             text-align: center;
+            color: #333;
+        }
+        
+        .image-placeholder-icon {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .image-placeholder-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .image-placeholder-subtext {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .image-placeholder-italic {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .image-placeholder-link {
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .image-placeholder-ai-link {
+            font-size: 14px;
+            color: #6f42c1;
+            text-decoration: none;
+            display: block;
         }
         
         /* Org Chart Template - EXACT FRONTEND MATCH */
@@ -2161,9 +2222,9 @@
         
         .timeline-line {
             position: absolute;
-            top: 50%;
-            left: 60px;
-            right: 60px;
+            top: 60%;
+            left: 20px;
+            right: 10px;
             height: 2px;
             background-color: #0F58F9;
             transform: translateY(-50%);
@@ -3121,7 +3182,7 @@
                             {% for i in range(5) %}
                                 <div class="pyramid-level positioned-element">
                                     <div style="display: flex; align-items: center;">
-                                        <img src="{{ 'message_img.png'|static_image_base64 }}" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
+                                        <img src="{{ 'message-circle.png'|static_image_base64 }}" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
                                         <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
                                             {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
                                                 {{ slide.props.steps[i].number }}
@@ -3272,15 +3333,15 @@
                         </div>
 
                         <!-- Left Project Title -->
-                        <div style="position: absolute; left: 1.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: bold; min-width: 100px;">
+                        <div style="position: absolute; left: 2%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: medium; min-width: 100px;">
                                 The first project
                             </div>
                         </div>
 
                         <!-- Right Project Title -->
-                        <div style="position: absolute; right: -4%; top: 50%; transform: translateY(-50%); z-index: 10;">
-                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: bold;">
+                        <div style="position: absolute; right: -3.5%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: medium;">
                                 The second project
                             </div>
                         </div>
@@ -3725,6 +3786,61 @@
                                     </div>
                                 {% endfor %}
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'six-ideas-list' or slide.templateId == 'list-numbered-6' %}
+                <!-- Six Ideas List Template -->
+                <div class="six-ideas-container">
+                    <!-- Top Section - Dark Blue Background with Title and Ideas -->
+                    <div class="six-ideas-top-section">
+                        <h1 class="six-ideas-title">{{ slide.props.title or 'SIX DIFFERENT IDEAS' }}</h1>
+                        
+                        <div class="ideas-grid">
+                            {% set ideas = slide.props.ideas if slide.props.ideas else [] %}
+                            {% set default_ideas = [
+                                'Mercury is the smallest planet in the Solar System',
+                                'Venus is the second planet from the Sun',
+                                'Despite being red, Mars is actually a cold place',
+                                'Jupiter is the biggest planet in the Solar System',
+                                'Saturn is composed of hydrogen and helium',
+                                'Neptune is the farthest planet from the Sun'
+                            ] %}
+                            
+                            {% for i in range(6) %}
+                                <div class="idea-item">
+                                    <div class="idea-header">
+                                        <div class="idea-number">{{ '%02d'|format(i + 1) }}</div>
+                                        <div class="idea-line"></div>
+                                    </div>
+                                    <div class="idea-text">
+                                        {% if ideas and ideas|length > i %}
+                                            {{ ideas[i] }}
+                                        {% else %}
+                                            {{ default_ideas[i] }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Section - Image Area -->
+                    <div class="six-ideas-bottom-section">
+                        <div class="image-section">
+                            {% if slide.props.imagePath %}
+                                <img src="{{ slide.props.imagePath }}" alt="Slide image" style="width: 100%; height: 100%; object-fit: cover;" />
+                            {% else %}
+                                <div class="image-placeholder">
+                                    <div class="image-placeholder-icon">🖼️</div>
+                                    <div class="image-placeholder-text">LARGE Image</div>
+                                    <div class="image-placeholder-subtext">Click to upload image</div>
+                                    <div class="image-placeholder-italic">"relevant illustration for the ideas"</div>
+                                    <a href="#" class="image-placeholder-link">Click to upload</a>
+                                    <a href="#" class="image-placeholder-ai-link">Or generate with AI</a>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
