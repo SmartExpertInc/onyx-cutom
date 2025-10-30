@@ -38,7 +38,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   onUpdate,
   theme
 }) => {
-  console.log('🔵 CultureValuesThreeColumnsSlideTemplate (NEW) rendered with:', { slideId, avatarPath });
+  console.log('🔵 CultureValuesThreeColumnsSlideTemplate (NEW) rendered with avatarPath:', avatarPath);
   
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editLogo, setEditLogo] = useState(false);
