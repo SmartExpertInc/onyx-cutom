@@ -244,6 +244,7 @@ export default function ProjectInstanceViewPage() {
 
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
+  const [currentProjectType, setCurrentProjectType] = useState<string>('unknown');
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
 
   const [pageState, setPageState] = useState<'initial_loading' | 'fetching' | 'error' | 'success' | 'nodata'>('initial_loading');
@@ -744,6 +745,7 @@ export default function ProjectInstanceViewPage() {
         const allMicroproductsData: ProjectListItem[] = await listRes.json();
         setAllUserMicroproducts(allMicroproductsData);
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
+        setCurrentProjectType(currentMicroproductInList?.design_microproduct_type || 'unknown');
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
         // Resilient Event Poster detection based on parent project name (cannot be renamed)
         const parentName = currentMicroproductInList?.projectName || '';
@@ -1480,7 +1482,7 @@ export default function ProjectInstanceViewPage() {
     }
 
     // Track save draft event
-    trackSaveDraft(sessionStorage.getItem('activeProductType') || 'unknown', 'pdf');
+    trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf');
 
     // Special handling for slide decks and video lesson presentations  
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
