@@ -1979,25 +1979,23 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
     }
     },
     {
-      "slideId": "slide_15_phishing_rise",
-      "slideNumber": 15,
-      "slideTitle": "Phishing Rise",
-      "templateId": "phishing-rise-slide",
-      "voiceoverText": "Phishing attacks have become a growing threat in recent years. This chart shows the dramatic increase in incidents and financial impact over time, highlighting why awareness and prevention are more critical than ever.",
-      "props": {
-        "title": "Phishing rise",
-        "description": "This has become a growing threat in the world of today. The Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been noted that 93% of phishing emails are now ransomware.",
-        "bars": [
-          { "year": "2019", "valueLabel": "33M$", "height": 160 },
-          { "year": "2020", "valueLabel": "39M$", "height": 200 },
-          { "year": "2021", "valueLabel": "55M$", "height": 330 },
-          { "year": "2022", "valueLabel": "44M$", "height": 270 },
-          { "year": "2023", "valueLabel": "67M$", "height": 420 },
-          { "year": "2024", "valueLabel": "35M$", "height": 210 }
-        ],
-        "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "pageNumber": "15"
-      }
+        "slideId": "slide_15_phishing_rise",
+        "slideNumber": 15,
+        "slideTitle": "Phishing Threat Growth",
+        "templateId": "phishing-rise-slide",
+        "voiceoverText": "Phishing attacks have become an escalating cybersecurity threat over the past four years. This vertical bar chart illustrates the dramatic increase in both incident frequency and financial impact, demonstrating why proactive security awareness and robust prevention strategies are more critical than ever for protecting our organization.",
+        "props": {
+            "title": "Rise in Phishing Attacks",
+            "description": "Phishing has evolved into one of the most significant cybersecurity threats facing organizations today. Recent data from the Anti-Phishing Working Group shows a 250% surge in malicious phishing sites between 2020 and 2024. Perhaps most alarming, current research indicates that 93% of modern phishing emails now contain ransomware payloads, representing a fundamental shift in attack sophistication and potential organizational impact.",
+            "bars": [
+            { "year": "2021", "valueLabel": "42M$", "height": 210 },
+            { "year": "2022", "valueLabel": "58M$", "height": 290 },
+            { "year": "2023", "valueLabel": "71M$", "height": 355 },
+            { "year": "2024", "valueLabel": "89M$", "height": 445 }
+            ],
+            "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+            "pageNumber": "15"
+        }
     },
     {
       "slideId": "slide_16_four_box_grid",
@@ -24384,7 +24382,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
     - CRITICAL TEXT LENGTH: Each tag.text MUST be 1-2 words MAXIMUM - NO EXCEPTIONS
       * PREFERRED: Single word (e.g., "Efficiency", "Security", "Innovation")
       * ACCEPTABLE: Two-word compound terms (e.g., "Cost Savings", "Time Management", "Data Protection")
-      * FORBIDDEN: Three or more words (e.g., "Better Business Decisions" ❌, "Improved Team Communication" ❌)
+      * FORBIDDEN: Three or more words (e.g., "Better Business Decisions" , "Improved Team Communication" )
     - Tags should be concise benefit names or key concept labels
     - Set isHighlighted: true for EXACTLY ONE tag (typically the last/most important one)
     - All other tags should have isHighlighted: false
@@ -24410,27 +24408,24 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
         - Currency: "$50M", "€2.5K", "£100K"
         - Ratios: "3:1", "95:5"
       * FORBIDDEN formats:
-        - Text labels: "High" ❌, "Excellent" ❌, "Strong" ❌
-        - Words: "Many" ❌, "Most" ❌, "Few" ❌
-        - Qualitative terms: "Significant" ❌, "Improved" ❌
-    - Description requirements:
-      * Each description should be detailed (20-30 words / 140-160 characters)
-      * Explain what the metric represents and why it matters
-      * Include context: comparison to targets, trends, or previous periods
-      * Use specific, quantifiable language
-    - Footer fields should provide context:
-      * footerLeft: Company/department name
-      * footerCenter: Report type (e.g., "Quarterly KPI Report", "Performance Dashboard")
-      * footerRight: Time period (e.g., "Q1 2025", "January 2025")
+        - Text labels: "High" , "Excellent" , "Strong" 
+        - Words: "Many" , "Most" , "Few" 
+        - Qualitative terms: "Significant" , "Improved" 
     - Maintain consistent formatting across all 4 KPIs for professional appearance
 
 - phishing-rise-slide: title, description, bars[] (array of {{year, valueLabel, height}}), [actorImagePath], [pageNumber]
   • Purpose: Show trend data or threat growth with vertical bar chart
   • Structure: Two-column layout with narrative on left (light blue panel) and bar chart on right (white panel)
-  • Required props: title (main heading), description (2-3 sentence narrative), bars (array of 4-6 bars with year, valueLabel like "33M$", height in pixels)
+  • Required props: title (main heading), description (detailed 3-4 sentence narrative), bars (array of 3-4 bars MAXIMUM with year, valueLabel, height)
   • Visual elements: actorImagePath (avatar in left panel with blue background)
-  • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data
-  • Content guidelines: Title should be concise; description provides context; bars should show progression over time
+  • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data showing progression over time
+  • Content guidelines:
+    - MANDATORY: bars array MUST contain 3-4 items MAXIMUM (NEVER more than 4)
+      * 3 bars: Minimum for showing meaningful trend
+      * 4 bars: OPTIMAL for visual clarity and trend demonstration
+      * 5+ bars: FORBIDDEN - creates visual clutter and reduces readability
+    - Title: Keep concise (2-5 words) describing the trend or threat
+    
 
 - four-box-grid: title, boxes[] (array of {{heading, text}})
   • Purpose: Present four key concepts or features in a balanced 2x2 grid layout
