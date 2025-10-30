@@ -852,7 +852,8 @@ async def log_transform_applications(page, slide_data: dict, slide_index: int = 
     image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
     for prop in image_props:
         if prop in props:
-            logger.info(f"PDF GEN: Found {prop}: {props[prop]}")
+            if prop != 'imagePath':
+                logger.info(f"PDF GEN: Found {prop}: {props[prop]}")
             
             # Check for corresponding offset and scale
             if prop == 'imagePath':
