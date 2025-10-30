@@ -317,7 +317,6 @@ function UnifiedBulletEditor({
                 alignItems: 'flex-start', 
                 gap: '12px', 
                 marginBottom: '35px',
-                minHeight: '1.6em',
                 width: '100%'
               }}>
                 {shouldShowBullet && (
@@ -330,8 +329,7 @@ function UnifiedBulletEditor({
                     {getBulletIcon(bulletStyle, index)}
                   </span>
                 )}
-                <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
-                  <textarea
+                <textarea
                     ref={(el) => {
                       textareaRefs.current[index] = el;
                     }}
@@ -429,7 +427,8 @@ function UnifiedBulletEditor({
                       boxShadow: 'none',
                       resize: 'none',
                       overflow: 'hidden',
-                      width: '100%',
+                      flex: 1,
+                      minWidth: 0,
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       minHeight: '1.6em',
@@ -448,7 +447,6 @@ function UnifiedBulletEditor({
                       target.style.height = (target.scrollHeight + 2) + 'px';
                     }}
                   />
-                </div>
               </li>
             );
           })}
