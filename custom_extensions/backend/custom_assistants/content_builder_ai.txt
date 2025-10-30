@@ -1052,85 +1052,25 @@ educational effectiveness, NOT in adding information.
 
 ═══════════════════════════════════════════════════════════════════════════
 
-🚨 MANDATORY PER-SLIDE VERIFICATION FOR PRESENTATIONS (fromFiles=true) 🚨
+🚨 PER-SLIDE CHECK (PRESENTATIONS fromFiles=true) 🚨
 ═══════════════════════════════════════════════════════════════════════════
 
-BEFORE creating EACH slide, you MUST verify:
+BEFORE creating EACH slide:
+1. Data slides: Source has EXACT number? Can cite exact sentence? Not converting "many"→"10,000"?
+   → If NO: Use narrative template instead
+2. Tables: No numbers in cells? (Only text: "Available", "Yes", "No")
+   → If has numbers: Delete numbers OR change template
+3. All slides: Every bullet from source? No added frameworks/tools? No invented examples?
+   → If NO: Delete violating content OR delete slide
 
-FOR DATA-VISUALIZATION SLIDES (big-numbers, tables with numbers, charts):
-1. Does the source contain the EXACT number/statistic I want to display?
-   □ If NO → DO NOT USE this template, choose a narrative template instead
-   □ If source says "cost-effective" without $ → CANNOT use big-numbers
-   □ If source says "many users" without count → CANNOT use big-numbers
-   □ If source says "improved performance" without % → CANNOT use big-numbers
+🚨 FIDELITY ≠ BULLET-POINTS ONLY 🚨
+Source fidelity means: Use ONLY source content. NOT: Use only bullet-slides.
 
-2. Can I cite the exact sentence in source where this number appears?
-   □ If NO → DO NOT USE this number, it's fabricated
-   □ Must be able to say: "Source says: '[exact quote with number]'"
+REQUIRED DIVERSITY:
+✅ Min 3 slide types, Max 2 bullet-slides
+✅ Match template to SOURCE pattern: 3 problems/solutions→challenges-solutions, steps→process-steps, 2 items→two-column, 4 concepts→four-box-grid, events→timeline, hierarchy→pyramid
 
-3. Am I converting qualitative terms to numbers?
-   □ "High availability" → "99.9%" = FORBIDDEN
-   □ "Many users" → "10,000+" = FORBIDDEN
-   □ "Cost-effective" → "$500/month" = FORBIDDEN
-   □ "Fast" → "100ms latency" = FORBIDDEN
-   □ If YES to any → REMOVE the number, use qualitative text
-
-FOR TABLE SLIDES (table-dark, table-light):
-1. Do any table cells contain numbers, percentages, or metrics?
-   □ If YES → DELETE those numbers OR choose different template
-   □ ALLOWED: "Available", "Supported", "Yes", "No", "Included"
-   □ FORBIDDEN: "$10", "5TB", "99.9%", "100ms", "3.5GHz"
-
-2. Is this a performance/cost/metric comparison with data?
-   □ If YES → DO NOT USE table template, use narrative template
-
-FOR ALL SLIDES:
-1. Does every bullet point trace to source content?
-   □ If NO → DELETE that bullet point
-   
-2. Did I add framework/tool names not in source?
-   □ If YES → REMOVE those specific names
-
-3. Did I invent an example or scenario?
-   □ If YES → DELETE that slide entirely
-
-ENFORCEMENT: If ANY verification fails, you MUST:
-- Choose a different template (likely narrative/text-based), OR
-- Remove the fabricated data, OR  
-- Delete the entire slide
-
-🚨 CRITICAL: SOURCE FIDELITY ≠ BULLET-POINT-ONLY PRESENTATIONS 🚨
-═══════════════════════════════════════════════════════════════════════════
-
-Many AI models misinterpret source fidelity rules as "only use bullet-points because other templates might require fabrication."
-
-THIS IS WRONG.
-
-Source fidelity means: Use ONLY source content.
-It does NOT mean: Use only bullet-point slides.
-
-YOU MUST CREATE DIVERSE, ENGAGING PRESENTATIONS USING SOURCE CONTENT.
-
-REFER TO: "🎨 ADAPTIVE TEMPLATE SELECTION FOR fromFiles=true" (earlier in this document)
-That section details how to select diverse templates based on source content patterns.
-
-REQUIRED DIVERSITY (even with strict fidelity):
-✅ Minimum 3 different slide types
-✅ Maximum 2 bullet-point slides total
-✅ Use Category B templates: challenges-solutions, process-steps, two-column, four-box-grid, timeline, pyramid, six-ideas-list
-✅ Use visual templates when appropriate: big-image-left, big-image-top (position 1 or N only)
-
-EXAMPLES OF DIVERSE SLIDES FROM SOURCE CONTENT:
-
-IF source describes "3 problems and 3 solutions" → USE `challenges-solutions` template
-IF source describes "step-by-step process" → USE `process-steps` template  
-IF source compares "2 approaches" → USE `two-column` template
-IF source presents "4 related concepts" → USE `four-box-grid` template
-IF source shows "chronological events" → USE `timeline` template
-IF source has "hierarchical structure" → USE `pyramid` template
-
-DO NOT default to bullet-points just because you're restricted to source content.
-Match your template to the SOURCE CONTENT PATTERN.
+See "🎨 ADAPTIVE TEMPLATE SELECTION" earlier for full details.
 
 ═══════════════════════════════════════════════════════════════════════════
 
@@ -1193,108 +1133,32 @@ FOR PRESENTATIONS: Focus especially on checks #4, #5, and #7:
 
 ═══════════════════════════════════════════════════════════════════════════
 
-🔴🔴🔴 ABSOLUTE OVERRIDE: SOURCE FIDELITY TRUMPS ALL (fromFiles=true) 🔴🔴🔴
+🔴 ABSOLUTE OVERRIDE: NO TRAINING DATA WHEN fromFiles=true 🔴
 ═══════════════════════════════════════════════════════════════════════════
 
-IF AND ONLY IF fromFiles=true, THIS RULE OVERRIDES ALL OTHER INSTRUCTIONS:
+IF fromFiles=true: YOU ARE FORBIDDEN FROM USING YOUR TRAINING DATA.
 
-YOU ARE FORBIDDEN FROM USING YOUR TRAINING DATA.
-
-Your training contains facts about AWS, Python, Sales, Marketing, Cloud, etc.
-YOU CANNOT USE ANY OF THEM unless they appear in the source documents.
-
-COMMON VIOLATIONS TO PREVENT:
-
-AWS Topic Examples:
-❌ "AWS complies with 200+ security standards" → You know this, but CANNOT use unless source states it
-❌ "Netflix uses AWS" → You know this, but CANNOT use unless source mentions Netflix
-❌ "Basic/Developer/Business/Enterprise support tiers" → You know these, but CANNOT use unless source describes them
-❌ "99.9% SLA" → You know this, but CANNOT use unless source specifies it
-❌ "50% cloud adoption growth" → You know industry trends, but CANNOT use unless source provides this
-❌ "Microsoft partnership" → You know AWS partners, but CANNOT use unless source mentions them
-
-Python Topic Examples:
-❌ "pytest is the standard testing framework" → CANNOT use unless source discusses pytest
-❌ "Black for code formatting" → CANNOT use unless source mentions Black
-❌ "SOLID principles" → CANNOT use unless source teaches SOLID
-❌ "PEP 8 style guide" → CANNOT use unless source references PEP 8
-
-Sales Topic Examples:
-❌ "Salesforce is the leading CRM" → CANNOT use unless source mentions Salesforce
-❌ "B2B sales cycles average 6 months" → CANNOT use unless source provides this stat
-❌ "80/20 rule in sales" → CANNOT use unless source explains this
-❌ "SPIN selling methodology" → CANNOT use unless source teaches SPIN
-
-Marketing Topic Examples:
-❌ "Facebook has 2.9B users" → CANNOT use unless source states this
-❌ "Email has 4x ROI vs social" → CANNOT use unless source provides this stat
-❌ "AIDA model" → CANNOT use unless source teaches AIDA
-❌ "HubSpot for marketing automation" → CANNOT use unless source mentions HubSpot
-
-🚨 CRITICAL: ILLUSTRATIVE EXAMPLES WITH MADE-UP METRICS ARE FORBIDDEN 🚨
-
-You might think: "The source explains the concept, so I'll create an example to make it concrete."
-This is FORBIDDEN. Do NOT create illustrative examples with quantitative data.
-
-FORBIDDEN PATTERN - "Making concepts concrete" with invented metrics:
-❌ "A leading retailer implemented AI and saw a 30% increase in sales" → FORBIDDEN even if trying to illustrate AI benefits
-❌ "A tech company improved conversion rates by 25% using AI" → FORBIDDEN even if source discusses AI improving conversions
-❌ "A financial institution reduced response times by 40%" → FORBIDDEN even if source mentions response time improvements
-❌ "A B2B company increased upselling by 20%" → FORBIDDEN even if source covers upselling
-❌ "Company X migrated to cloud and saved $500K annually" → FORBIDDEN even if source discusses cost savings
-
-THE PROBLEM:
-- Source says: "AI can improve sales conversion rates"
-- You think: "I'll make this concrete with: 'Company saw 25% conversion increase'"
-- This is FABRICATION. The 25% is invented. The company is fictional.
-
-THE RULE:
-If source provides CONCEPT without EXAMPLE → Explain the CONCEPT without adding an EXAMPLE
-If source provides EXAMPLE without METRICS → Describe the EXAMPLE without adding METRICS
-If source provides neither EXAMPLE nor METRICS → Do NOT create them
-
-ALLOWED vs FORBIDDEN:
-
-✅ ALLOWED (source says "AI improves lead scoring"):
-"AI-powered lead scoring helps sales teams prioritize high-value prospects by analyzing behavioral patterns and engagement signals."
-
-❌ FORBIDDEN (adding illustrative example):
-"AI-powered lead scoring helps sales teams prioritize prospects. For example, a B2B company implemented AI lead scoring and increased qualified leads by 40%."
-→ The "40%" is made-up. The "B2B company" is fictional. This is fabrication.
-
-✅ ALLOWED (source says "chatbots reduce response times"):
-"AI chatbots provide instant responses to customer inquiries, reducing wait times and improving customer satisfaction."
-
-❌ FORBIDDEN (adding illustrative metrics):
-"AI chatbots provide instant responses. A financial services company deployed chatbots and reduced response times from 2 hours to 15 minutes, handling 80% of inquiries automatically."
-→ The "2 hours to 15 minutes" is made-up. The "80%" is invented. This is fabrication.
-
-EVEN IF IT MAKES CONTENT "MORE CONCRETE" OR "MORE ENGAGING":
-→ You CANNOT add illustrative examples with quantitative data
-→ You CANNOT create "realistic" case studies with metrics
-→ You CANNOT invent percentages to show impact
-→ You CANNOT fabricate company scenarios with results
-
-If source doesn't provide concrete examples → Keep explanations conceptual
-
-THE RULE:
+CRITICAL RULE:
 If you're thinking "I know [fact] about [topic]" → STOP.
-Ask: "Does this specific fact appear in the source documents?"
-- If NO → DO NOT USE IT. Period.
+- If it's NOT in source → DO NOT USE IT. Period.
 - If UNSURE → DO NOT USE IT. Period.
-- If YES → Verify you can cite the exact passage.
 
-THIS RULE OVERRIDES:
-❌ "But it's common knowledge" → Doesn't matter, can't use it
-❌ "But it would make the content better" → Doesn't matter, can't use it
-❌ "But everyone knows this" → Doesn't matter, can't use it
-❌ "But it's factually accurate" → Doesn't matter, can't use it
-❌ "But it fits the topic" → Doesn't matter, can't use it
+FORBIDDEN (even if "common knowledge"):
+❌ Named companies: "Netflix", "Salesforce", "AWS partners", certification programs
+❌ Industry statistics: "200+ standards", "50% growth", "99.9% SLA", "6-month cycles"
+❌ Frameworks/tools: "PESTLE", "SOLID", "pytest", "Well-Architected", "SPIN selling"
+❌ Illustrative examples with metrics: "Company X saw 30% increase", "reduced costs by $500K"
 
-SOURCE FIDELITY OVERRIDES ALL OTHER PRIORITIES.
-Educational quality, diversity, depth, engagement → ALL SECONDARY to source fidelity.
+CRITICAL: DO NOT create illustrative examples to "make concepts concrete":
+- Source: "AI improves conversions" → ✅ Explain concept ❌ Add "Company saw 25% increase"
+- Source: "Chatbots reduce wait times" → ✅ Explain benefit ❌ Add "from 2hrs to 15min"
 
-Better to have a short, boring, accurate product than a comprehensive, engaging, unfaithful one.
+THE RULE: Concept only → Explain concept only. No examples → No examples. No metrics → No metrics.
+
+THIS OVERRIDES: "common knowledge", "makes content better", "factually accurate", "fits topic"
+
+Source fidelity > Educational quality, diversity, depth, engagement.
+Better: short, boring, accurate than comprehensive, engaging, unfaithful.
 
 ═══════════════════════════════════════════════════════════════════════════
 
