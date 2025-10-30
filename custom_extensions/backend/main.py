@@ -1925,25 +1925,25 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_13_benefits_tags",
-      "slideNumber": 13,
-      "slideTitle": "Key Benefits",
-      "templateId": "benefits-tags-slide",
-      "voiceoverText": "Here are the key benefits you'll gain. Each represents a critical advantage, with innovative solutions being the most transformative outcome you can expect from applying what we've learned.",
-      "props": {
-        "title": "Benefits",
-        "tags": [
-          { "text": "Better decisions", "isHighlighted": false },
-          { "text": "Insight", "isHighlighted": false },
-          { "text": "Growth", "isHighlighted": false },
-          { "text": "Progress", "isHighlighted": false },
-          { "text": "Creativity", "isHighlighted": false },
-          { "text": "Innovative solutions", "isHighlighted": true }
-        ],
-        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "companyLogoPath": "",
-        "pageNumber": "13"
-      }
+        "slideId": "slide_13_benefits_tags",
+        "slideNumber": 13,
+        "slideTitle": "Key Benefits",
+        "templateId": "benefits-tags-slide",
+        "voiceoverText": "Let me highlight the six key benefits you'll gain from implementing these strategies. Each represents a critical advantage, with enhanced productivity being the most transformative outcome you can expect from applying what we've learned today.",
+        "props": {
+            "title": "Key Benefits",
+            "tags": [
+            { "text": "Cost Savings", "isHighlighted": false },
+            { "text": "Efficiency", "isHighlighted": false },
+            { "text": "Scalability", "isHighlighted": false },
+            { "text": "Innovation", "isHighlighted": false },
+            { "text": "Security", "isHighlighted": false },
+            { "text": "Enhanced Productivity", "isHighlighted": true }
+            ],
+            "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+            "companyLogoPath": "",
+            "pageNumber": "13"
+        }
     },
     {
       "slideId": "slide_14_kpi_update",
@@ -24364,10 +24364,21 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 - benefits-tags-slide: title, tags[] (array of {{text, isHighlighted}}), [profileImagePath], [companyLogoPath], [pageNumber]
   • Purpose: Display benefits or key concepts as visual tags with emphasis on one highlighted tag
   • Structure: Light panel with circular profile background, title, and 6 tags in 3 rows (3-2-1 layout)
-  • Required props: title (main heading), tags (array of 6 tag objects with text and isHighlighted boolean)
+  • Required props: title (main heading), tags (EXACTLY 6 tag objects with text and isHighlighted boolean)
   • Visual elements: profileImagePath (profile image with gradient background), companyLogoPath (branding)
   • Usage: Present benefits, key features, values, or concepts with visual emphasis on the most important one
-  • Content guidelines: Keep tag text concise (1-3 words); set isHighlighted: true for the most important tag (typically the last one)
+  • Content guidelines:
+    - MANDATORY: tags array MUST contain EXACTLY 6 items (not 5, not 7 - exactly 6)
+    - CRITICAL TEXT LENGTH: Each tag.text MUST be 1-2 words MAXIMUM - NO EXCEPTIONS
+      * PREFERRED: Single word (e.g., "Efficiency", "Security", "Innovation")
+      * ACCEPTABLE: Two-word compound terms (e.g., "Cost Savings", "Time Management", "Data Protection")
+      * FORBIDDEN: Three or more words (e.g., "Better Business Decisions" ❌, "Improved Team Communication" ❌)
+    - Tags should be concise benefit names or key concept labels
+    - Set isHighlighted: true for EXACTLY ONE tag (typically the last/most important one)
+    - All other tags should have isHighlighted: false
+    - Think of tags as hashtags or single-concept labels, not full phrases or sentences
+    - Examples of good tags: "Scalability", "ROI", "Productivity", "Cost Reduction", "Growth", "Innovation"
+    - Examples of bad tags: "Better decision making process", "Increased customer satisfaction", "Improved workflow efficiency"
 
 - kpi-update-slide: title, items[] (array of {{value, description}}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
   • Purpose: Present KPI metrics with large values and detailed descriptions
