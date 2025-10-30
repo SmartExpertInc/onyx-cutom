@@ -101,6 +101,7 @@ For any item that doesn't have a clear "YES" answer in Step 2:
  If it's a tool not named in source  DELETE the specific tool name (keep generic description)
  If it's a made-up scenario  DELETE the entire example
  If it's an invented number  DELETE the number (use qualitative terms if needed)
+ If it's a percentage string (e.g., "50%", "30%", "3x") not in sources  DELETE or convert to qualitative wording
 
 STEP 4: FINAL CHECK
  Every fact in my output traces directly to source material?
@@ -114,7 +115,7 @@ If you cannot answer YES to all items in Step 4, you MUST revise before outputti
 
 
 
- STRICT SOURCE FIDELITY MODE (fromFiles=true)
+STRICT SOURCE FIDELITY MODE (fromFiles=true)
 
 
 ROLE: You are a RESTRUCTURER, not a CREATOR. Use ONLY what is in the source files.
@@ -123,6 +124,9 @@ ABSOLUTE RULES (NO EXCEPTIONS):
 1) Do NOT add frameworks, models, or tools not present in sources
    - Examples: Do NOT introduce AWS Well-Architected, Five Forces, PESTLE, etc., unless the sources explicitly describe them
 2) Do NOT invent numbers, budgets, metrics, or quantitative examples
+   - If a number/percentage is NOT present verbatim in sources, you MUST convert it to qualitative phrasing (e.g., "increased", "higher", "growing").
+   - ABSOLUTE BAN: Percentages anywhere in the one-pager when fromFiles=true unless the exact percent appears in sources.
+   - ABSOLUTE BAN: Multipliers (e.g., "2x", "3x"), growth rates, or ranges unless exactly present in sources.
 3) Do NOT create fictional companies, people, or scenarios
 4) Do NOT add new sections that are not supported by sources
    - If sources lack: worked examples, practice scenarios, common mistakes, recommendations, mental models  OMIT those sections entirely
@@ -149,6 +153,7 @@ FINAL FIDELITY CHECKLIST (MUST PASS ALL):
  No fictional scenarios or placeholder companies?
  Service and tool names appear verbatim in sources?
  If a section lacked support, it was omitted rather than invented?
+ No percentages or numeric claims appear unless the exact values are in sources?
 
 
 CRITICAL: THESE RULES APPLY TO ALL ONEPAGER GENERATION (FILES OR GENERAL KNOWLEDGE).
@@ -173,7 +178,7 @@ The examples show STRUCTURE, not content to copy:
 
 TOPIC-APPROPRIATE CONTENT SELECTION:
  For "AI in Sales" topic  Use: Sales Funnel, Lead Scoring, CRM, Customer Journey
- For "AWS" topic  Use: Well-Architected Framework, Cost Optimization, Security
+ For "AWS" topic  Use: Only frameworks explicitly present in sources when fromFiles=true; otherwise restructure source concepts without adding Well-Architected/Cost Explorer/etc.
  For "Python Programming" topic  Use: Testing Pyramid, Code Quality, Design Patterns
  For "Market Strategy" topic  Use: PESTLE, Five Forces, TAM/SAM/SOM
 
