@@ -896,6 +896,7 @@ export type TemplateId =
   | 'culture-values-three-columns'
   | 'percent-circles'
   | 'dei-methods'
+  | 'problems-grid'
 ;
 
 export interface TemplatePreview {

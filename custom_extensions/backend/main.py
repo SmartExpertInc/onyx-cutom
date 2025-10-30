@@ -1998,19 +1998,23 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         }
     },
     {
-      "slideId": "slide_16_four_box_grid",
+      "slideId": "slide_16_problems_grid",
       "slideNumber": 16,
-      "slideTitle": "Four Key Concepts",
-      "templateId": "four-box-grid",
-      "voiceoverText": "Let's break down the four essential concepts you need to understand. Each box represents a critical component that works together to form the complete picture.",
+      "slideTitle": "Key Challenges",
+      "templateId": "problems-grid",
+      "voiceoverText": "Let's examine the key challenges we face. Understanding these problems is crucial for developing effective solutions. Each challenge represents a critical area that requires attention.",
       "props": {
-        "title": "Four Key Concepts",
-        "boxes": [
-          { "heading": "Concept A", "text": "First key concept with detailed explanation of its importance" },
-          { "heading": "Concept B", "text": "Second key concept showing how it builds on the first" },
-          { "heading": "Concept C", "text": "Third key concept demonstrating practical application" },
-          { "heading": "Concept D", "text": "Fourth key concept tying everything together" }
-        ]
+        "tag": "The problem",
+        "title": "Key Challenges",
+        "cards": [
+          { "number": "1", "title": "Challenge One", "body": "First challenge with detailed explanation of its impact and significance" },
+          { "number": "2", "title": "Challenge Two", "body": "Second challenge showing how it compounds existing issues" },
+          { "number": "3", "title": "Challenge Three", "body": "Third challenge demonstrating real-world consequences" },
+          { "number": "4", "title": "Challenge Four", "body": "Fourth challenge highlighting the urgency for solutions" }
+        ],
+        "rightText": "These challenges are interconnected and require a comprehensive approach to address effectively. By understanding the root causes, we can develop targeted solutions that address each challenge systematically.",
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": "16"
       }
     },
     {
@@ -2320,21 +2324,28 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props.pop('subtitle')
                     logger.info(f"Removed subtitle from process-steps slide {slide_index + 1}")
                     
-            # Fix four-box-grid template props
-            elif template_id == 'four-box-grid':
-                boxes = normalized_props.get('boxes', [])
-                if boxes and isinstance(boxes, list):
-                    fixed_boxes = []
-                    for box in boxes:
-                        if isinstance(box, dict):
-                            # Convert title/content to heading/text
-                            fixed_box = {
-                                'heading': box.get('heading') or box.get('title', ''),
-                                'text': box.get('text') or box.get('content', '')
+            # Fix problems-grid template props
+            elif template_id == 'problems-grid':
+                cards = normalized_props.get('cards', [])
+                if cards and isinstance(cards, list):
+                    fixed_cards = []
+                    for card in cards:
+                        if isinstance(card, dict):
+                            # Ensure number, title, and body fields exist
+                            fixed_card = {
+                                'number': str(card.get('number', '')),
+                                'title': card.get('title', ''),
+                                'body': card.get('body', '')
                             }
-                            if fixed_box['heading']:  # Only add if heading exists
-                                fixed_boxes.append(fixed_box)
-                    normalized_props['boxes'] = fixed_boxes
+                            if fixed_card['title']:  # Only add if title exists
+                                fixed_cards.append(fixed_card)
+                    normalized_props['cards'] = fixed_cards[:4]  # Ensure exactly 4 cards
+                    
+                # Ensure required fields exist
+                if not normalized_props.get('tag'):
+                    normalized_props['tag'] = 'The problem'
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'These challenges require comprehensive solutions.'
                     
             # Fix two-column template props
             elif template_id == 'two-column':
@@ -3115,32 +3126,43 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = str(slide_index + 1)
 
-            elif template_id == 'four-box-grid':
-                # Ensure required props and normalize boxes
+            elif template_id == 'problems-grid':
+                # Ensure required props and normalize cards
+                if not normalized_props.get('tag'):
+                    normalized_props['tag'] = 'The problem'
                 if not normalized_props.get('title'):
-                    normalized_props['title'] = 'Four Key Concepts'
+                    normalized_props['title'] = 'Key Challenges'
 
-                boxes = normalized_props.get('boxes')
-                if not isinstance(boxes, list) or len(boxes) < 4:
-                    boxes = [
-                        { 'heading': 'Concept A', 'text': 'First key concept with detailed explanation' },
-                        { 'heading': 'Concept B', 'text': 'Second key concept showing how it builds on the first' },
-                        { 'heading': 'Concept C', 'text': 'Third key concept demonstrating practical application' },
-                        { 'heading': 'Concept D', 'text': 'Fourth key concept tying everything together' }
+                cards = normalized_props.get('cards')
+                if not isinstance(cards, list) or len(cards) < 4:
+                    cards = [
+                        { 'number': '1', 'title': 'Challenge One', 'body': 'First challenge with detailed explanation of its impact' },
+                        { 'number': '2', 'title': 'Challenge Two', 'body': 'Second challenge showing how it compounds existing issues' },
+                        { 'number': '3', 'title': 'Challenge Three', 'body': 'Third challenge demonstrating real-world consequences' },
+                        { 'number': '4', 'title': 'Challenge Four', 'body': 'Fourth challenge highlighting the urgency for solutions' }
                     ]
-                fixed_boxes = []
-                for box in boxes[:4]:  # Exactly 4 boxes
-                    if isinstance(box, dict):
-                        fixed_boxes.append({
-                            'heading': str(box.get('heading', 'Heading')),
-                            'text': str(box.get('text', 'Description'))
+                fixed_cards = []
+                for card in cards[:4]:  # Exactly 4 cards
+                    if isinstance(card, dict):
+                        fixed_cards.append({
+                            'number': str(card.get('number', '1')),
+                            'title': str(card.get('title', 'Challenge')),
+                            'body': str(card.get('body', 'Challenge description'))
                         })
                     else:
-                        fixed_boxes.append({
-                            'heading': 'Heading',
-                            'text': str(box)
+                        fixed_cards.append({
+                            'number': str(len(fixed_cards) + 1),
+                            'title': 'Challenge',
+                            'body': str(card)
                         })
-                normalized_props['boxes'] = fixed_boxes
+                normalized_props['cards'] = fixed_cards
+                
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'These challenges are interconnected and require a comprehensive approach to address effectively.'
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
 
             elif template_id == 'solution-steps-slide':
                 # Ensure required props and normalize steps
@@ -24055,7 +24077,7 @@ General Rules:
 
 MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 - You MUST use a wide variety of templates from the full catalog below. DO NOT repeat the same templates.
-- For 10-15 slides, use each template AT MOST ONCE, preferring: title-slide (1), bullet-points-right (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), table variants (1), pyramid (1).
+- For 10-15 slides, use each template AT MOST ONCE, preferring: title-slide (1), bullet-points-right (max 2), two-column (1), process-steps (1), problems-grid (1), timeline (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), table variants (1), pyramid (1).
 - Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
 - Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
 
@@ -24116,8 +24138,8 @@ Template Catalog with required props and usage:
   • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each.
 - process-steps: title, steps[]
   • Usage: sequential workflow; 3–5 labeled steps in a row.
-- four-box-grid: title, boxes[] (heading,text or title,content)
-  • Usage: 2×2 grid of highlights; four concise boxes.
+- problems-grid: tag, title, cards[] (number,title,body), rightText, [avatarPath]
+  • Usage: 2×2 grid of problems/challenges with narrative context and avatar.
 - timeline: title, events[] (date,title,description)
   • Usage: chronological milestones; left-to-right progression. Do not use event-list.
 - big-numbers: title, subtitle, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
@@ -24144,7 +24166,7 @@ CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
 - Prioritize variety: use different templates for different content types to maintain visual interest.
 - Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
-- NEVER use big-image-left or big-image-top templates after slide 1. Use bullet-points-right, four-box-grid, or other content-rich templates instead.
+- NEVER use big-image-left or big-image-top templates after slide 1. Use bullet-points-right, problems-grid, or other content-rich templates instead.
 """
         else:
             json_preview_instructions += f"""
@@ -24210,7 +24232,7 @@ RECOMMENDED TEMPLATE DISTRIBUTION:
   * benefits-tags-slide (for tag-style benefits)
   * kpi-update-slide (for KPI/metrics updates)
   * phishing-rise-slide (for rising trends/statistics)
-  * four-box-grid-slide (for 4-part content)
+  * problems-grid (for challenges/problems in 2x2 grid)
   * solution-steps-slide (for step-by-step solutions)
   * soft-skills-assessment-slide (for tips/recommendations)
   * hybrid-work-best-practices-slide (for best practices)
@@ -24427,13 +24449,19 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
     - Title: Keep concise (2-5 words) describing the trend or threat
     - CRITICAL DESCRIPTION LENGTH: description MUST be 20-30 words (150-200 characters)
 
-- four-box-grid: title, boxes[] (array of {{heading, text}})
-  • Purpose: Present four key concepts or features in a balanced 2x2 grid layout
-  • Structure: Title with four equal boxes arranged in 2 rows and 2 columns
-  • Required props: title (main heading), boxes (EXACTLY 4 boxes with heading and text fields)
-  • Visual elements: None (simple layout focused on content organization)
-  • Usage: Compare features, present quadrants, show four key points, or organize related concepts
-  • Content guidelines: Keep box headings concise (2-5 words); text can be 1-2 sentences; maintain consistent length across boxes
+- problems-grid: tag, title, cards[] (array of {{number, title, body}}), rightText, [avatarPath], [pageNumber]
+  • Purpose: Present key challenges, problems, or issues in a structured 2x2 grid layout with narrative context
+  • Structure: Tag badge at top, large title, four problem cards in 2x2 grid, right-side narrative text, and avatar display
+  • Required props: tag (category label like "The problem"), title (main heading), cards (EXACTLY 4 items with number, title, and body fields), rightText (comprehensive narrative explaining the problems)
+  • Visual elements: avatarPath (instructor/representative image), pageNumber (slide numbering)
+  • Usage: Identify challenges, present problems, showcase issues, or highlight critical concerns requiring attention
+  • Content guidelines: 
+    - MANDATORY: cards array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
+    - Each card must have number (like "1", "2", "3", "4"), title (concise problem name), and body (detailed explanation 1-2 sentences)
+    - Tag should be concise (1-3 words) identifying the category
+    - Title should clearly state what problems are being presented
+    - rightText MUST be comprehensive (2-3 sentences) explaining the interconnected nature of problems or their significance
+    - Maintain consistent depth and professional tone across all problem cards
 
 - solution-steps-slide: subtitle, title, steps[] (array of {{title, description}}), [profileImagePath], [logoNew], [pageNumber]
   • Purpose: Present sequential solution steps with visual timeline
