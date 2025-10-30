@@ -1946,25 +1946,37 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         }
     },
     {
-      "slideId": "slide_14_kpi_update",
-      "slideNumber": 14,
-      "slideTitle": "KPI Update",
-      "templateId": "kpi-update-slide",
-      "voiceoverText": "Let's review our key performance indicators. These metrics demonstrate measurable progress and highlight areas where we're achieving significant results.",
-      "props": {
-        "title": "KPI Update",
+    "slideId": "slide_14_kpi_update",
+    "slideNumber": 14,
+    "slideTitle": "Q1 2025 KPI Update",
+    "templateId": "kpi-update-slide",
+    "voiceoverText": "Let's review our quarterly key performance indicators. These four critical metrics demonstrate measurable progress across our organization and highlight the areas where we're achieving the most significant results and exceeding our strategic targets.",
+    "props": {
+        "title": "Q1 2025 KPI Update",
         "items": [
-          { "value": "10%", "description": "Improvement in efficiency across all teams this quarter" },
-          { "value": "75", "description": "New features successfully deployed to production" },
-          { "value": "86%", "description": "Customer satisfaction rating, exceeding our target" },
-          { "value": "1M", "description": "Active users reached, marking a major milestone" }
+        { 
+            "value": "24%", 
+            "description": "Year-over-year revenue growth, significantly exceeding our 15% target and demonstrating strong market performance across all product lines and geographic regions." 
+        },
+        { 
+            "value": "127", 
+            "description": "New enterprise features successfully deployed to production this quarter, representing a 40% increase in delivery velocity compared to Q4 2024." 
+        },
+        { 
+            "value": "92%", 
+            "description": "Customer satisfaction score based on quarterly NPS survey, marking our highest rating ever and reflecting improvements in product quality and support responsiveness." 
+        },
+        { 
+            "value": "2.8M", 
+            "description": "Total active users milestone reached in March, representing 35% quarter-over-quarter growth and validating our product-market fit in key demographics." 
+        }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "footerLeft": "Company name",
-        "footerCenter": "KPI Report",
-        "footerRight": "February 2023",
+        "footerLeft": "TechCorp Industries",
+        "footerCenter": "Quarterly KPI Report",
+        "footerRight": "Q1 2025",
         "pageNumber": "14"
-      }
+    }
     },
     {
       "slideId": "slide_15_phishing_rise",
@@ -24383,10 +24395,34 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 - kpi-update-slide: title, items[] (array of {{value, description}}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
   • Purpose: Present KPI metrics with large values and detailed descriptions
   • Structure: Light panel with title pill, grid layout of values and descriptions, profile image in bottom-left
-  • Required props: title (report name), items (array of 3-4 KPI objects with value like "10%" or "1M" and description text)
+  • Required props: title (report name), items (EXACTLY 4 KPI objects with numeric value and description text)
   • Visual elements: profileImagePath (profile image with blue background), footer text for company/report/date
   • Usage: Display key performance indicators, metrics reports, or quantified results
-  • Content guidelines: Values should be concise metrics; descriptions can be 1-2 sentences; maintain consistent formatting
+  • Content guidelines:
+    - MANDATORY: items array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
+    - CRITICAL VALUE FORMAT: Each item.value MUST be a NUMERIC metric - NEVER use words or text labels
+      * REQUIRED: Values must contain numbers (digits 0-9)
+      * ACCEPTABLE formats:
+        - Percentages: "15%", "92.5%", "100%"
+        - Integers: "50", "127", "1000"
+        - Decimals: "3.2", "45.8", "99.9"
+        - Large numbers with suffixes: "1.5M", "2.8M", "500K", "3.5B"
+        - Currency: "$50M", "€2.5K", "£100K"
+        - Ratios: "3:1", "95:5"
+      * FORBIDDEN formats:
+        - Text labels: "High" ❌, "Excellent" ❌, "Strong" ❌
+        - Words: "Many" ❌, "Most" ❌, "Few" ❌
+        - Qualitative terms: "Significant" ❌, "Improved" ❌
+    - Description requirements:
+      * Each description should be detailed (20-30 words / 140-160 characters)
+      * Explain what the metric represents and why it matters
+      * Include context: comparison to targets, trends, or previous periods
+      * Use specific, quantifiable language
+    - Footer fields should provide context:
+      * footerLeft: Company/department name
+      * footerCenter: Report type (e.g., "Quarterly KPI Report", "Performance Dashboard")
+      * footerRight: Time period (e.g., "Q1 2025", "January 2025")
+    - Maintain consistent formatting across all 4 KPIs for professional appearance
 
 - phishing-rise-slide: title, description, bars[] (array of {{year, valueLabel, height}}), [actorImagePath], [pageNumber]
   • Purpose: Show trend data or threat growth with vertical bar chart
