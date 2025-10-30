@@ -34080,6 +34080,212 @@ async def stripe_webhook(
                 except Exception as ae:
                     logger.error(f"Failed to sync add-ons: {ae}")
 
+        elif event['type'] == 'invoice.payment_failed':
+            invoice = event['data']['object']
+            customer_id = invoice.get('customer')
+            attempt_count = invoice.get('attempt_count')
+            reason = None
+            try:
+                # Try to get detailed failure reason from the PaymentIntent if present
+                import stripe  # type: ignore
+                pi_id = invoice.get('payment_intent')
+                if pi_id:
+                    pi = stripe.PaymentIntent.retrieve(pi_id)
+                    last_err = (pi.get('last_payment_error') if isinstance(pi, dict) else getattr(pi, 'last_payment_error', None)) or {}
+                    # Prefer error message; fall back to code
+                    reason = last_err.get('message') or last_err.get('code')
+                # Fallbacks
+                if not reason:
+                    reason = (invoice.get('last_finalization_error') or {}).get('message') or invoice.get('status')
+            except Exception as e:
+                logger.warning(f"[BILLING] Failed to retrieve payment failure reason: {e}")
+
+            # Lookup user and track
+            onyx_user_id = None
+            try:
+                async with pool.acquire() as conn:
+                    rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+                    if rec:
+                        onyx_user_id = rec['onyx_user_id']
+                if onyx_user_id:
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Payment Failed",
+                        {
+                            "reason": reason,
+                            "attempt_count": attempt_count,
+                        }
+                    )
+            except Exception as track_err:
+                logger.warning(f"Failed to track payment failure to Mixpanel: {track_err}")
+
+        elif event['type'] == 'customer.subscription.created':
+            sub = event['data']['object']
+            subscription_id = sub.get('id') if isinstance(sub, dict) else getattr(sub, 'id', None)
+            customer_id = sub.get('customer') if isinstance(sub, dict) else getattr(sub, 'customer', None)
+            # Ensure we have expanded price.product to read plan name easily when possible
+            try:
+                import stripe  # type: ignore
+                subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+            except Exception:
+                subscription = sub
+
+            # Determine base tier plan and price
+            plan = None
+            price_id = None
+            amount_major = None
+            currency = None
+            try:
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list:
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        tier_key = PRICE_TO_TIER.get(item_price_id or '', '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            break
+                    # If still not found, fallback to first item's product name
+                    if not plan and len(data_list) > 0:
+                        price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = (product_name or '').lower()
+                        if 'business' in lowered:
+                            plan = 'business'
+                        elif 'pro' in lowered:
+                            plan = 'pro'
+
+                # Amount and currency from base plan price
+                if price_id:
+                    try:
+                        import stripe  # type: ignore
+                        p = stripe.Price.retrieve(price_id)
+                        unit_amount = getattr(p, 'unit_amount', None)
+                        currency = getattr(p, 'currency', None)
+                        if unit_amount is not None:
+                            amount_major = round(unit_amount / 100.0, 2)
+                    except Exception as pe:
+                        logger.warning(f"[BILLING] Failed to retrieve price for subscription.created: {pe}")
+            except Exception as e:
+                logger.warning(f"[BILLING] Failed to parse subscription.created: {e}")
+
+            start_date = (subscription.get('start_date') if isinstance(subscription, dict) else getattr(subscription, 'start_date', None))
+
+            # Lookup user and track
+            try:
+                async with pool.acquire() as conn:
+                    rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+                if rec:
+                    onyx_user_id = rec['onyx_user_id']
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Subscription Created",
+                        {
+                            "Plan Type": plan.capitalize() if plan else None,
+                            "Subscription Id": subscription_id,
+                            "Amount": amount_major,
+                            "Start Date": start_date,
+                            "Currency": currency.upper() if currency else None,
+                        }
+                    )
+            except Exception as track_err:
+                logger.warning(f"Failed to track subscription.created to Mixpanel: {track_err}")
+
+        elif event['type'] == 'customer.subscription.downgraded':
+            subscription_obj = event['data']['object']
+            subscription_id = subscription_obj.get('id') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'id', None)
+            customer_id = subscription_obj.get('customer') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'customer', None)
+
+            logger.info(f"[BILLING] customer.subscription.downgraded event: subscription_id={subscription_id}, customer_id={customer_id}")
+
+            # Re-fetch subscription with expanded product data
+            import stripe  # type: ignore
+            subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+
+            # Find user and existing plan/price
+            async with pool.acquire() as conn:
+                user_record = await conn.fetchrow(
+                    "SELECT onyx_user_id, current_plan, current_price_id FROM user_billing WHERE stripe_customer_id = $1",
+                    customer_id
+                )
+
+            if user_record:
+                onyx_user_id = user_record['onyx_user_id']
+                existing_plan = user_record['current_plan']
+                old_price_id = user_record['current_price_id']
+
+                # Determine new plan/price from subscription items
+                plan = None
+                price_id = None
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list:
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            break
+
+                # Compute price difference using normalized monthly logic
+                price_difference_major = None
+                new_ccy = None
+                try:
+                    old_amt = old_ccy = old_interval = None
+                    new_amt = new_interval = None
+
+                    if old_price_id:
+                        old_price = stripe.Price.retrieve(old_price_id)
+                        old_amt = getattr(old_price, 'unit_amount', None)
+                        old_ccy = getattr(old_price, 'currency', None)
+                        old_rec = getattr(old_price, 'recurring', None) or {}
+                        old_interval = old_rec.get('interval')
+
+                    if price_id:
+                        new_price = stripe.Price.retrieve(price_id)
+                        new_amt = getattr(new_price, 'unit_amount', None)
+                        new_ccy = getattr(new_price, 'currency', None)
+                        new_rec = getattr(new_price, 'recurring', None) or {}
+                        new_interval = new_rec.get('interval')
+
+                    def to_monthly(amount_cents, interval):
+                        if amount_cents is None:
+                            return None
+                        if interval == 'month':
+                            return float(amount_cents)
+                        if interval == 'year':
+                            return float(amount_cents) / 12.0
+                        return float(amount_cents)
+
+                    if old_amt is not None and new_amt is not None and old_ccy and new_ccy and old_ccy == new_ccy:
+                        old_monthly = to_monthly(old_amt, old_interval)
+                        new_monthly = to_monthly(new_amt, new_interval)
+                        if old_monthly is not None and new_monthly is not None:
+                            price_difference_major = round((new_monthly - old_monthly) / 100.0, 2)
+                except Exception as e:
+                    logger.warning(f"[BILLING] Failed to compute downgrade price difference: {e}")
+
+                # Track downgrade
+                try:
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Plan Downgraded",
+                        {
+                            "New Plan": plan.capitalize() if plan else None,
+                            "Old Plan": existing_plan.capitalize() if existing_plan else None,
+                            "Price Difference": price_difference_major,
+                            "Currency": new_ccy.upper() if price_difference_major is not None and new_ccy else None,
+                        }
+                    )
+                except Exception as track_err:
+                    logger.warning(f"Failed to track plan downgrade to Mixpanel: {track_err}")
+
         elif event['type'] == 'customer.subscription.deleted':
             subscription = event['data']['object']
             customer_id = subscription.get('customer')
