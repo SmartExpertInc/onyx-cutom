@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { PhishingRiseSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import SimpleRichTextEditor from '../SimpleRichTextEditor';
@@ -347,14 +348,17 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
         {/* Avatar */}
         <div style={avatarHolder}>
-          <ClickableImagePlaceholder
-            imagePath={actorImagePath}
-            onImageUploaded={(p: string) => onUpdate && onUpdate({ actorImagePath: p })}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Actor"
-            isEditable={isEditable}
-            style={{ height: '126%', borderRadius: '50%', objectFit: 'cover' }}
+            style={{
+              width: '88%',
+              height: '135%',
+              borderRadius: '50%',
+              position: 'relative',
+              bottom: '0px',
+              objectFit: 'cover'
+            }}
           />
         </div>
       </div>
