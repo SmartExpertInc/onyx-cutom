@@ -24443,10 +24443,20 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 - solution-steps-slide: subtitle, title, steps[] (array of {{title, description}}), [profileImagePath], [logoNew], [pageNumber]
   • Purpose: Present sequential solution steps with visual timeline
   • Structure: Subtitle chip, main title, profile image, horizontal timeline with circles, and step descriptions below
-  • Required props: subtitle (category like "The Solution"), title (main heading), steps (array of 3 steps with title and description)
+  • Required props: subtitle (category like "The Solution"), title (main heading), steps (EXACTLY 3 steps with title and description)
   • Visual elements: profileImagePath (profile image with blue background), logoNew (branding), timeline with connecting circles
   • Usage: Show step-by-step guides, sequential solutions, process workflows, or implementation phases
-  • Content guidelines: Keep step titles concise (e.g., "Step 1", "Know the Regulations"); descriptions should be actionable; limit to 3 steps for optimal layout
+  • Content guidelines:
+    - MANDATORY: steps array MUST contain EXACTLY 3 items (not 2, not 4 - exactly 3)
+    - Step title format: Use "Step 1", "Step 2", "Step 3" or similar sequential numbering
+    - CRITICAL DESCRIPTION LENGTH: Each step.description MUST be very concise (3-5 words MAXIMUM)
+      * REQUIRED: Keep descriptions ultra-short - they are labels, not explanations
+      * ACCEPTABLE examples: "Know the Regulations" (3 words), "Conduct Risk Assessments" (3 words), "Implement Security Measures" (3 words)
+      * FORBIDDEN: Long sentences or detailed explanations (e.g., "Conduct a comprehensive risk assessment across all departments" ❌)
+    - Think of descriptions as action labels or phase names, not detailed instructions
+    - The visual timeline displays these steps horizontally with connecting circles
+    - Steps should follow logical sequence: preparation → execution → validation/completion
+    - Use imperative verbs for descriptions: "Assess", "Implement", "Monitor", "Validate", "Deploy"
 
 - hybrid-work-best-practices-slide: title, subtitle, mainStatement, practices[] (array of {{number, title, description}}), [profileImagePath], [teamImagePath], [logoPath], [logoText], [pageNumber]
   • Purpose: Present best practices or recommendations in a 2x2 grid with supporting statement
