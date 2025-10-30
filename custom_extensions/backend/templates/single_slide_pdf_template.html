@@ -509,28 +509,28 @@
         }
 
         .pyramid-text-block.level-0 {
-            top: 10px;
-            right: 50px;
+            top: 0px;
+            right: 20px;
             text-align: right;
         }
         .pyramid-text-block.level-1 {
-            top: 70px;
-            left: 50px;
+            top: 55px;
+            left: 20px;
             text-align: left;
         }
         .pyramid-text-block.level-2 {
-            top: 130px;
-            left: 50px;
+            top: 110px;
+            left: 20px;
             text-align: left;
         }
         .pyramid-text-block.level-3 {
-            top: 190px;
-            left: 50px;
+            top: 165px;
+            left: 20px;
             text-align: left;
         }
         .pyramid-text-block.level-4 {
-            top: 250px;
-            right: 50px;
+            top: 220px;
+            right: 20px;
             text-align: right;
         }
 
@@ -561,11 +561,11 @@
             z-index: 10;
         }
 
-        .pyramid-triangle.level-0 { top: 30px; right: 30%; }
-        .pyramid-triangle.level-1 { top: 90px; left: 30%; }
-        .pyramid-triangle.level-2 { top: 150px; left: 30%; }
-        .pyramid-triangle.level-3 { top: 210px; left: 30%; }
-        .pyramid-triangle.level-4 { top: 270px; right: 30%; }
+        .pyramid-triangle.level-0 { top: 20px; right: 240px; }
+        .pyramid-triangle.level-1 { top: 75px; left: 240px; }
+        .pyramid-triangle.level-2 { top: 130px; left: 240px; }
+        .pyramid-triangle.level-3 { top: 185px; left: 240px; }
+        .pyramid-triangle.level-4 { top: 240px; right: 240px; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -1646,8 +1646,8 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            height: 100%;
-            min-height: 600px;
+            height: 100vh;
+            min-height: 100%;
             background-color: #1a2b6b;
             padding: 40px;
             box-sizing: border-box;
@@ -1658,7 +1658,7 @@
             flex: 0 0 auto;
             padding: 30px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
         
         .six-ideas-title {
@@ -1714,18 +1714,21 @@
         
         .six-ideas-bottom-section {
             flex: 1 1 auto;
-            width: 100%;
-            min-height: 250px;
+            width: calc(100% + 80px);
+            min-height: 300px;
             border-radius: 0;
             overflow: hidden;
-            margin: 0 -40px -40px -40px;
-            padding: 20px 40px 0 40px;
+            margin: 20px -40px -40px -40px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
         }
         
         .image-section {
             width: 100%;
             height: 100%;
-            border-radius: 8px;
+            min-height: 300px;
+            border-radius: 0;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -1736,7 +1739,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 0;
         }
         
         .image-placeholder {
@@ -2240,7 +2243,7 @@
             position: absolute;
             top: 75%;
             left: 5px;
-            right: 120px;
+            right: 150px;
             height: 2px;
             background-color: #0F58F9;
             transform: translateY(-50%);
@@ -2338,7 +2341,7 @@
 .timeline-line {
     position: absolute;
     top: 155px;
-    left: calc(50% - 330px);
+    left: calc(50% - 360px);
     width: 115%;
     height: 2px;
     background: #0F58F9;

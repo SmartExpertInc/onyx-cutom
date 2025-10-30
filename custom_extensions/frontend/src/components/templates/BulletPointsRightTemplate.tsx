@@ -286,8 +286,8 @@ function UnifiedBulletEditor({
         style={{ 
           padding: '4px', 
           borderRadius: '4px',
-          border: '1px solid #3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.05)',
+          border: '1px solid rgba(59, 130, 246, 0)',
+          backgroundColor: 'transparent',
           position: 'relative',
           width: '100%',
           minWidth: 0,
@@ -298,7 +298,10 @@ function UnifiedBulletEditor({
           listStyle: 'none',
           padding: 0,
           margin: 0,
-          width: '100%'
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
@@ -313,9 +316,9 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '30px',
+                marginBottom: '35px',
                 minHeight: '1.6em',
-                width: '80%'
+                width: '100%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -426,9 +429,7 @@ function UnifiedBulletEditor({
                       boxShadow: 'none',
                       resize: 'none',
                       overflow: 'hidden',
-                      width: '150%', 
-                      minWidth: '430px',
-                      maxWidth: '650px',
+                      width: '100%',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       minHeight: '1.6em',
@@ -477,7 +478,7 @@ function UnifiedBulletEditor({
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '35px',
-            width: '80%'
+            width: '100%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
