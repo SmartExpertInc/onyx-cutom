@@ -1188,6 +1188,52 @@ Marketing Topic Examples:
 ❌ "AIDA model" → CANNOT use unless source teaches AIDA
 ❌ "HubSpot for marketing automation" → CANNOT use unless source mentions HubSpot
 
+🚨 CRITICAL: ILLUSTRATIVE EXAMPLES WITH MADE-UP METRICS ARE FORBIDDEN 🚨
+
+You might think: "The source explains the concept, so I'll create an example to make it concrete."
+This is FORBIDDEN. Do NOT create illustrative examples with quantitative data.
+
+FORBIDDEN PATTERN - "Making concepts concrete" with invented metrics:
+❌ "A leading retailer implemented AI and saw a 30% increase in sales" → FORBIDDEN even if trying to illustrate AI benefits
+❌ "A tech company improved conversion rates by 25% using AI" → FORBIDDEN even if source discusses AI improving conversions
+❌ "A financial institution reduced response times by 40%" → FORBIDDEN even if source mentions response time improvements
+❌ "A B2B company increased upselling by 20%" → FORBIDDEN even if source covers upselling
+❌ "Company X migrated to cloud and saved $500K annually" → FORBIDDEN even if source discusses cost savings
+
+THE PROBLEM:
+- Source says: "AI can improve sales conversion rates"
+- You think: "I'll make this concrete with: 'Company saw 25% conversion increase'"
+- This is FABRICATION. The 25% is invented. The company is fictional.
+
+THE RULE:
+If source provides CONCEPT without EXAMPLE → Explain the CONCEPT without adding an EXAMPLE
+If source provides EXAMPLE without METRICS → Describe the EXAMPLE without adding METRICS
+If source provides neither EXAMPLE nor METRICS → Do NOT create them
+
+ALLOWED vs FORBIDDEN:
+
+✅ ALLOWED (source says "AI improves lead scoring"):
+"AI-powered lead scoring helps sales teams prioritize high-value prospects by analyzing behavioral patterns and engagement signals."
+
+❌ FORBIDDEN (adding illustrative example):
+"AI-powered lead scoring helps sales teams prioritize prospects. For example, a B2B company implemented AI lead scoring and increased qualified leads by 40%."
+→ The "40%" is made-up. The "B2B company" is fictional. This is fabrication.
+
+✅ ALLOWED (source says "chatbots reduce response times"):
+"AI chatbots provide instant responses to customer inquiries, reducing wait times and improving customer satisfaction."
+
+❌ FORBIDDEN (adding illustrative metrics):
+"AI chatbots provide instant responses. A financial services company deployed chatbots and reduced response times from 2 hours to 15 minutes, handling 80% of inquiries automatically."
+→ The "2 hours to 15 minutes" is made-up. The "80%" is invented. This is fabrication.
+
+EVEN IF IT MAKES CONTENT "MORE CONCRETE" OR "MORE ENGAGING":
+→ You CANNOT add illustrative examples with quantitative data
+→ You CANNOT create "realistic" case studies with metrics
+→ You CANNOT invent percentages to show impact
+→ You CANNOT fabricate company scenarios with results
+
+If source doesn't provide concrete examples → Keep explanations conceptual
+
 THE RULE:
 If you're thinking "I know [fact] about [topic]" → STOP.
 Ask: "Does this specific fact appear in the source documents?"
