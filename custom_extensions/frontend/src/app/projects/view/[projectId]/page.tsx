@@ -44,7 +44,7 @@ import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
-import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
+// import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -1407,6 +1407,8 @@ export default function ProjectInstanceViewPage() {
     }
 
     // Special handling for text presentations
+    // Commented out - generateTextPresentationHtml function not available
+    /*
     if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
         console.log('🔍 PDF Download Debug - Text Presentation detected, starting PDF generation...');
         setIsExportingPdf(true);
@@ -1479,6 +1481,7 @@ export default function ProjectInstanceViewPage() {
         }
       return;
     }
+    */
 
     // Special handling for slide decks and video lesson presentations  
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
