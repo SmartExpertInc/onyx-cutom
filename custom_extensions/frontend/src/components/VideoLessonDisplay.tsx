@@ -34,14 +34,15 @@ const VideoLessonDisplay = ({
 
   return (
     <div 
-      className="flex gap-4 mt-[5px] mx-auto mb-[5px]" 
+      className="mt-[5px] mx-auto mb-[5px]" 
       style={{ 
         height: 'calc(100vh - 85px)',
         maxWidth: '1376px',
         width: '100%',
         display: 'grid',
-        gridTemplateColumns: 'repeat(12, 92.67px)',
-        gap: '24px'
+        gridTemplateColumns: 'repeat(12, 1fr)',
+        gap: '24px',
+        padding: '0'
       }}
     >
       {/* Main Content Area - Horizontal layout */}
@@ -49,8 +50,8 @@ const VideoLessonDisplay = ({
       {/* Grid container for 1440px viewport: 12 columns × 92.67px, 24px gutters */}
       {/* Parent has 32px padding on each side (64px total), leaving 1376px for grid */}
       
-      {/* Left section - 7 columns */}
-      <div style={{ gridColumn: 'span 7' }}>
+      {/* Left section - 8 columns */}
+      <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column' }}>
         <div 
           className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
           style={{ 
@@ -60,15 +61,15 @@ const VideoLessonDisplay = ({
         >
           <p className="text-gray-400 text-lg">Video lesson area</p>
         </div>
-        
+
         {/* Title and Action Buttons */}
         <div className="flex items-center justify-between mt-4">
           {/* Left: Video Lesson Title */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               {dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
-            </h2>
-          </div>
+                    </h2>
+                  </div>
           
           {/* Right: Action Buttons */}
           <div className="flex gap-3">
@@ -100,16 +101,16 @@ const VideoLessonDisplay = ({
               </svg>
               Export
             </button>
-          </div>
-        </div>
-      </div>
+                  </div>
+                  </div>
+                  </div>
 
-      {/* Right section - 5 columns */}
-      <div style={{ gridColumn: 'span 5' }}>
+      {/* Right section - 4 columns */}
+      <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column' }}>
         <div 
           className="flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]"
           style={{ 
-            height: '100%',
+            flex: 1,
             width: '100%'
           }}
         >
