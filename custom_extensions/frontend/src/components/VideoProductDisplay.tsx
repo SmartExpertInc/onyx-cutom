@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { trackSaveDraft } from '@/lib/mixpanelClient';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
