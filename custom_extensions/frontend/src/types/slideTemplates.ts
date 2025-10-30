@@ -846,7 +846,6 @@ export type TemplateId =
   | 'process-steps'
   | 'challenges-solutions'
   | 'hero-title-slide'
-  | 'four-box-grid'
   | 'timeline'
   | 'big-numbers'
   | 'pyramid'
