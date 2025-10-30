@@ -31809,9 +31809,7 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
     
     # If generating from files, append STRICT SOURCE FIDELITY rules (mirror presentation fidelity)
     try:
-        print("\n\n\n\nHERE\n\n\n", getattr(payload, 'selectedFiles', False))
         if getattr(payload, 'selectedFiles', False):
-            print("\n\n\n\nHER2E\n\n\n")
             wizard_message += """
 
 ════════════════════════════════════════════════════════════════════════════

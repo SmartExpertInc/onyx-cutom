@@ -615,6 +615,47 @@ When fromFiles=true, SOURCE FIDELITY takes ABSOLUTE PRIORITY over length require
 - If source lacks certain sections (e.g., practice exercises), OMIT those sections entirely
 - Do NOT state "This topic not covered" - simply don't include that section
 
+🚨 SPECIAL RULES FOR TEXT PRESENTATIONS (ONE-PAGERS) FROM FILES:
+═══════════════════════════════════════════════════════════════════════════
+
+When creating Text Presentations (one-pagers) from files, these ADDITIONAL strict rules apply:
+
+❌ PROHIBITED ADDITIONS (NEVER ADD THESE):
+1. ❌ DO NOT introduce frameworks/methodologies not described in sources
+   - Example: If source says "AWS cloud services", do NOT add "AWS Well-Architected Framework" unless source describes it
+   - Example: If source covers "market basics", do NOT add "PESTLE Analysis" or "Five Forces" unless source teaches them
+2. ❌ DO NOT name specific tools/services not mentioned in sources
+   - Example: If source says "cost monitoring", do NOT introduce "AWS Cost Explorer" or "AWS Budgets" by name
+   - Example: If source says "use monitoring", do NOT specify "CloudWatch" or "DataDog" unless source names them
+3. ❌ DO NOT create worked examples with made-up companies or scenarios
+   - Example: Do NOT invent "Tech Startup XYZ", "ShopSmart", or any fictional company scenarios
+4. ❌ DO NOT add quantitative data not in sources
+   - Example: Do NOT add "$200,000 budget", "10,000 users", "500GB data", "GDPR/HIPAA compliance" unless in source
+5. ❌ DO NOT create skill practice scenarios with specific requirements
+   - Example: Do NOT invent migration scenarios with budgets, user counts, or compliance needs
+6. ❌ DO NOT add numbered steps, procedures, or checklists beyond what sources provide
+   - Example: If source gives 3 steps, do NOT expand to 7 steps with your own knowledge
+
+✅ REQUIRED OMISSIONS FOR ONE-PAGERS FROM FILES:
+When source material lacks these elements, OMIT them entirely (do not create from general knowledge):
+- Mental Models / Frameworks section → OMIT if source doesn't describe specific frameworks
+- Worked Examples section → OMIT if source doesn't provide complete example scenarios
+- Common Mistakes section → OMIT if source doesn't list specific mistakes with analysis
+- Skill Practice section → OMIT if source doesn't include practice exercises or scenarios
+- Decision Frameworks section → OMIT if source doesn't provide decision criteria
+- Tools & Services section → OMIT if source doesn't name specific tools
+
+⚠️ CRITICAL VERIFICATION FOR ONE-PAGERS FROM FILES:
+Before finalizing any Text Presentation from files, verify:
+□ Every framework/methodology name appears explicitly in source?
+□ Every tool/service name appears explicitly in source?
+□ Every worked example scenario comes from source (not invented)?
+□ Every number/metric/budget appears in source (not made-up)?
+□ Sections without source support were omitted (not created)?
+□ No fictional companies or people were invented?
+
+If answer is NO to any item above, you MUST remove that content before output.
+
 🎨 ADAPTIVE TEMPLATE SELECTION FOR fromFiles=true:
 ═══════════════════════════════════════════════════════════════════════════
 
