@@ -31242,62 +31242,29 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
       ]
     },
     
-    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply Your Learning" },
-    { "type": "paragraph", "text": "Now let's test your understanding with a realistic scenario. Work through this analysis using the frameworks and steps you've learned." },
+    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply [YOUR TOPIC]" },
+    { "type": "paragraph", "text": "Now test your understanding with a realistic, topic-specific scenario. Complete the tasks using the frameworks and steps you've learned for [your topic] — do not switch to business or market analysis unless the topic itself is market strategy." },
     
-    { "type": "paragraph", "text": "**Scenario**: GlobalSensors Inc. manufactures industrial sensors ($500/unit) primarily for automotive manufacturing (70% of revenue) and aerospace (30% of revenue). Total revenue: $25M annually. They're considering entering the agricultural technology market. Your task is to conduct a preliminary market analysis." },
+    { "type": "paragraph", "text": "**Scenario**: You are working on [your topic]. You have the following context: [brief, topic-appropriate setup with concrete details]. Your goal is to apply [topic frameworks/techniques] to decide on the next best actions and explain your reasoning." },
     
-    { "type": "headline", "level": 3, "text": "Available Data" },
+    { "type": "headline", "level": 3, "text": "What You Have" },
     { "type": "bullet_list", "items": [
-      "Agricultural technology market size: $12B globally, growing at 8% annually.",
-      "Three major competitors control 60% combined market share: AgriTech Solutions, FarmSense, and CropMonitor. Pricing ranges from $300-$800 per unit.",
-      "Your sensors have tighter tolerances (0.1mm vs. industry standard 0.2mm) but most agricultural applications don't require that precision.",
-      "GlobalSensors has zero existing agricultural customer relationships or distribution channels.",
-      "Sales cycles: Current business 3-6 months, agricultural sector typically 6-12 months.",
-      "Agricultural customers are highly price-sensitive and seasonal in their purchasing."
+      "[Data point A relevant to the topic]",
+      "[Data point B relevant to the topic]",
+      "[Constraint or requirement relevant to the topic]",
+      "[Tooling or resources available relevant to the topic]"
     ] },
     
-    { "type": "headline", "level": 3, "text": "Your Analysis Tasks" },
+    { "type": "headline", "level": 3, "text": "Your Tasks" },
     { "type": "numbered_list", "items": [
-      "Define the specific target market (don't just say 'agriculture').",
-      "Identify the first data you would collect and explain why (top 5 priorities).",
-      "List the 3 biggest risks for this market entry.",
-      "Using Five Forces, assess two forces that concern you most.",
-      "State the conditions that would make you recommend NOT entering this market."
+      "Outline your approach using [topic-appropriate framework or steps].",
+      "Perform the key analysis or design steps and state assumptions.",
+      "Identify 2-3 risks or trade-offs and how you'd mitigate them.",
+      "Provide a concrete recommendation with justification tied to the data."
     ] },
     
-    { "type": "headline", "level": 3, "text": "Expert Analysis" },
-    { "type": "headline", "level": 4, "text": "Market Definition" },
-    { "type": "paragraph", "text": "Don't target 'agriculture' broadly—too diverse. Focus on 'precision agriculture for large commercial farms (1,000+ acres) in North America growing commodity crops (corn, soybeans, wheat).' Rationale: large farms have budget for optimization technology; commodity crops have thin margins making efficiency gains valuable; North America leverages existing geographic footprint. Exclude: small farms (limited budget), specialty crops (different needs), and international markets initially (regulatory and distribution complexity)." },
-    { "type": "headline", "level": 4, "text": "Data Collection Priorities" },
-    { "type": "numbered_list", "items": [
-      "Interview 20-30 large farm operators to understand sensor needs, buying process, and pain points (critical primary research).",
-      "Analyze competitors' positioning and segments from websites, case studies, and reviews to identify strengths/gaps.",
-      "Talk to 5-10 agricultural equipment distributors to understand channel dynamics (you'll need distribution).",
-      "Attend two agricultural technology conferences to observe buying behavior and network with potential customers.",
-      "Commission a focused industry report on precision agriculture sensor adoption rates and barriers to validate target segment size."
-    ] },
-    { "type": "headline", "level": 4, "text": "Top 3 Risks" },
-    { "type": "numbered_list", "items": [
-      "Channel risk: no agricultural distribution relationships; building them takes 12-18 months against entrenched competitors.",
-      "Product-market fit risk: your precision differentiator isn't valued; customers optimize for price and durability over tolerances.",
-      "Sales cycle risk: 6-12 month cycles (vs. current 3-6) + seasonal purchasing windows strain cash flow and slow iteration."
-    ] },
-    { "type": "headline", "level": 4, "text": "Five Forces Concerns" },
-    { "type": "bullet_list", "items": [
-      "Bargaining Power of Buyers: HIGH — price-sensitive commodity farmers see sensors as commoditized; switching is easy → margin pressure.",
-      "Threat of Substitutes: MEDIUM-HIGH — traditional methods (observation, experience, simple instruments) remain viable 'good enough' alternatives."
-    ] },
-    { "type": "headline", "level": 4, "text": "Conditions for No-Go" },
-    { "type": "numbered_list", "items": [
-      "Customer interviews show no willingness to pay for precision advantage.",
-      "Distribution partners demand exclusivity/minimums that conflict with current business.",
-      "Realistic SOM < $5M in three years — insufficient to justify channel investment and distraction.",
-      "Active price wars with margin compression — race to the bottom is value-destructive.",
-      "Regulatory/liability risks (crop yield impact) exceed current insurance coverage."
-    ] },
-    { "type": "headline", "level": 4, "text": "Recommendation" },
-    { "type": "paragraph", "text": "Likely NO-GO unless a specific niche emerges. Core issues: precision isn't valued, distribution is missing, and dynamics favor price competition. Potential pivot: target agricultural research institutions and university programs (value precision, different buying processes) as a beachhead before commercial expansion; validate separately." },
+    { "type": "headline", "level": 3, "text": "Walkthrough Solution (Expert Reasoning)" },
+    { "type": "paragraph", "text": "Explain your reasoning step-by-step using [topic frameworks/techniques], referencing the provided data. Keep it specific to [your topic]; do not introduce market-entry, PESTLE, or Five Forces unless the topic is market strategy." },
     
     { "type": "alert", "alertType": "info", "title": "Key Takeaway", "text": "Market analysis is an ongoing process, not a one-time task. Regularly revisiting and updating your analysis ensures that your business strategies remain aligned with market realities and ahead of competitive forces. The most successful companies treat market analysis as a continuous learning system that informs every major decision." },
     
