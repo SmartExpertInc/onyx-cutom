@@ -52,7 +52,9 @@ export default function QuizClient() {
 
   // Total lessons & credit cost (stored in sessionStorage)
   const storedCreditsData = sessionStorage.getItem('creditsReference');
-  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).quiz : 7;
+  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).credits_reference.find(
+    (item: any) => item.content_type === "quiz"
+  )?.credits_amount : 7;
   
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);

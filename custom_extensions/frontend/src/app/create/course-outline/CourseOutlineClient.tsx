@@ -1166,7 +1166,9 @@ export default function CourseOutlineClient() {
   // Total lessons & credit cost (stored in sessionStorage)
   const lessonsTotal = useMemo(() => preview.reduce((sum, m) => sum + m.lessons.length, 0), [preview]);
   const storedCreditsData = sessionStorage.getItem('creditsReference');
-  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).course_outline : 5;
+  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).credits_reference.find(
+    (item: any) => item.content_type === "course_outline"
+  )?.credits_amount : 5;
 
   // Predefined theme preview data to match provided mockup
   const themeOptions = [

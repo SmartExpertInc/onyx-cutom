@@ -97,7 +97,9 @@ export default function TextPresentationClient() {
 
   // Total lessons & credit cost (stored in sessionStorage)
   const storedCreditsData = sessionStorage.getItem('creditsReference');
-  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).one_pager : 7;
+  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).credits_reference.find(
+    (item: any) => item.content_type === "onepager"
+  )?.credits_amount : 7;
 
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
