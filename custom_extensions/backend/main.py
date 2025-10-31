@@ -11197,28 +11197,52 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         temp_chat_id = await create_onyx_chat_session(search_persona_id, cookies)
         logger.info(f"[CONNECTOR_CONTEXT] Created search chat session: {temp_chat_id}")
         
-        # Create a comprehensive search prompt (similar to Knowledge Base approach)
+        # Create a comprehensive search-and-extract prompt with verbatim snippets
+        connector_sources_csv = ", ".join(connector_list)
         search_prompt = f"""
-        Please search within the following connector sources for information relevant to this topic: "{prompt}"
-        
-        Search only within these specific sources: {', '.join(connector_list)}
-        
-        I need you to:
-        1. Search within the specified connector sources only
-        2. Find the most relevant information related to this topic
-        3. Provide a comprehensive summary of what you find
-        4. Extract key topics, concepts, and important details
-        5. Identify any specific examples, case studies, or practical applications
-        
-        Please format your response as:
-        SUMMARY: [comprehensive summary of relevant information found]
-        KEY_TOPICS: [comma-separated list of key topics and concepts]
-        IMPORTANT_DETAILS: [specific details, examples, or practical information]
-        RELEVANT_SOURCES: [mention of any specific documents or sources that were particularly relevant]
-        
-        Focus only on content from these connector sources: {', '.join(connector_list)}
-        Be thorough and comprehensive in your search and analysis.
-        """
+You are a CONNECTOR SEARCH AND EXTRACTION specialist. Work ONLY within these connector sources: {connector_sources_csv}. Topic: "{prompt}".
+
+STRICT RULES:
+- Use ONLY content found in the specified connector sources. No external knowledge.
+- Prefer documents with strong topical match; skip generic/low-signal files.
+- Extract VERBATIM passages (exact wording). No paraphrasing.
+- Diversify across different high-signal documents; avoid repeating near-duplicates.
+
+PROCESS:
+1) High-recall search: expand the topic with synonyms/phrases and find candidate docs.
+2) Rank candidates by topical relevance and information density. Keep top 12.
+3) For each selected doc, extract 3–5 key snippets (50–200 words each) that directly support the topic.
+4) Deduplicate near-identical snippets across docs (keep the clearest one).
+5) Cite every snippet with source metadata.
+
+OUTPUT FORMAT (exactly):
+SUMMARY: <=200 words summary of findings from these connectors only.
+KEY_TOPICS: comma-separated list (<=12)
+IMPORTANT_DETAILS:
+- Up to 10 bullets of concrete facts (numbers, names, definitions) from sources only
+EXTRACTED_CONTENT:
+[DOC 1]
+- SOURCE_DOC: <name or path>
+- CONNECTOR: <e.g., SmartDrive/GoogleDrive>
+- DOC_ID: <id if available>
+- SNIPPETS:
+  1) "<verbatim passage>"
+     - WHY_RELEVANT: <brief reason>
+     - CONFIDENCE: High/Med/Low
+  2) ...
+
+[DOC 2]
+- SOURCE_DOC: ...
+- ...
+
+RELEVANT_SOURCES:
+- <doc name/path> — reason for inclusion
+- ...
+
+CONSTRAINTS:
+- If there are hundreds of files, include only the most relevant 5–12 documents.
+- Prefer dense, example-rich or data-rich sections.
+"""
         
         # Use the Search persona to perform the connector-filtered search
         logger.info(f"[CONNECTOR_CONTEXT] Sending search request to Search persona with connector filters")
@@ -11231,11 +11255,12 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         if len(search_result) == 0:
             logger.warning(f"[CONNECTOR_CONTEXT] Search result is empty! This might indicate no documents in connectors or search failed")
         
-        # Parse the search result - handle Onyx response format (same as Knowledge Base)
+        # Parse the search result - handle extended connector format with EXTRACTED_CONTENT
         summary = ""
         key_topics = []
         important_details = ""
         relevant_sources = ""
+        extracted_snippets: List[Dict[str, Any]] = []
         
         # Extract content flexibly using string searching
         logger.info(f"[CONNECTOR_CONTEXT] Starting content extraction from search result")
@@ -11278,6 +11303,49 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
             relevant_sources = search_result[sources_start:].strip()
             logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {len(relevant_sources)} chars")
         
+        # Try to parse EXTRACTED_CONTENT blocks with snippets
+        if "EXTRACTED_CONTENT:" in search_result:
+            try:
+                content_start = search_result.find("EXTRACTED_CONTENT:") + len("EXTRACTED_CONTENT:")
+                tail = search_result[content_start:]
+                current_doc: Dict[str, Any] = None
+                for raw_line in tail.splitlines():
+                    line = raw_line.strip()
+                    if not line:
+                        continue
+                    if line.startswith("[DOC "):
+                        if current_doc:
+                            extracted_snippets.append(current_doc)
+                        current_doc = {"source_doc": None, "connector": None, "doc_id": None, "snippets": []}
+                    elif line.startswith("- SOURCE_DOC:") and current_doc is not None:
+                        current_doc["source_doc"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- CONNECTOR:") and current_doc is not None:
+                        current_doc["connector"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- DOC_ID:") and current_doc is not None:
+                        current_doc["doc_id"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- SNIPPETS:"):
+                        # header, skip
+                        pass
+                    elif line[0].isdigit() and ') "' in line:
+                        # snippet line like:  1) "<verbatim>"
+                        try:
+                            first_quote = line.find('"')
+                            last_quote = line.rfind('"')
+                            snippet_text = line[first_quote+1:last_quote]
+                            if current_doc is not None and snippet_text:
+                                current_doc["snippets"].append({"text": snippet_text})
+                        except Exception:
+                            continue
+                    elif line.startswith("- WHY_RELEVANT:") and current_doc is not None and current_doc.get("snippets"):
+                        current_doc["snippets"][-1]["why"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- CONFIDENCE:") and current_doc is not None and current_doc.get("snippets"):
+                        current_doc["snippets"][-1]["confidence"] = line.split(":", 1)[1].strip()
+                if current_doc:
+                    extracted_snippets.append(current_doc)
+                logger.info(f"[CONNECTOR_CONTEXT] Parsed connector snippets: {sum(len(d.get('snippets', [])) for d in extracted_snippets)} total")
+            except Exception as perr:
+                logger.warning(f"[CONNECTOR_CONTEXT] Failed to parse EXTRACTED_CONTENT: {perr}")
+        
         # Final fallback if still no content
         if not summary and not key_topics:
             summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
@@ -11290,7 +11358,17 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         logger.info(f"[CONNECTOR_CONTEXT] Extracted important details: {important_details[:200]}...")
         logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {relevant_sources[:200]}...")
         
-        # Return context in the same format as knowledge base context
+        # Build combined raw content from snippets for downstream token budgeting
+        combined_raw = "\n\n".join(
+            [
+                f"[{doc.get('source_doc','Unknown')}]\n" + "\n\n".join(
+                    [s.get('text','') for s in doc.get('snippets', []) if s.get('text')]
+                )
+                for doc in extracted_snippets if doc.get('snippets')
+            ]
+        )
+
+        # Return context in the same format as knowledge base context, plus snippets/raw
         return {
             "connector_search": True,
             "topic": prompt,
@@ -11300,6 +11378,8 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
             "important_details": important_details,
             "relevant_sources": relevant_sources,
             "full_search_result": search_result,
+            "extracted_snippets": extracted_snippets,
+            "extracted_raw_content": combined_raw,
             "file_summaries": [{
                 "file_id": "connector_search",
                 "name": f"Connector Search: {', '.join(connector_list)}",
@@ -12460,19 +12540,23 @@ NOW GENERATE THE REQUESTED PRODUCT:
         except Exception:
             pass
 
-    # Add extracted content block (verbatim excerpts), clipped to safe size
-    file_contents = file_context.get("file_contents") or []
-    if file_contents:
-        # Join and trim to ~20k chars to stay within token limits
+    # Add extracted content block (verbatim excerpts) using token-aware budgeting
+    try:
+        assembled_text = assemble_context_with_budget(
+            original_prompt=original_prompt,
+            file_context=file_context,
+            product_type=product_type,
+            model="gpt-4o-mini"
+        )
+        if assembled_text:
+            enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+            enhanced_prompt += assembled_text + "\n\n"
+    except Exception as ass_err:
+        logger.error(f"[FIDELITY_DEBUG] Assembler failed, falling back to simple clip: {ass_err}")
+        file_contents = file_context.get("file_contents") or []
         joined = "\n\n".join([c for c in file_contents if c])
-        max_len = 20000
-        used_text = joined[:max_len]
         enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
-        enhanced_prompt += used_text + "\n\n"
-        try:
-            logger.info(f"[FIDELITY_DEBUG] Using extracted content | total_len={len(joined)} | used_len={len(used_text)} | clipped={len(joined) > len(used_text)}")
-        except Exception:
-            pass
+        enhanced_prompt += joined[:20000] + "\n\n"
     
     # Add specific instructions for the product type with enhanced formatting guidance
     if product_type == "Course Outline":
@@ -12592,6 +12676,130 @@ NOW GENERATE THE REQUESTED PRODUCT:
 """
     
     return enhanced_prompt
+
+# ---- Token-budgeted, relevance-ranked assembler ----
+def _safe_encoding(model: str):
+    try:
+        return tiktoken.encoding_for_model(model)
+    except Exception:
+        return tiktoken.get_encoding("cl100k_base")
+
+def _count_tokens(text: str, enc) -> int:
+    try:
+        return len(enc.encode(text or ""))
+    except Exception:
+        return len((text or "").split())
+
+def _chunk_text(text: str, enc, target_tokens: int = 800, overlap_tokens: int = 120) -> List[str]:
+    if not text:
+        return []
+    tokens = enc.encode(text)
+    chunks = []
+    i = 0
+    n = len(tokens)
+    step = max(1, target_tokens - overlap_tokens)
+    while i < n:
+        window = tokens[i:i+target_tokens]
+        chunks.append(enc.decode(window))
+        i += step
+    return chunks
+
+def _simple_relevance(prompt: str, chunk: str) -> float:
+    # Keyword overlap + length prior (favor denser chunks)
+    p_words = set([w.lower() for w in re.findall(r"[A-Za-z0-9_]+", prompt or "") if len(w) > 2])
+    if not p_words:
+        return 0.0
+    c_words = [w.lower() for w in re.findall(r"[A-Za-z0-9_]+", chunk or "")]
+    if not c_words:
+        return 0.0
+    overlap = sum(1 for w in c_words if w in p_words)
+    density = overlap / max(1, len(c_words))
+    return overlap + 5.0 * density
+
+def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, Any], product_type: str, model: str) -> str:
+    enc = _safe_encoding(model)
+    # Global budget assumptions (approximate): keep room for system + output
+    total_budget = 100000
+    reserve_for_completion = 12000 if product_type in {"Course Outline", "Lesson Presentation", "Video Lesson Presentation"} else 8000
+    reserve_for_scaffold = 6000
+    available = max(10000, total_budget - reserve_for_completion - reserve_for_scaffold)
+
+    # Gather candidate texts: file_contents + connector extracted_raw_content (if any)
+    candidates: List[Tuple[str, str]] = []  # (source_id, text)
+    for idx, c in enumerate(file_context.get("file_contents") or []):
+        if c:
+            candidates.append((f"file_{idx}", c))
+    # Add connector raw content if present
+    connector_raw = file_context.get("extracted_raw_content") or ""
+    if connector_raw:
+        candidates.append(("connectors", connector_raw))
+
+    if not candidates:
+        return ""
+
+    # Score sources by rough relevance (use first 2000 chars per source as proxy)
+    source_scores: List[Tuple[str, float]] = []
+    for sid, txt in candidates:
+        sample = txt[:2000]
+        score = _simple_relevance(original_prompt, sample)
+        source_scores.append((sid, score))
+    # Normalize and allocate per-source budgets with floors/ceilings
+    total_score = sum(s for _, s in source_scores) or 1.0
+    min_per_source = 3000
+    max_per_source = max(min_per_source, available // 2)
+    allocations: Dict[str, int] = {}
+    remaining = available
+    # First pass proportional
+    for sid, s in source_scores:
+        share = int(available * (s / total_score)) if total_score > 0 else available // len(source_scores)
+        allocations[sid] = min(max(share, min_per_source), max_per_source)
+    # Adjust to sum to available
+    total_alloc = sum(allocations.values())
+    if total_alloc > available:
+        factor = available / total_alloc
+        for sid in allocations:
+            allocations[sid] = max(min_per_source, int(allocations[sid] * factor))
+    elif total_alloc < available:
+        # Distribute remainder
+        remainder = available - total_alloc
+        for sid, _ in sorted(source_scores, key=lambda x: -x[1]):
+            take = min(remainder, max_per_source - allocations[sid])
+            allocations[sid] += take
+            remainder -= take
+            if remainder <= 0:
+                break
+
+    # Build ranked chunks per source
+    assembled_parts: List[str] = []
+    for sid, full_text in candidates:
+        budget = allocations.get(sid, 0)
+        if budget <= 0:
+            continue
+        chunks = _chunk_text(full_text, enc, target_tokens=900, overlap_tokens=120)
+        ranked = sorted(chunks, key=lambda ch: _simple_relevance(original_prompt, ch), reverse=True)
+        taken_tokens = 0
+        selected: List[str] = []
+        for ch in ranked:
+            ct = _count_tokens(ch, enc)
+            if taken_tokens + ct > budget:
+                # take a slice to fit
+                remaining_tokens = max(0, budget - taken_tokens)
+                if remaining_tokens <= 0:
+                    break
+                # approximate trim by characters
+                frac = remaining_tokens / max(1, ct)
+                approx_len = int(len(ch) * frac)
+                selected.append(ch[:approx_len])
+                taken_tokens = budget
+                break
+            selected.append(ch)
+            taken_tokens += ct
+            if taken_tokens >= budget:
+                break
+        header = "[CONNECTORS]" if sid == "connectors" else f"[SOURCE {sid}]"
+        assembled_parts.append(header + "\n" + "\n\n".join(selected))
+
+    return "\n\n".join(assembled_parts)
 
 async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini", wizard_payload: dict = None):
     """
