@@ -52,10 +52,10 @@ export default function LoginPage({
           </h2>
           <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
           {NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED && (
-            <div className="flex mt-4 justify-between">
+            <div className="flex mt-4 justify-center">
               <Link
                 href="/auth/forgot-password"
-                className="ml-auto text-link font-medium"
+                className="text-blue-600 font-semibold"
               >
                 Reset Password
               </Link>
@@ -90,7 +90,7 @@ export default function LoginPage({
             <div className="flex mt-4 justify-center">
               <Link
                 href="/auth/forgot-password"
-                className="text-link font-medium"
+                className="text-blue-600 font-semibold"
               >
                 Reset Password
               </Link>
