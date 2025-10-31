@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ContactSalesModal from '@/components/ui/contact-sales-modal';
+import PlanComparisonModal from '@/components/ui/plan-comparison-modal';
 
 const CoinsIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg width="27" height="27" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -120,8 +121,11 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     connectors: 1
   });
   const [showContactSales, setShowContactSales] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const modalRef = React.useRef<HTMLDivElement>(null);
   const contactSalesTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const comparisonTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
     const p = (planRaw || 'starter').toLowerCase();
@@ -170,11 +174,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     }
   }, []);
 
-  // Cleanup timeout on unmount
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (contactSalesTimeoutRef.current) {
         clearTimeout(contactSalesTimeoutRef.current);
+      }
+      if (comparisonTimeoutRef.current) {
+        clearTimeout(comparisonTimeoutRef.current);
       }
     };
   }, []);
@@ -439,8 +446,12 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[93vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
+        <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`} />
+      <DialogContent className={`sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[93vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm transition-all duration-300 ${
+        isClosing 
+          ? 'opacity-0 scale-95 translate-y-4' 
+          : 'opacity-100 scale-100 translate-y-0'
+      }`} hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -501,26 +512,28 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
                 {plans.map((plan) => (
                     <div key={plan.id} className="relative flex flex-col">
+                      {/* Most Popular Badge - Outside Card */}
+                      {plan.popular && (
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center gap-1.5 shadow-md">
+                          {t('tariffPlan.mostPopular', 'Most Popular')}
+                          <Star className="w-3 h-3 fill-white" />
+                        </div>
+                      )}
+                      
                       <div
                         className={`rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex flex-col h-full overflow-hidden bg-white ${
                           plan.popular 
-                          ? 'border-blue-500' 
+                          ? 'border-blue-500 mt-4' 
                           : 'border-gray-200'
                         }`}
                       >
-                        {plan.popular && (
-                          <div className="bg-blue-600 text-white px-3 py-1.5 text-xs xl:text-sm font-medium font-public-sans text-center flex items-center justify-center gap-1.5">
-                              {t('tariffPlan.mostPopular', 'Most Popular')}
-                            <Star className="w-3 h-3 fill-white" />
-                          </div>
-                        )}
                     
                     {/* Card Header */}
                     <div className='p-4 bg-white'>
                       <h3 className='text-lg xl:text-xl font-bold font-public-sans mb-2 text-[#0D001B]'>
                         {plan.name}
                       </h3>
-                      <div className={plan.popular ? 'text-white' : 'text-gray-900'}>
+                      <div className='text-gray-900'>
                         {plan.id === 'enterprise' ? (
                           <>
                             <div className="text-3xl xl:text-4xl font-public-sans font-bold">
@@ -548,7 +561,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                         e.stopPropagation();
                                         setTeamSeats(Math.max(2, teamSeats - 1));
                                       }}
-                                      className="w-5 h-5 py-1 flex items-center justify-center border-r border-[#E0E0E0] text-[#4D4D4D] rounded-l-md text-xs font-bold"
+                                      className="w-5 h-5 py-1 flex items-center justify-center border-r border-[#E0E0E0] text-[#4D4D4D] rounded-l-md text-lg font-bold"
                                     >
                                       -
                                     </button>
@@ -558,7 +571,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                         e.stopPropagation();
                                         setTeamSeats(teamSeats + 1);
                                       }}
-                                      className="w-5 h-5 flex py-1 items-center justify-center border-l border-[#E0E0E0] text-[#4D4D4D] rounded-r-md text-xs font-bold"
+                                      className="w-5 h-5 flex py-1 items-center justify-center border-l border-[#E0E0E0] text-[#4D4D4D] rounded-r-md text-lg font-bold"
                                     >
                                       +
                                     </button>
@@ -737,12 +750,17 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <button
                         onClick={() => {
                           if (plan.name.includes('Enterprise')) {
-                            // Close tariff modal first
-                            onOpenChange(false);
+                            // Trigger closing animation
+                            setIsClosing(true);
+                            // Close tariff modal
+                            setTimeout(() => {
+                              onOpenChange(false);
+                              setIsClosing(false);
+                            }, 200);
                             // Wait for close animation, then open contact sales modal
                             contactSalesTimeoutRef.current = setTimeout(() => {
                               setShowContactSales(true);
-                            }, 300);
+                            }, 400);
                           } else if (plan.id !== 'starter' && plan.id !== currentPlanId) {
                             handlePurchasePlan(plan);
                           }
@@ -768,7 +786,22 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 ))}
               </div>
               <div className="text-center mt-6 mb-2">
-                <button className="text-blue-600 hover:text-blue-700 p-2 border border-blue-600 rounded-md font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                <button 
+                  onClick={() => {
+                    // Trigger closing animation
+                    setIsClosing(true);
+                    // Close tariff modal
+                    setTimeout(() => {
+                      onOpenChange(false);
+                      setIsClosing(false);
+                    }, 200);
+                    // Wait for close animation, then open comparison modal
+                    comparisonTimeoutRef.current = setTimeout(() => {
+                      setShowComparison(true);
+                    }, 400);
+                  }}
+                  className="text-blue-600 hover:text-blue-700 p-2 border border-blue-600 rounded-md font-medium text-sm inline-flex items-center gap-1 transition-colors"
+                >
                   {t('tariffPlan.seeFullComparison', 'See Full Comparison')}
                   <ArrowRight className="w-4 h-4" />
                 </button>
@@ -879,6 +912,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
       </DialogContent>
       </Dialog>
       <ContactSalesModal open={showContactSales} onOpenChange={setShowContactSales} />
+      <PlanComparisonModal open={showComparison} onOpenChange={setShowComparison} />
     </>
   );
 };

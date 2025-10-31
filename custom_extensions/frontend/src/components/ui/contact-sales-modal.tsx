@@ -53,7 +53,15 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
   });
   const [copied, setCopied] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Trigger animation when modal opens
+  useEffect(() => {
+    if (open) {
+      setIsAnimating(true);
+    }
+  }, [open]);
 
   const countries: Country[] = [
     { code: 'US', dialCode: '+1', name: 'United States', flag: <USFlag /> },
@@ -112,18 +120,22 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white" hideCloseIcon>
+      <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`} />
+      <DialogContent className={`sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/90 blur-sm transition-all duration-300 ${
+        isAnimating 
+          ? 'opacity-100 scale-100 translate-y-0' 
+          : 'opacity-0 scale-95 -translate-y-4'
+      }`} hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-10 p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="absolute top-4 right-4 z-10 p-1 bg-white hover:bg-gray-100 rounded-full shadow-xl transition-colors"
           aria-label="Close"
         >
           <X className="w-5 h-5 text-gray-600" />
         </button>
 
-        <div className="p-8">
+        <div className="px-8 py-13">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left Section - Textual Information */}
             <div className="flex flex-col">
@@ -136,7 +148,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
               </p>
 
               {/* Contact Email */}
-              <div className="flex items-center gap-2 border border-[#E6E6E6] rounded-full px-4 py-2 w-fit">
+              <div className="flex items-center gap-2 border border-[#E6E6E6] rounded-full px-4 py-1.5 w-fit">
                 <span className="text-[#4D4D4D] text-sm">contact@contentbuilder.ai</span>
                 <button
                   onClick={handleCopyEmail}
@@ -192,11 +204,11 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                       name="teamSize"
                       value={formData.teamSize}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm text-[#171718] appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm text-[#878787] appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
                     >
                       <option className="text-gray-400" value="" disabled hidden>Team size</option>
                       {teamSizes.map((size) => (
-                        <option className="text-gray-400" key={size} value={size}>
+                        <option className="text-gray-600" key={size} value={size}>
                           {size}
                         </option>
                       ))}
@@ -224,10 +236,10 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                     <button
                       type="button"
                       onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white hover:bg-gray-50 transition-colors border-r border-gray-200"
+                      className="flex items-center gap-2 px-3 py-2.5 bg-white hover:bg-gray-50 transition-colors"
                     >
                       {selectedCountry.flag}
-                      <span className="text-sm text-[#171718] font-medium">{selectedCountry.dialCode}</span>
+                      <span className="text-sm text-[#878787] font-medium">{selectedCountry.dialCode}</span>
                       <ChevronDown className="w-4 h-4 text-gray-400" />
                     </button>
                     
