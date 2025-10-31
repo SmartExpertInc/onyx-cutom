@@ -1,11 +1,12 @@
 // custom_extensions/frontend/src/components/templates/CultureValuesThreeColumnsSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   logoText?: string;
@@ -21,7 +22,10 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
-export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
+export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { 
+  theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+}> = ({
   slideId,
   logoText = 'Your Logo',
   logoPath = '',
@@ -36,7 +40,8 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   avatarPath = '',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editLogo, setEditLogo] = useState(false);
@@ -49,6 +54,15 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const [editRight, setEditRight] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('40');
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const leftTitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const leftTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const middleTitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const middleTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const rightTitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const rightTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'black', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };

@@ -46,6 +46,9 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
     const cleanedStyle = { ...style };
     delete cleanedStyle.fontWeight;
     delete cleanedStyle.fontStyle;
+    // Ensure text can be selected - remove userSelect if present
+    delete cleanedStyle.userSelect;
+    delete (cleanedStyle as any).userSelect;
 
     const editor = useEditor({
       extensions: [
@@ -205,6 +208,15 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           /* Span tags can have inline styles for font-family, font-size, and color */
           .controlled-wysiwyg-editor span {
             /* Inline styles will override via specificity */
+          }
+          
+          /* Ensure text selection works */
+          .controlled-wysiwyg-editor,
+          .controlled-wysiwyg-editor * {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
           }
         `;
         document.head.appendChild(style);

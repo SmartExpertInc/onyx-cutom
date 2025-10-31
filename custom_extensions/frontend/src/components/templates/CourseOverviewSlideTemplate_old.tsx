@@ -310,7 +310,6 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                userSelect: 'none',
                 position: 'relative',
                 padding: '8px 12px',
                 border: '1px solid rgba(255,255,255,0.3)',
