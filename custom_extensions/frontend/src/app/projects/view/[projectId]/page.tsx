@@ -44,6 +44,7 @@ import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
+import { FeedbackButton } from '@/components/ui/feedback-button';
 // import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
 
 // Localization config for column labels based on product language
@@ -2353,6 +2354,9 @@ export default function ProjectInstanceViewPage() {
         onClose={handleClosePdfModal}
       />
     </main>
+    
+    {/* Feedback Button */}
+    <FeedbackButton />
     </>
   );
 }
