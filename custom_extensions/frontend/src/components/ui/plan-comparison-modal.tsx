@@ -119,7 +119,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[90vh]">
           {/* Header Section - Sticky */}
-          <div className="top-0 z-10 bg-white border-b border-gray-200 p-8 pb-6">
+          <div className="top-0 z-10 bg-white p-8 pb-0">
             <h2 className="text-3xl font-bold text-[#171718] mb-2 text-center">
               Plans that fit your scale
             </h2>
@@ -171,32 +171,36 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   {/* Plan Card */}
                   <div className={`border-t border-l border-r bg-white ${
                     plan.popular ? 'border-blue-500' : 'border-gray-200 rounded-t-2xl'
-                  } overflow-hidden shadow-sm`}>
+                  } overflow-hidden`}>
                     {/* Card Content */}
                     <div className="p-4">
                       <h3 className="text-lg font-bold text-[#171718] mb-2">{plan.name}</h3>
-                      <div className="text-3xl font-bold text-[#171718] mb-1">
-                        {plan.price}
-                        {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
-                      </div>
                       
-                      {plan.hasSeats && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <button 
-                            onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
-                            className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="px-3 py-1 bg-gray-100 rounded text-sm">{teamSeats} seats</span>
-                          <button 
-                            onClick={() => setTeamSeats(teamSeats + 1)}
-                            className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
+                      {/* Price and Seats on same line */}
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="text-3xl font-bold text-[#171718]">
+                          {plan.price}
+                          {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
                         </div>
-                      )}
+                        
+                        {plan.hasSeats && (
+                          <div className="flex items-center gap-1">
+                            <button 
+                              onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
+                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="px-2 py-1 bg-gray-100 rounded text-sm">{teamSeats} seats</span>
+                            <button 
+                              onClick={() => setTeamSeats(teamSeats + 1)}
+                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       
                       <p className="text-xs text-gray-500 mb-3">{plan.billing}</p>
                       
@@ -244,16 +248,16 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                       {category.features.map((feature, featureIndex) => (
                         <tr key={featureIndex} className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="p-4 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
-                          <td className="p-4 text-center" style={{ width: '20%' }}>
+                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.starter)}
                           </td>
-                          <td className="p-4 text-center" style={{ width: '20%' }}>
+                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.creator)}
                           </td>
-                          <td className="p-4 text-center" style={{ width: '20%' }}>
+                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.team)}
                           </td>
-                          <td className="p-4 text-center" style={{ width: '20%' }}>
+                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.enterprise)}
                           </td>
                         </tr>
