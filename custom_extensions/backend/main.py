@@ -202,6 +202,21 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+async def fetch_current_onyx_user_id_via_me(cookies: Dict[str, str]) -> Optional[str]:
+    """Fetch current Onyx user id by calling /me using provided cookies."""
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(f"{ONYX_API_SERVER_URL}/me", cookies=cookies)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("id") or data.get("user_id")
+    except Exception as e:
+        try:
+            logger.warning(f"[USER_ID_FETCH] Failed to fetch user id via /me: {e}")
+        except Exception:
+            pass
+        return None
+
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -11242,7 +11257,7 @@ RELEVANT_SOURCES:
 CONSTRAINTS:
 - If there are hundreds of files, include only the most relevant 5–12 documents.
 - Prefer dense, example-rich or data-rich sections.
-"""
+        """
         
         # Use the Search persona to perform the connector-filtered search
         logger.info(f"[CONNECTOR_CONTEXT] Sending search request to Search persona with connector filters")
@@ -12697,12 +12712,12 @@ NOW GENERATE THE REQUESTED PRODUCT:
             model="gpt-4o-mini"
         )
         if assembled_text:
-            enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+        enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
             enhanced_prompt += assembled_text + "\n\n"
-            try:
+        try:
                 logger.info(f"[ASSEMBLER_OUTPUT] BEGIN EXTRACTED_CONTENT BLOCK\n{assembled_text}\n[ASSEMBLER_OUTPUT] END EXTRACTED_CONTENT BLOCK")
-            except Exception:
-                pass
+        except Exception:
+            pass
     except Exception as ass_err:
         logger.error(f"[FIDELITY_DEBUG] Assembler failed, falling back to simple clip: {ass_err}")
         file_contents = file_context.get("file_contents") or []
@@ -17678,7 +17693,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
                         smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
-                        onyx_user_id = await get_current_onyx_user_id(Request(scope={}))
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
                             if file_ids:
@@ -30687,7 +30702,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         # Reuse existing mapping flow
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
                         smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
-                        onyx_user_id = await get_current_onyx_user_id(Request(scope={}))  # best-effort; environment provides Depends elsewhere
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)  # best-effort using /me
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
                             if file_ids:
@@ -32402,7 +32417,7 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
                         smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
-                        onyx_user_id = await get_current_onyx_user_id(Request(scope={}))
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
                             if file_ids:
