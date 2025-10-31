@@ -66,8 +66,9 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
       return;
     }
 
-    // Build props with placeholders for all text fields in the schema
     const placeholder = 'Add your text here';
+
+    // Build props with placeholders for all text fields in the schema
     const initialProps: Record<string, any> = { ...template.defaultProps };
     const schema = (template as any).propSchema || {};
     Object.entries(schema).forEach(([key, def]: [string, any]) => {
@@ -76,13 +77,32 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
       }
     });
 
-    // Ensure common fields are set as well
-    initialProps.title = typeof initialProps.title === 'string' && initialProps.title.trim().length > 0
-      ? placeholder
-      : placeholder;
-    if (typeof initialProps.content === 'string') {
-      initialProps.content = placeholder;
-    }
+    // Recursively sanitize common narrative text fields across nested structures
+    const narrativeKeys = new Set([
+      'title', 'subtitle', 'description', 'content', 'text', 'body', 'paragraph', 'paragraphs', 'message'
+    ]);
+    const chartLabelSkipKeys = new Set(['year', 'valueLabel']);
+
+    const sanitize = (node: any) => {
+      if (node && typeof node === 'object') {
+        if (Array.isArray(node)) {
+          node.forEach(sanitize);
+        } else {
+          Object.keys(node).forEach((k) => {
+            const v = node[k];
+            if (typeof v === 'string' && narrativeKeys.has(k)) {
+              node[k] = placeholder;
+            } else if (typeof v === 'string' && chartLabelSkipKeys.has(k)) {
+              // leave chart-specific labels as-is
+            } else if (Array.isArray(v) || (v && typeof v === 'object')) {
+              sanitize(v);
+            }
+          });
+        }
+      }
+    };
+
+    sanitize(initialProps);
 
     const newSlide: ComponentBasedSlide = {
       slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -110,7 +130,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
             <button
               key={template.id}
               onClick={() => handleAddSlide(template.id)}
-              className="w-full p-4 border border-gray-200 rounded-lg bg_white cursor-pointer flex items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
+              className="w-full p-4 border border-gray-200 rounded-lg bg-white cursor-pointer flex items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
             >
               <div className="flex-shrink-0 text-2xl mt-0.5 group-hover:scale-110 transition-transform">
                 {template.icon}
