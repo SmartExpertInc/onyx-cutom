@@ -110,7 +110,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+          className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
           aria-label="Close"
         >
           <X className="w-5 h-5 text-gray-600" />
@@ -162,15 +162,15 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                 <div key={plan.id} className="relative col-span-1">
                   {/* Most Popular Badge */}
                   {plan.popular && (
-                    <div className="absolute -top-8 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-md text-xs font-medium flex items-center justify-center gap-1 shadow-md">
+                    <div className="absolute -top-6 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-md text-xs font-medium flex items-center justify-center gap-1 shadow-md">
                       Most Popular
                       <Sparkles className="w-3 h-3 fill-white" />
                     </div>
                   )}
 
                   {/* Plan Card */}
-                  <div className={`border bg-white ${
-                    plan.popular ? 'border-blue-500 rounded-b-2xl' : 'border-gray-200 rounded-2xl'
+                  <div className={`border-t border-l border-r bg-white ${
+                    plan.popular ? 'border-blue-500' : 'border-gray-200 rounded-t-2xl'
                   } overflow-hidden shadow-sm`}>
                     {/* Card Content */}
                     <div className="p-4">

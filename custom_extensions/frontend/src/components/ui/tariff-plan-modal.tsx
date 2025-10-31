@@ -440,7 +440,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1300px] max-w-[1200px] xl:max-w-[1400px] xl:w-[98vw] w-[92vw] rounded-2xl p-0 max-h-[90vh] min-w-[950px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1350px] max-w-[1250px] xl:max-w-[1450px] xl:w-[95vw] w-[93vw] rounded-2xl p-0 max-h-[90vh] min-w-[980px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -450,10 +450,11 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <X className="w-5 h-5 xl:w-6 xl:h-6 text-[#71717A]" />
         </button>
         
-        <div className="h-[93vh] max-h-[750px] w-full overflow-y-auto custom-scrollbar">
+        <div className="h-[90vh] max-h-[750px] w-full overflow-y-auto custom-scrollbar">
           <style jsx>{`
             .custom-scrollbar::-webkit-scrollbar {
               width: 10px;
+              border-radius: 50px;
             }
 
             .custom-scrollbar::-webkit-scrollbar-track {
@@ -463,21 +464,22 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
             }
 
             .custom-scrollbar::-webkit-scrollbar-thumb {
-              background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+              background: #A5A5A5;
               border-radius: 5px;
             }
 
             .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-              background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+              background:rgb(135, 135, 135);
             }
 
             .custom-scrollbar {
               scrollbar-width: thin;
-              scrollbar-color: #3b82f6 #f1f5f9;
+              scrollbar-color: #A5A5A5 #f1f5f9;
               scroll-behavior: smooth;
+              border-radius: 50px;
             }
           `}</style>
-          <div ref={modalRef} className="h-[93vh] min-h-[600px] max-h-[750px]">
+          <div ref={modalRef} className="h-[90vh] min-h-[600px] max-h-[750px]">
           <div className="container mx-auto px-4 py-4 xl:py-5 xl:px-4">
             <div className="max-w-7xl mx-auto">
               {/* Header - ContentBuilder Logo and Title - Outside White Box */}
@@ -498,7 +500,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               {/* Pricing Cards */}
               <div className="bg-white rounded-md pt-5 px-5 pb-3 flex flex-col gap-4">
                 {/* Billing Toggle Section - Centered */}
-                <div className="flex flex-col items-center gap-2 mb-4">
+                <div className="flex flex-col items-center gap-2 mb-10">
                   <p className="text-blue-700 font-normal text-xs font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
                 {/* Billing Toggle */}
                   <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200">
