@@ -63,12 +63,22 @@ interface Plan {
   price: number;
   yearlyPrice?: number;
   credits: string;
-  connectors: string;
-  support: string;
-  lmsExport: string;
-  slides: string;
-  storage: string;
-  collaboration: string;
+  connectors?: string;
+  support?: string;
+  lmsExport?: string;
+  slides?: string;
+  storage?: string;
+  collaboration?: string;
+  avatars?: string;
+  voiceover?: string;
+  watermarkRemoval?: boolean;
+  brandKit?: string;
+  videoExport?: string;
+  scormExport?: string;
+  workspace?: string;
+  apiAccess?: string;
+  security?: string;
+  customization?: string;
   popular?: boolean;
   features: string[];
 }
@@ -181,83 +191,68 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const plans: Plan[] = [
     {
       id: 'starter',
-      name: t('tariffPlan.plans.starter.name', 'Starter (Free)'),
+      name: t('tariffPlan.plans.starter.name', 'Free'),
       price: 0,
-      credits: t('tariffPlan.plans.starter.credits', '200'),
-      support: t('tariffPlan.plans.starter.support', 'Email up to 48 hours'),
-      storage: t('tariffPlan.plans.starter.storage', '1 GB'),
-      connectors: '-',
-      collaboration: '-',
-      lmsExport: t('tariffPlan.plans.starter.lmsExport', 'Only SmartExpert'),
-      slides: t('tariffPlan.plans.starter.slides', 'max 20'),
-      features: [
-        t('tariffPlan.plans.starter.features.0', '200 credits on registration'),
-        t('tariffPlan.plans.starter.features.1', '1 GB storage'),
-        t('tariffPlan.plans.starter.features.2', 'Basic email support'),
-        t('tariffPlan.plans.starter.features.3', 'No connectors'),
-        t('tariffPlan.plans.starter.features.4', 'No collaboration')
-      ]
+      credits: '200',
+      storage: '100 MB',
+      connectors: '1 active',
+      avatars: '10 basic',
+      voiceover: 'all languages, standard voices',
+      slides: '20 per project',
+      workspace: '1 seat',
+      features: []
     },
     {
       id: 'pro',
-      name: t('tariffPlan.plans.pro.name', 'Pro'),
+      name: t('tariffPlan.plans.pro.name', 'Creator'),
       price: 30,
       yearlyPrice: 25,
-      credits: t('tariffPlan.plans.pro.credits', '600'),
-      support: t('tariffPlan.plans.pro.support', 'Email up to 24 hours'),
-      storage: t('tariffPlan.plans.pro.storage', '5 GB'),
-      connectors: '2',
-      collaboration: t('tariffPlan.plans.pro.collaboration', '1 (up to 3 participants)'),
-      lmsExport: t('tariffPlan.plans.pro.lmsExport', 'Only SmartExpert'),
-      slides: '20+',
-      features: [
-        t('tariffPlan.plans.pro.features.0', '600 credits per month'),
-        t('tariffPlan.plans.pro.features.1', '5 GB storage'),
-        t('tariffPlan.plans.pro.features.2', 'Priority email support (24h)'),
-        t('tariffPlan.plans.pro.features.3', '2 platform connectors'),
-        t('tariffPlan.plans.pro.features.4', 'Team collaboration (up to 3)')
-      ]
+      credits: '600',
+      storage: '10 GB',
+      connectors: '3 active',
+      avatars: '25 basic',
+      voiceover: 'all languages, standard voices',
+      slides: 'unlimited',
+      watermarkRemoval: true,
+      scormExport: 'included',
+      workspace: '1 seat',
+      features: []
     },
     {
       id: 'business',
-      name: t('tariffPlan.plans.business.name', 'Business'),
+      name: t('tariffPlan.plans.business.name', 'Team'),
       price: 90,
-      yearlyPrice: 75,
-      credits: t('tariffPlan.plans.business.credits', '2,000 / month'),
-      support: t('tariffPlan.plans.business.support', 'Priority support'),
-      storage: t('tariffPlan.plans.business.storage', '10 GB'),
-      connectors: '5',
-      collaboration: t('tariffPlan.plans.business.collaboration', '3 (up to 10 participants)'),
-      lmsExport: t('tariffPlan.plans.business.lmsExport', 'Only SmartExpert'),
-      slides: '20+',
+      yearlyPrice: 37,
+      credits: '2000',
+      storage: '50 GB',
+      connectors: '10 active',
+      avatars: 'all basic',
+      voiceover: 'upload your own or cloned voice',
+      watermarkRemoval: true,
+      slides: 'unlimited',
+      brandKit: 'custom fonts & music',
+      videoExport: '4K available',
+      scormExport: 'included',
+      workspace: '2 seats (minimum) + $37 per extra seat',
+      support: 'priority email support',
       popular: true,
-      features: [
-        t('tariffPlan.plans.business.features.0', '2,000 credits per month'),
-        t('tariffPlan.plans.business.features.1', '10 GB storage'),
-        t('tariffPlan.plans.business.features.2', 'Priority support'),
-        t('tariffPlan.plans.business.features.3', '5 platform connectors'),
-        t('tariffPlan.plans.business.features.4', 'Team collaboration (up to 10)')
-      ]
+      features: []
     },
     {
       id: 'enterprise',
       name: t('tariffPlan.plans.enterprise.name', 'Enterprise'),
       price: 0,
-      credits: t('tariffPlan.plans.enterprise.credits', '10,000+ / month (flexible)'),
-      support: t('tariffPlan.plans.enterprise.support', 'Dedicated manager'),
-      storage: t('tariffPlan.plans.enterprise.storage', '50 GB + pay-as-you-go'),
-      connectors: t('tariffPlan.plans.enterprise.connectors', 'All'),
-      collaboration: t('tariffPlan.plans.enterprise.collaboration', 'Unlimited'),
-      lmsExport: t('tariffPlan.plans.enterprise.lmsExport', 'SmartExpert + custom'),
-      slides: '20+',
-      features: [
-        t('tariffPlan.plans.enterprise.features.0', 'Custom credit allocation'),
-        t('tariffPlan.plans.enterprise.features.1', 'Unlimited storage'),
-        t('tariffPlan.plans.enterprise.features.2', 'Dedicated account manager'),
-        t('tariffPlan.plans.enterprise.features.3', 'All platform connectors'),
-        t('tariffPlan.plans.enterprise.features.4', 'Unlimited team collaboration'),
-        t('tariffPlan.plans.enterprise.features.5', 'Custom features & integrations')
-      ]
+      credits: '10,000+',
+      storage: '200 GB +',
+      connectors: 'all integrations available',
+      avatars: 'custom brand avatars',
+      voiceover: 'brand voice / fully customized',
+      apiAccess: 'full documentation',
+      security: 'SAML/SSO + audit log',
+      customization: 'white-label & domain',
+      workspace: 'unlimited seats',
+      support: 'dedicated success manager',
+      features: []
     }
   ];
 
@@ -428,52 +423,52 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         
         <ScrollArea className="h-[93vh] max-h-[750px] w-full">
           <div ref={modalRef} className="h-[93vh] min-h-[600px] max-h-[750px]">
-          <div className="container mx-auto px-6 py-4 xl:py-5 xl:px-8">
+          <div className="container mx-auto px-4 py-4 xl:py-5 xl:px-4">
             <div className="max-w-7xl mx-auto">
+              {/* Header - ContentBuilder Logo and Title - Outside White Box */}
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center mb-3">
+                  <div className="flex items-center gap-1">
+                    <div className="w-7 h-7 xl:w-8 xl:h-8 flex items-center justify-center">
+                      <svg width="15" height="19" viewBox="0 0 15 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11.8866 11.7423L9.84952 10.4211C10.111 9.67575 10.052 8.84327 9.67315 8.13678L11.344 6.64409C12.2619 7.2167 13.4851 7.10494 14.2829 6.307C15.2117 5.37826 15.2117 3.87235 14.2829 2.94357C13.3541 2.01479 11.8481 2.01479 10.9194 2.94357C10.1878 3.67523 10.0329 4.76459 10.4537 5.64832L8.78271 7.14124C7.98282 6.58766 6.96245 6.49089 6.08558 6.85206L4.15864 4.20036C4.84987 3.29285 4.78169 1.99171 3.95258 1.16251C3.0484 0.258329 1.58241 0.258329 0.678174 1.16251C-0.226058 2.06674 -0.226058 3.53278 0.678174 4.43697C1.32743 5.08623 2.26606 5.26917 3.07856 4.98626L5.00573 7.6382C4.05407 8.75444 4.10479 10.4324 5.15998 11.4876C5.18025 11.5079 5.20109 11.5268 5.22198 11.5464L3.3549 14.8234C2.57889 14.6399 1.72871 14.8502 1.12351 15.4555C0.194727 16.3843 0.194727 17.8903 1.12351 18.819C2.05229 19.7478 3.55825 19.7478 4.48698 18.819C5.40606 17.9 5.41515 16.4162 4.5152 15.4852L6.38214 12.2086C7.31967 12.4778 8.36792 12.2552 9.12138 11.541L11.1604 12.8632C11.0302 13.4677 11.1994 14.1239 11.6693 14.5937C12.4053 15.3297 13.5983 15.3297 14.3342 14.5937C15.0702 13.8579 15.0702 12.6647 14.3342 11.9288C13.667 11.2618 12.6239 11.1995 11.8866 11.7423ZM1.92925 16.6091C1.88401 16.6603 1.84142 16.7088 1.79965 16.7505C1.7476 16.8025 1.67647 16.8659 1.58821 16.8931C1.47735 16.9274 1.36407 16.8972 1.27724 16.8104C1.05019 16.5834 1.13702 16.1539 1.47925 15.8118C1.82158 15.4694 2.25093 15.3826 2.47807 15.6097C2.56486 15.6964 2.59497 15.8098 2.56072 15.9207C2.5335 16.0089 2.47013 16.0803 2.41812 16.1321C2.37635 16.1738 2.32791 16.2164 2.27658 16.2616C2.21734 16.3138 2.15597 16.3677 2.09554 16.428C2.03516 16.4884 1.98135 16.5498 1.92925 16.6091ZM11.2752 3.2996C11.6174 2.95737 12.0468 2.87044 12.2739 3.09754C12.3606 3.18427 12.3908 3.2976 12.3565 3.40856C12.3293 3.49686 12.2659 3.56814 12.2139 3.62009C12.1723 3.66172 12.1238 3.7043 12.0724 3.7495C12.0132 3.8017 11.9519 3.85556 11.8914 3.91593C11.8309 3.97641 11.7771 4.03783 11.7249 4.09711C11.6798 4.14831 11.6371 4.19689 11.5955 4.23857C11.5435 4.29057 11.4722 4.35394 11.3839 4.38121C11.273 4.41542 11.1597 4.3853 11.073 4.29847C10.8461 4.07137 10.9329 3.64179 11.2752 3.2996ZM1.46265 2.28542C1.4185 2.33537 1.37706 2.38257 1.33666 2.42316C1.28609 2.47373 1.21672 2.53535 1.13069 2.56204C1.02274 2.59525 0.912451 2.56599 0.827904 2.48158C0.606853 2.26048 0.691543 1.84232 1.02478 1.50917C1.35798 1.17593 1.77596 1.09134 1.9971 1.31243C2.0816 1.39693 2.11105 1.50727 2.0776 1.61518C2.05091 1.70115 1.98939 1.77052 1.93877 1.821C1.89814 1.86163 1.85094 1.90317 1.80098 1.94699C1.74327 1.99771 1.68351 2.05023 1.62475 2.10904C1.5659 2.1679 1.51332 2.22775 1.46265 2.28542ZM5.5851 7.89522C5.99394 7.48633 6.50674 7.38261 6.77804 7.65385C6.88176 7.75762 6.91778 7.89289 6.87691 8.02544C6.84417 8.13097 6.76857 8.21599 6.70643 8.27818C6.65662 8.32799 6.59867 8.37867 6.53738 8.43272C6.46668 8.49509 6.39341 8.55937 6.32119 8.63155C6.24896 8.70382 6.18464 8.77704 6.1224 8.84789C6.06835 8.90912 6.01749 8.96707 5.96773 9.01679C5.90559 9.07912 5.82057 9.15458 5.71504 9.18722C5.58258 9.22809 5.44726 9.19216 5.3434 9.0884C5.0723 8.81691 5.17626 8.30411 5.5851 7.89522ZM12.2053 12.9549C12.164 12.9961 12.1075 13.0464 12.0377 13.0679C11.9498 13.095 11.8602 13.0712 11.7913 13.0024C11.6113 12.8225 11.6801 12.4822 11.9514 12.211C12.2225 11.9398 12.5627 11.871 12.7427 12.0511C12.8114 12.1197 12.8353 12.2095 12.8082 12.2975C12.7866 12.3675 12.7364 12.4238 12.6952 12.465C12.6622 12.4979 12.6238 12.5317 12.5832 12.5675C12.5363 12.6087 12.4876 12.6516 12.4398 12.6994C12.3919 12.7472 12.3491 12.7958 12.308 12.8429C12.272 12.8836 12.2383 12.9219 12.2053 12.9549Z" fill="#0F58F9"/>
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-blue-600 font-public-sans">ContentBuilder</span>
+                  </div>
+                </div>
+                <h1 className="text-xl xl:text-2xl font-bold text-[#434343] sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
+              </div>
+
               {/* Pricing Cards */}
               <div className="bg-white rounded-md p-6 flex flex-col gap-4">
-                {/* Header - ContentBuilder Logo and Title */}
-                <div className="text-center mb-4">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="flex items-center gap-1">
-                      <div className="w-7 h-7 xl:w-8 xl:h-8 flex items-center justify-center">
-                        <svg width="15" height="19" viewBox="0 0 15 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M11.8866 11.7423L9.84952 10.4211C10.111 9.67575 10.052 8.84327 9.67315 8.13678L11.344 6.64409C12.2619 7.2167 13.4851 7.10494 14.2829 6.307C15.2117 5.37826 15.2117 3.87235 14.2829 2.94357C13.3541 2.01479 11.8481 2.01479 10.9194 2.94357C10.1878 3.67523 10.0329 4.76459 10.4537 5.64832L8.78271 7.14124C7.98282 6.58766 6.96245 6.49089 6.08558 6.85206L4.15864 4.20036C4.84987 3.29285 4.78169 1.99171 3.95258 1.16251C3.0484 0.258329 1.58241 0.258329 0.678174 1.16251C-0.226058 2.06674 -0.226058 3.53278 0.678174 4.43697C1.32743 5.08623 2.26606 5.26917 3.07856 4.98626L5.00573 7.6382C4.05407 8.75444 4.10479 10.4324 5.15998 11.4876C5.18025 11.5079 5.20109 11.5268 5.22198 11.5464L3.3549 14.8234C2.57889 14.6399 1.72871 14.8502 1.12351 15.4555C0.194727 16.3843 0.194727 17.8903 1.12351 18.819C2.05229 19.7478 3.55825 19.7478 4.48698 18.819C5.40606 17.9 5.41515 16.4162 4.5152 15.4852L6.38214 12.2086C7.31967 12.4778 8.36792 12.2552 9.12138 11.541L11.1604 12.8632C11.0302 13.4677 11.1994 14.1239 11.6693 14.5937C12.4053 15.3297 13.5983 15.3297 14.3342 14.5937C15.0702 13.8579 15.0702 12.6647 14.3342 11.9288C13.667 11.2618 12.6239 11.1995 11.8866 11.7423ZM1.92925 16.6091C1.88401 16.6603 1.84142 16.7088 1.79965 16.7505C1.7476 16.8025 1.67647 16.8659 1.58821 16.8931C1.47735 16.9274 1.36407 16.8972 1.27724 16.8104C1.05019 16.5834 1.13702 16.1539 1.47925 15.8118C1.82158 15.4694 2.25093 15.3826 2.47807 15.6097C2.56486 15.6964 2.59497 15.8098 2.56072 15.9207C2.5335 16.0089 2.47013 16.0803 2.41812 16.1321C2.37635 16.1738 2.32791 16.2164 2.27658 16.2616C2.21734 16.3138 2.15597 16.3677 2.09554 16.428C2.03516 16.4884 1.98135 16.5498 1.92925 16.6091ZM11.2752 3.2996C11.6174 2.95737 12.0468 2.87044 12.2739 3.09754C12.3606 3.18427 12.3908 3.2976 12.3565 3.40856C12.3293 3.49686 12.2659 3.56814 12.2139 3.62009C12.1723 3.66172 12.1238 3.7043 12.0724 3.7495C12.0132 3.8017 11.9519 3.85556 11.8914 3.91593C11.8309 3.97641 11.7771 4.03783 11.7249 4.09711C11.6798 4.14831 11.6371 4.19689 11.5955 4.23857C11.5435 4.29057 11.4722 4.35394 11.3839 4.38121C11.273 4.41542 11.1597 4.3853 11.073 4.29847C10.8461 4.07137 10.9329 3.64179 11.2752 3.2996ZM1.46265 2.28542C1.4185 2.33537 1.37706 2.38257 1.33666 2.42316C1.28609 2.47373 1.21672 2.53535 1.13069 2.56204C1.02274 2.59525 0.912451 2.56599 0.827904 2.48158C0.606853 2.26048 0.691543 1.84232 1.02478 1.50917C1.35798 1.17593 1.77596 1.09134 1.9971 1.31243C2.0816 1.39693 2.11105 1.50727 2.0776 1.61518C2.05091 1.70115 1.98939 1.77052 1.93877 1.821C1.89814 1.86163 1.85094 1.90317 1.80098 1.94699C1.74327 1.99771 1.68351 2.05023 1.62475 2.10904C1.5659 2.1679 1.51332 2.22775 1.46265 2.28542ZM5.5851 7.89522C5.99394 7.48633 6.50674 7.38261 6.77804 7.65385C6.88176 7.75762 6.91778 7.89289 6.87691 8.02544C6.84417 8.13097 6.76857 8.21599 6.70643 8.27818C6.65662 8.32799 6.59867 8.37867 6.53738 8.43272C6.46668 8.49509 6.39341 8.55937 6.32119 8.63155C6.24896 8.70382 6.18464 8.77704 6.1224 8.84789C6.06835 8.90912 6.01749 8.96707 5.96773 9.01679C5.90559 9.07912 5.82057 9.15458 5.71504 9.18722C5.58258 9.22809 5.44726 9.19216 5.3434 9.0884C5.0723 8.81691 5.17626 8.30411 5.5851 7.89522ZM12.2053 12.9549C12.164 12.9961 12.1075 13.0464 12.0377 13.0679C11.9498 13.095 11.8602 13.0712 11.7913 13.0024C11.6113 12.8225 11.6801 12.4822 11.9514 12.211C12.2225 11.9398 12.5627 11.871 12.7427 12.0511C12.8114 12.1197 12.8353 12.2095 12.8082 12.2975C12.7866 12.3675 12.7364 12.4238 12.6952 12.465C12.6622 12.4979 12.6238 12.5317 12.5832 12.5675C12.5363 12.6087 12.4876 12.6516 12.4398 12.6994C12.3919 12.7472 12.3491 12.7958 12.308 12.8429C12.272 12.8836 12.2383 12.9219 12.2053 12.9549Z" fill="#0F58F9"/>
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-blue-600 font-public-sans">ContentBuilder</span>
-                    </div>
-                  </div>
-                  <h1 className="text-xl xl:text-2xl font-bold text-[#434343] sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
-                </div>
-
-                {/* Billing Toggle Section */}
-                <div className="flex flex-col items-start gap-2">
+                {/* Billing Toggle Section - Centered */}
+                <div className="flex flex-col items-center gap-2 mb-4">
                   <p className="text-blue-700 font-normal text-xs font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
-                  {/* Billing Toggle */}
+                {/* Billing Toggle */}
                   <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200">
-                    <button
-                      onClick={() => setBillingCycle('monthly')}
-                      className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
-                        billingCycle === 'monthly'
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'text-[#A1A1AA] hover:text-blue-600'
-                      }`}
-                    >
-                      {t('tariffPlan.billMonthly', 'Monthly')}
-                    </button>
-                    <button
-                      onClick={() => setBillingCycle('yearly')}
-                      className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
-                        billingCycle === 'yearly'
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'text-[#A1A1AA] hover:text-blue-600'
-                      }`}
-                    >
-                      {t('tariffPlan.billYearly', 'Yearly')}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setBillingCycle('monthly')}
+                    className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
+                      billingCycle === 'monthly'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'text-[#A1A1AA] hover:text-blue-600'
+                    }`}
+                  >
+                    {t('tariffPlan.billMonthly', 'Monthly')}
+                  </button>
+                  <button
+                    onClick={() => setBillingCycle('yearly')}
+                    className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
+                      billingCycle === 'yearly'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'text-[#A1A1AA] hover:text-blue-600'
+                    }`}
+                  >
+                    {t('tariffPlan.billYearly', 'Yearly')}
+                  </button>
                 </div>
+              </div>
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
                 {plans.map((plan) => (
                     <div key={plan.id} className="relative flex flex-col">
@@ -486,7 +481,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       >
                         {plan.popular && (
                           <div className="bg-blue-600 text-white px-3 py-1.5 text-xs xl:text-sm font-medium font-public-sans text-center flex items-center justify-center gap-1.5">
-                            {t('tariffPlan.mostPopular', 'Most Popular')}
+                              {t('tariffPlan.mostPopular', 'Most Popular')}
                             <Star className="w-3 h-3 fill-white" />
                           </div>
                         )}
@@ -507,17 +502,17 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         ) : (
                           <>
                             <div className="flex items-baseline gap-1 flex-wrap">
-                              <span className="text-3xl xl:text-4xl font-public-sans font-bold">
-                                {getPrice(plan)}
-                              </span>
+                              <span className="text-3xl text-[#171718] xl:text-4xl font-public-sans font-bold">
+                          {getPrice(plan)}
+                        </span>
                               {plan.price > 0 && plan.id !== 'business' && (
                                 <span className="text-sm font-public-sans text-[#878787] font-normal">
                                   /{billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.month', 'month')}
-                                </span>
+                          </span>
                               )}
                               {plan.id === 'business' && (
                                 <>
-                                  <span className="text-sm font-public-sans font-normal">/seat/month</span>
+                                  <span className="text-sm text-[#171718] font-public-sans font-normal">/seat/month</span>
                                   <div className="ml-2 flex items-center gap-1 border border-[#E0E0E0] rounded-md">
                                     <button
                                       onClick={(e) => {
@@ -562,7 +557,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div className={`px-4 pb-4 pt-3 flex flex-col flex-grow bg-white`}>
                       {/* Credits Info */}
                       <div className="mb-4">
-                        <div className="flex items-center text-sm font-normal text-gray-900">
+                        <div className="flex items-center text-regular font-bold text-[#4D4D4D]">
                           <span className="font-bold">{plan.credits} Credits</span>
                           <span className="ml-1 text-[#878787] text-xs font-light">
                             {plan.id === 'starter' ? ' / one-time on registration' : ' /month'}
@@ -582,32 +577,135 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                       {/* Features List */}
                       <div className="space-y-2.5 mb-4 font-public-sans flex-grow">
-                        <div className="flex items-start">
-                          <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
-                          <span className="text-sm text-[#878787] leading-relaxed">
-                            <span className="font-semibold">Storage:</span> {plan.storage}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
-                          <span className="text-sm text-[#878787] leading-relaxed">
-                            <span className="font-semibold">Connectors:</span> {plan.connectors}
-                          </span>
-                        </div>
-
-                        {plan.features.map((feature, index) => (
-                          <div key={index} className="flex items-start">
+                        {plan.storage && (
+                          <div className="flex items-start">
                             <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
                             <span className="text-sm text-[#878787] leading-relaxed">
-                              {feature}
+                              <span className="font-semibold">Storage:</span> {plan.storage}
                             </span>
                           </div>
-                        ))}
+                        )}
+                        
+                        {plan.connectors && plan.connectors !== '-' && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Connectors:</span> {plan.connectors}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.avatars && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Avatars:</span> {plan.avatars}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.voiceover && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Voiceover:</span> {plan.voiceover}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.watermarkRemoval && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Watermark removal</span>
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.slides && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Slides:</span> {plan.slides}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.brandKit && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Brand Kit:</span> {plan.brandKit}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.videoExport && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Video export:</span> {plan.videoExport}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.scormExport && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">SCORM export:</span> {plan.scormExport}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.apiAccess && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">API access:</span> {plan.apiAccess}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.security && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Security:</span> {plan.security}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.customization && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Customization:</span> {plan.customization}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.workspace && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Workspace:</span> {plan.workspace}
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.support && (
+                          <div className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-sm text-[#878787] leading-relaxed">
+                              <span className="font-semibold">Support:</span> {plan.support}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* CTA Button */}
-                      <button
+                    <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
                         className={`w-full py-2.5 rounded-full font-public-sans font-semibold text-sm transition-all duration-300 ${
                           plan.id === currentPlanId
@@ -629,8 +727,6 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 ))}
               </div>
-              </div>
-              {/* See Full Comparison Link */}
               <div className="text-center mt-6 mb-2">
                 <button className="text-blue-600 hover:text-blue-700 p-2 border border-blue-600 rounded-md font-medium text-sm inline-flex items-center gap-1 transition-colors">
                   {t('tariffPlan.seeFullComparison', 'See Full Comparison')}
@@ -648,73 +744,82 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 
                 <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
                   {creditAddOns.map((addOn) => (
-                    <div key={addOn.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-4">
+                    <div key={addOn.id} className="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all p-5">
+                      {/* Header Section - Icon and Title */}
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <CoinsIcon className="w-6 h-6" />
+                        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 border border-blue-100">
+                          <CoinsIcon className="w-7 h-7" />
                         </div>
-                        <div>
-                          <h3 className="text-base font-semibold text-[#434343] mb-1">{addOn.name}</h3>
-                          <p className="text-[10px] text-[#949CA8] leading-tight">{addOn.description}</p>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-[#333333] leading-tight mb-1">
+                            {addOn.id === 'enterprise' ? 'Enterprise Credit Pack' : 'Generative Credit Pack'}
+                          </h3>
+                          <p className="text-xs text-[#888888] leading-relaxed">
+                            {addOn.description}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="mb-3">
-                        <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold mb-2">
-                          <span>{addOn.amount}</span>
+                      {/* Credits Info */}
+                      <div className="flex items-center gap-1.5 mb-4">
+                        <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm font-bold text-[#333333]">
+                          {addOn.amount.replace('credits', 'Generative Credits')}
+                        </span>
                         </div>
-                        <div className="text-3xl pb-2 font-bold text-gray-900">
-                          {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
+
+                      {/* Price and Quantity */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-4xl font-bold text-[#333333]">
+                            {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
+                          </span>
                           {addOn.priceNote === 'per month' && (
-                            <span className="text-xs font-normal text-[#0D001B]">/month</span>
+                            <span className="text-sm text-[#171718] font-normal">/month</span>
                           )}
                         </div>
-                        
+
                         {!addOn.isEnterprise && (
-                          <div className="flex border border-[#E0E0E0] rounded-sm py-0.5 px-1 mb-3 items-center gap-2">
+                          <div className="flex border border-[#D0D0D0] rounded-lg overflow-hidden bg-white">
                             <button
                               onClick={() => setCreditQuantities(prev => ({
                                 ...prev,
                                 [addOn.id]: Math.max(1, prev[addOn.id] - 1)
                               }))}
-                              className="h-5 w-5 bg-[#CCDBFC] rounded hover:bg-[#C0CEED] text-sm text-[#0F58F9] flex items-center justify-center"
+                              className="px-3 py-1 text-[#333333] hover:bg-gray-50 border-r border-[#D0D0D0] font-bold"
                             >
-                              <Minus className="w-3 h-3" />
+                              -
                             </button>
-                            <div className="flex-1 text-center text-sm text-[#71717A]">
+                            <div className="px-3 py-1 text-sm text-[#333333] font-medium min-w-[40px] text-center">
                               {creditQuantities[addOn.id]}
-                            </div>
+                          </div>
                             <button
                               onClick={() => setCreditQuantities(prev => ({
                                 ...prev,
                                 [addOn.id]: prev[addOn.id] + 1
                               }))}
-                              className="h-5 w-5 bg-[#CCDBFC] rounded hover:bg-[#C0CEED] text-sm text-[#0F58F9] flex items-center justify-center"
+                              className="px-3 py-1 text-[#333333] hover:bg-gray-50 border-l border-[#D0D0D0] font-bold"
                             >
-                              <Plus className="w-3 h-3" />
+                              +
                             </button>
                           </div>
                         )}
-                        
-                        {addOn.isEnterprise && (
-                          <div className="h-8 mb-3"></div>
-                        )}
-                        
-                        <button
-                          className={`w-full py-2 rounded-full font-medium text-sm transition-all ${
-                            addOn.isEnterprise 
-                              ? 'bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#C2D1F0]' 
-                              : 'bg-[#0F58F9] text-white hover:bg-blue-700'
-                          }`}
-                        >
-                          {addOn.isEnterprise 
-                            ? t('addOns.contactSales', 'Contact Sales') 
-                            : t('addOns.buyNow', 'Buy now')}
-                        </button>
                       </div>
+                      
+                      {/* Buy Now Button */}
+                      <button
+                        className='w-full py-2.5 rounded-lg font-semibold text-sm transition-all bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#8BB4FF] shadow-sm'
+                      >
+                        {addOn.isEnterprise 
+                          ? t('addOns.contactSales', 'Contact Sales') 
+                          : t('addOns.buyNow', 'Buy now')}
+                      </button>
                     </div>
                   ))}
-                </div>
+                    </div>
+                  </div>
               </div>
             </div>
           </div>
