@@ -33832,6 +33832,7 @@ async def stripe_webhook(
                             "Currency": currency
                         }
                     )
+                    logger.info(f"Tracked payment success to Mixpanel for user {onyx_user_id}: plan={plan}, subscription_id={subscription_id}, subscription_item={subscription_item}, amount={amount_total / 100}, currency={currency}")
                 except Exception as track_err:
                     logger.warning(f"Failed to track payment to Mixpanel: {track_err}")
 
@@ -33883,6 +33884,7 @@ async def stripe_webhook(
                                 "Currency": currency
                             }
                         )
+                        logger.info(f"Tracked payment success to Mixpanel for user {onyx_user_id}: amount={amount_total / 100}, currency={currency}")
                     except Exception as track_err:
                         logger.warning(f"Failed to track payment to Mixpanel: {track_err}")
                 except Exception as ce:
@@ -34065,6 +34067,7 @@ async def stripe_webhook(
                                     "Currency": new_ccy.upper() if price_difference_major is not None and new_ccy else None,
                                 }
                             )
+                            logger.info(f"Tracked plan upgrade/downgrade to Mixpanel for user {onyx_user_id}: new_plan={plan}, old_plan={existing_plan}, price_difference={price_difference_major}, currency={new_ccy.upper()}")
                         except Exception as track_err:
                             logger.warning(f"Failed to track plan upgrade/downgrade to Mixpanel: {track_err}")
 
@@ -34228,6 +34231,7 @@ async def stripe_webhook(
                             "Currency": currency,
                         }
                     )
+                    logger.info(f"Tracked payment success to Mixpanel for user {onyx_user_id}: plan={plan_type}, invoice_id={invoice.get('id')}, invoice_item={invoice_item}, amount={(amount_paid or 0) / 100}, currency={currency}")
                 except Exception as track_err:
                     logger.warning(f"Failed to track invoice.payment_succeeded to Mixpanel: {track_err}")
 
@@ -34266,6 +34270,7 @@ async def stripe_webhook(
                             "Attempt Count": attempt_count,
                         }
                     )
+                    logger.info(f"Tracked payment failure to Mixpanel for user {onyx_user_id}: reason={reason}, attempt_count={attempt_count}")
             except Exception as track_err:
                 logger.warning(f"Failed to track payment failure to Mixpanel: {track_err}")
 
@@ -34355,6 +34360,7 @@ async def stripe_webhook(
                             "Currency": currency.upper() if currency else None,
                         }
                     )
+                    logger.info(f"Tracked subscription creation to Mixpanel for user {onyx_user_id}: plan={plan}, subscription_id={subscription_id}, amount={amount_major}, currency={currency.upper() if currency else None}")
             except Exception as track_err:
                 logger.warning(f"Failed to track subscription.created to Mixpanel: {track_err}")
 
@@ -34401,6 +34407,7 @@ async def stripe_webhook(
                         "Cancelation Reason": (subscription.get('cancellation_details') or {}).get('reason')
                     }
                 )
+                logger.info(f"Tracked subscription cancellation to Mixpanel for user {user_record['onyx_user_id']}: plan={user_record['current_plan'].capitalize() if user_record else None}, subscription_id={subscription.get('id')}, end_date={subscription.get('canceled_at')}, cancelation_reason={(subscription.get('cancellation_details') or {}).get('reason')}")
             except Exception as track_err:
                 logger.warning(f"Failed to track subscription cancellation to Mixpanel: {track_err}")
 
