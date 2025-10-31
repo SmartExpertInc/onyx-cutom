@@ -121,6 +121,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   });
   const [showContactSales, setShowContactSales] = useState(false);
   const modalRef = React.useRef<HTMLDivElement>(null);
+  const contactSalesTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
     const p = (planRaw || 'starter').toLowerCase();
     if (p.includes('business')) return 'business';
@@ -166,6 +168,15 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         } catch {}
       })();
     }
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (contactSalesTimeoutRef.current) {
+        clearTimeout(contactSalesTimeoutRef.current);
+      }
+    };
   }, []);
 
   const creditAddOns = [
@@ -726,7 +737,12 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <button
                         onClick={() => {
                           if (plan.name.includes('Enterprise')) {
-                            setShowContactSales(true);
+                            // Close tariff modal first
+                            onOpenChange(false);
+                            // Wait for close animation, then open contact sales modal
+                            contactSalesTimeoutRef.current = setTimeout(() => {
+                              setShowContactSales(true);
+                            }, 300);
                           } else if (plan.id !== 'starter' && plan.id !== currentPlanId) {
                             handlePurchasePlan(plan);
                           }
@@ -766,20 +782,20 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   Add more power with extra credits, storage, or integrations.
                 </p>
                 
-                <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4 ">
+                <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-4 justify-items-center max-w-5xl mx-auto">
                   {creditAddOns.map((addOn: any) => {
                     const IconComponent = addOn.type === 'credits' ? CoinsIcon : addOn.type === 'storage' ? StorageIcon : ConnectorsIcon;
                     const amountIcon = addOn.type === 'credits' ? (
-                      <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11.2267 6.08C11.8569 6.31495 12.4177 6.70502 12.8572 7.21413C13.2967 7.72324 13.6007 8.33496 13.7412 8.99271C13.8816 9.65046 13.8539 10.333 13.6607 10.9772C13.4675 11.6215 13.1149 12.2065 12.6356 12.6784C12.1563 13.1503 11.5658 13.4937 10.9187 13.6768C10.2715 13.86 9.5886 13.877 8.93312 13.7263C8.27764 13.5756 7.67074 13.2621 7.16855 12.8147C6.66636 12.3673 6.28509 11.8005 6.06 11.1667M3.83333 3.16667H4.5V5.83333M10.3067 8.42L10.7733 8.89333L8.89333 10.7733M8.5 4.5C8.5 6.70914 6.70914 8.5 4.5 8.5C2.29086 8.5 0.5 6.70914 0.5 4.5C0.5 2.29086 2.29086 0.5 4.5 0.5C6.70914 0.5 8.5 2.29086 8.5 4.5Z" stroke="#4D4D4D" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     ) : addOn.type === 'storage' ? (
-                      <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                      <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.8333 5.83333H0.5M13.8333 5.83333V9.83333C13.8333 10.187 13.6929 10.5261 13.4428 10.7761C13.1928 11.0262 12.8536 11.1667 12.5 11.1667H1.83333C1.47971 11.1667 1.14057 11.0262 0.890524 10.7761C0.640476 10.5261 0.5 10.187 0.5 9.83333V5.83333M13.8333 5.83333L11.5333 1.24C11.4229 1.01786 11.2528 0.830914 11.042 0.700186C10.8312 0.569459 10.5881 0.500132 10.34 0.5H3.99333C3.74528 0.500132 3.50218 0.569459 3.29136 0.700186C3.08055 0.830914 2.91038 1.01786 2.8 1.24L0.5 5.83333M3.16667 8.5H3.17333M5.83333 8.5H5.84" stroke="#4D4D4D" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3.46222 6.42444V9.38667C3.46222 9.77948 3.61827 10.1562 3.89603 10.434C4.17379 10.7117 4.55052 10.8678 4.94333 10.8678H7.90556M1.98111 0.5H4.94333C5.76133 0.5 6.42444 1.16312 6.42444 1.98111V4.94333C6.42444 5.76133 5.76133 6.42444 4.94333 6.42444H1.98111C1.16312 6.42444 0.5 5.76133 0.5 4.94333V1.98111C0.5 1.16312 1.16312 0.5 1.98111 0.5ZM9.38667 7.90556H12.3489C13.1669 7.90556 13.83 8.56867 13.83 9.38667V12.3489C13.83 13.1669 13.1669 13.83 12.3489 13.83H9.38667C8.56867 13.83 7.90556 13.1669 7.90556 12.3489V9.38667C7.90556 8.56867 8.56867 7.90556 9.38667 7.90556Z" stroke="#4D4D4D" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     );
                     
@@ -787,14 +803,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div key={addOn.id} className="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all p-5">
                       {/* Header Section - Icon and Title */}
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-600">
-                          <IconComponent className="w-6 h-6" />
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-600">
+                          <IconComponent className="w-4 h-4" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold text-[#333333] leading-tight mb-1">
+                          <h3 className="text-lg font-semibold text-[#333333] leading-tight mb-1">
                             {addOn.name}
                           </h3>
-                          <p className="text-xs text-[#888888] leading-relaxed">
+                          <p className="text-xs text-[#878787] font-light leading-relaxed">
                             {addOn.description}
                           </p>
                         </div>
@@ -837,7 +853,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                 ...prev,
                                 [addOn.id]: prev[addOn.id] + 1
                               }))}
-                              className="px-3 py-1 text-[#333333] hover:bg-gray-50 border-l border-[#D0D0D0] font-bold"
+                              className="px-2 text-[#333333] hover:bg-gray-50 border-l border-[#D0D0D0] font-bold"
                             >
                               +
                             </button>
@@ -853,7 +869,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     </div>
                     );
                   })}
-                </div>
+                    </div>
                   </div>
               </div>
             </div>
