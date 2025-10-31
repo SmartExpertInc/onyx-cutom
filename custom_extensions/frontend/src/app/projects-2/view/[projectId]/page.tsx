@@ -783,7 +783,7 @@ export default function Projects2ViewPage() {
           {/* Top Container - Takes 80% of main container height (increased from 75%) */}
           <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Settings Buttons - Top Left Corner */}
-            {isComponentBasedVideoLesson && componentBasedSlideDeck && (
+            {false && isComponentBasedVideoLesson && componentBasedSlideDeck && (
               <div className="absolute top-2 left-2 z-10 flex gap-1">
                 <button
                   onClick={() => handleSettingsButtonClick('text')}
