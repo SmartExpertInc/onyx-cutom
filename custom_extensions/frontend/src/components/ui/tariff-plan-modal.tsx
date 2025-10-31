@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow, Minus, Plus } from 'lucide-react';
+import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow, Minus, Plus, InfoIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -183,7 +183,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
       id: 'starter',
       name: t('tariffPlan.plans.starter.name', 'Starter (Free)'),
       price: 0,
-      credits: t('tariffPlan.plans.starter.credits', '200 (one-time on registration)'),
+      credits: t('tariffPlan.plans.starter.credits', '200'),
       support: t('tariffPlan.plans.starter.support', 'Email up to 48 hours'),
       storage: t('tariffPlan.plans.starter.storage', '1 GB'),
       connectors: '-',
@@ -203,7 +203,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
       name: t('tariffPlan.plans.pro.name', 'Pro'),
       price: 30,
       yearlyPrice: 25,
-      credits: t('tariffPlan.plans.pro.credits', '600 / month'),
+      credits: t('tariffPlan.plans.pro.credits', '600'),
       support: t('tariffPlan.plans.pro.support', 'Email up to 24 hours'),
       storage: t('tariffPlan.plans.pro.storage', '5 GB'),
       connectors: '2',
@@ -287,7 +287,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   if (showPayment && selectedPlan) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl w-[85vw] h-[80vh] overflow-y-auto p-0 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+        <DialogContent className="max-w-4xl w-[85vw] h-[80vh] overflow-y-auto p-0 bg-gradient-to-br from-white/80 to-white/70 backdrop-blur-sm">
           <div className="min-h-full">
             <div className="container mx-auto px-4 py-12">
               <div className="max-w-2xl mx-auto">
@@ -442,34 +442,35 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <span className="text-sm font-medium text-blue-600 font-public-sans">ContentBuilder</span>
                   </div>
                 </div>
-                <h1 className="text-xl xl:text-2xl font-bold text-[#434343] mb-2 xl:mb-3 sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
-                <p className="text-blue-700 font-normal text-xs mb-1 font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
-                {/* Billing Toggle */}
-                <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
-                  <button
-                    onClick={() => setBillingCycle('monthly')}
-                    className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
-                      billingCycle === 'monthly'
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'text-[#A1A1AA] hover:text-blue-600'
-                    }`}
-                  >
-                    {t('tariffPlan.billMonthly', 'Monthly')}
-                  </button>
-                  <button
-                    onClick={() => setBillingCycle('yearly')}
-                    className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
-                      billingCycle === 'yearly'
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'text-[#A1A1AA] hover:text-blue-600'
-                    }`}
-                  >
-                    {t('tariffPlan.billYearly', 'Yearly')}
-                  </button>
-                </div>
               </div>
 
               {/* Pricing Cards */}
+              <div className="bg-white rounded-md p-6 flex flex-col gap-4">
+                <h1 className="text-xl xl:text-2xl font-bold text-[#434343] mb-2 xl:mb-3 sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
+                  <p className="text-blue-700 font-normal text-xs mb-1 font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
+                  {/* Billing Toggle */}
+                  <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
+                    <button
+                      onClick={() => setBillingCycle('monthly')}
+                      className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
+                        billingCycle === 'monthly'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'text-[#A1A1AA] hover:text-blue-600'
+                      }`}
+                    >
+                      {t('tariffPlan.billMonthly', 'Monthly')}
+                    </button>
+                    <button
+                      onClick={() => setBillingCycle('yearly')}
+                      className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
+                        billingCycle === 'yearly'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'text-[#A1A1AA] hover:text-blue-600'
+                      }`}
+                    >
+                      {t('tariffPlan.billYearly', 'Yearly')}
+                    </button>
+                  </div>
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
                 {plans.map((plan) => (
                     <div key={plan.id} className="relative flex flex-col">
@@ -488,8 +489,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         )}
                     
                     {/* Card Header */}
-                    <div className={`p-4 ${plan.popular ? 'bg-blue-600' : 'bg-white'}`}>
-                      <h3 className={`text-lg xl:text-xl font-bold font-public-sans mb-2 ${plan.popular ? 'text-white' : 'text-[#0D001B]'}`}>
+                    <div className='p-4 bg-white'>
+                      <h3 className='text-lg xl:text-xl font-bold font-public-sans mb-2 text-[#0D001B]'>
                         {plan.name}
                       </h3>
                       <div className={plan.popular ? 'text-white' : 'text-gray-900'}>
@@ -498,7 +499,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                             <div className="text-3xl xl:text-4xl font-public-sans font-bold">
                               Let's talk
                             </div>
-                            <p className="text-xs mt-1 opacity-80">Custom plans</p>
+                            <p className="text-xs mt-1 text-[#A5A5A5] font-light">Custom plans</p>
                           </>
                         ) : (
                           <>
@@ -514,23 +515,23 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                               {plan.id === 'business' && (
                                 <>
                                   <span className="text-sm font-public-sans font-normal">/seat/month</span>
-                                  <div className="ml-2 flex items-center gap-1 bg-white/20 rounded px-2 py-1">
+                                  <div className="ml-2 flex items-center gap-1 border border-[#E0E0E0] rounded-md py-1">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setTeamSeats(Math.max(2, teamSeats - 1));
                                       }}
-                                      className="w-5 h-5 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded text-xs font-bold"
+                                      className="w-5 h-5 flex items-center justify-center border border-[#E0E0E0] text-[#4D4D4D] rounded-l-md text-xs font-bold"
                                     >
                                       -
                                     </button>
-                                    <span className="text-sm font-medium min-w-[40px] text-center">{teamSeats} seats</span>
+                                    <span className="text-sm text-[#4D4D4D] font-medium min-w-[40px] text-center">{teamSeats} seats</span>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setTeamSeats(teamSeats + 1);
                                       }}
-                                      className="w-5 h-5 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded text-xs font-bold"
+                                      className="w-5 h-5 flex items-center justify-center border border-[#E0E0E0] text-[#4D4D4D] rounded-r-md text-xs font-bold"
                                     >
                                       +
                                     </button>
@@ -539,14 +540,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                               )}
                             </div>
                             {plan.price === 0 && plan.id === 'starter' && (
-                              <p className="text-xs mt-1 opacity-80">No commitment</p>
+                              <p className="text-xs mt-1 text-[#A5A5A5] font-light">No commitment</p>
                             )}
                             {plan.price > 0 && plan.id !== 'business' && billingCycle === 'yearly' && plan.yearlyPrice && (
-                              <p className="text-xs mt-1 opacity-80">${plan.yearlyPrice} Billed annually</p>
+                              <p className="text-xs mt-1 text-[#A5A5A5] font-light">${plan.yearlyPrice} Billed annually</p>
                             )}
                             {plan.id === 'business' && (
-                              <p className="text-xs mt-1 opacity-80">
-                                Minimum 2 seats, ${billingCycle === 'yearly' ? (plan.yearlyPrice || 0) * teamSeats : plan.price * teamSeats * 12} Billed annually
+                              <p className="text-xs mt-1 text-[#A5A5A5] font-light">
+                                <span className="font-semibold">Minimum 2 seats,</span> ${billingCycle === 'yearly' ? (plan.yearlyPrice || 0) * teamSeats : plan.price * teamSeats * 12} Billed annually
                               </p>
                             )}
                           </>
@@ -559,18 +560,18 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       {/* Credits Info */}
                       <div className="mb-4">
                         <div className="flex items-center text-sm font-normal text-gray-900">
-                          <span className="font-medium">{plan.credits} Credits</span>
-                          <span className="ml-1 text-gray-600">
+                          <span className="font-bold">{plan.credits} Credits</span>
+                          <span className="ml-1 text-[#878787] text-xs font-light">
                             {plan.id === 'starter' ? ' / one-time on registration' : ' /month'}
                           </span>
-                          <div className="ml-1 w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs cursor-help">
-                            i
+                          <div className="ml-1 w-4 h-4 items-center justify-center">
+                            <InfoIcon className="w-3 h-3 text-[#A5A5A5]" />
                           </div>
                         </div>
                       </div>
 
                       {/* Section Title */}
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">
+                      <h4 className="text-base font-semibold text-[#4D4D4D] mb-3">
                         {plan.id === 'enterprise' 
                           ? t('tariffPlan.allTeamFeaturesPlus', 'All Team features, plus:')
                           : t('tariffPlan.ourPlanIncludes', `Our ${plan.name} plan includes:`)}
@@ -580,14 +581,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       <div className="space-y-2.5 mb-4 font-public-sans flex-grow">
                         <div className="flex items-start">
                           <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
-                          <span className="text-xs text-gray-900 leading-relaxed">
+                          <span className="text-sm text-[#878787] leading-relaxed">
                             <span className="font-semibold">Storage:</span> {plan.storage}
                           </span>
                         </div>
                         
                         <div className="flex items-start">
                           <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
-                          <span className="text-xs text-gray-900 leading-relaxed">
+                          <span className="text-sm text-[#878787] leading-relaxed">
                             <span className="font-semibold">Connectors:</span> {plan.connectors}
                           </span>
                         </div>
@@ -595,7 +596,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         {plan.features.map((feature, index) => (
                           <div key={index} className="flex items-start">
                             <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
-                            <span className="text-xs text-gray-900 leading-relaxed">
+                            <span className="text-sm text-[#878787] leading-relaxed">
                               {feature}
                             </span>
                           </div>
@@ -605,9 +606,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       {/* CTA Button */}
                       <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-2.5 rounded-lg font-public-sans font-semibold text-sm transition-all duration-300 ${
+                        className={`w-full py-2.5 rounded-full font-public-sans font-semibold text-sm transition-all duration-300 ${
                           plan.id === currentPlanId
-                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            ? 'bg-gray-200 text-[#878787] cursor-not-allowed'
                             : plan.name.includes('Enterprise')
                             ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                             : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
@@ -625,14 +626,21 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 ))}
               </div>
-              
+              </div>
+              {/* See Full Comparison Link */}
+              <div className="text-center mt-6 mb-2">
+                <button className="text-blue-600 hover:text-blue-700 p-2 border border-blue-600 rounded-md font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                  {t('tariffPlan.seeFullComparison', 'See Full Comparison')}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
               {/* Credit Add-Ons Section */}
-              <div className="mt-8 border-t border-gray-200 pt-8">
-                <h2 className="text-xl font-bold text-[#434343] mb-1 text-center">
-                  {t('addOns.creditAddOns', 'Credit Add-Ons')}
+              <div className="mt-8 pt-8">
+                <h2 className="text-xl font-semibold text-[#4D4D4D] mb-1 text-center">
+                  Additional services
                 </h2>
-                <p className="text-sm text-gray-600 text-center mb-6">
-                  {t('addOns.creditAddOnsDescription', 'Need more credits? Purchase additional credit packages')}
+                <p className="text-sm text-[#878787] text-center mb-6">
+                  Add more power with extra credits, storage, or integrations.
                 </p>
                 
                 <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
@@ -704,14 +712,6 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     </div>
                   ))}
                 </div>
-              </div>
-              
-              {/* See Full Comparison Link */}
-              <div className="text-center mt-6 mb-2">
-                <button className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center gap-1 transition-colors">
-                  {t('tariffPlan.seeFullComparison', 'See Full Comparison')}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           </div>
