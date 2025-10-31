@@ -1999,7 +1999,9 @@ export default function ProjectInstanceViewPage() {
         }`}
       >
         <div className={`mx-auto ${
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'max-w-[1920px]'
             : 'max-w-7xl'
         }`}>

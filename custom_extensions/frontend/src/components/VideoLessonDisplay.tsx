@@ -37,10 +37,9 @@ const VideoLessonDisplay = ({
 
   return (
     <div 
-      className="mt-[5px] mx-auto mb-[5px]" 
+      className="mx-6 mb-[5px]" 
       style={{ 
         height: 'calc(100vh - 85px)',
-        maxWidth: '1376px',
         width: '100%',
         display: 'grid',
         gridTemplateColumns: 'repeat(12, 1fr)',
@@ -54,7 +53,7 @@ const VideoLessonDisplay = ({
       {/* Parent has 32px padding on each side (64px total), leaving 1376px for grid */}
       
       {/* Left section - 8 columns */}
-      <div className="col-span-8 flex flex-col gap-4">
+      <div className="col-span-8 flex flex-col gap-6">
         <div 
           className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
           style={{ 
