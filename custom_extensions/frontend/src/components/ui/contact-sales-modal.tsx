@@ -121,7 +121,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`} />
-      <DialogContent className={`sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/90 blur-sm transition-all duration-300 ${
+      <DialogContent className={`sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/90 backdrop-blur-sm transition-all duration-300 my-auto ${
         isAnimating 
           ? 'opacity-100 scale-100 translate-y-0' 
           : 'opacity-0 scale-95 -translate-y-4'

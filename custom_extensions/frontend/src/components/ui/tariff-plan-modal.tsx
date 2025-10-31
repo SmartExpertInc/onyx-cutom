@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow, Minus, Plus, InfoIcon } from 'lucide-react';
+import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow, Minus, Plus, InfoIcon, Sparkle, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -447,7 +447,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`} />
-      <DialogContent className={`sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[93vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm transition-all duration-300 ${
+      <DialogContent className={`sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[90vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm transition-all duration-300 my-auto ${
         isClosing 
           ? 'opacity-0 scale-95 translate-y-4' 
           : 'opacity-100 scale-100 translate-y-0'
@@ -514,16 +514,16 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div key={plan.id} className="relative flex flex-col">
                       {/* Most Popular Badge - Outside Card */}
                       {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center gap-1.5 shadow-md">
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center -mt-8 gap-1.5 shadow-md">
                           {t('tariffPlan.mostPopular', 'Most Popular')}
-                          <Star className="w-3 h-3 fill-white" />
+                          <Sparkles className="w-3 h-3 fill-white" />
                         </div>
                       )}
                       
                       <div
                         className={`rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex flex-col h-full overflow-hidden bg-white ${
                           plan.popular 
-                          ? 'border-blue-500 mt-4' 
+                          ? 'border-blue-500' 
                           : 'border-gray-200'
                         }`}
                       >
