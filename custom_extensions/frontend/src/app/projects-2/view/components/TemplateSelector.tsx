@@ -43,11 +43,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'impact-statements-slide': 'Impact Statements + Callouts',
     'dei-methods-slide': 'Methods Grid + Icons',
     'company-tools-resources-slide': 'Resources List + Icon Left',
-    'ai-pharma-market-growth-slide': 'Chart + Trend Callout',
+    'ai-pharma-market-growth-slide': 'Bar Chart + Photo',
     'critical-thinking-slide': 'Question + Supporting Points',
     'benefits-tags-slide': 'Tags + Small Avatar',
     'kpi-update-slide': 'KPI Cards + Trend Arrows',
-    'phishing-rise-slide': 'Donut Chart + Stats',
+    'phishing-rise-slide': 'Bar Chart + Narrative',
     'soft-skills-assessment-slide': 'Assessment Scale + Notes',
     'problems-grid-slide': 'Problems Grid',
     'solution-steps-slide': 'Numbered Steps + Icons',
@@ -66,15 +66,29 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
       return;
     }
 
+    // Build props with placeholders for all text fields in the schema
+    const placeholder = 'Add your text here';
+    const initialProps: Record<string, any> = { ...template.defaultProps };
+    const schema = (template as any).propSchema || {};
+    Object.entries(schema).forEach(([key, def]: [string, any]) => {
+      if (def?.type === 'text') {
+        initialProps[key] = placeholder;
+      }
+    });
+
+    // Ensure common fields are set as well
+    initialProps.title = typeof initialProps.title === 'string' && initialProps.title.trim().length > 0
+      ? placeholder
+      : placeholder;
+    if (typeof initialProps.content === 'string') {
+      initialProps.content = placeholder;
+    }
+
     const newSlide: ComponentBasedSlide = {
       slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       slideNumber: currentSlideCount + 1,
       templateId: templateId,
-      props: {
-        ...template.defaultProps,
-        title: template.defaultProps.title || `Slide ${currentSlideCount + 1}`,
-        content: 'Add your text here'
-      },
+      props: initialProps,
       metadata: {
         createdAt: new Date().toISOString(),
         version: '1.0'
@@ -96,7 +110,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
             <button
               key={template.id}
               onClick={() => handleAddSlide(template.id)}
-              className="w-full p-4 border border-gray-200 rounded-lg bg-white cursor-pointer flex items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
+              className="w-full p-4 border border-gray-200 rounded-lg bg_white cursor-pointer flex items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
             >
               <div className="flex-shrink-0 text-2xl mt-0.5 group-hover:scale-110 transition-transform">
                 {template.icon}
