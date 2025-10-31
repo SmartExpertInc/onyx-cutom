@@ -105,7 +105,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white overflow-hidden my-auto" hideCloseIcon>
+      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white overflow-hidden" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
