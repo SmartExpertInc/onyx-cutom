@@ -88,7 +88,7 @@ const VideoLessonDisplay = ({
 
   return (
     <div 
-      className="py-4 flex gap-4 bg-[#F2F2F4]" 
+      className="py-5 flex gap-4 bg-[#F2F2F4]" 
       style={{ 
         minHeight: 'calc(100vh - 64px)' // 64px = header height
       }}
