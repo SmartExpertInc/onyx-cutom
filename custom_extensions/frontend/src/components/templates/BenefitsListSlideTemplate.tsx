@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { BenefitsListSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
@@ -152,12 +153,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const handleLogoNewUploaded = (newLogoPath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
-    }
-  };
-
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
@@ -381,7 +376,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           ))}
         </div>
 
-        {/* Profile image */}
+        {/* Avatar in circular container */}
         <div style={{
           position: 'absolute',
           top: '60px',
@@ -392,21 +387,15 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           overflow: 'hidden',
           backgroundColor: '#ffffff',
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
-              width: '110%',
-              height: '110%',
+              width: '88%',
+              height: '135%',
               borderRadius: '50%',
               position: 'relative',
-              bottom: '-10px',
-              left: '50%',
-              transform: 'translateX(-50%)',
+              bottom: '0px',
               objectFit: 'cover'
             }}
           />

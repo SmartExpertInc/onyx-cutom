@@ -2662,8 +2662,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       leftText: { type: 'text', label: 'Left Text', required: true },
       middleText: { type: 'text', label: 'Middle Text', required: true },
       rightText: { type: 'text', label: 'Right Text', required: true },
-      middlePanelColor: { type: 'color', label: 'Middle Panel' },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      middlePanelColor: { type: 'color', label: 'Middle Panel' }
     }
   }
   ,

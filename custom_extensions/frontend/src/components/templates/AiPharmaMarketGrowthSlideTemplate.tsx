@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AiPharmaMarketGrowthSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
@@ -90,7 +91,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     position: 'absolute',
     left: '64px',
     top: '275px',
-    width: '56%',
+    width: '43%',
     display: 'flex',
     flexDirection: 'column',
     gap: '0px'
@@ -98,7 +99,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
   const rightImageArea: React.CSSProperties = {
     position: 'absolute',
-    right: '90px',
+    right: '-10px',
     top: '30px',
     bottom: '97px',
     height: '96%',
@@ -424,16 +425,15 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
         )}
       </div>
 
-      {/* Right doctor image */}
+      {/* Right avatar image */}
       <div style={rightImageArea}>
-        <ClickableImagePlaceholder
-          imagePath={doctorImagePath}
-          onImageUploaded={(p: string) => onUpdate && onUpdate({ doctorImagePath: p })}
+        <AvatarImageDisplay
           size="LARGE"
           position="CENTER"
-          description="Doctor"
-          isEditable={isEditable}
-          style={{ width: '100%', height: '100%' }}
+          style={{
+            width: '100%',
+            height: '100%'
+          }}
         />
       </div>
 

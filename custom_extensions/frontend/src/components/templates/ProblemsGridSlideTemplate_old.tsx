@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 
 export interface ProblemsGridSlideProps extends BaseTemplateProps {
@@ -28,7 +28,7 @@ export const ProblemsGridSlideTemplate_old: React.FC<ProblemsGridSlideProps & { 
     { number: '3', title: 'Problem Name', body: "In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success." },
     { number: '4', title: 'Problem Name', body: "In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success." },
   ],
-  rightText = "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and bigges\niatoerostornsuestroner\nproductivitytounhappycustomers.Butdon'tworry – we're here to help.",
+  rightText = "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and biggest\niatoe rostornsue stroner\nproductivity toun happy\n customers.But don't worry –\n we're here to help.",
   avatarPath = '',
   pageNumber = '12',
   logoPath = '',
@@ -167,7 +167,18 @@ export const ProblemsGridSlideTemplate_old: React.FC<ProblemsGridSlideProps & { 
       </div>
 
       <div style={avatar}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <AvatarImageDisplay
+          size="MEDIUM"
+          position="CENTER"
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
+        />
       </div>
 
       {/* Page number */}

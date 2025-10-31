@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { KpiUpdateSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
@@ -238,16 +239,19 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         ))}
       </div>
 
-      {/* Profile image absolute bottom-left */}
+      {/* Avatar absolute bottom-left */}
       <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#0F58F9', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
-          size="LARGE"
+        <AvatarImageDisplay
+          size="MEDIUM"
           position="CENTER"
-          description="Profile"
-          isEditable={isEditable}
-          style={{ height: '125%', objectFit: 'cover', borderRadius: '50%' }}
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
         />
       </div>
 
