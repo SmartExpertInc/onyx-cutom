@@ -88,9 +88,9 @@ const VideoLessonDisplay = ({
 
   return (
     <div 
-      className="py-4 flex gap-4 overflow-hidden bg-[#F2F2F4]" 
+      className="py-4 flex gap-4 overflow-hidden bg-[#F2F2F4] min-h-screen" 
       style={{ 
-        height: 'calc(100vh - 64px - 32px)' // 64px = header height, 32px = py-4 (16px top + 16px bottom)
+        height: 'calc(100vh - 64px)' // 64px = header height
       }}
     >
       <div className="w-full flex flex-col gap-4">
