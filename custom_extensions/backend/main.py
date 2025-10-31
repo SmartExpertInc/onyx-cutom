@@ -34210,6 +34210,7 @@ async def stripe_webhook(
                         {
                             "Mode": "Invoice",
                             "Plan Type": plan_type.capitalize() if plan_type else None,
+                            "Invoice ID": invoice.get('id'),
                             "Invoice Item": invoice_item,
                             "Amount": amount_paid / 100.0,
                             "Currency": currency,
