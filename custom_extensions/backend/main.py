@@ -12723,6 +12723,11 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
     reserve_for_completion = 12000 if product_type in {"Course Outline", "Lesson Presentation", "Video Lesson Presentation"} else 8000
     reserve_for_scaffold = 6000
     available = max(10000, total_budget - reserve_for_completion - reserve_for_scaffold)
+    try:
+        logger.info(f"[ASSEMBLER] model={model} product_type={product_type}")
+        logger.info(f"[ASSEMBLER] budgets: total={total_budget} reserve_completion={reserve_for_completion} reserve_scaffold={reserve_for_scaffold} available={available}")
+    except Exception:
+        pass
 
     # Gather candidate texts: file_contents + connector extracted_raw_content (if any)
     candidates: List[Tuple[str, str]] = []  # (source_id, text)
@@ -12733,6 +12738,12 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
     connector_raw = file_context.get("extracted_raw_content") or ""
     if connector_raw:
         candidates.append(("connectors", connector_raw))
+    try:
+        logger.info(f"[ASSEMBLER] candidates={len(candidates)} | files={len(file_context.get('file_contents') or [])} | has_connector_raw={bool(connector_raw)}")
+        for sid, txt in candidates[:10]:
+            logger.info(f"[ASSEMBLER] candidate[{sid}] chars={len(txt)}")
+    except Exception:
+        pass
 
     if not candidates:
         return ""
@@ -12743,6 +12754,12 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
         sample = txt[:2000]
         score = _simple_relevance(original_prompt, sample)
         source_scores.append((sid, score))
+    try:
+        logger.info("[ASSEMBLER] source scores:")
+        for sid, s in source_scores:
+            logger.info(f"[ASSEMBLER]  - {sid}: score={s:.3f}")
+    except Exception:
+        pass
     # Normalize and allocate per-source budgets with floors/ceilings
     total_score = sum(s for _, s in source_scores) or 1.0
     min_per_source = 3000
@@ -12768,6 +12785,12 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
             remainder -= take
             if remainder <= 0:
                 break
+    try:
+        logger.info("[ASSEMBLER] allocations (tokens per source):")
+        for sid, tok in allocations.items():
+            logger.info(f"[ASSEMBLER]  - {sid}: tokens={tok}")
+    except Exception:
+        pass
 
     # Build ranked chunks per source
     assembled_parts: List[str] = []
@@ -12776,7 +12799,16 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
         if budget <= 0:
             continue
         chunks = _chunk_text(full_text, enc, target_tokens=900, overlap_tokens=120)
+        try:
+            logger.info(f"[ASSEMBLER] {sid}: total_chunks={len(chunks)} budget_tokens={budget}")
+        except Exception:
+            pass
         ranked = sorted(chunks, key=lambda ch: _simple_relevance(original_prompt, ch), reverse=True)
+        try:
+            preview = [(_simple_relevance(original_prompt, ch), len(ch)) for ch in ranked[:5]]
+            logger.info(f"[ASSEMBLER] {sid}: top5_chunk_scores={[round(p[0],3) for p in preview]} top5_chunk_sizes={[p[1] for p in preview]}")
+        except Exception:
+            pass
         taken_tokens = 0
         selected: List[str] = []
         for ch in ranked:
@@ -12796,10 +12828,19 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
             taken_tokens += ct
             if taken_tokens >= budget:
                 break
+        try:
+            logger.info(f"[ASSEMBLER] {sid}: selected_chunks={len(selected)} used_tokens~={taken_tokens}")
+        except Exception:
+            pass
         header = "[CONNECTORS]" if sid == "connectors" else f"[SOURCE {sid}]"
         assembled_parts.append(header + "\n" + "\n\n".join(selected))
 
-    return "\n\n".join(assembled_parts)
+    final_text = "\n\n".join(assembled_parts)
+    try:
+        logger.info(f"[ASSEMBLER] final_assembled_chars={len(final_text)} final_assembled_tokens~={_count_tokens(final_text, enc)}")
+    except Exception:
+        pass
+    return final_text
 
 async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini", wizard_payload: dict = None):
     """
