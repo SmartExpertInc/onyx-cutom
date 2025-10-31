@@ -345,18 +345,11 @@ export default function BillingPage() {
   })();
   const handleUpgradeToYearly = async () => {
     try {
-      // Map current plan to yearly price id
-      const yearlyPriceIdMap = {
-        pro: 'price_1SEBUCH2U2KQUmUhkym5Q9TS',
-        business: 'price_1SEBUoH2U2KQUmUhMktbhCsm'
-      };
-      const planKey = currentPlan.name.toLowerCase();
-      const priceId = planKey.includes('business') ? yearlyPriceIdMap.business : yearlyPriceIdMap.pro;
       const res = await fetch('/api/custom-projects-backend/billing/checkout', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, planName: `${currentPlan.name} (Yearly)`, upgradeFromSubscriptionId: billingInfo.subscriptionId })
+        body: JSON.stringify({ planName: `${currentPlan.name.toLowerCase()}_yearly`, upgradeFromSubscriptionId: billingInfo.subscriptionId })
       });
       if (!res.ok) throw new Error('Failed to create upgrade session');
       const data = await res.json();

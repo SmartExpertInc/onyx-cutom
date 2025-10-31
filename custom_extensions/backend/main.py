@@ -131,7 +131,7 @@ TIER_TO_CREDITS: dict[str, int] = {
     "business_yearly": 24000,
 }
 
-def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
+def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str], dict[str, str]]:
     """Load price id → addon mapping and tier mapping from env once."""
     addon_map: dict[str, dict] = {}
     def _reg(price_id: Optional[str], addon_type: str, units: int):
@@ -182,9 +182,13 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
     _tier(os.getenv("STRIPE_PRICE_BUSINESS_MONTHLY"), "business_monthly")
     _tier(os.getenv("STRIPE_PRICE_PRO_YEARLY"), "pro_yearly")
     _tier(os.getenv("STRIPE_PRICE_BUSINESS_YEARLY"), "business_yearly")
-    return addon_map, price_to_tier
+    
+    # Create inverse mapping: tier → price_id
+    tier_to_price_id: dict[str, str] = {tier: price_id for price_id, tier in price_to_tier.items()}
+    
+    return addon_map, price_to_tier, tier_to_price_id
 
-PRICE_TO_ADDON, PRICE_TO_TIER = _load_price_maps_once()
+PRICE_TO_ADDON, PRICE_TO_TIER, TIER_TO_PRICE_ID = _load_price_maps_once()
 
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
@@ -32970,8 +32974,7 @@ async def create_billing_portal_session(
 
 
 class CreateCheckoutRequest(BaseModel):
-    priceId: str
-    planName: Optional[str] = None
+    planName: str  # format: <plan_name>_<billing_cycle> (e.g. pro_monthly, business_yearly)
     upgradeFromSubscriptionId: Optional[str] = None
 
 
@@ -32985,6 +32988,10 @@ async def create_checkout_session(
     try:
         if not STRIPE_SECRET_KEY:
             raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        price_id = TIER_TO_PRICE_ID.get(payload.planName)
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Invalid plan name")
 
         onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
 
@@ -33029,7 +33036,7 @@ async def create_checkout_session(
             customer=stripe_customer_id,
             payment_method_types=['card'],
             line_items=[{
-                'price': payload.priceId,
+                'price': price_id,
                 'quantity': 1,
             }],
             mode='subscription',
@@ -33762,6 +33769,8 @@ async def stripe_webhook(
                         {
                             "Mode": "Subscription",
                             "Plan Type": plan.capitalize(),
+                            "Subscription ID": subscription_id,
+                            "Subscription Item": "Plan" if not is_addon_purchase else PRICE_TO_ADDON.get(price_id, 'Unknown').get('type', 'Unknown').capitalize(),
                             "Amount": amount_total / 100,  # Convert from cents
                             "Currency": currency
                         }
@@ -34105,7 +34114,7 @@ async def stripe_webhook(
                         "Payment Succeeded",
                         {
                             "Mode": "Invoice",
-                            "Plan Type": plan_type.capitalize(),
+                            "Plan Type": plan_type.capitalize() if plan_type else None,
                             "Amount": amount_paid / 100.0,
                             "Currency": currency,
                         }
@@ -34189,11 +34198,10 @@ async def stripe_webhook(
                             plan = 'business'
                         elif 'pro' in lowered:
                             plan = 'pro'
-
+                    
                 # Amount and currency from base plan price
                 if price_id:
                     try:
-                        import stripe  # type: ignore
                         p = stripe.Price.retrieve(price_id)
                         unit_amount = getattr(p, 'unit_amount', None)
                         currency = getattr(p, 'currency', None)
@@ -34209,14 +34217,14 @@ async def stripe_webhook(
             # Lookup user and track
             try:
                 async with pool.acquire() as conn:
-                    rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+                    rec = await conn.fetchrow("SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1", customer_id)
                 if rec:
                     onyx_user_id = rec['onyx_user_id']
                     mixpanel_helper.track_to_mp(
                         onyx_user_id,
                         "Subscription Created",
                         {
-                            "Plan Type": plan.capitalize() if plan else None,
+                            "Plan Type": plan.capitalize() if plan else rec['current_plan'].capitalize(), # Fallback to current plan if not found
                             "Subscription Id": subscription_id,
                             "Amount": amount_major,
                             "Start Date": start_date,
