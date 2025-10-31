@@ -34015,62 +34015,6 @@ async def stripe_webhook(
                         )
                     logger.info(f"[BILLING] Updated subscription for user {onyx_user_id}: plan={plan}, status={subscription['status']}")
 
-                    # Compute price difference between old plan and new plan (normalized monthly)
-                    price_difference_major = None
-                    try:
-                        old_amt = old_ccy = old_interval = None
-                        new_amt = new_ccy = new_interval = None
-
-                        if old_price_id:
-                            old_price = stripe.Price.retrieve(old_price_id)
-                            old_amt = getattr(old_price, 'unit_amount', None)
-                            old_ccy = getattr(old_price, 'currency', None)
-                            old_rec = getattr(old_price, 'recurring', None) or {}
-                            old_interval = old_rec.get('interval')
-
-                        if price_id:
-                            new_price = stripe.Price.retrieve(price_id)
-                            new_amt = getattr(new_price, 'unit_amount', None)
-                            new_ccy = getattr(new_price, 'currency', None)
-                            new_rec = getattr(new_price, 'recurring', None) or {}
-                            new_interval = new_rec.get('interval')
-
-                        def to_monthly(amount_cents, interval):
-                            if amount_cents is None:
-                                return None
-                            if interval == 'month':
-                                return float(amount_cents)
-                            if interval == 'year':
-                                return float(amount_cents) / 12.0
-                            # Unknown interval: treat as monthly-equivalent fallback
-                            return float(amount_cents)
-
-                        if old_amt is not None and new_amt is not None and old_ccy and new_ccy and old_ccy == new_ccy:
-                            old_monthly = to_monthly(old_amt, old_interval)
-                            new_monthly = to_monthly(new_amt, new_interval)
-                            if old_monthly is not None and new_monthly is not None:
-                                # Convert cents to major units
-                                price_difference_major = round((new_monthly - old_monthly) / 100.0, 2)
-                    except Exception as _pd_err:
-                        logger.warning(f"[BILLING] Failed to compute price difference: {_pd_err}")
-                    
-                    if plan != existing_plan:
-                        # Track plan upgrade/downgrade to Mixpanel
-                        try:
-                            mixpanel_helper.track_to_mp(
-                                onyx_user_id,
-                                "Plan Upgraded" if _map_plan_to_value(plan) > _map_plan_to_value(existing_plan) else "Plan Downgraded",
-                                {
-                                    "New Plan": plan.capitalize(),
-                                    "Old Plan": existing_plan.capitalize() if existing_plan else None,
-                                    "Price Difference": price_difference_major,  # monthly-equivalent, in major units
-                                    "Currency": new_ccy.upper() if price_difference_major is not None and new_ccy else None,
-                                }
-                            )
-                            logger.info(f"Tracked plan upgrade/downgrade to Mixpanel for user {onyx_user_id}: new_plan={plan}, old_plan={existing_plan}, price_difference={price_difference_major}, currency={new_ccy.upper()}")
-                        except Exception as track_err:
-                            logger.warning(f"Failed to track plan upgrade/downgrade to Mixpanel: {track_err}")
-
                 else:
                     # No base tier found - this is likely just add-ons being added
                     # Only update status, preserve existing plan
