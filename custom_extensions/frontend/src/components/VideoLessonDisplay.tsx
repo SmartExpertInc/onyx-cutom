@@ -31,6 +31,8 @@ const VideoLessonDisplay = ({
   const { t } = useLanguage();
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
 
+  console.log('VideoLessonDisplay props:', { createdAt, parentProjectName, productId });
+
   const handleDraftClick = () => {
     if (productId) {
       router.push(`/custom-projects-ui/projects-2/view/${productId}`);
@@ -39,7 +41,11 @@ const VideoLessonDisplay = ({
 
   // Format date as "28th Oct, 25"
   const formatDate = (dateString?: string): string => {
-    if (!dateString) return '';
+    if (!dateString) {
+      console.log('VideoLessonDisplay: No createdAt provided');
+      return '';
+    }
+    console.log('VideoLessonDisplay: createdAt =', dateString);
     try {
       const date = new Date(dateString);
       const day = date.getDate();
@@ -57,33 +63,35 @@ const VideoLessonDisplay = ({
         }
       };
       
-      return `${day}${suffix(day)} ${month}, ${year}`;
-    } catch {
+      const formatted = `${day}${suffix(day)} ${month}, ${year}`;
+      console.log('VideoLessonDisplay: formatted date =', formatted);
+      return formatted;
+    } catch (error) {
+      console.error('VideoLessonDisplay: Error formatting date:', error);
       return '';
     }
   };
 
   return (
     <div 
-      className="mx-6 mb-[5px] flex gap-4" 
+      className="mx-6 my-2 flex gap-4 overflow-hidden" 
       style={{ 
-        height: 'calc(100vh - 85px)'
+        height: 'calc(100vh - 64px - 16px)' // 64px = header height, 16px = vertical margins (my-2 = 8px top + 8px bottom)
       }}
     >
       {/* Video lesson section - takes remaining space */}
-      <div className="flex-1 flex flex-col gap-6">
+      <div className="flex-1 flex flex-col gap-6 min-h-0">
         <div 
-          className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
+          className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg flex-1 min-h-0"
           style={{ 
-            aspectRatio: '16 / 9',
-            width: '100%'
+            aspectRatio: '16 / 9'
           }}
         >
           <p className="text-gray-400 text-lg">Video lesson area</p>
         </div>
 
         {/* Title and Action Buttons */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-shrink-0">
           {/* Left: Video Lesson Title */}
           <div>
             <h3 className="text-md font-semibold text-gray-900">
@@ -144,7 +152,7 @@ const VideoLessonDisplay = ({
         </div>
 
         {/* Rating section */}
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 flex-shrink-0">
             <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-lg rounded-md px-3 py-3">
               <span className="text-[#171718] text-xs">{t('modals.play.rateQuality', "How's the video and voice quality?")}</span>
               <div className="flex gap-1">
@@ -167,12 +175,9 @@ const VideoLessonDisplay = ({
         </div>
       </div>
 
-      {/* Comments section - fixed 400px width */}
+      {/* Comments section - fixed 400px width, matches video area height */}
       <div className="w-[400px] flex flex-col">
-        <div 
-          className="flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]"
-          style={{ aspectRatio: '16 / 9' }}
-        >
+        <div className="flex-1 flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
           <p className="text-gray-500">Comments area</p>
         </div>
       </div>
