@@ -861,88 +861,87 @@ export default function VideoEditorHeader({
 
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3">
-            {!showReady && (
-              <>
-                <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
-                  <Undo2 className="w-4 h-4 text-gray-700" />
-                </button>
-                <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
-                  <Redo2 className="w-4 h-4 text-gray-700" />
-                </button>
-                <div className="w-0.5 h-[18px] bg-gray-300"></div>
-                <div className="hidden lg:flex items-center">
-                  <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 28 28" className="w-4 h-4 text-gray-700">
-                      <path fill="currentColor" d="M6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v15.5A1.75 1.75 0 0 0 6 23.482V16.25A2.25 2.25 0 0 1 8.25 14h11.5A2.25 2.25 0 0 1 22 16.25v7.232a1.75 1.75 0 0 0 1.5-1.732V8.786c0-.465-.184-.91-.513-1.238l-2.535-2.535a1.75 1.75 0 0 0-1.238-.513H19v4.25A2.25 2.25 0 0 1 16.75 11h-6.5A2.25 2.25 0 0 1 8 8.75V4.5H6.25Zm3.25 0v4.25c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75V4.5h-8Zm11 19v-7.25a.75.75 0 0 0-.75-.75H8.25a.75.75 0 0 0-.75.75v7.25h13ZM3 6.25A3.25 3.25 0 0 1 6.25 3h12.965a3.25 3.25 0 0 1 2.298.952l2.535 2.535c.61.61.952 1.437.952 2.299V21.75A3.25 3.25 0 0 1 21.75 25H6.25A3.25 3.25 0 0 1 3 21.75V6.25Z"/>
-                    </svg>
-                  </button>
-                </div>
-                <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
-                <div className="flex items-center relative">
-                  <button
-                    ref={resizeButtonRef}
-                    onClick={handleResizeClick}
-                    className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
-                    </svg>
-                    <span className="text-black text-sm font-normal">Resize</span>
-                  </button>
-                  {isResizePopupOpen && (
-                    <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80" data-resize-popup>
-                      <div className="py-2">
-                        {resizeOptions.map((option, index) => (
-                          <button
-                            key={index}
-                            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
-                              option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                            onClick={() => handleResizeOptionClick(option.ratio)}
-                            disabled={option.ratio === 'Custom'}
-                          >
-                            <div>
-                              {option.icon}
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm text-black">{option.ratio}</span>
-                              <span className="text-sm text-gray-500">{option.description}</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="pb-3">
-                        <div className="bg-amber-50 text-amber-800 text-sm p-3 mx-0">
-                          Existing content on the scene will not be reorganised automatically.
+            <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
+              <Undo2 className="w-4 h-4 text-gray-700" />
+            </button>
+            <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
+              <Redo2 className="w-4 h-4 text-gray-700" />
+            </button>
+            <div className="w-0.5 h-[18px] bg-gray-300"></div>
+            <div className="hidden lg:flex items-center">
+              <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 28 28" className="w-4 h-4 text-gray-700">
+                  <path fill="currentColor" d="M6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v15.5A1.75 1.75 0 0 0 6 23.482V16.25A2.25 2.25 0 0 1 8.25 14h11.5A2.25 2.25 0 0 1 22 16.25v7.232a1.75 1.75 0 0 0 1.5-1.732V8.786c0-.465-.184-.91-.513-1.238l-2.535-2.535a1.75 1.75 0 0 0-1.238-.513H19v4.25A2.25 2.25 0 0 1 16.75 11h-6.5A2.25 2.25 0 0 1 8 8.75V4.5H6.25Zm3.25 0v4.25c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75V4.5h-8Zm11 19v-7.25a.75.75 0 0 0-.75-.75H8.25a.75.75 0 0 0-.75.75v7.25h13ZM3 6.25A3.25 3.25 0 0 1 6.25 3h12.965a3.25 3.25 0 0 1 2.298.952l2.535 2.535c.61.61.952 1.437.952 2.299V21.75A3.25 3.25 0 0 1 21.75 25H6.25A3.25 3.25 0 0 1 3 21.75V6.25Z"/>
+                </svg>
+              </button>
+            </div>
+            <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
+            <div className="flex items-center relative">
+              <button
+                ref={resizeButtonRef}
+                onClick={() => { if (!showReady) handleResizeClick(); }}
+                className={`flex items-center gap-2 p-1 rounded transition-colors ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`}
+                title={showReady ? 'Soon' : undefined}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
+                  <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
+                </svg>
+                <span className="text-black text-sm font-normal">Resize</span>
+              </button>
+              {!showReady && isResizePopupOpen && (
+                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80" data-resize-popup>
+                  <div className="py-2">
+                    {resizeOptions.map((option, index) => (
+                      <button
+                        key={index}
+                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
+                          option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        onClick={() => handleResizeOptionClick(option.ratio)}
+                        disabled={option.ratio === 'Custom'}
+                      >
+                        <div>
+                          {option.icon}
                         </div>
-                      </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-black">{option.ratio}</span>
+                          <span className="text-sm text-gray-500">{option.description}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="pb-3">
+                    <div className="bg-amber-50 text-amber-800 text-sm p-3 mx-0">
+                      Existing content on the scene will not be reorganised automatically.
                     </div>
-                  )}
+                  </div>
                 </div>
-                <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
-                <div className="hidden lg:flex items-center">
-                  <button 
-                    onClick={handleEyeToggle}
-                    className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer gap-2"
-                  >
-                    {isEyeVisible ? (
-                      <Eye className="w-4 h-4 text-gray-700" />
-                    ) : (
-                      <EyeOff className="w-4 h-4 text-gray-700" />
-                    )}
-                    <span className="text-black text-sm font-normal">Grid</span>
-                  </button>
-                </div>
-                <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
-                <button
-                  onClick={handleUpgradeClick}
-                  className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 cursor-pointer"
-                >
-                  <Gem className="w-4 h-4 text-purple-700" />
-                  <span className="text-sm font-normal">Upgrade</span>
-                </button>
-              </>
-            )}
+              )}
+            </div>
+            <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
+            <div className="hidden lg:flex items-center">
+              <button 
+                onClick={() => { if (!showReady) handleEyeToggle(); }}
+                className={`p-1 rounded transition-colors flex items-center justify-center gap-2 ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`}
+                title={showReady ? 'Soon' : undefined}
+              >
+                {isEyeVisible ? (
+                  <Eye className="w-4 h-4 text-gray-700" />
+                ) : (
+                  <EyeOff className="w-4 h-4 text-gray-700" />
+                )}
+                <span className="text-black text-sm font-normal">Grid</span>
+              </button>
+            </div>
+            <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
+            <button
+              onClick={() => { if (!showReady) handleUpgradeClick(); }}
+              className={`rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-purple-100' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer'}`}
+              title={showReady ? 'Soon' : undefined}
+            >
+              <Gem className="w-4 h-4 text-purple-700" />
+              <span className="text-sm font-normal">Upgrade</span>
+            </button>
           </div>
         </div>
 
@@ -983,14 +982,13 @@ export default function VideoEditorHeader({
         {/* Right section - Share and Generate buttons */}
           <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            {!showReady && (
-              <button 
-                onClick={handlePlayClick}
-                className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
-              >
-                <Play className="w-4 h-4 text-gray-700" />
-              </button>
-            )}
+            <button 
+              onClick={() => { if (!showReady) handlePlayClick(); }}
+              className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
+              title={showReady ? 'Soon' : undefined}
+            >
+              <Play className="w-4 h-4 text-gray-700" />
+            </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
@@ -1114,29 +1112,27 @@ export default function VideoEditorHeader({
             </div>
 
             {/* Generate button */}
-            {!showReady && (
-              <button
-                onClick={handleGenerateClick}
-                className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
-              >
-                <span className="text-sm font-normal">Generate</span>
-              </button>
-            )}
+            <button
+              onClick={() => { if (!showReady) handleGenerateClick(); }}
+              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-200 text-gray-500' : 'bg-black text-white hover:bg-gray-800 cursor-pointer'}`}
+              title={showReady ? 'Soon' : undefined}
+            >
+              <span className="text-sm font-normal">Generate</span>
+            </button>
 
             {/* Debug Render button (No Avatar) */}
-            {!showReady && (
-              <button
-                onClick={() => {
-                  setIsGenerateModalOpen(false);
-                  handleVideoGeneration(true);
-                }}
-                className="bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 cursor-pointer"
-                title="Render slides with transitions only (no avatar) - for testing and debugging"
-              >
-                <Video className="w-4 h-4 text-gray-700" />
-                <span className="text-sm font-normal">Debug</span>
-              </button>
-            )}
+            <button
+              onClick={() => {
+                if (showReady) return;
+                setIsGenerateModalOpen(false);
+                handleVideoGeneration(true);
+              }}
+              className={`rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'}`}
+              title={showReady ? 'Soon' : 'Render slides with transitions only (no avatar) - for testing and debugging'}
+            >
+              <Video className="w-4 h-4 text-gray-700" />
+              <span className="text-sm font-normal">Debug</span>
+            </button>
           </div>
         </div>
       </div>
