@@ -1996,13 +1996,14 @@ export default function ProjectInstanceViewPage() {
       />
       
       <main 
-        className={`min-h-screen font-inter ${
-          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+        className={`font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? 'bg-[#F2F2F4] p-0'
-            : 'bg-[#F2F2F4] p-4 md:p-8'
+            ? 'bg-[#F2F2F4] px-12 py-0'
+            : projectInstanceData?.component_name === COMPONENT_NAME_QUIZ || 
+              projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+            ? 'min-h-screen bg-[#F2F2F4] p-0'
+            : 'min-h-screen bg-[#F2F2F4] p-4 md:p-8'
         }`}
       >
         <div className={`mx-auto ${

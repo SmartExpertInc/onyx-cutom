@@ -65,7 +65,10 @@ const VideoLessonDisplay = ({
 
   return (
     <div 
-      className="fixed top-16 left-0 right-0 bottom-0 px-8 py-4 flex gap-4 overflow-hidden bg-[#F2F2F4]" 
+      className="py-4 flex gap-4 overflow-hidden" 
+      style={{ 
+        height: 'calc(100vh - 64px - 32px)' // 64px = header height, 32px = py-4 (16px top + 16px bottom)
+      }}
     >
       {/* Video lesson section - takes remaining space */}
       <div className="flex-1 flex flex-col gap-6 min-h-0">
