@@ -1876,7 +1876,7 @@ export const ru = {
     processingPayment: "Обработка платежа...",
     contactSales: "Связаться с отделом продаж",
     subscriptionActivation: "Ваша подписка будет активирована сразу после подтверждения платежа",
-    chooseYourPlan: "Выберите план, который подходит именно вам",
+    customizeYourSubscription: "Настройте свою подписку",
     billMonthly: "Ежемесячная",
     billYearly: "Годовая",
     mostPopular: "Самый популярный",

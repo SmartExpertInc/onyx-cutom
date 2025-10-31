@@ -1901,7 +1901,7 @@ export const es = {
     processingPayment: "Procesando pago...",
     contactSales: "Contactar con ventas",
     subscriptionActivation: "Su suscripción se activará inmediatamente después de la confirmación del pago",
-    chooseYourPlan: "Elige el plan adecuado para ti",
+    customizeYourSubscription: "Personaliza tu suscripción",
     billMonthly: "Mensual",
     billYearly: "Anual",
     mostPopular: "Más popular",

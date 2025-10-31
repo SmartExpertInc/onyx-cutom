@@ -1,10 +1,61 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow } from 'lucide-react';
+import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow, Minus, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
+
+const CoinsIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg width="27" height="27" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+  <mask id="mask0_600_36680" style={{maskType: 'luminance'}} maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
+  <path d="M0.125 0.125002H24.875V24.875H0.125V0.125002Z" fill="white"/>
+  </mask>
+  <g mask="url(#mask0_600_36680)">
+  <path d="M23.6333 14.0775C24.0136 14.9767 24.224 15.9652 24.224 17.0028C24.224 21.1534 20.8592 24.5181 16.7087 24.5181C12.5581 24.5181 9.19336 21.1534 9.19336 17.0028C9.19336 12.8522 12.5581 9.48752 16.7087 9.48752C19.2187 9.48752 21.4414 10.7181 22.8063 12.6088" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M22.4712 16.9973C22.4712 20.1801 19.8911 22.7603 16.7083 22.7603C13.5255 22.7603 10.9453 20.1801 10.9453 16.9973C10.9453 13.8145 13.5255 11.2344 16.7083 11.2344C19.8911 11.2344 22.4712 13.8145 22.4712 16.9973Z" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M15.6133 16.3238V14.288C15.6133 14.0153 15.8342 13.7944 16.1068 13.7944H17.3105C17.5831 13.7944 17.8041 14.0153 17.8041 14.288V19.7101C17.8041 19.9827 17.5831 20.2036 17.3105 20.2036H16.1068C15.8342 20.2036 15.6133 19.9827 15.6133 19.7101V18.0157" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M4.24219 22.9871V24.5181" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M6.73438 22.9871V24.5181" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M9.23047 22.9871V24.5181" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M11.7207 22.9871V24.5181" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M5.74414 19.9784V21.5093" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M8.23828 19.9784V21.5093" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M3.33984 16.9754V18.5063" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M5.83203 16.9754V18.5063" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M8.32617 16.9754V18.5063" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M4.24219 13.9725V15.5034" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M6.73438 13.9725V15.5034" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M9.23047 13.9725V15.5034" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M4.84375 10.9735V12.5044" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M7.33594 10.9735V12.5044" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M9.83008 10.9735V12.5044" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M16.4774 9.49658H1.91264C1.784 9.49658 1.67969 9.39231 1.67969 9.26373V6.72608C1.67969 6.5974 1.784 6.49313 1.91264 6.49313H16.4774C16.606 6.49313 16.7103 6.5974 16.7103 6.72608V9.26373C16.7103 9.39231 16.606 9.49658 16.4774 9.49658Z" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M4.24219 7.96571V9.49658" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M6.73438 7.96571V9.49658" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M9.23047 7.96571V9.49658" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M11.7207 7.96571V9.49658" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M14.2148 7.96571V9.49658" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M15.8739 6.49756H1.30912C1.18049 6.49756 1.07617 6.39329 1.07617 6.26466V3.72701C1.07617 3.59833 1.18049 3.49411 1.30912 3.49411H15.8739C16.0025 3.49411 16.1067 3.59833 16.1067 3.72701V6.26466C16.1067 6.39329 16.0025 6.49756 15.8739 6.49756Z" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M3.63867 4.96664V6.49756" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M6.13477 4.96664V6.49756" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M8.625 4.96664V6.49756" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M11.1211 4.96664V6.49756" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M13.6152 4.96664V6.49756" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M6.53405 0.491178H18.2781C18.4067 0.491178 18.5111 0.595447 18.5111 0.724079V3.26173C18.5111 3.39036 18.4067 3.49463 18.2781 3.49463H3.71337C3.58474 3.49463 3.48047 3.39036 3.48047 3.26173V0.724079C3.48047 0.595447 3.58474 0.491178 3.71337 0.491178H4.84215" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M6.04688 1.96375V3.49463" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M8.53711 1.96375V3.49463" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M11.0312 1.96375V3.49463" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M13.5273 1.96375V3.49463" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M16.0176 1.96375V3.49463" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M3.41064 18.5058C3.282 18.5058 3.17773 18.6101 3.17773 18.7387V21.2764C3.17773 21.4051 3.282 21.5093 3.41064 21.5093" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M2.5122 9.50094C2.38357 9.50094 2.2793 9.60516 2.2793 9.7338V12.2714C2.2793 12.4001 2.38357 12.5044 2.5122 12.5044" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M10.6888 12.5H1.91259C1.78396 12.5 1.67969 12.6042 1.67969 12.7329V15.2705C1.67969 15.3991 1.78396 15.5034 1.91259 15.5034H9.34353" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M9.34287 15.5028H1.01029C0.881613 15.5028 0.777344 15.6072 0.777344 15.7358V18.2734C0.777344 18.4021 0.881613 18.5063 1.01029 18.5063H9.34573" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M10.6995 21.5146H1.91259C1.78396 21.5146 1.67969 21.6189 1.67969 21.7475V24.2851C1.67969 24.4138 1.78396 24.5181 1.91259 24.5181H16.4773" stroke="#0F58F9" strokeWidth="0.703124" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+  </g>
+  </svg>
+);
 
 interface Plan {
   id: string;
@@ -37,6 +88,13 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [currentPlanId, setCurrentPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
   const [lastLoadedPlanId, setLastLoadedPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
   const [modalHeight, setModalHeight] = useState(0);
+  const [teamSeats, setTeamSeats] = useState(2);
+  const [creditQuantities, setCreditQuantities] = useState<Record<string, number>>({
+    small: 1,
+    medium: 1,
+    large: 1,
+    enterprise: 1
+  });
   const modalRef = React.useRef<HTMLDivElement>(null);
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
     const p = (planRaw || 'starter').toLowerCase();
@@ -84,6 +142,41 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
       })();
     }
   }, []);
+
+  const creditAddOns = [
+    {
+      id: 'small',
+      name: t('addOns.packages.credits.small.name', 'Small'),
+      description: t('addOns.packages.credits.small.description', 'Perfect for individual users getting started with basic credit needs.'),
+      amount: t('addOns.packages.credits.small.amount', '100 credits'),
+      price: 20,
+      priceNote: 'per month',
+    },
+    {
+      id: 'medium',
+      name: t('addOns.packages.credits.medium.name', 'Medium'),
+      description: t('addOns.packages.credits.medium.description', 'Great for growing teams with moderate usage requirements.'),
+      amount: t('addOns.packages.credits.medium.amount', '300 credits'),
+      price: 50,
+      priceNote: 'per month',
+    },
+    {
+      id: 'large',
+      name: t('addOns.packages.credits.large.name', 'Large'),
+      description: t('addOns.packages.credits.large.description', 'Ideal for businesses with high-volume processing demands.'),
+      amount: t('addOns.packages.credits.large.amount', '1,000 credits'),
+      price: 150,
+      priceNote: 'per month',
+    },
+    {
+      id: 'enterprise',
+      name: t('addOns.packages.credits.enterprise.name', 'Enterprise'),
+      description: t('addOns.packages.credits.enterprise.description', 'Custom solutions tailored to your organization\'s specific needs.'),
+      amount: t('addOns.packages.credits.enterprise.amount', 'Custom credit allocation'),
+      price: 'Custom' as any,
+      isEnterprise: true,
+    },
+  ];
 
   const plans: Plan[] = [
     {
@@ -323,7 +416,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-xl p-0 max-h-[93vh] min-w-[830px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-2xl p-0 max-h-[93vh] min-w-[830px] bg-white" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -349,7 +442,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <span className="text-sm font-medium text-blue-600 font-public-sans">ContentBuilder</span>
                   </div>
                 </div>
-                <h1 className="text-xl xl:text-2xl font-bold text-[#434343] mb-2 xl:mb-3 sora-font">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
+                <h1 className="text-xl xl:text-2xl font-bold text-[#434343] mb-2 xl:mb-3 sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
                 <p className="text-blue-700 font-normal text-xs mb-1 font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
@@ -381,60 +474,143 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 {plans.map((plan) => (
                     <div key={plan.id} className="relative flex flex-col">
                       <div
-                        className={`bg-white rounded-xl shadow-lg border transition-all duration-300 hover:shadow-xl flex flex-col h-full ${
+                        className={`rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex flex-col h-full overflow-hidden bg-white ${
                           plan.popular 
-                          ? 'border-blue-600 border-2 bg-blue-50/30' 
-                          : 'border-gray-200 border-2 hover:border-blue-300'
+                          ? 'border-blue-500' 
+                          : 'border-gray-200'
                         }`}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-3 left-0 right-0 xl:-top-4 z-10">
-                            <div className="bg-blue-600 text-white px-3 py-0.5 rounded-t-lg text-xs xl:text-sm font-medium font-public-sans text-center flex items-center justify-center gap-1">
-                              {t('tariffPlan.mostPopular', 'Most Popular')}
-                              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_308_22585)">
-                                <path d="M6.49994 16.0005C6.34193 16.0013 6.18743 15.9539 6.0571 15.8645C5.92676 15.7752 5.8268 15.6482 5.77057 15.5005L4.52557 12.263C4.50035 12.1978 4.46178 12.1385 4.41232 12.0891C4.36286 12.0396 4.30362 12.0011 4.23838 11.9758L0.999941 10.7299C0.852423 10.6733 0.725541 10.5733 0.63604 10.443C0.546538 10.3128 0.498626 10.1585 0.498626 10.0005C0.498626 9.84251 0.546538 9.68822 0.63604 9.558C0.725541 9.42778 0.852423 9.32777 0.999941 9.27115L4.23744 8.02615C4.30268 8.00093 4.36193 7.96236 4.41138 7.9129C4.46084 7.86345 4.49941 7.8042 4.52463 7.73896L5.77057 4.50052C5.82718 4.35301 5.9272 4.22612 6.05742 4.13662C6.18764 4.04712 6.34193 3.99921 6.49994 3.99921C6.65795 3.99921 6.81225 4.04712 6.94246 4.13662C7.07268 4.22612 7.1727 4.35301 7.22932 4.50052L8.47432 7.73802C8.49953 7.80326 8.5381 7.86251 8.58756 7.91197C8.63702 7.96142 8.69627 8 8.7615 8.02521L11.9803 9.26365C12.1338 9.32055 12.266 9.42339 12.359 9.55815C12.452 9.69291 12.5012 9.85305 12.4999 10.0168C12.4976 10.172 12.4486 10.323 12.3595 10.4501C12.2703 10.5773 12.1451 10.6747 11.9999 10.7299L8.76244 11.9749C8.6972 12.0001 8.63795 12.0387 8.5885 12.0881C8.53904 12.1376 8.50047 12.1968 8.47525 12.2621L7.22932 15.5005C7.17308 15.6482 7.07312 15.7752 6.94279 15.8645C6.81245 15.9539 6.65796 16.0013 6.49994 16.0005Z" fill="white"/>
-                                <path d="M2.74994 5.50052C2.6573 5.50052 2.56684 5.47245 2.49047 5.42001C2.4141 5.36757 2.35541 5.29323 2.32213 5.20677L1.79525 3.83677C1.78383 3.80681 1.76621 3.7796 1.74354 3.75693C1.72086 3.73426 1.69365 3.71663 1.66369 3.70521L0.293691 3.17834C0.207247 3.14505 0.132915 3.08635 0.0804885 3.00998C0.0280618 2.93362 0 2.84316 0 2.75052C0 2.65789 0.0280618 2.56743 0.0804885 2.49106C0.132915 2.4147 0.207247 2.356 0.293691 2.32271L1.66369 1.79584C1.69362 1.78437 1.72081 1.76672 1.74347 1.74406C1.76614 1.72139 1.78378 1.69421 1.79525 1.66427L2.31744 0.306461C2.34689 0.226525 2.39757 0.156124 2.46402 0.102827C2.53048 0.0495292 2.6102 0.0153496 2.69463 0.00396142C2.79599 -0.00836038 2.89856 0.0135079 2.98608 0.0660987C3.0736 0.118689 3.14105 0.198992 3.17775 0.294274L3.70463 1.66427C3.7161 1.69421 3.73374 1.72139 3.75641 1.74406C3.77908 1.76672 3.80626 1.78437 3.83619 1.79584L5.20619 2.32271C5.29263 2.356 5.36697 2.4147 5.41939 2.49106C5.47182 2.56743 5.49988 2.65789 5.49988 2.75052C5.49988 2.84316 5.47182 2.93362 5.41939 3.00998C5.36697 3.08635 5.29263 3.14505 5.20619 3.17834L3.83619 3.70521C3.80623 3.71663 3.77902 3.73426 3.75635 3.75693C3.73367 3.7796 3.71605 3.80681 3.70463 3.83677L3.17775 5.20677C3.14447 5.29323 3.08578 5.36757 3.00941 5.42001C2.93304 5.47245 2.84258 5.50052 2.74994 5.50052Z" fill="white"/>
-                                <path d="M12.4999 8.00052C12.3989 8.00049 12.3002 7.96984 12.2169 7.9126C12.1336 7.85536 12.0696 7.77423 12.0334 7.6799L11.3196 5.82459C11.3071 5.79189 11.2878 5.7622 11.263 5.73744C11.2383 5.71268 11.2086 5.69339 11.1759 5.68084L9.32057 4.96709C9.22631 4.93077 9.14526 4.86675 9.0881 4.78347C9.03094 4.70018 9.00034 4.60154 9.00034 4.50052C9.00034 4.39951 9.03094 4.30087 9.0881 4.21758C9.14526 4.1343 9.22631 4.07028 9.32057 4.03396L11.1759 3.32021C11.2086 3.30766 11.2383 3.28837 11.263 3.26361C11.2878 3.23884 11.3071 3.20915 11.3196 3.17646L12.0281 1.33427C12.0604 1.24716 12.1158 1.17044 12.1882 1.11228C12.2607 1.05411 12.3476 1.01668 12.4396 1.00396C12.5502 0.990572 12.6621 1.01451 12.7576 1.07197C12.8531 1.12944 12.9266 1.21713 12.9665 1.32115L13.6803 3.17646C13.6928 3.20915 13.7121 3.23884 13.7369 3.26361C13.7616 3.28837 13.7913 3.30766 13.824 3.32021L15.6793 4.03396C15.7736 4.07028 15.8546 4.1343 15.9118 4.21758C15.9689 4.30087 15.9995 4.39951 15.9995 4.50052C15.9995 4.60154 15.9689 4.70018 15.9118 4.78347C15.8546 4.86675 15.7736 4.93077 15.6793 4.96709L13.824 5.68084C13.7913 5.69339 13.7616 5.71268 13.7369 5.73744C13.7121 5.7622 13.6928 5.79189 13.6803 5.82459L12.9665 7.6799C12.9302 7.77423 12.8663 7.85536 12.783 7.9126C12.6997 7.96984 12.601 8.00049 12.4999 8.00052Z" fill="white"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_308_22585">
-                                <rect width="16" height="16" fill="white"/>
-                                </clipPath>
-                                </defs>
-                              </svg>
-                            </div>
+                          <div className="bg-blue-600 text-white px-3 py-1.5 text-xs xl:text-sm font-medium font-public-sans text-center flex items-center justify-center gap-1.5">
+                            {t('tariffPlan.mostPopular', 'Most Popular')}
+                            <Star className="w-3 h-3 fill-white" />
                           </div>
                         )}
                     
                     {/* Card Header */}
-                    <div className="p-4 pt-5">
-                      <h3 className="text-lg xl:text-xl font-bold text-[#0D001B] font-public-sans mb-1">{plan.name}</h3>
-                      <p className="text-xs xl:text-sm text-[#0D001B] font-public-sans mb-3">{t('tariffPlan.bestForPersonalUse', 'Best for personal use')}</p>
-                      <div className="text-gray-900">
-                        <span className="text-2xl xl:text-3xl font-public-sans font-bold">
-                          {getPrice(plan)}
-                        </span>
-                        {plan.price > 0 && (
-                          <span className="text-xs xl:text-sm font-public-sans text-[#0D001B] font-normal">
-                            / {billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.year', 'year')}
-                          </span>
+                    <div className={`p-4 ${plan.popular ? 'bg-blue-600' : 'bg-white'}`}>
+                      <h3 className={`text-lg xl:text-xl font-bold font-public-sans mb-2 ${plan.popular ? 'text-white' : 'text-[#0D001B]'}`}>
+                        {plan.name}
+                      </h3>
+                      <div className={plan.popular ? 'text-white' : 'text-gray-900'}>
+                        {plan.id === 'enterprise' ? (
+                          <>
+                            <div className="text-3xl xl:text-4xl font-public-sans font-bold">
+                              Let's talk
+                            </div>
+                            <p className="text-xs mt-1 opacity-80">Custom plans</p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-baseline gap-1 flex-wrap">
+                              <span className="text-3xl xl:text-4xl font-public-sans font-bold">
+                                {getPrice(plan)}
+                              </span>
+                              {plan.price > 0 && plan.id !== 'business' && (
+                                <span className="text-sm font-public-sans font-normal">
+                                  /{billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.month', 'month')}
+                                </span>
+                              )}
+                              {plan.id === 'business' && (
+                                <>
+                                  <span className="text-sm font-public-sans font-normal">/seat/month</span>
+                                  <div className="ml-2 flex items-center gap-1 bg-white/20 rounded px-2 py-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setTeamSeats(Math.max(2, teamSeats - 1));
+                                      }}
+                                      className="w-5 h-5 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded text-xs font-bold"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="text-sm font-medium min-w-[40px] text-center">{teamSeats} seats</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setTeamSeats(teamSeats + 1);
+                                      }}
+                                      className="w-5 h-5 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded text-xs font-bold"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            {plan.price === 0 && plan.id === 'starter' && (
+                              <p className="text-xs mt-1 opacity-80">No commitment</p>
+                            )}
+                            {plan.price > 0 && plan.id !== 'business' && billingCycle === 'yearly' && plan.yearlyPrice && (
+                              <p className="text-xs mt-1 opacity-80">${plan.yearlyPrice} Billed annually</p>
+                            )}
+                            {plan.id === 'business' && (
+                              <p className="text-xs mt-1 opacity-80">
+                                Minimum 2 seats, ${billingCycle === 'yearly' ? (plan.yearlyPrice || 0) * teamSeats : plan.price * teamSeats * 12} Billed annually
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
 
                     {/* Card Body */}
-                    <div className="px-4 pb-3 pt-1 xl:pt-2 flex flex-col flex-grow">
-                    <button
+                    <div className={`px-4 pb-4 pt-3 flex flex-col flex-grow bg-white`}>
+                      {/* Credits Info */}
+                      <div className="mb-4">
+                        <div className="flex items-center text-sm font-normal text-gray-900">
+                          <span className="font-medium">{plan.credits} Credits</span>
+                          <span className="ml-1 text-gray-600">
+                            {plan.id === 'starter' ? ' / one-time on registration' : ' /month'}
+                          </span>
+                          <div className="ml-1 w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs cursor-help">
+                            i
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section Title */}
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">
+                        {plan.id === 'enterprise' 
+                          ? t('tariffPlan.allTeamFeaturesPlus', 'All Team features, plus:')
+                          : t('tariffPlan.ourPlanIncludes', `Our ${plan.name} plan includes:`)}
+                      </h4>
+
+                      {/* Features List */}
+                      <div className="space-y-2.5 mb-4 font-public-sans flex-grow">
+                        <div className="flex items-start">
+                          <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                          <span className="text-xs text-gray-900 leading-relaxed">
+                            <span className="font-semibold">Storage:</span> {plan.storage}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                          <span className="text-xs text-gray-900 leading-relaxed">
+                            <span className="font-semibold">Connectors:</span> {plan.connectors}
+                          </span>
+                        </div>
+
+                        {plan.features.map((feature, index) => (
+                          <div key={index} className="flex items-start">
+                            <Check className="w-4 h-4 mr-2.5 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <span className="text-xs text-gray-900 leading-relaxed">
+                              {feature}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* CTA Button */}
+                      <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-2 xl:py-2.5 rounded-sm font-public-sans font-medium text-xs xl:text-sm transition-all duration-300 ${
+                        className={`w-full py-2.5 rounded-lg font-public-sans font-semibold text-sm transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                            : plan.popular
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
                             : plan.name.includes('Enterprise')
                             ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
                         }`}
                         disabled={plan.id === currentPlanId}
                       >
@@ -442,58 +618,100 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? t('tariffPlan.current', 'Current')
                           : plan.name.includes('Enterprise')
                           ? t('tariffPlan.contactSales', 'Contact Sales')
-                          : t('tariffPlan.getStarted', 'Get started')}
+                          : t('tariffPlan.upgrade', 'Upgrade')}
                       </button>
-                      <h4 className="text-sm xl:text-sm font-medium font-public-sans text-[#434343] pt-5 xl:pt-6 mb-3">
-                        {plan.id === 'starter' ? t('tariffPlan.whatYouGet', 'What you get:') : 
-                         plan.id === 'pro' ? t('tariffPlan.allFreeFeaturesPlus', 'All free features, plus:') :
-                         plan.id === 'business' ? t('tariffPlan.allStarterFeaturesPlus', 'All starter features, plus:') :
-                         t('tariffPlan.allBusinessFeaturesPlus', 'All business features, plus:')}
-                      </h4>
-                      <div className={`${modalHeight > 710 ? 'space-y-5' : 'space-y-3'} mb-6 font-public-sans flex-grow`}>
-                        <div className="flex items-center">
-                          <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 font-medium flex-shrink-0" />
-                          <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
-                            <span className="font-semibold">{t('tariffPlan.credits', 'Credits')}</span>: {plan.credits}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                          <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
-                            <span className="font-semibold">{t('tariffPlan.storage', 'Storage')}</span>: {plan.storage}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                          <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
-                             <span className="font-semibold">{t('tariffPlan.support', 'Support')}</span>: {plan.support}
-                          </span>
-                        </div>
-
-                        {plan.connectors !== '-' && (
-                          <div className="flex items-center">
-                            <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                            <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
-                              <span className="font-semibold">{t('tariffPlan.connectors', 'Connectors')}</span>: {plan.connectors}
-                            </span>
-                          </div>
-                        )}
-
-                        {plan.collaboration !== '-' && (
-                          <div className="flex items-center">
-                            <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                            <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
-                              <span className="font-semibold">{t('tariffPlan.collaboration', 'Collaboration')}</span>: {plan.collaboration}
-                            </span>
-                          </div>
-                        )}
-                      </div>
                     </div>
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              {/* Credit Add-Ons Section */}
+              <div className="mt-8 border-t border-gray-200 pt-8">
+                <h2 className="text-xl font-bold text-[#434343] mb-1 text-center">
+                  {t('addOns.creditAddOns', 'Credit Add-Ons')}
+                </h2>
+                <p className="text-sm text-gray-600 text-center mb-6">
+                  {t('addOns.creditAddOnsDescription', 'Need more credits? Purchase additional credit packages')}
+                </p>
+                
+                <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
+                  {creditAddOns.map((addOn) => (
+                    <div key={addOn.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <CoinsIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-[#434343] mb-1">{addOn.name}</h3>
+                          <p className="text-[10px] text-[#949CA8] leading-tight">{addOn.description}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold mb-2">
+                          <span>{addOn.amount}</span>
+                        </div>
+                        <div className="text-3xl pb-2 font-bold text-gray-900">
+                          {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
+                          {addOn.priceNote === 'per month' && (
+                            <span className="text-xs font-normal text-[#0D001B]">/month</span>
+                          )}
+                        </div>
+                        
+                        {!addOn.isEnterprise && (
+                          <div className="flex border border-[#E0E0E0] rounded-sm py-0.5 px-1 mb-3 items-center gap-2">
+                            <button
+                              onClick={() => setCreditQuantities(prev => ({
+                                ...prev,
+                                [addOn.id]: Math.max(1, prev[addOn.id] - 1)
+                              }))}
+                              className="h-5 w-5 bg-[#CCDBFC] rounded hover:bg-[#C0CEED] text-sm text-[#0F58F9] flex items-center justify-center"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <div className="flex-1 text-center text-sm text-[#71717A]">
+                              {creditQuantities[addOn.id]}
+                            </div>
+                            <button
+                              onClick={() => setCreditQuantities(prev => ({
+                                ...prev,
+                                [addOn.id]: prev[addOn.id] + 1
+                              }))}
+                              className="h-5 w-5 bg-[#CCDBFC] rounded hover:bg-[#C0CEED] text-sm text-[#0F58F9] flex items-center justify-center"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
+                        
+                        {addOn.isEnterprise && (
+                          <div className="h-8 mb-3"></div>
+                        )}
+                        
+                        <button
+                          className={`w-full py-2 rounded-full font-medium text-sm transition-all ${
+                            addOn.isEnterprise 
+                              ? 'bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#C2D1F0]' 
+                              : 'bg-[#0F58F9] text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {addOn.isEnterprise 
+                            ? t('addOns.contactSales', 'Contact Sales') 
+                            : t('addOns.buyNow', 'Buy now')}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* See Full Comparison Link */}
+              <div className="text-center mt-6 mb-2">
+                <button className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                  {t('tariffPlan.seeFullComparison', 'See Full Comparison')}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>

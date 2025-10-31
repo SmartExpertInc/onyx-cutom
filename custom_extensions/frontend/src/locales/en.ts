@@ -1819,7 +1819,7 @@ export const en = {
     processingPayment: "Processing Payment...",
     contactSales: "Contact Sales",
     subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
-    chooseYourPlan: "Choose the plan that's right for you",
+    customizeYourSubscription: "Customize your subscription",
     billMonthly: "Monthly",
     billYearly: "Yearly",
     mostPopular: "Most Popular",
