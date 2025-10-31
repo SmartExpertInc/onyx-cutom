@@ -156,7 +156,7 @@ const VideoLessonDisplay = ({
                               className={`w-full px-2 py-2 text-xs text-left flex items-center justify-between transition-colors cursor-pointer ${
                                 selectedFilter === option ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
                               }`}
-                              style={selectedFilter === option ? { borderRadius: '2px' } : {}}
+                              style={selectedFilter === option ? { borderRadius: '4px' } : {}}
                             >
                               <span>{option}</span>
                               {selectedFilter === option && (
@@ -221,7 +221,7 @@ const VideoLessonDisplay = ({
               <div className="flex-1 flex flex-col items-center justify-center gap-4 overflow-hidden">
                 {/* SVG wrapper with relative positioning */}
                 <div className="relative w-[465px] h-[148px]">
-                  <svg width="465" height="148" viewBox="0 0 465 148" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-1/2 -translate-x-1/2">
+                  <svg width="465" height="148" viewBox="0 0 465 148" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[20px]">
                     <g clip-path="url(#clip0_1918_79172)">
                     <rect opacity="0.7" x="240.408" y="138.45" width="23.0069" height="22.9934" rx="11.4967" stroke="#878787" stroke-width="0.609959"/>
                     <rect opacity="0.7" x="224.664" y="122.715" width="54.496" height="54.4645" rx="27.2322" stroke="#878787" stroke-width="0.609959"/>
@@ -244,7 +244,7 @@ const VideoLessonDisplay = ({
                 </div>
                 
                 {/* Text */}
-                <p className="text-center text-[#171718] text-base font-medium">
+                <p className="text-center text-[#171718] text-base font-medium leading-tight">
                   Comments are only available for<br />workspace members
                 </p>
                 
