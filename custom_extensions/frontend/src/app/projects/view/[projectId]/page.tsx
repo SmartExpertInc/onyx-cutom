@@ -1960,7 +1960,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
+    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
@@ -1979,7 +1979,8 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_SLIDE_DECK,
           COMPONENT_NAME_QUIZ,
           COMPONENT_NAME_TEXT_PRESENTATION,
-          COMPONENT_NAME_VIDEO_LESSON
+          COMPONENT_NAME_VIDEO_LESSON,
+          COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
         ]}
         t={t}
         onPdfExport={handlePdfDownload}
