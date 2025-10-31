@@ -34299,7 +34299,7 @@ async def stripe_webhook(
                 subscription = sub
                 logger.warning(f"[BILLING] Failed to retrieve subscription, using event object")
 
-            # Determine base tier plan and price
+            # Extract updated plan info - find base tier price (not add-ons)
             plan = None
             price_id = None
             amount_major = None
@@ -34308,26 +34308,50 @@ async def stripe_webhook(
                 items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
                 data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
                 if data_list:
+                    # Log all items for debugging
+                    logger.info(f"[BILLING] Subscription items:")
+                    for idx, item_data in enumerate(data_list):
+                        item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
+                        is_tier = item_price_id in PRICE_TO_TIER
+                        is_addon = item_price_id in PRICE_TO_ADDON
+                        logger.info(f"[BILLING]   Item {idx}: price_id={item_price_id}, is_tier={is_tier}, is_addon={is_addon}")
+                    
+                    # Look for base tier price among all items
                     for item_data in data_list:
                         price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
                         item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
-                        tier_key = PRICE_TO_TIER.get(item_price_id or '', '')
+                        
+                        # Check if this is a base tier price
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
                         if tier_key:
                             price_id = item_price_id
                             plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}")
                             break
-                    # If still not found, fallback to first item's product name
+                    
+                    # If no tier price found, try product name fallback on first item
                     if not plan and len(data_list) > 0:
+                        logger.info(f"[BILLING] No tier price found among items, trying product name fallback")
                         price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
                         price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                        
                         product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
                         product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
-                        lowered = (product_name or '').lower()
+                        lowered = product_name.lower()
+                        logger.info(f"[BILLING] Product name: '{product_name}'")
                         if 'business' in lowered:
                             plan = 'business'
                         elif 'pro' in lowered:
                             plan = 'pro'
-                    
+                        
+                        if plan:
+                            logger.info(f"[BILLING] Inferred plan from product name: {plan}")
+                        else:
+                            logger.warning(f"[BILLING] Could not infer plan from product name")
+                
                 # Amount and currency from base plan price
                 if price_id:
                     try:
@@ -34338,29 +34362,91 @@ async def stripe_webhook(
                             amount_major = round(unit_amount / 100.0, 2)
                     except Exception as pe:
                         logger.warning(f"[BILLING] Failed to retrieve price for subscription.created: {pe}")
+                
             except Exception as e:
                 logger.warning(f"[BILLING] Failed to parse subscription.created: {e}")
 
             start_date = (subscription.get('start_date') if isinstance(subscription, dict) else getattr(subscription, 'start_date', None))
 
-            # Lookup user and track
-            try:
-                async with pool.acquire() as conn:
-                    rec = await conn.fetchrow("SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+            # Lookup user
+            async with pool.acquire() as conn:
+                rec = await conn.fetchrow("SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1", customer_id)
                 if rec:
                     onyx_user_id = rec['onyx_user_id']
-                    mixpanel_helper.track_to_mp(
-                        onyx_user_id,
-                        "Subscription Created",
-                        {
-                            "Plan Type": plan.capitalize() if plan else rec['current_plan'].capitalize(), # Fallback to current plan if not found
-                            "Subscription Id": subscription_id,
-                            "Amount": amount_major,
-                            "Start Date": start_date,
-                            "Currency": currency.upper() if currency else None,
-                        }
-                    )
-                    logger.info(f"Tracked subscription creation to Mixpanel for user {onyx_user_id}: plan={plan}, subscription_id={subscription_id}, amount={amount_major}, currency={currency.upper() if currency else None}")
+                    existing_plan = rec['current_plan']
+
+            if plan:
+                # Compute price difference between old plan and new plan (normalized monthly)
+                price_difference_major = None
+                try:
+                    old_amt = old_ccy = old_interval = None
+                    new_amt = new_ccy = new_interval = None
+
+                    if old_price_id:
+                        old_price = stripe.Price.retrieve(old_price_id)
+                        old_amt = getattr(old_price, 'unit_amount', None)
+                        old_ccy = getattr(old_price, 'currency', None)
+                        old_rec = getattr(old_price, 'recurring', None) or {}
+                        old_interval = old_rec.get('interval')
+
+                    if price_id:
+                        new_price = stripe.Price.retrieve(price_id)
+                        new_amt = getattr(new_price, 'unit_amount', None)
+                        new_ccy = getattr(new_price, 'currency', None)
+                        new_rec = getattr(new_price, 'recurring', None) or {}
+                        new_interval = new_rec.get('interval')
+
+                    def to_monthly(amount_cents, interval):
+                        if amount_cents is None:
+                            return None
+                        if interval == 'month':
+                            return float(amount_cents)
+                        if interval == 'year':
+                            return float(amount_cents) / 12.0
+                        # Unknown interval: treat as monthly-equivalent fallback
+                        return float(amount_cents)
+
+                    if old_amt is not None and new_amt is not None and old_ccy and new_ccy and old_ccy == new_ccy:
+                        old_monthly = to_monthly(old_amt, old_interval)
+                        new_monthly = to_monthly(new_amt, new_interval)
+                        if old_monthly is not None and new_monthly is not None:
+                            # Convert cents to major units
+                            price_difference_major = round((new_monthly - old_monthly) / 100.0, 2)
+                except Exception as _pd_err:
+                    logger.warning(f"[BILLING] Failed to compute price difference: {_pd_err}")
+                
+                if plan != existing_plan:
+                    # Track plan upgrade/downgrade to Mixpanel
+                    try:
+                        mixpanel_helper.track_to_mp(
+                            onyx_user_id,
+                            "Plan Upgraded" if _map_plan_to_value(plan) > _map_plan_to_value(existing_plan) else "Plan Downgraded",
+                            {
+                                "New Plan": plan.capitalize(),
+                                "Old Plan": existing_plan.capitalize() if existing_plan else None,
+                                "Price Difference": price_difference_major,  # monthly-equivalent, in major units
+                                "Currency": new_ccy.upper() if price_difference_major is not None and new_ccy else None,
+                            }
+                        )
+                        logger.info(f"Tracked plan upgrade/downgrade to Mixpanel for user {onyx_user_id}: new_plan={plan}, old_plan={existing_plan}, price_difference={price_difference_major}, currency={new_ccy.upper()}")
+                    except Exception as track_err:
+                        logger.warning(f"Failed to track plan upgrade/downgrade to Mixpanel: {track_err}")
+
+            # Track subscription creation to Mixpanel
+            try:
+                mixpanel_helper.track_to_mp(
+                    onyx_user_id,
+                    "Subscription Created",
+                    {
+                        "Plan Type": plan.capitalize() if plan else rec['current_plan'].capitalize(), # Fallback to current plan if not found
+                        "Subscription Id": subscription_id,
+                        "Amount": amount_major,
+                        "Start Date": start_date,
+                        "Currency": currency.upper() if currency else None,
+                    }
+                )
+                logger.info(f"Tracked subscription creation to Mixpanel for user {onyx_user_id}.")
+                    
             except Exception as track_err:
                 logger.warning(f"Failed to track subscription.created to Mixpanel: {track_err}")
 
