@@ -12712,10 +12712,10 @@ NOW GENERATE THE REQUESTED PRODUCT:
             model="gpt-4o-mini"
         )
         if assembled_text:
-        enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+            enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
             enhanced_prompt += assembled_text + "\n\n"
         try:
-                logger.info(f"[ASSEMBLER_OUTPUT] BEGIN EXTRACTED_CONTENT BLOCK\n{assembled_text}\n[ASSEMBLER_OUTPUT] END EXTRACTED_CONTENT BLOCK")
+            logger.info(f"[ASSEMBLER_OUTPUT] BEGIN EXTRACTED_CONTENT BLOCK\n{assembled_text}\n[ASSEMBLER_OUTPUT] END EXTRACTED_CONTENT BLOCK")
         except Exception:
             pass
     except Exception as ass_err:
