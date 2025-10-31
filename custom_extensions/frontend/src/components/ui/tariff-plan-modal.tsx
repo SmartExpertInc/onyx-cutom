@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow, Minus, Plus, InfoIcon, Sparkle, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ContactSalesModal from '@/components/ui/contact-sales-modal';
 import PlanComparisonModal from '@/components/ui/plan-comparison-modal';
@@ -451,7 +450,33 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <X className="w-5 h-5 xl:w-6 xl:h-6 text-[#71717A]" />
         </button>
         
-        <ScrollArea className="h-[93vh] max-h-[750px] w-full">
+        <div className="h-[93vh] max-h-[750px] w-full overflow-y-auto custom-scrollbar">
+          <style jsx>{`
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 10px;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: #f1f5f9;
+              border-radius: 5px;
+              margin: 10px 0;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+              border-radius: 5px;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            }
+
+            .custom-scrollbar {
+              scrollbar-width: thin;
+              scrollbar-color: #3b82f6 #f1f5f9;
+              scroll-behavior: smooth;
+            }
+          `}</style>
           <div ref={modalRef} className="h-[93vh] min-h-[600px] max-h-[750px]">
           <div className="container mx-auto px-4 py-4 xl:py-5 xl:px-4">
             <div className="max-w-7xl mx-auto">
@@ -504,7 +529,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div key={plan.id} className="relative flex flex-col">
                       {/* Most Popular Badge - Outside Card */}
                       {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1.5 rounded-t-md text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center -mt-5 gap-1.5 shadow-md">
+                        <div className="absolute -top-8 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-md text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center gap-1.5 shadow-md">
                           {t('tariffPlan.mostPopular', 'Most Popular')}
                           <Sparkles className="w-3 h-3 fill-white" />
                         </div>
@@ -880,7 +905,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
             </div>
           </div>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
       </Dialog>
       <ContactSalesModal open={showContactSales} onOpenChange={setShowContactSales} />

@@ -119,7 +119,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[90vh]">
           {/* Header Section - Sticky */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-8 pb-6">
+          <div className="top-0 z-10 bg-white border-b border-gray-200 p-8 pb-6">
             <h2 className="text-3xl font-bold text-[#171718] mb-2 text-center">
               Plans that fit your scale
             </h2>
@@ -153,13 +153,16 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
               </div>
             </div>
 
-            {/* Plan Cards */}
-            <div className="grid grid-cols-4 gap-4">
+            {/* Plan Cards - Grid with aligned columns matching table below */}
+            <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
+              {/* Empty first column to align with feature names column */}
+              <div className="col-span-1"></div>
+              
               {planCards.map((plan) => (
-                <div key={plan.id} className="relative">
+                <div key={plan.id} className="relative col-span-1">
                   {/* Most Popular Badge */}
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-md">
+                    <div className="absolute -top-8 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-md text-xs font-medium flex items-center justify-center gap-1 shadow-md">
                       Most Popular
                       <Sparkles className="w-3 h-3 fill-white" />
                     </div>
@@ -240,17 +243,17 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                       {/* Feature Rows */}
                       {category.features.map((feature, featureIndex) => (
                         <tr key={featureIndex} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="p-4 text-sm text-[#4D4D4D] font-medium w-1/3">{feature.name}</td>
-                          <td className="p-4 text-center w-1/6">
+                          <td className="p-4 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
+                          <td className="p-4 text-center" style={{ width: '20%' }}>
                             {renderCell(feature.starter)}
                           </td>
-                          <td className="p-4 text-center w-1/6">
+                          <td className="p-4 text-center" style={{ width: '20%' }}>
                             {renderCell(feature.creator)}
                           </td>
-                          <td className="p-4 text-center w-1/6">
+                          <td className="p-4 text-center" style={{ width: '20%' }}>
                             {renderCell(feature.team)}
                           </td>
-                          <td className="p-4 text-center w-1/6">
+                          <td className="p-4 text-center" style={{ width: '20%' }}>
                             {renderCell(feature.enterprise)}
                           </td>
                         </tr>
