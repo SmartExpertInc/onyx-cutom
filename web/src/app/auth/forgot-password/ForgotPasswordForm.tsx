@@ -59,9 +59,10 @@ export default function ForgotPasswordForm() {
 
             <div className="flex">
               <Button
+                variant="default"
                 type="submit"
                 disabled={isSubmitting}
-                className="mx-auto w-full"
+                className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full shadow-md hover:shadow-xl transition-shadow mt-4 !bg-[#1d4ed8] !text-[#ffffff]"
               >
                 Reset Password
               </Button>
