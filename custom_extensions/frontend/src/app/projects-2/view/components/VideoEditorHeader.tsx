@@ -980,7 +980,7 @@ export default function VideoEditorHeader({
         </div>
 
         {/* Right section - Share and Generate buttons */}
-          <div className="flex items-center gap-3 lg:gap-4">
+        <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
             <button 
               onClick={() => { if (!showReady) handlePlayClick(); }}
@@ -1152,6 +1152,7 @@ export default function VideoEditorHeader({
         onGenerationStart={handleVideoGeneration}
         generationStatus={generationStatus}
         generationError={generationError}
+        showReady={showReady}
       />
 
       {/* Generation Completed Modal */}

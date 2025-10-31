@@ -910,6 +910,8 @@ export default function Projects2ViewPage() {
                         setActiveTextEditor(editor);
                         setComputedTextStyles(computedStyles || null);
                         setActiveSettingsPanel('text');
+                        // Don't change activeComponent when text editor activates - let it stay as is
+                        // The activeSettingsPanel will override the sidebar display
                       }}
                       theme="default"
                       isVideoMode={true}
