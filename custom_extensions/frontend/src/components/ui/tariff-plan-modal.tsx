@@ -5,6 +5,7 @@ import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCar
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ContactSalesModal from '@/components/ui/contact-sales-modal';
 
 const CoinsIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg width="27" height="27" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -118,6 +119,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     storage: 1,
     connectors: 1
   });
+  const [showContactSales, setShowContactSales] = useState(false);
   const modalRef = React.useRef<HTMLDivElement>(null);
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
     const p = (planRaw || 'starter').toLowerCase();
@@ -722,7 +724,13 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                       {/* CTA Button */}
                     <button
-                        onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
+                        onClick={() => {
+                          if (plan.name.includes('Enterprise')) {
+                            setShowContactSales(true);
+                          } else if (plan.id !== 'starter' && plan.id !== currentPlanId) {
+                            handlePurchasePlan(plan);
+                          }
+                        }}
                         className={`w-full py-2.5 rounded-full font-public-sans font-semibold text-sm transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-[#878787] cursor-not-allowed'
@@ -854,6 +862,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         </ScrollArea>
       </DialogContent>
       </Dialog>
+      <ContactSalesModal open={showContactSales} onOpenChange={setShowContactSales} />
     </>
   );
 };
