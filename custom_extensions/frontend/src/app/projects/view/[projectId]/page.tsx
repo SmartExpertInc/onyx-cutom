@@ -1978,7 +1978,8 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_TRAINING_PLAN,
           COMPONENT_NAME_SLIDE_DECK,
           COMPONENT_NAME_QUIZ,
-          COMPONENT_NAME_TEXT_PRESENTATION
+          COMPONENT_NAME_TEXT_PRESENTATION,
+          COMPONENT_NAME_VIDEO_LESSON
         ]}
         t={t}
         onPdfExport={handlePdfDownload}
@@ -1989,7 +1990,8 @@ export default function ProjectInstanceViewPage() {
       <main 
         className={`min-h-screen font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON
             ? 'bg-[#F2F2F4] p-0'
             : 'bg-[#F2F2F4] p-4 md:p-8'
         }`}

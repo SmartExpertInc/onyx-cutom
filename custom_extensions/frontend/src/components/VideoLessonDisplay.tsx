@@ -68,8 +68,8 @@ const VideoLessonDisplay = ({
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               {dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
-                    </h2>
-                  </div>
+            </h2>
+          </div>
           
           {/* Right: Action Buttons */}
           <div className="flex gap-3">
