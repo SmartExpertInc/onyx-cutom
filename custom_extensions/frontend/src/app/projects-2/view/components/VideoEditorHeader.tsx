@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video, Sparkles, PauseCircle, List, Hand, Languages } from 'lucide-react';
+import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
@@ -982,18 +982,6 @@ export default function VideoEditorHeader({
         {/* Right section - Share and Generate buttons */}
           <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            {/* Soon toolbar (ready mode) */}
-            {showReady && (
-              <div className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-3 py-1.5" title="Soon">
-                <Sparkles size={16} className="text-gray-700" />
-                <PauseCircle size={16} className="text-gray-700" />
-                <List size={16} className="text-gray-700" />
-                <Hand size={16} className="text-gray-700" />
-                <Languages size={16} className="text-gray-700" />
-                <div className="w-0.5 h-5 bg-gray-300" />
-                <Play size={16} className="text-gray-700" />
-              </div>
-            )}
             <button 
               onClick={() => { if (!showReady) handlePlayClick(); }}
               className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
@@ -1008,14 +996,15 @@ export default function VideoEditorHeader({
             <div className="relative">
               <button
                 ref={shareButtonRef}
-                onClick={handleShareClick}
-                className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+                onClick={() => { if (!showReady) handleShareClick(); }}
+                className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
+                title={showReady ? 'Soon' : undefined}
               >
                 <span className="text-sm font-normal">Share</span>
               </button>
 
               {/* Share popup */}
-              {isSharePopupOpen && (
+              {!showReady && isSharePopupOpen && (
                 <div 
                   ref={sharePopupRef}
                   className="fixed top-[76px] right-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
@@ -1124,10 +1113,9 @@ export default function VideoEditorHeader({
             </div>
 
             {/* Generate button */}
-            {/* Generate should remain enabled even in ready mode */}
             <button
               onClick={handleGenerateClick}
-              className="rounded-[7px] px-3 py-1.5 flex items-center h-8 border bg-black text-white hover:bg-gray-800 cursor-pointer"
+              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border bg-black text-white hover:bg-gray-800 cursor-pointer`}
             >
               <span className="text-sm font-normal">Generate</span>
             </button>

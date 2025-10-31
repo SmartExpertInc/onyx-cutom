@@ -586,6 +586,12 @@ export default function Projects2ViewPage() {
       setIsMediaPopupOpen(true);
     } else {
       setActiveComponent(toolId);
+      // Ensure side panels are closed when switching, especially when returning to script
+      if (toolId === 'script') {
+        setActiveSettingsPanel(null);
+        setActiveTextEditor(null);
+        setComputedTextStyles(null);
+      }
       setIsMediaPopupOpen(false);
     }
     // Close text, shapes, interaction, and AI popups when switching tools
@@ -593,8 +599,6 @@ export default function Projects2ViewPage() {
     setIsShapesPopupOpen(false);
     setIsInteractionPopupOpen(false);
     setIsAiPopupOpen(false);
-    // Ensure any side settings panel (including Transition) closes when switching tools
-    setActiveSettingsPanel(null);
     // Clear selected element when switching tools
     setSelectedElement(null);
   };
