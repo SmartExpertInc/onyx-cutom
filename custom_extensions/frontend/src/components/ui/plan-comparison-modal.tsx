@@ -12,15 +12,7 @@ interface PlanComparisonModalProps {
 
 const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenChange }) => {
   const { t } = useLanguage();
-  const [isAnimating, setIsAnimating] = React.useState(false);
   const [billingCycle, setBillingCycle] = React.useState<'monthly' | 'yearly'>('yearly');
-
-  // Trigger animation when modal opens
-  React.useEffect(() => {
-    if (open) {
-      setIsAnimating(true);
-    }
-  }, [open]);
 
   const planCards = [
     {
@@ -112,12 +104,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`} />
-      <DialogContent className={`sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white overflow-hidden transition-all duration-300 my-auto ${
-        isAnimating 
-          ? 'opacity-100 scale-100 translate-y-0' 
-          : 'opacity-0 scale-95 -translate-y-4'
-      }`} hideCloseIcon>
+      <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
+      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white overflow-hidden my-auto" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}

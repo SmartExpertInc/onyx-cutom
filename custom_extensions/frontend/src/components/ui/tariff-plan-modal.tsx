@@ -122,10 +122,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   });
   const [showContactSales, setShowContactSales] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   const modalRef = React.useRef<HTMLDivElement>(null);
-  const contactSalesTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const comparisonTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
     const p = (planRaw || 'starter').toLowerCase();
@@ -174,17 +171,6 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     }
   }, []);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (contactSalesTimeoutRef.current) {
-        clearTimeout(contactSalesTimeoutRef.current);
-      }
-      if (comparisonTimeoutRef.current) {
-        clearTimeout(comparisonTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const creditAddOns = [
     {
@@ -446,12 +432,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`} />
-      <DialogContent className={`sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[90vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm transition-all duration-300 my-auto ${
-        isClosing 
-          ? 'opacity-0 scale-95 translate-y-4' 
-          : 'opacity-100 scale-100 translate-y-0'
-      }`} hideCloseIcon>
+        <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
+      <DialogContent className="sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[90vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm my-auto" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -750,17 +732,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <button
                         onClick={() => {
                           if (plan.name.includes('Enterprise')) {
-                            // Trigger closing animation
-                            setIsClosing(true);
-                            // Close tariff modal
-                            setTimeout(() => {
-                              onOpenChange(false);
-                              setIsClosing(false);
-                            }, 200);
-                            // Wait for close animation, then open contact sales modal
-                            contactSalesTimeoutRef.current = setTimeout(() => {
-                              setShowContactSales(true);
-                            }, 400);
+                            onOpenChange(false);
+                            setShowContactSales(true);
                           } else if (plan.id !== 'starter' && plan.id !== currentPlanId) {
                             handlePurchasePlan(plan);
                           }
@@ -788,17 +761,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               <div className="text-center mt-6 mb-2">
                 <button 
                   onClick={() => {
-                    // Trigger closing animation
-                    setIsClosing(true);
-                    // Close tariff modal
-                    setTimeout(() => {
-                      onOpenChange(false);
-                      setIsClosing(false);
-                    }, 200);
-                    // Wait for close animation, then open comparison modal
-                    comparisonTimeoutRef.current = setTimeout(() => {
-                      setShowComparison(true);
-                    }, 400);
+                    onOpenChange(false);
+                    setShowComparison(true);
                   }}
                   className="text-blue-600 hover:text-blue-700 p-2 border border-blue-600 rounded-md font-medium text-sm inline-flex items-center gap-1 transition-colors"
                 >

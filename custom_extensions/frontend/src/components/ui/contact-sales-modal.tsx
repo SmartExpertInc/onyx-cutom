@@ -53,15 +53,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
   });
   const [copied, setCopied] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Trigger animation when modal opens
-  useEffect(() => {
-    if (open) {
-      setIsAnimating(true);
-    }
-  }, [open]);
 
   const countries: Country[] = [
     { code: 'US', dialCode: '+1', name: 'United States', flag: <USFlag /> },
@@ -120,12 +112,8 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className={`bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`} />
-      <DialogContent className={`sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/90 backdrop-blur-sm transition-all duration-300 my-auto ${
-        isAnimating 
-          ? 'opacity-100 scale-100 translate-y-0' 
-          : 'opacity-0 scale-95 -translate-y-4'
-      }`} hideCloseIcon>
+      <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
+      <DialogContent className="sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/90 backdrop-blur-sm my-auto" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
