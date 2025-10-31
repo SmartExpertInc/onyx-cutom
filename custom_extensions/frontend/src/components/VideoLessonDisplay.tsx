@@ -94,10 +94,9 @@ const VideoLessonDisplay = ({
       {/* Video lesson section - takes remaining space */}
       <div className="flex-1 flex flex-col gap-6 min-h-0">
         <div 
-          className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
+          className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg flex-1 min-h-0"
           style={{ 
-            width: '1024px',
-            height: '576px'
+            aspectRatio: '16 / 9'
           }}
         >
           <p className="text-gray-400 text-lg">Video lesson area</p>
@@ -189,7 +188,12 @@ const VideoLessonDisplay = ({
       </div>
 
       {/* Comments section - fixed 400px width, matches video area height */}
-      <div className="w-[400px] h-[576px] flex flex-col">
+      <div 
+        className="w-[400px] flex flex-col"
+        style={{ 
+          height: 'calc(100vh - 64px - 32px - 70px - 90px - 48px)' // Total height - header - py-4 - title/buttons - rating - gaps
+        }}
+      >
         <div className="flex-1 flex flex-col p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
           {/* Search bar and Filter button */}
           <div className="flex gap-2 mb-4">
@@ -225,7 +229,7 @@ const VideoLessonDisplay = ({
                   <div className="px-3 py-2 text-xs font-semibold text-[#171718] border-b border-[#E6E6E6]">
                     Filter by
                   </div>
-                  <div className="py-1 px-2">
+                  <div className="py-1 px-1">
                     {(['All', 'Assigned to me', 'New'] as const).map((option) => (
                       <button
                         key={option}
