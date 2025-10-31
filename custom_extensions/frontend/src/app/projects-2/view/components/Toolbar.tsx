@@ -25,6 +25,7 @@ interface ToolbarProps {
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onInteractionButtonClick?: (position: { x: number; y: number }) => void;
   onLanguageVariantModalOpen?: () => void;
+  showReady?: boolean;
 }
 
 interface Tool {
@@ -34,7 +35,7 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onLanguageVariantModalOpen }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onLanguageVariantModalOpen, showReady }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
@@ -264,9 +265,14 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     <div className="w-full bg-white px-2 py-3" style={{ height: '72px' }}>
       {/* Toolbar container */}
       <div className="flex items-start justify-between max-w-full h-full">
-            {/* Left side - all tools except Default */}
+            {/* Left side - all tools except Default */
+            // When showReady is enabled, hide Background, Shapes, Media, Text, Music, Transition, Interaction, Comments
+            }
             <div className="flex items-start gap-2">
-              {tools.filter(tool => tool.id !== 'default').map((tool) => {
+              {tools
+                .filter(tool => tool.id !== 'default')
+                .filter(tool => !showReady || (showReady && (tool.id === 'script' || tool.id === 'avatar')))
+                .map((tool) => {
 
                 return (
                   <div
@@ -309,9 +315,9 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
               })}
             </div>
             
-            {/* Right side - Default button */}
+            {/* Right side - Default button (flag) */}
             <div className="flex items-start relative">
-              {tools.filter(tool => tool.id === 'default').map((tool) => (
+              {tools.filter(tool => tool.id === 'default').filter(() => !showReady).map((tool) => (
                 <div key={tool.id} className="relative">
                   <div
                     ref={defaultButtonRef}

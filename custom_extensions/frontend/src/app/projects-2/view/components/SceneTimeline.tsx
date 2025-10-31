@@ -25,6 +25,7 @@ interface SceneTimelineProps {
   // Transition props
   onTransitionClick?: (transitionIndex: number) => void;
   activeTransitionIndex?: number | null;
+  showReady?: boolean;
 }
 
 export default function SceneTimeline({ 
@@ -40,7 +41,8 @@ export default function SceneTimeline({
   onAddSlide,
   onOpenTemplateSelector,
   onTransitionClick,
-  activeTransitionIndex
+  activeTransitionIndex,
+  showReady
 }: SceneTimelineProps) {
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>('');
@@ -125,16 +127,18 @@ export default function SceneTimeline({
     <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'auto', minHeight: '120px' }}>
       <div className="flex items-end gap-4 overflow-x-auto pb-2">
           {/* Play Button with Time */}
-          <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="relative flex items-center justify-center h-16">
-              <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
-                <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
-              </button>
+          {!showReady && (
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <div className="relative flex items-center justify-center h-16">
+                <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
+                  <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                </button>
+              </div>
+              <div className="h-8 flex items-center justify-center">
+                <span className="text-sm text-gray-600">00:00</span>
+              </div>
             </div>
-            <div className="h-8 flex items-center justify-center">
-              <span className="text-sm text-gray-600">00:00</span>
-            </div>
-          </div>
+          )}
 
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (

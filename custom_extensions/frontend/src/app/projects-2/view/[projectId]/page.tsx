@@ -79,6 +79,9 @@ export default function Projects2ViewPage() {
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
 
+  // Ready flag to hide advanced controls per requirements
+  const showReady = true;
+
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     console.log('🔍 handleAddSlide called with:', {
@@ -757,6 +760,7 @@ export default function Projects2ViewPage() {
         videoLessonData={videoLessonData}
         componentBasedSlideDeck={componentBasedSlideDeck}
         currentSlideId={currentSlideId}
+        showReady={showReady}
       />
 
       {/* Toolbar */}
@@ -767,6 +771,7 @@ export default function Projects2ViewPage() {
           onShapesButtonClick={handleShapesButtonClick}
           onInteractionButtonClick={handleInteractionButtonClick}
           onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
+          showReady={showReady}
         />
       </div>
       
@@ -929,6 +934,7 @@ export default function Projects2ViewPage() {
             onOpenTemplateSelector={handleOpenTemplateSelector}
             onTransitionClick={handleTransitionClick}
             activeTransitionIndex={activeTransitionIndex}
+            showReady={showReady}
           />
         </div>
       </div>
