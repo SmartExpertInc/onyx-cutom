@@ -6444,6 +6444,49 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_storage_usage_user ON user_storage_usage(onyx_user_id);")
             logger.info("'user_storage_usage' table ensured.")
 
+            # --- Ensure credits_reference table for content type pricing ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS credits_reference (
+                    id SERIAL PRIMARY KEY,
+                    content_type TEXT NOT NULL UNIQUE,
+                    credits_amount INTEGER NOT NULL,
+                    description TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credits_reference_type ON credits_reference(content_type);")
+            
+            # Initialize default values if table is empty
+            row_count = await connection.fetchval("SELECT COUNT(*) FROM credits_reference")
+            if row_count == 0:
+                default_credits = [
+                    ("course_outline", 5, "Course Outline (Course)"),
+                    ("presentation_under_10", 7, "Presentation (<10 slides)"),
+                    ("presentation_10_20", 15, "Presentation (10-20 slides)"),
+                    ("presentation_30", 17, "Presentation (30 slides)"),
+                    ("presentation_40", 20, "Presentation (40 slides)"),
+                    ("presentation_50", 25, "Presentation (50 slides)"),
+                    ("onepager", 7, "Onepager"),
+                    ("quiz", 7, "Quiz"),
+                    ("video_lesson_per_minute", 10, "Video Lesson (per minute)"),
+                ]
+                for content_type, credits, description in default_credits:
+                    await connection.execute(
+                        "INSERT INTO credits_reference (content_type, credits_amount, description) VALUES ($1, $2, $3) ON CONFLICT (content_type) DO NOTHING",
+                        content_type, credits, description
+                    )
+                logger.info(f"Initialized {len(default_credits)} default credits reference values.")
+            logger.info("'credits_reference' table ensured.")
+
+            # Load credits reference into global dict
+            global CREDITS_REFERENCE
+            credits_rows = await connection.fetch("SELECT content_type, credits_amount FROM credits_reference")
+            CREDITS_REFERENCE = {row['content_type']: row['credits_amount'] for row in credits_rows}
+            logger.info(f"Loaded {len(CREDITS_REFERENCE)} credits reference values into global dict: {CREDITS_REFERENCE}")
+
             # NEW: Ensure credit transactions table for analytics/timeline
             await connection.execute(
                 """
@@ -9132,24 +9175,66 @@ async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: as
         return UserCredits(**dict(new_credits_row))
 
 def calculate_product_credits(product_type: str, content_data: dict = None) -> int:
-    """Calculate credit cost for product creation"""
+    """Calculate credit cost for product creation based on credits_reference table"""
+    global CREDITS_REFERENCE
+    
+    # If CREDITS_REFERENCE is empty, fallback to defaults (shouldn't happen after startup)
+    if not CREDITS_REFERENCE:
+        logger.warning("CREDITS_REFERENCE dict is empty, using fallback values")
+        if product_type == "course_outline":
+            return 5
+        elif product_type == "lesson_presentation":
+            if content_data and isinstance(content_data, dict):
+                slides = content_data.get("slides", [])
+                slide_count = len(slides) if slides else 0
+                if slide_count < 10:
+                    return 7
+                elif slide_count <= 20:
+                    return 15
+                elif slide_count == 30:
+                    return 17
+                elif slide_count == 40:
+                    return 20
+                elif slide_count == 50:
+                    return 25
+                else:
+                    return 17  # Default for presentations
+            return 7
+        elif product_type == "quiz":
+            return 7
+        elif product_type == "one_pager":
+            return 7
+        else:
+            return 0
+    
+    # Use values from CREDITS_REFERENCE dict
     if product_type == "course_outline":
-        return 5  # Course outline finalization costs 5 credits
+        return CREDITS_REFERENCE.get("course_outline", 5)
     elif product_type == "lesson_presentation":
         # Calculate based on slide count
         if content_data and isinstance(content_data, dict):
             slides = content_data.get("slides", [])
             slide_count = len(slides) if slides else 0
             
-            if slide_count <= 5:
-                return 3
-            elif slide_count <= 10:
-                return 5
+            if slide_count < 10:
+                return CREDITS_REFERENCE.get("presentation_under_10", 7)
+            elif slide_count <= 20:
+                return CREDITS_REFERENCE.get("presentation_10_20", 15)
+            elif slide_count == 30:
+                return CREDITS_REFERENCE.get("presentation_30", 17)
+            elif slide_count == 40:
+                return CREDITS_REFERENCE.get("presentation_40", 20)
+            elif slide_count == 50:
+                return CREDITS_REFERENCE.get("presentation_50", 25)
             else:
-                return 10
-        return 5  # Default if we can't determine slide count
-    elif product_type in ["quiz", "one_pager"]:
-        return 5  # Quiz and one-pager both cost 5 credits
+                # For slides > 50, use 30-slide pricing as default
+                return CREDITS_REFERENCE.get("presentation_30", 17)
+        # Default if we can't determine slide count
+        return CREDITS_REFERENCE.get("presentation_under_10", 7)
+    elif product_type == "quiz":
+        return CREDITS_REFERENCE.get("quiz", 7)
+    elif product_type == "one_pager":
+        return CREDITS_REFERENCE.get("onepager", 7)
     else:
         return 0  # Unknown product type, no cost
 
@@ -34705,6 +34790,91 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+@app.get("/api/custom/admin/credits/content/reference")
+async def get_credits_reference(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to get all credits reference values"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT content_type, credits_amount, description FROM credits_reference ORDER BY content_type"
+            )
+            
+            return {
+                "success": True,
+                "credits_reference": [
+                    {
+                        "content_type": row["content_type"],
+                        "credits_amount": row["credits_amount"],
+                        "description": row["description"]
+                    }
+                    for row in rows
+                ]
+            }
+    except Exception as e:
+        logger.error(f"Error fetching credits reference: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch credits reference")
+
+class CreditsReferenceUpdate(BaseModel):
+    content_type: str
+    credits_amount: int
+
+class CreditsReferenceBulkUpdate(BaseModel):
+    updates: List[CreditsReferenceUpdate]
+
+@app.post("/api/custom/admin/credits/content/modify")
+async def modify_credits_reference(
+    bulk_update: CreditsReferenceBulkUpdate,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to update credits reference values in database and global dict"""
+    await verify_admin_user(request)
+    
+    try:
+        global CREDITS_REFERENCE
+        
+        async with pool.acquire() as conn:
+            updated_types = []
+            for update in bulk_update.updates:
+                if update.credits_amount < 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Credits amount cannot be negative for {update.content_type}"
+                    )
+                
+                await conn.execute(
+                    """
+                    UPDATE credits_reference 
+                    SET credits_amount = $1, updated_at = NOW()
+                    WHERE content_type = $2
+                    """,
+                    update.credits_amount,
+                    update.content_type
+                )
+                
+                # Update global dict immediately
+                CREDITS_REFERENCE[update.content_type] = update.credits_amount
+                updated_types.append(update.content_type)
+                
+                logger.info(f"Updated credits reference: {update.content_type} = {update.credits_amount}")
+        
+        return {
+            "success": True,
+            "message": f"Successfully updated {len(updated_types)} credits reference values",
+            "updated_types": updated_types,
+            "current_reference": CREDITS_REFERENCE
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating credits reference: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update credits reference")
 
 # NEW: User transaction history (purchases + product generations)
 @app.get("/api/custom/admin/credits/user/{user_id}/transactions", response_model=UserTransactionHistoryResponse)
