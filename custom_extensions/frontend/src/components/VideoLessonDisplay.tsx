@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/VideoLessonDisplay.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { VideoLessonData } from '@/types/videoLessonTypes';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -32,12 +32,31 @@ const VideoLessonDisplay = ({
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'All' | 'Assigned to me' | 'New'>('All');
+  const [commentText, setCommentText] = useState('');
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleDraftClick = () => {
     if (productId) {
       router.push(`/custom-projects-ui/projects-2/view/${productId}`);
     }
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setFilterDropdownOpen(false);
+      }
+    };
+
+    if (filterDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [filterDropdownOpen]);
 
   // Format date as "28th Oct, 25"
   const formatDate = (dateString?: string): string => {
@@ -174,11 +193,11 @@ const VideoLessonDisplay = ({
           {/* Search bar and Filter button */}
           <div className="flex gap-2 mb-4">
             {/* Search bar */}
-            <div className="flex-1 relative">
+            <div className="w-[250px] relative">
               <input
                 type="text"
                 placeholder="Search comments"
-                className="w-full pl-8 pr-3 py-2 text-xs text-[#878787] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
+                className="w-full pl-8 pr-3 py-2 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2">
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -188,10 +207,10 @@ const VideoLessonDisplay = ({
             </div>
 
             {/* Filter button */}
-            <div className="relative">
+            <div className="relative" ref={filterDropdownRef}>
               <button
                 onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-xs text-[#171718] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-3 py-2 text-xs text-[#878787] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.1328 9.0332C11.1811 9.0332 12.0569 9.77787 12.2568 10.7676L12.3438 11.1992L12.2568 11.6309C12.0569 12.6206 11.1812 13.3662 10.1328 13.3662C9.08455 13.3661 8.20964 12.6206 8.00977 11.6309L7.92188 11.1992L8.00977 10.7676C8.20972 9.77798 9.08462 9.03333 10.1328 9.0332ZM10.1328 9.09961C8.97322 9.09975 8.03334 10.0396 8.0332 11.1992C8.0332 12.3589 8.97312 13.2997 10.1328 13.2998C11.2926 13.2998 12.2334 12.359 12.2334 11.1992C12.2333 10.0395 11.2925 9.09961 10.1328 9.09961ZM1.59961 11.166H7.4707L7.80566 11.1992L7.4707 11.2324H1.59961C1.58129 11.2324 1.56641 11.2176 1.56641 11.1992C1.56655 11.181 1.58138 11.1661 1.59961 11.166ZM12.7959 11.166H14.3994C14.4177 11.166 14.4325 11.181 14.4326 11.1992C14.4326 11.2176 14.4178 11.2324 14.3994 11.2324H12.7959L12.46 11.1992L12.7959 11.166ZM5.86621 2.63281C6.91458 2.63281 7.79034 3.37836 7.99023 4.36816L8.07617 4.79883L7.99023 5.23145C7.79027 6.22116 6.91452 6.96582 5.86621 6.96582C4.81796 6.96573 3.94211 6.22113 3.74219 5.23145L3.65527 4.79883L3.74219 4.36816C3.94207 3.37842 4.81792 2.63291 5.86621 2.63281ZM5.86621 2.69922C4.7065 2.69932 3.7666 3.64007 3.7666 4.7998C3.76678 5.95939 4.70661 6.89931 5.86621 6.89941C7.0259 6.89941 7.96662 5.95946 7.9668 4.7998C7.9668 3.64 7.02601 2.69922 5.86621 2.69922ZM1.59961 4.7666H3.2041L3.53906 4.79883L3.2041 4.83301H1.59961C1.58137 4.83294 1.56658 4.81802 1.56641 4.7998C1.56641 4.78144 1.58126 4.76667 1.59961 4.7666ZM8.5293 4.7666H14.3994C14.4178 4.7666 14.4326 4.78142 14.4326 4.7998C14.4324 4.81803 14.4177 4.83301 14.3994 4.83301H8.5293L8.19238 4.79883L8.5293 4.7666Z" fill="#878787" stroke="#878787"/>
@@ -201,11 +220,11 @@ const VideoLessonDisplay = ({
 
               {/* Dropdown */}
               {filterDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#CCCCCC] rounded-md shadow-lg z-10">
-                  <div className="px-3 py-2 text-xs font-semibold text-[#171718] border-b border-[#CCCCCC]">
+                <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E6E6E6] rounded-md shadow-lg z-10">
+                  <div className="px-3 py-2 text-xs font-semibold text-[#171718] border-b border-[#E6E6E6]">
                     Filter by
                   </div>
-                  <div className="py-1">
+                  <div className="py-1 px-2">
                     {(['All', 'Assigned to me', 'New'] as const).map((option) => (
                       <button
                         key={option}
@@ -213,15 +232,15 @@ const VideoLessonDisplay = ({
                           setSelectedFilter(option);
                           setFilterDropdownOpen(false);
                         }}
-                        className={`w-full px-3 py-2 text-xs text-left flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                          selectedFilter === option ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'text-[#171718]'
+                        className={`w-full px-2 py-2 text-xs text-left flex items-center justify-between transition-colors ${
+                          selectedFilter === option ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
                         }`}
                         style={selectedFilter === option ? { borderRadius: '2px' } : {}}
                       >
                         <span>{option}</span>
                         {selectedFilter === option && (
                           <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 4.5L4.5 8L11 1" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M1 4.5L4.5 8L11 1" stroke="#0F58F9" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         )}
                       </button>
@@ -233,8 +252,47 @@ const VideoLessonDisplay = ({
           </div>
           
           {/* Comments list area */}
-          <div className="flex-1">
-            <p className="text-gray-500 text-xs">Comments will appear here</p>
+          <div className="flex-1 flex flex-col items-center justify-center gap-3">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.5 31.5033L7.35 22.9533C5.9957 20.2455 5.64918 17.1441 6.37246 14.2041C7.09573 11.2642 8.84161 8.67753 11.2976 6.90711C13.7537 5.13669 16.7596 4.29803 19.7774 4.54121C22.7952 4.7844 25.628 6.09356 27.7689 8.23441C29.9097 10.3753 31.2189 13.2081 31.4621 16.2259C31.7053 19.2437 30.8666 22.2496 29.0962 24.7057C27.3258 27.1617 24.7391 28.9076 21.7992 29.6309C18.8592 30.3541 15.7578 30.0076 13.05 28.6533L4.5 31.5033Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M13.8994 17.5322C13.8993 17.9186 13.5865 18.2322 13.2002 18.2324C12.8137 18.2324 12.5001 17.9187 12.5 17.5322C12.5 17.1456 12.8136 16.832 13.2002 16.832C13.5866 16.8323 13.8994 17.1458 13.8994 17.5322ZM19.2334 17.5322C19.2333 17.9187 18.9197 18.2324 18.5332 18.2324C18.1467 18.2324 17.8331 17.9187 17.833 17.5322C17.833 17.1456 18.1466 16.832 18.5332 16.832C18.9197 16.8321 19.2334 17.1457 19.2334 17.5322ZM24.5664 17.5322C24.5663 17.9187 24.2527 18.2324 23.8662 18.2324C23.4798 18.2323 23.1661 17.9187 23.166 17.5322C23.166 17.1457 23.4797 16.8321 23.8662 16.832C24.2528 16.832 24.5664 17.1456 24.5664 17.5322Z" fill="#171718" stroke="#171718"/>
+            </svg>
+            <p className="text-[#171718] text-base font-medium">Add your first comment</p>
+          </div>
+
+          {/* Comment input section */}
+          <div className="relative">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Comment or add others with @"
+              className="w-full h-[70px] p-3 pr-20 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-lg resize-none focus:outline-none focus:border-[#CCCCCC]"
+            />
+            <button
+              onClick={() => {
+                if (commentText.trim()) {
+                  // Handle send comment
+                  console.log('Send comment:', commentText);
+                  setCommentText('');
+                }
+              }}
+              disabled={!commentText.trim()}
+              className={`absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 text-xs text-white rounded-md transition-colors ${
+                commentText.trim() ? 'bg-[#0F58F9] hover:bg-[#0d4dd4]' : 'bg-[#CCCCCC] cursor-not-allowed'
+              }`}
+            >
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clipPath="url(#clip0_1918_78539)">
+                  <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="white" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_1918_78539">
+                    <rect width="8" height="8" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
+              <span>Send</span>
+            </button>
           </div>
         </div>
       </div>
