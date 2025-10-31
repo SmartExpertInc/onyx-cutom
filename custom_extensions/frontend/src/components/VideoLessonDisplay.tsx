@@ -114,7 +114,7 @@ const VideoLessonDisplay = ({
                 {/* Search bar and Filter button */}
                 <div className="flex justify-between mb-4">
                   {/* Search bar */}
-                  <div className="w-[250px] relative">
+                  <div className="w-[270px] relative">
                     <input
                       type="text"
                       placeholder="Search comments"
@@ -221,7 +221,7 @@ const VideoLessonDisplay = ({
               <div className="flex-1 flex flex-col items-center justify-center gap-4 overflow-hidden">
                 {/* SVG wrapper with relative positioning */}
                 <div className="relative w-[465px] h-[148px]">
-                  <svg width="465" height="148" viewBox="0 0 465 148" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[20px]">
+                  <svg width="465" height="148" viewBox="0 0 465 148" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[-30px]">
                     <g clip-path="url(#clip0_1918_79172)">
                     <rect opacity="0.7" x="240.408" y="138.45" width="23.0069" height="22.9934" rx="11.4967" stroke="#878787" stroke-width="0.609959"/>
                     <rect opacity="0.7" x="224.664" y="122.715" width="54.496" height="54.4645" rx="27.2322" stroke="#878787" stroke-width="0.609959"/>
