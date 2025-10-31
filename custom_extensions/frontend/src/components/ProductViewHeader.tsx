@@ -280,7 +280,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               </button>
 
               {/* Vertical divider */}
-              <div className="h-8 w-px bg-gray-300"></div>
+              <div className="h-6 w-px bg-gray-300"></div>
 
               {/* Sign up button */}
               <button
