@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video } from 'lucide-react';
+import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video, Sparkles, PauseCircle, List, Hand, Languages } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
@@ -982,6 +982,18 @@ export default function VideoEditorHeader({
         {/* Right section - Share and Generate buttons */}
           <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
+            {/* Soon toolbar (ready mode) */}
+            {showReady && (
+              <div className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-3 py-1.5">
+                <Sparkles size={16} className="text-gray-700" title="Soon" />
+                <PauseCircle size={16} className="text-gray-700" title="Soon" />
+                <List size={16} className="text-gray-700" title="Soon" />
+                <Hand size={16} className="text-gray-700" title="Soon" />
+                <Languages size={16} className="text-gray-700" title="Soon" />
+                <div className="w-0.5 h-5 bg-gray-300" />
+                <Play size={16} className="text-gray-700" title="Soon" />
+              </div>
+            )}
             <button 
               onClick={() => { if (!showReady) handlePlayClick(); }}
               className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
@@ -1112,10 +1124,10 @@ export default function VideoEditorHeader({
             </div>
 
             {/* Generate button */}
+            {/* Generate should remain enabled even in ready mode */}
             <button
-              onClick={() => { if (!showReady) handleGenerateClick(); }}
-              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-200 text-gray-500' : 'bg-black text-white hover:bg-gray-800 cursor-pointer'}`}
-              title={showReady ? 'Soon' : undefined}
+              onClick={handleGenerateClick}
+              className="rounded-[7px] px-3 py-1.5 flex items-center h-8 border bg-black text-white hover:bg-gray-800 cursor-pointer"
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
