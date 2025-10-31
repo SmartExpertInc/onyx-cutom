@@ -33809,13 +33809,15 @@ async def stripe_webhook(
                     # Get payment details from the session
                     amount_total = session.get('amount_total', 0)
                     currency = session.get('currency', 'usd').upper()
-                    subscription_item = (
-                        PRICE_TO_TIER.get(price_id)
-                        or (
-                            f"{PRICE_TO_ADDON.get(price_id, {}).get('type', 'Unknown')} "
-                            f"{PRICE_TO_ADDON.get(price_id, {}).get('units', 'Unknown')}"
-                        )
-                    )
+                    subscription_item = "Unknown"
+                    if price_id:
+                        tier_name = PRICE_TO_TIER.get(price_id)
+                        if tier_name:
+                            subscription_item = tier_name
+                        else:
+                            addon = PRICE_TO_ADDON.get(price_id, {})
+                            if addon:
+                                subscription_item = f"{addon.get('type', 'Unknown')} {addon.get('units', 'Unknown')}"
                     
                     # Track directly with user_id since we're in a webhook context
                     mixpanel_helper.track_to_mp(
@@ -33826,7 +33828,7 @@ async def stripe_webhook(
                             "Plan Type": plan.capitalize(),
                             "Subscription ID": subscription_id,
                             "Subscription Item": subscription_item,
-                            "Amount": amount_total / 100,  # Convert from cents
+                            "Amount": (amount_total or 0) / 100,  # Convert from cents
                             "Currency": currency
                         }
                     )
@@ -34196,14 +34198,24 @@ async def stripe_webhook(
 
                 # 3) Track Mixpanel: Payment Succeeded (mode=Invoice)
                 try:
-                    price_id = full_invoice.get('lines', {}).get('data', [])[0].get('pricing').get('pricing_details').get('price')
-                    invoice_item = (
-                        PRICE_TO_TIER.get(price_id)
-                        or (
-                            f"{PRICE_TO_ADDON.get(price_id, {}).get('type', 'Unknown')} "
-                            f"{PRICE_TO_ADDON.get(price_id, {}).get('units', 'Unknown')}"
-                        )
-                    )
+                    lines_data = full_invoice.get('lines', {}).get('data', [])
+                    price_id = None
+                    if lines_data:
+                        first_line = lines_data[0]
+                        pricing = first_line.get('pricing') if isinstance(first_line, dict) else getattr(first_line, 'pricing', None)
+                        if pricing and isinstance(pricing, dict):
+                            pricing_details = pricing.get('pricing_details', {})
+                            price_id = pricing_details.get('price') if pricing_details else None
+                    invoice_item = "Unknown"
+                    if price_id:
+                        tier_name = PRICE_TO_TIER.get(price_id)
+                        if tier_name:
+                            invoice_item = tier_name
+                        else:
+                            addon = PRICE_TO_ADDON.get(price_id, {})
+                            if addon:
+                                invoice_item = f"{addon.get('type', 'Unknown')} {addon.get('units', 'Unknown')}"
+                    
                     mixpanel_helper.track_to_mp(
                         onyx_user_id,
                         "Payment Succeeded",
@@ -34212,7 +34224,7 @@ async def stripe_webhook(
                             "Plan Type": plan_type.capitalize() if plan_type else None,
                             "Invoice ID": invoice.get('id'),
                             "Invoice Item": invoice_item,
-                            "Amount": amount_paid / 100.0,
+                            "Amount": (amount_paid or 0) / 100,
                             "Currency": currency,
                         }
                     )
@@ -34386,7 +34398,7 @@ async def stripe_webhook(
                         "Plan Type": user_record['current_plan'].capitalize() if user_record else None,
                         "Subscription Id": subscription.get('id'),
                         "End Date": subscription.get('canceled_at'),
-                        "Cancelation Reason": subscription.get('cancellation_details').get('reason')
+                        "Cancelation Reason": (subscription.get('cancellation_details') or {}).get('reason')
                     }
                 )
             except Exception as track_err:
