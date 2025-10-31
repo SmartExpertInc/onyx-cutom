@@ -33915,7 +33915,7 @@ async def stripe_webhook(
             # Find user by customer ID
             async with pool.acquire() as conn:
                 user_record = await conn.fetchrow(
-                    "SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1",
+                    "SELECT onyx_user_id, current_plan, current_price_id FROM user_billing WHERE stripe_customer_id = $1",
                     customer_id
                 )
             
