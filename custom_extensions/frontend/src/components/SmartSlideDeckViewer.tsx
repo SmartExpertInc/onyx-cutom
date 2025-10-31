@@ -164,6 +164,29 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     'hybrid-work-best-practices-slide': 'Numbered Practices + Team Image'
   };
 
+  const PLACEHOLDER_TEXT = 'Add your text here';
+  const sanitizeTextualProps = (value: unknown, key?: string): unknown => {
+    if (typeof value === 'string') {
+      const k = (key || '').toLowerCase();
+      if (k.includes('title')) {
+        return value; // keep titles
+      }
+      return PLACEHOLDER_TEXT;
+    }
+    if (Array.isArray(value)) {
+      return value.map((item) => sanitizeTextualProps(item));
+    }
+    if (value && typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(obj)) {
+        out[k] = sanitizeTextualProps(v, k);
+      }
+      return out;
+    }
+    return value;
+  };
+
   // =============================================================
   // Inline editing for Presentation Title (Header)
   // =============================================================
@@ -606,14 +629,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slideNumber: componentDeck.slides.length + 1,
       slideTitle: slideTitle, // ← CRITICAL: Add slideTitle for backend compatibility
       templateId: templateId,
-      props: {
+      props: sanitizeTextualProps({
         ...(template.defaultProps as Record<string, unknown>),
-        title: slideTitle, // ← Keep title in props for frontend template rendering
-        content: ((): string => {
-          const c = (template.defaultProps as Record<string, unknown>).content;
-          return typeof c === 'string' && c.length > 0 ? c : 'Add your content here...';
-        })()
-      },
+        title: slideTitle,
+        content: PLACEHOLDER_TEXT
+      }) as Record<string, unknown>,
       metadata: {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()

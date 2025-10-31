@@ -55,6 +55,24 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'hybrid-work-best-practices-slide': 'Numbered Practices + Team Image'
   };
 
+  const PLACEHOLDER_TEXT = 'Add your text here';
+  const sanitizeTextualProps = (value: any, key?: string): any => {
+    if (typeof value === 'string') {
+      const k = (key || '').toLowerCase();
+      if (k.includes('title')) return value;
+      return PLACEHOLDER_TEXT;
+    }
+    if (Array.isArray(value)) {
+      return value.map((item) => sanitizeTextualProps(item));
+    }
+    if (value && typeof value === 'object') {
+      const out: Record<string, any> = {};
+      for (const [k, v] of Object.entries(value)) out[k] = sanitizeTextualProps(v, k);
+      return out;
+    }
+    return value;
+  };
+
   // Add new slide with template selection
   const handleAddSlide = (templateId: string) => {
     const template = getTemplate(templateId);
@@ -67,11 +85,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
       slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       slideNumber: currentSlideCount + 1,
       templateId: templateId,
-      props: {
+      props: sanitizeTextualProps({
         ...template.defaultProps,
         title: template.defaultProps.title || `Slide ${currentSlideCount + 1}`,
-        content: template.defaultProps.content || 'Add your content here...'
-      },
+        content: PLACEHOLDER_TEXT
+      }) as any,
       metadata: {
         createdAt: new Date().toISOString(),
         version: '1.0'
