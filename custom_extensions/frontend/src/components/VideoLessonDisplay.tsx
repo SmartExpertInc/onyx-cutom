@@ -91,7 +91,7 @@ const VideoLessonDisplay = ({
         height: 'calc(100vh - 64px - 32px)' // 64px = header height, 32px = py-4 (16px top + 16px bottom)
       }}
     >
-      <div className="flex flex-col gap-4">
+      <div className="w-full flex flex-col gap-4">
         {/* Top row: Video and Comments section with same height */}
         <div className="grid grid-cols-12 gap-4">
           {/* Video lesson section - 8 columns */}
