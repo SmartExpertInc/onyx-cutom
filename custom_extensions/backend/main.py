@@ -11962,16 +11962,49 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         Remember: Your goal is to EXTRACT as much useful content as possible, not to summarize it.
         The more detailed and complete your extraction, the better the educational material will be.
         """
+        # Less-invasive prompt (used only if the first attempt is refused or generic)
+        softer_prompt = f"""
+        You are a CONTENT ANALYST.
+
+        Goal: Provide a faithful, detailed representation of the file's information for educational use.
+
+        RULES:
+        - Where permitted, include short, highly relevant quotations (short exact phrases) to preserve fidelity.
+        - If full verbatim excerpts are not permitted, provide detailed, section-by-section summaries capturing all facts, numbers, names, and definitions precisely.
+        - Preserve critical terminology exactly as written.
+
+        FORMAT:
+        SUMMARY: [<=2 sentences]
+        TOPICS: [comma-separated]
+        KEY_INFO: [one most important takeaway]
+        EXTRACTED_CONTENT:
+        [Provide a comprehensive, structured outline of the file's content. Use headings. Under each heading, include:
+         - Key points (with exact terminology)
+         - Short quotes where allowed (a few words to short phrases), otherwise detailed paraphrase capturing all substance
+         - Numbers, names, dates, and definitions precisely]
+        """
         
         # Step 4: Single attempt - skip file if it fails (no retries)
         try:
             result = await attempt_file_analysis_with_retry(
                 temp_chat_id, file_id, analysis_prompt, cookies, 0
             )
-            if result and not is_generic_response(result):
+            # Detect refusal/generic
+            refusal_markers = [
+                "can’t provide verbatim", "can't provide verbatim", "can’t provide that", "can't provide that",
+                "cannot provide verbatim", "not provide verbatim", "I can’t extract", "I can't extract"
+            ]
+            is_refusal = any(m in (result or "").lower() for m in refusal_markers)
+            if result and not is_generic_response(result) and not is_refusal:
                 return parse_analysis_result(file_id, result)
-            else:
-                logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed, skipping...")
+            # Retry once with less invasive prompt and alternate strategy (attempt 2)
+            logger.info(f"[FILE_CONTEXT] Retrying file {file_id} with less invasive prompt")
+            retry_result = await attempt_file_analysis_with_retry(
+                temp_chat_id, file_id, softer_prompt, cookies, 1
+            )
+            if retry_result and not is_generic_response(retry_result):
+                return parse_analysis_result(file_id, retry_result)
+            logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed after retry, skipping...")
         except Exception as e:
             logger.error(f"[FILE_CONTEXT] File {file_id} analysis error: {e}, skipping...")
         
@@ -12551,6 +12584,10 @@ NOW GENERATE THE REQUESTED PRODUCT:
         if assembled_text:
             enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
             enhanced_prompt += assembled_text + "\n\n"
+            try:
+                logger.info(f"[ASSEMBLER_OUTPUT] BEGIN EXTRACTED_CONTENT BLOCK\n{assembled_text}\n[ASSEMBLER_OUTPUT] END EXTRACTED_CONTENT BLOCK")
+            except Exception:
+                pass
     except Exception as ass_err:
         logger.error(f"[FIDELITY_DEBUG] Assembler failed, falling back to simple clip: {ass_err}")
         file_contents = file_context.get("file_contents") or []
