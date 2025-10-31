@@ -33737,26 +33737,26 @@ async def stripe_webhook(
                     else:
                         # Normal plan purchase: update everything including plan
                         logger.info(f"[BILLING] Updating billing for normal plan purchase: plan={plan}, price_id={price_id}, interval={interval}")
-                    await conn.execute(
-                        """
-                        INSERT INTO user_billing (
-                            onyx_user_id, stripe_customer_id, subscription_status, 
-                            subscription_id, current_price_id, current_plan, 
-                            current_interval, updated_at
+                        await conn.execute(
+                            """
+                            INSERT INTO user_billing (
+                                onyx_user_id, stripe_customer_id, subscription_status, 
+                                subscription_id, current_price_id, current_plan, 
+                                current_interval, updated_at
+                            )
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET 
+                                subscription_status = EXCLUDED.subscription_status,
+                                subscription_id = EXCLUDED.subscription_id,
+                                current_price_id = EXCLUDED.current_price_id,
+                                current_plan = EXCLUDED.current_plan,
+                                current_interval = EXCLUDED.current_interval,
+                                updated_at = now()
+                            """,
+                            onyx_user_id, customer_id, subscription.status,
+                            subscription_id, price_id, plan, interval
                         )
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, now())
-                        ON CONFLICT (onyx_user_id)
-                        DO UPDATE SET 
-                            subscription_status = EXCLUDED.subscription_status,
-                            subscription_id = EXCLUDED.subscription_id,
-                            current_price_id = EXCLUDED.current_price_id,
-                            current_plan = EXCLUDED.current_plan,
-                            current_interval = EXCLUDED.current_interval,
-                            updated_at = now()
-                        """,
-                        onyx_user_id, customer_id, subscription.status,
-                        subscription_id, price_id, plan, interval
-                    )
                         logger.info(f"[BILLING] Successfully updated user_billing for normal plan purchase")
 
                 # If this was an upgrade, cancel the previous subscription
