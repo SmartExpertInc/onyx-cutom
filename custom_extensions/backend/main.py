@@ -17030,8 +17030,9 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
     actual_paths = []
     
     for item in smartdrive_paths:
-        # Check if this is a numeric string (direct Onyx file ID from products-as-context)
-        if item.strip().isdigit():
+        token = item.strip()
+        # Treat as direct Onyx ID only if token is strictly digits and not a path-like value
+        if token.isdigit() and not any(ch in token for ch in ['/', '%', '+', '.', '-']):
             direct_onyx_ids.append(int(item.strip()))
             logger.info(f"[SMARTDRIVE_MAPPING] Detected direct Onyx file ID: {item}")
         else:
@@ -17692,10 +17693,9 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     if getattr(payload, 'selectedFiles', None):
                         logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
-                        smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
                         onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
                         try:
-                            file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
                                 files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
                                 file_context = merge_source_contexts(connector_context, files_ctx)
@@ -30701,10 +30701,9 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
                         # Reuse existing mapping flow
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
-                        smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
                         onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)  # best-effort using /me
                         try:
-                            file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
                                 logger.info(f"[HYBRID_CONTEXT] Extracting context from mapped files (count={len(file_ids)}) and merging with connector context")
                                 files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
@@ -32416,10 +32415,9 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                     if getattr(payload, 'selectedFiles', None):
                         logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
-                        smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
                         onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
                         try:
-                            file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
                                 files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
                                 file_context = merge_source_contexts(connector_context, files_ctx)
