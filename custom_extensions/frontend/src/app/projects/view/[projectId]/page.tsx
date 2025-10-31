@@ -2007,7 +2007,7 @@ export default function ProjectInstanceViewPage() {
         className={`font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? 'min-h-[calc(100vh-4rem)] bg-[#F2F2F4] px-12 py-0'
+            ? 'bg-[#F2F2F4] px-12 py-0'
             : projectInstanceData?.component_name === COMPONENT_NAME_QUIZ || 
               projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
             ? 'min-h-screen bg-[#F2F2F4] p-0'
