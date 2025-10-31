@@ -12409,11 +12409,17 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
         logger.info(f"[FIDELITY_DEBUG] File context (string): {len(file_context)} chars")
         logger.info(f"[FIDELITY_DEBUG] Content preview: {content_preview}")
     elif isinstance(file_context, dict):
-        summaries_count = len(file_context.get('file_summaries', []))
+        summaries = file_context.get('file_summaries', [])
         topics_count = len(file_context.get('key_topics', []))
+        summaries_count = len(summaries)
         logger.info(f"[FIDELITY_DEBUG] File context (dict): {summaries_count} summaries, {topics_count} topics")
-        if file_context.get('file_summaries'):
-            logger.info(f"[FIDELITY_DEBUG] First summary: {file_context['file_summaries'][0][:200]}")
+        if summaries:
+            first = summaries[0]
+            first_text = first if isinstance(first, str) else (first.get('summary') or first.get('name') or str(first))
+            try:
+                logger.info(f"[FIDELITY_DEBUG] First summary: {first_text[:200]}")
+            except Exception:
+                logger.info("[FIDELITY_DEBUG] First summary present (non-string)")
     
     enhanced_prompt = f"""
 {original_prompt}
@@ -12550,8 +12556,15 @@ NOW GENERATE THE REQUESTED PRODUCT:
     # Add file summaries
     if file_context.get("file_summaries"):
         enhanced_prompt += "FILE SUMMARIES:\n"
-        for i, summary in enumerate(file_context["file_summaries"], 1):
-            enhanced_prompt += f"{i}. {summary}\n"
+        for i, s in enumerate(file_context["file_summaries"], 1):
+            if isinstance(s, str):
+                line = s
+            elif isinstance(s, dict):
+                # Prefer explicit summary; fallback to name; fallback to repr
+                line = s.get("summary") or s.get("name") or json.dumps(s, ensure_ascii=False)[:400]
+            else:
+                line = str(s)
+            enhanced_prompt += f"{i}. {line}\n"
         enhanced_prompt += "\n"
         try:
             logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['file_summaries'])} summaries | first_len={len(file_context['file_summaries'][0]) if file_context['file_summaries'] else 0}")
