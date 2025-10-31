@@ -7,9 +7,11 @@ import AvatarImageDisplay from '../AvatarImageDisplay';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 import YourLogo from '../YourLogo';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Company tools and resources',
@@ -51,9 +53,15 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const sectionEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const sectionTitleEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [editingSections, setEditingSections] = useState<{ index: number; field: 'title' | 'content' } | null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   
@@ -159,10 +167,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         maxWidth: '70%'
       }}>
         {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={titleEditorRef}
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
+            placeholder="Enter title..."
             className="title-element"
             style={{
               fontSize: '48px',
@@ -171,20 +181,23 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
-              fontFamily: 'Lora, serif'
+              fontFamily: 'Lora, serif',
+              padding: '8px 12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)'
             }}
+            onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
           />
         ) : (
           <div
             className="title-element"
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
-              cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
+              cursor: isEditable ? 'pointer' : 'default'
             }}
-          >
-            {currentTitle}
-          </div>
+            dangerouslySetInnerHTML={{ __html: currentTitle }}
+          />
         )}
       </div>
 
@@ -246,10 +259,15 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               fontFamily: 'Lora, serif'
             }}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'title' ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!sectionTitleEditorRefs.current) sectionTitleEditorRefs.current = [];
+                    sectionTitleEditorRefs.current[index] = el;
+                  }}
                   initialValue={section.title}
                   onSave={(value) => handleSectionSave(index, 'title', value)}
                   onCancel={() => setEditingSections(null)}
+                  placeholder="Enter title..."
                   className="section-title-editor section-title"
                   style={{
                     fontSize: '18px',
@@ -258,20 +276,23 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                     lineHeight: '1.2',
                     width: '100%',
                     height: 'auto',
-                    fontFamily: 'Lora, serif'
+                    fontFamily: 'Lora, serif',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
                   }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `section-${index}-title`, computedStyles)}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingSections({ index, field: 'title' })}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
                     fontWeight: '600',
                   }}
-                >
-                  {section.title}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: section.title }}
+                />
               )}
             </div>
 
@@ -284,31 +305,38 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               fontFamily: 'Inter, sans-serif'
             }}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'content' ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!sectionEditorRefs.current) sectionEditorRefs.current = [];
+                    sectionEditorRefs.current[index] = el;
+                  }}
                   initialValue={section.content}
                   onSave={(value) => handleSectionSave(index, 'content', value)}
                   onCancel={() => setEditingSections(null)}
+                  placeholder="Enter content..."
                   className="section-content-editor"
-                  multiline={true}
                   style={{
                     fontSize: '15px',
                     color: '#34353C',
                     lineHeight: '1.4',
                     width: '100%',
                     height: 'auto',
-                    fontFamily: 'Inter, sans-serif'
+                    fontFamily: 'Inter, sans-serif',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
                   }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `section-${index}-content`, computedStyles)}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingSections({ index, field: 'content' })}
                   style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
+                    cursor: isEditable ? 'pointer' : 'default'
                   }}
-                >
-                  {section.content}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: section.content }}
+                />
               )}
             </div>
           </div>

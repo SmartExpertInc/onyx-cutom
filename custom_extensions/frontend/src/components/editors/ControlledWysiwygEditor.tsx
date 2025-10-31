@@ -124,10 +124,8 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
 
     useEffect(() => {
       if (editor) {
-        // Just focus, don't select all - let user place cursor where they want
-        editor.commands.focus('end');
-        
-        // Read computed styles from the DOM
+        // Don't auto-focus or move cursor - let user control selection
+        // Just read computed styles from the DOM
         try {
           const editorElement = editor.view.dom;
           const computedStyles = window.getComputedStyle(editorElement);

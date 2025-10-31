@@ -161,9 +161,24 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
         />
         <div style={titleStyle}>
           {isEditable && editTitle ? (
-            <ImprovedInlineEditor className="culture-value-title title-element" initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inlineEditor(titleStyle)} />
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
+              className="culture-value-title title-element"
+              initialValue={title}
+              onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }}
+              onCancel={()=>setEditTitle(false)}
+              placeholder="Enter title..."
+              style={{
+                ...inlineEditor(titleStyle),
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
+              }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
+            />
           ) : (
-            <div className="culture-value-title title-element" onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+            <div className="culture-value-title title-element" onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: title }} />
           )}
         </div>
         <div style={avatarWrap}>
@@ -174,43 +189,136 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           <div style={col}>
             <div className="culture-value-title card-title card-title-left" style={cardTitleStyle}>
               {isEditable && editLeftTitle ? (
-                <ImprovedInlineEditor initialValue={leftTitle} onSave={(v)=>{ onUpdate&&onUpdate({ leftTitle:v }); setEditLeftTitle(false); }} onCancel={()=>setEditLeftTitle(false)} style={inline(cardTitleStyle)} />
+                <ControlledWysiwygEditor
+                  ref={leftTitleEditorRef}
+                  initialValue={leftTitle}
+                  onSave={(v)=>{ onUpdate&&onUpdate({ leftTitle:v }); setEditLeftTitle(false); }}
+                  onCancel={()=>setEditLeftTitle(false)}
+                  placeholder="Enter title..."
+                  style={{
+                    ...inline(cardTitleStyle),
+                    padding: '8px 12px',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'leftTitle', computedStyles)}
+                />
               ) : (
-                <div onClick={()=> isEditable && setEditLeftTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{leftTitle}</div>
+                <div onClick={()=> isEditable && setEditLeftTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: leftTitle }} />
               )}
             </div>
             {isEditable && editLeft ? (
-              <ImprovedInlineEditor initialValue={leftText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftText:v }); setEditLeft(false); }} onCancel={()=>setEditLeft(false)} style={{ fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', width:'100%' }} />
+              <ControlledWysiwygEditor
+                ref={leftTextEditorRef}
+                initialValue={leftText}
+                onSave={(v)=>{ onUpdate&&onUpdate({ leftText:v }); setEditLeft(false); }}
+                onCancel={()=>setEditLeft(false)}
+                placeholder="Enter text..."
+                style={{
+                  fontSize:'15px',
+                  lineHeight:1.6,
+                  color:'#FFFFFF',
+                  padding: '8px 12px',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  width:'100%'
+                }}
+                onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'leftText', computedStyles)}
+              />
             ) : (
-              <div onClick={()=> isEditable && setEditLeft(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{leftText}</div>
+              <div onClick={()=> isEditable && setEditLeft(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }} dangerouslySetInnerHTML={{ __html: leftText }} />
             )}
           </div>
           <div style={mid}>
             <div className="culture-value-title card-title card-title-middle" style={cardTitleStyleMid}>
               {isEditable && editMiddleTitle ? (
-                <ImprovedInlineEditor initialValue={middleTitle} onSave={(v)=>{ onUpdate&&onUpdate({ middleTitle:v }); setEditMiddleTitle(false); }} onCancel={()=>setEditMiddleTitle(false)} style={inline(cardTitleStyleMid)} />
+                <ControlledWysiwygEditor
+                  ref={middleTitleEditorRef}
+                  initialValue={middleTitle}
+                  onSave={(v)=>{ onUpdate&&onUpdate({ middleTitle:v }); setEditMiddleTitle(false); }}
+                  onCancel={()=>setEditMiddleTitle(false)}
+                  placeholder="Enter title..."
+                  style={{
+                    ...inline(cardTitleStyleMid),
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'middleTitle', computedStyles)}
+                />
               ) : (
-                <div onClick={()=> isEditable && setEditMiddleTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{middleTitle}</div>
+                <div onClick={()=> isEditable && setEditMiddleTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: middleTitle }} />
               )}
             </div>
             {isEditable && editMiddle ? (
-              <ImprovedInlineEditor initialValue={middleText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ middleText:v }); setEditMiddle(false); }} onCancel={()=>setEditMiddle(false)} style={{ fontSize:'15px', lineHeight:1.6, color:'black', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', width:'100%' }} />
+              <ControlledWysiwygEditor
+                ref={middleTextEditorRef}
+                initialValue={middleText}
+                onSave={(v)=>{ onUpdate&&onUpdate({ middleText:v }); setEditMiddle(false); }}
+                onCancel={()=>setEditMiddle(false)}
+                placeholder="Enter text..."
+                style={{
+                  fontSize:'15px',
+                  lineHeight:1.6,
+                  color:'black',
+                  padding: '8px 12px',
+                  border: '1px solid rgba(0,0,0,0.2)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  width:'100%'
+                }}
+                onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'middleText', computedStyles)}
+              />
             ) : (
-              <div onClick={()=> isEditable && setEditMiddle(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{middleText}</div>
+              <div onClick={()=> isEditable && setEditMiddle(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }} dangerouslySetInnerHTML={{ __html: middleText }} />
             )}
           </div>
           <div style={col}>
             <div className="culture-value-title card-title card-title-right" style={cardTitleStyle}>
               {isEditable && editRightTitle ? (
-                <ImprovedInlineEditor initialValue={rightTitle} onSave={(v)=>{ onUpdate&&onUpdate({ rightTitle:v }); setEditRightTitle(false); }} onCancel={()=>setEditRightTitle(false)} style={inline(cardTitleStyle)} />
+                <ControlledWysiwygEditor
+                  ref={rightTitleEditorRef}
+                  initialValue={rightTitle}
+                  onSave={(v)=>{ onUpdate&&onUpdate({ rightTitle:v }); setEditRightTitle(false); }}
+                  onCancel={()=>setEditRightTitle(false)}
+                  placeholder="Enter title..."
+                  style={{
+                    ...inline(cardTitleStyle),
+                    padding: '8px 12px',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'rightTitle', computedStyles)}
+                />
               ) : (
-                <div onClick={()=> isEditable && setEditRightTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightTitle}</div>
+                <div onClick={()=> isEditable && setEditRightTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: rightTitle }} />
               )}
             </div>
             {isEditable && editRight ? (
-              <ImprovedInlineEditor initialValue={rightText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} onCancel={()=>setEditRight(false)} style={{ fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', width:'100%' }} />
+              <ControlledWysiwygEditor
+                ref={rightTextEditorRef}
+                initialValue={rightText}
+                onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }}
+                onCancel={()=>setEditRight(false)}
+                placeholder="Enter text..."
+                style={{
+                  fontSize:'15px',
+                  lineHeight:1.6,
+                  color:'#FFFFFF',
+                  padding: '8px 12px',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  width:'100%'
+                }}
+                onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'rightText', computedStyles)}
+              />
             ) : (
-              <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{rightText}</div>
+              <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }} dangerouslySetInnerHTML={{ __html: rightText }} />
             )}
           </div>
         </div>

@@ -1,12 +1,13 @@
 // custom_extensions/frontend/src/components/templates/PercentCirclesSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import { ChevronRight } from 'lucide-react';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export interface PercentCirclesProps extends BaseTemplateProps {
   title: string;
@@ -19,7 +20,10 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   slideIndex?: number;
 }
 
-export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { theme?: SlideTheme | string }> = ({
+export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { 
+  theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+}> = ({
   title = '% of Fortune 500 CEOs\nwho are women',
   percent = '10%',
   bottomCards = [
@@ -33,12 +37,18 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
   slideIndex = 1,
   isEditable = true, // Set to true by default for testing
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const percentEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const cardEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -274,18 +284,24 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
         {/* Title */}
         <div style={titleStyle}>
           {isEditable && edit?.k==='title' ? (
-            <ImprovedInlineEditor 
-              initialValue={title} 
-              multiline={true} 
-              onSave={(v)=>{ onUpdate && onUpdate({ title:v }); setEdit(null); }} 
-              onCancel={()=> setEdit(null)} 
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
+              initialValue={title}
+              onSave={(v)=>{ onUpdate && onUpdate({ title:v }); setEdit(null); }}
+              onCancel={()=> setEdit(null)}
+              placeholder="Enter title..."
               className="title-element"
-              style={inlineEditor(titleStyle)} 
+              style={{
+                ...inlineEditor(titleStyle),
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
+              }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
-            <div className="title-element" onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
-              {title}
-            </div>
+            <div className="title-element" onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: title.replace(/\n/g, '<br/>') }} />
           )}
         </div>
 
@@ -294,17 +310,27 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
           {/* First circle - filled with percentage */}
            <div style={circleFilled}>
              {isEditable && edit?.k==='percent' ? (
-               <ImprovedInlineEditor 
-                 initialValue={percent} 
-                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
-                 onCancel={()=> setEdit(null)} 
+               <ControlledWysiwygEditor
+                 ref={percentEditorRef}
+                 initialValue={percent}
+                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }}
+                 onCancel={()=> setEdit(null)}
+                 placeholder="Enter percent..."
                  className="percent-text"
-                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
+                 style={{
+                   ...inline({}),
+                   color:'#FFFFFF',
+                   fontSize:'23px',
+                   fontWeight:700,
+                   padding: '8px 12px',
+                   border: '1px solid rgba(255,255,255,0.3)',
+                   borderRadius: '4px',
+                   backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                 }}
+                 onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'percent', computedStyles)}
                />
              ) : (
-               <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
-                 {percent}
-               </div>
+               <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: percent }} />
              )}
            </div>
           
@@ -363,23 +389,32 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
             {/* Text */}
             <div className="card-text" style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
               {isEditable && edit?.k===`bt${i}` ? (
-                <ImprovedInlineEditor 
-                  initialValue={card.text} 
-                  multiline={true}
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!cardEditorRefs.current) cardEditorRefs.current = [];
+                    cardEditorRefs.current[i] = el;
+                  }}
+                  initialValue={card.text}
                   onSave={(v)=>{ 
                     const next = [...bottomCards]; 
                     next[i] = { ...next[i], text:v }; 
                     onUpdate && onUpdate({ bottomCards: next }); 
                     setEdit(null); 
-                  }} 
-                  onCancel={()=> setEdit(null)} 
+                  }}
+                  onCancel={()=> setEdit(null)}
+                  placeholder="Enter text..."
                   className="card-text"
-                  style={inline(i === 0 ? cardTextStyleFirst : cardTextStyleSecond)} 
+                  style={{
+                    ...inline(i === 0 ? cardTextStyleFirst : cardTextStyleSecond),
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `card-${i}-text`, computedStyles)}
                 />
               ) : (
-                <div className="card-text">
-                  {card.text}
-                </div>
+                <div className="card-text" dangerouslySetInnerHTML={{ __html: card.text }} />
               )}
             </div>
 

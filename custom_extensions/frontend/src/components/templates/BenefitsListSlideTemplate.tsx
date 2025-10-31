@@ -1,16 +1,18 @@
 // custom_extensions/frontend/src/components/templates/BenefitsListSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BenefitsListSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 
 export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId: _slideId,
   title = 'Benefits',
@@ -39,7 +41,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText: _voiceoverText
+  voiceoverText: _voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -50,6 +53,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
+  const benefitEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
@@ -434,34 +438,42 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
               </svg>
               {isEditable && editingBenefits === index ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!benefitEditorRefs.current) benefitEditorRefs.current = [];
+                    benefitEditorRefs.current[index] = el;
+                  }}
                   initialValue={benefit}
                   onSave={(value) => handleBenefitSave(index, value)}
                   onCancel={handleBenefitCancel}
+                  placeholder="Enter benefit..."
                   className="benefit-editor"
                   style={{
                     fontSize: '24px',
                     color: '#5E5E5E',
                     fontFamily: currentTheme.fonts.contentFont,
                     letterSpacing: '0.05rem',
-                    flex: '1'
+                    flex: '1',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
                   }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `benefit-${index}`, computedStyles)}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingBenefits(index)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
                     flex: '1',
                     fontSize: '24px',
                     color: '#5E5E5E',
                     fontFamily: currentTheme.fonts.contentFont,
                     letterSpacing: '0.05rem'
                   }}
-                >
-                  {benefit}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: benefit }}
+                />
               )}
             </div>
           ))}

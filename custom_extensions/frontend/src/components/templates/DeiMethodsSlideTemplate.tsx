@@ -1,11 +1,12 @@
 // custom_extensions/frontend/src/components/templates/DeiMethodsSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export interface DeiMethodsProps extends BaseTemplateProps {
   headerTitle: string;
@@ -18,7 +19,10 @@ export interface DeiMethodsProps extends BaseTemplateProps {
   logoText?: string;
 }
 
-export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: SlideTheme | string }> = ({
+export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { 
+  theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+}> = ({
   headerTitle = 'Methods to Meet DEI Standards',
   section1Title = 'Diverse Recruitment:',
   section1Lines = [
@@ -35,12 +39,20 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('16');
+  
+  // Editor refs
+  const headerTitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const section1TitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const section1LinesEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const section2TitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const section2LinesEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F0F2F7', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
@@ -117,24 +129,25 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       </div>
 
       {isEditable && editKey==='headerTitle' ? (
-        <ImprovedInlineEditor 
-          initialValue={headerTitle} 
-          onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }} 
-          onCancel={()=> setEditKey(null)} 
-          className="title-element" 
+        <ControlledWysiwygEditor
+          ref={headerTitleEditorRef}
+          initialValue={headerTitle}
+          onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }}
+          onCancel={()=> setEditKey(null)}
+          placeholder="Enter title..."
+          className="title-element"
           style={{
             ...headerText,
-            background:'transparent', 
-            border:'none', 
-            outline:'none', 
-            padding:0, 
-            margin:0, 
-            whiteSpace:'pre-wrap'
-          }} 
+            padding: '8px 12px',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '4px',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)'
+          }}
+          onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'headerTitle', computedStyles)}
         />
       ) : (
         <div style={headerText}>
-          <div className="title-element" onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
+          <div className="title-element" onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: headerTitle }} />
         </div>
       )}
 <h1>New Template</h1>
@@ -142,72 +155,88 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       <div style={contentBlock}>
         <div style={section1TitleStyle}>
           {isEditable && editKey==='s1t' ? (
-            <ImprovedInlineEditor 
-              initialValue={section1Title} 
-              onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} 
-              onCancel={()=> setEditKey(null)} 
-              className="title-element" 
-              style={inlineEditor(section1TitleStyle)} 
+            <ControlledWysiwygEditor
+              ref={section1TitleEditorRef}
+              initialValue={section1Title}
+              onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }}
+              onCancel={()=> setEditKey(null)}
+              placeholder="Enter title..."
+              className="title-element"
+              style={{
+                ...inlineEditor(section1TitleStyle),
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
+              }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'section1Title', computedStyles)}
             />
           ) : (
-            <div className="title-element" onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
+            <div className="title-element" onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: section1Title }} />
           )}
         </div>
-        <h1>New Template</h1>
         {isEditable && editKey==='s1l' ? (
-          <ImprovedInlineEditor 
-            initialValue={section1Lines.join('\n')} 
-            multiline={true} 
-            onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }} 
-            onCancel={()=> setEditKey(null)} 
+          <ControlledWysiwygEditor
+            ref={section1LinesEditorRef}
+            initialValue={section1Lines.join('\n')}
+            onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }}
+            onCancel={()=> setEditKey(null)}
+            placeholder="Enter lines..."
             style={{
               ...section1LinesStyle,
-              background:'transparent', 
-              border:'none', 
-              outline:'none', 
-              padding:0, 
-              margin:0, 
-              whiteSpace:'pre-line'
-            }} 
+              padding: '8px 12px',
+              border: '1px solid rgba(0,0,0,0.2)',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.3)'
+            }}
+            onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'section1Lines', computedStyles)}
           />
         ) : (
           <div style={section1LinesStyle}>
-            <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
+            <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: section1Lines.join('<br/>') }} />
           </div>
         )}
-<h1>New Template</h1>
         <div style={section2TitleStyle}>
           {isEditable && editKey==='s2t' ? (
-            <ImprovedInlineEditor 
-              initialValue={section2Title} 
-              onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} 
-              onCancel={()=> setEditKey(null)} 
-              className="title-element" 
-              style={inlineEditor(section2TitleStyle)} 
+            <ControlledWysiwygEditor
+              ref={section2TitleEditorRef}
+              initialValue={section2Title}
+              onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }}
+              onCancel={()=> setEditKey(null)}
+              placeholder="Enter title..."
+              className="title-element"
+              style={{
+                ...inlineEditor(section2TitleStyle),
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
+              }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'section2Title', computedStyles)}
             />
           ) : (
-            <div className="title-element" onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
+            <div className="title-element" onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: section2Title }} />
           )}
         </div>
         {isEditable && editKey==='s2l' ? (
-          <ImprovedInlineEditor 
-            initialValue={section2Lines.join('\n')} 
-            multiline={true} 
-            onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }} 
-            onCancel={()=> setEditKey(null)} 
+          <ControlledWysiwygEditor
+            ref={section2LinesEditorRef}
+            initialValue={section2Lines.join('\n')}
+            onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }}
+            onCancel={()=> setEditKey(null)}
+            placeholder="Enter lines..."
             style={{
               ...section2LinesStyle,
-              background:'transparent', 
-              border:'none', 
-              outline:'none', 
-              padding:0, 
-              margin:0, 
-              whiteSpace:'pre-line'
-            }} 
+              padding: '8px 12px',
+              border: '1px solid rgba(0,0,0,0.2)',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.3)'
+            }}
+            onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'section2Lines', computedStyles)}
           />
         ) : (
           <div style={section2LinesStyle}>
-            <div onClick={()=> isEditable && setEditKey('s2l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Lines.join('\n')}</div>
+            <div onClick={()=> isEditable && setEditKey('s2l')} style={{ cursor: isEditable ? 'pointer':'default' }} dangerouslySetInnerHTML={{ __html: section2Lines.join('<br/>') }} />
           </div>
         )}
       </div>

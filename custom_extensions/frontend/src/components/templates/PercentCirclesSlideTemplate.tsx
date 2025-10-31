@@ -7,6 +7,7 @@ import PercentCirclesSlideTemplate_old from './PercentCirclesSlideTemplate_old';
 
 export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = (props) => {
   return <PercentCirclesSlideTemplate_old {...props} />;
 };
