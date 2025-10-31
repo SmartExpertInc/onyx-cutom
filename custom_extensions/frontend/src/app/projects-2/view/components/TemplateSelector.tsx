@@ -10,8 +10,50 @@ interface TemplateSelectorProps {
 }
 
 export default function TemplateSelector({ currentSlideCount, onAddSlide }: TemplateSelectorProps) {
-  // Get available templates
-  const availableTemplates = getAllTemplates();
+  // Get available templates (restricted to allowed list for video lessons)
+  const allowedTemplateIds = new Set<string>([
+    'course-overview-slide',
+    'work-life-balance-slide',
+    'phishing-definition-slide',
+    'culture-values-three-columns',
+    'percent-circles',
+    'benefits-list-slide',
+    'impact-statements-slide',
+    'dei-methods',
+    'company-tools-resources-slide',
+    'ai-pharma-market-growth-slide',
+    'critical-thinking-slide',
+    'benefits-tags-slide',
+    'kpi-update-slide',
+    'phishing-rise-slide',
+    'soft-skills-assessment-slide',
+    'problems-grid',
+    'solution-steps-slide',
+    'hybrid-work-best-practices-slide'
+  ]);
+
+  const availableTemplates = getAllTemplates().filter(t => allowedTemplateIds.has(t.id));
+
+  const displayNameById: Record<string, string> = {
+    'course-overview-slide': 'Title + Big Avatar Right',
+    'work-life-balance-slide': 'Text + Big Avatar',
+    'phishing-definition-slide': 'Definitions + Right Image',
+    'culture-values-three-columns': '3 Columns + Avatar',
+    'percent-circles': 'Percent Circles + Avatar',
+    'benefits-list-slide': 'List + Progress Dots + Avatar',
+    'impact-statements-slide': 'Impact Metrics + Big Avatar Left',
+    'dei-methods': 'Two Sections + Avatar Rings',
+    'company-tools-resources-slide': '2x2 Grid Sections',
+    'ai-pharma-market-growth-slide': 'Bars Right + Photo',
+    'critical-thinking-slide': 'Highlighted Phrases + Logo',
+    'benefits-tags-slide': 'Tags + Small Avatar',
+    'kpi-update-slide': 'KPI Grid + Footer',
+    'phishing-rise-slide': 'Text + Black Bar Chart + Actor',
+    'soft-skills-assessment-slide': 'Tips List + Avatar',
+    'problems-grid': '2x2 Problem Cards + Right Paragraph + Avatar',
+    'solution-steps-slide': 'Steps Timeline + Footer',
+    'hybrid-work-best-practices-slide': 'Numbered Practices + Team Image'
+  };
 
   // Add new slide with template selection
   const handleAddSlide = (templateId: string) => {
@@ -64,7 +106,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-blue-700">
-                  {template.name}
+                  {displayNameById[template.id] || template.name}
                 </div>
                 <div className="text-xs text-gray-600 leading-relaxed group-hover:text-blue-600">
                   {template.description}

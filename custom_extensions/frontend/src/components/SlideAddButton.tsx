@@ -37,8 +37,49 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
   const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
-  // Get available templates
-  const availableTemplates = getAllTemplates();
+  // Get available templates (restricted for video lesson slide options)
+  const allowedTemplateIds = new Set<string>([
+    'course-overview-slide',
+    'work-life-balance-slide',
+    'phishing-definition-slide',
+    'culture-values-three-columns',
+    'percent-circles',
+    'benefits-list-slide',
+    'impact-statements-slide',
+    'dei-methods',
+    'company-tools-resources-slide',
+    'ai-pharma-market-growth-slide',
+    'critical-thinking-slide',
+    'benefits-tags-slide',
+    'kpi-update-slide',
+    'phishing-rise-slide',
+    'soft-skills-assessment-slide',
+    'problems-grid',
+    'solution-steps-slide',
+    'hybrid-work-best-practices-slide'
+  ]);
+  const availableTemplates = getAllTemplates().filter(t => allowedTemplateIds.has(t.id));
+
+  const displayNameById: Record<string, string> = {
+    'course-overview-slide': 'Title + Big Avatar Right',
+    'work-life-balance-slide': 'Text + Big Avatar',
+    'phishing-definition-slide': 'Definitions + Right Image',
+    'culture-values-three-columns': '3 Columns + Avatar',
+    'percent-circles': 'Percent Circles + Avatar',
+    'benefits-list-slide': 'List + Progress Dots + Avatar',
+    'impact-statements-slide': 'Impact Metrics + Big Avatar Left',
+    'dei-methods': 'Two Sections + Avatar Rings',
+    'company-tools-resources-slide': '2x2 Grid Sections',
+    'ai-pharma-market-growth-slide': 'Bars Right + Photo',
+    'critical-thinking-slide': 'Highlighted Phrases + Logo',
+    'benefits-tags-slide': 'Tags + Small Avatar',
+    'kpi-update-slide': 'KPI Grid + Footer',
+    'phishing-rise-slide': 'Text + Black Bar Chart + Actor',
+    'soft-skills-assessment-slide': 'Tips List + Avatar',
+    'problems-grid': '2x2 Problem Cards + Right Paragraph + Avatar',
+    'solution-steps-slide': 'Steps Timeline + Footer',
+    'hybrid-work-best-practices-slide': 'Numbered Practices + Team Image'
+  };
 
   // Set fixed position in left corner when dropdown opens
   useEffect(() => {
@@ -205,7 +246,7 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
                 <span style={{ fontSize: '18px' }}>{template.icon}</span>
                 <div style={{ flex: 1 }}>
                   <div className="text-sm font-medium text-gray-900 mb-0.5">
-                    {template.name}
+                    {displayNameById[template.id] || template.name}
                   </div>
                   <div className="text-xs text-gray-600 leading-tight">
                     {template.description}
