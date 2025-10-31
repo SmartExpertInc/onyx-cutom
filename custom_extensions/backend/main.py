@@ -11368,6 +11368,108 @@ CONSTRAINTS:
             ]
         )
 
+        # If nothing useful found, retry once with a tweaked prompt (broader query and softer constraints)
+        should_retry = (
+            (not summary or "no relevant content" in summary.lower()) and
+            not key_topics and
+            not extracted_snippets and
+            len(important_details.strip()) < 50
+        )
+        if should_retry:
+            try:
+                logger.info("[CONNECTOR_CONTEXT] No relevant content found; retrying with tweaked prompt")
+                tweaked_prompt = f"""
+You are a CONNECTOR SEARCH AND EXTRACTION specialist. Search ONLY in: {connector_sources_csv}. Topic: "{prompt}".
+
+Goal: maximize recall first, then precision. If exact matches are scarce, include near-topic documents that define, introduce, or summarize the topic.
+
+PROCESS:
+1) Run multiple queries (synonyms, abbreviations, expansions): e.g., AWS, Amazon Web Services, cloud basics, cloud infrastructure.
+2) Select up to 12 strongest candidates by topical overlap and information density.
+3) Extract 2–3 short, high-signal snippets per document (50–150 words). Prefer definitions, lists of components, and key facts.
+
+OUTPUT:
+SUMMARY: <=150 words
+KEY_TOPICS: comma-separated (<=12)
+IMPORTANT_DETAILS: 3–8 bullets of concrete facts (numbers/names)
+EXTRACTED_CONTENT: [DOC blocks with SNIPPETS as before]
+RELEVANT_SOURCES: list
+"""
+                search_result = await enhanced_stream_chat_message_with_filters(temp_chat_id, tweaked_prompt, cookies, connector_list)
+                logger.info(f"[CONNECTOR_CONTEXT] Retry received search result ({len(search_result)} chars)")
+                # Re-parse with same logic
+                summary = ""; key_topics = []; important_details = ""; relevant_sources = ""; extracted_snippets = []
+                if "SUMMARY:" in search_result:
+                    summary_start = search_result.find("SUMMARY:") + 8
+                    next_marker = min([x for x in [
+                        search_result.find("KEY_TOPICS:", summary_start),
+                        search_result.find("IMPORTANT_DETAILS:", summary_start),
+                        search_result.find("RELEVANT_SOURCES:", summary_start)
+                    ] if x != -1] or [len(search_result)])
+                    summary = search_result[summary_start:next_marker].strip()
+                if "KEY_TOPICS:" in search_result:
+                    topics_start = search_result.find("KEY_TOPICS:") + 11
+                    next_section = min([x for x in [
+                        search_result.find("IMPORTANT_DETAILS:", topics_start),
+                        search_result.find("RELEVANT_SOURCES:", topics_start)
+                    ] if x != -1] or [len(search_result)])
+                    topics_text = search_result[topics_start:next_section].strip()
+                    key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                if "IMPORTANT_DETAILS:" in search_result:
+                    details_start = search_result.find("IMPORTANT_DETAILS:") + 18
+                    details_end = search_result.find("RELEVANT_SOURCES:", details_start)
+                    if details_end == -1:
+                        details_end = len(search_result)
+                    important_details = search_result[details_start:details_end].strip()
+                if "RELEVANT_SOURCES:" in search_result:
+                    sources_start = search_result.find("RELEVANT_SOURCES:") + 17
+                    relevant_sources = search_result[sources_start:].strip()
+                if "EXTRACTED_CONTENT:" in search_result:
+                    try:
+                        content_start = search_result.find("EXTRACTED_CONTENT:") + len("EXTRACTED_CONTENT:")
+                        tail = search_result[content_start:]
+                        current_doc = None
+                        for raw_line in tail.splitlines():
+                            line = raw_line.strip()
+                            if not line:
+                                continue
+                            if line.startswith("[DOC "):
+                                if current_doc:
+                                    extracted_snippets.append(current_doc)
+                                current_doc = {"source_doc": None, "connector": None, "doc_id": None, "snippets": []}
+                            elif line.startswith("- SOURCE_DOC:") and current_doc is not None:
+                                current_doc["source_doc"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- CONNECTOR:") and current_doc is not None:
+                                current_doc["connector"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- DOC_ID:") and current_doc is not None:
+                                current_doc["doc_id"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- SNIPPETS:"):
+                                pass
+                            elif line and line[0].isdigit() and ') "' in line:
+                                try:
+                                    first_quote = line.find('"'); last_quote = line.rfind('"')
+                                    snippet_text = line[first_quote+1:last_quote]
+                                    if current_doc is not None and snippet_text:
+                                        current_doc["snippets"].append({"text": snippet_text})
+                                except Exception:
+                                    continue
+                            elif line.startswith("- WHY_RELEVANT:") and current_doc is not None and current_doc.get("snippets"):
+                                current_doc["snippets"][-1]["why"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- CONFIDENCE:") and current_doc is not None and current_doc.get("snippets"):
+                                current_doc["snippets"][-1]["confidence"] = line.split(":", 1)[1].strip()
+                        if current_doc:
+                            extracted_snippets.append(current_doc)
+                        logger.info(f"[CONNECTOR_CONTEXT] Retry parsed connector snippets: {sum(len(d.get('snippets', [])) for d in extracted_snippets)} total")
+                    except Exception as perr:
+                        logger.warning(f"[CONNECTOR_CONTEXT] Retry parse EXTRACTED_CONTENT failed: {perr}")
+                # recompute combined_raw
+                combined_raw = "\n\n".join([
+                    f"[{doc.get('source_doc','Unknown')}]\n" + "\n\n".join([s.get('text','') for s in doc.get('snippets', []) if s.get('text')])
+                    for doc in extracted_snippets if doc.get('snippets')
+                ])
+            except Exception as re:
+                logger.warning(f"[CONNECTOR_CONTEXT] Retry failed: {re}")
+        
         # Return context in the same format as knowledge base context, plus snippets/raw
         return {
             "connector_search": True,
