@@ -2334,7 +2334,9 @@ export default function ProjectInstanceViewPage() {
             : 'p-4 sm:p-6 md:p-8'
         } rounded-xl ${
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
-          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
+          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'bg-[#F2F2F4]' 
             : 'bg-transparent'
         }`}>

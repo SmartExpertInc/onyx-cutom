@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProductViewHeader.tsx
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -36,6 +36,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   isEditing,
   onEditOrSave
 }) => {
+  // State for Authorized/Unauthorized toggle
+  const [isAuthorized, setIsAuthorized] = useState(true);
+
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
     allowedComponentNames 
@@ -136,6 +139,30 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
+          {/* Auth Toggle Switch */}
+          <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
+            <button
+              onClick={() => setIsAuthorized(true)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                isAuthorized 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Authorized
+            </button>
+            <button
+              onClick={() => setIsAuthorized(false)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                !isAuthorized 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Unauthorized
+            </button>
+          </div>
+
         {isOnePager && onEditOrSave && (
             <button
               onClick={onEditOrSave}
@@ -233,8 +260,34 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </ToastProvider>
           )}
 
-          {/* User Dropdown */}
-          <UserDropdown />
+          {/* Conditional rendering based on auth state */}
+          {isAuthorized ? (
+            <UserDropdown />
+          ) : (
+            <>
+              {/* Share button */}
+              <button
+                className="px-3 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm cursor-pointer"
+                style={{ height: '40px' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Share
+              </button>
+
+              {/* Vertical divider */}
+              <div className="h-10 w-px bg-gray-300"></div>
+
+              {/* Sign up button */}
+              <button
+                className="px-4 py-2 rounded-md text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#0F58F9', height: '40px' }}
+              >
+                Sign up
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
