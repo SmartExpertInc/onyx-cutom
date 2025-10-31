@@ -39,7 +39,7 @@ const VideoLessonDisplay = ({
 
   const handleDraftClick = () => {
     if (productId) {
-      router.push(`/custom-projects-ui/projects-2/view/${productId}`);
+      router.push(`/projects-2/view/${productId}`);
     }
   };
 
