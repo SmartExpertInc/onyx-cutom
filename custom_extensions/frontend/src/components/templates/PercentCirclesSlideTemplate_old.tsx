@@ -1,10 +1,10 @@
 // custom_extensions/frontend/src/components/templates/PercentCirclesSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 import { ChevronRight } from 'lucide-react';
 
@@ -39,6 +39,12 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  const [currentPercent, setCurrentPercent] = useState(percent);
+
+  // Sync percent prop with local state
+  useEffect(() => {
+    setCurrentPercent(percent);
+  }, [percent]);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -105,7 +111,8 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
     fontWeight:600,
     border:'none',
     color:'#FFFFFF',
-    borderRadius:'50%'
+    borderRadius:'50%',
+    textAlign:'center'
   };
 
   // Avatar positioning - upper right, overlapping border
@@ -217,6 +224,24 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
     fontFamily: base.fontFamily
   });
 
+  // Calculate number of circles to fill based on percentage
+  const getFilledCirclesCount = (percentStr: string): number => {
+    const numericValue = parseInt(percentStr.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(numericValue) || numericValue < 1) return 1;
+    if (numericValue >= 100) return 10;
+    if (numericValue >= 90) return 9;
+    if (numericValue >= 80) return 8;
+    if (numericValue >= 70) return 7;
+    if (numericValue >= 60) return 6;
+    if (numericValue >= 50) return 5;
+    if (numericValue >= 40) return 4;
+    if (numericValue >= 30) return 3;
+    if (numericValue >= 20) return 2;
+    return 1;
+  };
+
+  const filledCount = getFilledCirclesCount(currentPercent);
+
   // Logo section styling
   const logoSection: React.CSSProperties = {
     position:'absolute',
@@ -291,43 +316,58 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { t
 
         {/* Circles row */}
         <div style={circlesContainer}>
-          {/* First circle - filled with percentage */}
-           <div style={circleFilled}>
-             {isEditable && edit?.k==='percent' ? (
-               <ImprovedInlineEditor 
-                 initialValue={percent} 
-                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
-                 onCancel={()=> setEdit(null)} 
-                 className="percent-text"
-                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
-               />
-             ) : (
-               <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
-                 {percent}
-               </div>
-             )}
-           </div>
-          
-          {/* Remaining 9 empty circles */}
-          {[...Array(9)].map((_, i) => (
-            <div key={i} style={circleBase} />
-          ))}
+          {/* Render all 10 circles */}
+          {[...Array(10)].map((_, i) => {
+            const isFilled = i < filledCount;
+            const isLastFilled = i === filledCount - 1;
+            
+            return (
+              <div key={i} style={isFilled ? circleFilled : circleBase}>
+                {/* Show percentage only in the last filled circle */}
+                {isLastFilled && (
+                  <>
+                    {isEditable && edit?.k==='percent' ? (
+                      <ImprovedInlineEditor 
+                        initialValue={currentPercent} 
+                        onSave={(v)=>{ 
+                          setCurrentPercent(v);
+                          onUpdate && onUpdate({ percent:v }); 
+                          setEdit(null); 
+                        }} 
+                        onCancel={()=> setEdit(null)} 
+                        className="percent-text"
+                        style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700, textAlign:'center' }} 
+                      />
+                    ) : (
+                      <div 
+                        className="percent-text" 
+                        onClick={()=> isEditable && setEdit({ k:'percent' })} 
+                        style={{ cursor: isEditable ? 'pointer':'default', textAlign:'center' }}
+                      >
+                        {currentPercent}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Avatar */}
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder 
-          imagePath={avatarPath} 
-          onImageUploaded={(p)=> {
-            console.log('Image uploaded:', p);
-            onUpdate && onUpdate({ avatarPath:p });
-          }} 
-          size="LARGE" 
-          position="CENTER" 
-          description="Avatar" 
-          isEditable={isEditable} 
-          style={{ width:'100%', height:'100%', objectFit:'cover', marginTop:'4px', cursor: isEditable ? 'pointer' : 'default' }} 
+        <AvatarImageDisplay
+          size="MEDIUM"
+          position="CENTER"
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
         />
       </div>
       {/* <div style={ring1} /> */}
