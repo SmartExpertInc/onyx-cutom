@@ -91,213 +91,216 @@ const VideoLessonDisplay = ({
         height: 'calc(100vh - 64px - 32px)' // 64px = header height, 32px = py-4 (16px top + 16px bottom)
       }}
     >
-      {/* Video lesson section - takes remaining space */}
-      <div className="flex-1 flex flex-col gap-6 min-h-0">
-        <div 
-          className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg flex-1 min-h-0"
-          style={{ 
-            aspectRatio: '16 / 9'
-          }}
-        >
-          <p className="text-gray-400 text-lg">Video lesson area</p>
-        </div>
-
-        {/* Title and Action Buttons */}
-        <div className="flex items-center justify-between flex-shrink-0">
-          {/* Left: Video Lesson Title */}
-          <div>
-            <h3 className="text-md font-semibold text-[#171718]">
-              {parentProjectName || dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
-            </h3>
-            <div className="flex items-center gap-2 mt-1 text-[#878787] text-xs">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_1918_78510)">
-                  <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-                </g>
-                <defs>
-                  <clipPath id="clip0_1918_78510">
-                    <rect width="14" height="14" fill="white"/>
-                  </clipPath>
-                </defs>
-              </svg>
-              <span>username@app.contentbuilder.ai</span>
-              {createdAt && (
-                <>
-                  <span>•</span>
-                  <span>{formatDate(createdAt)}</span>
-                </>
-              )}
-            </div>
+      <div className="flex flex-col gap-4">
+        {/* Top row: Video and Comments section with same height */}
+        <div className="grid grid-cols-12 gap-4">
+          {/* Video lesson section - 8 columns */}
+          <div 
+            className="col-span-8 flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
+            style={{ 
+              aspectRatio: '16 / 9'
+            }}
+          >
+            <p className="text-gray-400 text-lg">Video lesson area</p>
           </div>
-          
-          {/* Right: Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleDraftClick}
-              className="px-4 py-2 rounded-md bg-white text-[#171718] border border-[#171718] hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
-              style={{ height: '40px' }}
-            >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6.5 11.9142H12.5M9.5 0.914214C9.76522 0.648997 10.1249 0.5 10.5 0.5C10.6857 0.5 10.8696 0.53658 11.0412 0.607651C11.2128 0.678721 11.3687 0.782892 11.5 0.914214C11.6313 1.04554 11.7355 1.20144 11.8066 1.37302C11.8776 1.5446 11.9142 1.7285 11.9142 1.91421C11.9142 2.09993 11.8776 2.28383 11.8066 2.45541C11.7355 2.62699 11.6313 2.78289 11.5 2.91421L3.16667 11.2475L0.5 11.9142L1.16667 9.24755L9.5 0.914214Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Draft
-            </button>
-            <button
-              className="px-4 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm"
-              style={{ height: '40px' }}
-            >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Share
-            </button>
-            <button
-              className="px-4 py-2 rounded-md bg-[#0F58F9] text-white hover:bg-[#0d4dd4] transition-colors flex items-center gap-2 text-sm"
-              style={{ height: '40px' }}
-            >
-              <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Export
-            </button>
-          </div>
-        </div>
 
-        {/* Rating section */}
-        <div className="flex flex-col items-center gap-3 flex-shrink-0">
-            <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3">
-              <span className="text-[#171718] text-xs">{t('modals.play.rateQuality', "How's the video and voice quality?")}</span>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    className="transition-colors hover:scale-110"
-                    onClick={() => console.log(`Rated ${star} stars`)}
-                    onMouseEnter={() => setHoveredStar(star)}
-                    onMouseLeave={() => setHoveredStar(null)}
-                  >
-                    <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M7.23047 1.01367L7.25195 1.06738L8.71582 4.58594C8.83392 4.86975 9.10084 5.06328 9.40723 5.08789L13.2061 5.39258L13.2637 5.39746L13.5059 5.41602L13.3213 5.5752L13.2773 5.61328L10.3838 8.09277C10.1503 8.29282 10.0478 8.60627 10.1191 8.90527L11.0029 12.6113L11.0039 12.6123L11.0166 12.6689L11.0723 12.9043L10.8652 12.7783L10.8154 12.748L7.56348 10.7617C7.30116 10.6017 6.97126 10.6016 6.70898 10.7617L3.45703 12.748L3.40723 12.7783L3.19922 12.9053L3.25586 12.668L3.26953 12.6113L4.15332 8.90527C4.22466 8.60628 4.12291 8.2928 3.88965 8.09277L0.995117 5.61328L0.951172 5.5752L0.765625 5.41602L1.00977 5.39746L1.06738 5.39258L4.86523 5.08789C5.17162 5.06333 5.43849 4.86971 5.55664 4.58594L7.02051 1.06738L7.04297 1.01367L7.13574 0.788086L7.23047 1.01367ZM6.6748 2.07227L5.61914 4.61133C5.49149 4.91824 5.20241 5.12763 4.87109 5.1543L2.12988 5.37402L0.931641 5.4707L1.84473 6.25293L3.93262 8.04199C4.18511 8.2583 4.29589 8.5975 4.21875 8.9209L3.58008 11.5957L3.30176 12.7646L4.32715 12.1387L6.67383 10.7051C6.95758 10.5318 7.31488 10.5318 7.59863 10.7051L9.94531 12.1387L10.9717 12.7646L10.6924 11.5957L10.0547 8.9209C9.97756 8.59758 10.0875 8.25831 10.3398 8.04199L12.4287 6.25293L13.3418 5.4707L12.1436 5.37402L9.40234 5.1543C9.07091 5.12772 8.78198 4.91833 8.6543 4.61133L7.59766 2.07227L7.13672 0.961914L6.6748 2.07227Z" fill="#171718" stroke="#171718"/>
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <span className="text-[#878787] text-xs">{t('modals.play.helpImprove', 'Help us improve ContentBuilder')}</span>
-        </div>
-      </div>
-
-      {/* Comments section - fixed 400px width, matches video area height */}
-      <div 
-        className="w-[400px] flex flex-col"
-        style={{ 
-          height: 'calc(100vh - 64px - 32px - 70px - 90px - 48px)' // Total height - header - py-4 - title/buttons - rating - gaps
-        }}
-      >
-        <div className="flex-1 flex flex-col p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
-          {/* Search bar and Filter button */}
-          <div className="flex gap-2 mb-4">
-            {/* Search bar */}
-            <div className="w-[250px] relative">
-              <input
-                type="text"
-                placeholder="Search comments"
-                className="w-full pl-8 pr-3 py-2 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
-              />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
-
-            {/* Filter button */}
-            <div className="relative" ref={filterDropdownRef}>
-              <button
-                onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-xs text-[#878787] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.1328 9.0332C11.1811 9.0332 12.0569 9.77787 12.2568 10.7676L12.3438 11.1992L12.2568 11.6309C12.0569 12.6206 11.1812 13.3662 10.1328 13.3662C9.08455 13.3661 8.20964 12.6206 8.00977 11.6309L7.92188 11.1992L8.00977 10.7676C8.20972 9.77798 9.08462 9.03333 10.1328 9.0332ZM10.1328 9.09961C8.97322 9.09975 8.03334 10.0396 8.0332 11.1992C8.0332 12.3589 8.97312 13.2997 10.1328 13.2998C11.2926 13.2998 12.2334 12.359 12.2334 11.1992C12.2333 10.0395 11.2925 9.09961 10.1328 9.09961ZM1.59961 11.166H7.4707L7.80566 11.1992L7.4707 11.2324H1.59961C1.58129 11.2324 1.56641 11.2176 1.56641 11.1992C1.56655 11.181 1.58138 11.1661 1.59961 11.166ZM12.7959 11.166H14.3994C14.4177 11.166 14.4325 11.181 14.4326 11.1992C14.4326 11.2176 14.4178 11.2324 14.3994 11.2324H12.7959L12.46 11.1992L12.7959 11.166ZM5.86621 2.63281C6.91458 2.63281 7.79034 3.37836 7.99023 4.36816L8.07617 4.79883L7.99023 5.23145C7.79027 6.22116 6.91452 6.96582 5.86621 6.96582C4.81796 6.96573 3.94211 6.22113 3.74219 5.23145L3.65527 4.79883L3.74219 4.36816C3.94207 3.37842 4.81792 2.63291 5.86621 2.63281ZM5.86621 2.69922C4.7065 2.69932 3.7666 3.64007 3.7666 4.7998C3.76678 5.95939 4.70661 6.89931 5.86621 6.89941C7.0259 6.89941 7.96662 5.95946 7.9668 4.7998C7.9668 3.64 7.02601 2.69922 5.86621 2.69922ZM1.59961 4.7666H3.2041L3.53906 4.79883L3.2041 4.83301H1.59961C1.58137 4.83294 1.56658 4.81802 1.56641 4.7998C1.56641 4.78144 1.58126 4.76667 1.59961 4.7666ZM8.5293 4.7666H14.3994C14.4178 4.7666 14.4326 4.78142 14.4326 4.7998C14.4324 4.81803 14.4177 4.83301 14.3994 4.83301H8.5293L8.19238 4.79883L8.5293 4.7666Z" fill="#878787" stroke="#878787"/>
-                </svg>
-                <span>{selectedFilter}</span>
-              </button>
-
-              {/* Dropdown */}
-              {filterDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E6E6E6] rounded-md shadow-lg z-10">
-                  <div className="px-3 py-2 text-xs font-semibold text-[#171718] border-b border-[#E6E6E6]">
-                    Filter by
-                  </div>
-                  <div className="py-1 px-1">
-                    {(['All', 'Assigned to me', 'New'] as const).map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => {
-                          setSelectedFilter(option);
-                          setFilterDropdownOpen(false);
-                        }}
-                        className={`w-full px-2 py-2 text-xs text-left flex items-center justify-between transition-colors ${
-                          selectedFilter === option ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
-                        }`}
-                        style={selectedFilter === option ? { borderRadius: '2px' } : {}}
-                      >
-                        <span>{option}</span>
-                        {selectedFilter === option && (
-                          <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 4.5L4.5 8L11 1" stroke="#0F58F9" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+          {/* Comments section - 4 columns */}
+          <div className="col-span-4 flex flex-col">
+          <div className="flex-1 flex flex-col p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
+            {/* Search bar and Filter button */}
+            <div className="flex gap-2 mb-4">
+              {/* Search bar */}
+              <div className="w-[250px] relative">
+                <input
+                  type="text"
+                  placeholder="Search comments"
+                  className="w-full pl-8 pr-3 py-2 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
-              )}
+              </div>
+
+              {/* Filter button */}
+              <div className="relative" ref={filterDropdownRef}>
+                <button
+                  onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs text-[#878787] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.1328 9.0332C11.1811 9.0332 12.0569 9.77787 12.2568 10.7676L12.3438 11.1992L12.2568 11.6309C12.0569 12.6206 11.1812 13.3662 10.1328 13.3662C9.08455 13.3661 8.20964 12.6206 8.00977 11.6309L7.92188 11.1992L8.00977 10.7676C8.20972 9.77798 9.08462 9.03333 10.1328 9.0332ZM10.1328 9.09961C8.97322 9.09975 8.03334 10.0396 8.0332 11.1992C8.0332 12.3589 8.97312 13.2997 10.1328 13.2998C11.2926 13.2998 12.2334 12.359 12.2334 11.1992C12.2333 10.0395 11.2925 9.09961 10.1328 9.09961ZM1.59961 11.166H7.4707L7.80566 11.1992L7.4707 11.2324H1.59961C1.58129 11.2324 1.56641 11.2176 1.56641 11.1992C1.56655 11.181 1.58138 11.1661 1.59961 11.166ZM12.7959 11.166H14.3994C14.4177 11.166 14.4325 11.181 14.4326 11.1992C14.4326 11.2176 14.4178 11.2324 14.3994 11.2324H12.7959L12.46 11.1992L12.7959 11.166ZM5.86621 2.63281C6.91458 2.63281 7.79034 3.37836 7.99023 4.36816L8.07617 4.79883L7.99023 5.23145C7.79027 6.22116 6.91452 6.96582 5.86621 6.96582C4.81796 6.96573 3.94211 6.22113 3.74219 5.23145L3.65527 4.79883L3.74219 4.36816C3.94207 3.37842 4.81792 2.63291 5.86621 2.63281ZM5.86621 2.69922C4.7065 2.69932 3.7666 3.64007 3.7666 4.7998C3.76678 5.95939 4.70661 6.89931 5.86621 6.89941C7.0259 6.89941 7.96662 5.95946 7.9668 4.7998C7.9668 3.64 7.02601 2.69922 5.86621 2.69922ZM1.59961 4.7666H3.2041L3.53906 4.79883L3.2041 4.83301H1.59961C1.58137 4.83294 1.56658 4.81802 1.56641 4.7998C1.56641 4.78144 1.58126 4.76667 1.59961 4.7666ZM8.5293 4.7666H14.3994C14.4178 4.7666 14.4326 4.78142 14.4326 4.7998C14.4324 4.81803 14.4177 4.83301 14.3994 4.83301H8.5293L8.19238 4.79883L8.5293 4.7666Z" fill="#878787" stroke="#878787"/>
+                  </svg>
+                  <span>{selectedFilter}</span>
+                </button>
+
+                {/* Dropdown */}
+                {filterDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E6E6E6] rounded-md shadow-lg z-10">
+                    <div className="px-3 py-2 text-xs font-semibold text-[#171718] border-b border-[#E6E6E6]">
+                      Filter by
+                    </div>
+                    <div className="py-1 px-1">
+                      {(['All', 'Assigned to me', 'New'] as const).map((option) => (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setSelectedFilter(option);
+                            setFilterDropdownOpen(false);
+                          }}
+                          className={`w-full px-2 py-2 text-xs text-left flex items-center justify-between transition-colors ${
+                            selectedFilter === option ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
+                          }`}
+                          style={selectedFilter === option ? { borderRadius: '2px' } : {}}
+                        >
+                          <span>{option}</span>
+                          {selectedFilter === option && (
+                            <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 4.5L4.5 8L11 1" stroke="#0F58F9" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Comments list area */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-3">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 31.5033L7.35 22.9533C5.9957 20.2455 5.64918 17.1441 6.37246 14.2041C7.09573 11.2642 8.84161 8.67753 11.2976 6.90711C13.7537 5.13669 16.7596 4.29803 19.7774 4.54121C22.7952 4.7844 25.628 6.09356 27.7689 8.23441C29.9097 10.3753 31.2189 13.2081 31.4621 16.2259C31.7053 19.2437 30.8666 22.2496 29.0962 24.7057C27.3258 27.1617 24.7391 28.9076 21.7992 29.6309C18.8592 30.3541 15.7578 30.0076 13.05 28.6533L4.5 31.5033Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M13.8994 17.5322C13.8993 17.9186 13.5865 18.2322 13.2002 18.2324C12.8137 18.2324 12.5001 17.9187 12.5 17.5322C12.5 17.1456 12.8136 16.832 13.2002 16.832C13.5866 16.8323 13.8994 17.1458 13.8994 17.5322ZM19.2334 17.5322C19.2333 17.9187 18.9197 18.2324 18.5332 18.2324C18.1467 18.2324 17.8331 17.9187 17.833 17.5322C17.833 17.1456 18.1466 16.832 18.5332 16.832C18.9197 16.8321 19.2334 17.1457 19.2334 17.5322ZM24.5664 17.5322C24.5663 17.9187 24.2527 18.2324 23.8662 18.2324C23.4798 18.2323 23.1661 17.9187 23.166 17.5322C23.166 17.1457 23.4797 16.8321 23.8662 16.832C24.2528 16.832 24.5664 17.1456 24.5664 17.5322Z" fill="#171718" stroke="#171718"/>
+              </svg>
+              <p className="text-[#171718] text-base font-medium">Add your first comment</p>
+            </div>
+
+            {/* Comment input section */}
+            <div className="relative">
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Comment or add others with @"
+                className="w-full h-[70px] p-3 pr-20 text-xs text-[#171718] placeholder-[#878787] shadow-xl bg-white border border-[#CCCCCC] rounded-lg resize-none focus:outline-none focus:border-[#CCCCCC]"
+              />
+              <button
+                onClick={() => {
+                  if (commentText.trim()) {
+                    // Handle send comment
+                    console.log('Send comment:', commentText);
+                    setCommentText('');
+                  }
+                }}
+                disabled={!commentText.trim()}
+                className={`absolute bottom-3.5 right-3 flex items-center gap-1.5 px-2 py-1 text-white rounded-md transition-colors ${
+                  commentText.trim() ? 'bg-[#0F58F9] hover:bg-[#0d4dd4]' : 'bg-[#CCCCCC] cursor-not-allowed'
+                }`}
+              >
+                <span className="text-[10px] tracking-wide">Send</span>
+                <svg width="10" height="10" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_1918_78539)">
+                    <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="white" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_1918_78539">
+                      <rect width="8" height="8" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+              </button>
             </div>
           </div>
-          
-          {/* Comments list area */}
-          <div className="flex-1 flex flex-col items-center justify-center gap-3">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.5 31.5033L7.35 22.9533C5.9957 20.2455 5.64918 17.1441 6.37246 14.2041C7.09573 11.2642 8.84161 8.67753 11.2976 6.90711C13.7537 5.13669 16.7596 4.29803 19.7774 4.54121C22.7952 4.7844 25.628 6.09356 27.7689 8.23441C29.9097 10.3753 31.2189 13.2081 31.4621 16.2259C31.7053 19.2437 30.8666 22.2496 29.0962 24.7057C27.3258 27.1617 24.7391 28.9076 21.7992 29.6309C18.8592 30.3541 15.7578 30.0076 13.05 28.6533L4.5 31.5033Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M13.8994 17.5322C13.8993 17.9186 13.5865 18.2322 13.2002 18.2324C12.8137 18.2324 12.5001 17.9187 12.5 17.5322C12.5 17.1456 12.8136 16.832 13.2002 16.832C13.5866 16.8323 13.8994 17.1458 13.8994 17.5322ZM19.2334 17.5322C19.2333 17.9187 18.9197 18.2324 18.5332 18.2324C18.1467 18.2324 17.8331 17.9187 17.833 17.5322C17.833 17.1456 18.1466 16.832 18.5332 16.832C18.9197 16.8321 19.2334 17.1457 19.2334 17.5322ZM24.5664 17.5322C24.5663 17.9187 24.2527 18.2324 23.8662 18.2324C23.4798 18.2323 23.1661 17.9187 23.166 17.5322C23.166 17.1457 23.4797 16.8321 23.8662 16.832C24.2528 16.832 24.5664 17.1456 24.5664 17.5322Z" fill="#171718" stroke="#171718"/>
-            </svg>
-            <p className="text-[#171718] text-base font-medium">Add your first comment</p>
-          </div>
+        </div>
+        </div>
 
-          {/* Comment input section */}
-          <div className="relative">
-            <textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Comment or add others with @"
-              className="w-full h-[70px] p-3 pr-20 text-xs text-[#171718] placeholder-[#878787] shadow-xl bg-white border border-[#CCCCCC] rounded-lg resize-none focus:outline-none focus:border-[#CCCCCC]"
-            />
-            <button
-              onClick={() => {
-                if (commentText.trim()) {
-                  // Handle send comment
-                  console.log('Send comment:', commentText);
-                  setCommentText('');
-                }
-              }}
-              disabled={!commentText.trim()}
-              className={`absolute bottom-3.5 right-3 flex items-center gap-1.5 px-1.5 py-1 text-white rounded-md transition-colors ${
-                commentText.trim() ? 'bg-[#0F58F9] hover:bg-[#0d4dd4]' : 'bg-[#CCCCCC] cursor-not-allowed'
-              }`}
-            >
-              <span className="text-xs tracking-wide">Send</span>
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_1918_78539)">
-                  <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="white" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </g>
-                <defs>
-                  <clipPath id="clip0_1918_78539">
-                    <rect width="8" height="8" fill="white"/>
-                  </clipPath>
-                </defs>
-              </svg>
-            </button>
+        {/* Bottom row: Title + Action Buttons + Rating - 8 columns to match video width */}
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-8 flex flex-col gap-6">
+            {/* Title and Action Buttons */}
+            <div className="flex items-center justify-between flex-shrink-0">
+              {/* Left: Video Lesson Title */}
+              <div>
+                <h3 className="text-md font-semibold text-[#171718]">
+                  {parentProjectName || dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
+                </h3>
+                <div className="flex items-center gap-2 mt-1 text-[#878787] text-xs">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_1918_78510)">
+                      <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_1918_78510">
+                        <rect width="14" height="14" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <span>username@app.contentbuilder.ai</span>
+                  {createdAt && (
+                    <>
+                      <span>•</span>
+                      <span>{formatDate(createdAt)}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* Right: Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDraftClick}
+                  className="px-4 py-2 rounded-md bg-white text-[#171718] border border-[#171718] hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
+                  style={{ height: '40px' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.5 11.9142H12.5M9.5 0.914214C9.76522 0.648997 10.1249 0.5 10.5 0.5C10.6857 0.5 10.8696 0.53658 11.0412 0.607651C11.2128 0.678721 11.3687 0.782892 11.5 0.914214C11.6313 1.04554 11.7355 1.20144 11.8066 1.37302C11.8776 1.5446 11.9142 1.7285 11.9142 1.91421C11.9142 2.09993 11.8776 2.28383 11.8066 2.45541C11.7355 2.62699 11.6313 2.78289 11.5 2.91421L3.16667 11.2475L0.5 11.9142L1.16667 9.24755L9.5 0.914214Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Draft
+                </button>
+                <button
+                  className="px-4 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm"
+                  style={{ height: '40px' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Share
+                </button>
+                <button
+                  className="px-4 py-2 rounded-md bg-[#0F58F9] text-white hover:bg-[#0d4dd4] transition-colors flex items-center gap-2 text-sm"
+                  style={{ height: '40px' }}
+                >
+                  <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Export
+                </button>
+              </div>
+            </div>
+
+            {/* Rating section */}
+            <div className="flex flex-col items-center gap-3 flex-shrink-0">
+              <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3">
+                <span className="text-[#171718] text-xs">{t('modals.play.rateQuality', "How's the video and voice quality?")}</span>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      className="transition-colors hover:scale-110"
+                      onClick={() => console.log(`Rated ${star} stars`)}
+                      onMouseEnter={() => setHoveredStar(star)}
+                      onMouseLeave={() => setHoveredStar(null)}
+                    >
+                      <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.23047 1.01367L7.25195 1.06738L8.71582 4.58594C8.83392 4.86975 9.10084 5.06328 9.40723 5.08789L13.2061 5.39258L13.2637 5.39746L13.5059 5.41602L13.3213 5.5752L13.2773 5.61328L10.3838 8.09277C10.1503 8.29282 10.0478 8.60627 10.1191 8.90527L11.0029 12.6113L11.0039 12.6123L11.0166 12.6689L11.0723 12.9043L10.8652 12.7783L10.8154 12.748L7.56348 10.7617C7.30116 10.6017 6.97126 10.6016 6.70898 10.7617L3.45703 12.748L3.40723 12.7783L3.19922 12.9053L3.25586 12.668L3.26953 12.6113L4.15332 8.90527C4.22466 8.60628 4.12291 8.2928 3.88965 8.09277L0.995117 5.61328L0.951172 5.5752L0.765625 5.41602L1.00977 5.39746L1.06738 5.39258L4.86523 5.08789C5.17162 5.06333 5.43849 4.86971 5.55664 4.58594L7.02051 1.06738L7.04297 1.01367L7.13574 0.788086L7.23047 1.01367ZM6.6748 2.07227L5.61914 4.61133C5.49149 4.91824 5.20241 5.12763 4.87109 5.1543L2.12988 5.37402L0.931641 5.4707L1.84473 6.25293L3.93262 8.04199C4.18511 8.2583 4.29589 8.5975 4.21875 8.9209L3.58008 11.5957L3.30176 12.7646L4.32715 12.1387L6.67383 10.7051C6.95758 10.5318 7.31488 10.5318 7.59863 10.7051L9.94531 12.1387L10.9717 12.7646L10.6924 11.5957L10.0547 8.9209C9.97756 8.59758 10.0875 8.25831 10.3398 8.04199L12.4287 6.25293L13.3418 5.4707L12.1436 5.37402L9.40234 5.1543C9.07091 5.12772 8.78198 4.91833 8.6543 4.61133L7.59766 2.07227L7.13672 0.961914L6.6748 2.07227Z" fill="#171718" stroke="#171718"/>
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <span className="text-[#878787] text-xs">{t('modals.play.helpImprove', 'Help us improve ContentBuilder')}</span>
+            </div>
           </div>
         </div>
       </div>
