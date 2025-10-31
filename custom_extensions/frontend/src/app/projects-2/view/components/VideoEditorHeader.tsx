@@ -984,14 +984,14 @@ export default function VideoEditorHeader({
           <div className="flex items-center gap-3 lg:gap-4">
             {/* Soon toolbar (ready mode) */}
             {showReady && (
-              <div className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-3 py-1.5">
-                <Sparkles size={16} className="text-gray-700" title="Soon" />
-                <PauseCircle size={16} className="text-gray-700" title="Soon" />
-                <List size={16} className="text-gray-700" title="Soon" />
-                <Hand size={16} className="text-gray-700" title="Soon" />
-                <Languages size={16} className="text-gray-700" title="Soon" />
+              <div className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-3 py-1.5" title="Soon">
+                <Sparkles size={16} className="text-gray-700" />
+                <PauseCircle size={16} className="text-gray-700" />
+                <List size={16} className="text-gray-700" />
+                <Hand size={16} className="text-gray-700" />
+                <Languages size={16} className="text-gray-700" />
                 <div className="w-0.5 h-5 bg-gray-300" />
-                <Play size={16} className="text-gray-700" title="Soon" />
+                <Play size={16} className="text-gray-700" />
               </div>
             )}
             <button 
