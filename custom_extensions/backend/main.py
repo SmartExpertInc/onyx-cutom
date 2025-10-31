@@ -33556,12 +33556,28 @@ async def stripe_webhook(
         # Idempotency: skip already processed events
         async with pool.acquire() as conn:
             if await conn.fetchval("SELECT 1 FROM processed_stripe_events WHERE event_id=$1", event['id']):
+                logger.info(f"[WEBHOOK] Event {event['id']} already processed, skipping")
                 return {"status": "ignored"}
+
+        # Log full event JSON at the start
+        try:
+            import json
+            event_json = json.dumps(event, indent=2, default=str)
+            logger.info(f"[WEBHOOK] ====== RECEIVED EVENT ======\nEvent ID: {event.get('id')}\nEvent Type: {event.get('type')}\nFull Event JSON:\n{event_json}\n{'='*50}")
+        except Exception as log_err:
+            logger.warning(f"[WEBHOOK] Failed to log full event JSON: {log_err}")
 
         # Handle the event
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
             onyx_user_id = session.get('metadata', {}).get('onyx_user_id')
+            
+            # Log full session object
+            try:
+                session_json = json.dumps(session, indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CHECKOUT.SESSION.COMPLETED ======\nSession ID: {session.get('id')}\nUser ID: {onyx_user_id}\nMode: {session.get('mode')}\nFull Session JSON:\n{session_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full session JSON: {log_err}")
             
             logger.info(f"[BILLING] checkout.session.completed for user {onyx_user_id}, mode={session.get('mode')}, session_id={session.get('id')}")
             
@@ -33569,11 +33585,21 @@ async def stripe_webhook(
                 subscription_id = session.get('subscription')
                 customer_id = session.get('customer')
                 
+                logger.info(f"[BILLING] Processing subscription checkout: subscription_id={subscription_id}, customer_id={customer_id}")
+                
                 # Get subscription details
                 subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
                 
+                # Log full subscription object
+                try:
+                    subscription_json = json.dumps(subscription if isinstance(subscription, dict) else subscription.to_dict(), indent=2, default=str)
+                    logger.info(f"[WEBHOOK] ====== RETRIEVED SUBSCRIPTION ======\nSubscription ID: {subscription_id}\nFull Subscription JSON:\n{subscription_json}\n{'='*50}")
+                except Exception as log_err:
+                    logger.warning(f"[WEBHOOK] Failed to log full subscription JSON: {log_err}")
+                
                 # Get existing user plan before making any changes
                 existing_plan = None
+                logger.info(f"[BILLING] Retrieving existing plan for user {onyx_user_id}")
                 async with pool.acquire() as conn:
                     existing_record = await conn.fetchrow(
                         "SELECT current_plan FROM user_billing WHERE onyx_user_id = $1",
@@ -33581,22 +33607,27 @@ async def stripe_webhook(
                     )
                     if existing_record:
                         existing_plan = existing_record['current_plan']
+                        logger.info(f"[BILLING] Found existing plan in DB: {existing_plan}")
+                    else:
+                        logger.info(f"[BILLING] No existing plan found in DB for user {onyx_user_id}")
                 
-                logger.info(f"[BILLING] User {onyx_user_id} existing plan: {existing_plan}, subscription items count: {len(subscription.get('items', {}).get('data', []))}")
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                
+                logger.info(f"[BILLING] ====== PLAN DETECTION START ======\nUser: {onyx_user_id}\nExisting Plan: {existing_plan}\nSubscription Items Count: {len(data_list) if data_list else 0}\n{'='*50}")
                 
                 # Extract plan info - LOOP through ALL items to find tier price (not just first!)
                 plan = None
                 interval = None
                 price_id = None
                 
-                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
-                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
-                
                 # Check metadata to see if this is an addon-only purchase
                 is_addon_purchase = session.get('metadata', {}).get('purpose') == 'addons'
+                logger.info(f"[BILLING] Is addon-only purchase: {is_addon_purchase} (metadata.purpose={session.get('metadata', {}).get('purpose')})")
                 
                 if data_list:
                     # Log all items for debugging
+                    logger.info(f"[BILLING] ====== PROCESSING {len(data_list)} SUBSCRIPTION ITEMS ======")
                     for idx, item_data in enumerate(data_list):
                         item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
                         item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
@@ -33614,11 +33645,14 @@ async def stripe_webhook(
                             plan = tier_key.replace('_monthly', '').replace('_yearly', '')
                             recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
                             interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
-                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
+                            logger.info(f"[BILLING] FOUND TIER PRICE: price_id={item_price_id}, tier_key={tier_key}, plan={plan}, interval={interval}")
                             break
+                        else:
+                            logger.debug(f"[BILLING] Item price {item_price_id} is not a tier price, continuing search...")
                     
                     # If no tier price found, try product name fallback on first item
                     if not plan and len(data_list) > 0:
+                        logger.info(f"[BILLING] No tier price found in items, attempting product name fallback on first item")
                         price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
                         item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
                         recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
@@ -33627,23 +33661,28 @@ async def stripe_webhook(
                         product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
                         product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
                         lowered = product_name.lower()
-                        logger.info(f"[BILLING] No tier price found, checking product name: {product_name}")
+                        logger.info(f"[BILLING] Checking product name fallback: product_name='{product_name}', price_id={item_price_id}")
                         if 'business' in lowered:
                             plan = 'business'
                             price_id = item_price_id
                         elif 'pro' in lowered:
                             plan = 'pro'
                             price_id = item_price_id
+                        else:
+                            logger.warning(f"[BILLING] Product name '{product_name}' does not contain 'business' or 'pro'")
                 
                 # CRITICAL FIX: If no plan found (addon-only subscription) and user has existing plan, preserve it
+                logger.info(f"[BILLING] ====== FINAL PLAN DECISION ======\nDetected Plan: {plan}\nIs Addon Purchase: {is_addon_purchase}\nExisting Plan: {existing_plan}\nPrice ID: {price_id}\n{'='*50}")
                 if not plan and is_addon_purchase and existing_plan:
                     logger.warning(f"[BILLING] Addon-only subscription detected for user {onyx_user_id}. Preserving existing plan: {existing_plan}")
                     plan = existing_plan
                 elif not plan:
                     logger.warning(f"[BILLING] No tier price found for user {onyx_user_id}, defaulting to starter")
                     plan = "starter"
+                logger.info(f"[BILLING] FINAL PLAN SELECTED: {plan}, interval={interval}, price_id={price_id}")
                 
                 # Update user billing - preserve plan if this was addon-only purchase
+                logger.info(f"[BILLING] ====== UPDATING USER BILLING ======\nUser: {onyx_user_id}\nPlan: {plan}\nPrice ID: {price_id}\nInterval: {interval}\nIs Addon Purchase: {is_addon_purchase}\n{'='*50}")
                 async with pool.acquire() as conn:
                     if is_addon_purchase and not price_id:
                         # Addon-only purchase: only update subscription_id and status, preserve plan
@@ -33664,6 +33703,7 @@ async def stripe_webhook(
                             onyx_user_id, customer_id, subscription.status,
                             subscription_id, plan
                         )
+                        logger.info(f"[BILLING] Successfully updated user_billing for addon-only purchase")
                         
                         # Sync addon items to user_billing_addons for addon-only subscriptions
                         try:
@@ -33696,7 +33736,7 @@ async def stripe_webhook(
                             logger.error(f"[BILLING] Failed to sync addon items from addon-only subscription: {addon_sync_err}", exc_info=True)
                     else:
                         # Normal plan purchase: update everything including plan
-                        logger.info(f"[BILLING] Updating billing for plan purchase: plan={plan}, price_id={price_id}")
+                        logger.info(f"[BILLING] Updating billing for normal plan purchase: plan={plan}, price_id={price_id}, interval={interval}")
                     await conn.execute(
                         """
                         INSERT INTO user_billing (
@@ -33717,17 +33757,24 @@ async def stripe_webhook(
                         onyx_user_id, customer_id, subscription.status,
                         subscription_id, price_id, plan, interval
                     )
+                        logger.info(f"[BILLING] Successfully updated user_billing for normal plan purchase")
 
                 # If this was an upgrade, cancel the previous subscription
+                logger.info(f"[BILLING] Checking for previous subscription to cancel (upgrade scenario)")
                 try:
                     prev_sub_id = session.get('metadata', {}).get('upgrade_from_subscription_id')
                     if prev_sub_id:
+                        logger.info(f"[BILLING] Cancelling previous subscription: {prev_sub_id}")
                         stripe.Subscription.delete(prev_sub_id)
+                        logger.info(f"[BILLING] Successfully cancelled previous subscription")
+                    else:
+                        logger.info(f"[BILLING] No previous subscription to cancel")
                 except Exception as cancel_err:
-                    logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
+                    logger.error(f"[BILLING] Upgrade cancel previous subscription failed: {cancel_err}", exc_info=True)
                 
                 # Compute and persist entitlements based on plan tier
                 # Only update base entitlements if this is NOT an addon-only purchase
+                logger.info(f"[BILLING] ====== UPDATING ENTITLEMENTS ======\nPlan: {plan}\nIs Addon Purchase: {is_addon_purchase}\nPrice ID: {price_id}\nWill Update: {not is_addon_purchase or price_id}\n{'='*50}")
                 if not is_addon_purchase or price_id:
                     try:
                         # Set base entitlements by plan
@@ -33738,7 +33785,7 @@ async def stripe_webhook(
                         else:
                             base_connectors, base_storage, base_slides = 0, 1, 20
                         
-                            logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
                         async with pool.acquire() as conn:
                             await conn.execute(
                                 """
@@ -33749,18 +33796,26 @@ async def stripe_webhook(
                                 """,
                                 onyx_user_id, base_connectors, base_storage, base_slides
                             )
+                        logger.info(f"[BILLING] Successfully updated base entitlements in database")
                     except Exception as e:
-                            logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
+                        logger.error(f"[BILLING] Failed to persist base entitlements: {e}", exc_info=True)
                 else:
                     logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
                 
-                logger.info(f"[BILLING] Updated billing for user {onyx_user_id}: plan={plan}, interval={interval}, is_addon_purchase={is_addon_purchase}")
+                logger.info(f"[BILLING] ====== CHECKOUT.SESSION.COMPLETED PROCESSING COMPLETE ======\nUser: {onyx_user_id}\nPlan: {plan}\nInterval: {interval}\nIs Addon Purchase: {is_addon_purchase}\n{'='*50}")
                 
                 # Track successful payment to Mixpanel
                 try:
                     # Get payment details from the session
                     amount_total = session.get('amount_total', 0)
                     currency = session.get('currency', 'usd').upper()
+                    subscription_item = (
+                        PRICE_TO_TIER.get(price_id)
+                        or (
+                            f"{PRICE_TO_ADDON.get(price_id, {}).get('type', 'Unknown')} "
+                            f"{PRICE_TO_ADDON.get(price_id, {}).get('units', 'Unknown')}"
+                        )
+                    )
                     
                     # Track directly with user_id since we're in a webhook context
                     mixpanel_helper.track_to_mp(
@@ -33770,7 +33825,7 @@ async def stripe_webhook(
                             "Mode": "Subscription",
                             "Plan Type": plan.capitalize(),
                             "Subscription ID": subscription_id,
-                            "Subscription Item": "Plan" if not is_addon_purchase else PRICE_TO_ADDON.get(price_id, 'Unknown').get('type', 'Unknown').capitalize(),
+                            "Subscription Item": subscription_item,
                             "Amount": amount_total / 100,  # Convert from cents
                             "Currency": currency
                         }
@@ -33836,10 +33891,25 @@ async def stripe_webhook(
             subscription_id = subscription_obj.get('id') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'id', None)
             customer_id = subscription_obj.get('customer') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'customer', None)
             
+            # Log full subscription object from event
+            try:
+                sub_obj_json = json.dumps(subscription_obj if isinstance(subscription_obj, dict) else subscription_obj.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CUSTOMER.SUBSCRIPTION.UPDATED ======\nSubscription ID: {subscription_id}\nCustomer ID: {customer_id}\nFull Subscription Object:\n{sub_obj_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full subscription object: {log_err}")
+            
             logger.info(f"[BILLING] customer.subscription.updated event: subscription_id={subscription_id}, customer_id={customer_id}")
             
             # Re-fetch subscription with expanded product data to ensure we have all info
             subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+            
+            # Log full retrieved subscription
+            try:
+                subscription_json = json.dumps(subscription if isinstance(subscription, dict) else subscription.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== RETRIEVED UPDATED SUBSCRIPTION ======\nFull Subscription JSON:\n{subscription_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full retrieved subscription: {log_err}")
+            
             logger.info(f"[BILLING] Subscription status: {subscription.get('status')}, items count: {len(subscription.get('items', {}).get('data', []))}")
             
             # Find user by customer ID
@@ -34043,10 +34113,27 @@ async def stripe_webhook(
             customer_id = invoice.get('customer')
             amount_paid = invoice.get('amount_paid', 0) or 0
             currency = (invoice.get('currency') or 'usd').upper()
+            
+            # Log full invoice object from event
+            try:
+                invoice_json = json.dumps(invoice, indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== INVOICE.PAYMENT_SUCCEEDED ======\nInvoice ID: {invoice.get('id')}\nCustomer ID: {customer_id}\nAmount Paid: {amount_paid}\nCurrency: {currency}\nFull Invoice Object:\n{invoice_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full invoice object: {log_err}")
+            
+            logger.info(f"[BILLING] invoice.payment_succeeded event: invoice_id={invoice.get('id')}, customer_id={customer_id}, amount_paid={amount_paid}, currency={currency}")
+            
             full_invoice = stripe.Invoice.retrieve(
                 invoice.get('id'),
                 expand=['lines.data.price.product']
             )
+            
+            # Log full retrieved invoice
+            try:
+                full_invoice_json = json.dumps(full_invoice if isinstance(full_invoice, dict) else full_invoice.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== RETRIEVED FULL INVOICE ======\nFull Invoice JSON:\n{full_invoice_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full retrieved invoice: {log_err}")
 
             async with pool.acquire() as conn:
                 rec = await conn.fetchrow("SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1", customer_id)
@@ -34109,12 +34196,21 @@ async def stripe_webhook(
 
                 # 3) Track Mixpanel: Payment Succeeded (mode=Invoice)
                 try:
+                    price_id = full_invoice.get('lines', {}).get('data', [])[0].get('pricing').get('pricing_details').get('price')
+                    invoice_item = (
+                        PRICE_TO_TIER.get(price_id)
+                        or (
+                            f"{PRICE_TO_ADDON.get(price_id, {}).get('type', 'Unknown')} "
+                            f"{PRICE_TO_ADDON.get(price_id, {}).get('units', 'Unknown')}"
+                        )
+                    )
                     mixpanel_helper.track_to_mp(
                         onyx_user_id,
                         "Payment Succeeded",
                         {
                             "Mode": "Invoice",
                             "Plan Type": plan_type.capitalize() if plan_type else None,
+                            "Invoice Item": invoice_item,
                             "Amount": amount_paid / 100.0,
                             "Currency": currency,
                         }
@@ -34164,11 +34260,26 @@ async def stripe_webhook(
             sub = event['data']['object']
             subscription_id = sub.get('id') if isinstance(sub, dict) else getattr(sub, 'id', None)
             customer_id = sub.get('customer') if isinstance(sub, dict) else getattr(sub, 'customer', None)
+            
+            # Log full subscription object from event
+            try:
+                sub_json = json.dumps(sub if isinstance(sub, dict) else sub.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CUSTOMER.SUBSCRIPTION.CREATED ======\nSubscription ID: {subscription_id}\nCustomer ID: {customer_id}\nFull Subscription Object:\n{sub_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full subscription object: {log_err}")
+            
             # Ensure we have expanded price.product to read plan name easily when possible
             try:
                 subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+                # Log full retrieved subscription
+                try:
+                    subscription_json = json.dumps(subscription if isinstance(subscription, dict) else subscription.to_dict(), indent=2, default=str)
+                    logger.info(f"[WEBHOOK] ====== RETRIEVED CREATED SUBSCRIPTION ======\nFull Subscription JSON:\n{subscription_json}\n{'='*50}")
+                except Exception:
+                    pass
             except Exception:
                 subscription = sub
+                logger.warning(f"[BILLING] Failed to retrieve subscription, using event object")
 
             # Determine base tier plan and price
             plan = None
@@ -34238,6 +34349,15 @@ async def stripe_webhook(
             subscription = event['data']['object']
             customer_id = subscription.get('customer')
             
+            # Log full subscription object from event
+            try:
+                sub_json = json.dumps(subscription, indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CUSTOMER.SUBSCRIPTION.DELETED ======\nSubscription ID: {subscription.get('id')}\nCustomer ID: {customer_id}\nFull Subscription Object:\n{sub_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full subscription object: {log_err}")
+            
+            logger.info(f"[BILLING] customer.subscription.deleted event: subscription_id={subscription.get('id')}, customer_id={customer_id}")
+            
             # Find user by customer ID and mark as cancelled
             async with pool.acquire() as conn:
                 user_record = await conn.fetchrow(
@@ -34263,6 +34383,7 @@ async def stripe_webhook(
                     "Subscription Cancelled",
                     {
                         "Plan Type": user_record['current_plan'].capitalize() if user_record else None,
+                        "Subscription Id": subscription.get('id'),
                         "End Date": subscription.get('canceled_at'),
                         "Cancelation Reason": subscription.get('cancellation_details').get('reason')
                     }
