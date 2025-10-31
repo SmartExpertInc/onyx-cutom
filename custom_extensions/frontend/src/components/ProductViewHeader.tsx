@@ -20,6 +20,8 @@ interface ProductViewHeaderProps {
   onPdfExport?: () => void;
   isEditing?: boolean;
   onEditOrSave?: () => void;
+  isAuthorized?: boolean;
+  setIsAuthorized?: (isAuthorized: boolean) => void;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
@@ -34,10 +36,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   t,
   onPdfExport,
   isEditing,
-  onEditOrSave
+  onEditOrSave,
+  isAuthorized = true,
+  setIsAuthorized
 }) => {
-  // State for Authorized/Unauthorized toggle
-  const [isAuthorized, setIsAuthorized] = useState(true);
 
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
@@ -52,7 +54,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a quiz to show Export button
   const isQuiz = projectData?.component_name === 'QuizDisplay';
   const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
-  const isVideoLesson = projectData?.component_name === 'VideoLessonDisplay';
+  const isVideoLesson = projectData?.component_name === 'VideoLessonDisplay' || 
+                        projectData?.component_name === 'VideoLessonPresentationDisplay';
   
   // Debug logging for PDF export
   console.log('🔍 ProductViewHeader Debug:', {
@@ -142,7 +145,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {/* Auth Toggle Switch */}
           <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
             <button
-              onClick={() => setIsAuthorized(true)}
+              onClick={() => setIsAuthorized?.(true)}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                 isAuthorized 
                   ? 'bg-white text-gray-900 shadow-sm' 
@@ -152,7 +155,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               Authorized
             </button>
             <button
-              onClick={() => setIsAuthorized(false)}
+              onClick={() => setIsAuthorized?.(false)}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                 !isAuthorized 
                   ? 'bg-white text-gray-900 shadow-sm' 
@@ -277,11 +280,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               </button>
 
               {/* Vertical divider */}
-              <div className="h-10 w-px bg-gray-300"></div>
+              <div className="h-8 w-px bg-gray-300"></div>
 
               {/* Sign up button */}
               <button
-                className="px-4 py-2 rounded-md text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity"
+                className="px-4 py-2 rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity"
                 style={{ backgroundColor: '#0F58F9', height: '40px' }}
               >
                 Sign up

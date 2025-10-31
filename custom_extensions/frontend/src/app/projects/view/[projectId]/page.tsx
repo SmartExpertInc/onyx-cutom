@@ -300,6 +300,9 @@ export default function ProjectInstanceViewPage() {
   const [pdfDownloadReady, setPdfDownloadReady] = useState<{url: string, filename: string} | null>(null);
   const [pdfProgress, setPdfProgress] = useState<{current: number, total: number, message: string} | null>(null);
   
+  // Auth state for demo purposes
+  const [isAuthorized, setIsAuthorized] = useState(true);
+  
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
 
@@ -1903,6 +1906,7 @@ export default function ProjectInstanceViewPage() {
             lessonNumber={lessonNumber}
             productId={projectId}
             createdAt={projectCreatedAt}
+            isAuthorized={isAuthorized}
           />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
@@ -1931,6 +1935,7 @@ export default function ProjectInstanceViewPage() {
             lessonNumber={lessonNumber}
             productId={projectId}
             createdAt={projectCreatedAt}
+            isAuthorized={isAuthorized}
           />
         );
       case COMPONENT_NAME_QUIZ:
@@ -1994,6 +1999,8 @@ export default function ProjectInstanceViewPage() {
         onPdfExport={handlePdfDownload}
         isEditing={isEditing}
         onEditOrSave={handleToggleEdit}
+        isAuthorized={isAuthorized}
+        setIsAuthorized={setIsAuthorized}
       />
       
       <main 
