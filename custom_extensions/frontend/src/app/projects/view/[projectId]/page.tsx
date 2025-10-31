@@ -736,11 +736,9 @@ export default function ProjectInstanceViewPage() {
         const allMicroproductsData: ProjectListItem[] = await listRes.json();
         setAllUserMicroproducts(allMicroproductsData);
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
-        console.log('🔍 currentMicroproductInList:', currentMicroproductInList);
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
         // Handle both camelCase and snake_case field names from backend
         const createdAtValue = (currentMicroproductInList as any)?.created_at || currentMicroproductInList?.createdAt;
-        console.log('🔍 created_at/createdAt field:', createdAtValue);
         setProjectCreatedAt(typeof createdAtValue === 'string' ? createdAtValue : createdAtValue?.toString());
         // Resilient Event Poster detection based on parent project name (cannot be renamed)
         const parentName = currentMicroproductInList?.projectName || '';

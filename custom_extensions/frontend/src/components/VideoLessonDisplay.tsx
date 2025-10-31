@@ -31,8 +31,6 @@ const VideoLessonDisplay = ({
   const { t } = useLanguage();
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
 
-  console.log('VideoLessonDisplay props:', { createdAt, parentProjectName, productId });
-
   const handleDraftClick = () => {
     if (productId) {
       router.push(`/custom-projects-ui/projects-2/view/${productId}`);
@@ -41,11 +39,7 @@ const VideoLessonDisplay = ({
 
   // Format date as "28th Oct, 25"
   const formatDate = (dateString?: string): string => {
-    if (!dateString) {
-      console.log('VideoLessonDisplay: No createdAt provided');
-      return '';
-    }
-    console.log('VideoLessonDisplay: createdAt =', dateString);
+    if (!dateString) return '';
     try {
       const date = new Date(dateString);
       const day = date.getDate();
@@ -63,24 +57,21 @@ const VideoLessonDisplay = ({
         }
       };
       
-      const formatted = `${day}${suffix(day)} ${month}, ${year}`;
-      console.log('VideoLessonDisplay: formatted date =', formatted);
-      return formatted;
-    } catch (error) {
-      console.error('VideoLessonDisplay: Error formatting date:', error);
+      return `${day}${suffix(day)} ${month}, ${year}`;
+    } catch {
       return '';
     }
   };
 
   return (
     <div 
-      className="mx-6 my-2 flex gap-4 overflow-hidden" 
+      className="mx-8 flex gap-4 overflow-hidden" 
       style={{ 
-        height: 'calc(100vh - 64px - 16px)' // 64px = header height, 16px = vertical margins (my-2 = 8px top + 8px bottom)
+        height: 'calc(100vh - 64px)' // 64px = header height
       }}
     >
       {/* Video lesson section - takes remaining space */}
-      <div className="flex-1 flex flex-col gap-6 min-h-0">
+      <div className="flex-1 flex flex-col gap-6 min-h-0 my-4">
         <div 
           className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg flex-1 min-h-0"
           style={{ 
@@ -176,7 +167,7 @@ const VideoLessonDisplay = ({
       </div>
 
       {/* Comments section - fixed 400px width, matches video area height */}
-      <div className="w-[400px] flex flex-col">
+      <div className="w-[400px] flex flex-col my-4">
         <div className="flex-1 flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
           <p className="text-gray-500">Comments area</p>
         </div>
