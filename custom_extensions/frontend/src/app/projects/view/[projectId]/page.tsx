@@ -271,6 +271,7 @@ export default function ProjectInstanceViewPage() {
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
+  const [projectCreatedAt, setProjectCreatedAt] = useState<string | undefined>(undefined);
 
   const [pageState, setPageState] = useState<'initial_loading' | 'fetching' | 'error' | 'success' | 'nodata'>('initial_loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -665,6 +666,7 @@ export default function ProjectInstanceViewPage() {
     setProjectInstanceData(null);
     setAllUserMicroproducts(undefined);
     setParentProjectNameForCurrentView(undefined);
+    setProjectCreatedAt(undefined);
     setEditableData(null);
     setIsEditing(false);
     setSaveError(null);
@@ -735,6 +737,7 @@ export default function ProjectInstanceViewPage() {
         setAllUserMicroproducts(allMicroproductsData);
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
+        setProjectCreatedAt(currentMicroproductInList?.createdAt);
         // Resilient Event Poster detection based on parent project name (cannot be renamed)
         const parentName = currentMicroproductInList?.projectName || '';
         if (parentName.includes('Event Poster')) {
@@ -1896,6 +1899,7 @@ export default function ProjectInstanceViewPage() {
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
             productId={projectId}
+            createdAt={projectCreatedAt}
           />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
@@ -1923,6 +1927,7 @@ export default function ProjectInstanceViewPage() {
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
             productId={projectId}
+            createdAt={projectCreatedAt}
           />
         );
       case COMPONENT_NAME_QUIZ:

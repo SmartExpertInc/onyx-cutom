@@ -14,6 +14,7 @@ interface VideoLessonDisplayProps {
   parentProjectName?: string;
   lessonNumber?: number;
   productId?: string;
+  createdAt?: string;
 }
 
 const VideoLessonDisplay = ({
@@ -24,6 +25,7 @@ const VideoLessonDisplay = ({
   parentProjectName,
   lessonNumber,
   productId,
+  createdAt,
 }: VideoLessonDisplayProps): React.JSX.Element | null => {
   const router = useRouter();
   const { t } = useLanguage();
@@ -35,25 +37,41 @@ const VideoLessonDisplay = ({
     }
   };
 
+  // Format date as "28th Oct, 25"
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear().toString().slice(-2);
+      
+      // Add ordinal suffix
+      const suffix = (day: number) => {
+        if (day > 3 && day < 21) return 'th';
+        switch (day % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+      };
+      
+      return `${day}${suffix(day)} ${month}, ${year}`;
+    } catch {
+      return '';
+    }
+  };
+
   return (
     <div 
-      className="mx-6 mb-[5px]" 
+      className="mx-6 mb-[5px] flex gap-4" 
       style={{ 
-        height: 'calc(100vh - 85px)',
-        width: '100%',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(12, 1fr)',
-        gap: '24px',
-        padding: '0'
+        height: 'calc(100vh - 85px)'
       }}
     >
-      {/* Main Content Area - Horizontal layout */}
-      {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
-      {/* Grid container for 1440px viewport: 12 columns × 92.67px, 24px gutters */}
-      {/* Parent has 32px padding on each side (64px total), leaving 1376px for grid */}
-      
-      {/* Left section - 8 columns */}
-      <div className="col-span-8 flex flex-col gap-6">
+      {/* Video lesson section - takes remaining space */}
+      <div className="flex-1 flex flex-col gap-6">
         <div 
           className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
           style={{ 
@@ -68,9 +86,28 @@ const VideoLessonDisplay = ({
         <div className="flex items-center justify-between">
           {/* Left: Video Lesson Title */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h3 className="text-md font-semibold text-gray-900">
               {parentProjectName || dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
-            </h2>
+            </h3>
+            <div className="flex items-center gap-2 mt-1 text-[#878787] text-xs">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clipPath="url(#clip0_1918_78510)">
+                  <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_1918_78510">
+                    <rect width="14" height="14" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
+              <span>username@app.contentbuilder.ai</span>
+              {createdAt && (
+                <>
+                  <span>•</span>
+                  <span>{formatDate(createdAt)}</span>
+                </>
+              )}
+            </div>
           </div>
           
           {/* Right: Action Buttons */}
@@ -130,9 +167,12 @@ const VideoLessonDisplay = ({
         </div>
       </div>
 
-      {/* Right section - 4 columns */}
-      <div className="col-span-4 flex flex-col">
-        <div className="flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0] flex-1 w-full">
+      {/* Comments section - fixed 400px width */}
+      <div className="w-[400px] flex flex-col">
+        <div 
+          className="flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]"
+          style={{ aspectRatio: '16 / 9' }}
+        >
           <p className="text-gray-500">Comments area</p>
         </div>
       </div>
