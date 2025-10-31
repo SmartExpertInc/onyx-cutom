@@ -1999,24 +1999,40 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         }
     },
     {
-      "slideId": "slide_16_problems_grid",
-      "slideNumber": 16,
-      "slideTitle": "Key Challenges",
-      "templateId": "problems-grid",
-      "voiceoverText": "Let's examine the key challenges we face. Understanding these problems is crucial for developing effective solutions. Each challenge represents a critical area that requires attention.",
-      "props": {
-        "tag": "The problem",
-        "title": "Key Challenges",
-        "cards": [
-          { "number": "1", "title": "Challenge One", "body": "First challenge with detailed explanation of its impact and significance" },
-          { "number": "2", "title": "Challenge Two", "body": "Second challenge showing how it compounds existing issues" },
-          { "number": "3", "title": "Challenge Three", "body": "Third challenge demonstrating real-world consequences" },
-          { "number": "4", "title": "Challenge Four", "body": "Fourth challenge highlighting the urgency for solutions" }
-        ],
-        "rightText": "These challenges are interconnected and require a comprehensive approach to address effectively. By understanding the root causes, we can develop targeted solutions that address each challenge systematically.",
-        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
-        "pageNumber": "16"
-      }
+        "slideId": "slide_16_problems_grid",
+        "slideNumber": 16,
+        "slideTitle": "Key Operational Challenges",
+        "templateId": "problems-grid",
+        "voiceoverText": "Let's examine the four critical operational challenges currently impacting our organization. Understanding these interconnected problems is essential for developing comprehensive solutions. Each challenge represents a barrier to achieving our strategic objectives and requires immediate attention and coordinated response.",
+        "props": {
+            "tag": "The Problem",
+            "title": "Key Operational Challenges",
+            "cards": [
+            { 
+                "number": "1", 
+                "title": "Resource Constraints", 
+                "body": "Limited budget and personnel resources prevent timely project completion and force prioritization of critical initiatives over strategic innovation opportunities."
+            },
+            { 
+                "number": "2", 
+                "title": "Technical Debt", 
+                "body": "Accumulated legacy systems and outdated infrastructure slow development velocity, increase maintenance costs, and create security vulnerabilities across the platform."
+            },
+            { 
+                "number": "3", 
+                "title": "Skill Gaps", 
+                "body": "Lack of specialized expertise in emerging technologies limits our ability to adopt modern solutions and compete effectively in rapidly evolving markets."
+            },
+            { 
+                "number": "4", 
+                "title": "Process Inefficiency", 
+                "body": "Manual workflows and disconnected systems create bottlenecks, duplicate efforts, and reduce productivity across multiple departments and business functions."
+            }
+            ],
+            "rightText": "These four challenges are deeply interconnected and create compounding effects on organizational performance. Resource constraints exacerbate technical debt, skill gaps prevent process modernization, and inefficiencies drain the limited resources available. Addressing these issues requires a coordinated, strategic approach that tackles root causes rather than symptoms.",
+            "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+            "pageNumber": "16"
+        }
     },
     {
       "slideId": "slide_17_solution_steps",
@@ -24459,11 +24475,16 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
   • Usage: Identify challenges, present problems, showcase issues, or highlight critical concerns requiring attention
   • Content guidelines: 
     - MANDATORY: cards array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
-    - Each card must have number (like "1", "2", "3", "4"), title (concise problem name), and body (detailed explanation 1-2 sentences)
-    - Tag should be concise (1-3 words) identifying the category
-    - Title should clearly state what problems are being presented
-    - rightText MUST be comprehensive (2-3 sentences) explaining the interconnected nature of problems or their significance
-    - Maintain consistent depth and professional tone across all problem cards
+    - CRITICAL CARD TITLE LENGTH: Each card.title MUST be 1-2 words MAXIMUM (NEVER 3 or more words)
+      * PREFERRED: Single word (e.g., "Scalability", "Security", "Costs")
+      * ACCEPTABLE: Two-word compound terms (e.g., "Data Privacy", "Team Alignment", "Budget Constraints")
+      * FORBIDDEN: Three or more words (e.g., "Lack of Resources" ❌, "Poor Team Communication" ❌)
+    - Card number: Sequential numbering ("1", "2", "3", "4")
+    - Card body: Detailed explanation (15-25 words / 100-150 characters per card)
+    - Tag should be concise (1-3 words) identifying the category (e.g., "The Problem", "Key Challenges", "Issues")
+    - Title should clearly state what problems are being presented (3-5 words)
+    - rightText MUST be comprehensive (30-40 words / 200-250 characters) explaining the interconnected nature of problems or their overall significance
+    - Maintain consistent depth and professional tone across all four problem cards
 
 - solution-steps-slide: subtitle, title, steps[] (array of {{title, description}}), [profileImagePath], [logoNew], [pageNumber]
   • Purpose: Present sequential solution steps with visual timeline
