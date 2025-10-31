@@ -1163,9 +1163,10 @@ export default function CourseOutlineClient() {
     }, 0);
   }, [preview]);
 
-  // Total lessons & credit cost (5 credits for course outline finalization)
+  // Total lessons & credit cost (stored in sessionStorage)
   const lessonsTotal = useMemo(() => preview.reduce((sum, m) => sum + m.lessons.length, 0), [preview]);
-  const creditsRequired = 5; // Fixed cost for course outline finalization
+  const storedCreditsData = sessionStorage.getItem('creditsReference');
+  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).course_outline : 5;
 
   // Predefined theme preview data to match provided mockup
   const themeOptions = [

@@ -232,7 +232,7 @@ const CreditsTab: React.FC = () => {
   const handleManagePrices = async () => {
     setPricesLoading(true);
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/credits/content/reference`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/credits/content/reference`, {
         credentials: 'same-origin',
       });
 

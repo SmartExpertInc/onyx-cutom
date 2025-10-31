@@ -34791,13 +34791,13 @@ async def get_user_credits_by_email(
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
 
-@app.get("/api/custom/admin/credits/content/reference")
+@app.get("/api/custom/credits/content/reference")
 async def get_credits_reference(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Admin endpoint to get all credits reference values"""
-    await verify_admin_user(request)
+    """NOT ADMIN endpoint to get all credits reference values"""
+    #await verify_admin_user(request)
     
     try:
         async with pool.acquire() as conn:
