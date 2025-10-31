@@ -266,7 +266,7 @@ const VideoLessonDisplay = ({
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Comment or add others with @"
-              className="w-full h-[70px] p-3 pr-20 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-lg resize-none focus:outline-none focus:border-[#CCCCCC]"
+              className="w-full h-[70px] p-3 pr-20 text-xs text-[#171718] placeholder-[#878787] shadow-xl bg-white border border-[#CCCCCC] rounded-lg resize-none focus:outline-none focus:border-[#CCCCCC]"
             />
             <button
               onClick={() => {
@@ -277,10 +277,11 @@ const VideoLessonDisplay = ({
                 }
               }}
               disabled={!commentText.trim()}
-              className={`absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 text-xs text-white rounded-md transition-colors ${
+              className={`absolute bottom-3.5 right-3 flex items-center gap-1.5 px-1.5 py-1 text-white rounded-md transition-colors ${
                 commentText.trim() ? 'bg-[#0F58F9] hover:bg-[#0d4dd4]' : 'bg-[#CCCCCC] cursor-not-allowed'
               }`}
             >
+              <span className="text-xs tracking-wide">Send</span>
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_1918_78539)">
                   <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="white" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -291,7 +292,6 @@ const VideoLessonDisplay = ({
                   </clipPath>
                 </defs>
               </svg>
-              <span>Send</span>
             </button>
           </div>
         </div>

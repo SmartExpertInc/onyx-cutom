@@ -2356,7 +2356,7 @@ export default function ProjectInstanceViewPage() {
     </main>
     
     {/* Feedback Button */}
-    <FeedbackButton />
+    <FeedbackButton backgroundColor="#CCDBFC" textColor="#0F58F9" />
     </>
   );
 }
