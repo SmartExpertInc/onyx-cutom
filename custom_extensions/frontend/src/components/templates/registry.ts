@@ -1998,7 +1998,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: '',
       profileImageAlt: 'Profile image',
       rightImagePath: '',
-      rightImageAlt: 'Right side image'
+      rightImageAlt: 'Right side image',
+      rightImagePrompt: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -2006,7 +2007,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
-      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
+      rightImagePrompt: { type: 'text', label: 'Right Image Prompt', required: false }
     },
     avatarPosition: {
       x: 925,       // Right side of slide (for large right image)

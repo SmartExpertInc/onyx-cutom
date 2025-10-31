@@ -1725,7 +1725,8 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           "Third critical term with thorough explanation"
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "rightImagePath": "https://via.placeholder.com/300x200?text=Definition+Image",
+        "rightImagePrompt": "Realistic cinematic photograph of cybersecurity professionals monitoring a large wall of screens displaying network security dashboards and threat detection systems in a modern Security Operations Center (SOC). The scene features three diverse professionals in business casual attire standing and analyzing data on multiple monitors showing threat maps, firewall status, and intrusion detection alerts. The left monitor displays network topology diagrams in [COLOR1], the center screens show real-time threat maps with attack vectors highlighted in [COLOR2], and the right displays show security metrics and incident response dashboards in [COLOR3]. The SOC environment features sleek workstations with dual monitors, ambient blue security lighting, and glass walls with frosted sections. The professionals are in three-quarter view, one pointing at a critical alert while others take notes. Cinematic photography with professional lighting, 35mm lens, wide angle shot showing the entire command center, depth of field with focused foreground. The background is [BACKGROUND]. Modern corporate cybersecurity aesthetic with clean professional atmosphere.",
+        "rightImageAlt": "Cybersecurity professionals in security operations center",
         "pageNumber": 3,
         "logoPath": ""
       }

@@ -128,6 +128,7 @@ function InlineEditor({
 export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlideProps & {
   theme?: SlideTheme | string;
   onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }> = ({
   slideId,
   title = 'What is phishing?',
@@ -141,6 +142,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   profileImageAlt = 'Profile image',
   rightImagePath = '',
   rightImageAlt = 'Right side image',
+  rightImagePrompt = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -151,7 +153,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   voiceoverText,
   logoPath = '',
   pageNumber = '06',
-  onEditorActive
+  onEditorActive,
+  getPlaceholderGenerationState
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDefinitions, setEditingDefinitions] = useState<number | null>(null);
@@ -220,7 +223,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
 
   const handleRightImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, rightImagePath: newImagePath });
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, rightImagePrompt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, rightImagePath: newImagePath });
     }
   };
 
@@ -435,6 +438,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           size="LARGE"
           position="CENTER"
           description="Right side image"
+          prompt={rightImagePrompt}
           isEditable={isEditable}
           style={{
             width: '100%',
@@ -442,6 +446,9 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             borderRadius: '0px',
             objectFit: 'cover'
           }}
+          elementId={`${slideId}-right-image`}
+          aiGeneratedPrompt={rightImagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-right-image`).isGenerating : false}
         />
 
         {/* Logo in bottom-right corner - MATCHES HTML: bottom: 48px, right: 48px, fontSize: 26px */}

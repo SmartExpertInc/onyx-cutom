@@ -739,6 +739,7 @@ export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
   profileImageAlt?: string;
   rightImagePath?: string;
   rightImageAlt?: string;
+  rightImagePrompt?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
