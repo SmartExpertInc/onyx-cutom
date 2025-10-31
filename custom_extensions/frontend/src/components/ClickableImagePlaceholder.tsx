@@ -745,8 +745,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     );
   };
 
+  // Helper function to validate if imagePath is a valid URL
+  const isValidImagePath = (path: string | undefined): boolean => {
+    if (!path || typeof path !== 'string') return false;
+    // Check if it's a valid URL (starts with http://, https://, or /)
+    // Also check it's not just dimensions like "300x200" or "300x200?text=..."
+    if (path.match(/^\d+x\d+/)) return false; // Matches patterns like "300x200"
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/') || path.startsWith('./') || path.startsWith('../')) {
+      return true;
+    }
+    return false;
+  };
+
   // Regular image display
-  if (displayedImage) {
+  if (displayedImage && isValidImagePath(displayedImage)) {
     return (
       <>
         <div 
@@ -774,6 +786,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             className="w-full h-full object-cover"
               style={{
               objectFit: cropMode
+            }}
+            onError={(e) => {
+              // If image fails to load, clear it
+              console.warn('Image failed to load:', displayedImage);
+              setDisplayedImage(undefined);
+              onImageUploaded('');
             }}
           />
           

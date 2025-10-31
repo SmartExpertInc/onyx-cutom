@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import { ControlledWysiwygEditor } from '../editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -125,6 +126,7 @@ function InlineEditor({
 
 export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'What is phishing?',
@@ -147,7 +149,8 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   theme,
   voiceoverText,
   logoPath = '',
-  pageNumber = '06'
+  pageNumber = '06',
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDefinitions, setEditingDefinitions] = useState<number | null>(null);
@@ -155,6 +158,8 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentDefinitions, setCurrentDefinitions] = useState(definitions);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  const titleEditorRef = useRef<any>(null);
+  const definitionEditorRefs = useRef<(any | null)[]>([]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -250,17 +255,23 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
           lineHeight: '1.2'
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
+              placeholder="Enter title..."
               className="phishing-title-editor"
               style={{
                 fontSize: '50px',
                 color: '#212222',
-                lineHeight: '1.2'
+                lineHeight: '1.2',
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
               }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
             <div
@@ -269,9 +280,8 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}
-            >
-              {currentTitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
         </div>
 
@@ -293,17 +303,28 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
               }}
             >
               {isEditable && editingDefinitions === index ? (
-                <InlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!definitionEditorRefs.current) {
+                      definitionEditorRefs.current = [];
+                    }
+                    definitionEditorRefs.current[index] = el;
+                  }}
                   initialValue={definition}
                   onSave={(value) => handleDefinitionSave(index, value)}
                   onCancel={handleDefinitionCancel}
-                  multiline={true}
+                  placeholder="Enter definition..."
                   className="definition-editor"
                   style={{
                     fontSize: '14px',
                     color: '#545555',
-                    lineHeight: '1.5'
+                    lineHeight: '1.5',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
                   }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `definition-${index}`, computedStyles)}
                 />
               ) : (
                 <div
@@ -312,9 +333,8 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
                   }}
-                >
-                  {definition}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: definition }}
+                />
               )}
             </div>
           ))}

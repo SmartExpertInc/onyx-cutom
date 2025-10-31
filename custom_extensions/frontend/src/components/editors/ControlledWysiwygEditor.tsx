@@ -121,8 +121,8 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
 
     useEffect(() => {
       if (editor) {
+        // Just focus, don't select all - let user place cursor where they want
         editor.commands.focus('end');
-        editor.commands.selectAll();
         
         // Read computed styles from the DOM
         try {

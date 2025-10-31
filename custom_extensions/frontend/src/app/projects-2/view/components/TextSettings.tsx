@@ -311,11 +311,20 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                         onClick={() => {
                           if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                             try {
-                              // Select all text first to apply font to entire content
-                              activeEditor.chain().focus().selectAll().setMark('textStyle', { fontFamily: option.value }).run();
-                              // Then restore selection to end to maintain cursor position
+                              // Apply font family to current selection or to entire content if no selection
                               const { from, to } = activeEditor.state.selection;
-                              activeEditor.chain().setTextSelection({ from: to, to: to }).run();
+                              const hasSelection = from !== to;
+                              
+                              if (hasSelection) {
+                                // Apply to selected text only
+                                activeEditor.chain().focus().setMark('textStyle', { fontFamily: option.value }).run();
+                              } else {
+                                // No selection - apply to entire content
+                                activeEditor.chain().focus().selectAll().setMark('textStyle', { fontFamily: option.value }).run();
+                                // Restore cursor to end
+                                const contentLength = activeEditor.state.doc.content.size;
+                                activeEditor.chain().setTextSelection({ from: contentLength, to: contentLength }).run();
+                              }
                               setFontFamily(option.value);
                               setShowFontFamilyDropdown(false);
                             } catch (error) {
