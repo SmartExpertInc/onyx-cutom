@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/AiPharmaMarketGrowthSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { AiPharmaMarketGrowthSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import AvatarImageDisplay from '../AvatarImageDisplay';
@@ -8,9 +8,11 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'AI Pharma\nMarket Growth',
@@ -25,7 +27,8 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   panelBackgroundColor = '#dfeeff',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -36,6 +39,12 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   const [editingBar, setEditingBar] = useState<{ index: number; field: 'label' | 'year' | 'widthPercent' } | null>(null);
   const [currentPageNumber, setCurrentPageNumber] = useState('08');
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const logoTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const barYearEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const barLabelEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
@@ -194,10 +203,12 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               }} />
             </div>
             {isEditable && editingYourLogoText ? (
-              <ImprovedInlineEditor
+              <ControlledWysiwygEditor
+                ref={logoTextEditorRef}
                 initialValue={currentYourLogoText}
                 onSave={handleYourLogoTextSave}
                 onCancel={() => setEditingYourLogoText(false)}
+                placeholder="Enter logo text..."
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
@@ -205,10 +216,12 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none'
+                  padding: '8px 12px',
+                  border: '1px solid rgba(0,0,0,0.2)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)'
                 }}
+                onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'logoText', computedStyles)}
               />
             ) : (
               <div
@@ -217,12 +230,10 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   fontSize: '14px',
                   fontWeight: '400',
                   color: '#000000',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  cursor: isEditable ? 'pointer' : 'default'
                 }}
-              >
-                {currentYourLogoText}
-              </div>
+                dangerouslySetInnerHTML={{ __html: currentYourLogoText }}
+              />
             )}
           </div>
         )}
@@ -230,16 +241,24 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
       <div style={titleStyle}>
         {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={titleEditorRef}
             initialValue={title}
-            multiline={true}
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
+            placeholder="Enter title..."
             className="ai-pharma-title-editor"
-            style={{ ...titleStyle}}
+            style={{
+              ...titleStyle,
+              padding: '8px 12px',
+              border: '1px solid rgba(0,0,0,0.2)',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.3)'
+            }}
+            onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: title.replace(/\n/g, '<br/>') }} />
         )}
       </div>
 
@@ -281,14 +300,27 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             {/* Year editable */}
             <div style={{ width: '50px', minHeight: '22px' }}>
               {isEditable && editingBar?.index === i && editingBar?.field === 'year' ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!barYearEditorRefs.current) barYearEditorRefs.current = [];
+                    barYearEditorRefs.current[i] = el;
+                  }}
                   initialValue={b.year}
                   onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                   onCancel={() => setEditingBar(null)}
-                  style={{ width: '50px', color: '#09090B' }}
+                  placeholder="Enter year..."
+                  style={{
+                    width: '50px',
+                    color: '#09090B',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `bar-${i}-year`, computedStyles)}
                 />
               ) : (
-                <div style={{ color: '#09090B' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
+                <div style={{ color: '#09090B' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })} dangerouslySetInnerHTML={{ __html: b.year }} />
               )}
             </div>
 
@@ -369,19 +401,32 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               >
                 {/* Editable label text on the bar */}
                 {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (!barLabelEditorRefs.current) barLabelEditorRefs.current = [];
+                      barLabelEditorRefs.current[i] = el;
+                    }}
                     initialValue={b.label}
                     onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', background: 'transparent', border: 'none', outline: 'none' }}
+                    placeholder="Enter label..."
+                    style={{
+                      color: '#ffffff',
+                      fontSize: '22px',
+                      fontWeight: '500',
+                      padding: '8px 12px',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      borderRadius: '4px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    }}
+                    onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `bar-${i}-label`, computedStyles)}
                   />
                 ) : (
                   <div 
                     style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
                     onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}
-                  >
-                    {b.label}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: b.label }}
+                  />
                 )}
 
                 {/* Drag handle */}

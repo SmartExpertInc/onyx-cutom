@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/PhishingRiseSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PhishingRiseSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import AvatarImageDisplay from '../AvatarImageDisplay';
@@ -8,9 +8,11 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import SimpleRichTextEditor from '../SimpleRichTextEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Phishing rise',
@@ -27,7 +29,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   actorImageAlt = 'Actor image',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -38,6 +41,12 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const [currentBars, setCurrentBars] = useState(bars);
   const [editingBar, setEditingBar] = useState<{ index: number; field: 'valueLabel' | 'year' } | null>(null);
   const [editingYLabel, setEditingYLabel] = useState<number | null>(null);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const descriptionEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const barYearEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const barValueLabelEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentPageNumber, setCurrentPageNumber] = useState('07');
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
