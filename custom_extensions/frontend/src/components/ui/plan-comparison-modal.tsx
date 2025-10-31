@@ -21,7 +21,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
       name: 'Free',
       price: '$0',
       billing: 'No commitment',
-      credits: '200 Credits /one-time on registration',
+      credits: '200 Credits',
+      perCredits: 'one-time on registration',
       popular: false,
       current: true,
     },
@@ -31,7 +32,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
       price: '$25',
       priceUnit: '/month',
       billing: '$300 Billed annually',
-      credits: '600 Credits /month',
+      credits: '600 Credits',
+      perCredits: 'month',
       popular: false,
       current: false,
     },
@@ -41,7 +43,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
       price: '$37',
       priceUnit: '/seat/month',
       billing: `Minimum 2 seats, $${teamSeats * 37 * 12} Billed annually`,
-      credits: '2000 Credits /month',
+      credits: '2000 Credits',
+      perCredits: 'month',
       popular: true,
       current: false,
       hasSeats: true,
@@ -51,7 +54,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
       name: 'Enterprise',
       price: "Let's talk",
       billing: 'Custom plans',
-      credits: '10,000+ Credits /month',
+      credits: '10,000+ Credits',
+      perCredits: 'month',
       popular: false,
       current: false,
       isEnterprise: true,
@@ -119,7 +123,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[90vh]">
           {/* Header Section - Sticky */}
-          <div className="top-0 z-10 bg-white/80 backdrop-blur-sm p-8 pb-0">
+          <div className="top-0 z-10 bg-none p-8 pb-0">
             <h2 className="text-3xl font-bold text-[#171718] mb-2 text-center">
               Plans that fit your scale
             </h2>
@@ -177,24 +181,24 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                       <h3 className="text-lg font-bold text-[#171718] mb-2">{plan.name}</h3>
                       
                       {/* Price and Seats on same line */}
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="text-3xl font-bold text-[#171718]">
-                          {plan.price}
-                          {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
+                      <div className="flex items-center gap-2 mb-2 flex-nowrap">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-bold text-[#171718]">{plan.price}</span>
+                          {plan.priceUnit && <span className="text-sm font-normal text-gray-500 whitespace-nowrap">{plan.priceUnit}</span>}
                         </div>
                         
                         {plan.hasSeats && (
-                          <div className="flex items-center">
+                          <div className="flex items-center gap-1">
                             <button 
                               onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
-                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="px-2 py-1 bg-white rounded text-sm whitespace-nowrap">{teamSeats} seats</span>
                             <button 
                               onClick={() => setTeamSeats(teamSeats + 1)}
-                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -202,10 +206,10 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         )}
                       </div>
                       
-                      <p className="text-xs text-gray-500 mb-3">{plan.billing}</p>
+                      <p className="text-xs text-[#A5A5A5] mb-3">{plan.billing}</p>
                       
-                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-4">
-                        <span>{plan.credits}</span>
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-4 h-8">
+                        <span className="text-base font-bold text-[#4D4D4D]">{plan.credits} <span className="text-xs font-light text-[#A5A5A5]">/ {plan.perCredits}</span></span>
                         <InfoIcon className="w-3 h-3 text-gray-400" />
                       </div>
 
@@ -239,7 +243,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                       <tr>
                         <td
                           colSpan={5}
-                          className="p-4 font-bold text-[#171718] bg-gray-50 border-y border-gray-200 text-left"
+                          className="p-4 font-bold text-[#171718] bg-none border-y border-gray-200 text-left"
                         >
                           {category.category}
                         </td>
@@ -247,17 +251,17 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                       {/* Feature Rows */}
                       {category.features.map((feature, featureIndex) => (
                         <tr key={featureIndex} className="border-b border-[#A5A5A5] hover:bg-gray-50">
-                          <td className="p-4 pr-6 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
-                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-6 px-6 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
+                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.starter)}
                           </td>
-                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.creator)}
                           </td>
-                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.team)}
                           </td>
-                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.enterprise)}
                           </td>
                         </tr>
