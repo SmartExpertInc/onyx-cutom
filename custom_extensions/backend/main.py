@@ -12994,6 +12994,30 @@ def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, A
         pass
     return final_text
 
+# ---- Context merging utilities ----
+def merge_source_contexts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+    merged: Dict[str, Any] = {
+        "file_summaries": [],
+        "file_contents": [],
+        "folder_contexts": [],
+        "key_topics": [],
+        "metadata": {}
+    }
+    for ctx in (a or {}, b or {}):
+        if not isinstance(ctx, dict):
+            continue
+        merged["file_summaries"].extend(ctx.get("file_summaries") or [])
+        merged["file_contents"].extend(ctx.get("file_contents") or [])
+        merged["folder_contexts"].extend(ctx.get("folder_contexts") or [])
+        merged["key_topics"].extend(ctx.get("key_topics") or [])
+        # carry through connector raw content if present
+        if ctx.get("extracted_raw_content"):
+            # Represent connector raw as a synthetic source block
+            merged["file_contents"].append(ctx["extracted_raw_content"])
+    # Deduplicate topics
+    merged["key_topics"] = list(dict.fromkeys(merged["key_topics"]))
+    return merged
+
 async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini", wizard_payload: dict = None):
     """
     Stream response using OpenAI with enhanced context from Onyx file extraction.
@@ -17648,7 +17672,20 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     else:
                         # For connector-based filtering only, extract context from specific connectors
                         logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
+                        onyx_user_id = await get_current_onyx_user_id(Request(scope={}))
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
+                            if file_ids:
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -30642,7 +30679,23 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                 if payload.fromConnectors and payload.connectorSources:
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    # If specific SmartDrive files were also selected, map and extract them too, then merge
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        # Reuse existing mapping flow
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
+                        onyx_user_id = await get_current_onyx_user_id(Request(scope={}))  # best-effort; environment provides Depends elsewhere
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
+                            if file_ids:
+                                logger.info(f"[HYBRID_CONTEXT] Extracting context from mapped files (count={len(file_ids)}) and merging with connector context")
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -32343,7 +32396,20 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                 if payload.fromConnectors and payload.connectorSources:
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        smartdrive_file_paths = list(set([*raw_paths, *[p.replace(' ', '%20') for p in raw_paths], *[p.replace(' ', '+') for p in raw_paths]]))
+                        onyx_user_id = await get_current_onyx_user_id(Request(scope={}))
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(onyx_user_id, smartdrive_file_paths)
+                            if file_ids:
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
