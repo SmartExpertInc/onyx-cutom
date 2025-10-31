@@ -736,8 +736,12 @@ export default function ProjectInstanceViewPage() {
         const allMicroproductsData: ProjectListItem[] = await listRes.json();
         setAllUserMicroproducts(allMicroproductsData);
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
+        console.log('🔍 currentMicroproductInList:', currentMicroproductInList);
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
-        setProjectCreatedAt(currentMicroproductInList?.createdAt);
+        // Handle both camelCase and snake_case field names from backend
+        const createdAtValue = (currentMicroproductInList as any)?.created_at || currentMicroproductInList?.createdAt;
+        console.log('🔍 created_at/createdAt field:', createdAtValue);
+        setProjectCreatedAt(typeof createdAtValue === 'string' ? createdAtValue : createdAtValue?.toString());
         // Resilient Event Poster detection based on parent project name (cannot be renamed)
         const parentName = currentMicroproductInList?.projectName || '';
         if (parentName.includes('Event Poster')) {
@@ -2323,7 +2327,12 @@ export default function ProjectInstanceViewPage() {
           />
         )}
 
-        <div className={`p-4 sm:p-6 md:p-8 rounded-xl ${
+        <div className={`${
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+            ? 'p-0'
+            : 'p-4 sm:p-6 md:p-8'
+        } rounded-xl ${
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
             ? 'bg-[#F2F2F4]' 
