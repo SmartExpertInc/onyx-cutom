@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
-import { X, Check, Star, InfoIcon, Sparkles } from 'lucide-react';
+import { X, Check, Star, InfoIcon, Sparkles, Minus, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PlanComparisonModalProps {
@@ -13,6 +13,7 @@ interface PlanComparisonModalProps {
 const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenChange }) => {
   const { t } = useLanguage();
   const [billingCycle, setBillingCycle] = React.useState<'monthly' | 'yearly'>('yearly');
+  const [teamSeats, setTeamSeats] = React.useState(2);
 
   const planCards = [
     {
@@ -39,7 +40,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
       name: 'Team',
       price: '$37',
       priceUnit: '/seat/month',
-      billing: 'Minimum 2 seats, $888 Billed annually',
+      billing: `Minimum 2 seats, $${teamSeats * 37 * 12} Billed annually`,
       credits: '2000 Credits /month',
       popular: true,
       current: false,
@@ -115,10 +116,10 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
           <X className="w-5 h-5 text-gray-600" />
         </button>
 
-        {/* Content */}
+        {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[90vh]">
-          {/* Header Section */}
-          <div className="p-8 pb-6 bg-white sticky top-0 z-10">
+          {/* Header Section - Sticky */}
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-8 pb-6">
             <h2 className="text-3xl font-bold text-[#171718] mb-2 text-center">
               Plans that fit your scale
             </h2>
@@ -153,7 +154,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Plan Cards */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-4 gap-4">
               {planCards.map((plan) => (
                 <div key={plan.id} className="relative">
                   {/* Most Popular Badge */}
@@ -165,47 +166,45 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   )}
 
                   {/* Plan Card */}
-                  <div className={`rounded-xl border overflow-hidden bg-white ${
-                    plan.popular ? 'border-blue-500' : 'border-gray-200'
-                  }`}>
-                    {/* Card Header - Blue bg for popular plan */}
-                    {plan.popular ? (
-                      <div className="bg-blue-600 text-white p-4">
-                        <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
-                        <div className="text-2xl font-bold mb-1">
-                          {plan.price}
-                          {plan.priceUnit && <span className="text-sm font-normal">{plan.priceUnit}</span>}
-                        </div>
-                        {plan.hasSeats && (
-                          <div className="flex items-center gap-2 mb-2">
-                            <button className="w-6 h-6 bg-white/20 rounded flex items-center justify-center text-white">-</button>
-                            <span className="px-3 py-1 bg-white/20 rounded text-sm">2 seats</span>
-                            <button className="w-6 h-6 bg-white/20 rounded flex items-center justify-center text-white">+</button>
-                          </div>
-                        )}
-                        <p className="text-xs opacity-90">{plan.billing}</p>
+                  <div className={`border bg-white ${
+                    plan.popular ? 'border-blue-500 rounded-b-2xl' : 'border-gray-200 rounded-2xl'
+                  } overflow-hidden shadow-sm`}>
+                    {/* Card Content */}
+                    <div className="p-4">
+                      <h3 className="text-lg font-bold text-[#171718] mb-2">{plan.name}</h3>
+                      <div className="text-3xl font-bold text-[#171718] mb-1">
+                        {plan.price}
+                        {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
                       </div>
-                    ) : (
-                      <div className="p-4">
-                        <h3 className="text-lg font-bold text-[#171718] mb-2">{plan.name}</h3>
-                        <div className="text-2xl font-bold text-[#171718] mb-1">
-                          {plan.price}
-                          {plan.priceUnit && <span className="text-sm font-normal">{plan.priceUnit}</span>}
+                      
+                      {plan.hasSeats && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <button 
+                            onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
+                            className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="px-3 py-1 bg-gray-100 rounded text-sm">{teamSeats} seats</span>
+                          <button 
+                            onClick={() => setTeamSeats(teamSeats + 1)}
+                            className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
                         </div>
-                        <p className="text-xs text-gray-500">{plan.billing}</p>
-                      </div>
-                    )}
-
-                    {/* Card Body */}
-                    <div className="p-4 pt-3">
-                      <div className={`flex items-center gap-1 text-xs mb-3 ${plan.popular ? 'text-white' : 'text-gray-600'}`}>
-                        <span className={plan.popular ? 'text-white' : 'text-[#171718]'}>{plan.credits}</span>
-                        <InfoIcon className={`w-3 h-3 ${plan.popular ? 'text-white' : 'text-gray-400'}`} />
+                      )}
+                      
+                      <p className="text-xs text-gray-500 mb-3">{plan.billing}</p>
+                      
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-4">
+                        <span>{plan.credits}</span>
+                        <InfoIcon className="w-3 h-3 text-gray-400" />
                       </div>
 
                       {/* CTA Button */}
                       <button
-                        className={`w-full py-2 rounded-full text-sm font-semibold transition-all ${
+                        className={`w-full py-2.5 rounded-full text-sm font-semibold transition-all ${
                           plan.current
                             ? 'bg-gray-200 text-gray-500'
                             : plan.isEnterprise
@@ -222,45 +221,45 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
           </div>
 
-          {/* Comparison Table */}
-          <div className="px-8 pb-8">
-            <table className="w-full border-collapse">
-              <tbody>
-                {featureData.map((category, categoryIndex) => (
-                  <React.Fragment key={categoryIndex}>
-                    {/* Category Header Row */}
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className={`p-4 font-bold text-[#171718] border-y border-gray-200 ${
-                          categoryIndex === 0 ? 'bg-blue-50' : 'bg-white'
-                        }`}
-                      >
-                        {category.category}
-                      </td>
-                    </tr>
-                    {/* Feature Rows */}
-                    {category.features.map((feature, featureIndex) => (
-                      <tr key={featureIndex} className="border-b border-gray-100">
-                        <td className="p-4 text-sm text-[#4D4D4D] w-1/3">{feature.name}</td>
-                        <td className="p-4 text-center w-1/6 bg-white">
-                          {renderCell(feature.starter)}
-                        </td>
-                        <td className="p-4 text-center w-1/6 bg-gray-50">
-                          {renderCell(feature.creator)}
-                        </td>
-                        <td className="p-4 text-center w-1/6 bg-white">
-                          {renderCell(feature.team)}
-                        </td>
-                        <td className="p-4 text-center w-1/6 bg-gray-50">
-                          {renderCell(feature.enterprise)}
+          {/* Feature Comparison Table */}
+          <div className="p-8 pt-6">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <tbody>
+                  {featureData.map((category, categoryIndex) => (
+                    <React.Fragment key={categoryIndex}>
+                      {/* Category Header Row */}
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="p-4 font-bold text-[#171718] bg-gray-50 border-y border-gray-200 text-left"
+                        >
+                          {category.category}
                         </td>
                       </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
+                      {/* Feature Rows */}
+                      {category.features.map((feature, featureIndex) => (
+                        <tr key={featureIndex} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-4 text-sm text-[#4D4D4D] font-medium w-1/3">{feature.name}</td>
+                          <td className="p-4 text-center w-1/6">
+                            {renderCell(feature.starter)}
+                          </td>
+                          <td className="p-4 text-center w-1/6">
+                            {renderCell(feature.creator)}
+                          </td>
+                          <td className="p-4 text-center w-1/6">
+                            {renderCell(feature.team)}
+                          </td>
+                          <td className="p-4 text-center w-1/6">
+                            {renderCell(feature.enterprise)}
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </DialogContent>

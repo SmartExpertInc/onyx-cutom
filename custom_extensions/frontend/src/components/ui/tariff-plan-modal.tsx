@@ -441,7 +441,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[90vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1300px] max-w-[1200px] xl:max-w-[1400px] xl:w-[98vw] w-[92vw] rounded-2xl p-0 max-h-[90vh] min-w-[950px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -471,7 +471,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               </div>
 
               {/* Pricing Cards */}
-              <div className="bg-white rounded-md p-6 flex flex-col gap-4">
+              <div className="bg-white rounded-md pt-5 px-5 pb-3 flex flex-col gap-4">
                 {/* Billing Toggle Section - Centered */}
                 <div className="flex flex-col items-center gap-2 mb-4">
                   <p className="text-blue-700 font-normal text-xs font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
@@ -504,17 +504,17 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div key={plan.id} className="relative flex flex-col">
                       {/* Most Popular Badge - Outside Card */}
                       {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center -mt-8 gap-1.5 shadow-md">
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-4 py-1.5 rounded-t-md text-xs xl:text-sm font-medium font-public-sans flex items-center justify-center -mt-5 gap-1.5 shadow-md">
                           {t('tariffPlan.mostPopular', 'Most Popular')}
                           <Sparkles className="w-3 h-3 fill-white" />
                         </div>
                       )}
                       
                       <div
-                        className={`rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex flex-col h-full overflow-hidden bg-white ${
+                        className={`shadow-[0_2px_8px_rgba(0,0,0,0.08)] border transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex flex-col h-full overflow-hidden bg-white ${
                           plan.popular 
-                          ? 'border-blue-500' 
-                          : 'border-gray-200'
+                          ? 'border-blue-500 rounded-b-2xl' 
+                          : 'border-gray-200 rounded-2xl'
                         }`}
                       >
                     
@@ -766,7 +766,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 ))}
               </div>
-              <div className="text-center mt-6 mb-2">
+              <div className="text-center mt-4 mb-2">
                 <button 
                   onClick={() => {
                     onOpenChange(false);
@@ -779,7 +779,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 </button>
               </div>
               {/* Credit Add-Ons Section */}
-              <div className="mt-8 pt-5">
+              <div className="mt-6 pt-3">
                 <h2 className="text-xl font-semibold text-[#4D4D4D] mb-1 text-center">
                   Additional services
                 </h2>
