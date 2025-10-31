@@ -249,18 +249,21 @@ async function fetchAndStoreCreditsReference() {
   try {
     const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
     
-    // Check if we have recent credits reference in sessionStorage (within 10 minutes)
-    const storedCreditsData = sessionStorage.getItem('creditsReference');
-    if (storedCreditsData) {
-      try {
-        const creditsData = JSON.parse(storedCreditsData);
-        // Check if data is recent (within 10 minutes)
-        if (creditsData.timestamp && (Date.now() - creditsData.timestamp < 600000)) {
-          console.log('Using cached credits reference from sessionStorage');
-          return;
+    const use_cache = false;
+    if (use_cache) {
+      // Check if we have recent credits reference in sessionStorage (within 10 minutes)
+      const storedCreditsData = sessionStorage.getItem('creditsReference');
+      if (storedCreditsData) {
+        try {
+          const creditsData = JSON.parse(storedCreditsData);
+          // Check if data is recent (within 10 minutes)
+          if (creditsData.timestamp && (Date.now() - creditsData.timestamp < 600000)) {
+            console.log('Using cached credits reference from sessionStorage');
+            return;
+          }
+        } catch (error) {
+          console.warn('Error parsing stored credits reference:', error);
         }
-      } catch (error) {
-        console.warn('Error parsing stored credits reference:', error);
       }
     }
 
