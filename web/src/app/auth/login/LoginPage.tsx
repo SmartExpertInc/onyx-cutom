@@ -86,6 +86,14 @@ export default function LoginPage({
             </Title>
           </div>
           <EmailPasswordForm nextUrl={nextUrl} />
+          <div className="flex mt-4 justify-center">
+            <Link
+              href="/auth/forgot-password"
+              className="text-link font-medium"
+            >
+              Forgot Password?
+            </Link>
+          </div>
         </>
       )}
     </div>
