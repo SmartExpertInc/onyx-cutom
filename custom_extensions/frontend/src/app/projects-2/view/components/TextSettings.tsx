@@ -269,12 +269,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
           Format
         </button>
         <button
-          onClick={() => setActiveTab('animate')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
-            activeTab === 'animate'
-              ? 'text-black border-b-2 border-black'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
+          onClick={() => {}}
+          className="flex-1 py-3 px-4 text-sm font-medium transition-all opacity-50 cursor-not-allowed text-gray-400"
+          title="Soon"
+          disabled
         >
           Animate
         </button>
@@ -313,8 +311,11 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                         onClick={() => {
                           if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                             try {
-                              // Apply font family via inline style using TextStyle extension
-                              activeEditor.chain().focus().setMark('textStyle', { fontFamily: option.value }).run();
+                              // Select all text first to apply font to entire content
+                              activeEditor.chain().focus().selectAll().setMark('textStyle', { fontFamily: option.value }).run();
+                              // Then restore selection to end to maintain cursor position
+                              const { from, to } = activeEditor.state.selection;
+                              activeEditor.chain().setTextSelection({ from: to, to: to }).run();
                               setFontFamily(option.value);
                               setShowFontFamilyDropdown(false);
                             } catch (error) {
@@ -602,10 +603,11 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Background color</span>
               <button
-                onClick={handleBackgroundColorClick}
-                className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
+                onClick={() => {}}
+                className="w-8 h-8 rounded-md border-2 border-gray-300 transition-all opacity-50 cursor-not-allowed shadow-sm relative overflow-hidden"
                 style={{ backgroundColor: backgroundColor }}
-                title={`Background color: ${backgroundColor}`}
+                title="Soon"
+                disabled
               >
                 {/* Add a subtle pattern for better color visibility */}
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
@@ -616,42 +618,46 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Order</span>
               <div className="flex space-x-2">
-                <Tooltip content="Send text to back">
+                <Tooltip content="Soon">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send text to back"
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
+                    title="Soon"
+                    disabled
                   >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5V6H9.5A3.5 3.5 0 0 0 6 9.5V13H4.5A2.5 2.5 0 0 1 2 10.5v-6ZM9.5 7A2.5 2.5 0 0 0 7 9.5v6A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7h-6ZM8 9.5A1.5 1.5 0 0 1 9.5 8h6A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5v-6Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Send text backward">
+                <Tooltip content="Soon">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send text backward"
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
+                    title="Soon"
+                    disabled
                   >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v6A2.5 2.5 0 0 0 4.5 13H6v-1.707L5.293 12H4.5c-.232 0-.45-.053-.647-.146L6 9.707V9.5c0-.571.137-1.11.38-1.586l-3.234 3.233A1.495 1.495 0 0 1 3 10.5v-.94L9.56 3h.94c.232 0 .45.052.647.146L7.914 6.38A3.485 3.485 0 0 1 9.5 6h.207l2.147-2.147c.094.196.146.415.146.647v.793L11.293 6H13V4.5A2.5 2.5 0 0 0 10.5 2h-6ZM3 4.5A1.5 1.5 0 0 1 4.5 3h.647L3 5.147V4.5Zm0 2.06L6.56 3h1.587L3 8.147V6.56ZM7 9.5A2.5 2.5 0 0 1 9.5 7h6A2.5 2.5 0 0 1 18 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 7 15.5v-6ZM9.5 8A1.5 1.5 0 0 0 8 9.5v6A1.5 1.5 0 0 0 9.5 17h6a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 15.5 8h-6Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Bring text forward">
+                <Tooltip content="Soon">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Bring text forward"
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
+                    title="Soon"
+                    disabled
                   >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6ZM4.5 3A1.5 1.5 0 0 0 3 4.5v.647L5.147 3H4.5Zm2.06 0L3 6.56v1.587L8.147 3H6.56ZM3 10.5c0 .232.052.45.146.647l8-8A1.495 1.495 0 0 0 10.5 3h-.94L3 9.56v.94ZM4.5 12h.793L12 5.293V4.5c0-.232-.053-.45-.146-.647l-8 8c.195.095.414.147.646.147Zm5.207 0h.793a1.5 1.5 0 0 0 1.5-1.5v-.793L9.707 12Zm-1.414 0L12 8.293V6.707L6.707 12h1.586Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Send text to front">
+                <Tooltip content="Soon">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send text to front"
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
+                    title="Soon"
+                    disabled
                   >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6Z"/>
                     </svg>
                   </button>
@@ -660,62 +666,42 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             </div>
 
             {/* Advanced Settings Content */}
-            <div className="pt-4">
+            <div className="pt-4 opacity-50 pointer-events-none">
               <AdvancedSettings
                 rotation={rotation}
-                onRotationChange={setRotation}
+                onRotationChange={() => {}}
                 positionX={positionX}
-                onPositionXChange={setPositionX}
+                onPositionXChange={() => {}}
                 positionY={positionY}
-                onPositionYChange={setPositionY}
+                onPositionYChange={() => {}}
                 width={width}
-                onWidthChange={setWidth}
+                onWidthChange={() => {}}
                 height={height}
-                onHeightChange={setHeight}
+                onHeightChange={() => {}}
               />
             </div>
+            <div className="text-xs text-gray-500 mt-2" title="Soon">Soon</div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 opacity-50 pointer-events-none">
             {/* Animate content */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Animation type</span>
+              <span className="text-sm font-medium text-gray-400">Animation type</span>
               <div className="relative" ref={animationDropdownRef}>
                 <button
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  onClick={() => {}}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md cursor-not-allowed"
+                  disabled
+                  title="Soon"
                 >
-                  <span className="text-gray-700">{animationOptions.find(opt => opt.value === animationType)?.label}</span>
-                  <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-gray-400">{animationOptions.find(opt => opt.value === animationType)?.label}</span>
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                
-                {showDropdown && (
-                  <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                    {animationOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setAnimationType(option.value as 'none' | 'fade' | 'slide' | 'grow');
-                          setShowDropdown(false);
-                        }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
-                      >
-                        {animationType === option.value ? (
-                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <div className="w-4 h-4 mr-2"></div>
-                        )}
-                        <span className="text-gray-700">{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
+            <div className="text-xs text-gray-500 mt-2" title="Soon">Soon</div>
           </div>
         )}
       </div>
