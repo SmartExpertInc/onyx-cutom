@@ -57,6 +57,20 @@ const CoinsIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+const StorageIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 10 12 6.16-1.26 10-6.45 10-12V7l-10-5z" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <path d="M12 11v6m-3-3l3 3 3-3" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const ConnectorsIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 interface Plan {
   id: string;
   name: string;
@@ -100,10 +114,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [modalHeight, setModalHeight] = useState(0);
   const [teamSeats, setTeamSeats] = useState(2);
   const [creditQuantities, setCreditQuantities] = useState<Record<string, number>>({
-    small: 1,
-    medium: 1,
-    large: 1,
-    enterprise: 1
+    credits: 1,
+    storage: 1,
+    connectors: 1
   });
   const modalRef = React.useRef<HTMLDivElement>(null);
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
@@ -155,37 +168,40 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   const creditAddOns = [
     {
-      id: 'small',
-      name: t('addOns.packages.credits.small.name', 'Small'),
-      description: t('addOns.packages.credits.small.description', 'Perfect for individual users getting started with basic credit needs.'),
-      amount: t('addOns.packages.credits.small.amount', '100 credits'),
-      price: 20,
+      id: 'credits',
+      type: 'credits',
+      name: 'Generative Credit Pack',
+      description: 'Add credits to access powerful generative features.',
+      amount: '600 Generative Credits',
+      price: 25,
       priceNote: 'per month',
     },
     {
-      id: 'medium',
-      name: t('addOns.packages.credits.medium.name', 'Medium'),
-      description: t('addOns.packages.credits.medium.description', 'Great for growing teams with moderate usage requirements.'),
-      amount: t('addOns.packages.credits.medium.amount', '300 credits'),
-      price: 50,
+      id: 'storage',
+      type: 'storage',
+      name: 'Smart Drive Storage',
+      description: 'Add extra storage to keep all your files in one secure place.',
+      amount: '10 GB',
+      price: 10,
       priceNote: 'per month',
     },
     {
-      id: 'large',
-      name: t('addOns.packages.credits.large.name', 'Large'),
-      description: t('addOns.packages.credits.large.description', 'Ideal for businesses with high-volume processing demands.'),
-      amount: t('addOns.packages.credits.large.amount', '1,000 credits'),
-      price: 150,
+      id: 'connectors',
+      type: 'connectors',
+      name: 'Integration Connectors',
+      description: 'Add extra storage to keep all your files in one secure place.',
+      amount: '3 Connectors',
+      price: 10,
       priceNote: 'per month',
     },
-    {
-      id: 'enterprise',
-      name: t('addOns.packages.credits.enterprise.name', 'Enterprise'),
-      description: t('addOns.packages.credits.enterprise.description', 'Custom solutions tailored to your organization\'s specific needs.'),
-      amount: t('addOns.packages.credits.enterprise.amount', 'Custom credit allocation'),
-      price: 'Custom' as any,
-      isEnterprise: true,
-    },
+    // {
+    //   id: 'enterprise',
+    //   name: t('addOns.packages.credits.enterprise.name', 'Enterprise'),
+    //   description: t('addOns.packages.credits.enterprise.description', 'Custom solutions tailored to your organization\'s specific needs.'),
+    //   amount: t('addOns.packages.credits.enterprise.amount', 'Custom credit allocation'),
+    //   price: 'Custom' as any,
+    //   isEnterprise: true,
+    // },
   ];
 
   const plans: Plan[] = [
@@ -411,7 +427,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-2xl p-0 max-h-[93vh] min-w-[830px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1280px] max-w-[1180px] xl:max-w-[1350px] xl:w-[96vw] w-[90vw] rounded-2xl p-0 max-h-[93vh] min-w-[930px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -734,7 +750,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 </button>
               </div>
               {/* Credit Add-Ons Section */}
-              <div className="mt-8 pt-8">
+              <div className="mt-8 pt-5">
                 <h2 className="text-xl font-semibold text-[#4D4D4D] mb-1 text-center">
                   Additional services
                 </h2>
@@ -742,32 +758,46 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   Add more power with extra credits, storage, or integrations.
                 </p>
                 
-                <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
-                  {creditAddOns.map((addOn) => (
+                <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4 ">
+                  {creditAddOns.map((addOn: any) => {
+                    const IconComponent = addOn.type === 'credits' ? CoinsIcon : addOn.type === 'storage' ? StorageIcon : ConnectorsIcon;
+                    const amountIcon = addOn.type === 'credits' ? (
+                      <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ) : addOn.type === 'storage' ? (
+                      <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                    );
+                    
+                    return (
                     <div key={addOn.id} className="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all p-5">
                       {/* Header Section - Icon and Title */}
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 border border-blue-100">
-                          <CoinsIcon className="w-7 h-7" />
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-600">
+                          <IconComponent className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-lg font-bold text-[#333333] leading-tight mb-1">
-                            {addOn.id === 'enterprise' ? 'Enterprise Credit Pack' : 'Generative Credit Pack'}
+                            {addOn.name}
                           </h3>
                           <p className="text-xs text-[#888888] leading-relaxed">
                             {addOn.description}
                           </p>
                         </div>
-                      </div>
-                      
-                      {/* Credits Info */}
+                        </div>
+
+                      {/* Amount Info */}
                       <div className="flex items-center gap-1.5 mb-4">
-                        <svg className="w-4 h-4 text-[#D0D0D0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        {amountIcon}
                         <span className="text-sm font-bold text-[#333333]">
-                          {addOn.amount.replace('credits', 'Generative Credits')}
-                        </span>
+                          {addOn.amount}
+                          </span>
                         </div>
 
                       {/* Price and Quantity */}
@@ -781,7 +811,6 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           )}
                         </div>
 
-                        {!addOn.isEnterprise && (
                           <div className="flex border border-[#D0D0D0] rounded-lg overflow-hidden bg-white">
                             <button
                               onClick={() => setCreditQuantities(prev => ({
@@ -805,20 +834,18 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                               +
                             </button>
                           </div>
-                        )}
                       </div>
                       
                       {/* Buy Now Button */}
                       <button
                         className='w-full py-2.5 rounded-lg font-semibold text-sm transition-all bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#8BB4FF] shadow-sm'
                       >
-                        {addOn.isEnterprise 
-                          ? t('addOns.contactSales', 'Contact Sales') 
-                          : t('addOns.buyNow', 'Buy now')}
+                           {t('addOns.buyNow', 'Buy now')}
                       </button>
                     </div>
-                  ))}
-                    </div>
+                    );
+                  })}
+                </div>
                   </div>
               </div>
             </div>
