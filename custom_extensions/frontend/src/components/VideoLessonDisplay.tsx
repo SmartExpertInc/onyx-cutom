@@ -54,7 +54,7 @@ const VideoLessonDisplay = ({
       {/* Parent has 32px padding on each side (64px total), leaving 1376px for grid */}
       
       {/* Left section - 8 columns */}
-      <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column' }}>
+      <div className="col-span-8 flex flex-col gap-4">
         <div 
           className="flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
           style={{ 
@@ -66,11 +66,11 @@ const VideoLessonDisplay = ({
         </div>
 
         {/* Title and Action Buttons */}
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between">
           {/* Left: Video Lesson Title */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              {dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
+              {parentProjectName || dataToDisplay?.mainPresentationTitle || 'Video Lesson Title'}
             </h2>
           </div>
           
@@ -78,7 +78,7 @@ const VideoLessonDisplay = ({
           <div className="flex gap-3">
             <button
               onClick={handleDraftClick}
-              className="px-4 py-2 rounded-md bg-white text-[#171718] border border-[#171718] hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-md bg-white text-[#171718] border border-[#171718] hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
               style={{ height: '40px' }}
             >
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -87,7 +87,7 @@ const VideoLessonDisplay = ({
               Draft
             </button>
             <button
-              className="px-4 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm"
               style={{ height: '40px' }}
             >
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,7 +96,7 @@ const VideoLessonDisplay = ({
               Share
             </button>
             <button
-              className="px-4 py-2 rounded-md bg-[#0F58F9] text-white hover:bg-[#0d4dd4] transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-md bg-[#0F58F9] text-white hover:bg-[#0d4dd4] transition-colors flex items-center gap-2 text-sm"
               style={{ height: '40px' }}
             >
               <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -128,18 +128,12 @@ const VideoLessonDisplay = ({
               </div>
             </div>
             <span className="text-[#878787] text-xs">{t('modals.play.helpImprove', 'Help us improve ContentBuilder')}</span>
-          </div>
+        </div>
       </div>
 
       {/* Right section - 4 columns */}
-      <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column' }}>
-        <div 
-          className="flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]"
-          style={{ 
-            flex: 1,
-            width: '100%'
-          }}
-        >
+      <div className="col-span-4 flex flex-col">
+        <div className="flex items-start p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0] flex-1 w-full">
           <p className="text-gray-500">Comments area</p>
         </div>
       </div>

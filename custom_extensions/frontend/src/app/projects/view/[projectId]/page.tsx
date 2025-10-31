@@ -1992,7 +1992,8 @@ export default function ProjectInstanceViewPage() {
         className={`min-h-screen font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
           projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'bg-[#F2F2F4] p-0'
             : 'bg-[#F2F2F4] p-4 md:p-8'
         }`}
