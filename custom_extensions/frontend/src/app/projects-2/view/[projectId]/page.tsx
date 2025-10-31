@@ -717,6 +717,7 @@ export default function Projects2ViewPage() {
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             currentSlideId={currentSlideId}
             onTextChange={handleTextChange}
+            showReady={showReady}
           />;
       }
     }
@@ -730,6 +731,7 @@ export default function Projects2ViewPage() {
           componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
+          showReady={showReady}
         />;
       case 'templates':
         return <TemplateSelector 
@@ -749,6 +751,7 @@ export default function Projects2ViewPage() {
           componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
+          showReady={showReady}
         />;
     }
   };
