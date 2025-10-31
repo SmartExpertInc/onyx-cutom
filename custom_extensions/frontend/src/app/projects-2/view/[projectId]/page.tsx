@@ -127,7 +127,7 @@ export default function Projects2ViewPage() {
         slideId: newSlide.slideId,
         slideNumber: videoLessonData.slides.length + 1,
         slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${videoLessonData.slides.length + 1}`,
-        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || '',
+        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || 'Add your text here',
         displayedPictureDescription: '',
         displayedVideoDescription: '',
         voiceoverText: ''

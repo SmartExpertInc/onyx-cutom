@@ -118,74 +118,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     return typeof vt === 'string' && vt.length > 0;
   });
 
-  // Get available templates (restricted set for video lesson add-slide UI)
+  // Get available templates (presentation mode: hide video-lesson-only templates)
   const availableTemplates = (() => {
-    const allowedTemplateIds = new Set<string>([
-      'course-overview-slide',
-      'work-life-balance-slide',
-      'phishing-definition-slide',
-      'culture-values-three-columns',
-      'percent-circles',
-      'benefits-list-slide',
-      'impact-statements-slide',
-      'dei-methods',
-      'company-tools-resources-slide',
-      'ai-pharma-market-growth-slide',
-      'critical-thinking-slide',
-      'benefits-tags-slide',
-      'kpi-update-slide',
-      'phishing-rise-slide',
-      'soft-skills-assessment-slide',
-      'problems-grid',
-      'solution-steps-slide',
-      'hybrid-work-best-practices-slide'
-    ]);
-    return getAllTemplates().filter(t => allowedTemplateIds.has(t.id));
+    const all = getAllTemplates();
+    const cutoff = all.findIndex(t => t.id === 'avatar-service-slide');
+    if (cutoff === -1) return all;
+    // Exclude 'avatar-service-slide' and any that follow
+    return all.slice(0, cutoff);
   })();
-
-  const displayNameById: Record<string, string> = {
-    'course-overview-slide': 'Title + Big Avatar Right',
-    'work-life-balance-slide': 'Text + Big Avatar',
-    'phishing-definition-slide': 'Definitions + Right Image',
-    'culture-values-three-columns': '3 Columns + Avatar',
-    'percent-circles': 'Percent Circles + Avatar',
-    'benefits-list-slide': 'List + Progress Dots + Avatar',
-    'impact-statements-slide': 'Impact Metrics + Big Avatar Left',
-    'dei-methods': 'Two Sections + Avatar Rings',
-    'company-tools-resources-slide': '2x2 Grid Sections',
-    'ai-pharma-market-growth-slide': 'Bars Right + Photo',
-    'critical-thinking-slide': 'Highlighted Phrases + Logo',
-    'benefits-tags-slide': 'Tags + Small Avatar',
-    'kpi-update-slide': 'KPI Grid + Footer',
-    'phishing-rise-slide': 'Text + Black Bar Chart + Actor',
-    'soft-skills-assessment-slide': 'Tips List + Avatar',
-    'problems-grid': '2x2 Problem Cards + Right Paragraph + Avatar',
-    'solution-steps-slide': 'Steps Timeline + Footer',
-    'hybrid-work-best-practices-slide': 'Numbered Practices + Team Image'
-  };
-
-  const PLACEHOLDER_TEXT = 'Add your text here';
-  const sanitizeTextualProps = (value: unknown, key?: string): unknown => {
-    if (typeof value === 'string') {
-      const k = (key || '').toLowerCase();
-      if (k.includes('title')) {
-        return value; // keep titles
-      }
-      return PLACEHOLDER_TEXT;
-    }
-    if (Array.isArray(value)) {
-      return value.map((item) => sanitizeTextualProps(item));
-    }
-    if (value && typeof value === 'object') {
-      const obj = value as Record<string, unknown>;
-      const out: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(obj)) {
-        out[k] = sanitizeTextualProps(v, k);
-      }
-      return out;
-    }
-    return value;
-  };
 
   // =============================================================
   // Inline editing for Presentation Title (Header)
@@ -629,11 +569,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slideNumber: componentDeck.slides.length + 1,
       slideTitle: slideTitle, // ← CRITICAL: Add slideTitle for backend compatibility
       templateId: templateId,
-      props: sanitizeTextualProps({
+      props: {
         ...(template.defaultProps as Record<string, unknown>),
-        title: slideTitle,
-        content: PLACEHOLDER_TEXT
-      }) as Record<string, unknown>,
+        title: slideTitle, // ← Keep title in props for frontend template rendering
+        content: ((): string => {
+          const c = (template.defaultProps as Record<string, unknown>).content;
+          return typeof c === 'string' && c.length > 0 ? c : 'Add your content here...';
+        })()
+      },
       metadata: {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -1122,7 +1065,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                           color: '#111827',
                           marginBottom: '2px'
                         }}>
-                          {displayNameById[template.id] || template.name}
+                          {template.name}
                         </div>
                         <div style={{
                           fontSize: '12px',
@@ -1172,7 +1115,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                         fontWeight: '500',
                         color: '#111827'
                       }}>
-                        {displayNameById[template.id] || template.name}
+                        {template.name}
                       </div>
                     </div>
                   </button>
