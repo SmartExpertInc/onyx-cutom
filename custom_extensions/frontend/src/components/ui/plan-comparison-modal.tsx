@@ -106,11 +106,11 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white overflow-hidden" hideCloseIcon>
+      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white/80 backdrop-blur-sm overflow-hidden" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+          className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
           aria-label="Close"
         >
           <X className="w-5 h-5 text-gray-600" />
@@ -119,7 +119,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[90vh]">
           {/* Header Section - Sticky */}
-          <div className="top-0 z-10 bg-white p-8 pb-0">
+          <div className="top-0 z-10 bg-white/80 backdrop-blur-sm p-8 pb-0">
             <h2 className="text-3xl font-bold text-[#171718] mb-2 text-center">
               Plans that fit your scale
             </h2>
@@ -156,7 +156,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             {/* Plan Cards - Grid with aligned columns matching table below */}
             <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
               {/* Empty first column to align with feature names column */}
-              <div className="col-span-1"></div>
+              <div className="col-span-1 pr-4"></div>
               
               {planCards.map((plan) => (
                 <div key={plan.id} className="relative col-span-1">
@@ -184,14 +184,14 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         </div>
                         
                         {plan.hasSeats && (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center">
                             <button 
                               onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
                               className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="px-2 py-1 bg-gray-100 rounded text-sm">{teamSeats} seats</span>
+                            <span className="px-2 py-1 bg-white rounded text-sm whitespace-nowrap">{teamSeats} seats</span>
                             <button 
                               onClick={() => setTeamSeats(teamSeats + 1)}
                               className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
@@ -229,7 +229,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
           </div>
 
           {/* Feature Comparison Table */}
-          <div className="p-8 pt-6">
+          <div className="p-8 pt-0">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <tbody>
@@ -246,18 +246,18 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                       </tr>
                       {/* Feature Rows */}
                       {category.features.map((feature, featureIndex) => (
-                        <tr key={featureIndex} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="p-4 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
-                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                        <tr key={featureIndex} className="border-b border-[#A5A5A5] hover:bg-gray-50">
+                          <td className="p-4 pr-6 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
+                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.starter)}
                           </td>
-                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.creator)}
                           </td>
-                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.team)}
                           </td>
-                          <td className="p-4 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
+                          <td className="py-4 px-6 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
                             {renderCell(feature.enterprise)}
                           </td>
                         </tr>

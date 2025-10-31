@@ -582,7 +582,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                     >
                                       -
                                     </button>
-                                    <span className="text-sm py-1 text-[#4D4D4D] font-medium min-w-[40px] text-center">{teamSeats} seats</span>
+                                    <span className="text-sm py-1 text-[#4D4D4D] font-medium min-w-[60px] text-center whitespace-nowrap">{teamSeats} seats</span>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
