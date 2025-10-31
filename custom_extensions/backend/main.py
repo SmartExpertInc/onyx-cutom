@@ -34300,7 +34300,9 @@ async def stripe_webhook(
                 logger.warning(f"[BILLING] Failed to retrieve subscription, using event object")
 
             # Extract updated plan info - find base tier price (not add-ons)
+            onyx_user_id = None
             plan = None
+            existing_plan = None
             price_id = None
             amount_major = None
             currency = None
