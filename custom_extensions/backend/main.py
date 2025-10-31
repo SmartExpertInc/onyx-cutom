@@ -34259,7 +34259,7 @@ async def stripe_webhook(
             # Track subscription cancellation to Mixpanel
             try:
                 mixpanel_helper.track_to_mp(
-                    onyx_user_id,
+                    user_record['onyx_user_id'],
                     "Subscription Cancelled",
                     {
                         "Plan Type": user_record['current_plan'].capitalize() if user_record else None,
