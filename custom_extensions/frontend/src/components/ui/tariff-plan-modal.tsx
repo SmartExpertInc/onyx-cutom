@@ -416,7 +416,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-2xl p-0 max-h-[93vh] min-w-[830px] bg-white" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-2xl p-0 max-h-[93vh] min-w-[830px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -430,26 +430,28 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <div ref={modalRef} className="h-[93vh] min-h-[600px] max-h-[750px]">
           <div className="container mx-auto px-6 py-4 xl:py-5 xl:px-8">
             <div className="max-w-7xl mx-auto">
-              {/* Header */}
-              <div className="text-center mb-6 xl:mb-8">
-                <div className="flex items-center justify-center mb-2 xl:mb-3">
-                  <div className="flex items-center gap-1">
-                    <div className="w-7 h-7 xl:w-8 xl:h-8 flex items-center justify-center">
-                      <svg width="15" height="19" viewBox="0 0 15 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11.8866 11.7423L9.84952 10.4211C10.111 9.67575 10.052 8.84327 9.67315 8.13678L11.344 6.64409C12.2619 7.2167 13.4851 7.10494 14.2829 6.307C15.2117 5.37826 15.2117 3.87235 14.2829 2.94357C13.3541 2.01479 11.8481 2.01479 10.9194 2.94357C10.1878 3.67523 10.0329 4.76459 10.4537 5.64832L8.78271 7.14124C7.98282 6.58766 6.96245 6.49089 6.08558 6.85206L4.15864 4.20036C4.84987 3.29285 4.78169 1.99171 3.95258 1.16251C3.0484 0.258329 1.58241 0.258329 0.678174 1.16251C-0.226058 2.06674 -0.226058 3.53278 0.678174 4.43697C1.32743 5.08623 2.26606 5.26917 3.07856 4.98626L5.00573 7.6382C4.05407 8.75444 4.10479 10.4324 5.15998 11.4876C5.18025 11.5079 5.20109 11.5268 5.22198 11.5464L3.3549 14.8234C2.57889 14.6399 1.72871 14.8502 1.12351 15.4555C0.194727 16.3843 0.194727 17.8903 1.12351 18.819C2.05229 19.7478 3.55825 19.7478 4.48698 18.819C5.40606 17.9 5.41515 16.4162 4.5152 15.4852L6.38214 12.2086C7.31967 12.4778 8.36792 12.2552 9.12138 11.541L11.1604 12.8632C11.0302 13.4677 11.1994 14.1239 11.6693 14.5937C12.4053 15.3297 13.5983 15.3297 14.3342 14.5937C15.0702 13.8579 15.0702 12.6647 14.3342 11.9288C13.667 11.2618 12.6239 11.1995 11.8866 11.7423ZM1.92925 16.6091C1.88401 16.6603 1.84142 16.7088 1.79965 16.7505C1.7476 16.8025 1.67647 16.8659 1.58821 16.8931C1.47735 16.9274 1.36407 16.8972 1.27724 16.8104C1.05019 16.5834 1.13702 16.1539 1.47925 15.8118C1.82158 15.4694 2.25093 15.3826 2.47807 15.6097C2.56486 15.6964 2.59497 15.8098 2.56072 15.9207C2.5335 16.0089 2.47013 16.0803 2.41812 16.1321C2.37635 16.1738 2.32791 16.2164 2.27658 16.2616C2.21734 16.3138 2.15597 16.3677 2.09554 16.428C2.03516 16.4884 1.98135 16.5498 1.92925 16.6091ZM11.2752 3.2996C11.6174 2.95737 12.0468 2.87044 12.2739 3.09754C12.3606 3.18427 12.3908 3.2976 12.3565 3.40856C12.3293 3.49686 12.2659 3.56814 12.2139 3.62009C12.1723 3.66172 12.1238 3.7043 12.0724 3.7495C12.0132 3.8017 11.9519 3.85556 11.8914 3.91593C11.8309 3.97641 11.7771 4.03783 11.7249 4.09711C11.6798 4.14831 11.6371 4.19689 11.5955 4.23857C11.5435 4.29057 11.4722 4.35394 11.3839 4.38121C11.273 4.41542 11.1597 4.3853 11.073 4.29847C10.8461 4.07137 10.9329 3.64179 11.2752 3.2996ZM1.46265 2.28542C1.4185 2.33537 1.37706 2.38257 1.33666 2.42316C1.28609 2.47373 1.21672 2.53535 1.13069 2.56204C1.02274 2.59525 0.912451 2.56599 0.827904 2.48158C0.606853 2.26048 0.691543 1.84232 1.02478 1.50917C1.35798 1.17593 1.77596 1.09134 1.9971 1.31243C2.0816 1.39693 2.11105 1.50727 2.0776 1.61518C2.05091 1.70115 1.98939 1.77052 1.93877 1.821C1.89814 1.86163 1.85094 1.90317 1.80098 1.94699C1.74327 1.99771 1.68351 2.05023 1.62475 2.10904C1.5659 2.1679 1.51332 2.22775 1.46265 2.28542ZM5.5851 7.89522C5.99394 7.48633 6.50674 7.38261 6.77804 7.65385C6.88176 7.75762 6.91778 7.89289 6.87691 8.02544C6.84417 8.13097 6.76857 8.21599 6.70643 8.27818C6.65662 8.32799 6.59867 8.37867 6.53738 8.43272C6.46668 8.49509 6.39341 8.55937 6.32119 8.63155C6.24896 8.70382 6.18464 8.77704 6.1224 8.84789C6.06835 8.90912 6.01749 8.96707 5.96773 9.01679C5.90559 9.07912 5.82057 9.15458 5.71504 9.18722C5.58258 9.22809 5.44726 9.19216 5.3434 9.0884C5.0723 8.81691 5.17626 8.30411 5.5851 7.89522ZM12.2053 12.9549C12.164 12.9961 12.1075 13.0464 12.0377 13.0679C11.9498 13.095 11.8602 13.0712 11.7913 13.0024C11.6113 12.8225 11.6801 12.4822 11.9514 12.211C12.2225 11.9398 12.5627 11.871 12.7427 12.0511C12.8114 12.1197 12.8353 12.2095 12.8082 12.2975C12.7866 12.3675 12.7364 12.4238 12.6952 12.465C12.6622 12.4979 12.6238 12.5317 12.5832 12.5675C12.5363 12.6087 12.4876 12.6516 12.4398 12.6994C12.3919 12.7472 12.3491 12.7958 12.308 12.8429C12.272 12.8836 12.2383 12.9219 12.2053 12.9549Z" fill="#0F58F9"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-blue-600 font-public-sans">ContentBuilder</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Pricing Cards */}
               <div className="bg-white rounded-md p-6 flex flex-col gap-4">
-                <h1 className="text-xl xl:text-2xl font-bold text-[#434343] mb-2 xl:mb-3 sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
-                  <p className="text-blue-700 font-normal text-xs mb-1 font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
+                {/* Header - ContentBuilder Logo and Title */}
+                <div className="text-center mb-4">
+                  <div className="flex items-center justify-center mb-3">
+                    <div className="flex items-center gap-1">
+                      <div className="w-7 h-7 xl:w-8 xl:h-8 flex items-center justify-center">
+                        <svg width="15" height="19" viewBox="0 0 15 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11.8866 11.7423L9.84952 10.4211C10.111 9.67575 10.052 8.84327 9.67315 8.13678L11.344 6.64409C12.2619 7.2167 13.4851 7.10494 14.2829 6.307C15.2117 5.37826 15.2117 3.87235 14.2829 2.94357C13.3541 2.01479 11.8481 2.01479 10.9194 2.94357C10.1878 3.67523 10.0329 4.76459 10.4537 5.64832L8.78271 7.14124C7.98282 6.58766 6.96245 6.49089 6.08558 6.85206L4.15864 4.20036C4.84987 3.29285 4.78169 1.99171 3.95258 1.16251C3.0484 0.258329 1.58241 0.258329 0.678174 1.16251C-0.226058 2.06674 -0.226058 3.53278 0.678174 4.43697C1.32743 5.08623 2.26606 5.26917 3.07856 4.98626L5.00573 7.6382C4.05407 8.75444 4.10479 10.4324 5.15998 11.4876C5.18025 11.5079 5.20109 11.5268 5.22198 11.5464L3.3549 14.8234C2.57889 14.6399 1.72871 14.8502 1.12351 15.4555C0.194727 16.3843 0.194727 17.8903 1.12351 18.819C2.05229 19.7478 3.55825 19.7478 4.48698 18.819C5.40606 17.9 5.41515 16.4162 4.5152 15.4852L6.38214 12.2086C7.31967 12.4778 8.36792 12.2552 9.12138 11.541L11.1604 12.8632C11.0302 13.4677 11.1994 14.1239 11.6693 14.5937C12.4053 15.3297 13.5983 15.3297 14.3342 14.5937C15.0702 13.8579 15.0702 12.6647 14.3342 11.9288C13.667 11.2618 12.6239 11.1995 11.8866 11.7423ZM1.92925 16.6091C1.88401 16.6603 1.84142 16.7088 1.79965 16.7505C1.7476 16.8025 1.67647 16.8659 1.58821 16.8931C1.47735 16.9274 1.36407 16.8972 1.27724 16.8104C1.05019 16.5834 1.13702 16.1539 1.47925 15.8118C1.82158 15.4694 2.25093 15.3826 2.47807 15.6097C2.56486 15.6964 2.59497 15.8098 2.56072 15.9207C2.5335 16.0089 2.47013 16.0803 2.41812 16.1321C2.37635 16.1738 2.32791 16.2164 2.27658 16.2616C2.21734 16.3138 2.15597 16.3677 2.09554 16.428C2.03516 16.4884 1.98135 16.5498 1.92925 16.6091ZM11.2752 3.2996C11.6174 2.95737 12.0468 2.87044 12.2739 3.09754C12.3606 3.18427 12.3908 3.2976 12.3565 3.40856C12.3293 3.49686 12.2659 3.56814 12.2139 3.62009C12.1723 3.66172 12.1238 3.7043 12.0724 3.7495C12.0132 3.8017 11.9519 3.85556 11.8914 3.91593C11.8309 3.97641 11.7771 4.03783 11.7249 4.09711C11.6798 4.14831 11.6371 4.19689 11.5955 4.23857C11.5435 4.29057 11.4722 4.35394 11.3839 4.38121C11.273 4.41542 11.1597 4.3853 11.073 4.29847C10.8461 4.07137 10.9329 3.64179 11.2752 3.2996ZM1.46265 2.28542C1.4185 2.33537 1.37706 2.38257 1.33666 2.42316C1.28609 2.47373 1.21672 2.53535 1.13069 2.56204C1.02274 2.59525 0.912451 2.56599 0.827904 2.48158C0.606853 2.26048 0.691543 1.84232 1.02478 1.50917C1.35798 1.17593 1.77596 1.09134 1.9971 1.31243C2.0816 1.39693 2.11105 1.50727 2.0776 1.61518C2.05091 1.70115 1.98939 1.77052 1.93877 1.821C1.89814 1.86163 1.85094 1.90317 1.80098 1.94699C1.74327 1.99771 1.68351 2.05023 1.62475 2.10904C1.5659 2.1679 1.51332 2.22775 1.46265 2.28542ZM5.5851 7.89522C5.99394 7.48633 6.50674 7.38261 6.77804 7.65385C6.88176 7.75762 6.91778 7.89289 6.87691 8.02544C6.84417 8.13097 6.76857 8.21599 6.70643 8.27818C6.65662 8.32799 6.59867 8.37867 6.53738 8.43272C6.46668 8.49509 6.39341 8.55937 6.32119 8.63155C6.24896 8.70382 6.18464 8.77704 6.1224 8.84789C6.06835 8.90912 6.01749 8.96707 5.96773 9.01679C5.90559 9.07912 5.82057 9.15458 5.71504 9.18722C5.58258 9.22809 5.44726 9.19216 5.3434 9.0884C5.0723 8.81691 5.17626 8.30411 5.5851 7.89522ZM12.2053 12.9549C12.164 12.9961 12.1075 13.0464 12.0377 13.0679C11.9498 13.095 11.8602 13.0712 11.7913 13.0024C11.6113 12.8225 11.6801 12.4822 11.9514 12.211C12.2225 11.9398 12.5627 11.871 12.7427 12.0511C12.8114 12.1197 12.8353 12.2095 12.8082 12.2975C12.7866 12.3675 12.7364 12.4238 12.6952 12.465C12.6622 12.4979 12.6238 12.5317 12.5832 12.5675C12.5363 12.6087 12.4876 12.6516 12.4398 12.6994C12.3919 12.7472 12.3491 12.7958 12.308 12.8429C12.272 12.8836 12.2383 12.9219 12.2053 12.9549Z" fill="#0F58F9"/>
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-blue-600 font-public-sans">ContentBuilder</span>
+                    </div>
+                  </div>
+                  <h1 className="text-xl xl:text-2xl font-bold text-[#434343] sora-font">{t('tariffPlan.customizeYourSubscription', "Customize your subscription")}</h1>
+                </div>
+
+                {/* Billing Toggle Section */}
+                <div className="flex flex-col items-start gap-2">
+                  <p className="text-blue-700 font-normal text-xs font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
                   {/* Billing Toggle */}
-                  <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
+                  <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200">
                     <button
                       onClick={() => setBillingCycle('monthly')}
                       className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
@@ -471,6 +473,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       {t('tariffPlan.billYearly', 'Yearly')}
                     </button>
                   </div>
+                </div>
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
                 {plans.map((plan) => (
                     <div key={plan.id} className="relative flex flex-col">
@@ -508,30 +511,30 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                 {getPrice(plan)}
                               </span>
                               {plan.price > 0 && plan.id !== 'business' && (
-                                <span className="text-sm font-public-sans font-normal">
+                                <span className="text-sm font-public-sans text-[#878787] font-normal">
                                   /{billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.month', 'month')}
                                 </span>
                               )}
                               {plan.id === 'business' && (
                                 <>
                                   <span className="text-sm font-public-sans font-normal">/seat/month</span>
-                                  <div className="ml-2 flex items-center gap-1 border border-[#E0E0E0] rounded-md py-1">
+                                  <div className="ml-2 flex items-center gap-1 border border-[#E0E0E0] rounded-md">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setTeamSeats(Math.max(2, teamSeats - 1));
                                       }}
-                                      className="w-5 h-5 flex items-center justify-center border border-[#E0E0E0] text-[#4D4D4D] rounded-l-md text-xs font-bold"
+                                      className="w-5 h-5 py-1 flex items-center justify-center border-r border-[#E0E0E0] text-[#4D4D4D] rounded-l-md text-xs font-bold"
                                     >
                                       -
                                     </button>
-                                    <span className="text-sm text-[#4D4D4D] font-medium min-w-[40px] text-center">{teamSeats} seats</span>
+                                    <span className="text-sm py-1 text-[#4D4D4D] font-medium min-w-[40px] text-center">{teamSeats} seats</span>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setTeamSeats(teamSeats + 1);
                                       }}
-                                      className="w-5 h-5 flex items-center justify-center border border-[#E0E0E0] text-[#4D4D4D] rounded-r-md text-xs font-bold"
+                                      className="w-5 h-5 flex py-1 items-center justify-center border-l border-[#E0E0E0] text-[#4D4D4D] rounded-r-md text-xs font-bold"
                                     >
                                       +
                                     </button>
