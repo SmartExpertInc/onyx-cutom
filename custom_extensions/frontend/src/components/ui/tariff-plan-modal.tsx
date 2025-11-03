@@ -8,7 +8,7 @@ import ContactSalesModal from '@/components/ui/contact-sales-modal';
 import PlanComparisonModal from '@/components/ui/plan-comparison-modal';
 
 const CoinsIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg width="27" height="27" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+  <svg width="10" height="10" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
   <mask id="mask0_600_36680" style={{maskType: 'luminance'}} maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
   <path d="M0.125 0.125002H24.875V24.875H0.125V0.125002Z" fill="white"/>
   </mask>
@@ -480,10 +480,10 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
             }
           `}</style>
           <div ref={modalRef} className="h-[90vh] min-h-[600px] max-h-[750px]">
-          <div className="container mx-auto px-4 py-4 xl:py-5 xl:px-4">
+          <div className="container mx-auto px-4 py-4 xl:py-8 xl:px-4">
             <div className="max-w-8xl mx-auto">
               {/* Header - ContentBuilder Logo and Title - Outside White Box */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-10">
                 <div className="flex items-center justify-center mb-3">
                   <div className="flex items-center gap-1">
                     <div className="w-7 h-7 xl:w-8 xl:h-8 flex items-center justify-center">
@@ -832,17 +832,17 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     );
                     
                     return (
-                    <div key={addOn.id} className="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all p-5">
+                    <div key={addOn.id} className="bg-white rounded-lg border border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all p-5">
                       {/* Header Section - Icon and Title */}
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-600">
+                      <div className="flex items-start gap-1 mb-1">
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-600">
                           <IconComponent className="w-4 h-4" />
                         </div>
                           <h3 className="text-lg font-semibold text-[#333333] leading-tight mb-1">
                             {addOn.name}
                           </h3>
                         </div>
-                      <p className="text-xs text-[#878787] font-light leading-relaxed">
+                      <p className="text-xs text-[#878787] mb-3 font-light leading-relaxed">
                         {addOn.description}
                       </p>
                       {/* Amount Info */}
@@ -872,7 +872,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                               }))}
                               className="px-2 py-0 text-[#333333] hover:bg-gray-50 border-r border-[#D0D0D0] font-bold"
                             >
-                              -
+                              <Minus className="w-4 h-4" />
                             </button>
                             <div className="px-2 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
                               {creditQuantities[addOn.id]}
@@ -884,14 +884,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                               }))}
                               className="px-2 text-[#333333] hover:bg-gray-50 border-l border-[#D0D0D0] font-bold"
                             >
-                              +
+                              <Plus className="w-4 h-4" />
                             </button>
                           </div>
                       </div>
                       
                       {/* Buy Now Button */}
                       <button
-                        className='w-full py-2.5 rounded-lg font-semibold text-sm transition-all bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#8BB4FF] shadow-sm'
+                        className='w-full py-2.5 rounded-full font-semibold text-sm transition-all bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#8BB4FF] shadow-sm'
                       >
                            {t('addOns.buyNow', 'Buy now')}
                       </button>
