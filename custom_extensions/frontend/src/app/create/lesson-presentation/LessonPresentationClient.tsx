@@ -951,6 +951,17 @@ export default function LessonPresentationClient() {
   useEffect(() => {
     if (!streamDone) return;
     if (jsonConvertedRef.current) return;
+    
+    // Check if content looks like JSON (starts with {)
+    const looksLikeJson = content.trim().startsWith("{");
+    
+    // CRITICAL: Store original JSON response even if parsing fails (for recovery in backend)
+    // This ensures we can send the raw JSON to backend even if it's truncated
+    if (looksLikeJson && !originalJsonResponse) {
+      console.log(`[ORIGINAL_JSON_STORE] Storing original JSON response (${content.length} chars) for finalization`);
+      setOriginalJsonResponse(content);
+    }
+    
     const json = tryParsePresentationJson(content);
     if (json) {
       // 🔍 CRITICAL DEBUG: Log the raw AI response from API before conversion
@@ -1006,12 +1017,16 @@ export default function LessonPresentationClient() {
         }
       } catch (e) {
         console.error("🔍 [AI_API_RESPONSE] Failed to parse JSON:", e);
+        console.warn("🔍 [AI_API_RESPONSE] JSON may be truncated, but originalJsonResponse is stored for backend recovery");
       }
       
       const md = convertPresentationJsonToMarkdown(json);
       if (md && md.trim()) {
         jsonConvertedRef.current = true;
-        setOriginalJsonResponse(content); // Store original JSON for finalization
+        // Ensure originalJsonResponse is set (may have been set above if looksLikeJson)
+        if (!originalJsonResponse) {
+          setOriginalJsonResponse(content);
+        }
         setContent(md);
         // Initialize editable state from full JSON
         try {
@@ -1029,8 +1044,12 @@ export default function LessonPresentationClient() {
           }
         } catch {}
       }
+    } else if (looksLikeJson) {
+      // JSON detected but parsing failed - might be truncated
+      // originalJsonResponse is already set above, so backend can attempt recovery
+      console.warn("[JSON_CONVERSION] JSON detected but parsing failed, storing raw content for backend recovery");
     }
-  }, [streamDone, content]);
+  }, [streamDone, content, originalJsonResponse]);
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {

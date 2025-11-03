@@ -14500,8 +14500,34 @@ Return ONLY the JSON object.
                                 if last_slide_end > 0:
                                     # Try to reconstruct JSON by closing arrays/objects
                                     partial_json = cleaned_json[:last_slide_end + 1]
+                                    
+                                    # Remove any trailing incomplete field (e.g., "description": or "description": "incomplete)
+                                    # Look for the last complete field before the closing brace
+                                    # Find the last complete key-value pair
+                                    last_comma = partial_json.rfind(',', 0, last_slide_end)
+                                    if last_comma > 0:
+                                        # Check if there's an incomplete field after the last comma
+                                        after_comma = partial_json[last_comma + 1:last_slide_end].strip()
+                                        # If after comma looks like start of a field but incomplete, remove it
+                                        if after_comma and (':' in after_comma or after_comma.startswith('"')):
+                                            # Check if the field is complete (has a value)
+                                            if ':' in after_comma:
+                                                field_parts = after_comma.split(':', 1)
+                                                if len(field_parts) == 2:
+                                                    value = field_parts[1].strip()
+                                                    # If value is incomplete (starts with quote but doesn't end, or empty)
+                                                    if (value.startswith('"') and not value.endswith('"')) or value == '':
+                                                        # Remove the incomplete field by truncating at the last comma
+                                                        partial_json = partial_json[:last_comma]
+                                                        # Find the new last slide end
+                                                        last_slide_end = partial_json.rfind('}', 0, len(partial_json))
+                                                        if last_slide_end < 0:
+                                                            # No closing brace found, this is a problem
+                                                            raise ValueError("Cannot reconstruct valid slide structure")
+                                                        partial_json = partial_json[:last_slide_end + 1]
+                                    
                                     # Check if we're inside the slides array (look for "slides": [ before this position)
-                                    slides_array_start = cleaned_json.find('"slides": [', 0, last_slide_end)
+                                    slides_array_start = cleaned_json.find('"slides": [', 0, min(len(partial_json), last_slide_end + 1))
                                     if slides_array_start >= 0:
                                         # We're inside the slides array, need to:
                                         # 1. Close the current slide's object (already done by last_slide_end)
@@ -14527,6 +14553,7 @@ Return ONLY the JSON object.
                                             partial_json += '}'
                                     
                                     logger.info(f"[FAST_PATH_RECOVERY] Attempting to parse fixed JSON (length: {len(partial_json)})...")
+                                    logger.info(f"[FAST_PATH_RECOVERY] Last 200 chars of fixed JSON: {partial_json[-200:]}")
                                     fixed_cached = json.loads(partial_json)
                                     if isinstance(fixed_cached, dict) and "slides" in fixed_cached:
                                         logger.info(f"[FAST_PATH_RECOVERY] Successfully fixed JSON! Found {len(fixed_cached.get('slides', []))} slides")
