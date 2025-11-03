@@ -88,7 +88,9 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
   const leftImageStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',
-    objectFit: 'cover'
+    objectFit: 'cover',
+    position: 'relative',
+    zIndex: 1
   };
 
   // Small image in top-right corner of left image
@@ -101,7 +103,8 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
     borderRadius: '8px',
     overflow: 'hidden',
     border: '3px solid #FFFFFF',
-    zIndex: 10
+    zIndex: 20,
+    backgroundColor: '#FFFFFF'
   };
 
   const leftTopImageStyle: React.CSSProperties = {
