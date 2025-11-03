@@ -80,6 +80,8 @@ import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
 import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
 import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
 import TopicsSlideTemplate from './TopicsSlideTemplate';
+import ImpactValueStatsSlideTemplate from './ImpactValueStatsSlideTemplate';
+import PersonalAccountabilitySlideTemplate from './PersonalAccountabilitySlideTemplate';
 
 
 
@@ -2941,6 +2943,58 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       actorImagePath: { type: 'image', label: 'Actor Image' }
     }
   },
+
+  'impact-value-stats-slide': {
+    id: 'impact-value-stats-slide',
+    name: 'Impact Value Stats',
+    description: 'Blue header with avatar, three statistics cards with percentages',
+    category: 'content',
+    icon: '📊',
+    component: ImpactValueStatsSlideTemplate,
+    defaultProps: {
+      title: 'Impact Value',
+      subtitle: 'Statistics for effective critical thinking and problem-solving skills',
+      stats: [
+        { percentage: '20%', description: 'Statistics for effective critical thinking and problem-solving skills' },
+        { percentage: '35%', description: 'Increase in innovation and problem-solving capabilities.' },
+        { percentage: '60%', description: 'Likelihood of being promoted to leadership positions.' }
+      ],
+      avatarPath: '',
+      logoPath: '',
+      pageNumber: '17'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: true },
+      stats: { type: 'array', label: 'Statistics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  },
+
+  'personal-accountability-slide': {
+    id: 'personal-accountability-slide',
+    name: 'Personal Accountability',
+    description: 'Two-column layout with text on light purple background and avatar on blue background',
+    category: 'content',
+    icon: '👤',
+    component: PersonalAccountabilitySlideTemplate,
+    defaultProps: {
+      title: 'Personal Accountability and Responsibility',
+      subtitle: 'Empower individuals to take ownership of their actions and outcomes',
+      avatarPath: '',
+      logoPath: '',
+      pageNumber: '10'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  }
 
   
 };
