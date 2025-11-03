@@ -59,7 +59,6 @@ export default function AvatarPopup({
   position
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
-  const [activeButton, setActiveButton] = useState<string>('button1');
   const [selectedFilters, setSelectedFilters] = useState({
     gender: 'View All',
     age: null as string | null,
@@ -291,40 +290,22 @@ export default function AvatarPopup({
   const content = (
     <div className="flex h-full">
           {/* Left sidebar */}
-          <div className="w-64 bg-white px-6 py-4 flex flex-col">
-                    {/* Three buttons at the top */}
-        <div className="mb-4 flex justify-center">
-                        <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1 py-1" style={{ width: 'fit-content', height: '36px' }}>
-                <button 
-                  onClick={() => setActiveButton('button1')}
-                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
-                    activeButton === 'button1' 
-                      ? 'bg-gray-200 text-black' 
-                      : 'bg-white text-gray-600'
-                  }`}
-                >
-                  All
-                </button>
-                <button 
-                  onClick={() => setActiveButton('button2')}
-                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
-                    activeButton === 'button2' 
-                      ? 'bg-gray-200 text-black' 
-                      : 'bg-white text-gray-600'
-                  }`}
-                >
-                  Custom
-                </button>
-                <button 
-                  onClick={() => setActiveButton('button3')}
-                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
-                    activeButton === 'button3' 
-                      ? 'bg-gray-200 text-black' 
-                      : 'bg-white text-gray-600'
-                  }`}
-                >
-                  Stock
-                </button>
+          <div className="w-64 bg-white px-6 py-4 flex flex-col" style={{ border: '1px solid #E0E0E0' }}>
+            {/* Search bar at the top */}
+            <div className="mb-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  {/* Black magnifying glass icon */}
+                  <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className="w-full pl-10 pr-4 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
+                  style={{ height: '36px' }}
+                />
               </div>
             </div>
 
@@ -440,37 +421,10 @@ export default function AvatarPopup({
             )}
           </div>
 
-          {/* Vertical divider */}
-          <div className="w-px bg-gray-200"></div>
-
       {/* Right main area */}
       <div className="flex flex-col p-4 flex-1">
           {/* Avatar grid - always show */}
           <>
-            {/* Search bar and create button - fixed at top */}
-            <div className="flex items-center gap-4 mb-6 flex-shrink-0">
-              {/* Search bar */}
-              <div className="flex-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  {/* Black magnifying glass icon */}
-                  <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="w-full pl-10 pr-4 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
-                  style={{ height: '36px' }}
-                />
-              </div>
-              
-              {/* Create button */}
-              <button className="px-3 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium text-sm" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', height: '36px' }}>
-                + Create
-              </button>
-            </div>
-
             {/* Scrollable content area */}
             <div className="flex-1 overflow-y-auto pb-4">
               {/* Avatar rectangles grid */}
@@ -479,8 +433,9 @@ export default function AvatarPopup({
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                        className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden"
+                      className="relative w-full h-24 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden p-2"
                       onClick={() => handleAvatarClick(avatar)}
+                      style={{ border: '1px solid #E0E0E0' }}
                       >
                         {avatar.thumbnail ? (
                           <img 
@@ -506,14 +461,6 @@ export default function AvatarPopup({
                               <div className="text-gray-300">{avatar.selectedVariant.name}</div>
                             )}
                           </div>
-                        </div>
-                        
-                        {/* Click indicator */}
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <svg className="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
                         </div>
                       </div>
                       
