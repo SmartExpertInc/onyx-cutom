@@ -11,7 +11,6 @@ export interface PersonalAccountabilityProps extends BaseTemplateProps {
   content: string;
   leftImagePath?: string;
   leftTopImagePath?: string;
-  avatarImagePath?: string;
   bottomImagePath?: string;
   logoPath?: string;
   pageNumber?: string;
@@ -21,7 +20,6 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   content = 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
   leftImagePath = '',
   leftTopImagePath = '',
-  avatarImagePath = '',
   bottomImagePath = '',
   logoPath = '',
   pageNumber = '09',
@@ -76,13 +74,14 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     zIndex: 20
   };
 
-  // Left section container
+  // Left section container - clipped/cropped
   const leftSectionContainer: React.CSSProperties = {
     width: '100%',
     height: '100%',
     position: 'relative',
-    borderRadius: '8px',
-    overflow: 'hidden'
+    borderRadius: '16px',
+    overflow: 'hidden',
+    clipPath: 'polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%)'
   };
 
   // Left image style
@@ -106,21 +105,6 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   };
 
   const leftTopImageStyle: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  };
-
-  // Avatar image container (top right)
-  const avatarContainer: React.CSSProperties = {
-    width: '120px',
-    height: '120px',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    flexShrink: 0
-  };
-
-  const avatarImageStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',
     objectFit: 'cover'
@@ -231,18 +215,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
 
       {/* Right Section - Content */}
       <div style={rightSection}>
-        {/* Top - Avatar Image */}
-        <div style={avatarContainer}>
-          <ClickableImagePlaceholder
-            imagePath={avatarImagePath}
-            onImageUploaded={(path) => onUpdate && onUpdate({ avatarImagePath: path })}
-            description="Avatar image" 
-            isEditable={isEditable} 
-            style={avatarImageStyle} 
-          />
-        </div>
-
-        {/* Middle - Content Text */}
+        {/* Content Text */}
         <div style={contentStyle} onClick={() => isEditable && setEditKey('content')}>
           {isEditable && editKey === 'content' ? (
             <ImprovedInlineEditor 
