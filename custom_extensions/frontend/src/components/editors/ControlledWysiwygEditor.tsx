@@ -153,13 +153,13 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           const computedStyles = window.getComputedStyle(containerEl);
           
           const extractedStyles: ComputedStyles = {
-            fontSize: computedStyles.fontSize,
-            fontFamily: computedStyles.fontFamily,
-            fontWeight: computedStyles.fontWeight as any,
-            color: computedStyles.color,
-            textAlign: computedStyles.textAlign,
-            lineHeight: computedStyles.lineHeight,
-            letterSpacing: (computedStyles as any).letterSpacing,
+            fontSize: (style as any)?.fontSize || computedStyles.fontSize,
+            fontFamily: (style as any)?.fontFamily || computedStyles.fontFamily,
+            fontWeight: (style as any)?.fontWeight as any || (computedStyles.fontWeight as any),
+            color: (style as any)?.color || computedStyles.color,
+            textAlign: (style as any)?.textAlign || computedStyles.textAlign,
+            lineHeight: (style as any)?.lineHeight || computedStyles.lineHeight,
+            letterSpacing: (style as any)?.letterSpacing || (computedStyles as any).letterSpacing,
           };
           
           // Apply computed styles directly to the editor DOM to ensure identical appearance
@@ -186,10 +186,13 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           // If no inline fontSize exists, apply computed fontSize to all content
           if (!hasExistingFontSize && extractedStyles.fontSize) {
             try {
+              const normalizedFontSize = typeof extractedStyles.fontSize === 'string' && /px|em|rem|%/.test(extractedStyles.fontSize)
+                ? extractedStyles.fontSize
+                : `${extractedStyles.fontSize}`;
               editor.chain()
                 .selectAll()
                 .setMark('textStyle', { 
-                  fontSize: extractedStyles.fontSize,
+                  fontSize: normalizedFontSize,
                   fontFamily: extractedStyles.fontFamily 
                 })
                 .run();
