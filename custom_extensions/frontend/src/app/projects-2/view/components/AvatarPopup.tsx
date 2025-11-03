@@ -332,7 +332,7 @@ export default function AvatarPopup({
                 <input
                   type="text"
                   placeholder="Search"
-                  className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
+                  className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
@@ -346,7 +346,7 @@ export default function AvatarPopup({
                   <button
                     type="button"
                     onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
-                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-[#878787] bg-white focus:outline-none focus:border-black text-left flex items-center justify-between"
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-[#878787] bg-white focus:outline-none text-left flex items-center justify-between"
                   >
                     <span>{selectedFilters.gender}</span>
                     <svg 
@@ -394,7 +394,7 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.age.includes(age)}
                         onChange={() => handleCheckboxChange('age', age)}
-                        className="mr-2 w-4 h-4 rounded-md border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        className="mr-2 w-4 h-4 rounded-md border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
                           backgroundImage: selectedFilters.age.includes(age) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
@@ -419,7 +419,7 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.ethnicity.includes(ethnicity)}
                         onChange={() => handleCheckboxChange('ethnicity', ethnicity)}
-                        className="mr-2 w-4 h-4 rounded-md border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        className="mr-2 w-4 h-4 rounded-md border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
                           backgroundImage: selectedFilters.ethnicity.includes(ethnicity) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
@@ -444,7 +444,7 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.look.includes(look)}
                         onChange={() => handleCheckboxChange('look', look)}
-                        className="mr-2 w-4 h-4 rounded-md border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        className="mr-2 w-4 h-4 rounded-md border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
                           backgroundImage: selectedFilters.look.includes(look) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
@@ -462,7 +462,7 @@ export default function AvatarPopup({
           </div>
 
       {/* Right main area */}
-      <div className="flex flex-col px-3 flex-1">
+      <div className="flex flex-col px-4 flex-1">
           {/* Avatar grid - always show */}
           <>
             {/* Scrollable content area */}
@@ -473,7 +473,7 @@ export default function AvatarPopup({
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                      className="relative w-full h-[116px] rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center border border-[#E0E0E0]"
+                      className="relative w-full h-[136px] rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center border border-[#E0E0E0]"
                       onClick={() => handleAvatarClick(avatar)}
                       >
                         {avatar.thumbnail ? (
@@ -528,7 +528,7 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[480px] max-w-[860px] rounded-md overflow-hidden ${className}`}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[500px] max-w-[880px] rounded-md overflow-hidden ${className}`}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -542,7 +542,7 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[860px] h-[480px] rounded-md overflow-hidden ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[880px] h-[500px] rounded-md overflow-hidden ${className}`} 
         style={{
           left: position?.x || 0,
           top: position?.y || 0
