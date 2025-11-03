@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import YourLogo from '../YourLogo';
 
@@ -314,19 +315,17 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
             alignSelf: 'flex-start',
             position: 'absolute',
             bottom: '60px',
-            backgroundColor: '#0F58F9'
+            backgroundColor: '#FFFFFF'
           }}>
-            <ClickableImagePlaceholder
-              imagePath={profileImagePath}
-              onImageUploaded={handleProfileImageUploaded}
-              size="LARGE"
+            <AvatarImageDisplay
+              size="MEDIUM"
               position="CENTER"
-              description="Profile photo"
-              isEditable={isEditable}
               style={{
-                width: '100%',
-                height: '100%',
+                width: '88%',
+                height: '135%',
                 borderRadius: '50%',
+                position: 'relative',
+                bottom: '0px',
                 objectFit: 'cover'
               }}
             />

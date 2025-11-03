@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CriticalThinkingSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
@@ -313,7 +314,7 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
 
       {/* Content Block - contains everything except logo */}
       <div style={contentBlockStyles}>
-        {/* Profile Image - Top Left with orange background */}
+        {/* Profile Image - Top Left circular avatar */}
         <div style={{
           position: 'absolute',
           top: '33px',
@@ -321,26 +322,22 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
           width: '155px',
           height: '155px',
           borderRadius: '50%',
-          backgroundColor: '#0F58F9', // Orange background as per screenshot
+          backgroundColor: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Profile"
-            isEditable={isEditable}
             style={{
-              height: '146%',
+              width: '88%',
+              height: '135%',
               borderRadius: '50%',
-              position: 'absolute',
-              bottom: '-92px',
-              objectFit: 'cover',
-              overflow: 'hidden'
+              position: 'relative',
+              bottom: '0px',
+              objectFit: 'cover'
             }}
           />
         </div>

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PhishingDefinitionSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import { ControlledWysiwygEditor } from '../editors/ControlledWysiwygEditor';
@@ -351,13 +352,9 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
           overflow: 'hidden',
           backgroundColor: '#ffffff'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
+          <AvatarImageDisplay
             size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
               width: '88%',
               height: '135%',

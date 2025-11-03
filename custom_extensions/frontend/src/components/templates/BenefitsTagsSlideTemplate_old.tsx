@@ -5,6 +5,7 @@ import { BenefitsTagsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import SimpleRichTextEditor from '../SimpleRichTextEditor';
 
@@ -230,7 +231,7 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
 
       {/* Tags Block - contains everything except logo */}
       <div style={tagsBlockStyles}>
-        {/* Profile image with orange background */}
+        {/* Profile image with circular mask */}
         <div style={{
           width: '165px',
           height: '165px',
@@ -239,19 +240,18 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
           position: 'absolute',
           left: '50px',
           top: '100px',
-          background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
+          background: '#FFFFFF',
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
-              height: '147%',
+              width: '88%',
+              height: '135%',
               borderRadius: '50%',
-              objectFit: 'cover',
+              position: 'relative',
+              bottom: '0px',
+              objectFit: 'cover'
             }}
           />
         </div>
