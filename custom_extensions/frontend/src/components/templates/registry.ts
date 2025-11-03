@@ -2914,6 +2914,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       section2Title: { type: 'text', label: 'Section 2 Title', required: true },
       section2Lines: { type: 'array', label: 'Section 2 Lines', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: right: 60px, top: 75px, width: 230px, height: 230px, border-radius: 50%
+      // Calculated X: 1920 - 60 - 230 = 1630px
+      x: 1630,      // ✅ Measured: 1630px (calculated from right: 60px)
+      y: 75,        // ✅ Measured: 75px (matches CSS top: 75px)
+      width: 230,   // ✅ Measured: 230px (perfect square for circle)
+      height: 230,  // ✅ Measured: 230px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#ffffff' // White background
     }
   }
   ,
