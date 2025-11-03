@@ -36,10 +36,69 @@ const VideoLessonDisplay = ({
   const [selectedFilter, setSelectedFilter] = useState<'All' | 'Assigned to me' | 'New'>('All');
   const [commentText, setCommentText] = useState('');
   const filterDropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Video playback state
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   const handleDraftClick = () => {
     if (productId) {
       router.push(`/projects-2/view/${productId}`);
+    }
+  };
+
+  // Retry function for failed video loads
+  const retryVideoLoad = () => {
+    if (retryCount < 3) {
+      setRetryCount(prev => prev + 1);
+      setVideoError(null);
+      console.log(`🎬 [VIDEO_PLAYER] Retrying video load (attempt ${retryCount + 1}/3)`);
+    } else {
+      setVideoError('Video failed to load after multiple attempts. Please refresh the page.');
+    }
+  };
+
+  // Download/Export video function
+  const handleDownload = async () => {
+    try {
+      // Check if videoUrl exists
+      const videoUrl = (dataToDisplay as any)?.videoUrl;
+      if (!videoUrl) {
+        throw new Error('Video URL is not available');
+      }
+      
+      // Construct full URL for video download
+      const fullVideoUrl = videoUrl.startsWith('http') 
+        ? videoUrl 
+        : `${CUSTOM_BACKEND_URL}${videoUrl}`;
+      
+      const response = await fetch(fullVideoUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'video/mp4',
+        },
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `video_lesson_${productId || 'download'}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download failed. Please try again.');
     }
   };
 
@@ -98,12 +157,107 @@ const VideoLessonDisplay = ({
         <div className="grid grid-cols-12 gap-4">
           {/* Video lesson section - 8 columns */}
           <div 
-            className="col-span-8 flex items-center justify-center rounded-lg bg-gray-900 border border-gray-700 shadow-lg"
+            className="col-span-8 rounded-lg overflow-hidden relative"
             style={{ 
               aspectRatio: '16 / 9'
             }}
           >
-            <p className="text-gray-400 text-lg">Video lesson area</p>
+            {(dataToDisplay as any)?.videoUrl ? (
+              <video
+                key={`${(dataToDisplay as any)?.videoUrl}-${retryCount}`}
+                className="w-full h-full object-contain bg-black"
+                controls
+                preload="metadata"
+                playsInline
+                crossOrigin="anonymous"
+                poster={(dataToDisplay as any)?.thumbnailUrl ? 
+                  ((dataToDisplay as any)?.thumbnailUrl.startsWith('http') 
+                    ? (dataToDisplay as any)?.thumbnailUrl 
+                    : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.thumbnailUrl}`) 
+                  : undefined}
+                onPlay={() => setIsVideoPlaying(true)}
+                onPause={() => setIsVideoPlaying(false)}
+                onLoadedData={() => console.log('🎬 [VIDEO_PLAYER] Video data loaded successfully')}
+                onCanPlay={() => console.log('🎬 [VIDEO_PLAYER] Video can start playing')}
+                onError={(e) => {
+                  console.error('🎬 [VIDEO_PLAYER] Video error:', e);
+                  console.error('🎬 [VIDEO_PLAYER] Video error details:', {
+                    error: e.nativeEvent,
+                    target: e.target,
+                    videoUrl: (dataToDisplay as any)?.videoUrl,
+                    fullUrl: (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                      ? (dataToDisplay as any)?.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
+                  });
+                  setVideoError('Failed to load video. Please check the video file.');
+                }}
+                onAbort={() => {
+                  console.log('🎬 [VIDEO_PLAYER] Video loading aborted');
+                  setVideoError('Video loading was interrupted');
+                }}
+                onStalled={() => {
+                  console.log('🎬 [VIDEO_PLAYER] Video loading stalled');
+                  setVideoError('Video loading stalled. Please try again.');
+                }}
+                onLoadStart={() => console.log('🎬 [VIDEO_PLAYER] Video loading started')}
+                onLoadedMetadata={() => console.log('🎬 [VIDEO_PLAYER] Video metadata loaded')}
+              >
+                <source 
+                  src={
+                    (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                      ? (dataToDisplay as any)?.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
+                  } 
+                  type="video/mp4" 
+                  onError={(e) => {
+                    console.error('🎬 [VIDEO_PLAYER] MP4 source error:', e);
+                    setVideoError('MP4 video source failed to load');
+                  }}
+                />
+                <source 
+                  src={
+                    (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                      ? (dataToDisplay as any)?.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
+                  } 
+                  type="video/webm" 
+                  onError={(e) => {
+                    console.error('🎬 [VIDEO_PLAYER] WebM source error:', e);
+                  }}
+                />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-900 border border-gray-700 shadow-lg">
+                <span className="text-gray-400 text-lg">No video available</span>
+              </div>
+            )}
+            
+            {/* Error Display */}
+            {videoError && (
+              <div className="absolute inset-0 bg-red-900 bg-opacity-75 flex items-center justify-center">
+                <div className="text-white text-center">
+                  <p className="text-lg font-semibold">Video Error</p>
+                  <p className="text-sm">{videoError}</p>
+                  <div className="mt-4 space-x-2">
+                    {retryCount < 3 && (
+                      <button 
+                        onClick={retryVideoLoad}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+                      >
+                        Retry ({retryCount}/3)
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => setVideoError(null)}
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Comments section - 4 columns */}
@@ -317,6 +471,7 @@ const VideoLessonDisplay = ({
                   Share
                 </button>
                 <button
+                  onClick={handleDownload}
                   className="px-3 py-2 rounded-md bg-[#0F58F9] text-white hover:bg-[#0d4dd4] transition-colors flex items-center gap-2 text-sm cursor-pointer"
                   style={{ height: '40px' }}
                 >
