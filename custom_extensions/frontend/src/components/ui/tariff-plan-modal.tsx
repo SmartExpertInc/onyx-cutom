@@ -870,11 +870,11 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                 ...prev,
                                 [addOn.id]: Math.max(1, prev[addOn.id] - 1)
                               }))}
-                              className="px-2 py-0 text-[#333333] hover:bg-gray-50 border-r border-[#D0D0D0] font-bold"
+                              className="px-1 py-0 text-[#333333] hover:bg-gray-50 border-r border-[#D0D0D0] font-bold"
                             >
-                              <Minus className="w-4 h-4" />
+                              <Minus className="w-3 h-3" />
                             </button>
-                            <div className="px-2 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
+                            <div className="px-1 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
                               {creditQuantities[addOn.id]}
                           </div>
                             <button
@@ -882,9 +882,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                                 ...prev,
                                 [addOn.id]: prev[addOn.id] + 1
                               }))}
-                              className="px-2 text-[#333333] hover:bg-gray-50 border-l border-[#D0D0D0] font-bold"
+                              className="px-1 text-[#333333] hover:bg-gray-50 border-l border-[#D0D0D0] font-bold"
                             >
-                              <Plus className="w-4 h-4" />
+                              <Plus className="w-3 h-3" />
                             </button>
                           </div>
                       </div>

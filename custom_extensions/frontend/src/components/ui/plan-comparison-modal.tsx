@@ -294,7 +294,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                           </div>
                         </div>
                         
-                        <p className="text-xs text-[#A5A5A5] mb-3 min-h-[40px]">{plan.billing}</p>
+                        <p className="text-xs text-[#A5A5A5] min-h-[40px]">{plan.billing}</p>
                         
                         <div className="flex items-center gap-2 mb-4 min-h-[47px]">
                           <div className="flex-1">
@@ -324,11 +324,11 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         </button>
 
                         {/* Feature List Inside Card */}
-                        <div className="pt-3">
+                        <div className="pt-3 px-10">
                           {features.map((item, idx) => (
                             <div 
                               key={idx} 
-                              className={`flex items-center text-xs justify-center px-8 border-b border-[#A5A5A5] last:border-b-0 first:border-t-0 text-[#4D4D4D] ${
+                              className={`flex items-center text-xs justify-center border-b border-[#A5A5A5] last:border-b-0 first:border-t-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
                             >
@@ -348,19 +348,19 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[790px] pointer-events-none z-0">
+            <div className="relative -mt-[785px] z-0">
               {featureData.map((category, categoryIndex) => {
                 const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
                 return (
-                  <div key={categoryIndex} className="relative group">
+                  <div key={categoryIndex} className="relative group pointer-events-auto">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[5]" 
-                      style={{ height: `${categoryHeight}px` }}
+                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 pointer-events-none"
+                      style={{ height: `${categoryHeight}px`, zIndex: 5 }}
                     ></div>
                     
-                    <div className="grid gap-4 relative z-10" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
-                      <div className="pr-4 pointer-events-auto cursor-pointer">
+                    <div className="grid gap-4 relative" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 10 }}>
+                      <div className="pr-4 cursor-pointer">
                         {/* Category Header */}
                         <div className="h-[48px]">
                           <h4 className="text-base py-2 font-bold text-[#171718]">{category.category}</h4>
