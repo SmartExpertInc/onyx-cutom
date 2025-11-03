@@ -2114,6 +2114,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' },
       companyLogoAlt: { type: 'text', label: 'Company Logo Alt Text' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile-image is inside content-block (top: 128px, left: 24px)
+      // CSS relative to content-block: top: 52.8px, left: 112px
+      // Absolute position: X = 24 + 112 = 136px, Y = 128 + 52.8 = 181px
+      x: 136,       // ✅ Measured: 136px (content-block left 24px + profile left 112px)
+      y: 181,       // ✅ Measured: 181px (content-block top 128px + profile top 52.8px)
+      width: 248,   // ✅ Measured: 248px (perfect square for circle)
+      height: 248,  // ✅ Measured: 248px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0F58F9' // Blue background (matches template style)
     }
   },
 
