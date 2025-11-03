@@ -169,6 +169,20 @@ export const BenefitsListSlideTemplate_old: React.FC<BenefitsListSlideProps & {
 
   return (
     <div className="benefits-list-slide-template inter-theme" style={slideStyles}>
+      {/* DEBUG: Massive red circle to identify v1 slide */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        width: '300px',
+        height: '300px',
+        borderRadius: '50%',
+        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        pointerEvents: 'none',
+        border: '10px solid red'
+      }} />
       <style>{`
         .benefits-list-slide-template *:not(.title-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
