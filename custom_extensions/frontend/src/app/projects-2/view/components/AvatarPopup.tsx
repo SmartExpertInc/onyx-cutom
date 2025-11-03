@@ -344,7 +344,14 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.age.includes(age)}
                         onChange={() => handleCheckboxChange('age', age)}
-                        className="mr-2 w-4 h-4 rounded border-[#878787] text-black bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        className="mr-2 w-4 h-4 rounded-md border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        style={{
+                          backgroundImage: selectedFilters.age.includes(age) 
+                            ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
+                            : 'none',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
                       />
                       <span className="text-sm text-black">{age}</span>
                     </label>
@@ -362,7 +369,14 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.ethnicity.includes(ethnicity)}
                         onChange={() => handleCheckboxChange('ethnicity', ethnicity)}
-                        className="mr-2 w-4 h-4 rounded border-[#878787] text-black bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        className="mr-2 w-4 h-4 rounded-md border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        style={{
+                          backgroundImage: selectedFilters.ethnicity.includes(ethnicity) 
+                            ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
+                            : 'none',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
                       />
                       <span className="text-sm text-black">{ethnicity}</span>
                     </label>
@@ -380,7 +394,14 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.look.includes(look)}
                         onChange={() => handleCheckboxChange('look', look)}
-                        className="mr-2 w-4 h-4 rounded border-[#878787] text-black bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        className="mr-2 w-4 h-4 rounded-md border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        style={{
+                          backgroundImage: selectedFilters.look.includes(look) 
+                            ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
+                            : 'none',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
                       />
                       <span className="text-sm text-black">{look}</span>
                     </label>
