@@ -140,20 +140,21 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
     }
   }, [isOpen, globalSelectedVoice]);
 
-  // Fetch voices from Elai API
+  // Fetch voices from backend API
   useEffect(() => {
     const fetchVoices = async () => {
       try {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
         console.log('🎤 [VOICE_PICKER] ========== VOICE FETCH STARTED ==========');
-        console.log('🎤 [VOICE_PICKER] Fetching voices from Elai API...');
-        console.log('🎤 [VOICE_PICKER] API Endpoint: https://apis.elai.io/api/v1/voices');
+        console.log('🎤 [VOICE_PICKER] Fetching voices from backend API...');
+        console.log('🎤 [VOICE_PICKER] API Endpoint: ' + `${CUSTOM_BACKEND_URL}/video/voices`);
         
         setLoading(true);
-        const response = await fetch('https://apis.elai.io/api/v1/voices', {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/video/voices`, {
           method: 'GET',
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer 5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e'
+            'accept': 'application/json'
           }
         });
 
@@ -164,7 +165,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           throw new Error(`Failed to fetch voices: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to fetch voices');
+        }
+        
+        const data = result.voices || [];
         console.log('🎤 [VOICE_PICKER] API Response received');
         console.log('🎤 [VOICE_PICKER] Language groups count:', data.length);
         

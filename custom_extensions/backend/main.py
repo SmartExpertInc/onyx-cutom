@@ -35132,6 +35132,32 @@ async def get_avatars():
             "avatars": []
         }
 
+@app.get("/api/custom/video/voices")
+async def get_voices():
+    """Get available voices from Elai API."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False, 
+                "error": "Video generation service not available. Please check backend configuration.",
+                "voices": []
+            }
+        
+        result = await video_generation_service.get_voices()
+        
+        if result["success"]:
+            return {"success": True, "voices": result["voices"]}
+        else:
+            return {"success": False, "error": result["error"], "voices": []}
+            
+    except Exception as e:
+        logger.error(f"Error fetching voices: {str(e)}")
+        return {
+            "success": False, 
+            "error": f"Failed to fetch voices: {str(e)}",
+            "voices": []
+        }
+
 @app.post("/api/custom/video/generate")
 async def generate_video(request: Request):
     """Generate video from slides and avatar data."""
@@ -35231,6 +35257,36 @@ async def create_video(request: Request):
             
     except Exception as e:
         logger.error(f"Error creating video: {str(e)}")
+        return {"success": False, "error": f"Failed to create video: {str(e)}"}
+
+@app.post("/api/custom/video/create-from-request")
+async def create_video_from_request(request: Request):
+    """Create a video from frontend Elai video request format."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body - expects full Elai video request format
+        body = await request.json()
+        
+        # Create video using the frontend's request format
+        result = await video_generation_service.create_video_from_elai_request(body)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "videoId": result["videoId"],
+                "_id": result.get("_id"),
+                "message": "Video created successfully"
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error creating video from request: {str(e)}")
         return {"success": False, "error": f"Failed to create video: {str(e)}"}
 
 @app.post("/api/custom/video/render/{video_id}")
