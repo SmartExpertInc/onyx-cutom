@@ -814,7 +814,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   Add more power with extra credits, storage, or integrations.
                 </p>
                 
-                <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-4 justify-items-center max-w-5xl mx-auto">
+                <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-10 justify-items-center max-w-5xl mx-auto">
                   {creditAddOns.map((addOn: any) => {
                     const IconComponent = addOn.type === 'credits' ? CoinsIcon : addOn.type === 'storage' ? StorageIcon : ConnectorsIcon;
                     const amountIcon = addOn.type === 'credits' ? (
@@ -867,17 +867,17 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           )}
                         </div>
 
-                          <div className="flex border border-[#D0D0D0] rounded-lg overflow-hidden bg-white">
+                          <div className="flex border border-[#D0D0D0] rounded-md overflow-hidden bg-white">
                             <button
                               onClick={() => setCreditQuantities(prev => ({
                                 ...prev,
                                 [addOn.id]: Math.max(1, prev[addOn.id] - 1)
                               }))}
-                              className="px-3 py-1 text-[#333333] hover:bg-gray-50 border-r border-[#D0D0D0] font-bold"
+                              className="px-2 py-0 text-[#333333] hover:bg-gray-50 border-r border-[#D0D0D0] font-bold"
                             >
                               -
                             </button>
-                            <div className="px-3 py-1 text-sm text-[#333333] font-medium min-w-[40px] text-center">
+                            <div className="px-2 py-0 text-sm text-[#333333] font-medium min-w-[40px] text-center">
                               {creditQuantities[addOn.id]}
                           </div>
                             <button

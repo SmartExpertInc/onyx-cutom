@@ -245,7 +245,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                                 <span className="px-2 py-1 bg-white text-[#4D4D4D] text-xs font-medium whitespace-nowrap">{teamSeats} seats</span>
                                 <button 
                                   onClick={() => setTeamSeats(teamSeats + 1)}
-                                  className="w-6 h-6 border-r border-[#E0E0E0] rounded-r-md flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
+                                  className="w-6 h-6 border-l border-[#E0E0E0] rounded-r-md flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
                                 >
                                   <Plus className="w-3 h-3" />
                                 </button>
@@ -301,7 +301,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
             <div className="relative -mt-[476px] pointer-events-none z-20 group">
               {/* Blue Background for Feature Comparison Section - Shows on Hover */}
-              <div className="absolute left-[-32px] right-[-32px] top-0 h-[476px] bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-0"></div>
+              <div className="absolute left-[-32px] right-[-32px] top-0 h-[476px] bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[-1]"></div>
               
               <div className="grid gap-4 relative z-10" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
                 <div className="pr-4 pointer-events-auto cursor-pointer">
