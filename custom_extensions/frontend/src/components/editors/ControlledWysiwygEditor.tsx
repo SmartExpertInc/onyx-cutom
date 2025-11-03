@@ -145,7 +145,9 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
         // Read computed styles from the DOM
         try {
           const editorElement = editor.view.dom;
-          const computedStyles = window.getComputedStyle(editorElement);
+          // Prefer container styles (parent node) to mirror display text container
+          const containerEl = (editorElement.parentElement?.parentElement) || editorElement.parentElement || editorElement;
+          const computedStyles = window.getComputedStyle(containerEl);
           
           const extractedStyles: ComputedStyles = {
             fontSize: computedStyles.fontSize,      // e.g., "40px" (computed from 2.5rem)
@@ -154,8 +156,13 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
             textAlign: computedStyles.textAlign,    // e.g., "left"
           };
           
-          console.log('📏 [ControlledEditor] Computed styles:', extractedStyles);
-          
+          // Apply computed styles directly to the editor DOM to ensure identical appearance
+          editorElement.style.fontFamily = extractedStyles.fontFamily || editorElement.style.fontFamily;
+          editorElement.style.fontSize = extractedStyles.fontSize || editorElement.style.fontSize;
+          editorElement.style.lineHeight = extractedStyles.lineHeight || editorElement.style.lineHeight;
+          editorElement.style.color = extractedStyles.color || editorElement.style.color;
+          (editorElement.style as any).letterSpacing = (computedStyles as any).letterSpacing || (editorElement.style as any).letterSpacing;
+
           onEditorReady?.(editor, extractedStyles);
         } catch (error) {
           console.warn('Failed to read computed styles:', error);
