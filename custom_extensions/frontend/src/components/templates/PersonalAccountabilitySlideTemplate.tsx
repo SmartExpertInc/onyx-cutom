@@ -101,15 +101,29 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     paddingTop: '80px'
   };
 
-  // Page number style
-  const pageNumberStyle: React.CSSProperties = {
-    fontSize: '14px',
-    fontWeight: 400,
-    color: '#9CA3AF',
-    margin: 0,
+  // Page number with line - bottom-left
+  const pageNumberContainerStyle: React.CSSProperties = {
     position: 'absolute',
-    bottom: '30px',
-    left: '30px'
+    bottom: '24px',
+    left: '0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '13px',
+    zIndex: 10
+  };
+
+  const pageNumberLineStyle: React.CSSProperties = {
+    width: '32px',
+    height: '1.5px',
+    backgroundColor: 'rgba(9, 9, 11, 0.6)'
+  };
+
+  const pageNumberStyle: React.CSSProperties = {
+    fontSize: '18px',
+    fontWeight: 300,
+    color: 'rgba(9, 9, 11, 0.6)',
+    fontFamily: currentTheme.fonts.contentFont,
+    margin: 0
   };
 
   // Avatar container - centered in right section
@@ -194,8 +208,11 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
             )}
           </div>
         </div>
+      </div>
 
-        {/* Page Number */}
+      {/* Page number with line - bottom-left */}
+      <div style={pageNumberContainerStyle}>
+        <div style={pageNumberLineStyle} />
         <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('pageNumber')}>
           {isEditable && editKey === 'pageNumber' ? (
             <ImprovedInlineEditor 

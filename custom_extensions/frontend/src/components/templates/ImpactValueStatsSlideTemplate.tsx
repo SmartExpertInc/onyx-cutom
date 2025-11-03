@@ -136,30 +136,43 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     margin: 0
   };
 
-  // Footer section
+  // Footer section - Logo in bottom-right
   const footerSection: React.CSSProperties = {
     position: 'absolute',
     bottom: '30px',
-    left: '0',
-    right: '0',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0 80px',
+    right: '30px',
     zIndex: 10
-  };
-
-  const pageNumberStyle: React.CSSProperties = {
-    fontSize: '16px',
-    fontWeight: 400,
-    color: '#9CA3AF',
-    margin: 0
   };
 
   const logoContainerStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px'
+  };
+
+  // Page number with line - bottom-left
+  const pageNumberContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    left: '0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '13px',
+    zIndex: 10
+  };
+
+  const pageNumberLineStyle: React.CSSProperties = {
+    width: '32px',
+    height: '1.5px',
+    backgroundColor: 'rgba(9, 9, 11, 0.6)'
+  };
+
+  const pageNumberStyle: React.CSSProperties = {
+    fontSize: '18px',
+    fontWeight: 300,
+    color: 'rgba(9, 9, 11, 0.6)',
+    fontFamily: currentTheme.fonts.contentFont,
+    margin: 0
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
@@ -272,8 +285,9 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
         ))}
       </div>
 
-      {/* Footer */}
-      <div style={footerSection}>
+      {/* Page number with line - bottom-left */}
+      <div style={pageNumberContainerStyle}>
+        <div style={pageNumberLineStyle} />
         <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('pageNumber')}>
           {isEditable && editKey === 'pageNumber' ? (
             <ImprovedInlineEditor 
@@ -289,6 +303,10 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
             pageNumber
           )}
         </div>
+      </div>
+
+      {/* Logo - bottom-right */}
+      <div style={footerSection}>
         <div style={logoContainerStyle}>
           <YourLogo
             logoPath={logoPath}
