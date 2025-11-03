@@ -25,6 +25,7 @@ interface ProductViewHeaderProps {
   onSettingsButtonClick?: (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onTextButtonClick?: (position: { x: number; y: number }) => void;
+  onAvatarButtonClick?: (position: { x: number; y: number }) => void;
   onLanguageVariantModalOpen?: () => void;
   hideAiImproveButton?: boolean;
   // Video Editor Actions (optional - only for Projects2ViewPage)
@@ -51,6 +52,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   onSettingsButtonClick,
   onShapesButtonClick,
   onTextButtonClick,
+  onAvatarButtonClick,
   onLanguageVariantModalOpen,
   hideAiImproveButton = false,
   showVideoEditorActions = false,
@@ -270,7 +272,12 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
             {/* Avatar Button */}
             <button
-              onClick={() => onSettingsButtonClick?.('avatar')}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const popupWidth = 800;
+                const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
+                onAvatarButtonClick?.({ x: centerX, y: 70 });
+              }}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
               <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">

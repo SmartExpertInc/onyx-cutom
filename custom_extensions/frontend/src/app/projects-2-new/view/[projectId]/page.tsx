@@ -11,6 +11,7 @@ import Transition from '../../../projects-2/view/components/Transition';
 import Media from '../../../projects-2/view/components/Media';
 import TextPopup from '../../../projects-2/view/components/TextPopup';
 import ShapesPopup from '../../../projects-2/view/components/ShapesPopup';
+import AvatarPopup from '../../../projects-2/view/components/AvatarPopup';
 import AiPopup from '../../../projects-2/view/components/AiPopup';
 import LanguageVariantModal from '../../../projects-2/view/components/LanguageVariantModal';
 import PlayModal from '../../../projects-2/view/components/PlayModal';
@@ -44,6 +45,7 @@ export default function Projects2ViewPage() {
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
+  const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState<boolean>(false);
@@ -53,6 +55,7 @@ export default function Projects2ViewPage() {
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [avatarPopupPosition, setAvatarPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
@@ -694,6 +697,7 @@ export default function Projects2ViewPage() {
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
+    setIsAvatarPopupOpen(false);
     setIsAiPopupOpen(false);
   };
 
@@ -702,6 +706,17 @@ export default function Projects2ViewPage() {
     setIsTextPopupOpen(true);
     // Close other popups if open
     setIsMediaPopupOpen(false);
+    setIsShapesPopupOpen(false);
+    setIsAvatarPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
+  const handleAvatarButtonClick = (position: { x: number; y: number }) => {
+    setAvatarPopupPosition(position);
+    setIsAvatarPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
     setIsShapesPopupOpen(false);
     setIsAiPopupOpen(false);
   };
@@ -908,6 +923,7 @@ export default function Projects2ViewPage() {
         onSettingsButtonClick={handleSettingsButtonClick}
         onShapesButtonClick={handleShapesButtonClick}
         onTextButtonClick={handleTextButtonClick}
+        onAvatarButtonClick={handleAvatarButtonClick}
         onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
         hideAiImproveButton={true}
         showVideoEditorActions={true}
@@ -1111,6 +1127,19 @@ export default function Projects2ViewPage() {
         isOpen={isShapesPopupOpen} 
         onClose={() => setIsShapesPopupOpen(false)} 
         position={shapesPopupPosition}
+      />
+
+      {/* Avatar Popup */}
+      <AvatarPopup 
+        isOpen={isAvatarPopupOpen} 
+        onClose={() => setIsAvatarPopupOpen(false)} 
+        position={avatarPopupPosition}
+        onAvatarSelect={(avatar, variant) => {
+          console.log('Avatar selected:', avatar, variant);
+          setIsAvatarPopupOpen(false);
+          // TODO: Handle avatar selection - update video lesson data with selected avatar
+        }}
+        avatarData={[]}
       />
 
       {/* AI Popup */}
