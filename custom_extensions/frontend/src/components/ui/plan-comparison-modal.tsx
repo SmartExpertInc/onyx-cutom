@@ -330,7 +330,9 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                               key={idx} 
                               className={`flex items-center text-xs justify-center ${
                                 idx === 0 || features[idx - 1]?.type === 'categoryHeader' ? '!border-t-0' : ''
-                              } border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D] ${
+                              } ${
+                                item.type === 'categoryHeader' ? 'border-0' : 'border-b border-[#A5A5A5]'
+                              } last:border-b-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
                             >
