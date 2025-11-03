@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import VideoEditorHeader from '../components/VideoEditorHeader';
@@ -78,6 +78,9 @@ export default function Projects2ViewPage() {
   
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
+
+  // Ref for slide editor container to detect clicks outside
+  const slideEditorRef = useRef<HTMLDivElement>(null);
 
   // Ready flag to hide advanced controls per requirements
   const showReady = true;
@@ -560,6 +563,29 @@ export default function Projects2ViewPage() {
     };
   }, [openMenuSceneId, menuPosition]);
 
+  // Close text editor panel when clicking outside slide editor
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeSettingsPanel === 'text' && slideEditorRef.current) {
+        const target = event.target as Node;
+        if (!slideEditorRef.current.contains(target)) {
+          // Click is outside the slide editor, close text panel
+          setActiveSettingsPanel(null);
+          setActiveTextEditor(null);
+          setComputedTextStyles(null);
+          setActiveComponent('script');
+        }
+      }
+    };
+
+    if (activeSettingsPanel === 'text') {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [activeSettingsPanel]);
+
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
     
@@ -854,6 +880,7 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
+                ref={slideEditorRef}
                 className="bg-white rounded-md relative overflow-hidden flex items-center justify-center w-full h-full"
               >
                 {/* Slide Container - Keeps original size */}

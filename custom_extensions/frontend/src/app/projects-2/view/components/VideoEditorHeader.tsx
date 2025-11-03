@@ -1120,19 +1120,21 @@ export default function VideoEditorHeader({
               <span className="text-sm font-normal">Generate</span>
             </button>
 
-            {/* Debug Render button (No Avatar) */}
-            <button
-              onClick={() => {
-                if (showReady) return;
-                setIsGenerateModalOpen(false);
-                handleVideoGeneration(true);
-              }}
-              className={`rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'}`}
-              title={showReady ? 'Soon' : 'Render slides with transitions only (no avatar) - for testing and debugging'}
-            >
-              <Video className="w-4 h-4 text-gray-700" />
-              <span className="text-sm font-normal">Debug</span>
-            </button>
+            {/* Debug Render button (No Avatar) - Hidden */}
+            {false && (
+              <button
+                onClick={() => {
+                  if (showReady) return;
+                  setIsGenerateModalOpen(false);
+                  handleVideoGeneration(true);
+                }}
+                className={`rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'}`}
+                title={showReady ? 'Soon' : 'Render slides with transitions only (no avatar) - for testing and debugging'}
+              >
+                <Video className="w-4 h-4 text-gray-700" />
+                <span className="text-sm font-normal">Debug</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

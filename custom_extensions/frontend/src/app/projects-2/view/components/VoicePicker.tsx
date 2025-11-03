@@ -85,6 +85,7 @@ interface VoicePickerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectVoice?: (voice: Voice) => void;
+  showReady?: boolean;
 }
 
 interface ElaiVoice {
@@ -99,7 +100,7 @@ interface ElaiVoice {
   url?: string;
 }
 
-export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice }: VoicePickerProps) {
+export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps) {
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -728,9 +729,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Create Custom Voice Row */}
             <div className="mb-3">
               <div 
-                className="rounded-lg p-4 flex items-center justify-between cursor-pointer"
+                className={`rounded-lg p-4 flex items-center justify-between ${showReady ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
                 style={{ 
                   backgroundColor: '#EFF7FE' 
+                }}
+                title={showReady ? 'Soon' : undefined}
+                onClick={(e) => {
+                  if (showReady) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -853,7 +861,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0">
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0 relative">
+            {showReady && (
+              <div className="absolute inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-10 pointer-events-none">
+                <span className="text-sm text-gray-600 font-medium">Soon</span>
+              </div>
+            )}
+            <div className={showReady ? 'opacity-50 pointer-events-none' : ''}>
             {tempSelectedVoice ? (
               <>
                 {/* Row 1: Voice name title */}
@@ -947,6 +961,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 </span>
             </button>
             )}
+            </div>
           </div>
         </div>
         </div>
@@ -954,41 +969,51 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         {/* Footer */}
         <div className="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-xl">
           {/* Left side - Apply new voice to */}
-          <div className="flex-1">
-            <div className="mb-2">
-              <span className="text-sm text-gray-700">Apply new voice to</span>
-            </div>
-            <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
-              <button
-                onClick={() => setApplyTo('block')}
-                className={`flex-1 py-1 text-sm rounded transition-colors ${
-                  applyTo === 'block' 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-300'
-                }`}
-              >
-                This block only
-              </button>
-              <button
-                onClick={() => setApplyTo('scene')}
-                className={`flex-1 py-1 text-sm rounded transition-colors ${
-                  applyTo === 'scene' 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-300'
-                }`}
-              >
-                This scene only
-              </button>
-              <button
-                onClick={() => setApplyTo('all')}
-                className={`flex-1 py-1 text-sm rounded transition-colors ${
-                  applyTo === 'all' 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-300'
-                }`}
-              >
-                All scenes
-              </button>
+          <div className="flex-1 relative">
+            {showReady && (
+              <div className="absolute inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-10 pointer-events-none">
+                <span className="text-sm text-gray-600 font-medium">Soon</span>
+              </div>
+            )}
+            <div className={showReady ? 'opacity-50 pointer-events-none' : ''} title={showReady ? 'Soon' : undefined}>
+              <div className="mb-2">
+                <span className="text-sm text-gray-700">Apply new voice to</span>
+              </div>
+              <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
+                <button
+                  onClick={() => setApplyTo('block')}
+                  disabled={showReady}
+                  className={`flex-1 py-1 text-sm rounded transition-colors ${
+                    applyTo === 'block' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  This block only
+                </button>
+                <button
+                  onClick={() => setApplyTo('scene')}
+                  disabled={showReady}
+                  className={`flex-1 py-1 text-sm rounded transition-colors ${
+                    applyTo === 'scene' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  This scene only
+                </button>
+                <button
+                  onClick={() => setApplyTo('all')}
+                  disabled={showReady}
+                  className={`flex-1 py-1 text-sm rounded transition-colors ${
+                    applyTo === 'all' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  All scenes
+                </button>
+              </div>
             </div>
           </div>
 

@@ -227,9 +227,12 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                 window.getSelection()?.removeAllRanges();
               }}
               onClick={() => {
+                if (showReady) return;
                 setIsAvatarDropdownOpen(!isAvatarDropdownOpen);
               }}
-              className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={showReady}
+              title={showReady ? 'Soon' : undefined}
+              className={`flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg transition-colors ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
               style={{ userSelect: 'none' }}
             >
               <User size={20} className="text-gray-700" />
@@ -327,6 +330,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           console.log('Selected voice:', voice);
           // Handle voice selection here
         }}
+        showReady={showReady}
       />
 
       {/* Dictionary Modal */}
