@@ -14515,8 +14515,8 @@ Return ONLY the JSON object.
                                                 field_parts = after_comma.split(':', 1)
                                                 if len(field_parts) == 2:
                                                     value = field_parts[1].strip()
-                                                    # If value is incomplete (starts with quote but doesn't end, or empty)
-                                                    if (value.startswith('"') and not value.endswith('"')) or value == '':
+                                                    # If value is incomplete (starts with quote but doesn't end, or empty, or just whitespace)
+                                                    if (value.startswith('"') and not value.endswith('"')) or value == '' or (value and not value.endswith('"') and not value.endswith(',') and not value.endswith('}')):
                                                         # Remove the incomplete field by truncating at the last comma
                                                         partial_json = partial_json[:last_comma]
                                                         # Find the new last slide end
@@ -14526,6 +14526,32 @@ Return ONLY the JSON object.
                                                             raise ValueError("Cannot reconstruct valid slide structure")
                                                         partial_json = partial_json[:last_slide_end + 1]
                                     
+                                    # Additional check: ensure the last property before closing brace is complete
+                                    # Look for patterns like "prop": value\n       } which might be missing comma
+                                    # Find the text before the last closing brace
+                                    before_last_brace = partial_json[:last_slide_end].rstrip()
+                                    # Check if it ends with a value (quote, number, true/false/null, or closing bracket/brace)
+                                    if before_last_brace:
+                                        # Check last non-whitespace characters
+                                        last_chars = before_last_brace.rstrip(' \n\r\t')
+                                        # If it doesn't end with a valid JSON value terminator, might be incomplete
+                                        valid_terminators = ['"', '}', ']', ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'e', 'l', 'u', 'e']  # covers strings, objects, arrays, numbers, true/false/null
+                                        if last_chars and not any(last_chars.endswith(term) for term in ['"', '}', ']', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                                            # Might be incomplete - try to find a safer truncation point
+                                            # Look for the last complete property that ends properly
+                                            # Find the last complete property-value pair
+                                            safer_comma = partial_json.rfind(',', 0, last_slide_end - 10)  # Look a bit before the end
+                                            if safer_comma > 0:
+                                                # Check if the part after this comma looks complete
+                                                after_safer = partial_json[safer_comma + 1:last_slide_end].strip()
+                                                # If it has a complete property (key:value), use it
+                                                if ':' in after_safer and after_safer.count('"') >= 2:
+                                                    # This looks like a complete property, truncate here
+                                                    partial_json = partial_json[:safer_comma]
+                                                    last_slide_end = partial_json.rfind('}', 0, len(partial_json))
+                                                    if last_slide_end > 0:
+                                                        partial_json = partial_json[:last_slide_end + 1]
+                                    
                                     # Check if we're inside the slides array (look for "slides": [ before this position)
                                     slides_array_start = cleaned_json.find('"slides": [', 0, min(len(partial_json), last_slide_end + 1))
                                     if slides_array_start >= 0:
@@ -14533,24 +14559,74 @@ Return ONLY the JSON object.
                                         # 1. Close the current slide's object (already done by last_slide_end)
                                         # 2. Close the slides array with ]
                                         # 3. Close the root object with }
-                                        # Count open/close braces in the partial JSON
-                                        open_braces = partial_json.count('{')
-                                        close_braces = partial_json.count('}')
+                                        # Count open/close braces and brackets in the partial JSON up to last_slide_end
+                                        partial_up_to_slide = partial_json[:last_slide_end + 1]
+                                        open_braces = partial_up_to_slide.count('{')
+                                        close_braces = partial_up_to_slide.count('}')
                                         # Count open/close brackets for arrays
-                                        open_brackets = partial_json.count('[')
-                                        close_brackets = partial_json.count(']')
-                                        # Close slides array first if needed
-                                        if open_brackets > close_brackets:
-                                            partial_json += ']'
-                                        # Then close the root object
-                                        if open_braces > close_braces:
-                                            partial_json += '}'
+                                        open_brackets = partial_up_to_slide.count('[')
+                                        close_brackets = partial_up_to_slide.count(']')
+                                        
+                                        # Check what comes after last_slide_end in the original JSON
+                                        # to see if slides array and root are already closed
+                                        after_slide_end = cleaned_json[last_slide_end + 1:error_pos].strip()
+                                        # If there's already closing brackets/braces, we might not need to add them
+                                        if after_slide_end.startswith(']'):
+                                            # Slides array already closed, just close root if needed
+                                            if open_braces > close_braces:
+                                                partial_json += '}'
+                                        elif after_slide_end.startswith(']}'):
+                                            # Both already closed - don't add anything
+                                            pass
+                                        else:
+                                            # Need to close slides array and root
+                                            # Close slides array first if needed
+                                            if open_brackets > close_brackets:
+                                                partial_json += ']'
+                                            # Then close the root object
+                                            if open_braces > close_braces:
+                                                partial_json += '}'
                                     else:
                                         # Not in slides array yet, just close objects
                                         open_braces = partial_json.count('{')
                                         close_braces = partial_json.count('}')
                                         if open_braces > close_braces:
                                             partial_json += '}'
+                                    
+                                    # Before trying to parse, ensure proper JSON structure
+                                    # Remove trailing whitespace/newlines that might cause issues
+                                    partial_json = partial_json.rstrip(' \n\r\t')
+                                    
+                                    # If the last character before closing braces is not a quote, number, or closing bracket,
+                                    # we might have an incomplete value - try to remove the last property
+                                    if partial_json and partial_json[-1] == '}':
+                                        # Find the position of the last closing brace
+                                        brace_pos = len(partial_json) - 1
+                                        # Look backwards for the opening brace of this object
+                                        depth = 0
+                                        obj_start = brace_pos
+                                        for i in range(brace_pos, -1, -1):
+                                            if partial_json[i] == '}':
+                                                depth += 1
+                                            elif partial_json[i] == '{':
+                                                depth -= 1
+                                                if depth == 0:
+                                                    obj_start = i
+                                                    break
+                                        # Check the content before the closing brace
+                                        obj_content = partial_json[obj_start + 1:brace_pos]
+                                        # If it ends with a newline/whitespace and no valid terminator, might be incomplete
+                                        obj_content_stripped = obj_content.rstrip(' \n\r\t')
+                                        if obj_content_stripped and not any(obj_content_stripped.endswith(c) for c in ['"', '}', ']', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                                            # Last property might be incomplete - remove it
+                                            last_comma_in_obj = obj_content.rfind(',')
+                                            if last_comma_in_obj > 0:
+                                                # Truncate at the last comma
+                                                partial_json = partial_json[:obj_start + 1 + last_comma_in_obj] + '}'
+                                                # Re-find last_slide_end
+                                                last_slide_end = partial_json.rfind('}')
+                                                if last_slide_end < 0:
+                                                    raise ValueError("Cannot reconstruct valid structure")
                                     
                                     logger.info(f"[FAST_PATH_RECOVERY] Attempting to parse fixed JSON (length: {len(partial_json)})...")
                                     logger.info(f"[FAST_PATH_RECOVERY] Last 200 chars of fixed JSON: {partial_json[-200:]}")

@@ -1048,6 +1048,27 @@ export default function LessonPresentationClient() {
       // JSON detected but parsing failed - might be truncated
       // originalJsonResponse is already set above, so backend can attempt recovery
       console.warn("[JSON_CONVERSION] JSON detected but parsing failed, storing raw content for backend recovery");
+      
+      // CRITICAL: Even if JSON parsing fails, try to extract preview bullets from partial JSON
+      // This ensures bullets are visible even when JSON is truncated
+      try {
+        // Try to extract slides from partial JSON using the extraction function
+        const partialSlides = extractSlidesFromPartialJson(content);
+        if (Array.isArray(partialSlides) && partialSlides.length > 0) {
+          const titles: Record<number, string> = {};
+          const bullets: Record<number, string[]> = {};
+          partialSlides.forEach((s: any, i: number) => {
+            const num = s?.slideNumber || i + 1;
+            if (typeof s?.slideTitle === 'string') titles[num] = s.slideTitle;
+            if (Array.isArray(s?.previewKeyPoints)) bullets[num] = [...s.previewKeyPoints];
+          });
+          setEditedTitles(titles);
+          setEditedBullets(bullets);
+          console.log(`[JSON_CONVERSION] Extracted ${partialSlides.length} slides with preview bullets from partial JSON`);
+        }
+      } catch (e) {
+        console.warn("[JSON_CONVERSION] Failed to extract preview bullets from partial JSON:", e);
+      }
     }
   }, [streamDone, content, originalJsonResponse]);
 
