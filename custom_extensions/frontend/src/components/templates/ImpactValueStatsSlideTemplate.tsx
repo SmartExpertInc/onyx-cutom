@@ -62,8 +62,8 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
 
   // Avatar container
   const avatarContainer: React.CSSProperties = {
-    width: '140px',
-    height: '140px',
+    width: '160px',
+    height: '160px',
     borderRadius: '50%',
     backgroundColor: '#FFFFFF',
     overflow: 'hidden',
@@ -102,7 +102,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
   const contentSection: React.CSSProperties = {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    padding: '60px 80px',
+    padding: '50px 80px',
     display: 'flex',
     gap: '32px',
     justifyContent: 'center',
@@ -119,7 +119,8 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     flexDirection: 'column',
     gap: '16px',
     flex: 1,
-    height: '315px',
+    height: '305px',
+    marginTop: '-40px',
     maxWidth: '320px',
     minHeight: '200px',
     justifyContent: 'space-between'
@@ -135,7 +136,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
   };
 
   const statDescriptionStyle: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '20px',
     fontWeight: 400,
     color: '#FFFFFF',
     lineHeight: 1.4,
