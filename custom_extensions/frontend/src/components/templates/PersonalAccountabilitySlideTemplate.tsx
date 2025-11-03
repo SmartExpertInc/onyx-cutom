@@ -75,7 +75,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   const titleStyle: React.CSSProperties = {
     fontSize: '42px',
     fontWeight: 700,
-    color: '#1F2937',
+    color: '#09090B',
     lineHeight: 1.3,
     margin: 0,
     marginBottom: '24px',
@@ -84,9 +84,10 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
 
   // Subtitle style
   const subtitleStyle: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '25px',
     fontWeight: 400,
-    color: '#4B5563',
+    color: '#09090B',
+    opacity: '0.8',
     lineHeight: 1.6,
     margin: 0,
     fontFamily: "'Lora', serif"
@@ -96,10 +97,10 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   const contentContainer: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'end',
     alignItems: 'flex-start',
     flex: 1,
-    paddingTop: '80px'
+    paddingBottom: '65px'
   };
 
   // Page number with line - bottom-left
@@ -141,7 +142,8 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     width: '70%',
     height: '90%',
     objectFit: 'contain',
-    position: 'relative'
+    position: 'absolute',
+    bottom: '-30px'
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
