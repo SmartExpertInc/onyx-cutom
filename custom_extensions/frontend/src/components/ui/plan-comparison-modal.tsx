@@ -316,7 +316,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                             plan.current
                               ? 'bg-gray-200 text-gray-500'
                               : plan.isEnterprise
-                              ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                              ? 'bg-[#CCDBFC] text-blue-600 hover:bg-blue-100'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                           }`}
                         >
@@ -328,7 +328,9 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                           {features.map((item, idx) => (
                             <div 
                               key={idx} 
-                              className={`flex items-center text-xs justify-center border-b border-[#A5A5A5] last:border-b-0 first:border-t-0 text-[#4D4D4D] ${
+                              className={`flex items-center text-xs justify-center ${
+                                idx === 0 || features[idx - 1]?.type === 'categoryHeader' ? '' : 'border-t'
+                              } border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
                             >
@@ -348,21 +350,21 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[785px] z-0">
+            <div className="relative -mt-[780px] z-0">
               {featureData.map((category, categoryIndex) => {
                 const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
                 return (
                   <div key={categoryIndex} className="relative group pointer-events-auto">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 pointer-events-none"
+                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-[#CCDBFC] transition-colors duration-200 pointer-events-none"
                       style={{ height: `${categoryHeight}px`, zIndex: 5 }}
                     ></div>
                     
                     <div className="grid gap-4 relative" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 10 }}>
                       <div className="pr-4 cursor-pointer">
                         {/* Category Header */}
-                        <div className="h-[48px]">
+                        <div className="h-[48px] py-2">
                           <h4 className="text-base py-2 font-bold text-[#171718]">{category.category}</h4>
                         </div>
                         
