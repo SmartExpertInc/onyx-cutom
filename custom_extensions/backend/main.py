@@ -8324,6 +8324,10 @@ class ProjectCreateRequest(BaseModel):
     # Source context tracking
     source_context_type: Optional[str] = None  # 'files', 'connectors', 'knowledge_base', 'text', 'prompt'
     source_context_data: Optional[dict] = None  # JSON data about the source
+    # NEW: original JSON response from preview (for fast-path parsing)
+    originalJsonResponse: Optional[str] = None
+    # NEW: slides count for validation (lesson presentations)
+    slidesCount: Optional[int] = None
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -14371,15 +14375,35 @@ Return ONLY the JSON object.
                 )
         # Add fast path for presentations (Slide Deck and Video Lesson Presentation) 
         elif selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION]:
+            # Try to use originalJsonResponse if available (from frontend preview)
+            json_to_parse = None
+            if hasattr(project_data, 'originalJsonResponse') and project_data.originalJsonResponse:
+                logger.info(f"[FAST_PATH_DEBUG] Using originalJsonResponse from frontend (length: {len(project_data.originalJsonResponse)})")
+                json_to_parse = project_data.originalJsonResponse
+            else:
+                logger.info(f"[FAST_PATH_DEBUG] No originalJsonResponse, using aiResponse (length: {len(project_data.aiResponse)})")
+                json_to_parse = project_data.aiResponse
+            
             try:
                 # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw AI response for presentation:")
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(project_data.aiResponse)} characters")
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {project_data.aiResponse[:500]}")
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {project_data.aiResponse[-500:]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw JSON for presentation:")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(json_to_parse)} characters")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {json_to_parse[:500]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {json_to_parse[-500:]}")
                 
-                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Presentation: {project_data.aiResponse[:200]}...")
-                cached_json = json.loads(project_data.aiResponse.strip())
+                # Try to parse JSON with better error handling
+                cleaned_json = json_to_parse.strip()
+                # Remove markdown code blocks if present
+                if cleaned_json.startswith('```json'):
+                    cleaned_json = cleaned_json[7:]
+                elif cleaned_json.startswith('```'):
+                    cleaned_json = cleaned_json[3:]
+                if cleaned_json.endswith('```'):
+                    cleaned_json = cleaned_json[:-3]
+                cleaned_json = cleaned_json.strip()
+                
+                logger.info(f"[FAST_PATH_DEBUG] Attempting to parse JSON (cleaned length: {len(cleaned_json)})...")
+                cached_json = json.loads(cleaned_json)
                 logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
                 if isinstance(cached_json, dict) and "slides" in cached_json:
                     slides = cached_json.get('slides', [])
@@ -14432,6 +14456,15 @@ Return ONLY the JSON object.
                     except Exception as _cleanup_err:
                         logger.debug(f"[FAST_PATH_DEBUG] Failed to strip preview fields: {_cleanup_err}")
                     
+                    # Validate slide count if slidesCount was provided
+                    if hasattr(project_data, 'slidesCount') and project_data.slidesCount and project_data.slidesCount > 0:
+                        actual_slide_count = len(slides)
+                        requested_count = project_data.slidesCount
+                        if actual_slide_count != requested_count:
+                            logger.warning(f"[SLIDE_COUNT_VALIDATION] Mismatch: requested {requested_count} slides, but got {actual_slide_count} slides")
+                            # Don't reject - just log warning. The AI might have generated a different count
+                            # In future, we could add retry logic here
+                    
                     parsed_content_model_instance = SlideDeckDetails(**cached_json)
                     logger.info(f"[FAST_PATH_DEBUG] SlideDeckDetails created successfully with {len(parsed_content_model_instance.slides)} slides")
                 else:
@@ -14445,15 +14478,115 @@ Return ONLY the JSON object.
                         target_json_example=llm_json_example
                     )
             except (json.JSONDecodeError, KeyError, Exception) as e:
-                logger.info(f"[FAST_PATH] Presentation JSON validation failed ({e}), falling back to LLM parsing")
-                parsed_content_model_instance = await parse_ai_response_with_llm(
-                    ai_response=project_data.aiResponse,
-                    project_name=project_data.projectName,
-                    target_model=target_content_model,
-                    default_error_model_instance=default_error_instance,
-                    dynamic_instructions=component_specific_instructions,
-                    target_json_example=llm_json_example
-                )
+                error_msg = str(e)
+                logger.info(f"[FAST_PATH] Presentation JSON validation failed ({error_msg}), attempting recovery...")
+                
+                # Try to fix common JSON issues
+                if "Unterminated string" in error_msg or "Expecting" in error_msg:
+                    logger.info(f"[FAST_PATH_RECOVERY] Attempting to fix truncated/malformed JSON...")
+                    try:
+                        # Try to find and close unclosed strings/objects
+                        # Look for the last complete slide object
+                        fixed_json = cleaned_json
+                        # If error mentions a character position, try to truncate at last complete object
+                        if "char" in error_msg:
+                            import re
+                            char_match = re.search(r'char (\d+)', error_msg)
+                            if char_match:
+                                error_pos = int(char_match.group(1))
+                                # Try to find last complete slide before error position
+                                # Look backwards for closing brace of last slide
+                                last_slide_end = cleaned_json.rfind('}', 0, error_pos)
+                                if last_slide_end > 0:
+                                    # Try to reconstruct JSON by closing arrays/objects
+                                    partial_json = cleaned_json[:last_slide_end + 1]
+                                    # Check if we're inside the slides array (look for "slides": [ before this position)
+                                    slides_array_start = cleaned_json.find('"slides": [', 0, last_slide_end)
+                                    if slides_array_start >= 0:
+                                        # We're inside the slides array, need to:
+                                        # 1. Close the current slide's object (already done by last_slide_end)
+                                        # 2. Close the slides array with ]
+                                        # 3. Close the root object with }
+                                        # Count open/close braces in the partial JSON
+                                        open_braces = partial_json.count('{')
+                                        close_braces = partial_json.count('}')
+                                        # Count open/close brackets for arrays
+                                        open_brackets = partial_json.count('[')
+                                        close_brackets = partial_json.count(']')
+                                        # Close slides array first if needed
+                                        if open_brackets > close_brackets:
+                                            partial_json += ']'
+                                        # Then close the root object
+                                        if open_braces > close_braces:
+                                            partial_json += '}'
+                                    else:
+                                        # Not in slides array yet, just close objects
+                                        open_braces = partial_json.count('{')
+                                        close_braces = partial_json.count('}')
+                                        if open_braces > close_braces:
+                                            partial_json += '}'
+                                    
+                                    logger.info(f"[FAST_PATH_RECOVERY] Attempting to parse fixed JSON (length: {len(partial_json)})...")
+                                    fixed_cached = json.loads(partial_json)
+                                    if isinstance(fixed_cached, dict) and "slides" in fixed_cached:
+                                        logger.info(f"[FAST_PATH_RECOVERY] Successfully fixed JSON! Found {len(fixed_cached.get('slides', []))} slides")
+                                        # Use fixed JSON - process it the same way as normal parsing
+                                        cached_json = fixed_cached
+                                        slides = cached_json.get('slides', [])
+                                        
+                                        # Strip preview-only fields before model construction (same as normal path)
+                                        try:
+                                            slides_list = cached_json.get('slides') or []
+                                            for s in slides_list:
+                                                if isinstance(s, dict) and 'previewKeyPoints' in s:
+                                                    s.pop('previewKeyPoints', None)
+                                        except Exception as _cleanup_err:
+                                            logger.debug(f"[FAST_PATH_RECOVERY] Failed to strip preview fields: {_cleanup_err}")
+                                        
+                                        # Validate slide count if slidesCount was provided
+                                        if hasattr(project_data, 'slidesCount') and project_data.slidesCount and project_data.slidesCount > 0:
+                                            actual_slide_count = len(slides)
+                                            requested_count = project_data.slidesCount
+                                            if actual_slide_count != requested_count:
+                                                logger.warning(f"[FAST_PATH_RECOVERY] [SLIDE_COUNT_VALIDATION] Mismatch: requested {requested_count} slides, but got {actual_slide_count} slides")
+                                        
+                                        # Create model instance
+                                        parsed_content_model_instance = SlideDeckDetails(**cached_json)
+                                        logger.info(f"[FAST_PATH_RECOVERY] SlideDeckDetails created successfully with {len(parsed_content_model_instance.slides)} slides")
+                                        # Successfully parsed recovered JSON - will skip LLM parsing below
+                                    else:
+                                        raise ValueError("Fixed JSON doesn't have slides field")
+                                else:
+                                    raise ValueError("Cannot find valid slide structure")
+                            else:
+                                raise ValueError("Cannot extract error position")
+                        else:
+                            raise ValueError("Error message doesn't contain position info")
+                    except (ValueError, json.JSONDecodeError) as recovery_error:
+                        logger.warning(f"[FAST_PATH_RECOVERY] Recovery attempt failed: {recovery_error}")
+                        # Continue to LLM parsing fallback
+                    except Exception as recovery_error:
+                        # If we successfully recovered, parsed_content_model_instance is set
+                        # Check if it was set
+                        if 'parsed_content_model_instance' in locals() and parsed_content_model_instance is not None:
+                            logger.info(f"[FAST_PATH_RECOVERY] Successfully recovered from JSON error, using recovered JSON")
+                            # Don't fall through to LLM parsing
+                            pass
+                        else:
+                            logger.warning(f"[FAST_PATH_RECOVERY] Recovery attempt failed: {recovery_error}")
+                            # Continue to LLM parsing fallback
+                
+                # If recovery didn't work or wasn't attempted, fall back to LLM parsing
+                if 'parsed_content_model_instance' not in locals() or parsed_content_model_instance is None:
+                    logger.info(f"[FAST_PATH] Falling back to LLM parsing after JSON validation/recovery failure")
+                    parsed_content_model_instance = await parse_ai_response_with_llm(
+                        ai_response=project_data.aiResponse,
+                        project_name=project_data.projectName,
+                        target_model=target_content_model,
+                        default_error_model_instance=default_error_instance,
+                        dynamic_instructions=component_specific_instructions,
+                        target_json_example=llm_json_example
+                    )
         else:
             parsed_content_model_instance = await parse_ai_response_with_llm(
                 ai_response=project_data.aiResponse,
@@ -23795,6 +23928,8 @@ class LessonWizardFinalize(BaseModel):
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     editedSlides: Optional[List[Dict[str, Any]]] = None
+    # NEW: original JSON response from preview (for fast-path parsing)
+    originalJsonResponse: Optional[str] = None
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -24070,6 +24205,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
+- **CRITICAL ENFORCEMENT**: Before finalizing your JSON output, you MUST count the slides in the slides[] array. If the count does not match the requested slidesCount parameter, you MUST add or remove slides until the count is EXACTLY correct. This validation is mandatory and your response will be rejected if the count is wrong.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -24142,6 +24278,7 @@ Always specify: realistic workplace, professional attire, authentic tools/equipm
 Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
+**VALIDATION CHECK**: Before outputting your final JSON, count the slides in the slides[] array. If the count does not match slidesCount, you MUST adjust immediately. The system will reject responses with incorrect slide counts.
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
@@ -24207,6 +24344,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
+- **CRITICAL ENFORCEMENT**: Before finalizing your JSON output, you MUST count the slides in the slides[] array. If the count does not match the requested slidesCount parameter, you MUST add or remove slides until the count is EXACTLY correct. This validation is mandatory and your response will be rejected if the count is wrong.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -24301,6 +24439,7 @@ Based on presentation design best practices, follow these rules for selecting ap
 Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
+**VALIDATION CHECK**: Before outputting your final JSON, count the slides in the slides[] array. If the count does not match slidesCount, you MUST adjust immediately. The system will reject responses with incorrect slide counts.
 
 EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 
@@ -25016,7 +25155,9 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
             theme=payload.theme,  # Pass selected theme
             source_context_type=source_context_type,
-            source_context_data=source_context_data
+            source_context_data=source_context_data,
+            originalJsonResponse=payload.originalJsonResponse,  # Pass original JSON for fast-path parsing
+            slidesCount=payload.slidesCount  # Pass slides count for validation
         )
         
         # Create project with proper error handling

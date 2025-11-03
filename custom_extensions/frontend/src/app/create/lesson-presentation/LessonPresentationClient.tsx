@@ -1299,6 +1299,8 @@ export default function LessonPresentationClient() {
           hasUserEdits: edits.length > 0,
           originalContent: originalJsonResponse || null,
           editedSlides: edits,
+          // Send original JSON response for fast-path parsing (prevents AI parser usage)
+          originalJsonResponse: originalJsonResponse || undefined,
           // Add connector context if creating from connectors
           ...(isFromConnectors && {
             fromConnectors: true,
