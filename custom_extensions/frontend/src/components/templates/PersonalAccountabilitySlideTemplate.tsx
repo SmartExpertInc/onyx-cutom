@@ -10,6 +10,7 @@ import YourLogo from '../YourLogo';
 export interface PersonalAccountabilityProps extends BaseTemplateProps {
   content: string;
   leftImagePath?: string;
+  leftTopImagePath?: string;
   avatarImagePath?: string;
   bottomImagePath?: string;
   logoPath?: string;
@@ -19,6 +20,7 @@ export interface PersonalAccountabilityProps extends BaseTemplateProps {
 export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilityProps & { theme?: SlideTheme | string }> = ({
   content = 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
   leftImagePath = '',
+  leftTopImagePath = '',
   avatarImagePath = '',
   bottomImagePath = '',
   logoPath = '',
@@ -74,12 +76,39 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     zIndex: 20
   };
 
+  // Left section container
+  const leftSectionContainer: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
   // Left image style
   const leftImageStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',
-    objectFit: 'cover',
-    borderRadius: '8px'
+    objectFit: 'cover'
+  };
+
+  // Small image in top-right corner of left image
+  const leftTopImageContainer: React.CSSProperties = {
+    position: 'absolute',
+    top: '20px',
+    right: '20px',
+    width: '120px',
+    height: '120px',
+    borderRadius: '8px',
+    overflow: 'hidden',
+    border: '3px solid #FFFFFF',
+    zIndex: 10
+  };
+
+  const leftTopImageStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
   };
 
   // Avatar image container (top right)
@@ -177,15 +206,27 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
         />
       </div>
 
-      {/* Left Section - Large Image */}
+      {/* Left Section - Large Image with small image in top-right corner */}
       <div style={leftSection}>
-        <ClickableImagePlaceholder
-          imagePath={leftImagePath}
-          onImageUploaded={(path) => onUpdate && onUpdate({ leftImagePath: path })}
-          description="Left side image" 
-          isEditable={isEditable} 
-          style={leftImageStyle} 
-        />
+        <div style={leftSectionContainer}>
+          <ClickableImagePlaceholder
+            imagePath={leftImagePath}
+            onImageUploaded={(path) => onUpdate && onUpdate({ leftImagePath: path })}
+            description="Left side image" 
+            isEditable={isEditable} 
+            style={leftImageStyle} 
+          />
+          {/* Small image in top-right corner */}
+          <div style={leftTopImageContainer}>
+            <ClickableImagePlaceholder
+              imagePath={leftTopImagePath}
+              onImageUploaded={(path) => onUpdate && onUpdate({ leftTopImagePath: path })}
+              description="Top-right image" 
+              isEditable={isEditable} 
+              style={leftTopImageStyle} 
+            />
+          </div>
+        </div>
       </div>
 
       {/* Right Section - Content */}
