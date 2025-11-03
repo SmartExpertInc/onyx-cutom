@@ -2976,21 +2976,23 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'personal-accountability-slide': {
     id: 'personal-accountability-slide',
     name: 'Personal Accountability',
-    description: 'Two-column layout with text on light purple background and avatar on blue background',
+    description: 'Two-column layout with large image on left, avatar, text and image on right',
     category: 'content',
     icon: '👤',
     component: PersonalAccountabilitySlideTemplate,
     defaultProps: {
-      title: 'Personal Accountability and Responsibility',
-      subtitle: 'Empower individuals to take ownership of their actions and outcomes',
-      avatarPath: '',
+      content: 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
+      leftImagePath: '',
+      avatarImagePath: '',
+      bottomImagePath: '',
       logoPath: '',
-      pageNumber: '10'
+      pageNumber: '09'
     },
     propSchema: {
-      title: { type: 'text', label: 'Title', required: true },
-      subtitle: { type: 'text', label: 'Subtitle', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' },
+      content: { type: 'text', label: 'Content', required: true, multiline: true },
+      leftImagePath: { type: 'image', label: 'Left Image' },
+      avatarImagePath: { type: 'image', label: 'Avatar Image' },
+      bottomImagePath: { type: 'image', label: 'Bottom Image' },
       logoPath: { type: 'image', label: 'Logo' },
       pageNumber: { type: 'text', label: 'Page Number' }
     }
