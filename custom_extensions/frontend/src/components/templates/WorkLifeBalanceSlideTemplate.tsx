@@ -327,10 +327,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
                 position: 'relative',
-                padding: '8px 12px',
-                border: '1px solid rgba(255,255,255,0.3)',
-                borderRadius: '4px',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                // no padding/border/background to avoid visual changes
               }}
               onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
