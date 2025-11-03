@@ -2603,6 +2603,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: top: 64px, right: 96px, width: 272px, height: 272px, border-radius: 50%
+      // Calculated X: 1920 - 96 - 272 = 1552px
+      x: 1552,      // ✅ Measured: 1552px (calculated from right: 96px)
+      y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#ffffff' // White background
     }
   }
   ,
