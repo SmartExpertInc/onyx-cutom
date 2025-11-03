@@ -173,15 +173,14 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           // CRITICAL FIX: Apply computed fontSize to ALL content as TipTap marks
           // This ensures TextSettings panel reads the correct fontSize
           // Check if content has any fontSize marks already
-          const { from, to } = editor.state.doc.content.findDiffStart(editor.state.doc.content) 
-            ? { from: 0, to: editor.state.doc.content.size } 
-            : { from: 0, to: editor.state.doc.content.size };
-          
-          const hasExistingFontSize = editor.state.doc.nodesBetween(0, editor.state.doc.content.size, (node) => {
+          let hasExistingFontSize = false;
+          editor.state.doc.nodesBetween(0, editor.state.doc.content.size, (node) => {
             if (node.marks) {
-              return node.marks.some(mark => mark.type.name === 'textStyle' && mark.attrs.fontSize);
+              const hasFontSize = node.marks.some(mark => mark.type.name === 'textStyle' && mark.attrs.fontSize);
+              if (hasFontSize) {
+                hasExistingFontSize = true;
+              }
             }
-            return false;
           });
 
           // If no inline fontSize exists, apply computed fontSize to all content
