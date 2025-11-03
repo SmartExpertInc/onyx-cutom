@@ -319,7 +319,7 @@ export default function AvatarPopup({
   const content = (
     <div className="flex h-full p-3">
           {/* Left sidebar */}
-          <div className="w-64 bg-white px-3 py-4 flex flex-col border rounded-md border-[#E0E0E0]">
+          <div className="w-56 bg-white px-3 py-4 flex flex-col border rounded-md border-[#E0E0E0]">
             {/* Search bar at the top */}
             <div className="mb-4">
               <div className="relative">
@@ -346,7 +346,7 @@ export default function AvatarPopup({
                   <button
                     type="button"
                     onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
-                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-black bg-white focus:outline-none focus:border-black text-left flex items-center justify-between"
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-[#878787] bg-white focus:outline-none focus:border-black text-left flex items-center justify-between"
                   >
                     <span>{selectedFilters.gender}</span>
                     <svg 
@@ -367,11 +367,16 @@ export default function AvatarPopup({
                             handleFilterChange('gender', option);
                             setIsGenderDropdownOpen(false);
                           }}
-                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
-                            selectedFilters.gender === option ? 'bg-gray-50 font-medium' : ''
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#171718] flex items-center justify-between ${
+                            selectedFilters.gender === option ? 'bg-gray-50' : ''
                           } ${option === 'All' ? 'rounded-t-md' : ''} ${option === 'Male' ? 'rounded-b-md' : ''}`}
                         >
-                          {option}
+                          <span>{option}</span>
+                          {selectedFilters.gender === option && (
+                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8.22461 0.527344C8.3016 0.577768 8.32278 0.68085 8.27246 0.757812L3.73926 7.69141C3.71263 7.73204 3.66962 7.75942 3.62109 7.76562C3.57295 7.77178 3.52442 7.75629 3.48828 7.72363L0.554688 5.05664C0.486645 4.99478 0.481227 4.88941 0.542969 4.82129C0.604886 4.75318 0.71022 4.74865 0.77832 4.81055L3.13379 6.95117L3.56738 7.3457L3.88867 6.85449L7.99414 0.575195C8.04461 0.49844 8.1477 0.47706 8.22461 0.527344Z" fill="#171718" stroke="#171718"/>
+                            </svg>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -384,7 +389,7 @@ export default function AvatarPopup({
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Young', 'Middle-aged', 'Senior'].map((age) => (
-                    <label key={age} className="flex items-center cursor-pointer pl-2">
+                    <label key={age} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedFilters.age.includes(age)}
@@ -409,7 +414,7 @@ export default function AvatarPopup({
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Asian', 'Black', 'White / Caucasian', 'South Asian / Indian', 'Southeast Asian / Pacific Island', 'Black, Latino / Hispanic', 'Latino / Hispanic', 'Middle Eastern'].map((ethnicity) => (
-                    <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
+                    <label key={ethnicity} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedFilters.ethnicity.includes(ethnicity)}
@@ -434,7 +439,7 @@ export default function AvatarPopup({
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Look</h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Business', 'Casual', 'Call Centre', 'Doctor', 'Construction', 'Fitness', 'Chef', 'Thobe', 'Casual White'].map((look) => (
-                    <label key={look} className="flex items-center cursor-pointer pl-2">
+                    <label key={look} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedFilters.look.includes(look)}
@@ -468,14 +473,14 @@ export default function AvatarPopup({
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                      className="relative w-full h-24 rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center border border-[#E0E0E0]"
+                      className="relative w-full h-[116px] rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center border border-[#E0E0E0]"
                       onClick={() => handleAvatarClick(avatar)}
                       >
                         {avatar.thumbnail ? (
                           <img 
                             src={avatar.thumbnail} 
                             alt={avatar.displayName}
-                            className="w-4/5 h-4/5 object-contain"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
@@ -523,7 +528,7 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[450px] max-w-[830px] rounded-md overflow-hidden ${className}`}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[480px] max-w-[860px] rounded-md overflow-hidden ${className}`}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -537,7 +542,7 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[830px] h-[450px] rounded-md overflow-hidden ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[860px] h-[480px] rounded-md overflow-hidden ${className}`} 
         style={{
           left: position?.x || 0,
           top: position?.y || 0
