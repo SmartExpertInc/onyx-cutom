@@ -210,7 +210,7 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
         left: `${position.x}px`,
         top: `${position.y}px`,
         width: '380px',
-        height: '380px',
+        height: '360px',
       }}
     >
       {/* First Row - Filled Basic Shapes */}

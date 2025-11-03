@@ -283,7 +283,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             <button
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
-                onShapesButtonClick?.({ x: rect.left, y: 70 });
+                const popupWidth = 380;
+                const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
+                onShapesButtonClick?.({ x: centerX, y: 70 });
               }}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
@@ -299,7 +301,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             <button
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
-                onTextButtonClick?.({ x: rect.left, y: rect.bottom + 6 });
+                const popupWidth = 200;
+                const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
+                onTextButtonClick?.({ x: centerX, y: 70 });
               }}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
