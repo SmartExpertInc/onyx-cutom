@@ -73,7 +73,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }));
 
   // Lucide icon overrides to better visualize structure
-  const iconOverrides: Record<string, JSX.Element> = {
+  const iconOverrides: Record<string, React.ReactNode> = {
     'course-overview-slide': <ListChecks className="text-gray-700" />, // Title + bullets
     'work-life-balance-slide': <UserRound className="text-gray-700" />, // Big avatar + text
     'phishing-definition-slide': <BookOpenText className="text-gray-700" />, // Definition
