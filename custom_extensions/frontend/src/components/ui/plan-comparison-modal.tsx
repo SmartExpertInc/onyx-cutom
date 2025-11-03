@@ -137,7 +137,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] rounded-2xl p-0 max-h-[90vh] bg-white/80 backdrop-blur-sm overflow-hidden" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1350px] max-w-[1450px] xl:max-w-[1450px] xl:w-[95vw] w-[93vw] rounded-2xl p-0 max-h-[90vh] min-w-[980px] bg-white/80 backdrop-blur-sm overflow-hidden" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -187,8 +187,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
           </div>
 
           {/* Plan Cards with Features Inside and Labels on Left */}
-          <div className="px-8 pb-8">
-            <div className="grid gap-4 items-start" style={{ gridTemplateColumns: '250px repeat(4, 1fr)' }}>
+          <div className="px-8 pb-8 relative">
+            <div className="grid gap-4 items-start relative z-[15]" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
               {/* Empty space for feature labels column */}
               <div></div>
               
@@ -196,43 +196,43 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
               {planCards.map((plan) => {
                 const features = getPlanFeatures(plan.id);
                 return (
-                  <div key={plan.id} className="relative h-full">
+                  <div key={plan.id} className="relative h-full min-w-0">
                     {/* Most Popular Badge */}
                     {plan.popular && (
-                      <div className="absolute -top-3 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
+                      <div className="absolute -top-3 left-0 right-0 z-20 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
                         Most Popular
                         <Sparkles className="w-3 h-3 fill-white" />
                       </div>
                     )}
 
                     {/* Plan Card */}
-                    <div className={`h-full flex flex-col ${
+                    <div className={`h-full flex flex-col w-full ${
                       plan.popular ? 'border-2 border-blue-500 rounded-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-md'
-                    } bg-white overflow-hidden`}>
+                    } bg-white/80 backdrop-blur-sm overflow-hidden`}>
                       {/* Card Content */}
                       <div className="p-6 pb-4">
                         <h3 className="text-xl font-bold text-[#171718] mb-3">{plan.name}</h3>
                         
                         {/* Price and Seats */}
                         <div className="mb-2 min-h-[60px]">
-                          <div className="flex items-center gap-3 mb-1">
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-3xl font-bold text-[#171718]">{plan.price}</span>
-                              {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
+                          <div className="flex flex-nowrap items-center gap-2 mb-1">
+                            <div className="flex items-baseline gap-1 flex-shrink-0">
+                              <span className="text-3xl font-bold text-[#171718] whitespace-nowrap">{plan.price}</span>
+                              {plan.priceUnit && <span className="text-sm font-normal text-gray-500 whitespace-nowrap">{plan.priceUnit}</span>}
                             </div>
                             
                             {plan.hasSeats && (
-                              <div className="flex items-center gap-0">
+                              <div className="flex items-center gap-0 flex-shrink-0">
                                 <button 
                                   onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
-                                  className="w-6 h-6 border border-[#E0E0E0] rounded-l-md flex items-center justify-center hover:bg-gray-50"
+                                  className="w-6 h-6 border border-[#E0E0E0] rounded-l-md flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
                                 >
                                   <Minus className="w-3 h-3" />
                                 </button>
-                                <span className="px-2 py-1 bg-white border border-[#E0E0E0] text-[#4D4D4D] text-xs font-medium">{teamSeats} seats</span>
+                                <span className="px-2 py-1 bg-white border border-[#E0E0E0] text-[#4D4D4D] text-xs font-medium whitespace-nowrap">{teamSeats} seats</span>
                                 <button 
                                   onClick={() => setTeamSeats(teamSeats + 1)}
-                                  className="w-6 h-6 border border-[#E0E0E0] rounded-r-md flex items-center justify-center hover:bg-gray-50"
+                                  className="w-6 h-6 border border-[#E0E0E0] rounded-r-md flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
                                 >
                                   <Plus className="w-3 h-3" />
                                 </button>
@@ -265,9 +265,9 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         </button>
 
                         {/* Feature List Inside Card */}
-                        <div className="border-t border-gray-200 pt-4">
+                        <div className="border-t border-[#A5A5A5] pt-4">
                           {features.map((feature, idx) => (
-                            <div key={idx} className="flex items-center justify-center h-[48px] border-b border-gray-100 last:border-b-0">
+                            <div key={idx} className="flex items-center justify-center h-[48px] border-b border-gray-100 last:border-b-0 text-[#4D4D4D]">
                               {renderCell(feature.value)}
                             </div>
                           ))}
@@ -279,21 +279,24 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
               })}
             </div>
 
+            {/* Blue Background for Feature Comparison Section */}
+            <div className="absolute left-0 right-0 bg-blue-100 -mt-[452px] h-[452px] z-0 mx-8"></div>
+
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[452px] pointer-events-none">
-              <div className="grid gap-4" style={{ gridTemplateColumns: '250px repeat(4, 1fr)' }}>
-                <div className="pr-4 pointer-events-auto">
+            <div className="relative -mt-[452px] pointer-events-none z-20">
+              <div className="grid gap-4" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
+                <div className="pr-4 pointer-events-auto cursor-pointer">
                   {featureData.map((category, categoryIndex) => (
                     <div key={categoryIndex}>
                       {/* Category Header */}
-                      <div className="py-3 mb-3 border-b-2 border-gray-200">
+                      <div className="py-3 mb-3 border-b-2 border-[#A5A5A5]">
                         <h4 className="text-base font-bold text-[#171718]">{category.category}</h4>
                       </div>
                       
                       {/* Feature Names */}
                       {category.features.map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-center h-[48px] border-b border-gray-100">
-                          <span className="text-sm text-[#4D4D4D] font-medium">{feature.name}</span>
+                          <span className="text-sm text-[#4D4D4D] font-regular">{feature.name}</span>
                         </div>
                       ))}
                     </div>
