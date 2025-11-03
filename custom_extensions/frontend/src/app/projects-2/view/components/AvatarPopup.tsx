@@ -60,10 +60,10 @@ export default function AvatarPopup({
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
   const [selectedFilters, setSelectedFilters] = useState({
-    gender: 'View All',
-    age: null as string | null,
-    ethnicity: null as string | null,
-    look: null as string | null
+    gender: 'All',
+    age: [] as string[],
+    ethnicity: [] as string[],
+    look: [] as string[]
   });
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
   
@@ -158,31 +158,37 @@ export default function AvatarPopup({
   const filteredAvatars = useMemo(() => {
     const filtered = processedAvatars.filter((avatar) => {
       // Gender filter
-      if (selectedFilters.gender !== 'View All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
+      if (selectedFilters.gender !== 'All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
         return false;
       }
       
       // Age filter
-      if (selectedFilters.age && avatar.age) {
-        const ageMatch = (
-          (selectedFilters.age === 'Young' && avatar.age < 30) ||
-          (selectedFilters.age === 'Middle-aged' && avatar.age >= 30 && avatar.age <= 50) ||
-          (selectedFilters.age === 'Senior' && avatar.age > 50)
-        );
+      if (selectedFilters.age.length > 0 && avatar.age) {
+        const ageMatch = selectedFilters.age.some(ageFilter => (
+          (ageFilter === 'Young' && avatar.age! < 30) ||
+          (ageFilter === 'Middle-aged' && avatar.age! >= 30 && avatar.age! <= 50) ||
+          (ageFilter === 'Senior' && avatar.age! > 50)
+        ));
         if (!ageMatch) {
           return false;
         }
       }
       
       // Ethnicity filter
-      if (selectedFilters.ethnicity && avatar.ethnicity && 
-          !avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())) {
-        return false;
+      if (selectedFilters.ethnicity.length > 0 && avatar.ethnicity) {
+        const ethnicityMatch = selectedFilters.ethnicity.some(ethnicityFilter =>
+          avatar.ethnicity?.toLowerCase().includes(ethnicityFilter.toLowerCase())
+        );
+        if (!ethnicityMatch) {
+          return false;
+        }
       }
       
       // Look filter (variant name)
-      if (selectedFilters.look && avatar.lookCategory !== selectedFilters.look) {
-        return false;
+      if (selectedFilters.look.length > 0) {
+        if (!selectedFilters.look.includes(avatar.lookCategory)) {
+          return false;
+        }
       }
       
       return true;
@@ -199,6 +205,19 @@ export default function AvatarPopup({
       ...prev,
       [filterType]: value
     }));
+  };
+
+  const handleCheckboxChange = (filterType: 'age' | 'ethnicity' | 'look', value: string) => {
+    setSelectedFilters(prev => {
+      const currentValues = prev[filterType];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return {
+        ...prev,
+        [filterType]: newValues
+      };
+    });
   };
 
   const handleAvatarClick = (avatar: ProcessedAvatar) => {
@@ -278,19 +297,10 @@ export default function AvatarPopup({
     }
   };
 
-  const resetFilters = () => {
-    setSelectedFilters({
-      gender: 'View All',
-      age: null,
-      ethnicity: null,
-      look: null
-    });
-  };
-
   const content = (
-    <div className="flex h-full">
+    <div className="flex h-full p-3">
           {/* Left sidebar */}
-          <div className="w-64 bg-white px-6 py-4 flex flex-col" style={{ border: '1px solid #E0E0E0' }}>
+          <div className="w-64 bg-white px-3 py-4 flex flex-col border rounded-md border-[#E0E0E0]">
             {/* Search bar at the top */}
             <div className="mb-4">
               <div className="relative">
@@ -303,7 +313,7 @@ export default function AvatarPopup({
                 <input
                   type="text"
                   placeholder="Search"
-                  className="w-full pl-10 pr-4 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
+                  className="w-full pl-10 pr-4 border border-[#E0E0E0] rounded-md text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
                   style={{ height: '36px' }}
                 />
               </div>
@@ -314,52 +324,28 @@ export default function AvatarPopup({
               {/* Gender */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Gender</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center cursor-pointer pl-2">
-                    <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'Male'}
-                      onChange={() => handleFilterChange('gender', 'Male')}
-                      className="mr-2 border-gray-400 text-black focus:ring-0"
-                    />
-                    <span className="text-sm text-black">Male</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer pl-2">
-                    <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'Female'}
-                      onChange={() => handleFilterChange('gender', 'Female')}
-                      className="mr-2 border-gray-400 text-black focus:ring-0"
-                    />
-                    <span className="text-sm text-black">Female</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer pl-2">
-                      <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'View All'}
-                      onChange={() => handleFilterChange('gender', 'View All')}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
-                      />
-                    <span className="text-sm text-black">View All</span>
-                    </label>
-                </div>
+                <select
+                  value={selectedFilters.gender}
+                  onChange={(e) => handleFilterChange('gender', e.target.value)}
+                  className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-black focus:outline-none focus:border-black focus:ring-0 bg-white"
+                >
+                  <option value="All">All</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                </select>
               </div>
 
               {/* Age */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
-                <div className="space-y-2">
+                <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Young', 'Middle-aged', 'Senior'].map((age) => (
                     <label key={age} className="flex items-center cursor-pointer pl-2">
                       <input
-                        type="radio"
-                        name="age"
-                        checked={selectedFilters.age === age}
-                        onChange={() => handleFilterChange('age', age)}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                        type="checkbox"
+                        checked={selectedFilters.age.includes(age)}
+                        onChange={() => handleCheckboxChange('age', age)}
+                        className="mr-2 w-4 h-4 rounded border-[#878787] text-black bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer"
                       />
                       <span className="text-sm text-black">{age}</span>
                     </label>
@@ -370,15 +356,14 @@ export default function AvatarPopup({
               {/* Ethnicity */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
-                <div className="space-y-2">
+                <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Asian', 'Black', 'White / Caucasian', 'South Asian / Indian', 'Southeast Asian / Pacific Island', 'Black, Latino / Hispanic', 'Latino / Hispanic', 'Middle Eastern'].map((ethnicity) => (
                     <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
                       <input
-                        type="radio"
-                        name="ethnicity"
-                        checked={selectedFilters.ethnicity === ethnicity}
-                        onChange={() => handleFilterChange('ethnicity', ethnicity)}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                        type="checkbox"
+                        checked={selectedFilters.ethnicity.includes(ethnicity)}
+                        onChange={() => handleCheckboxChange('ethnicity', ethnicity)}
+                        className="mr-2 w-4 h-4 rounded border-[#878787] text-black bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer"
                       />
                       <span className="text-sm text-black">{ethnicity}</span>
                     </label>
@@ -389,15 +374,14 @@ export default function AvatarPopup({
               {/* Look (Avatar Variants) */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Look</h4>
-                <div className="space-y-2">
+                <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Business', 'Casual', 'Call Centre', 'Doctor', 'Construction', 'Fitness', 'Chef', 'Thobe', 'Casual White'].map((look) => (
                     <label key={look} className="flex items-center cursor-pointer pl-2">
                       <input
-                        type="radio"
-                        name="look"
-                        checked={selectedFilters.look === look}
-                        onChange={() => handleFilterChange('look', look)}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                        type="checkbox"
+                        checked={selectedFilters.look.includes(look)}
+                        onChange={() => handleCheckboxChange('look', look)}
+                        className="mr-2 w-4 h-4 rounded border-[#878787] text-black bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer"
                       />
                       <span className="text-sm text-black">{look}</span>
                     </label>
@@ -405,20 +389,6 @@ export default function AvatarPopup({
                 </div>
               </div>
             </div>
-
-            {/* Footer - appears when filters are applied */}
-            {(selectedFilters.age || selectedFilters.ethnicity || selectedFilters.look || selectedFilters.gender !== 'View All') && (
-              <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6 flex justify-center">
-                <button 
-                  onClick={resetFilters}
-                  className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-                  style={{ width: 'fit-content' }}
-                >
-                  <span className="text-base">×</span>
-                  <span>Reset filters</span>
-                </button>
-              </div>
-            )}
           </div>
 
       {/* Right main area */}
