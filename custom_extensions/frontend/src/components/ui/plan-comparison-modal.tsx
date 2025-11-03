@@ -4,6 +4,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
 import { X, Check, Star, InfoIcon, Sparkles, Minus, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ContactSalesModal from './contact-sales-modal';
 
 interface PlanComparisonModalProps {
   open: boolean;
@@ -14,6 +15,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
   const { t } = useLanguage();
   const [billingCycle, setBillingCycle] = React.useState<'monthly' | 'yearly'>('yearly');
   const [teamSeats, setTeamSeats] = React.useState(2);
+  const [isContactSalesOpen, setIsContactSalesOpen] = React.useState(false);
 
   const planCards = [
     {
@@ -93,6 +95,16 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         { name: 'Translation processing speed', starter: false, creator: true, team: true, enterprise: true },
         { name: 'Translation - Global Language Suite', starter: false, creator: 'All', team: 'All', enterprise: 'All' },
       ]
+    },
+    {
+      category: 'Media',
+      features: [
+        { name: '720p HD Videos', starter: true, creator: true, team: true, enterprise: true },
+        { name: '1080p Full HD Videos', starter: true, creator: true, team: true, enterprise: true },
+        { name: 'Video Translation', starter: true, creator: true, team: true, enterprise: true },
+        { name: 'Translation processing speed', starter: true, creator: true, team: true, enterprise: true },
+        { name: 'Translation - Global Language Suite', starter: true, creator: true, team: true, enterprise: true },
+      ]
     }
   ];
 
@@ -101,7 +113,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
       return value ? (
         <Check className="w-5 h-5 text-blue-600" />
       ) : (
-        <span className="text-gray-300 text-xl">-</span>
+        <span className="text-[#4D4D4D] text-lg">-</span>
       );
     }
     return <span className="text-sm text-[#171718] font-medium">{value}</span>;
@@ -135,9 +147,10 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1350px] max-w-[1450px] xl:max-w-[1450px] xl:w-[95vw] w-[93vw] rounded-2xl p-0 max-h-[90vh] min-w-[980px] bg-white/80 backdrop-blur-sm overflow-hidden" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1550px] max-w-[1650px] xl:max-w-[1650px] xl:w-[98vw] w-[95vw] rounded-2xl p-0 max-h-[90vh] min-w-[980px] bg-white/80 backdrop-blur-sm overflow-hidden" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -199,7 +212,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   <div key={plan.id} className="relative h-full min-w-0">
                     {/* Most Popular Badge */}
                     {plan.popular && (
-                      <div className="absolute -top-3 left-0 right-0 z-20 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
+                      <div className="absolute -top-4 left-0 right-0 z-20 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
                         Most Popular
                         <Sparkles className="w-3 h-3 fill-white" />
                       </div>
@@ -208,17 +221,17 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                     {/* Plan Card */}
                     <div className={`h-full flex flex-col w-full ${
                       plan.popular ? 'border-2 border-blue-500 rounded-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-md'
-                    } bg-white/80 backdrop-blur-sm overflow-hidden`}>
+                    } !bg-white/80 !backdrop-blur-sm overflow-hidden`}>
                       {/* Card Content */}
-                      <div className="p-6 pb-4">
+                      <div className="py-6 px-3 pb-4">
                         <h3 className="text-xl font-bold text-[#171718] mb-3">{plan.name}</h3>
                         
                         {/* Price and Seats */}
-                        <div className="mb-2 min-h-[60px]">
+                        <div className="mb-2 min-h-[25px]">
                           <div className="flex flex-nowrap items-center gap-2 mb-1">
                             <div className="flex items-baseline gap-1 flex-shrink-0">
                               <span className="text-3xl font-bold text-[#171718] whitespace-nowrap">{plan.price}</span>
-                              {plan.priceUnit && <span className="text-sm font-normal text-gray-500 whitespace-nowrap">{plan.priceUnit}</span>}
+                              {plan.priceUnit && <span className="text-xs font-normal text-gray-500 whitespace-nowrap">{plan.priceUnit}</span>}
                             </div>
                             
                             {plan.hasSeats && (
@@ -241,7 +254,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                           </div>
                         </div>
                         
-                        <p className="text-xs text-[#A5A5A5] mb-3 min-h-[20px]">{plan.billing}</p>
+                        <p className="text-xs text-[#A5A5A5] mb-3 min-h-[40px]">{plan.billing}</p>
                         
                         <div className="flex items-center gap-2 mb-4 min-h-[32px]">
                           <div className="flex-1">
@@ -253,6 +266,11 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
 
                         {/* CTA Button */}
                         <button
+                          onClick={() => {
+                            if (plan.isEnterprise) {
+                              setIsContactSalesOpen(true);
+                            }
+                          }}
                           className={`w-full py-3 rounded-full text-sm font-semibold transition-all mb-4 ${
                             plan.current
                               ? 'bg-gray-200 text-gray-500'
@@ -313,6 +331,13 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         </div>
       </DialogContent>
     </Dialog>
+    
+    {/* Contact Sales Modal */}
+    <ContactSalesModal 
+      open={isContactSalesOpen} 
+      onOpenChange={setIsContactSalesOpen}
+    />
+  </>
   );
 };
 
