@@ -268,6 +268,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         <button
                           onClick={() => {
                             if (plan.isEnterprise) {
+                              onOpenChange(false);
                               setIsContactSalesOpen(true);
                             }
                           }}
