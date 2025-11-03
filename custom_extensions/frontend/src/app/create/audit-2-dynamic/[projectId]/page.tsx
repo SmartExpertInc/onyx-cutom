@@ -1935,7 +1935,7 @@ export default function DynamicAuditLandingPage() {
                 {/* Pill-shaped div */}
                 <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] xl:px-[25px] py-[6px] xl:py-[4px] flex items-center gap-2 xl:mb-[5px]">
                   {/* Circle with gradient background */}
-                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#01D0FF] to-[#6496F8] xl:bg-gradient-to-r xl:from-[#0F58F9] xl:to-[#6496F8]"></div>
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#FAFAFA] to-[#FAFAFA] xl:bg-gradient-to-r xl:from-[#FAFAFA] xl:to-[#FAFAFA]"></div>
                   
                   {/* Text */}
                   <span className="font-medium text-[13px] xl:text-[16px] text-[#71717A] xl:text-[#09090B] tracking-[0.05em]">
@@ -2051,6 +2051,14 @@ export default function DynamicAuditLandingPage() {
                   ru: 'Как с помощью AI:'
                 })}
               </h2>
+              <p className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em]">
+                {getLocalizedText(landingPageData?.language, {
+                  en: 'Demonstrate how implementing AI can:',
+                  es: 'Demostrar cómo la implementación de la IA puede:',
+                  ua: 'Демонструвати, як впровадження AI може:',
+                  ru: 'Показать, как внедрение AI может:'
+                })}
+              </p>
               <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px]">
                 {/* Card 1 */}
                 <div className="h-[350px] border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
@@ -2156,6 +2164,15 @@ export default function DynamicAuditLandingPage() {
               
               <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
                 <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
+                  <div className="gap-2 flex items-center">
+                    <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
+                    <p className="font-semibold text-2xl text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
+                      en: 'Open Positions',
+                      es: 'Posiciones Abiertas',
+                      ua: 'Відкриті вакансії',
+                      ru: 'Открытые вакансии'
+                    })}</p>
+                  </div>
                   {/* Dynamic Job Cards - Only render if data is available */}
                   {jobPositions && jobPositions.length > 0 && (
                     jobPositions.map((position, index) => (
@@ -2192,187 +2209,229 @@ export default function DynamicAuditLandingPage() {
                     ))
                   )}
                 </div>
-  
-                <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px] xl:h-[870px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
-                  <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] xl:mb-0 text-center xl:text-left">
-                    {getLocalizedText(landingPageData?.language, {
-                      en: 'Shortage of Qualified Personnel',
-                      es: 'Escasez de Personal Calificado',
-                      ua: 'Дефіцит кваліфікованих кадрів',
-                      ru: 'Дефицит квалифицированных кадров'
-                    })}
-                  </h3>
-                  
-                  {/* First Card */}
-                  <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[45px] py-[15px] xl:pt-[30px] xl:pb-[30px] px-[15px] xl:pl-[20px] xl:pr-[35px] justify-center items-center text-center border border-[#E0E0E0] rounded-[4px] xl:w-[620px] xl:h-[284px]">
-                    {/* Dynamic Yearly Shortage Number - Mobile */}
-                    <div className="block xl:hidden flex flex-col items-center justify-center w-[164px] h-[164px]">
-                      <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        {/* Circular Progress Background */}
-                        <svg className="absolute inset-0 w-full h-full" width="164" height="164" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="82" cy="82" r="80" stroke="#EAF7FE" strokeWidth="2.85714"/>
-                          <path d="M162 82C162 126.183 126.183 162 82 162C37.8172 162 2 126.183 2 82C2 37.8172 37.8172 2 82 2" stroke="#55BFF9" strokeWidth="4" strokeLinecap="round"/>
-                          <path d="M162 82C162 126.183 126.183 162 82 162" stroke="#0F58F9" strokeWidth="4" strokeLinecap="round"/>
-                        </svg>
-                        
-                        {/* Dynamic Number and Text */}
-                        <div className="relative z-10 flex flex-col items-center justify-center text-center">
-                          <div className="font-bold text-[36px] leading-[1] text-[#09090B] mb-1">
-                            {editingField === 'yearlyShortage' ? (
-                              <InlineEditor
-                                initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
-                                onSave={(value) => handleTextSave('yearlyShortage', value)}
-                                onCancel={handleTextCancel}
-                                className="text-center"
-                                style={{ fontSize: '36px', fontWeight: 'bold', color: '#09090B' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('yearlyShortage')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit personnel shortage number"
-                              >
-                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
-                              </span>
-                            )}
-                          </div>
-                          <div className="font-normal text-[12px] text-[#09090B]">
-                            {getLocalizedText(landingPageData?.language, {
-                              en: 'specialists',
-                              es: 'especialistas',
-                              ua: 'спеціалістів',
-                              ru: 'специалистов'
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-  
-                    {/* Dynamic Yearly Shortage Number */}
-                    <div className="hidden xl:flex flex-col items-center justify-center w-[224px] h-[224px]">
-                      <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        {/* Circular Progress Background */}
-                        <svg className="absolute inset-0 w-full h-full" width="224" height="224" viewBox="0 0 228 228" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="114" cy="114" r="112" stroke="#EAF7FE" strokeWidth="4"/>
-                          <path d="M226 114C226 175.856 175.856 226 114 226C52.1441 226 2 175.856 2 114C2 52.1441 52.1441 2 114 2" stroke="#55BFF9" strokeWidth="4"/>
-                          <path d="M226 114C226 175.856 175.856 226 114 226" stroke="#0F58F9" strokeWidth="4"/>
-                        </svg>
-                        
-                        {/* Dynamic Number and Text */}
-                        <div className="relative z-10 flex flex-col items-center justify-center text-center">
-                          <div className="font-bold text-[48px] leading-[1] text-[#09090B] mb-1">
-                            {editingField === 'yearlyShortage' ? (
-                              <InlineEditor
-                                initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
-                                onSave={(value) => handleTextSave('yearlyShortage', value)}
-                                onCancel={handleTextCancel}
-                                className="text-center"
-                                style={{ fontSize: '48px', fontWeight: 'bold', color: '#09090B' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('yearlyShortage')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit personnel shortage number"
-                              >
-                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
-                              </span>
-                            )}
-                          </div>
-                          <div className="font-normal text-[14px] text-[#09090B]">
-                            {getLocalizedText(landingPageData?.language, {
-                              en: 'specialists',
-                              es: 'especialistas',
-                              ua: 'спеціалістів',
-                              ru: 'специалистов'
-                            })}
+                <div>
+                  <div className="gap-2 flex items-center">
+                    <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
+                    <p className="font-semibold text-2xl text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
+                      en: 'Open Positions',
+                      es: 'Posiciones Abiertas',
+                      ua: 'Відкриті вакансії',
+                      ru: 'Открытые вакансии'
+                    })}</p>
+                  </div>
+                  <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px] xl:h-[870px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
+                    <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] xl:mb-0 text-center xl:text-left">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Shortage of Qualified Personnel',
+                        es: 'Escasez de Personal Calificado',
+                        ua: 'Дефіцит кваліфікованих кадрів',
+                        ru: 'Дефицит квалифицированных кадров'
+                      })}
+                    </h3>
+                    
+                    {/* First Card */}
+                    <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[45px] py-[15px] xl:pt-[30px] xl:pb-[30px] px-[15px] xl:pl-[20px] xl:pr-[35px] justify-center items-center text-center border border-[#E0E0E0] rounded-[4px] xl:w-[620px] xl:h-[284px]">
+                      {/* Dynamic Yearly Shortage Number - Mobile */}
+                      <div className="block xl:hidden flex flex-col items-center justify-center w-[164px] h-[164px]">
+                        <div className="relative w-full h-full flex flex-col items-center justify-center">
+                          {/* Circular Progress Background */}
+                          <svg className="absolute inset-0 w-full h-full" width="164" height="164" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="82" cy="82" r="80" stroke="#EAF7FE" strokeWidth="2.85714"/>
+                            <path d="M162 82C162 126.183 126.183 162 82 162C37.8172 162 2 126.183 2 82C2 37.8172 37.8172 2 82 2" stroke="#55BFF9" strokeWidth="4" strokeLinecap="round"/>
+                            <path d="M162 82C162 126.183 126.183 162 82 162" stroke="#0F58F9" strokeWidth="4" strokeLinecap="round"/>
+                          </svg>
+                          
+                          {/* Dynamic Number and Text */}
+                          <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                            <div className="font-bold text-[36px] leading-[1] text-[#09090B] mb-1">
+                              {editingField === 'yearlyShortage' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
+                                  onSave={(value) => handleTextSave('yearlyShortage', value)}
+                                  onCancel={handleTextCancel}
+                                  className="text-center"
+                                  style={{ fontSize: '36px', fontWeight: 'bold', color: '#09090B' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('yearlyShortage')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit personnel shortage number"
+                                >
+                              {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-normal text-[12px] text-[#09090B]">
+                              {getLocalizedText(landingPageData?.language, {
+                                en: 'specialists',
+                                es: 'especialistas',
+                                ua: 'спеціалістів',
+                                ru: 'специалистов'
+                              })}
+                            </div>
                           </div>
                         </div>
                       </div>
+    
+                      {/* Dynamic Yearly Shortage Number */}
+                      <div className="hidden xl:flex flex-col items-center justify-center w-[224px] h-[224px]">
+                        <div className="relative w-full h-full flex flex-col items-center justify-center">
+                          {/* Circular Progress Background */}
+                          <svg className="absolute inset-0 w-full h-full" width="224" height="224" viewBox="0 0 228 228" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="114" cy="114" r="112" stroke="#EAF7FE" strokeWidth="4"/>
+                            <path d="M226 114C226 175.856 175.856 226 114 226C52.1441 226 2 175.856 2 114C2 52.1441 52.1441 2 114 2" stroke="#55BFF9" strokeWidth="4"/>
+                            <path d="M226 114C226 175.856 175.856 226 114 226" stroke="#0F58F9" strokeWidth="4"/>
+                          </svg>
+                          
+                          {/* Dynamic Number and Text */}
+                          <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                            <div className="font-bold text-[48px] leading-[1] text-[#09090B] mb-1">
+                              {editingField === 'yearlyShortage' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
+                                  onSave={(value) => handleTextSave('yearlyShortage', value)}
+                                  onCancel={handleTextCancel}
+                                  className="text-center"
+                                  style={{ fontSize: '48px', fontWeight: 'bold', color: '#09090B' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('yearlyShortage')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit personnel shortage number"
+                                >
+                              {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-normal text-[14px] text-[#09090B]">
+                              {getLocalizedText(landingPageData?.language, {
+                                en: 'specialists',
+                                es: 'especialistas',
+                                ua: 'спеціалістів',
+                                ru: 'специалистов'
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                      <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
+                        <p className="font-semibold text-[16px] text-left xl:text-[20px]">
+                          {editingField === 'workforceCrisisMissingText' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.workforceCrisis?.missingPersonnelDescription || 
+                                `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`}
+                              onSave={(value) => handleTextSave('workforceCrisisMissingText', value)}
+                              onCancel={handleTextCancel}
+                              multiline={true}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('workforceCrisisMissingText')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit full description text"
+                            >
+                              {landingPageData?.workforceCrisis?.missingPersonnelDescription || 
+                                getLocalizedText(landingPageData?.language, {
+                            en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
+                            es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
+                            ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
+                            ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
+                          })}
+                            </span>
+                          )}
+                        </p>
+                        <p className="font-normal text-left italic text-[12px] text-[#BABABE]">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'According to Bureau of Labor Statistics',
+                            es: 'Según la Oficina de Estadísticas Laborales',
+                            ua: 'За даними Bureau of Labor Statistics',
+                            ru: 'По данным Bureau of Labor Statistics'
+                          })}
+                        </p>
+                      </div>
                     </div>
-  
-                    <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
-                      <p className="font-semibold text-[16px] xl:text-[20px]">
-                        {editingField === 'workforceCrisisMissingText' ? (
-                          <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.missingPersonnelDescription || 
-                              `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`}
-                            onSave={(value) => handleTextSave('workforceCrisisMissingText', value)}
-                            onCancel={handleTextCancel}
-                            multiline={true}
-                            className="font-semibold"
-                            style={{ fontSize: '16px' }}
+    
+                    {/* Second Card */}
+                    <div 
+                      className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
+                      style={{ minHeight: '256px', maxHeight: '256px' }}
+                    >
+                      {landingPageData?.workforceCrisis?.chartData ? (
+                        <div className="w-full h-[226px] flex justify-center items-center overflow-visible">
+                          <PersonnelShortageChart 
+                            chartData={landingPageData.workforceCrisis.chartData} 
+                            isMobile={true}
+                            language={landingPageData?.language}
                           />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('workforceCrisisMissingText')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit full description text"
-                          >
-                            {landingPageData?.workforceCrisis?.missingPersonnelDescription || 
-                              getLocalizedText(landingPageData?.language, {
-                          en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
-                          es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
-                          ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
-                          ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
-                        })}
-                          </span>
-                        )}
-                      </p>
-                      <p className="font-normal italic text-[12px] text-[#BABABE]">
+                        </div>
+                      ) : (
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-3-card-2-mobile-new.png" 
+                          alt="Audit section 3 card 2 mobile" 
+                          width={271}
+                          height={226}
+                          className="w-full h-[226px] object-cover"
+                          style={{ maxHeight: '226px' }}
+                        />
+                      )}
+                    </div>
+    
+                    <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
+                      {landingPageData?.workforceCrisis?.chartData ? (
+                        <div className="w-full h-full flex justify-center items-center overflow-visible">
+                          <PersonnelShortageChart 
+                            chartData={landingPageData.workforceCrisis.chartData} 
+                            isMobile={false}
+                            language={landingPageData?.language}
+                          />
+                        </div>
+                      ) : (
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
+                          alt="Audit section 3 card 2 desktop" 
+                          width={620}
+                          height={420}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Conclusion Section */}
+              <div className="w-full xl:px-0 p-[10px]">
+                <div className="bg-[#F5F8FF] rounded-[12px] p-[20px] xl:p-[30px]">
+                  <div className="flex items-start gap-[12px]">
+                    <div className="flex-shrink-0 w-[24px] h-[24px] flex items-center justify-center">
+                      <svg width="23" height="34" viewBox="0 0 23 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.32617 29.1533C5.32617 29.8251 5.75807 30.401 6.38192 30.593L7.48566 30.8809C8.01354 33.0404 9.98108 34.0002 11.4687 34.0002C12.9084 34.0002 14.9239 33.0404 15.4518 30.8809L16.5555 30.593C17.1794 30.401 17.6113 29.8251 17.6113 29.1533V26.5139H5.32617V29.1533Z" fill="#0F58F9"/>
+                        <path d="M12.813 0.0775973C9.54975 -0.306312 6.28652 0.74944 3.8391 2.90893C1.39167 5.06842 0 8.18769 0 11.4989C0 14.0903 0.863797 16.5377 2.44742 18.6012C2.9753 19.2251 3.69513 20.5208 4.55893 22.2484C4.70289 22.5363 4.84686 22.8722 4.94284 23.2082H17.9958C18.0917 22.8722 18.2357 22.5843 18.3797 22.2484C19.2435 20.5688 19.9633 19.2731 20.4912 18.6492C22.5067 16.1058 23.3225 12.9386 22.8426 9.67534C22.0268 4.58854 17.8998 0.653462 12.813 0.0775973ZM17.2279 10.3952L11.0854 16.5377C10.7495 16.8736 10.3176 17.0176 9.93366 17.0176C9.54975 17.0176 9.06987 16.8736 8.78193 16.5377L5.71066 13.5144C5.0868 12.8906 5.0868 11.8348 5.71066 11.163C6.33451 10.5391 7.39026 10.5391 8.0621 11.163L9.93366 13.0345L14.9245 8.04372C15.5483 7.41987 16.6041 7.41987 17.2759 8.04372C17.8998 8.71556 17.8998 9.77132 17.2279 10.3952Z" fill="#0F58F9"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-[40px] xl:text-[46px] leading-[115%] text-gray-900 mb-[10px]">
                         {getLocalizedText(landingPageData?.language, {
-                          en: 'According to Bureau of Labor Statistics',
-                          es: 'Según la Oficina de Estadísticas Laborales',
-                          ua: 'За даними Bureau of Labor Statistics',
-                          ru: 'По данным Bureau of Labor Statistics'
+                          en: 'Conclusion:',
+                          es: 'Conclusión:',
+                          ua: 'Висновок:',
+                          ru: 'Вывод:'
+                        })}
+                      </h3>
+                      <p className="text-[20px] xl:text-2xl leading-[150%] text-gray-800">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'The retail sector for food products and everyday goods faces a persistent shortage of qualified personnel.',
+                          es: 'El sector minorista de productos alimenticios y bienes de consumo cotidiano enfrenta una escasez persistente de personal calificado.',
+                          ua: 'Галузь роздрібної торгівлі продуктами харчування та товарами повсякденного попиту стикається зі стійким дефіцитом кваліфікованих кадрів.',
+                          ru: 'Отрасль розничной торговли продуктами питания и товарами повседневного спроса сталкивается с устойчивым дефицитом квалифицированных кадров.'
                         })}
                       </p>
                     </div>
-                  </div>
-  
-                  {/* Second Card */}
-                  <div 
-                    className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
-                    style={{ minHeight: '256px', maxHeight: '256px' }}
-                  >
-                    {landingPageData?.workforceCrisis?.chartData ? (
-                      <div className="w-full h-[226px] flex justify-center items-center overflow-visible">
-                        <PersonnelShortageChart 
-                          chartData={landingPageData.workforceCrisis.chartData} 
-                          isMobile={true}
-                          language={landingPageData?.language}
-                        />
-                      </div>
-                    ) : (
-                      <Image 
-                        src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
-                        alt="Audit section 3 card 2 mobile" 
-                        width={271}
-                        height={226}
-                        className="w-full h-[226px] object-cover"
-                        style={{ maxHeight: '226px' }}
-                      />
-                    )}
-                  </div>
-  
-                  <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
-                    {landingPageData?.workforceCrisis?.chartData ? (
-                      <div className="w-full h-full flex justify-center items-center overflow-visible">
-                        <PersonnelShortageChart 
-                          chartData={landingPageData.workforceCrisis.chartData} 
-                          isMobile={false}
-                          language={landingPageData?.language}
-                        />
-                      </div>
-                    ) : (
-                      <Image 
-                        src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
-                        alt="Audit section 3 card 2 desktop" 
-                        width={620}
-                        height={420}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
                   </div>
                 </div>
               </div>
@@ -2380,7 +2439,7 @@ export default function DynamicAuditLandingPage() {
   
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
-              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
+              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
                 {editingField === 'workforceCrisisFullTitle' ? (
                   <InlineEditor
                     initialValue={landingPageData?.workforceCrisis?.fullTitle || 
@@ -2394,7 +2453,7 @@ export default function DynamicAuditLandingPage() {
                     onCancel={handleTextCancel}
                     multiline={true}
                     className="font-medium"
-                    style={{ fontSize: '32px', textAlign: 'center' }}
+                    style={{ fontSize: '32px', textAlign: 'left' }}
                   />
                 ) : (
                   <span 
@@ -3045,7 +3104,7 @@ export default function DynamicAuditLandingPage() {
                   )}
                 </h3>
   
-                <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                <h3 className="hidden xl:block font-medium xl:text-[32px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
                       initialValue={landingPageData?.serviceTemplatesDescription || 
@@ -3059,7 +3118,7 @@ export default function DynamicAuditLandingPage() {
                       onCancel={handleTextCancel}
                       multiline={true}
                       className="font-medium"
-                      style={{ fontSize: '40px' }}
+                      style={{ fontSize: '32px' }}
                     />
                   ) : (
                     <span 
