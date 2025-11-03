@@ -52,7 +52,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
   // Top header section with blue background
   const headerSection: React.CSSProperties = {
     width: '100%',
-    backgroundColor: '#2563EB',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     padding: '40px 80px',
     display: 'flex',
     alignItems: 'center',
@@ -62,10 +62,10 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
 
   // Avatar container
   const avatarContainer: React.CSSProperties = {
-    width: '80px',
-    height: '80px',
+    width: '140px',
+    height: '140px',
     borderRadius: '50%',
-    border: '2px solid white',
+    backgroundColor: '#FFFFFF',
     overflow: 'hidden',
     flexShrink: 0
   };
@@ -75,6 +75,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
+    marginLeft: '25px',
     flex: 1
   };
 
@@ -83,7 +84,8 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     fontWeight: 700,
     color: '#FFFFFF',
     lineHeight: 1.2,
-    margin: 0
+    margin: 0,
+    fontFamily: "'Lora', serif"
   };
 
   const subtitleStyle: React.CSSProperties = {
@@ -91,7 +93,9 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     fontWeight: 400,
     color: '#FFFFFF',
     lineHeight: 1.4,
-    margin: 0
+    opacity: '0.8',
+    margin: 0,
+    fontFamily: "'Lora', serif"
   };
 
   // Content area with stats cards
@@ -108,16 +112,17 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
 
   // Stats card style
   const statCardStyle: React.CSSProperties = {
-    backgroundColor: '#2563EB',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     borderRadius: '12px',
     padding: '32px 24px',
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
     flex: 1,
+    height: '315px',
     maxWidth: '320px',
     minHeight: '200px',
-    justifyContent: 'center'
+    justifyContent: 'space-between'
   };
 
   const percentageStyle: React.CSSProperties = {
@@ -125,7 +130,8 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     fontWeight: 700,
     color: '#FFFFFF',
     lineHeight: 1,
-    margin: 0
+    margin: 0,
+    fontFamily: "'Lora', serif"
   };
 
   const statDescriptionStyle: React.CSSProperties = {
@@ -133,7 +139,9 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
     fontWeight: 400,
     color: '#FFFFFF',
     lineHeight: 1.4,
-    margin: 0
+    margin: 0,
+    opacity: '0.8',
+    fontFamily: "'Lora', serif"
   };
 
   // Footer section - Logo in bottom-right

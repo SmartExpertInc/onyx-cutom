@@ -79,7 +79,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     lineHeight: 1.3,
     margin: 0,
     marginBottom: '24px',
-    fontFamily: 'serif'
+    fontFamily: "'Lora', serif"
   };
 
   // Subtitle style
@@ -88,7 +88,8 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     fontWeight: 400,
     color: '#4B5563',
     lineHeight: 1.6,
-    margin: 0
+    margin: 0,
+    fontFamily: "'Lora', serif"
   };
 
   // Content container
