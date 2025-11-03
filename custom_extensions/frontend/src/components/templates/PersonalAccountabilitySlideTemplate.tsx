@@ -31,7 +31,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#FFFFFF', 
+    background:'#E0E7FF', 
     color:'#333333', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
@@ -43,7 +43,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   const leftSection: React.CSSProperties = {
     width: '50%',
     height: '100%',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     padding: '30px 60px',
     display: 'flex',
@@ -55,7 +55,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
   const rightSection: React.CSSProperties = {
     width: '50%',
     height: '100%',
-    backgroundColor: '#2563EB',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -169,7 +169,7 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
             logoPath={logoPath}
             onLogoUploaded={handleLogoUploaded}
             isEditable={isEditable}
-            color="#000000"
+            color="#09090B"
             text="Your Logo"
           />
         </div>

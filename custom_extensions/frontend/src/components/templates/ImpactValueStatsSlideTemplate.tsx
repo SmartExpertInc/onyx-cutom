@@ -40,7 +40,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#F5F5F5', 
+    background:'#E0E7FF', 
     color:'#333333', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
@@ -74,7 +74,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
   const titleContainer: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: '20px',
     marginLeft: '25px',
     flex: 1
   };
@@ -101,7 +101,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
   // Content area with stats cards
   const contentSection: React.CSSProperties = {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#E0E7FF',
     padding: '50px 80px',
     display: 'flex',
     gap: '32px',
@@ -321,7 +321,7 @@ export const ImpactValueStatsSlideTemplate: React.FC<ImpactValueStatsProps & { t
             logoPath={logoPath}
             onLogoUploaded={handleLogoUploaded}
             isEditable={isEditable}
-            color="#9CA3AF"
+            color="#000000"
             text="Your Logo"
           />
         </div>
