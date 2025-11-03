@@ -225,10 +225,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             size="LARGE"
             position="CENTER"
             style={{
-              width: '80%',
-              height: '110%',
+              width: '75%',
+              height: '105%',
               position: 'relative',
-              bottom: '-4.17%',
+              bottom: '-8%',
             }}
           />
         </div>

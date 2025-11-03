@@ -127,6 +127,9 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     ]);
     const chartLabelSkipKeys = new Set(['year', 'valueLabel']);
 
+    // Special placeholder for tags in benefits-tags-slide
+    const tagPlaceholder = templateId === 'benefits-tags-slide' ? 'Add' : placeholder;
+
     const sanitize = (node: any) => {
       if (node && typeof node === 'object') {
         if (Array.isArray(node)) {
@@ -135,7 +138,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
           Object.keys(node).forEach((k) => {
             const v = node[k];
             if (typeof v === 'string' && narrativeKeys.has(k)) {
-              node[k] = placeholder;
+              // Use "Add" for tag text fields in benefits-tags-slide
+              node[k] = (templateId === 'benefits-tags-slide' && k === 'text') ? tagPlaceholder : placeholder;
             } else if (typeof v === 'string' && chartLabelSkipKeys.has(k)) {
               // leave chart-specific labels as-is
             } else if (Array.isArray(v) || (v && typeof v === 'object')) {
