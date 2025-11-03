@@ -170,6 +170,37 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           editorElement.style.color = extractedStyles.color || editorElement.style.color;
           (editorElement.style as any).letterSpacing = (computedStyles as any).letterSpacing || (editorElement.style as any).letterSpacing;
 
+          // CRITICAL FIX: Apply computed fontSize to ALL content as TipTap marks
+          // This ensures TextSettings panel reads the correct fontSize
+          // Check if content has any fontSize marks already
+          const { from, to } = editor.state.doc.content.findDiffStart(editor.state.doc.content) 
+            ? { from: 0, to: editor.state.doc.content.size } 
+            : { from: 0, to: editor.state.doc.content.size };
+          
+          const hasExistingFontSize = editor.state.doc.nodesBetween(0, editor.state.doc.content.size, (node) => {
+            if (node.marks) {
+              return node.marks.some(mark => mark.type.name === 'textStyle' && mark.attrs.fontSize);
+            }
+            return false;
+          });
+
+          // If no inline fontSize exists, apply computed fontSize to all content
+          if (!hasExistingFontSize && extractedStyles.fontSize) {
+            try {
+              editor.chain()
+                .selectAll()
+                .setMark('textStyle', { 
+                  fontSize: extractedStyles.fontSize,
+                  fontFamily: extractedStyles.fontFamily 
+                })
+                .run();
+              // Clear selection after applying marks
+              editor.commands.focus();
+            } catch (err) {
+              console.warn('Failed to apply initial fontSize mark:', err);
+            }
+          }
+
           onEditorReady?.(editor, extractedStyles);
         } catch (error) {
           console.warn('Failed to read computed styles:', error);

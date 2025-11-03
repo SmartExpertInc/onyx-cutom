@@ -211,6 +211,21 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
 
   return (
     <div className="course-overview-slide-template inter-theme" style={slideStyles}>
+      {/* DEBUG: Massive red circle to identify v1 slide */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        width: '300px',
+        height: '300px',
+        borderRadius: '50%',
+        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        pointerEvents: 'none',
+        border: '10px solid red'
+      }} />
+      
       {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
         width: '45%',
