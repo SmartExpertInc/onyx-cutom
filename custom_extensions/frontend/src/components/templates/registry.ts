@@ -2989,7 +2989,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       pageNumber: '09'
     },
     propSchema: {
-      content: { type: 'text', label: 'Content', required: true, multiline: true },
+      content: { type: 'text', label: 'Content', required: true },
       leftImagePath: { type: 'image', label: 'Left Image' },
       avatarImagePath: { type: 'image', label: 'Avatar Image' },
       bottomImagePath: { type: 'image', label: 'Bottom Image' },
