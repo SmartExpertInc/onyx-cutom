@@ -49,6 +49,20 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
     // Ensure text can be selected - remove userSelect if present
     delete cleanedStyle.userSelect;
     delete (cleanedStyle as any).userSelect;
+    // Avoid visual shrink when switching to editor: remove padding/borders/background
+    // so the editor matches the display text box dimensions
+    delete (cleanedStyle as any).padding;
+    delete (cleanedStyle as any).paddingTop;
+    delete (cleanedStyle as any).paddingRight;
+    delete (cleanedStyle as any).paddingBottom;
+    delete (cleanedStyle as any).paddingLeft;
+    delete (cleanedStyle as any).border;
+    delete (cleanedStyle as any).borderTop;
+    delete (cleanedStyle as any).borderRight;
+    delete (cleanedStyle as any).borderBottom;
+    delete (cleanedStyle as any).borderLeft;
+    delete (cleanedStyle as any).borderRadius;
+    delete (cleanedStyle as any).backgroundColor;
 
     const editor = useEditor({
       extensions: [
@@ -124,8 +138,13 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
 
     useEffect(() => {
       if (editor) {
-        // Don't auto-focus or move cursor - let user control selection
-        // Just read computed styles from the DOM
+        // Focus the editor when it appears (without moving cursor to end)
+        // This brings up the caret immediately on click
+        try {
+          editor.commands.focus();
+        } catch {}
+
+        // Read computed styles from the DOM
         try {
           const editorElement = editor.view.dom;
           const computedStyles = window.getComputedStyle(editorElement);
@@ -236,8 +255,7 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       <div 
         style={{ 
           position: 'relative', 
-          width: '100%',
-          paddingTop: '4px' // Small padding instead of toolbar space
+          width: '100%'
         }}
       >
         <div onBlur={handleBlur}>
