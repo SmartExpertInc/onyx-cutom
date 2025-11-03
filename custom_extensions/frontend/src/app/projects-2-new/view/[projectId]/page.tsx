@@ -691,11 +691,18 @@ export default function Projects2ViewPage() {
   const handleShapesButtonClick = (position: { x: number; y: number }) => {
     setShapesPopupPosition(position);
     setIsShapesPopupOpen(true);
-    // Also open ShapeSettings in the left panel
-    setActiveSettingsPanel('shape');
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
+  const handleTextButtonClick = (position: { x: number; y: number }) => {
+    setTextPopupPosition(position);
+    setIsTextPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsShapesPopupOpen(false);
     setIsAiPopupOpen(false);
   };
 
@@ -900,6 +907,7 @@ export default function Projects2ViewPage() {
         activeSettingsPanel={activeSettingsPanel}
         onSettingsButtonClick={handleSettingsButtonClick}
         onShapesButtonClick={handleShapesButtonClick}
+        onTextButtonClick={handleTextButtonClick}
         onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
         hideAiImproveButton={true}
         showVideoEditorActions={true}

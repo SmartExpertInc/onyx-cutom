@@ -24,6 +24,7 @@ interface ProductViewHeaderProps {
   activeSettingsPanel?: string | null;
   onSettingsButtonClick?: (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
+  onTextButtonClick?: (position: { x: number; y: number }) => void;
   onLanguageVariantModalOpen?: () => void;
   hideAiImproveButton?: boolean;
   // Video Editor Actions (optional - only for Projects2ViewPage)
@@ -49,6 +50,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   activeSettingsPanel = null,
   onSettingsButtonClick,
   onShapesButtonClick,
+  onTextButtonClick,
   onLanguageVariantModalOpen,
   hideAiImproveButton = false,
   showVideoEditorActions = false,
@@ -281,7 +283,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             <button
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
-                onShapesButtonClick?.({ x: rect.left, y: rect.bottom + 5 });
+                onShapesButtonClick?.({ x: rect.left, y: 70 });
               }}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
@@ -295,7 +297,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
             {/* Text Button */}
             <button
-              onClick={() => onSettingsButtonClick?.('text')}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                onTextButtonClick?.({ x: rect.left, y: rect.bottom + 6 });
+              }}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
               <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
