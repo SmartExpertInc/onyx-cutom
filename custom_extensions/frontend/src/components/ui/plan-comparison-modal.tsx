@@ -328,7 +328,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                           {features.map((item, idx) => (
                             <div 
                               key={idx} 
-                              className={`flex items-center text-xs justify-center border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D] ${
+                              className={`flex items-center text-xs justify-center last:border-b-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
                             >
@@ -348,14 +348,14 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[776px] pointer-events-none z-20">
+            <div className="relative -mt-[790px] pointer-events-none z-0">
               {featureData.map((category, categoryIndex) => {
                 const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
                 return (
                   <div key={categoryIndex} className="relative group">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[-1]" 
+                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[-20]" 
                       style={{ height: `${categoryHeight}px` }}
                     ></div>
                     

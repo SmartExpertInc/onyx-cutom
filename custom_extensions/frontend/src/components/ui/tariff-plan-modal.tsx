@@ -501,7 +501,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               <div className="bg-white rounded-md pt-5 px-5 pb-3 flex flex-col gap-4">
                 {/* Billing Toggle Section - Centered */}
                 <div className="flex flex-col items-center gap-2 mb-10">
-                  <p className="text-blue-700 font-normal text-xs font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
+                  <p className="text-blue-700 font-normal text-xs font-public-sans"><span className="font-bold">Save 15%</span>on yearly plan!</p>
                 {/* Billing Toggle */}
                   <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200">
                   <button
@@ -874,7 +874,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                             >
                               -
                             </button>
-                            <div className="px-2 py-0 text-sm text-[#333333] font-medium min-w-[40px] text-center">
+                            <div className="px-2 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
                               {creditQuantities[addOn.id]}
                           </div>
                             <button
