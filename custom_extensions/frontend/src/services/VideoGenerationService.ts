@@ -301,6 +301,7 @@ export class VideoGenerationService {
       // Extract the status data and map it to ElaiVideoStatus format
       const statusData = result.status;
       return {
+        _id: videoId, // Use the videoId as _id
         status: statusData.status || statusData.data?.status || 'unknown',
         progress: statusData.progress || 0,
         videoUrl: statusData.videoUrl || statusData.downloadUrl || statusData.url || statusData.data?.videoUrl || statusData.data?.url,
@@ -310,8 +311,16 @@ export class VideoGenerationService {
       };
     }
     
-    // Fallback: return the result directly if it's already in the right format
-    return result;
+    // Fallback: return the result directly if it's already in the right format, but ensure _id is present
+    if (result._id) {
+      return result;
+    }
+    
+    // If no _id in result, add it from videoId
+    return {
+      _id: videoId,
+      ...result
+    };
   }
   
   /**
