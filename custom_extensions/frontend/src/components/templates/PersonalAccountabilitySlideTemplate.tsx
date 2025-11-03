@@ -8,21 +8,19 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 
 export interface PersonalAccountabilityProps extends BaseTemplateProps {
-  content: string;
-  leftImagePath?: string;
-  leftTopImagePath?: string;
-  bottomImagePath?: string;
+  title: string;
+  subtitle: string;
+  avatarPath?: string;
   logoPath?: string;
   pageNumber?: string;
 }
 
 export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilityProps & { theme?: SlideTheme | string }> = ({
-  content = 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
-  leftImagePath = '',
-  leftTopImagePath = '',
-  bottomImagePath = '',
+  title = 'Personal Accountability and Responsibility',
+  subtitle = 'Empower individuals to take ownership of their actions and outcomes',
+  avatarPath = '',
   logoPath = '',
-  pageNumber = '09',
+  pageNumber = '10',
   isEditable = false,
   onUpdate,
   theme
@@ -41,29 +39,28 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     overflow: 'hidden'
   };
 
-  // Left section with large image
+  // Left section with content
   const leftSection: React.CSSProperties = {
-    width: '60%',
+    width: '50%',
     height: '100%',
     backgroundColor: '#E0E7FF',
+    position: 'relative',
+    padding: '30px 60px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  };
+
+  // Right section with avatar
+  const rightSection: React.CSSProperties = {
+    width: '50%',
+    height: '100%',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-    padding: '40px'
-  };
-
-  // Right section with content
-  const rightSection: React.CSSProperties = {
-    width: '40%',
-    height: '100%',
-    backgroundColor: '#E0E7FF',
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '40px 30px',
-    gap: '24px'
+    overflow: 'hidden'
   };
 
   // Logo container
@@ -74,66 +71,36 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     zIndex: 20
   };
 
-  // Left section container - clipped/cropped
-  const leftSectionContainer: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    clipPath: 'polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%)'
+  // Title style
+  const titleStyle: React.CSSProperties = {
+    fontSize: '42px',
+    fontWeight: 700,
+    color: '#09090B',
+    lineHeight: 1.3,
+    margin: 0,
+    marginBottom: '24px',
+    fontFamily: "'Lora', serif"
   };
 
-  // Left image style
-  const leftImageStyle: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  };
-
-  // Small image in top-right corner of left image
-  const leftTopImageContainer: React.CSSProperties = {
-    position: 'absolute',
-    top: '20px',
-    right: '20px',
-    width: '120px',
-    height: '120px',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    border: '3px solid #FFFFFF',
-    zIndex: 10
-  };
-
-  const leftTopImageStyle: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  };
-
-  // Content text style
-  const contentStyle: React.CSSProperties = {
-    fontSize: '15px',
+  // Subtitle style
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: '25px',
     fontWeight: 400,
     color: '#09090B',
+    opacity: '0.8',
     lineHeight: 1.6,
     margin: 0,
-    fontFamily: currentTheme.fonts.contentFont,
-    flex: 1
+    fontFamily: "'Lora', serif"
   };
 
-  // Bottom image container
-  const bottomImageContainer: React.CSSProperties = {
-    width: '100%',
-    height: '180px',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    flexShrink: 0
-  };
-
-  const bottomImageStyle: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
+  // Content container
+  const contentContainer: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'end',
+    alignItems: 'flex-start',
+    flex: 1,
+    paddingBottom: '65px'
   };
 
   // Page number with line - bottom-left
@@ -161,6 +128,23 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
     margin: 0
   };
 
+  // Avatar container - centered in right section
+  const avatarContainer: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative'
+  };
+
+  const avatarImageStyle: React.CSSProperties = {
+    width: '70%',
+    height: '90%',
+    objectFit: 'contain',
+    position: 'absolute',
+    bottom: '-30px'
+  };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
     ...style,
@@ -179,69 +163,53 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
 
   return (
     <div style={slide}>
-      {/* Logo - top left */}
-      <div style={logoContainer}>
-        <YourLogo
-          logoPath={logoPath}
-          onLogoUploaded={handleLogoUploaded}
-          isEditable={isEditable}
-          color="#09090B"
-          text="Your Logo"
-        />
-      </div>
-
-      {/* Left Section - Large Image with small image in top-right corner */}
+      {/* Left Section */}
       <div style={leftSection}>
-        <div style={leftSectionContainer}>
-          <ClickableImagePlaceholder
-            imagePath={leftImagePath}
-            onImageUploaded={(path) => onUpdate && onUpdate({ leftImagePath: path })}
-            description="Left side image" 
-            isEditable={isEditable} 
-            style={leftImageStyle} 
+        {/* Logo */}
+        <div style={logoContainer}>
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={handleLogoUploaded}
+            isEditable={isEditable}
+            color="#09090B"
+            text="Your Logo"
           />
-          {/* Small image in top-right corner */}
-          <div style={leftTopImageContainer}>
-            <ClickableImagePlaceholder
-              imagePath={leftTopImagePath}
-              onImageUploaded={(path) => onUpdate && onUpdate({ leftTopImagePath: path })}
-              description="Top-right image" 
-              isEditable={isEditable} 
-              style={leftTopImageStyle} 
-            />
+        </div>
+
+        {/* Content */}
+        <div style={contentContainer}>
+          <div style={titleStyle} onClick={() => isEditable && setEditKey('title')}>
+            {isEditable && editKey === 'title' ? (
+              <ImprovedInlineEditor 
+                initialValue={title} 
+                multiline={true}
+                onSave={(value) => { 
+                  onUpdate && onUpdate({ title: value }); 
+                  setEditKey(null); 
+                }} 
+                onCancel={() => setEditKey(null)} 
+                style={inline(titleStyle)} 
+              />
+            ) : (
+              title
+            )}
           </div>
-        </div>
-      </div>
-
-      {/* Right Section - Content */}
-      <div style={rightSection}>
-        {/* Content Text */}
-        <div style={contentStyle} onClick={() => isEditable && setEditKey('content')}>
-          {isEditable && editKey === 'content' ? (
-            <ImprovedInlineEditor 
-              initialValue={content} 
-              multiline={true}
-              onSave={(value) => { 
-                onUpdate && onUpdate({ content: value }); 
-                setEditKey(null); 
-              }} 
-              onCancel={() => setEditKey(null)} 
-              style={inline(contentStyle)} 
-            />
-          ) : (
-            content
-          )}
-        </div>
-
-        {/* Bottom - Image */}
-        <div style={bottomImageContainer}>
-          <ClickableImagePlaceholder
-            imagePath={bottomImagePath}
-            onImageUploaded={(path) => onUpdate && onUpdate({ bottomImagePath: path })}
-            description="Bottom image" 
-            isEditable={isEditable} 
-            style={bottomImageStyle} 
-          />
+          <div style={subtitleStyle} onClick={() => isEditable && setEditKey('subtitle')}>
+            {isEditable && editKey === 'subtitle' ? (
+              <ImprovedInlineEditor 
+                initialValue={subtitle} 
+                multiline={true}
+                onSave={(value) => { 
+                  onUpdate && onUpdate({ subtitle: value }); 
+                  setEditKey(null); 
+                }} 
+                onCancel={() => setEditKey(null)} 
+                style={inline(subtitleStyle)} 
+              />
+            ) : (
+              subtitle
+            )}
+          </div>
         </div>
       </div>
 
@@ -264,9 +232,21 @@ export const PersonalAccountabilitySlideTemplate: React.FC<PersonalAccountabilit
           )}
         </div>
       </div>
+
+      {/* Right Section with Avatar */}
+      <div style={rightSection}>
+        <div style={avatarContainer}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
+            description="Avatar" 
+            isEditable={isEditable} 
+            style={avatarImageStyle} 
+          />
+        </div>
+      </div>
     </div>
   );
 };
 
 export default PersonalAccountabilitySlideTemplate;
-

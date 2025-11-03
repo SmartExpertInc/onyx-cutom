@@ -82,6 +82,7 @@ import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemp
 import TopicsSlideTemplate from './TopicsSlideTemplate';
 import ImpactValueStatsSlideTemplate from './ImpactValueStatsSlideTemplate';
 import PersonalAccountabilitySlideTemplate from './PersonalAccountabilitySlideTemplate';
+import TwoColumnWithCutoutImageSlideTemplate from './TwoColumnWithCutoutImageSlideTemplate';
 
 
 
@@ -2976,10 +2977,33 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'personal-accountability-slide': {
     id: 'personal-accountability-slide',
     name: 'Personal Accountability',
-    description: 'Two-column layout with large image on left, avatar, text and image on right',
+    description: 'Two-column layout with text on light purple background and avatar on blue background',
     category: 'content',
     icon: '👤',
     component: PersonalAccountabilitySlideTemplate,
+    defaultProps: {
+      title: 'Personal Accountability and Responsibility',
+      subtitle: 'Empower individuals to take ownership of their actions and outcomes',
+      avatarPath: '',
+      logoPath: '',
+      pageNumber: '10'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  },
+
+  'two-column-cutout-image-slide': {
+    id: 'two-column-cutout-image-slide',
+    name: 'Two Column with Cutout Image',
+    description: 'Two-column layout with clipped image on left with small image inset, text and image on right',
+    category: 'content',
+    icon: '📸',
+    component: TwoColumnWithCutoutImageSlideTemplate,
     defaultProps: {
       content: 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
       leftImagePath: '',
