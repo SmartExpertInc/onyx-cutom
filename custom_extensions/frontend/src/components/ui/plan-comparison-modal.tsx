@@ -11,6 +11,12 @@ interface PlanComparisonModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface PlanFeatureItem {
+  type: 'feature' | 'categoryHeader';
+  value?: string | boolean;
+  categoryName?: string;
+}
+
 const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenChange }) => {
   const { t } = useLanguage();
   const [billingCycle, setBillingCycle] = React.useState<'monthly' | 'yearly'>('yearly');
@@ -119,9 +125,15 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
     return <span className="text-sm text-[#171718] font-medium">{value}</span>;
   };
 
-  const getPlanFeatures = (planId: string) => {
-    const allFeatures: { value: string | boolean }[] = [];
+  const getPlanFeatures = (planId: string): PlanFeatureItem[] => {
+    const allFeatures: PlanFeatureItem[] = [];
     featureData.forEach((category) => {
+      // Add category header placeholder
+      allFeatures.push({ 
+        type: 'categoryHeader', 
+        categoryName: category.category 
+      });
+      
       category.features.forEach((feature) => {
         let value;
         switch (planId) {
@@ -140,7 +152,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
           default:
             value = false;
         }
-        allFeatures.push({ value });
+        allFeatures.push({ type: 'feature', value });
       });
     });
     return allFeatures;
@@ -161,7 +173,35 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         </button>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto max-h-[90vh]">
+        <div className="overflow-y-auto max-h-[90vh] custom-scrollbar">
+          <style jsx>{`
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 10px;
+              border-radius: 50px;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: #f1f5f9;
+              border-radius: 5px;
+              margin: 10px 0;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: #A5A5A5;
+              border-radius: 5px;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background:rgb(135, 135, 135);
+            }
+
+            .custom-scrollbar {
+              scrollbar-width: thin;
+              scrollbar-color: #A5A5A5 #f1f5f9;
+              scroll-behavior: smooth;
+              border-radius: 50px;
+            }
+          `}</style>
           {/* Header Section - Sticky */}
           <div className="top-0 z-10 bg-none p-8 pb-0">
             <h2 className="text-xl font-bold text-[#4D4D4D] mb-2 text-center sora-font">
@@ -220,7 +260,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
 
                     {/* Plan Card */}
                     <div className={`h-full flex flex-col w-full ${
-                      plan.popular ? 'border-2 border-blue-500 rounded-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-md'
+                      plan.popular ? 'border-2 border-blue-500 rounded-b-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-md'
                     } !bg-white/80 !backdrop-blur-sm overflow-hidden`}>
                       {/* Card Content */}
                       <div className="py-6 px-3 pb-4">
@@ -256,7 +296,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         
                         <p className="text-xs text-[#A5A5A5] mb-3 min-h-[40px]">{plan.billing}</p>
                         
-                        <div className="flex items-center gap-2 mb-4 min-h-[42px]">
+                        <div className="flex items-center gap-2 mb-4 min-h-[47px]">
                           <div className="flex-1">
                             <span className="text-base font-bold text-[#4D4D4D]">{plan.credits}</span>
                             <span className="text-xs text-[#A5A5A5]"> / {plan.perCredits}</span>
@@ -285,9 +325,18 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
 
                         {/* Feature List Inside Card */}
                         <div className="pt-3">
-                          {features.map((feature, idx) => (
-                            <div key={idx} className="flex items-center justify-center h-[48px] border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D]">
-                              {renderCell(feature.value)}
+                          {features.map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className={`flex items-center text-xs justify-center border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D] ${
+                                item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
+                              }`}
+                            >
+                              {item.type === 'categoryHeader' ? (
+                                <div className="h-full w-full"></div>
+                              ) : (
+                                renderCell(item.value!)
+                              )}
                             </div>
                           ))}
                         </div>
@@ -299,34 +348,40 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[476px] pointer-events-none z-20 group">
-              {/* Blue Background for Feature Comparison Section - Shows on Hover */}
-              <div className="absolute left-[-32px] right-[-32px] top-0 h-[476px] bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[-1]"></div>
-              
-              <div className="grid gap-4 relative z-10" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
-                <div className="pr-4 pointer-events-auto cursor-pointer">
-                  {featureData.map((category, categoryIndex) => (
-                    <div key={categoryIndex}>
-                      {/* Category Header */}
-                      <div className="py-3 mb-2">
-                        <h4 className="text-base font-bold text-[#171718]">{category.category}</h4>
-                      </div>
-                      
-                      {/* Feature Names */}
-                      {category.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-center h-[48px] border-b border-[#A5A5A5]">
-                          <span className="text-sm text-[#4D4D4D] font-regular">{feature.name}</span>
+            <div className="relative -mt-[776px] pointer-events-none z-20">
+              {featureData.map((category, categoryIndex) => {
+                const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
+                return (
+                  <div key={categoryIndex} className="relative group">
+                    {/* Blue Background for This Category Only - Shows on Hover */}
+                    <div 
+                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[-1]" 
+                      style={{ height: `${categoryHeight}px` }}
+                    ></div>
+                    
+                    <div className="grid gap-4 relative z-10" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
+                      <div className="pr-4 pointer-events-auto cursor-pointer">
+                        {/* Category Header */}
+                        <div className="py-3 mb-2">
+                          <h4 className="text-base font-bold text-[#171718]">{category.category}</h4>
                         </div>
-                      ))}
+                        
+                        {/* Feature Names */}
+                        {category.features.map((feature, featureIndex) => (
+                          <div key={featureIndex} className="flex items-center h-[48px] border-b border-[#A5A5A5]">
+                            <span className="text-xs text-[#4D4D4D] font-regular">{feature.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Empty columns to maintain grid structure */}
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                      <div></div>
                     </div>
-                  ))}
-                </div>
-                {/* Empty columns to maintain grid structure */}
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

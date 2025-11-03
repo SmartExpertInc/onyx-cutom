@@ -838,16 +838,13 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-600">
                           <IconComponent className="w-4 h-4" />
                         </div>
-                        <div className="flex-1">
                           <h3 className="text-lg font-semibold text-[#333333] leading-tight mb-1">
                             {addOn.name}
                           </h3>
-                          <p className="text-xs text-[#878787] font-light leading-relaxed">
-                            {addOn.description}
-                          </p>
                         </div>
-                        </div>
-
+                      <p className="text-xs text-[#878787] font-light leading-relaxed">
+                        {addOn.description}
+                      </p>
                       {/* Amount Info */}
                       <div className="flex items-center gap-1.5 mb-4">
                         {amountIcon}
