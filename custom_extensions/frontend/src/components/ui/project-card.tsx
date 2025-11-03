@@ -500,7 +500,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
-            ? `/projects/view/${project.id}`
+            ? `/custom-projects-ui/projects-2/view/${project.id}`
             : (project.designMicroproductType === "Training Plan"
               ? (courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new-2/${project.id}`)
               : `/projects/view/${project.id}`)
