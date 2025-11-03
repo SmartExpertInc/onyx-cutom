@@ -313,8 +313,7 @@ export default function AvatarPopup({
                 <input
                   type="text"
                   placeholder="Search"
-                  className="w-full pl-10 pr-4 border border-[#E0E0E0] rounded-md text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
-                  style={{ height: '36px' }}
+                  className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
                 />
               </div>
             </div>
@@ -403,9 +402,8 @@ export default function AvatarPopup({
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                      className="relative w-full h-24 rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center"
+                      className="relative w-full h-24 rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center border border-[#E0E0E0]"
                       onClick={() => handleAvatarClick(avatar)}
-                      style={{ border: '1px solid #E0E0E0' }}
                       >
                         {avatar.thumbnail ? (
                           <img 
@@ -453,15 +451,13 @@ export default function AvatarPopup({
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         {/* Light background overlay */}
         <div 
-          className="absolute inset-0"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+          className="absolute inset-0 bg-black/20"
           onClick={onClose}
         ></div>
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px', maxWidth: '800px' }}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[450px] max-w-[830px] rounded-md overflow-hidden ${className}`}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -475,13 +471,10 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[830px] h-[450px] rounded-md overflow-hidden ${className}`} 
         style={{
-          borderRadius: '12px',
           left: position?.x || 0,
-          top: position?.y || 0,
-          width: '800px',
-          height: '420px'
+          top: position?.y || 0
         }}
       >
         {/* Main content area with sidebar */}
