@@ -157,120 +157,114 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
               </div>
             </div>
 
-            {/* Plan Cards - Grid with aligned columns matching table below */}
-            <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-              {/* Empty first column to align with feature names column */}
-              <div className="col-span-1 pr-4"></div>
-              
-              {planCards.map((plan) => (
-                <div key={plan.id} className="relative col-span-1">
-                  {/* Most Popular Badge */}
-                  {plan.popular && (
-                    <div className="absolute -top-6 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-md text-xs font-medium flex items-center justify-center gap-1 shadow-md">
-                      Most Popular
-                      <Sparkles className="w-3 h-3 fill-white" />
-                    </div>
-                  )}
+            {/* Plan Cards */}
+            <div className="relative px-8">
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                {planCards.map((plan) => (
+                  <div key={plan.id} className="relative">
+                    {/* Most Popular Badge */}
+                    {plan.popular && (
+                      <div className="absolute -top-3 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
+                        Most Popular
+                        <Sparkles className="w-3 h-3 fill-white" />
+                      </div>
+                    )}
 
-                  {/* Plan Card */}
-                  <div className={`border-t border-l border-r bg-white ${
-                    plan.popular ? 'border-blue-500' : 'border-gray-200 rounded-t-2xl'
-                  } overflow-hidden`}>
-                    {/* Card Content */}
-                    <div className="p-4">
-                      <h3 className="text-lg font-bold text-[#171718] mb-2">{plan.name}</h3>
-                      
-                      {/* Price and Seats on same line */}
-                      <div className="flex items-center gap-2 mb-2 flex-nowrap">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-[#171718]">{plan.price}</span>
-                          {plan.priceUnit && <span className="text-sm font-normal text-gray-500 whitespace-nowrap">{plan.priceUnit}</span>}
+                    {/* Plan Card */}
+                    <div className={`h-full ${
+                      plan.popular ? 'border-2 border-blue-500 rounded-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-sm'
+                    } bg-white overflow-hidden`}>
+                      {/* Card Content */}
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-[#171718] mb-3">{plan.name}</h3>
+                        
+                        {/* Price and Seats */}
+                        <div className="mb-3">
+                          <div className="flex items-baseline gap-1 mb-1">
+                            <span className="text-3xl font-bold text-[#171718]">{plan.price}</span>
+                            {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
+                          </div>
+                          
+                          {plan.hasSeats && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <button 
+                                onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
+                                className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <span className="px-3 py-1 bg-gray-50 rounded text-sm font-medium">{teamSeats} seats +</span>
+                              <button 
+                                onClick={() => setTeamSeats(teamSeats + 1)}
+                                className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                         
-                        {plan.hasSeats && (
-                          <div className="flex items-center gap-1">
-                            <button 
-                              onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
-                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="px-2 py-1 bg-white rounded text-sm whitespace-nowrap">{teamSeats} seats</span>
-                            <button 
-                              onClick={() => setTeamSeats(teamSeats + 1)}
-                              className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 flex-shrink-0"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                        <p className="text-sm text-[#A5A5A5] mb-4">{plan.billing}</p>
+                        
+                        <div className="flex items-center gap-1 mb-5 py-3 px-3 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <span className="text-base font-bold text-[#4D4D4D]">{plan.credits}</span>
+                            <span className="text-xs text-[#A5A5A5]"> / {plan.perCredits}</span>
                           </div>
-                        )}
-                      </div>
-                      
-                      <p className="text-xs text-[#A5A5A5] mb-3">{plan.billing}</p>
-                      
-                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-4 h-8">
-                        <span className="text-base font-bold text-[#4D4D4D]">{plan.credits} <span className="text-xs font-light text-[#A5A5A5]">/ {plan.perCredits}</span></span>
-                        <InfoIcon className="w-3 h-3 text-gray-400" />
-                      </div>
+                          <InfoIcon className="w-4 h-4 text-gray-400" />
+                        </div>
 
-                      {/* CTA Button */}
-                      <button
-                        className={`w-full py-2.5 rounded-full text-sm font-semibold transition-all ${
-                          plan.current
-                            ? 'bg-gray-200 text-gray-500'
-                            : plan.isEnterprise
-                            ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                        }`}
-                      >
-                        {plan.current ? 'Current' : plan.isEnterprise ? 'Contact Sales' : 'Upgrade'}
-                      </button>
+                        {/* CTA Button */}
+                        <button
+                          className={`w-full py-3 rounded-lg text-sm font-semibold transition-all ${
+                            plan.current
+                              ? 'bg-gray-200 text-gray-500'
+                              : plan.isEnterprise
+                              ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {plan.current ? 'Current' : plan.isEnterprise ? 'Contact Sales' : 'Upgrade'}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Feature Comparison Table */}
-          <div className="p-8 pt-0">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <tbody>
-                  {featureData.map((category, categoryIndex) => (
-                    <React.Fragment key={categoryIndex}>
-                      {/* Category Header Row */}
-                      <tr>
-                        <td
-                          colSpan={5}
-                          className="p-4 font-bold text-[#171718] bg-none border-y border-gray-200 text-left"
-                        >
-                          {category.category}
-                        </td>
-                      </tr>
-                      {/* Feature Rows */}
-                      {category.features.map((feature, featureIndex) => (
-                        <tr key={featureIndex} className="border-b border-[#A5A5A5] hover:bg-gray-50">
-                          <td className="py-6 px-6 text-sm text-[#4D4D4D] font-medium" style={{ width: '20%' }}>{feature.name}</td>
-                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
-                            {renderCell(feature.starter)}
-                          </td>
-                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
-                            {renderCell(feature.creator)}
-                          </td>
-                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
-                            {renderCell(feature.team)}
-                          </td>
-                          <td className="py-6 px-8 text-center border-l border-r border-gray-300 bg-white" style={{ width: '20%' }}>
-                            {renderCell(feature.enterprise)}
-                          </td>
-                        </tr>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* Feature Comparison Rows */}
+          <div className="px-8 pb-8 pt-6">
+            {featureData.map((category, categoryIndex) => (
+              <div key={categoryIndex} className="mb-6">
+                {/* Category Header */}
+                <div className="py-3 mb-3 border-b-2 border-gray-200">
+                  <h4 className="text-lg font-bold text-[#171718]">{category.category}</h4>
+                </div>
+                
+                {/* Feature Rows */}
+                {category.features.map((feature, featureIndex) => (
+                  <div key={featureIndex} className="py-4 border-b border-gray-100">
+                    <div className="grid gap-4" style={{ gridTemplateColumns: '2fr repeat(4, 1fr)' }}>
+                      <div className="text-sm text-[#4D4D4D] font-medium">{feature.name}</div>
+                      <div className="flex justify-center items-center">
+                        {renderCell(feature.starter)}
+                      </div>
+                      <div className="flex justify-center items-center">
+                        {renderCell(feature.creator)}
+                      </div>
+                      <div className="flex justify-center items-center">
+                        {renderCell(feature.team)}
+                      </div>
+                      <div className="flex justify-center items-center">
+                        {renderCell(feature.enterprise)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </DialogContent>

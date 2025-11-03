@@ -481,7 +481,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           `}</style>
           <div ref={modalRef} className="h-[90vh] min-h-[600px] max-h-[750px]">
           <div className="container mx-auto px-4 py-4 xl:py-5 xl:px-4">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-8xl mx-auto">
               {/* Header - ContentBuilder Logo and Title - Outside White Box */}
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center mb-3">
