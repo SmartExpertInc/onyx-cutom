@@ -82,8 +82,8 @@ export default function Projects2ViewPage() {
   // Ready flag to hide advanced controls per requirements
   const showReady = true;
 
-  // TEMP DEBUG: Toggle to view v1 (_old) vs v2 (normal) slide templates
-  const [useV1Templates, setUseV1Templates] = useState<boolean>(false);
+  // TEMP DEBUG: Toggle to view v1 (_old) vs v2 (normal) slide templates (default to v1)
+  const [useV1Templates, setUseV1Templates] = useState<boolean>(true);
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).__ONYX_USE_V1_SLIDES__ = useV1Templates;
@@ -792,16 +792,24 @@ export default function Projects2ViewPage() {
         />
       </div>
 
-      {/* TEMP DEBUG SWITCH: v1 (_old) vs v2 templates */}
+      {/* TEMP DEBUG TOGGLE: v1 (_old) vs v2 templates */}
       <div className="mx-4 -mt-1 mb-2 flex items-center gap-3">
-        <label className="inline-flex items-center gap-2 text-xs text-gray-700 select-none">
-          <input
-            type="checkbox"
-            checked={useV1Templates}
-            onChange={(e) => setUseV1Templates(e.target.checked)}
-          />
-          Use v1 (_old) slide templates
-        </label>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-700 select-none">Use v1 (_old)</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={!useV1Templates}
+            onClick={() => setUseV1Templates((prev) => !prev)}
+            title={useV1Templates ? 'Switch to v2' : 'Switch to v1'}
+            className={`relative inline-flex h-5 w-10 rounded-full transition-colors duration-200 focus:outline-none ${useV1Templates ? 'bg-gray-300' : 'bg-blue-600'}`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 translate-y-[2px] ${useV1Templates ? 'translate-x-1' : 'translate-x-5'}`}
+            />
+          </button>
+          <span className="text-xs text-gray-700 select-none">Use v2</span>
+        </div>
         <span className="text-[11px] text-gray-500">(temporary debug)</span>
       </div>
       
