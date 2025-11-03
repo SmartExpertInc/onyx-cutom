@@ -113,7 +113,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/90 backdrop-blur-sm" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1100px] max-w-[95vw] rounded-2xl p-0 max-h-[95vh] bg-white/80 backdrop-blur-sm" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}

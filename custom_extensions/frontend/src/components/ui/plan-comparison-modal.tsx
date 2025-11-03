@@ -324,12 +324,12 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         </button>
 
                         {/* Feature List Inside Card */}
-                        <div className="pt-3 px-10">
+                        <div className="pt-3 px-14">
                           {features.map((item, idx) => (
                             <div 
                               key={idx} 
                               className={`flex items-center text-xs justify-center ${
-                                idx === 0 || features[idx - 1]?.type === 'categoryHeader' ? '!border-b-0' : ''
+                                idx === 0 || features[idx - 1]?.type === 'categoryHeader' ? '!border-t-0' : ''
                               } border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
@@ -350,18 +350,18 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[782px] z-0">
+            <div className="relative -mt-[783px] z-0">
               {featureData.map((category, categoryIndex) => {
                 const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
                 return (
-                  <div key={categoryIndex} className="relative group cursor-pointer">
+                  <div key={categoryIndex} className="relative group">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 group-hover:bg-[#CCDBFC] transition-colors duration-200 pointer-events-none"
+                      className="absolute left-[-32px] right-[-32px] top-0 bg-white group-hover:bg-[#CCDBFC] transition-colors duration-200"
                       style={{ height: `${categoryHeight}px`, zIndex: 5 }}
                     ></div>
                     
-                    <div className="grid gap-4 relative pointer-events-auto" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 10 }}>
+                    <div className="grid gap-4 relative" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 10 }}>
                       <div className="pr-4">
                         {/* Category Header */}
                         <div className="h-[48px] py-2">

@@ -874,7 +874,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <div className="px-0 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
+                            <div className="px-0 py-0 text-xs text-[#4D4D4D] font-medium min-w-[35px] text-center">
                               {creditQuantities[addOn.id]}
                             </div>
                             <button
