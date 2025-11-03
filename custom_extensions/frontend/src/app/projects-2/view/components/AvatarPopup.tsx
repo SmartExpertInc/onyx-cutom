@@ -392,7 +392,7 @@ export default function AvatarPopup({
           </div>
 
       {/* Right main area */}
-      <div className="flex flex-col p-4 flex-1">
+      <div className="flex flex-col px-3 flex-1">
           {/* Avatar grid - always show */}
           <>
             {/* Scrollable content area */}
@@ -403,7 +403,7 @@ export default function AvatarPopup({
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                      className="relative w-full h-24 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden p-2"
+                      className="relative w-full h-24 rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center"
                       onClick={() => handleAvatarClick(avatar)}
                       style={{ border: '1px solid #E0E0E0' }}
                       >
@@ -411,7 +411,7 @@ export default function AvatarPopup({
                           <img 
                             src={avatar.thumbnail} 
                             alt={avatar.displayName}
-                            className="w-full h-full object-cover"
+                            className="w-4/5 h-4/5 object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
