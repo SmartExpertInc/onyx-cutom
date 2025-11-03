@@ -124,7 +124,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
         <div className="overflow-y-auto max-h-[90vh]">
           {/* Header Section - Sticky */}
           <div className="top-0 z-10 bg-none p-8 pb-0">
-            <h2 className="text-3xl font-bold text-[#171718] mb-2 text-center">
+            <h2 className="text-3xl font-bold text-[#4D4D4D] mb-2 text-center sora-font">
               Plans that fit your scale
             </h2>
             <p className="text-center text-blue-600 text-sm mb-4">
@@ -138,8 +138,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   onClick={() => setBillingCycle('monthly')}
                   className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     billingCycle === 'monthly'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-[#A5A5A5]'
                   }`}
                 >
                   Monthly
@@ -149,7 +149,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     billingCycle === 'yearly'
                       ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-gray-500'
+                      : 'text-[#A5A5A5]'
                   }`}
                 >
                   Yearly
@@ -157,114 +157,116 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
               </div>
             </div>
 
-            {/* Plan Cards */}
-            <div className="relative px-8">
-              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                {planCards.map((plan) => (
-                  <div key={plan.id} className="relative">
-                    {/* Most Popular Badge */}
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
-                        Most Popular
-                        <Sparkles className="w-3 h-3 fill-white" />
-                      </div>
-                    )}
-
-                    {/* Plan Card */}
-                    <div className={`h-full ${
-                      plan.popular ? 'border-2 border-blue-500 rounded-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-sm'
-                    } bg-white overflow-hidden`}>
-                      {/* Card Content */}
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-[#171718] mb-3">{plan.name}</h3>
-                        
-                        {/* Price and Seats */}
-                        <div className="mb-3">
-                          <div className="flex items-baseline gap-1 mb-1">
-                            <span className="text-3xl font-bold text-[#171718]">{plan.price}</span>
-                            {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
-                          </div>
-                          
-                          {plan.hasSeats && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <button 
-                                onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
-                                className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="px-3 py-1 bg-gray-50 rounded text-sm font-medium">{teamSeats} seats +</span>
-                              <button 
-                                onClick={() => setTeamSeats(teamSeats + 1)}
-                                className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <p className="text-sm text-[#A5A5A5] mb-4">{plan.billing}</p>
-                        
-                        <div className="flex items-center gap-1 mb-5 py-3 px-3 bg-gray-50 rounded-lg">
-                          <div className="flex-1">
-                            <span className="text-base font-bold text-[#4D4D4D]">{plan.credits}</span>
-                            <span className="text-xs text-[#A5A5A5]"> / {plan.perCredits}</span>
-                          </div>
-                          <InfoIcon className="w-4 h-4 text-gray-400" />
-                        </div>
-
-                        {/* CTA Button */}
-                        <button
-                          className={`w-full py-3 rounded-lg text-sm font-semibold transition-all ${
-                            plan.current
-                              ? 'bg-gray-200 text-gray-500'
-                              : plan.isEnterprise
-                              ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                              : 'bg-blue-600 text-white hover:bg-blue-700'
-                          }`}
-                        >
-                          {plan.current ? 'Current' : plan.isEnterprise ? 'Contact Sales' : 'Upgrade'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Feature Comparison Rows */}
-          <div className="px-8 pb-8 pt-6">
-            {featureData.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="mb-6">
-                {/* Category Header */}
-                <div className="py-3 mb-3 border-b-2 border-gray-200">
-                  <h4 className="text-lg font-bold text-[#171718]">{category.category}</h4>
-                </div>
-                
-                {/* Feature Rows */}
-                {category.features.map((feature, featureIndex) => (
-                  <div key={featureIndex} className="py-4 border-b border-gray-100">
-                    <div className="grid gap-4" style={{ gridTemplateColumns: '2fr repeat(4, 1fr)' }}>
-                      <div className="text-sm text-[#4D4D4D] font-medium">{feature.name}</div>
-                      <div className="flex justify-center items-center">
-                        {renderCell(feature.starter)}
+          {/* Container for cards and feature comparison */}
+          <div className="relative px-8 pb-8">
+            {/* Plan Cards - Absolutely positioned */}
+            <div className="relative z-20 grid gap-4 mb-[-120px]" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+              {planCards.map((plan) => (
+                <div key={plan.id} className="relative">
+                  {/* Most Popular Badge */}
+                  {plan.popular && (
+                    <div className="absolute -top-3 left-0 right-0 z-10 bg-blue-600 text-white py-1.5 rounded-t-xl text-xs font-medium flex items-center justify-center gap-1">
+                      Most Popular
+                      <Sparkles className="w-3 h-3 fill-white" />
+                    </div>
+                  )}
+
+                  {/* Plan Card */}
+                  <div className={`${
+                    plan.popular ? 'border-2 border-blue-500 rounded-xl shadow-lg' : 'border border-gray-200 rounded-xl shadow-md'
+                  } bg-white overflow-hidden`}>
+                    {/* Card Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-[#171718] mb-3">{plan.name}</h3>
+                      
+                      {/* Price and Seats */}
+                      <div className="mb-3">
+                        <div className="flex items-baseline gap-1 mb-1">
+                          <span className="text-3xl font-bold text-[#171718]">{plan.price}</span>
+                          {plan.priceUnit && <span className="text-sm font-normal text-gray-500">{plan.priceUnit}</span>}
+                        </div>
+                        
+                        {plan.hasSeats && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <button 
+                              onClick={() => setTeamSeats(Math.max(2, teamSeats - 1))}
+                              className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="px-3 py-1 bg-gray-50 rounded text-sm font-medium">{teamSeats} seats +</span>
+                            <button 
+                              onClick={() => setTeamSeats(teamSeats + 1)}
+                              className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex justify-center items-center">
-                        {renderCell(feature.creator)}
+                      
+                      <p className="text-sm text-[#A5A5A5] mb-4">{plan.billing}</p>
+                      
+                      <div className="flex items-center gap-1 mb-5 py-3 px-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <span className="text-base font-bold text-[#4D4D4D]">{plan.credits}</span>
+                          <span className="text-xs text-[#A5A5A5]"> / {plan.perCredits}</span>
+                        </div>
+                        <InfoIcon className="w-4 h-4 text-gray-400" />
                       </div>
-                      <div className="flex justify-center items-center">
-                        {renderCell(feature.team)}
-                      </div>
-                      <div className="flex justify-center items-center">
-                        {renderCell(feature.enterprise)}
-                      </div>
+
+                      {/* CTA Button */}
+                      <button
+                        className={`w-full py-3 rounded-full text-sm font-semibold transition-all ${
+                          plan.current
+                            ? 'bg-gray-200 text-gray-500'
+                            : plan.isEnterprise
+                            ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                      >
+                        {plan.current ? 'Current' : plan.isEnterprise ? 'Contact Sales' : 'Upgrade'}
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Feature Comparison Rows */}
+            <div className="relative z-10 pt-[140px]">
+              {featureData.map((category, categoryIndex) => (
+                <div key={categoryIndex} className="mb-6">
+                  {/* Category Header */}
+                  <div className="py-3 mb-3 border-b-2 border-gray-200">
+                    <h4 className="text-lg font-bold text-[#171718]">{category.category}</h4>
+                  </div>
+                  
+                  {/* Feature Rows */}
+                  {category.features.map((feature, featureIndex) => (
+                    <div key={featureIndex} className="py-4 border-b border-gray-100">
+                      <div className="grid gap-4" style={{ gridTemplateColumns: '2fr repeat(4, 1fr)' }}>
+                        <div className="text-sm text-[#4D4D4D] font-medium">{feature.name}</div>
+                        <div className="flex justify-center items-center">
+                          {renderCell(feature.starter)}
+                        </div>
+                        <div className="flex justify-center items-center">
+                          {renderCell(feature.creator)}
+                        </div>
+                        <div className="flex justify-center items-center">
+                          {renderCell(feature.team)}
+                        </div>
+                        <div className="flex justify-center items-center">
+                          {renderCell(feature.enterprise)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </DialogContent>
