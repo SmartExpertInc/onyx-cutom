@@ -11,6 +11,7 @@ import TextAlign from '@tiptap/extension-text-align';
 export interface ComputedStyles {
   fontSize?: string;
   fontFamily?: string;
+  fontWeight?: string;
   color?: string;
   textAlign?: string;
   lineHeight?: string;
@@ -154,6 +155,7 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           const extractedStyles: ComputedStyles = {
             fontSize: computedStyles.fontSize,
             fontFamily: computedStyles.fontFamily,
+            fontWeight: computedStyles.fontWeight as any,
             color: computedStyles.color,
             textAlign: computedStyles.textAlign,
             lineHeight: computedStyles.lineHeight,
@@ -163,6 +165,7 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           // Apply computed styles directly to the editor DOM to ensure identical appearance
           editorElement.style.fontFamily = extractedStyles.fontFamily || editorElement.style.fontFamily;
           editorElement.style.fontSize = extractedStyles.fontSize || editorElement.style.fontSize;
+          (editorElement.style as any).fontWeight = extractedStyles.fontWeight || (editorElement.style as any).fontWeight;
           editorElement.style.lineHeight = extractedStyles.lineHeight || editorElement.style.lineHeight;
           editorElement.style.color = extractedStyles.color || editorElement.style.color;
           (editorElement.style as any).letterSpacing = (computedStyles as any).letterSpacing || (editorElement.style as any).letterSpacing;

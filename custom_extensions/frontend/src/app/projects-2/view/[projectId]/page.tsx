@@ -911,6 +911,7 @@ export default function Projects2ViewPage() {
                       height: '100%',
                     }}>
                     <ComponentBasedSlideDeckRenderer
+                      key={`deck-${useV1Templates ? 'v1' : 'v2'}`}
                       slides={componentBasedSlideDeck.slides}
                       selectedSlideId={currentSlideId}
                       isEditable={true}
