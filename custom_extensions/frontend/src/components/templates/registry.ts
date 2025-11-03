@@ -2679,7 +2679,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       width: 240,   // ✅ Measured: 240px (perfect square for circle)
       height: 240,  // ✅ Measured: 240px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required
-      backgroundColor: '#ffffff' // White background (matches template style)
+      backgroundColor: '#e0e7ff' // White background (matches template style)
     }
   }
   ,
