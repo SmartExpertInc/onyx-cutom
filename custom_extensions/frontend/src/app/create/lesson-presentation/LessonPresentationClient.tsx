@@ -810,14 +810,73 @@ export default function LessonPresentationClient() {
   };
 
   // Helper: detect if a string is a single JSON object with slides
+  // Handles large JSON, video lesson fields (voiceoverText, hasVoiceover), and various formatting
   const tryParsePresentationJson = (text: string): any | null => {
+    if (!text || !text.trim()) return null;
+    
     try {
-      const trimmed = (text || "").trim();
-      if (!trimmed.startsWith("{")) return null;
-      const obj = JSON.parse(trimmed);
-      if (obj && typeof obj === "object" && Array.isArray(obj.slides)) return obj;
-      return null;
-    } catch (_) {
+      // Step 1: Clean and prepare text for parsing
+      let cleaned = text.trim();
+      
+      // Remove markdown code blocks if present (```json ... ``` or ``` ... ```)
+      cleaned = cleaned.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+      cleaned = cleaned.trim();
+      
+      // Step 2: Try to find JSON object if it doesn't start with {
+      // Sometimes JSON might be embedded in other text
+      let jsonText = cleaned;
+      if (!cleaned.startsWith("{")) {
+        // Try to find JSON object boundaries
+        const firstBrace = cleaned.indexOf('{');
+        if (firstBrace >= 0) {
+          // Find matching closing brace
+          let depth = 0;
+          let lastBrace = -1;
+          for (let i = firstBrace; i < cleaned.length; i++) {
+            if (cleaned[i] === '{') depth++;
+            else if (cleaned[i] === '}') {
+              depth--;
+              if (depth === 0) {
+                lastBrace = i;
+                break;
+              }
+            }
+          }
+          if (lastBrace > firstBrace) {
+            jsonText = cleaned.substring(firstBrace, lastBrace + 1);
+          }
+        } else {
+          return null; // No JSON object found
+        }
+      }
+      
+      // Step 3: Parse JSON with improved error handling
+      const obj = JSON.parse(jsonText);
+      
+      // Step 4: Validate structure - must be object with slides array
+      if (!obj || typeof obj !== "object") return null;
+      if (!Array.isArray(obj.slides)) return null;
+      
+      // Step 5: Additional validation for video lessons
+      // Video lessons should have hasVoiceover field, but don't require it for parsing
+      // Video lesson slides may have voiceoverText field
+      
+      // Log detection for debugging large JSON
+      if (text.length > 10000) {
+        console.log(`[JSON_PARSE] Large JSON detected: ${text.length} chars, ${obj.slides?.length || 0} slides`);
+        console.log(`[JSON_PARSE] Has voiceover flag: ${!!obj.hasVoiceover}`);
+        console.log(`[JSON_PARSE] Slides with voiceover: ${obj.slides?.filter((s: any) => s.voiceoverText).length || 0}`);
+      }
+      
+      return obj;
+    } catch (error) {
+      // Enhanced error logging for debugging
+      if (text.length > 10000) {
+        console.warn(`[JSON_PARSE] Failed to parse large JSON (${text.length} chars):`, 
+          error instanceof Error ? error.message : String(error));
+        console.warn(`[JSON_PARSE] First 200 chars:`, text.substring(0, 200));
+        console.warn(`[JSON_PARSE] Last 200 chars:`, text.substring(Math.max(0, text.length - 200)));
+      }
       return null;
     }
   };
@@ -1007,18 +1066,50 @@ export default function LessonPresentationClient() {
     };
 
     // Replicate slide parsing logic used in the UI to count slides
+    // Enhanced to handle large JSON, video lesson fields, and various formats
     const countParsedSlides = (text: string): number => {
-      if (!text || !text.trim()) return 0;
-
-      // Handle JSON preview directly
-      const json = tryParsePresentationJson(text);
-      if (json && Array.isArray(json.slides)) {
-        return json.slides.length;
+      if (!text || !text.trim()) {
+        console.log(`[SLIDE_COUNT] Empty or whitespace-only text`);
+        return 0;
       }
 
-      // Clean the content first
+      // Step 1: Try JSON parsing first (handles both regular and video lesson presentations)
+      const json = tryParsePresentationJson(text);
+      if (json && Array.isArray(json.slides)) {
+        const slideCount = json.slides.length;
+        const isVideoLesson = json.hasVoiceover === true || 
+                             json.slides.some((s: any) => s.voiceoverText);
+        
+        console.log(`[SLIDE_COUNT] JSON detected: ${slideCount} slides, ` +
+                    `isVideoLesson: ${isVideoLesson}, contentLength: ${text.length}`);
+        
+        // Additional validation for video lessons with many slides
+        if (isVideoLesson && slideCount > 15) {
+          const slidesWithVoiceover = json.slides.filter((s: any) => 
+            s.voiceoverText && s.voiceoverText.trim().length > 0
+          ).length;
+          console.log(`[SLIDE_COUNT] Video lesson validation: ${slidesWithVoiceover}/${slideCount} slides have voiceover`);
+          
+          // Warn if many slides are missing voiceover (but don't fail - might be partial stream)
+          if (slidesWithVoiceover < slideCount * 0.5 && slideCount > 10) {
+            console.warn(`[SLIDE_COUNT] Warning: Only ${slidesWithVoiceover}/${slideCount} slides have voiceover text`);
+          }
+        }
+        
+        return slideCount;
+      }
+
+      // Step 2: Check if JSON was already converted to markdown (check jsonConvertedRef)
+      if (jsonConvertedRef.current) {
+        console.log(`[SLIDE_COUNT] JSON was already converted to markdown, parsing markdown format`);
+      }
+
+      // Step 3: Fallback to markdown parsing
       const cleanedText = cleanContent(text);
-      if (!cleanedText || !cleanedText.trim()) return 0;
+      if (!cleanedText || !cleanedText.trim()) {
+        console.log(`[SLIDE_COUNT] Cleaned text is empty`);
+        return 0;
+      }
 
       let slides: string[] = [];
       if (cleanedText.includes('---')) {
@@ -1027,11 +1118,27 @@ export default function LessonPresentationClient() {
         slides = cleanedText.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
       }
       slides = slides.filter((slideContent) => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
-      return slides.length;
+      
+      const markdownCount = slides.length;
+      if (markdownCount > 0) {
+        console.log(`[SLIDE_COUNT] Markdown format detected: ${markdownCount} slides`);
+      } else {
+        console.warn(`[SLIDE_COUNT] No slides found in markdown format. Content preview: ${text.substring(0, 200)}...`);
+      }
+      
+      return markdownCount;
     };
 
     const slideCount = countParsedSlides(content);
-    console.log(`[RESTART_CHECK] Stream done. Content length: ${content.length}, Slides found: ${slideCount}, Retry counter: ${formatRetryCounter}`);
+    
+    // Check if we have JSON content that hasn't been converted yet
+    const hasJsonButNotConverted = !jsonConvertedRef.current && 
+                                   content.trim().length > 0 && 
+                                   (content.trim().startsWith('{') || content.includes('"slides"'));
+    
+    console.log(`[RESTART_CHECK] Stream done. Content length: ${content.length}, Slides found: ${slideCount}, ` +
+                `Retry counter: ${formatRetryCounter}, JSON converted: ${jsonConvertedRef.current}, ` +
+                `Has JSON but not converted: ${hasJsonButNotConverted}`);
 
     // Update debug info
     setDebugInfo({
@@ -1045,6 +1152,39 @@ export default function LessonPresentationClient() {
     if (isHandlingInsufficientCredits) {
       console.log(`[RESTART_SKIP] Skipping regeneration due to insufficient credits handling`);
       return;
+    }
+
+    // Don't restart if we have successfully parsed JSON (originalJsonResponse exists)
+    // This means JSON was valid even if slide count is 0 (might be converting to markdown)
+    if (originalJsonResponse && slideCount === 0) {
+      console.log(`[RESTART_SKIP] JSON was successfully parsed (originalJsonResponse exists), ` +
+                  `but slide count is 0. This may be a conversion issue, not a parsing issue.`);
+      // Try to parse the original JSON to get actual slide count
+      try {
+        const parsed = JSON.parse(originalJsonResponse);
+        if (parsed.slides && Array.isArray(parsed.slides)) {
+          console.log(`[RESTART_SKIP] Original JSON has ${parsed.slides.length} slides. ` +
+                      `Markdown conversion may have failed, but JSON is valid.`);
+          return; // Don't restart - JSON is valid
+        }
+      } catch (e) {
+        console.warn(`[RESTART_SKIP] Failed to re-parse originalJsonResponse:`, e);
+      }
+    }
+
+    // Don't restart if we have JSON content that hasn't been converted yet
+    // The JSON conversion useEffect should run and convert it to markdown
+    if (hasJsonButNotConverted && slideCount === 0) {
+      console.log(`[RESTART_SKIP] JSON content detected (${content.length} chars) but not yet converted. ` +
+                  `This may be a timing issue - JSON conversion useEffect should handle this.`);
+      console.log(`[RESTART_SKIP] Content preview: ${content.substring(0, 300)}...`);
+      
+      // If we have substantial JSON content, don't restart immediately
+      // The JSON conversion useEffect will process it on next render
+      if (content.length > 5000) {
+        console.log(`[RESTART_SKIP] Large JSON content detected, skipping restart to allow conversion to complete`);
+        return;
+      }
     }
 
     if (slideCount === 0) {
@@ -1065,7 +1205,7 @@ export default function LessonPresentationClient() {
         setFormatRetryCounter(0);
       }
     }
-  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits]);
+  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits, originalJsonResponse]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
