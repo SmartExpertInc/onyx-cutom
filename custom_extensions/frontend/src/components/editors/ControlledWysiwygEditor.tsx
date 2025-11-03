@@ -44,8 +44,6 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
     onSelectionChange
   }, ref) => {
     const cleanedStyle = { ...style };
-    delete cleanedStyle.fontWeight;
-    delete cleanedStyle.fontStyle;
     // Ensure text can be selected - remove userSelect if present
     delete cleanedStyle.userSelect;
     delete (cleanedStyle as any).userSelect;
@@ -214,12 +212,43 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
         style.id = styleId;
         style.textContent = `
           /* Ensure formatting tags inherit font properties unless explicitly overridden */
+          .controlled-wysiwyg-editor {
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            font-style: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
+            letter-spacing: inherit !important;
+          }
+
+          .controlled-wysiwyg-editor p,
+          .controlled-wysiwyg-editor div,
+          .controlled-wysiwyg-editor h1,
+          .controlled-wysiwyg-editor h2,
+          .controlled-wysiwyg-editor h3,
+          .controlled-wysiwyg-editor h4,
+          .controlled-wysiwyg-editor h5,
+          .controlled-wysiwyg-editor h6 {
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            font-style: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
+            letter-spacing: inherit !important;
+          }
+
           .controlled-wysiwyg-editor strong,
           .controlled-wysiwyg-editor em,
           .controlled-wysiwyg-editor u,
           .controlled-wysiwyg-editor s {
             font-family: inherit !important;
             font-size: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
           }
           
           /* Span tags can have inline styles for font-family, font-size, and color */
