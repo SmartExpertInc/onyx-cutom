@@ -324,7 +324,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                         </button>
 
                         {/* Feature List Inside Card */}
-                        <div className="pt-3 px-14">
+                        <div className="pt-3 px-12">
                           {features.map((item, idx) => (
                             <div 
                               key={idx} 
@@ -357,12 +357,12 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   <div key={categoryIndex} className="relative group hover:z-10">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 bg-white group-hover:bg-[#CCDBFC] transition-colors duration-200"
-                      style={{ height: `${categoryHeight}px`, zIndex: -1 }}
+                      className="absolute left-[-32px] right-[-32px] top-0 group-hover:bg-[#CCDBFC] transition-colors duration-200 z-0"
+                      style={{ height: `${categoryHeight}px` }}
                     ></div>
                     
-                    <div className="grid gap-4 relative" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 1 }}>
-                      <div className="pr-4 relative z-10">
+                    <div className="grid gap-4 relative z-[1]" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
+                      <div className="pr-4 relative">
                         {/* Category Header */}
                         <div className="h-[48px] py-2">
                           <h4 className="text-base py-2 font-bold text-[#171718]">{category.category}</h4>
