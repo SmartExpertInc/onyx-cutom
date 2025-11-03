@@ -328,7 +328,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                           {features.map((item, idx) => (
                             <div 
                               key={idx} 
-                              className={`flex items-center text-xs justify-center last:border-b-0 text-[#4D4D4D] ${
+                              className={`flex items-center text-xs justify-center px-8 border-b border-[#A5A5A5] last:border-b-0 first:border-t-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
                             >
@@ -355,15 +355,15 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   <div key={categoryIndex} className="relative group">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[-20]" 
+                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-blue-100 transition-colors duration-200 z-[5]" 
                       style={{ height: `${categoryHeight}px` }}
                     ></div>
                     
                     <div className="grid gap-4 relative z-10" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
                       <div className="pr-4 pointer-events-auto cursor-pointer">
                         {/* Category Header */}
-                        <div className="py-3 mb-2">
-                          <h4 className="text-base font-bold text-[#171718]">{category.category}</h4>
+                        <div className="h-[48px]">
+                          <h4 className="text-base py-2 font-bold text-[#171718]">{category.category}</h4>
                         </div>
                         
                         {/* Feature Names */}
