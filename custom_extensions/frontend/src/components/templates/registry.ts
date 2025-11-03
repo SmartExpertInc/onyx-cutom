@@ -2053,10 +2053,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       logoNew: { type: 'image', label: 'Company Logo' }
     },
     avatarPosition: {
-      x: 80,        // ✅ Direct CSS padding-left (no scaling - CSS is already in video space 1920×1080)
-      y: 551,       // ✅ MEASURED: Actual rendered position (padding 36px + title + gap 17px)
-      width: 749,   // ✅ MEASURED: Container width (100% of 45% parent = 749px)
-      height: 471,  // ✅ MEASURED: Direct CSS container height - Result: 551+471=1022px < 1080px ✅
+      x: 80,        // ✅ Measured: 80px (matches CSS padding-left)
+      y: 521,       // ✅ CORRECTED: Measured from logs (was 551px, now 521px - 30px difference)
+      width: 749,   // ✅ Measured: 749px (matches container width)
+      height: 471,  // ✅ Measured: 471px (matches container height)
       backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
     }
   },
@@ -2682,7 +2682,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#e0e7ff' // White background (matches template style)
     }
   }
-  ,
+  , 
 
   // New: Key skills list with numbered items and avatar on left
   'key-skills-data-analysis': {
