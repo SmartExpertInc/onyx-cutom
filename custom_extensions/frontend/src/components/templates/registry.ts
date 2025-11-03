@@ -2196,6 +2196,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       website: { type: 'text', label: 'Website', maxLength: 100 },
       date: { type: 'text', label: 'Date', maxLength: 50 },
       pageNumber: { type: 'text', label: 'Page Number', maxLength: 50 }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned at top-right of slide
+      // CSS: top: 35px, right: 60px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1630,      // ✅ Measured: 1630px (calculated: 1920 - 60 - 230 = 1630) ✓
+      y: 35,        // ✅ Measured: 35px (matches CSS top exactly)
+      width: 230,   // ✅ Measured: 230px (perfect square for circle)
+      height: 230,  // ✅ Measured: 230px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0F58F9' // Blue background
     }
   },
 
