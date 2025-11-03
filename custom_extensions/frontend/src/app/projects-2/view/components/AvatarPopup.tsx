@@ -66,7 +66,6 @@ export default function AvatarPopup({
     ethnicity: null as string | null,
     look: null as string | null
   });
-  const [previewMode, setPreviewMode] = useState<boolean>(false);
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
   
   // Integrate with global avatar system
@@ -204,7 +203,7 @@ export default function AvatarPopup({
   };
 
   const handleAvatarClick = (avatar: ProcessedAvatar) => {
-    console.log('🎬 [AVATAR_POPUP] Avatar clicked for preview:', {
+    console.log('🎬 [AVATAR_POPUP] Avatar clicked:', {
       id: avatar.id,
       name: avatar.name,
       displayName: avatar.displayName,
@@ -215,76 +214,66 @@ export default function AvatarPopup({
       selectedVariant: avatar.selectedVariant
     });
     
+    // Directly add to scene without preview mode
     setSelectedAvatar(avatar);
-    setPreviewMode(true);
-    
-    console.log('🎬 [AVATAR_POPUP] Preview mode activated for avatar:', avatar.displayName);
+    handleAddToSceneDirectly(avatar);
   };
 
-  const handleBackClick = () => {
-    console.log('🎬 [AVATAR_POPUP] Back button clicked, returning to avatar grid');
-    setPreviewMode(false);
-    setSelectedAvatar(null);
-    console.log('🎬 [AVATAR_POPUP] Preview mode deactivated, avatar grid restored');
-  };
-
-  const handleAddToScene = () => {
-    console.log('🎬 [AVATAR_POPUP] Add to Scene button clicked!');
-    console.log('🎬 [AVATAR_POPUP] Selected avatar:', selectedAvatar);
-    console.log('🎬 [AVATAR_POPUP] onAvatarSelect callback exists:', !!onAvatarSelect);
+  const handleAddToSceneDirectly = (avatar: ProcessedAvatar) => {
+    console.log('🎬 [AVATAR_POPUP] Adding avatar to scene directly');
     
-    if (selectedAvatar && onAvatarSelect) {
+    if (avatar && onAvatarSelect) {
       console.log('🎬 [AVATAR_POPUP] Calling onAvatarSelect with:', {
-        avatar: selectedAvatar,
-        variant: selectedAvatar.selectedVariant
+        avatar: avatar,
+        variant: avatar.selectedVariant
       });
       
       // Call the callback to update the avatar on the slide
-      onAvatarSelect(selectedAvatar, selectedAvatar.selectedVariant);
+      onAvatarSelect(avatar, avatar.selectedVariant);
       
-              // Update the global avatar system (same as AvatarSelector does)
-        if (selectedAvatar.selectedVariant) {
-          const elaiAvatar = {
-            id: selectedAvatar.id,
-            code: selectedAvatar.code,
-            name: selectedAvatar.name,
-            type: null,
-            status: 1,
-            accountId: '',
-            gender: selectedAvatar.gender,
-            thumbnail: selectedAvatar.thumbnail,
-            canvas: selectedAvatar.canvas,
-            age: selectedAvatar.age,
-            ethnicity: selectedAvatar.ethnicity,
-            variants: [{
-              code: selectedAvatar.selectedVariant.code,
-              id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
-              name: selectedAvatar.selectedVariant.name,
-              thumbnail: selectedAvatar.selectedVariant.thumbnail,
-              canvas: selectedAvatar.selectedVariant.canvas
-            }]
-          };
-          
-          const elaiVariant = {
-            code: selectedAvatar.selectedVariant.code,
-            id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
-            name: selectedAvatar.selectedVariant.name,
-            thumbnail: selectedAvatar.selectedVariant.thumbnail,
-            canvas: selectedAvatar.selectedVariant.canvas
-          };
-          
-          updateSelectedAvatar(elaiAvatar, elaiVariant);
-          console.log('🎬 [AVATAR_POPUP] Global avatar context updated:', {
-            avatar: selectedAvatar.name,
-            variant: selectedAvatar.selectedVariant.name
-          });
-        }
+      // Update the global avatar system (same as AvatarSelector does)
+      if (avatar.selectedVariant) {
+        const elaiAvatar = {
+          id: avatar.id,
+          code: avatar.code,
+          name: avatar.name,
+          type: null,
+          status: 1,
+          accountId: '',
+          gender: avatar.gender,
+          thumbnail: avatar.thumbnail,
+          canvas: avatar.canvas,
+          age: avatar.age,
+          ethnicity: avatar.ethnicity,
+          variants: [{
+            code: avatar.selectedVariant.code,
+            id: avatar.selectedVariant.code,
+            name: avatar.selectedVariant.name,
+            thumbnail: avatar.selectedVariant.thumbnail,
+            canvas: avatar.selectedVariant.canvas
+          }]
+        };
+        
+        const elaiVariant = {
+          code: avatar.selectedVariant.code,
+          id: avatar.selectedVariant.code,
+          name: avatar.selectedVariant.name,
+          thumbnail: avatar.selectedVariant.thumbnail,
+          canvas: avatar.selectedVariant.canvas
+        };
+        
+        updateSelectedAvatar(elaiAvatar, elaiVariant);
+        console.log('🎬 [AVATAR_POPUP] Global avatar context updated:', {
+          avatar: avatar.name,
+          variant: avatar.selectedVariant.name
+        });
+      }
       
       console.log('🎬 [AVATAR_POPUP] Avatar selection callback completed, closing popup');
       onClose();
     } else {
       console.error('🎬 [AVATAR_POPUP] Cannot add to scene:', {
-        hasSelectedAvatar: !!selectedAvatar,
+        hasSelectedAvatar: !!avatar,
         hasCallback: !!onAvatarSelect
       });
     }
@@ -301,8 +290,6 @@ export default function AvatarPopup({
 
   const content = (
     <div className="flex h-full">
-      {!previewMode && (
-        <>
           {/* Left sidebar */}
           <div className="w-64 bg-white px-6 py-4 flex flex-col">
                     {/* Three buttons at the top */}
@@ -455,66 +442,10 @@ export default function AvatarPopup({
 
           {/* Vertical divider */}
           <div className="w-px bg-gray-200"></div>
-        </>
-      )}
 
       {/* Right main area */}
-      <div className={`flex flex-col p-4 ${previewMode ? 'w-full' : 'flex-1'}`}>
-        {previewMode ? (
-          // Preview mode content
-          <>
-            {/* Header with back button and avatar name */}
-            <div className="flex items-center gap-3 mb-6 flex-shrink-0">
-              <button 
-                onClick={handleBackClick}
-                className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <span className="text-lg font-medium text-black">{selectedAvatar?.displayName}</span>
-            </div>
-
-            {/* Main preview area */}
-            <div className="flex-1 flex flex-col items-center justify-center">
-              {/* Big rectangle with avatar thumbnail */}
-              <div className="relative w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-                {selectedAvatar?.thumbnail ? (
-                  <img 
-                    src={selectedAvatar.thumbnail} 
-                    alt={selectedAvatar.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  </div>
-                )}
-              </div>
-              
-              {/* Avatar name only */}
-              <div className="w-full text-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {selectedAvatar?.displayName}
-                </h3>
-              </div>
-            </div>
-
-            {/* Footer with Add to Scene button */}
-            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 -mx-4">
-              <button 
-                onClick={handleAddToScene}
-                className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors"
-              >
-                + Add to scene
-              </button>
-            </div>
-          </>
-        ) : (
-          // Normal mode content
+      <div className="flex flex-col p-4 flex-1">
+          {/* Avatar grid - always show */}
           <>
             {/* Search bar and create button - fixed at top */}
             <div className="flex items-center gap-4 mb-6 flex-shrink-0">
@@ -595,7 +526,6 @@ export default function AvatarPopup({
               </div>
             </div>
           </>
-        )}
       </div>
     </div>
   );
@@ -614,7 +544,7 @@ export default function AvatarPopup({
         {/* Modal content */}
         <div 
           className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px' }}
+          style={{ borderRadius: '12px', maxWidth: '800px' }}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -629,11 +559,11 @@ export default function AvatarPopup({
       <div 
         ref={popupRef}
         className={`fixed z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
-        style={{ 
+        style={{
           borderRadius: '12px',
           left: position?.x || 0,
           top: position?.y || 0,
-          width: previewMode ? '500px' : '800px',
+          width: '800px',
           height: '420px'
         }}
       >

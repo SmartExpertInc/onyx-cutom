@@ -30,7 +30,7 @@ import TemplateSelector from '../../../projects-2/view/components/TemplateSelect
 import ColorPalettePopup from '../../../projects-2/view/components/ColorPalettePopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import AvatarDataProvider from '../../../projects-2/view/components/AvatarDataService';
+import AvatarDataProvider, { useAvatarData } from '../../../projects-2/view/components/AvatarDataService';
 import { VoiceProvider } from '@/contexts/VoiceContext';
 import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
@@ -38,10 +38,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-export default function Projects2ViewPage() {
+function Projects2ViewPageContent() {
   const params = useParams();
   const projectId = params?.projectId as string;
   const { t } = useLanguage();
+  const { avatarData } = useAvatarData();
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
@@ -862,8 +863,6 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <VoiceProvider>
-      <AvatarDataProvider>
         <div 
           className="h-screen flex flex-col relative" 
           style={{ backgroundColor: '#F2F2F4' }} 
@@ -1139,7 +1138,7 @@ export default function Projects2ViewPage() {
           setIsAvatarPopupOpen(false);
           // TODO: Handle avatar selection - update video lesson data with selected avatar
         }}
-        avatarData={[]}
+        avatarData={avatarData}
       />
 
       {/* AI Popup */}
@@ -1332,8 +1331,15 @@ export default function Projects2ViewPage() {
       </div>
       
         </div>
+  );
+}
+
+export default function Projects2ViewPage() {
+  return (
+    <VoiceProvider>
+      <AvatarDataProvider>
+        <Projects2ViewPageContent />
       </AvatarDataProvider>
     </VoiceProvider>
   );
 }
-
