@@ -106,6 +106,7 @@ const COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable";
 const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
 const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
 const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
+const COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
@@ -773,7 +774,7 @@ export default function ProjectInstanceViewPage() {
           setEditableData(copiedDetails as PdfLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
           setEditableData(copiedDetails as ComponentBasedSlideDeck);
-        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
+        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON || instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
           setEditableData(copiedDetails as VideoLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
           setEditableData(copiedDetails as QuizData);
@@ -806,7 +807,7 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ lessonTitle: instanceData.name || t('interface.projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
           setEditableData({ lessonTitle: instanceData.name || t('interface.projectView.newSlideDeckTitle', 'New Slide Deck'), slides: [], detectedLanguage: lang });
-        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
+        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON || instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
           setEditableData({ mainPresentationTitle: instanceData.name || t('interface.projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
           setEditableData({ quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
@@ -1007,6 +1008,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_TRAINING_PLAN,
       COMPONENT_NAME_SLIDE_DECK,
       COMPONENT_NAME_VIDEO_LESSON,
+      COMPONENT_NAME_VIDEO_PRODUCT,
       COMPONENT_NAME_QUIZ,
       COMPONENT_NAME_TEXT_PRESENTATION,
     ];
@@ -1134,6 +1136,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_TRAINING_PLAN,
       COMPONENT_NAME_SLIDE_DECK,
       COMPONENT_NAME_VIDEO_LESSON,
+      COMPONENT_NAME_VIDEO_PRODUCT,
       COMPONENT_NAME_QUIZ,
       COMPONENT_NAME_TEXT_PRESENTATION,
     ];
@@ -1349,6 +1352,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_TRAINING_PLAN,
       COMPONENT_NAME_SLIDE_DECK,
       COMPONENT_NAME_VIDEO_LESSON,
+      COMPONENT_NAME_VIDEO_PRODUCT,
       COMPONENT_NAME_QUIZ,
       COMPONENT_NAME_TEXT_PRESENTATION,
     ];
@@ -1370,7 +1374,7 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ lessonTitle: projectInstanceData.name || t('interface.projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
           setEditableData({ textTitle: projectInstanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
-        } else if (projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON || projectInstanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
           setEditableData({ mainPresentationTitle: projectInstanceData.name || t('interface.projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_QUIZ) {
           setEditableData({ quizTitle: projectInstanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
@@ -1938,6 +1942,21 @@ export default function ProjectInstanceViewPage() {
             isAuthorized={isAuthorized}
           />
         );
+      case COMPONENT_NAME_VIDEO_PRODUCT:
+        // VideoProductDisplay is now handled by VideoLessonDisplay with video playback
+        const videoProductData = editableData as any;
+        return (
+          <VideoLessonDisplay
+            dataToDisplay={videoProductData}
+            isEditing={isEditing}
+            onTextChange={handleTextChange}
+            parentProjectName={parentProjectName}
+            lessonNumber={lessonNumber}
+            productId={projectId}
+            createdAt={projectCreatedAt}
+            isAuthorized={isAuthorized}
+          />
+        );
       case COMPONENT_NAME_QUIZ:
         const quizData = editableData as QuizData | null;
         return (
@@ -1973,7 +1992,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
+    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_VIDEO_PRODUCT, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
@@ -1993,6 +2012,7 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_QUIZ,
           COMPONENT_NAME_TEXT_PRESENTATION,
           COMPONENT_NAME_VIDEO_LESSON,
+          COMPONENT_NAME_VIDEO_PRODUCT,
           COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
         ]}
         t={t}
@@ -2006,6 +2026,7 @@ export default function ProjectInstanceViewPage() {
       <main 
         className={`font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'bg-[#F2F2F4] px-12 py-0'
             : projectInstanceData?.component_name === COMPONENT_NAME_QUIZ || 
@@ -2017,6 +2038,7 @@ export default function ProjectInstanceViewPage() {
         <div className={`mx-auto ${
           projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'max-w-[1920px]'
             : 'max-w-7xl'
@@ -2336,6 +2358,7 @@ export default function ProjectInstanceViewPage() {
 
         <div className={`${
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'p-0'
             : 'p-4 sm:p-6 md:p-8'
@@ -2343,6 +2366,7 @@ export default function ProjectInstanceViewPage() {
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'bg-[#F2F2F4]' 
             : 'bg-transparent'
