@@ -5782,11 +5782,11 @@
                         </div>
 
                         <!-- Profile image at bottom -->
-                        {% if profileImagePath %}
-                            <div class="profile-image">
+                        <div class="profile-image">
+                            {% if profileImagePath %}
                                 <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-img">
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
 
                     <!-- Right column -->
