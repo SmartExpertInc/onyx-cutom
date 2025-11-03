@@ -82,6 +82,14 @@ export default function Projects2ViewPage() {
   // Ready flag to hide advanced controls per requirements
   const showReady = true;
 
+  // TEMP DEBUG: Toggle to view v1 (_old) vs v2 (normal) slide templates
+  const [useV1Templates, setUseV1Templates] = useState<boolean>(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__ONYX_USE_V1_SLIDES__ = useV1Templates;
+    }
+  }, [useV1Templates]);
+
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     console.log('🔍 handleAddSlide called with:', {
@@ -783,6 +791,19 @@ export default function Projects2ViewPage() {
           showReady={showReady}
         />
       </div>
+
+      {/* TEMP DEBUG SWITCH: v1 (_old) vs v2 templates */}
+      <div className="mx-4 -mt-1 mb-2 flex items-center gap-3">
+        <label className="inline-flex items-center gap-2 text-xs text-gray-700 select-none">
+          <input
+            type="checkbox"
+            checked={useV1Templates}
+            onChange={(e) => setUseV1Templates(e.target.checked)}
+          />
+          Use v1 (_old) slide templates
+        </label>
+        <span className="text-[11px] text-gray-500">(temporary debug)</span>
+      </div>
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
@@ -913,7 +934,7 @@ export default function Projects2ViewPage() {
                         // Don't change activeComponent when text editor activates - let it stay as is
                         // The activeSettingsPanel will override the sidebar display
                       }}
-                      theme="default"
+                      theme={useV1Templates ? 'v1' : 'default'}
                       isVideoMode={true}
                     />
                       </div>

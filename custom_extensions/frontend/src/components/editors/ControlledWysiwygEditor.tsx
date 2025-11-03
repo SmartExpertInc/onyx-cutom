@@ -13,6 +13,8 @@ export interface ComputedStyles {
   fontFamily?: string;
   color?: string;
   textAlign?: string;
+  lineHeight?: string;
+  letterSpacing?: string;
 }
 
 export interface ControlledWysiwygEditorProps {
@@ -150,10 +152,12 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           const computedStyles = window.getComputedStyle(containerEl);
           
           const extractedStyles: ComputedStyles = {
-            fontSize: computedStyles.fontSize,      // e.g., "40px" (computed from 2.5rem)
-            fontFamily: computedStyles.fontFamily,  // e.g., "Lora, serif"
-            color: computedStyles.color,            // e.g., "rgb(255, 255, 255)"
-            textAlign: computedStyles.textAlign,    // e.g., "left"
+            fontSize: computedStyles.fontSize,
+            fontFamily: computedStyles.fontFamily,
+            color: computedStyles.color,
+            textAlign: computedStyles.textAlign,
+            lineHeight: computedStyles.lineHeight,
+            letterSpacing: (computedStyles as any).letterSpacing,
           };
           
           // Apply computed styles directly to the editor DOM to ensure identical appearance
