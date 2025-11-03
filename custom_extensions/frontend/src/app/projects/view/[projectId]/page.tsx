@@ -18,7 +18,7 @@ import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import EditorPage from '@/components/EditorPage';
-import VideoLessonDisplay from '@/components/VideoLessonDisplay';
+import VideoProductDisplay from '@/components/VideoProductDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
@@ -105,7 +105,7 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/c
 const COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable";
 const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
 const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
-const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
+const COMPONENT_NAME_VIDEO_LESSON = "VideoProductDisplay";
 const COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
@@ -1899,10 +1899,10 @@ export default function ProjectInstanceViewPage() {
             />
         );
         */
-        // NEW: Using VideoLessonDisplay for video lesson presentations
+        // NEW: Using VideoProductDisplay for generated videos
         const videoLessonPresentationData = editableData as VideoLessonData | null;
         return (
-          <VideoLessonDisplay
+          <VideoProductDisplay
             dataToDisplay={videoLessonPresentationData}
             isEditing={isEditing}
             onTextChange={handleTextChange}
@@ -1931,7 +1931,7 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_VIDEO_LESSON:
         const videoData = editableData as VideoLessonData | null;
         return (
-          <VideoLessonDisplay
+          <VideoProductDisplay
             dataToDisplay={videoData}
             isEditing={isEditing}
             onTextChange={handleTextChange}
@@ -1943,10 +1943,10 @@ export default function ProjectInstanceViewPage() {
           />
         );
       case COMPONENT_NAME_VIDEO_PRODUCT:
-        // VideoProductDisplay is now handled by VideoLessonDisplay with video playback
+        // VideoProductDisplay is now handled by VideoProductDisplay with video playback
         const videoProductData = editableData as any;
         return (
-          <VideoLessonDisplay
+          <VideoProductDisplay
             dataToDisplay={videoProductData}
             isEditing={isEditing}
             onTextChange={handleTextChange}

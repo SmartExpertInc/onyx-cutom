@@ -10,7 +10,6 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/c
 const SmartSlideDeckViewer = React.lazy(() => import('@/components/SmartSlideDeckViewer').then(mod => ({ default: mod.SmartSlideDeckViewer })));
 const QuizDisplay = React.lazy(() => import('@/components/QuizDisplay'));
 const TextPresentationDisplay = React.lazy(() => import('@/components/TextPresentationDisplay'));
-const VideoLessonDisplay = React.lazy(() => import('@/components/VideoLessonDisplay'));
 const VideoProductDisplay = React.lazy(() => import('@/components/VideoProductDisplay'));
 const PdfLessonDisplay = React.lazy(() => import('@/components/PdfLessonDisplay'));
 
@@ -105,9 +104,8 @@ function PublicProductViewerContent() {
         return <TextPresentationDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'VideoLessonDisplay':
-        return <VideoLessonDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
-      
       case 'VideoProductDisplay':
+        // Both VideoLessonDisplay and VideoProductDisplay use the same component now
         return <VideoProductDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'PdfLessonDisplay':

@@ -17,7 +17,7 @@ import InteractionPopup from '../components/InteractionPopup';
 import InteractionModal from '../components/InteractionModal';
 import AiPopup from '../components/AiPopup';
 import LanguageVariantModal from '../components/LanguageVariantModal';
-import VideoLessonDisplay from '@/components/VideoLessonDisplay';
+import VideoProductDisplay from '@/components/VideoProductDisplay';
 import { ComponentBasedSlideDeckRenderer } from '@/components/ComponentBasedSlideRenderer';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import SceneTimeline from '../components/SceneTimeline';
@@ -849,7 +849,7 @@ export default function Projects2ViewPage() {
                 </div>
               </div>
             ) : (
-              <VideoLessonDisplay 
+              <VideoProductDisplay 
                 dataToDisplay={videoLessonData || null}
                 isEditing={true}
                 className="h-full"
