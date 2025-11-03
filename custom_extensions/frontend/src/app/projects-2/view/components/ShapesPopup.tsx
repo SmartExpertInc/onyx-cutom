@@ -209,17 +209,17 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: '400px',
-        height: '300px',
+        width: '432px',
+        height: '332px',
       }}
     >
       {/* First Row - Filled Basic Shapes */}
-      <div className="grid grid-cols-4 gap-2 mb-2">
+      <div className="grid grid-cols-4 gap-2 mb-4">
         {row1Shapes.map((shape) => (
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-100 rounded-lg"
+            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-[#E0E0E0] rounded-lg w-[70px] h-[70px]"
           >
             {shape.icon}
           </div>
@@ -227,12 +227,12 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
       </div>
 
       {/* Second Row - Outlined Basic Shapes */}
-      <div className="grid grid-cols-4 gap-2 mb-2">
+      <div className="grid grid-cols-4 gap-2 mb-4">
         {row2Shapes.map((shape) => (
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-100 rounded-lg"
+            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-[#E0E0E0] rounded-lg w-[70px] h-[70px]"
           >
             {shape.icon}
           </div>
@@ -240,12 +240,12 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
       </div>
 
       {/* Third Row - Additional Filled Shapes */}
-      <div className="grid grid-cols-4 gap-2 mb-2">
+      <div className="grid grid-cols-4 gap-2 mb-4">
         {row3Shapes.map((shape) => (
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-100 rounded-lg"
+            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-[#E0E0E0] rounded-lg w-[70px] h-[70px]"
           >
             {shape.icon}
           </div>
@@ -258,7 +258,7 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-100 rounded-lg"
+            className="flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-[#E0E0E0] rounded-lg w-[70px] h-[70px]"
           >
             {shape.icon}
           </div>
