@@ -1,6 +1,19 @@
 "use client";
 
 import React from 'react';
+import {
+  LayoutGrid,
+  Type,
+  UserRound,
+  BarChart3,
+  ListChecks,
+  Tags,
+  BookOpenText,
+  PanelsTopLeft,
+  Grid3X3,
+  FileText,
+  ClipboardList
+} from 'lucide-react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
 
@@ -58,6 +71,37 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   const availableTemplates = getAllTemplates()
     .filter(t => allowedVideoTemplateIds.includes(t.id))
     .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }));
+
+  // Lucide icon overrides to better visualize structure
+  const iconOverrides: Record<string, JSX.Element> = {
+    'course-overview-slide': <ListChecks className="text-gray-700" />, // Title + bullets
+    'work-life-balance-slide': <UserRound className="text-gray-700" />, // Big avatar + text
+    'phishing-definition-slide': <BookOpenText className="text-gray-700" />, // Definition
+    'culture-values-three-columns-slide': <Grid3X3 className="text-gray-700" />, // 3 columns
+    'percent-circles-slide': <PanelsTopLeft className="text-gray-700" />, // Multi-cards
+    'benefits-list-slide': <ListChecks className="text-gray-700" />, // Bullet list
+    'impact-statements-slide': <Type className="text-gray-700" />, // Text callouts
+    'dei-methods-slide': <LayoutGrid className="text-gray-700" />, // Grid + icons
+    'company-tools-resources-slide': <FileText className="text-gray-700" />, // List + icon
+    'ai-pharma-market-growth-slide': <BarChart3 className="text-gray-700" />, // Bar chart + photo
+    'critical-thinking-slide': <Type className="text-gray-700" />, // Question + points
+    'benefits-tags-slide': <Tags className="text-gray-700" />, // Tags + avatar
+    'kpi-update-slide': <BarChart3 className="text-gray-700" />, // KPI cards
+    'phishing-rise-slide': <BarChart3 className="text-gray-700" />, // Bar chart narrative
+    'soft-skills-assessment-slide': <Type className="text-gray-700" />, // Scale + notes
+    'problems-grid-slide': <LayoutGrid className="text-gray-700" />, // Grid of problems
+    'solution-steps-slide': <ListChecks className="text-gray-700" />, // Numbered steps
+    'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" /> // Tips list
+  };
+
+  const renderIcon = (templateId: string, fallback?: React.ReactNode) => {
+    const icon = iconOverrides[templateId];
+    return (
+      <div className="w-6 h-6 flex items-center justify-center">
+        {icon ?? fallback ?? <LayoutGrid className="text-gray-700" />}
+      </div>
+    );
+  };
 
   const handleAddSlide = (templateId: string) => {
     const template = getTemplate(templateId);
@@ -132,8 +176,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
               onClick={() => handleAddSlide(template.id)}
               className="w-full p-4 border border-gray-200 rounded-lg bg-white cursor-pointer flex items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
             >
-              <div className="flex-shrink-0 text-2xl mt-0.5 group-hover:scale-110 transition-transform">
-                {template.icon}
+              <div className="flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                {renderIcon(template.id, template.icon as any)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-blue-700">
@@ -163,7 +207,9 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
         </div>
         {availableTemplates.length === 0 && (
           <div className="w-full text-center py-12">
-            <div className="text-gray-400 text-4xl mb-2">📋</div>
+            <div className="text-gray-400 flex items-center justify-center mb-2">
+              <ClipboardList className="w-10 h-10" />
+            </div>
             <p className="text-gray-600">No templates available</p>
           </div>
         )}
