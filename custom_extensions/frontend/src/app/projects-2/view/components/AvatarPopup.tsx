@@ -59,6 +59,7 @@ export default function AvatarPopup({
   position
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
+  const genderDropdownRef = useRef<HTMLDivElement>(null);
   const [selectedFilters, setSelectedFilters] = useState({
     gender: 'All',
     age: [] as string[],
@@ -66,6 +67,7 @@ export default function AvatarPopup({
     look: [] as string[]
   });
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
   
   // Integrate with global avatar system
   const { updateSelectedAvatar } = useAvatarDisplay();
@@ -102,6 +104,23 @@ export default function AvatarPopup({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, displayMode, onClose]);
+
+  // Handle click outside for gender dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(event.target as Node)) {
+        setIsGenderDropdownOpen(false);
+      }
+    };
+
+    if (isGenderDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isGenderDropdownOpen]);
 
   // Process avatar data to flatten variants
   const processedAvatars = useMemo(() => {
@@ -323,15 +342,41 @@ export default function AvatarPopup({
               {/* Gender */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Gender</h4>
-                <select
-                  value={selectedFilters.gender}
-                  onChange={(e) => handleFilterChange('gender', e.target.value)}
-                  className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-black focus:outline-none focus:border-black focus:ring-0 bg-white"
-                >
-                  <option value="All">All</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                </select>
+                <div className="relative" ref={genderDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-black bg-white focus:outline-none focus:border-black text-left flex items-center justify-between"
+                  >
+                    <span>{selectedFilters.gender}</span>
+                    <svg 
+                      className={`w-4 h-4 transition-transform ${isGenderDropdownOpen ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {isGenderDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-[#E0E0E0] rounded-md shadow-lg">
+                      {['All', 'Female', 'Male'].map((option) => (
+                        <div
+                          key={option}
+                          onClick={() => {
+                            handleFilterChange('gender', option);
+                            setIsGenderDropdownOpen(false);
+                          }}
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                            selectedFilters.gender === option ? 'bg-gray-50 font-medium' : ''
+                          } ${option === 'All' ? 'rounded-t-md' : ''} ${option === 'Male' ? 'rounded-b-md' : ''}`}
+                        >
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Age */}
