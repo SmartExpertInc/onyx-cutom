@@ -6212,6 +6212,125 @@ Create opportunities for growth & advancement.{% endif %}</div>
                             <img src="{{ doctorImagePath }}" alt="{{ doctorImageAlt or 'Doctor' }}" class="doctor-img">
                         {% endif %}
                     </div>
+                    
+                    <!-- JavaScript Position Logger for AI Pharma Market Growth Slide - Doctor Image Container -->
+                    <script>
+                    (function() {
+                        // Wait for page to fully render
+                        window.addEventListener('DOMContentLoaded', function() {
+                            setTimeout(function() {
+                                const doctorImage = document.querySelector('.ai-pharma-market-growth-slide .doctor-image');
+                                
+                                if (doctorImage) {
+                                    const rect = doctorImage.getBoundingClientRect();
+                                    
+                                    // Create a GIANT visible debug overlay at the bottom-right
+                                    const debugDiv = document.createElement('div');
+                                    debugDiv.style.cssText = `
+                                        position: fixed;
+                                        bottom: 10px;
+                                        right: 10px;
+                                        background: rgba(128, 0, 128, 0.95);
+                                        color: #ffff00;
+                                        padding: 20px;
+                                        font-family: monospace;
+                                        font-size: 22px;
+                                        font-weight: bold;
+                                        z-index: 999999;
+                                        border: 5px solid #00ff00;
+                                        white-space: pre;
+                                        max-width: 650px;
+                                        box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+                                    `;
+                                    
+                                    debugDiv.textContent = `🎯 AI PHARMA - DOCTOR IMAGE
+
+📍 DOCTOR IMAGE CONTAINER:
+  X: ${Math.round(rect.left)}px
+  Y: ${Math.round(rect.top)}px
+  Width: ${Math.round(rect.width)}px
+  Height: ${Math.round(rect.height)}px
+
+📐 EDGES:
+  Bottom: ${Math.round(rect.bottom)}px
+  Right: ${Math.round(rect.right)}px
+
+💡 CSS VALUES:
+  - position: absolute
+  - right: 144px, top: 48px, bottom: 155px
+  - height: 96%
+  - Background: #0F58F9`;
+                                    
+                                    document.body.appendChild(debugDiv);
+                                    
+                                    // Also create a CENTERED overlay for maximum visibility
+                                    const centerOverlay = document.createElement('div');
+                                    centerOverlay.style.cssText = `
+                                        position: fixed;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        background: rgba(128, 0, 128, 0.98);
+                                        color: #ffff00;
+                                        padding: 50px;
+                                        font-family: monospace;
+                                        font-size: 44px;
+                                        font-weight: bold;
+                                        z-index: 9999999;
+                                        border: 10px solid #00ff00;
+                                        text-align: left;
+                                        box-shadow: 0 0 50px rgba(0, 255, 0, 0.8);
+                                    `;
+                                    
+                                    centerOverlay.innerHTML = `
+                                        <div style="font-size: 64px; color: #00ff00; margin-bottom: 30px;">🎯 AI PHARMA DOCTOR</div>
+                                        <div style="color: #ffffff;">X: ${Math.round(rect.left)}px</div>
+                                        <div style="color: #ffffff;">Y: ${Math.round(rect.top)}px</div>
+                                        <div style="color: #00ff00; font-size: 52px; margin-top: 30px;">Width: ${Math.round(rect.width)}px</div>
+                                        <div style="color: #00ff00; font-size: 52px;">Height: ${Math.round(rect.height)}px</div>
+                                        <div style="color: #ccc; font-size: 32px; margin-top: 20px;">Expected: right=144px, top=48px</div>
+                                        <div style="color: #ccc; font-size: 28px;">Bottom: ${Math.round(rect.bottom)}px, Right: ${Math.round(rect.right)}px</div>
+                                    `;
+                                    
+                                    document.body.appendChild(centerOverlay);
+                                    
+                                    // Log to console (visible in headless browser logs if captured)
+                                    console.log('═══════════════════════════════════════');
+                                    console.log('🎯 AI PHARMA DOCTOR IMAGE MEASURED POSITION');
+                                    console.log('═══════════════════════════════════════');
+                                    console.log('Actual rendered position:');
+                                    console.log('  X:', Math.round(rect.left), 'px');
+                                    console.log('  Y:', Math.round(rect.top), 'px');
+                                    console.log('  Width:', Math.round(rect.width), 'px');
+                                    console.log('  Height:', Math.round(rect.height), 'px');
+                                    console.log('  Bottom edge:', Math.round(rect.bottom), 'px');
+                                    console.log('  Right edge:', Math.round(rect.right), 'px');
+                                    console.log('═══════════════════════════════════════');
+                                    console.log('📊 CSS Values (from template):');
+                                    console.log('  position: absolute');
+                                    console.log('  right: 144px');
+                                    console.log('  top: 48px');
+                                    console.log('  bottom: 155px');
+                                    console.log('  height: 96%');
+                                    console.log('  background-color: #0F58F9');
+                                    console.log('═══════════════════════════════════════');
+                                    console.log('📐 Expected Position:');
+                                    console.log('  Expected X:', 1920 - 144 - Math.round(rect.width), 'px (1920 - 144 right - width)');
+                                    console.log('  Expected Y: 48px (from CSS top)');
+                                    console.log('  Expected bottom edge:', 1080 - 155, 'px (1080 - 155 bottom)');
+                                    console.log('═══════════════════════════════════════');
+                                    console.log('🔍 Difference from Expected:');
+                                    console.log('  X difference:', Math.round(rect.left) - (1920 - 144 - Math.round(rect.width)), 'px');
+                                    console.log('  Y difference:', Math.round(rect.top) - 48, 'px');
+                                    console.log('  Bottom difference:', Math.round(rect.bottom) - (1080 - 155), 'px');
+                                    console.log('═══════════════════════════════════════');
+                                } else {
+                                    console.error('❌ Could not find .ai-pharma-market-growth-slide .doctor-image element');
+                                }
+                            }, 500); // Wait 500ms for layout to stabilize
+                        });
+                    })();
+                    </script>
 
                     <!-- Page number in bottom-left -->
                     <div class="page-number-container">
