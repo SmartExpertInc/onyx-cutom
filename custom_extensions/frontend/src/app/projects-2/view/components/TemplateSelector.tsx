@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
 
@@ -11,7 +11,25 @@ interface TemplateSelectorProps {
 
 export default function TemplateSelector({ currentSlideCount, onAddSlide }: TemplateSelectorProps) {
   // Get available templates
-  const availableTemplates = getAllTemplates();
+  const allTemplates = getAllTemplates();
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Filter templates based on search query
+  const availableTemplates = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return allTemplates;
+    }
+    
+    const query = searchQuery.toLowerCase().trim();
+    return allTemplates.filter((template) => {
+      const nameMatch = template.name.toLowerCase().includes(query);
+      const descriptionMatch = template.description?.toLowerCase().includes(query) || false;
+      const idMatch = template.id.toLowerCase().includes(query);
+      return nameMatch || descriptionMatch || idMatch;
+    });
+  }, [allTemplates, searchQuery]);
 
   // Add new slide with template selection
   const handleAddSlide = (templateId: string) => {
@@ -46,6 +64,53 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
         <div className="w-full mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Choose Template</h2>
           <p className="text-sm text-gray-600 mt-1">Select a template to add a new slide</p>
+        </div>
+
+        {/* Search Input */}
+        <div className="w-full mb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+            <svg
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Clear search"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Template List */}
@@ -94,8 +159,18 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
         {/* Empty state if no templates */}
         {availableTemplates.length === 0 && (
           <div className="w-full text-center py-12">
-            <div className="text-gray-400 text-4xl mb-2">📋</div>
-            <p className="text-gray-600">No templates available</p>
+            <div className="text-gray-400 text-4xl mb-2">🔍</div>
+            <p className="text-gray-600">
+              {searchQuery ? `No templates found for "${searchQuery}"` : 'No templates available'}
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-2 text-sm text-blue-600 hover:text-blue-700 underline"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         )}
       </div>
