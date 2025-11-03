@@ -324,21 +324,21 @@ export default function AvatarPopup({
             <div className="mb-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  {/* Black magnifying glass icon */}
-                  <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  {/* Search icon */}
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 <input
                   type="text"
-                  placeholder="Search"
-                  className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-0"
+                  placeholder="Search..."
+                  className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-[#878787] focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto pb-4">
+            <div className="flex-1 overflow-y-auto pb-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
               {/* Gender */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Gender</h4>
@@ -386,7 +386,7 @@ export default function AvatarPopup({
 
               {/* Age */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
+                <h4 className="text-xs font-medium text-[#171718] mb-2">Age</h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Young', 'Middle-aged', 'Senior'].map((age) => (
                     <label key={age} className="flex items-center cursor-pointer">
@@ -394,7 +394,7 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.age.includes(age)}
                         onChange={() => handleCheckboxChange('age', age)}
-                        className="mr-2 w-4 h-4 rounded-md border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
                           backgroundImage: selectedFilters.age.includes(age) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
@@ -403,14 +403,14 @@ export default function AvatarPopup({
                           backgroundRepeat: 'no-repeat'
                         }}
                       />
-                      <span className="text-sm text-black">{age}</span>
+                      <span className="text-sm text-[#171718]">{age}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* Ethnicity */}
-              <div className="mb-4">
+              {/* Ethnicity - Hidden for now */}
+              {/* <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Asian', 'Black', 'White / Caucasian', 'South Asian / Indian', 'Southeast Asian / Pacific Island', 'Black, Latino / Hispanic', 'Latino / Hispanic', 'Middle Eastern'].map((ethnicity) => (
@@ -419,7 +419,7 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.ethnicity.includes(ethnicity)}
                         onChange={() => handleCheckboxChange('ethnicity', ethnicity)}
-                        className="mr-2 w-4 h-4 rounded-md border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
                           backgroundImage: selectedFilters.ethnicity.includes(ethnicity) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
@@ -432,11 +432,11 @@ export default function AvatarPopup({
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Look (Avatar Variants) */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Look</h4>
+                <h4 className="text-xs font-medium text-[#171718] mb-2">Look</h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Business', 'Casual', 'Call Centre', 'Doctor', 'Construction', 'Fitness', 'Chef', 'Thobe', 'Casual White'].map((look) => (
                     <label key={look} className="flex items-center cursor-pointer">
@@ -444,7 +444,7 @@ export default function AvatarPopup({
                         type="checkbox"
                         checked={selectedFilters.look.includes(look)}
                         onChange={() => handleCheckboxChange('look', look)}
-                        className="mr-2 w-4 h-4 rounded-md border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
                           backgroundImage: selectedFilters.look.includes(look) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
@@ -453,7 +453,7 @@ export default function AvatarPopup({
                           backgroundRepeat: 'no-repeat'
                         }}
                       />
-                      <span className="text-sm text-black">{look}</span>
+                      <span className="text-sm text-[#171718]">{look}</span>
                     </label>
                   ))}
                 </div>
@@ -462,11 +462,11 @@ export default function AvatarPopup({
           </div>
 
       {/* Right main area */}
-      <div className="flex flex-col px-4 flex-1">
+      <div className="flex flex-col pl-4 pr-1 flex-1">
           {/* Avatar grid - always show */}
           <>
             {/* Scrollable content area */}
-            <div className="flex-1 overflow-y-auto pb-4">
+            <div className="flex-1 overflow-y-auto pb-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
               {/* Avatar rectangles grid */}
               <div className="grid grid-cols-3 gap-[18px]">
                  {filteredAvatars.map((avatar: ProcessedAvatar, index) => (
@@ -505,7 +505,7 @@ export default function AvatarPopup({
                       
                       {/* Avatar name only */}
                       <div className="text-center w-full">
-                        <div className="text-sm text-black font-medium">{avatar.displayName}</div>
+                        <div className="text-sm text-[#171718] font-medium">{avatar.displayName}</div>
                     </div>
                   </div>
                 ))}
