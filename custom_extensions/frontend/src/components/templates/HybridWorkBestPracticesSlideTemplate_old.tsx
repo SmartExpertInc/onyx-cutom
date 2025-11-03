@@ -5,11 +5,12 @@ import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 import YourLogo from '../YourLogo';
 
 export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Hybrid work best practices',
@@ -50,7 +51,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMainStatement, setEditingMainStatement] = useState(false);
@@ -60,6 +62,13 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
   const [currentMainStatement, setCurrentMainStatement] = useState(mainStatement);
   const [currentPractices, setCurrentPractices] = useState(practices);
   const [currentPageNumber, setCurrentPageNumber] = useState('11');
+
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const mainStatementEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const practiceTitleEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const practiceDescriptionEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const pageNumberEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -233,9 +242,13 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                 backgroundColor: '#3B8BE9'
               }}></div>
                 {isEditable && editingTitle ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={titleEditorRef}
                     initialValue={currentTitle}
-                    onSave={handleTitleSave}
+                    onSave={(value) => {
+                      handleTitleSave(value);
+                      setEditingTitle(false);
+                    }}
                     onCancel={handleTitleCancel}
                     className="hybrid-title-editor"
                     style={{
@@ -244,6 +257,11 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                       fontWeight: '600',
                       width: '100%',
                       height: 'auto'
+                    }}
+                    onEditorReady={(editor, computedStyles) => {
+                      if (onEditorActive) {
+                        onEditorActive(editor, 'title', computedStyles);
+                      }
                     }}
                   />
                 ) : (
@@ -256,9 +274,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                       textTransform: 'none',
                       fontWeight: '600'
                     }}
-                  >
-                    {currentTitle}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: currentTitle }}
+                  />
                 )}
               </div>
             </div>
@@ -274,11 +291,14 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
               fontWeight: '600'
             }}>
               {isEditable && editingMainStatement ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={mainStatementEditorRef}
                   initialValue={currentMainStatement}
-                  onSave={handleMainStatementSave}
+                  onSave={(value) => {
+                    handleMainStatementSave(value);
+                    setEditingMainStatement(false);
+                  }}
                   onCancel={handleMainStatementCancel}
-                  multiline={true}
                   className="title-element"
                   style={{
                     fontSize: '35px',
@@ -290,6 +310,11 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                     fontFamily: 'Lora, serif',
                     fontWeight: '600'
                   }}
+                  onEditorReady={(editor, computedStyles) => {
+                    if (onEditorActive) {
+                      onEditorActive(editor, 'main-statement', computedStyles);
+                    }
+                  }}
                 />
               ) : (
                 <div
@@ -299,9 +324,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
                   }}
-                >
-                  {currentMainStatement}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: currentMainStatement }}
+                />
               )}
             </div>
           </div>
@@ -389,9 +413,15 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                     fontFamily: 'Inter, sans-serif'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
-                      <ImprovedInlineEditor
+                      <ControlledWysiwygEditor
+                        ref={(el) => {
+                          if (el) practiceTitleEditorRefs.current[index] = el;
+                        }}
                         initialValue={practice.title}
-                        onSave={(value) => handlePracticeSave(index, 'title', value)}
+                        onSave={(value) => {
+                          handlePracticeSave(index, 'title', value);
+                          setEditingPractices(null);
+                        }}
                         onCancel={handlePracticeCancel}
                         className="practice-title-editor"
                         style={{
@@ -403,6 +433,11 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                           width: '100%',
                           height: 'auto'
                         }}
+                        onEditorReady={(editor, computedStyles) => {
+                          if (onEditorActive) {
+                            onEditorActive(editor, `practice-${index}-title`, computedStyles);
+                          }
+                        }}
                       />
                     ) : (
                       <div
@@ -412,9 +447,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                           cursor: isEditable ? 'pointer' : 'default',
                           userSelect: 'none'
                         }}
-                      >
-                        {practice.title}
-                      </div>
+                        dangerouslySetInnerHTML={{ __html: practice.title }}
+                      />
                     )}
                   </div>
 
@@ -427,11 +461,16 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                     fontFamily: 'Inter, sans-serif'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
-                      <ImprovedInlineEditor
+                      <ControlledWysiwygEditor
+                        ref={(el) => {
+                          if (el) practiceDescriptionEditorRefs.current[index] = el;
+                        }}
                         initialValue={practice.description}
-                        onSave={(value) => handlePracticeSave(index, 'description', value)}
+                        onSave={(value) => {
+                          handlePracticeSave(index, 'description', value);
+                          setEditingPractices(null);
+                        }}
                         onCancel={handlePracticeCancel}
-                        multiline={true}
                         className="practice-description-editor"
                         style={{
                           fontSize: '14px',
@@ -442,6 +481,11 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                           height: 'auto',
                           minHeight: '40px'
                         }}
+                        onEditorReady={(editor, computedStyles) => {
+                          if (onEditorActive) {
+                            onEditorActive(editor, `practice-${index}-description`, computedStyles);
+                          }
+                        }}
                       />
                     ) : (
                       <div
@@ -450,9 +494,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                           cursor: isEditable ? 'pointer' : 'default',
                           userSelect: 'none'
                         }}
-                      >
-                        {practice.description}
-                      </div>
+                        dangerouslySetInnerHTML={{ __html: practice.description }}
+                      />
                     )}
                   </div>
                 </div>
@@ -502,7 +545,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
           backgroundColor: '#5F616D'
         }}></div>
         {isEditable && editingPageNumber ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={pageNumberEditorRef}
             initialValue={currentPageNumber}
             onSave={(v) => {
               setCurrentPageNumber(v);
@@ -511,11 +555,14 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
             }}
             onCancel={() => setEditingPageNumber(false)}
             style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '16px', fontWeight: 600 }}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'page-number', computedStyles);
+              }
+            }}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
-            {currentPageNumber}
-          </div>
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: currentPageNumber }} />
         )}
       </div>
 

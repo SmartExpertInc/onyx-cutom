@@ -1,15 +1,16 @@
 // custom_extensions/frontend/src/components/templates/SolutionStepsSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { SolutionStepsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId: _slideId,
   subtitle = 'The Solution',
@@ -30,7 +31,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText: _voiceoverText
+  voiceoverText: _voiceoverText,
+  onEditorActive
 }) => {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -42,6 +44,13 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSteps, setCurrentSteps] = useState(steps);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+
+  // Editor refs
+  const subtitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const stepTitleEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const stepDescriptionEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const pageNumberEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -149,18 +158,24 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
 
           {/* Subtitle text (editable) */}
           {isEditable && editingSubtitle ? (
-            <ImprovedInlineEditor
+            <ControlledWysiwygEditor
+              ref={subtitleEditorRef}
               initialValue={currentSubtitle}
-              onSave={handleSubtitleSave}
+              onSave={(value) => {
+                handleSubtitleSave(value);
+                setEditingSubtitle(false);
+              }}
               onCancel={() => setEditingSubtitle(false)}
               className="solution-subtitle-editor"
               style={{
                 fontSize: '20px',
                 color: '#09090BCC',
                 fontWeight: '400',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
+              }}
+              onEditorReady={(editor, computedStyles) => {
+                if (onEditorActive) {
+                  onEditorActive(editor, 'subtitle', computedStyles);
+                }
               }}
             />
           ) : (
@@ -173,9 +188,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 color: '#09090BCC',
                 fontWeight: '400'
               }}
-            >
-              {currentSubtitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentSubtitle }}
+            />
           )}
         </div>
       </div>
@@ -197,9 +211,13 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         fontFamily: "'Lora', serif"
       }}>
         {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={titleEditorRef}
             initialValue={currentTitle}
-            onSave={handleTitleSave}
+            onSave={(value) => {
+              handleTitleSave(value);
+              setEditingTitle(false);
+            }}
             onCancel={() => setEditingTitle(false)}
             className="solution-main-title-editor title-element"
             style={{
@@ -211,6 +229,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               minHeight: '75px',
               maxHeight: '75px',
               fontFamily: "'Lora', serif"
+            }}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'title', computedStyles);
+              }
             }}
           />
         ) : (
@@ -227,12 +250,10 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               fontSize: '56px',
               color: '#09090B',
               lineHeight: '1.1',
-              // overflow: 'hidden',
               fontFamily: "'Lora', serif"
             }}
-          >
-            {currentTitle}
-          </div>
+            dangerouslySetInnerHTML={{ __html: currentTitle }}
+          />
         )}
       </div>
 
@@ -321,9 +342,15 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 marginBottom: '15px',
               }}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'title' ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (el) stepTitleEditorRefs.current[index] = el;
+                    }}
                     initialValue={step.title}
-                    onSave={(value) => handleStepSave(index, 'title', value)}
+                    onSave={(value) => {
+                      handleStepSave(index, 'title', value);
+                      setEditingSteps(null);
+                    }}
                     onCancel={() => setEditingSteps(null)}
                     className="step-title-editor step-title"
                     style={{
@@ -332,6 +359,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                       color: '#09090B',
                       width: '100%',
                       height: 'auto',
+                    }}
+                    onEditorReady={(editor, computedStyles) => {
+                      if (onEditorActive) {
+                        onEditorActive(editor, `step-${index}-title`, computedStyles);
+                      }
                     }}
                   />
                 ) : (
@@ -342,9 +374,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
                     }}
-                  >
-                    {step.title}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: step.title }}
+                  />
                 )}
               </div>
 
@@ -356,11 +387,16 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 maxWidth: '160px',
               }}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'description' ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (el) stepDescriptionEditorRefs.current[index] = el;
+                    }}
                     initialValue={step.description}
-                    onSave={(value) => handleStepSave(index, 'description', value)}
+                    onSave={(value) => {
+                      handleStepSave(index, 'description', value);
+                      setEditingSteps(null);
+                    }}
                     onCancel={() => setEditingSteps(null)}
-                    multiline={true}
                     className="step-description-editor"
                     style={{
                       fontSize: '20px',
@@ -368,6 +404,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                       width: '100%',
                       height: 'auto',
                       lineHeight: '1.3',
+                    }}
+                    onEditorReady={(editor, computedStyles) => {
+                      if (onEditorActive) {
+                        onEditorActive(editor, `step-${index}-description`, computedStyles);
+                      }
                     }}
                   />
                 ) : (
@@ -377,9 +418,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
                     }}
-                  >
-                    {step.description}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: step.description }}
+                  />
                 )}
               </div>
             </div>
@@ -452,9 +492,13 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         }} />
         {/* Page number */}
         {isEditable && editingPageNumber ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={pageNumberEditorRef}
             initialValue={currentPageNumber}
-            onSave={handlePageNumberSave}
+            onSave={(value) => {
+              handlePageNumberSave(value);
+              setEditingPageNumber(false);
+            }}
             onCancel={handlePageNumberCancel}
             className="page-number-editor"
             style={{
@@ -464,6 +508,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
               height: 'auto'
+            }}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'page-number', computedStyles);
+              }
             }}
           />
         ) : (
@@ -477,9 +526,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}
-          >
-            {currentPageNumber}
-          </div>
+            dangerouslySetInnerHTML={{ __html: currentPageNumber }}
+          />
         )}
       </div>
 

@@ -6,10 +6,11 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Critical Thinking\nand Problem Solving',
@@ -26,7 +27,8 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
@@ -40,6 +42,13 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const contentEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const highlightedPhraseEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const pageNumberEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const logoTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -173,16 +182,27 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
             }}
           >
             {isEditable && editingHighlightedPhrases === index ? (
-              <ImprovedInlineEditor
+              <ControlledWysiwygEditor
+                ref={(el) => {
+                  if (el) highlightedPhraseEditorRefs.current[index] = el;
+                }}
                 initialValue={phrase}
-                onSave={(value) => handleHighlightedPhraseSave(index, value)}
+                onSave={(value) => {
+                  handleHighlightedPhraseSave(index, value);
+                  setEditingHighlightedPhrases(null);
+                }}
                 onCancel={handleHighlightedPhraseCancel}
                 className="highlighted-phrase-editor"
                 style={{
                   backgroundColor: 'transparent',
-                  color: '#DA8372',
+                  color: '#ffffff',
                   width: '100%',
                   height: 'auto'
+                }}
+                onEditorReady={(editor, computedStyles) => {
+                  if (onEditorActive) {
+                    onEditorActive(editor, `highlighted-phrase-${index}`, computedStyles);
+                  }
                 }}
               />
             ) : (
@@ -192,9 +212,8 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
                 }}
-              >
-                {phrase}
-              </span>
+                dangerouslySetInnerHTML={{ __html: phrase }}
+              />
             )}
           </span>
         );
@@ -278,9 +297,13 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
               }} />
             </div>
             {isEditable && editingYourLogoText ? (
-              <ImprovedInlineEditor
+              <ControlledWysiwygEditor
+                ref={logoTextEditorRef}
                 initialValue={currentYourLogoText}
-                onSave={handleYourLogoTextSave}
+                onSave={(value) => {
+                  handleYourLogoTextSave(value);
+                  setEditingYourLogoText(false);
+                }}
                 onCancel={() => setEditingYourLogoText(false)}
                 className="your-logo-text-editor"
                 style={{
@@ -289,9 +312,11 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none'
+                }}
+                onEditorReady={(editor, computedStyles) => {
+                  if (onEditorActive) {
+                    onEditorActive(editor, 'logo-text', computedStyles);
+                  }
                 }}
               />
             ) : (
@@ -304,9 +329,8 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
                 }}
-              >
-                {currentYourLogoText}
-              </div>
+                dangerouslySetInnerHTML={{ __html: currentYourLogoText }}
+              />
             )}
           </div>
         )}
@@ -359,21 +383,28 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
           width: '485px',
         }}>
           {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
-              onSave={handleTitleSave}
+              onSave={(value) => {
+                handleTitleSave(value);
+                setEditingTitle(false);
+              }}
               onCancel={handleTitleCancel}
-              multiline={true}
               className="critical-thinking-title-editor"
               style={{
                 fontSize: '43px',
                 color: '#09090B',
                 lineHeight: '1.2',
-                whiteSpace: 'pre-line',
                 width: '100%',
                 height: 'auto',
                 minHeight: '60px',
                 maxHeight: '120px'
+              }}
+              onEditorReady={(editor, computedStyles) => {
+                if (onEditorActive) {
+                  onEditorActive(editor, 'title', computedStyles);
+                }
               }}
             />
           ) : (
@@ -389,14 +420,12 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
                 fontSize: '43px',
                 color: '#09090B',
                 lineHeight: '1.2',
-                whiteSpace: 'pre-line',
                 minHeight: '60px',
                 maxHeight: '120px',
                 overflow: 'hidden'
               }}
-            >
-              {currentTitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
         </div>
 
@@ -414,11 +443,14 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
           left: '300px',
         }}>
           {isEditable && editingContent ? (
-            <ImprovedInlineEditor
+            <ControlledWysiwygEditor
+              ref={contentEditorRef}
               initialValue={currentContent}
-              onSave={handleContentSave}
+              onSave={(value) => {
+                handleContentSave(value);
+                setEditingContent(false);
+              }}
               onCancel={handleContentCancel}
-              multiline={true}
               className="critical-thinking-content-editor"
               style={{
                 fontSize: '34px',
@@ -428,6 +460,11 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
                 width: '100%',
                 height: 'auto',
                 minHeight: '40px'
+              }}
+              onEditorReady={(editor, computedStyles) => {
+                if (onEditorActive) {
+                  onEditorActive(editor, 'content', computedStyles);
+                }
               }}
             />
           ) : (
@@ -467,9 +504,13 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
         }} />
         {/* Page number */}
         {isEditable && editingPageNumber ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={pageNumberEditorRef}
             initialValue={currentPageNumber}
-            onSave={handlePageNumberSave}
+            onSave={(value) => {
+              handlePageNumberSave(value);
+              setEditingPageNumber(false);
+            }}
             onCancel={() => setEditingPageNumber(false)}
             className="page-number-editor"
             style={{
@@ -478,9 +519,11 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
               fontWeight: '300',
               width: '30px',
               height: 'auto',
-              background: 'transparent',
-              border: 'none',
-              outline: 'none'
+            }}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'page-number', computedStyles);
+              }
             }}
           />
         ) : (
@@ -493,9 +536,8 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}
-          >
-            {currentPageNumber}
-          </div>
+            dangerouslySetInnerHTML={{ __html: currentPageNumber }}
+          />
         )}
       </div>
 

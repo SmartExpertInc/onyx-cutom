@@ -7,6 +7,7 @@ import CriticalThinkingSlideTemplate_old from './CriticalThinkingSlideTemplate_o
 
 export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = (props) => {
   return <CriticalThinkingSlideTemplate_old {...props} />;
 };

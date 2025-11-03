@@ -7,6 +7,7 @@ import HybridWorkBestPracticesSlideTemplate_old from './HybridWorkBestPracticesS
 
 export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = (props) => {
   return <HybridWorkBestPracticesSlideTemplate_old {...props} />;
 };
