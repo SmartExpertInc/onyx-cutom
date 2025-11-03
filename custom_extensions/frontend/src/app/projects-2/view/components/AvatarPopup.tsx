@@ -468,7 +468,7 @@ export default function AvatarPopup({
             {/* Scrollable content area */}
             <div className="flex-1 overflow-y-auto pb-4">
               {/* Avatar rectangles grid */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-[18px]">
                  {filteredAvatars.map((avatar: ProcessedAvatar, index) => (
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
@@ -528,7 +528,7 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[500px] max-w-[880px] rounded-md overflow-hidden ${className}`}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[570px] max-w-[880px] rounded-md overflow-hidden ${className}`}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -542,7 +542,7 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[880px] h-[500px] rounded-md overflow-hidden ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[880px] h-[570px] rounded-md overflow-hidden ${className}`} 
         style={{
           left: position?.x || 0,
           top: position?.y || 0
