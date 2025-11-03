@@ -2669,6 +2669,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       middleText: { type: 'text', label: 'Middle Text', required: true },
       rightText: { type: 'text', label: 'Right Text', required: true },
       middlePanelColor: { type: 'color', label: 'Middle Panel' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: right: 48px, top: 65px, width: 240px, height: 240px, border-radius: 50%
+      // Calculated X: 1920 - 48 - 240 = 1632px
+      x: 1632,      // ✅ Measured: 1632px (calculated from right: 48px)
+      y: 65,        // ✅ Measured: 65px (matches CSS top: 65px)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required
+      backgroundColor: '#ffffff' // White background (matches template style)
     }
   }
   ,
