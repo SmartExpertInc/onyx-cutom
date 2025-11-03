@@ -30,6 +30,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Get the global avatar context to update slide previews
   const { updateSelectedAvatar } = useAvatarDisplay();
@@ -172,7 +173,20 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
           const btn = triggerRef.current;
           if (btn) {
             const rect = btn.getBoundingClientRect();
-            setMenuPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+            // Default position below the trigger
+            let top = rect.bottom + 4;
+            let left = rect.left;
+            const width = rect.width;
+            const estimatedHeight = 240; // 15rem (max-h-60)
+            // If not enough space below, open above
+            if (top + estimatedHeight > window.innerHeight) {
+              top = Math.max(8, rect.top - 4 - estimatedHeight);
+            }
+            // Keep within viewport horizontally
+            if (left + width > window.innerWidth - 8) {
+              left = Math.max(8, window.innerWidth - 8 - width);
+            }
+            setMenuPos({ top, left, width });
           }
           setIsOpen((v) => !v);
         }}
@@ -184,6 +198,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 
       {isOpen && menuPos && (
         <div
+          ref={menuRef}
           className="fixed z-[9999] bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
           style={{ top: menuPos.top, left: menuPos.left, width: menuPos.width }}
         >

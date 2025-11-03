@@ -336,7 +336,7 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
               height: '135%',
               borderRadius: '50%',
               position: 'relative',
-              bottom: '-12px',
+              bottom: '-24px',
               objectFit: 'cover'
             }}
           />
