@@ -8,7 +8,7 @@ import ContactSalesModal from '@/components/ui/contact-sales-modal';
 import PlanComparisonModal from '@/components/ui/plan-comparison-modal';
 
 const CoinsIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg width="10" height="10" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+  <svg width="10" height="10" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
   <mask id="mask0_600_36680" style={{maskType: 'luminance'}} maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
   <path d="M0.125 0.125002H24.875V24.875H0.125V0.125002Z" fill="white"/>
   </mask>
@@ -874,9 +874,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <div className="px-1 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
+                            <div className="px-0 py-0 text-xs text-[#4D4D4D] font-medium min-w-[40px] text-center">
                               {creditQuantities[addOn.id]}
-                          </div>
+                            </div>
                             <button
                               onClick={() => setCreditQuantities(prev => ({
                                 ...prev,

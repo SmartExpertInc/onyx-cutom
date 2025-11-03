@@ -143,7 +143,9 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                   className="p-1 hover:bg-gray-200 rounded transition-colors"
                   aria-label="Copy email"
                 >
-                  <Copy className="w-4 h-4 text-[#878787]" />
+                  <svg width="11" height="12" viewBox="0 0 11 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3.63025 9.6C3.29748 9.6 3.0126 9.4825 2.77563 9.2475C2.53866 9.0125 2.42017 8.73 2.42017 8.4V1.2C2.42017 0.87 2.53866 0.5875 2.77563 0.3525C3.0126 0.1175 3.29748 0 3.63025 0H9.07563C9.4084 0 9.69328 0.1175 9.93025 0.3525C10.1672 0.5875 10.2857 0.87 10.2857 1.2V8.4C10.2857 8.73 10.1672 9.0125 9.93025 9.2475C9.69328 9.4825 9.4084 9.6 9.07563 9.6H3.63025ZM3.63025 8.4H9.07563V1.2H3.63025V8.4ZM1.21008 12C0.877311 12 0.592437 11.8825 0.355462 11.6475C0.118487 11.4125 0 11.13 0 10.8V2.4H1.21008V10.8H7.86555V12H1.21008Z" fill="#878787"/>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -160,7 +162,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                       placeholder="Full name"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -170,7 +172,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                       placeholder="Work email"
                       value={formData.workEmail}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -184,7 +186,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                       placeholder="Company name"
                       value={formData.companyName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
                     />
                   </div>
                   <div className="relative">
@@ -192,7 +194,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                       name="teamSize"
                       value={formData.teamSize}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
                     >
                       <option className="text-[#878787]" value="" disabled hidden>Team size</option>
                       {teamSizes.map((size) => (
@@ -213,7 +215,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                     placeholder="Company website"
                     value={formData.companyWebsite}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-sm text-sm bg-white text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent"
                   />
                 </div>
 
@@ -228,7 +230,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                     >
                       {selectedCountry.flag}
                       <span className="text-sm text-[#878787] font-medium">{selectedCountry.dialCode}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <ChevronDown className="w-3 h-3 text-gray-400" />
                     </button>
                     
                     {/* Phone number input */}
@@ -238,7 +240,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                       placeholder="Phone number"
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
-                      className="flex-1 px-4 py-2.5 text-sm text-[#878787] placeholder:text-gray-400 focus:outline-none bg-white"
+                      className="flex-1 px-4 py-3 text-sm text-[#878787] placeholder:text-gray-400 focus:outline-none bg-white"
                     />
                   </div>
 
@@ -253,7 +255,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                             setFormData(prev => ({ ...prev, phoneCountry: country.dialCode }));
                             setShowCountryDropdown(false);
                           }}
-                          className="flex items-center gap-3 w-full px-4 py-2.5 hover:bg-gray-50 transition-colors text-left"
+                          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors text-left"
                         >
                           {country.flag}
                           <span className="text-sm text-[#878787]">{country.name}</span>
@@ -272,7 +274,7 @@ const ContactSalesModal: React.FC<ContactSalesModalProps> = ({ open, onOpenChang
                     value={formData.useCase}
                     onChange={handleInputChange}
                     rows={1}
-                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-sm text-sm text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-sm text-sm text-[#878787] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F58F9] focus:border-transparent resize-none"
                   />
                 </div>
 

@@ -329,7 +329,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                             <div 
                               key={idx} 
                               className={`flex items-center text-xs justify-center ${
-                                idx === 0 || features[idx - 1]?.type === 'categoryHeader' ? '' : 'border-t'
+                                idx === 0 || features[idx - 1]?.type === 'categoryHeader' ? '!border-b-0' : ''
                               } border-b border-[#A5A5A5] last:border-b-0 text-[#4D4D4D] ${
                                 item.type === 'categoryHeader' ? 'h-[48px]' : 'h-[48px]'
                               }`}
@@ -350,19 +350,19 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
             </div>
 
             {/* Feature Labels Positioned on Left - Aligned with Card Features */}
-            <div className="relative -mt-[780px] z-0">
+            <div className="relative -mt-[782px] z-0">
               {featureData.map((category, categoryIndex) => {
                 const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
                 return (
-                  <div key={categoryIndex} className="relative group pointer-events-auto">
+                  <div key={categoryIndex} className="relative group cursor-pointer">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 bg-transparent group-hover:bg-[#CCDBFC] transition-colors duration-200 pointer-events-none"
+                      className="absolute left-[-32px] right-[-32px] top-0 group-hover:bg-[#CCDBFC] transition-colors duration-200 pointer-events-none"
                       style={{ height: `${categoryHeight}px`, zIndex: 5 }}
                     ></div>
                     
-                    <div className="grid gap-4 relative" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 10 }}>
-                      <div className="pr-4 cursor-pointer">
+                    <div className="grid gap-4 relative pointer-events-auto" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))', zIndex: 10 }}>
+                      <div className="pr-4">
                         {/* Category Header */}
                         <div className="h-[48px] py-2">
                           <h4 className="text-base py-2 font-bold text-[#171718]">{category.category}</h4>
@@ -375,11 +375,11 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                           </div>
                         ))}
                       </div>
-                      {/* Empty columns to maintain grid structure */}
-                      <div></div>
-                      <div></div>
-                      <div></div>
-                      <div></div>
+                      {/* Empty columns to maintain grid structure and allow hover */}
+                      <div className="pointer-events-auto"></div>
+                      <div className="pointer-events-auto"></div>
+                      <div className="pointer-events-auto"></div>
+                      <div className="pointer-events-auto"></div>
                     </div>
                   </div>
                 );
