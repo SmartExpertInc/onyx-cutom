@@ -799,7 +799,7 @@ export default function Media({
                       setSelectedPrompts(newPrompts);
                       setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
                     }}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
                     style={{ 
                       borderColor: '#878787',
                       backgroundColor: selectedPrompts.includes('Modern office setting') ? '#FCE7FE' : 'transparent'
@@ -824,7 +824,7 @@ export default function Media({
                       setSelectedPrompts(newPrompts);
                       setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
                     }}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
                     style={{ 
                       borderColor: '#878787',
                       backgroundColor: selectedPrompts.includes('Pharmaceutical laboratory') ? '#FCE7FE' : 'transparent'
@@ -849,7 +849,7 @@ export default function Media({
                       setSelectedPrompts(newPrompts);
                       setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
                     }}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
                     style={{ 
                       borderColor: '#878787',
                       backgroundColor: selectedPrompts.includes('Construction site') ? '#FCE7FE' : 'transparent'

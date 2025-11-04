@@ -88,7 +88,7 @@ export default function VideoPresentationRightPanel({
   }, [showMusicDropdown, showTransitionDropdown, setShowMusicDropdown, setShowTransitionDropdown]);
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
+    <>
       {/* Music Section */}
       <div className="space-y-3 flex-shrink-0">
         {/* Music Title and Toggle */}
@@ -417,7 +417,7 @@ export default function VideoPresentationRightPanel({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
