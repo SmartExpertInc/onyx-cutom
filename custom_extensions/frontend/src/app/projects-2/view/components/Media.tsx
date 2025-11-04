@@ -65,7 +65,7 @@ export default function Media({
           <h4 className="font-medium text-[#878787] mb-2" style={{ fontSize: '10px' }}>{t('panels.media.stockAssets', 'Stock assets')}</h4>
           
           <div className="flex flex-col gap-2">
-            {/* Image option */}
+          {/* Image option */}
             <div 
               onClick={() => setSelectedOption('image')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
@@ -75,9 +75,9 @@ export default function Media({
               <path d="M14 10L11.9427 7.94267C11.6926 7.69271 11.3536 7.55229 11 7.55229C10.6464 7.55229 10.3074 7.69271 10.0573 7.94267L4 14M3.33333 2H12.6667C13.403 2 14 2.59695 14 3.33333V12.6667C14 13.403 13.403 14 12.6667 14H3.33333C2.59695 14 2 13.403 2 12.6667V3.33333C2 2.59695 2.59695 2 3.33333 2ZM7.33333 6C7.33333 6.73638 6.73638 7.33333 6 7.33333C5.26362 7.33333 4.66667 6.73638 4.66667 6C4.66667 5.26362 5.26362 4.66667 6 4.66667C6.73638 4.66667 7.33333 5.26362 7.33333 6Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="text-xs text-black">{t('panels.media.image', 'Image')}</span>
-            </div>
+          </div>
 
-            {/* Video option */}
+                      {/* Video option */}
             <div 
               onClick={() => setSelectedOption('video')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
@@ -114,7 +114,7 @@ export default function Media({
               <span className="text-xs text-black">{t('panels.media.icon', 'Icon')}</span>
             </div>
 
-            {/* AI image option */}
+          {/* AI image option */}
             <div 
               onClick={() => setSelectedOption('aiImage')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
@@ -178,9 +178,9 @@ export default function Media({
             <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border" style={{ borderColor: '#171718' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
                 <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            </svg>
               <span className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.media.uploadToLibrary', 'Upload to Library')}</span>
-            </button>
+          </button>
           )}
         </div>
         
@@ -268,7 +268,7 @@ export default function Media({
                 <div 
                   key={index} 
                   onClick={() => setSelectedMusicIndex(index)}
-                  className="flex items-center gap-4 p-3 border rounded-md w-full cursor-pointer transition-colors"
+                  className="flex items-center gap-4 px-2 py-2 border rounded-md w-full cursor-pointer transition-colors"
                   style={{ 
                     borderColor: '#E0E0E0',
                     backgroundColor: selectedMusicIndex === index ? '#E0E0E0' : 'white'
@@ -281,7 +281,7 @@ export default function Media({
                   </svg>
                   
                   {/* Text content */}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col justify-between">
                     <span style={{ color: '#171718', fontSize: '14px' }}>Epic New Wrold</span>
                     <span style={{ color: '#878787', fontSize: '10px' }}>2:14</span>
                   </div>
@@ -292,7 +292,7 @@ export default function Media({
             /* Empty view for other options (Icon, AI image) */
             <div className="flex items-center justify-center h-full">
               {/* Empty for now */}
-            </div>
+          </div>
           )}
         </div>
       </div>
