@@ -2045,11 +2045,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       rightImagePrompt: { type: 'text', label: 'Right Image Prompt', required: false }
     },
     avatarPosition: {
-      x: 925,       // Right side of slide (for large right image)
-      y: 118,       // Vertically centered
-      width: 935,
-      height: 843,
-      backgroundColor: '#ffffff'
+      // ✅ CIRCULAR AVATAR - Based on measured container logs (profile image)
+      // Profile image positioned at bottom-left of slide
+      // CSS: position: absolute, left: 96px, bottom: 149px
+      // Measured absolute position perfectly aligns with calculation
+      x: 96,        // ✅ Measured: 96px (matches CSS left)
+      y: 675,       // ✅ Measured: 675px (calculated: 1080 - 149 bottom - 256 height = 675px) ✓
+      width: 256,   // ✅ Measured: 256px (perfect square for circle)
+      height: 256,  // ✅ Measured: 256px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0F58F9' // Blue background
     }
   },
 
