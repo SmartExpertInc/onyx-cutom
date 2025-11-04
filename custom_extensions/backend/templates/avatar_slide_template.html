@@ -5120,6 +5120,105 @@
                     <div class="right-content">
                         <!-- Arch background -->
                         <div class="arch-background"></div>
+                        
+                        <!-- JavaScript Position Logger for Work-Life Balance Slide - Arch Background -->
+                        <script>
+                        (function() {
+                            // Wait for page to fully render
+                            window.addEventListener('DOMContentLoaded', function() {
+                                setTimeout(function() {
+                                    const archBackground = document.querySelector('.work-life-balance-slide .arch-background');
+                                    
+                                    if (archBackground) {
+                                        const rect = archBackground.getBoundingClientRect();
+                                        
+                                        // Create a GIANT visible debug overlay at the top-center
+                                        const debugDiv = document.createElement('div');
+                                        debugDiv.style.cssText = `
+                                            position: fixed;
+                                            top: 10px;
+                                            left: 50%;
+                                            transform: translateX(-50%);
+                                            background: rgba(34, 139, 34, 0.95);
+                                            color: #ffff00;
+                                            padding: 20px;
+                                            font-family: monospace;
+                                            font-size: 22px;
+                                            font-weight: bold;
+                                            z-index: 999999;
+                                            border: 5px solid #ff6347;
+                                            white-space: pre;
+                                            max-width: 650px;
+                                            box-shadow: 0 0 30px rgba(255, 99, 71, 0.8);
+                                        `;
+                                        
+                                        debugDiv.textContent = `🎯 WORK-LIFE BALANCE - ARCH
+
+📍 ARCH BACKGROUND CONTAINER:
+  X: ${Math.round(rect.left)}px
+  Y: ${Math.round(rect.top)}px
+  Width: ${Math.round(rect.width)}px
+  Height: ${Math.round(rect.height)}px
+
+📐 EDGES:
+  Bottom: ${Math.round(rect.bottom)}px
+  Right: ${Math.round(rect.right)}px
+
+💡 CSS VALUES:
+  Check CSS for arch styling`;
+                                        
+                                        document.body.appendChild(debugDiv);
+                                        
+                                        // Also create a CENTERED overlay for maximum visibility
+                                        const centerOverlay = document.createElement('div');
+                                        centerOverlay.style.cssText = `
+                                            position: fixed;
+                                            top: 50%;
+                                            left: 50%;
+                                            transform: translate(-50%, -50%);
+                                            background: rgba(34, 139, 34, 0.98);
+                                            color: #ffff00;
+                                            padding: 50px;
+                                            font-family: monospace;
+                                            font-size: 44px;
+                                            font-weight: bold;
+                                            z-index: 9999999;
+                                            border: 10px solid #ff6347;
+                                            text-align: left;
+                                            box-shadow: 0 0 50px rgba(255, 99, 71, 0.8);
+                                        `;
+                                        
+                                        centerOverlay.innerHTML = `
+                                            <div style="font-size: 64px; color: #00ff00; margin-bottom: 30px;">🎯 ARCH BACKGROUND</div>
+                                            <div style="color: #ffffff;">X: ${Math.round(rect.left)}px</div>
+                                            <div style="color: #ffffff;">Y: ${Math.round(rect.top)}px</div>
+                                            <div style="color: #00ff00; font-size: 52px; margin-top: 30px;">Width: ${Math.round(rect.width)}px</div>
+                                            <div style="color: #00ff00; font-size: 52px;">Height: ${Math.round(rect.height)}px</div>
+                                            <div style="color: #ccc; font-size: 32px; margin-top: 20px;">Arch styling for avatar area</div>
+                                            <div style="color: #ccc; font-size: 28px;">Bottom: ${Math.round(rect.bottom)}px, Right: ${Math.round(rect.right)}px</div>
+                                        `;
+                                        
+                                        document.body.appendChild(centerOverlay);
+                                        
+                                        // Log to console (visible in headless browser logs if captured)
+                                        console.log('═══════════════════════════════════════');
+                                        console.log('🎯 WORK-LIFE BALANCE ARCH BACKGROUND MEASURED POSITION');
+                                        console.log('═══════════════════════════════════════');
+                                        console.log('Actual rendered position:');
+                                        console.log('  X:', Math.round(rect.left), 'px');
+                                        console.log('  Y:', Math.round(rect.top), 'px');
+                                        console.log('  Width:', Math.round(rect.width), 'px');
+                                        console.log('  Height:', Math.round(rect.height), 'px');
+                                        console.log('  Bottom edge:', Math.round(rect.bottom), 'px');
+                                        console.log('  Right edge:', Math.round(rect.right), 'px');
+                                        console.log('═══════════════════════════════════════');
+                                    } else {
+                                        console.error('❌ Could not find .work-life-balance-slide .arch-background element');
+                                    }
+                                }, 500); // Wait 500ms for layout to stabilize
+                            });
+                        })();
+                        </script>
 
                         <!-- Image -->
                         <div class="image-container" style="background-color: red;">
