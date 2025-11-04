@@ -1109,7 +1109,7 @@ function Projects2ViewPageContent() {
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
             width: '950px',
-            height: '420px',
+            height: '450px',
             zIndex: 9999
           }}
         >

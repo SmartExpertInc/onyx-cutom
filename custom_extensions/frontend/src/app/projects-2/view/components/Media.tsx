@@ -284,7 +284,7 @@ export default function Media({
                   </svg>
                   
                   {/* Text content */}
-                  <div className="flex flex-col justify-between">
+                  <div className="flex flex-col gap-3.5">
                     <span style={{ color: '#171718', fontSize: '14px', lineHeight: '1' }}>Epic New World</span>
                     <span style={{ color: '#878787', fontSize: '10px', lineHeight: '1' }}>2:14</span>
                   </div>
