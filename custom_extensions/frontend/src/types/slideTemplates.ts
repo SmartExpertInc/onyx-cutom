@@ -38,6 +38,7 @@ export interface TemplateComponentInfo {
   defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
   avatarPosition?: AvatarPosition; // Optional avatar positioning for templates with avatars
+  elaiBackgroundColor?: string; // Optional Elai API video background color (hex format, e.g., '#0F58F9')
 }
 
 export interface PropDefinition {

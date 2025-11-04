@@ -1458,7 +1458,8 @@ class ProfessionalPresentationService:
                 voiceover_texts=[voiceover_text],
                 avatar_code=avatar_code,
                 voice_id=voice_id,
-                voice_provider=voice_provider
+                voice_provider=voice_provider,
+                elai_background_color=elai_background_color
             )
             
             if not result["success"]:
@@ -1512,13 +1513,23 @@ class ProfessionalPresentationService:
             else:
                 logger.info(f"🎬 [BATCH_AVATAR] ✅ Found voiceover text for slide {slide_index + 1}: '{slide_voiceover_text[:100]}...'")
             
+            # Extract Elai background color from slide data (from template registry)
+            elai_background_color = slide_data.get("elaiBackgroundColor")
+            if not elai_background_color:
+                # Fallback: try to extract from avatarPosition backgroundColor
+                avatar_position = slide_data.get("avatarPosition", {})
+                elai_background_color = avatar_position.get("backgroundColor")
+            if elai_background_color:
+                logger.info(f"🎨 [BATCH_AVATAR] Slide {slide_index + 1} using Elai background color: {elai_background_color}")
+            
             # Create task for this slide
             task = self._initiate_avatar_video(
                 voiceover_text=slide_voiceover_text,
                 avatar_code=avatar_code,
                 voice_id=voice_id,
                 voice_provider=voice_provider,
-                slide_index=slide_index
+                slide_index=slide_index,
+                elai_background_color=elai_background_color
             )
             tasks.append(task)
         

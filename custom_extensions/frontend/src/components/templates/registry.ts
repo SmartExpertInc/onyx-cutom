@@ -1629,7 +1629,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       width: 1056,  // ✅ Measured: 1056px (right panel width: 1920 - 864 = 1056)
       height: 1080, // ✅ Measured: 1080px (full slide height)
       backgroundColor: '#ffffff'  // White background for avatar area
-    }
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'work-life-balance-slide': {
@@ -1673,7 +1674,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
       shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
       backgroundColor: '#0F58F9'  // Blue gradient color (matches slide background: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
-    }
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide gradient: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
   },
 
   'thank-you-slide': {
@@ -1760,7 +1762,19 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
       companyName: { type: 'text', label: 'Company Name', required: true },
       logoNew: { type: 'image', label: 'Company Logo' }
-    }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs (same as company-tools-resources-slide)
+      // CSS: top: 64px, right: 96px, width: 272px, height: 272px, border-radius: 50%
+      // Calculated X: 1920 - 96 - 272 = 1552px
+      x: 1552,      // ✅ Measured: 1552px (calculated from right: 96px)
+      y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0f58f9' // Blue background (same as company-tools-resources-slide)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (same as company-tools-resources-slide)
   },
 
   'hybrid-work-best-practices-slide': {
@@ -1832,7 +1846,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 272,  // ✅ Measured: 272px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // Blue background
-    }
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'benefits-tags-slide': {
@@ -1883,7 +1898,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 264,  // ✅ Measured: 264px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // Blue gradient background
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'learning-topics-slide': {
@@ -1969,7 +1985,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 240,  // ✅ Measured: 240px (container height including wrapper/padding)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#ffffff' // White background
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   // New: Connection slide (dark UI with venn and bottom tabs)
@@ -2058,7 +2075,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 256,  // ✅ Measured: 256px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#0F58F9' // Blue background
-    }
+    },
+    elaiBackgroundColor: '#0F58F9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'impact-statements-slide': {
@@ -2094,7 +2112,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       width: 749,   // ✅ Measured: 749px (matches container width)
       height: 471,  // ✅ Measured: 471px (matches container height)
       backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
-    }
+    },
+    elaiBackgroundColor: '#0F58F9'  // Elai API video background color (from linear-gradient(rgb(15, 88, 249) 0%, rgb(16, 35, 161) 100%))
   },
 
   'bar-chart-slide': {
@@ -2162,7 +2181,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 248,  // ✅ Measured: 248px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // Blue background (matches template style)
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'psychological-safety-slide': {
@@ -2228,7 +2248,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 230,  // ✅ Measured: 230px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // Blue background
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'proof-statistics-slide': {
@@ -2472,7 +2493,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 220,  // ✅ Measured: 220px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // Blue background
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   // Pixel-perfect: AI Pharma Market Growth
@@ -2513,7 +2535,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       width: 864,   // ✅ Measured: 864px (right-side doctor image area)
       height: 1032, // ✅ CORRECTED: 1080 - 48 = 1032px (was 1037px, exceeded boundary by 5px)
       backgroundColor: '#0F58F9' // Blue background for avatar area
-    }
+    },
+    elaiBackgroundColor: '#e0e7ff'  // Elai API video background color (light background for contrast)
   },
 
   // Pixel-perfect: KPI Update
@@ -2558,7 +2581,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 220,  // ✅ Measured: 220px (rendered height for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // White background
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   // Pixel-perfect: Interest Growth
@@ -2710,7 +2734,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 272,  // ✅ Measured: 272px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#0f58f9' // White background
-    }
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   }
   ,
 
@@ -2787,7 +2812,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 240,  // ✅ Measured: 240px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required
       backgroundColor: '#e0e7ff' // White background (matches template style)
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   }
   , 
 
@@ -2972,7 +2998,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 240,  // ✅ Measured: 240px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#e0e7ff' // Blue background
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   }
   ,
 
@@ -3044,7 +3071,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 230,  // ✅ Measured: 230px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#0f58f9' // White background
-    }
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   }
   ,
 
@@ -3091,7 +3119,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 240,  // ✅ Measured: 240px (perfect square for circle)
       shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
       backgroundColor: '#ffffff' // Blue background (#0F58F9 in CSS)
-    }
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'introduction-data-analysis': {
