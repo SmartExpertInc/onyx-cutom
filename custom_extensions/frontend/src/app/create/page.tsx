@@ -244,9 +244,64 @@ const OptionCard: React.FC<OptionCardProps> = ({
   );
 };
 
+// Function to fetch and store credits reference in sessionStorage
+async function fetchAndStoreCreditsReference() {
+  try {
+    const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+    
+    const use_cache = false;
+    if (use_cache) {
+      // Check if we have recent credits reference in sessionStorage (within 10 minutes)
+      const storedCreditsData = sessionStorage.getItem('creditsReference');
+      if (storedCreditsData) {
+        try {
+          const creditsData = JSON.parse(storedCreditsData);
+          // Check if data is recent (within 10 minutes)
+          if (creditsData.timestamp && (Date.now() - creditsData.timestamp < 600000)) {
+            console.log('Using cached credits reference from sessionStorage');
+            return;
+          }
+        } catch (error) {
+          console.warn('Error parsing stored credits reference:', error);
+        }
+      }
+    }
+
+    // Fetch credits reference from backend
+    const response = await fetch(`${CUSTOM_BACKEND_URL}/credits/content/reference`, {
+      credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch credits reference: ${response.status}`);
+      return;
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.credits_reference) {
+      // Store in sessionStorage with timestamp
+      const creditsReferenceData = {
+        credits_reference: data.credits_reference,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('creditsReference', JSON.stringify(creditsReferenceData));
+      console.log('Credits reference loaded and stored in sessionStorage');
+    }
+  } catch (error) {
+    // Silently fail - this is not critical for the create page to function
+    console.warn('Error fetching credits reference:', error);
+  }
+}
+
 // Component to handle URL parameters and pass them to all creation paths
 function CreatePageHandler() {
   const searchParams = useSearchParams();
+
+  // Fetch and store credits reference on component mount
+  useEffect(() => {
+    fetchAndStoreCreditsReference();
+  }, []);
 
   // Store lesson/quiz/text-presentation parameters in sessionStorage for use across all creation paths
   useEffect(() => {

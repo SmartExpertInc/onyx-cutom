@@ -160,9 +160,31 @@ const lengthRangeForOption = (opt: string) => {
 
 // Function to calculate credits based on slide count (matching backend logic)
 const calculateLessonPresentationCredits = (slideCount: number): number => {
-  if (slideCount <= 5) return 3;
-  if (slideCount <= 10) return 5;
-  return 10;
+  const storedCreditsData = sessionStorage.getItem('creditsReference');
+  if (storedCreditsData) {
+    if (slideCount < 10) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_under_10"
+      )?.credits_amount;
+    } else if (slideCount <= 20) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_10_20"
+      )?.credits_amount;
+    } else if (slideCount <= 30) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_30"
+      )?.credits_amount;
+    } else if (slideCount <= 40) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_40"
+      )?.credits_amount;
+    } else if (slideCount <= 50) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_50"
+      )?.credits_amount;
+    }
+  }
+  return 7;
 };
 
 export default function LessonPresentationClient() {
