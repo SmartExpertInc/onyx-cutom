@@ -176,18 +176,18 @@ export default function Media({
         <div className="flex-1 overflow-y-auto px-2">
           {selectedOption === 'library' ? (
             /* Library view - Simple grid of 18 rectangles */
-            <div className="grid grid-cols-3 gap-4 pb-4">
+            <div className="grid grid-cols-3 gap-3 pb-4">
               {Array.from({ length: 18 }).map((_, index) => (
                 <div key={index} className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
               ))}
             </div>
           ) : selectedOption === 'image' ? (
             /* Image view - Categorized groups */
-            <div className="flex flex-col gap-6 pb-4">
+            <div className="flex flex-col gap-5 pb-4">
               {/* Locations Group */}
               <div>
-                <h3 className="text-sm font-medium text-[#171718] mb-3">{t('panels.media.locations', 'Locations')}</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <h3 className="text-sm font-medium text-[#171718] mb-2.5">{t('panels.media.locations', 'Locations')}</h3>
+                <div className="grid grid-cols-3 gap-3">
                   {/* First 2 rectangles */}
                   <div className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
                   <div className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
@@ -199,7 +199,7 @@ export default function Media({
                       className="bg-gray-200 rounded-lg w-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '16/9' }}
                     >
-                      <span className="text-2xl font-semibold text-[#171718]">+ 6</span>
+                      <span className="text-xl font-semibold text-[#171718]">+ 6</span>
                     </div>
                   ) : (
                     <div className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
@@ -208,7 +208,7 @@ export default function Media({
                 
                 {/* Additional rows when expanded */}
                 {isLocationsExpanded && (
-                  <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div className="grid grid-cols-3 gap-3 mt-3">
                     {Array.from({ length: 6 }).map((_, index) => (
                       <div key={index} className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
                     ))}
@@ -218,8 +218,8 @@ export default function Media({
 
               {/* All Images Group */}
               <div>
-                <h3 className="text-sm font-medium text-[#171718] mb-3">{t('panels.media.allImages', 'All images')}</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <h3 className="text-sm font-medium text-[#171718] mb-2.5">{t('panels.media.allImages', 'All images')}</h3>
+                <div className="grid grid-cols-3 gap-3">
                   {/* 4 rows of 3 rectangles = 12 rectangles */}
                   {Array.from({ length: 12 }).map((_, index) => (
                     <div key={index} className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>

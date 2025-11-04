@@ -652,12 +652,12 @@ function Projects2ViewPageContent() {
       // Special handling for media button - open media popup centered under the button
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
-      const modalWidth = 1100;
+      const modalWidth = 950;
       const modalHeight = 470;
       const gap = 10;
       
-      // Calculate position centered under the button (like Avatar, Shape, and Text popups)
-      let x = rect.left + (rect.width / 2) - (modalWidth / 2);
+      // Calculate position centered under the button, shifted to the left
+      let x = rect.left + (rect.width / 2) - (modalWidth / 2) - 150;
       let y = 70; // Fixed position below the header, matching other popups
       
       // Check if modal would go off the left edge
@@ -1108,7 +1108,7 @@ function Projects2ViewPageContent() {
             position: 'fixed',
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
-            width: '1100px',
+            width: '950px',
             height: '470px',
             zIndex: 9999
           }}
