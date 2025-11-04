@@ -11837,6 +11837,12 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
             key_topics = file_context.get("key_topics", [])
             
             logger.info(f"[HYBRID_STREAM] File context: {len(file_contents)} contents, {len(file_summaries)} summaries, {len(key_topics)} topics")
+        elif isinstance(file_context, str):
+            # Handle string context (fallback case when files couldn't be mapped)
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_context)} chars (string format)")
+            file_contents = []
+            file_summaries = []
+            key_topics = []
             
             if file_contents or file_summaries:
                 file_content_section = "\n\n" + "="*80 + "\n"
@@ -18666,7 +18672,7 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
         try:
             pool = await get_db_pool()
             async with pool.acquire() as connection:
-                # Query the smartdrive_imports table to find matching Onyx file IDs
+                # Try exact match first
                 placeholders = ','.join(f'${i+2}' for i in range(len(actual_paths)))
                 query = f"""
                     SELECT onyx_file_id, smartdrive_path 
@@ -18678,6 +18684,34 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                 
                 params = [user_id] + actual_paths
                 rows = await connection.fetch(query, *params)
+                
+                # If no exact matches and we have unmapped paths, try filename-based matching
+                # This helps with encoding mismatches (especially for Cyrillic/Unicode filenames)
+                if len(rows) < len(actual_paths):
+                    mapped_paths_set = {row['smartdrive_path'] for row in rows}
+                    unmapped = [p for p in actual_paths if p not in mapped_paths_set]
+                    
+                    logger.info(f"[SMARTDRIVE_MAPPING] {len(unmapped)} paths not found by exact match, trying filename matching...")
+                    
+                    for unmapped_path in unmapped:
+                        # Extract filename from path
+                        filename = unmapped_path.split('/')[-1] if '/' in unmapped_path else unmapped_path
+                        if filename:
+                            # Try to find by filename (handles encoding differences)
+                            filename_query = """
+                                SELECT onyx_file_id, smartdrive_path 
+                                FROM smartdrive_imports 
+                                WHERE onyx_user_id = $1 
+                                AND smartdrive_path LIKE $2
+                                AND onyx_file_id IS NOT NULL
+                                LIMIT 1
+                            """
+                            filename_rows = await connection.fetch(filename_query, user_id, f'%{filename}')
+                            if filename_rows:
+                                rows.extend(filename_rows)
+                                logger.info(f"[SMARTDRIVE_MAPPING] Matched '{unmapped_path}' by filename to '{filename_rows[0]['smartdrive_path']}'")
+                
+                rows = list(rows)  # Ensure we have a list
                 
                 mapped_file_ids = [row['onyx_file_id'] for row in rows]
                 mapped_paths = [row['smartdrive_path'] for row in rows]
@@ -18694,10 +18728,21 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                     logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
                     
                     # Show what paths ARE available in the database for this user
-                    debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
+                    debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 ORDER BY imported_at DESC LIMIT 20"
                     debug_rows = await connection.fetch(debug_query, user_id)
                     available_paths = [row['smartdrive_path'] for row in debug_rows]
-                    logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
+                    logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths (last 20) for user {user_id}: {available_paths}")
+                    
+                    # Try to find similar paths (for Cyrillic/Unicode filenames)
+                    for unmapped in unmapped_paths[:3]:  # Check first 3 unmapped
+                        # Extract just the filename for fuzzy matching
+                        filename = unmapped.split('/')[-1] if '/' in unmapped else unmapped
+                        if filename:
+                            fuzzy_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path LIKE $2 LIMIT 5"
+                            fuzzy_rows = await connection.fetch(fuzzy_query, user_id, f'%{filename[:20]}%')
+                            if fuzzy_rows:
+                                fuzzy_paths = [row['smartdrive_path'] for row in fuzzy_rows]
+                                logger.info(f"[SMARTDRIVE_MAPPING] Similar paths found for '{filename[:30]}...': {fuzzy_paths}")
                 
         except Exception as e:
             logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
