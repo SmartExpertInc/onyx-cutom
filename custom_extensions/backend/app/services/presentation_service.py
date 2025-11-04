@@ -1428,7 +1428,8 @@ class ProfessionalPresentationService:
         avatar_code: Optional[str],
         voice_id: Optional[str] = None,
         voice_provider: Optional[str] = None,
-        slide_index: int = 0
+        slide_index: int = 0,
+        elai_background_color: Optional[str] = None
     ) -> str:
         """
         Initiate avatar video creation and start rendering WITHOUT waiting for completion.
@@ -1440,6 +1441,7 @@ class ProfessionalPresentationService:
             voice_id: Optional voice ID
             voice_provider: Optional voice provider
             slide_index: Slide index for logging
+            elai_background_color: Optional background color for Elai video canvas
             
         Returns:
             video_id from Elai API

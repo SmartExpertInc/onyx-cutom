@@ -87,7 +87,7 @@ class ElaiVideoGenerationService:
             avatar_code: Avatar code to use
             voice_id: Voice ID from Elai API (optional)
             voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
-            elai_background_color: Background color for Elai video canvas (optional, defaults to #110c35)
+            elai_background_color: Background color for Elai video canvas (optional, defaults to #ffffff)
             
         Returns:
             Dict containing result with success status and video ID
@@ -258,8 +258,8 @@ class ElaiVideoGenerationService:
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
             
-            # Determine background color: use provided color, or fallback to default
-            background_color = elai_background_color if elai_background_color else "#110c35"
+            # Determine background color: use provided color, or fallback to white
+            background_color = elai_background_color if elai_background_color else "#ffffff"
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using Elai background color: {background_color}")
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request with CORRECT 1080x1080 dimensions")
