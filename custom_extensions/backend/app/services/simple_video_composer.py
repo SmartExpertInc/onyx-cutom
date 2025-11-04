@@ -237,7 +237,7 @@ class SimpleVideoComposer:
         shape = avatar_config.get('shape', 'rectangle')
         shape_desc = {
             'circle': 'circular mask',
-            'arch': 'arch mask (rounded left side)',
+            'arch': 'arch mask (rounded top corners)',
             'rectangle': 'rectangular'
         }.get(shape, 'rectangular')
         logger.info(f"🎬 [SIMPLE_COMPOSER] Frame composition using avatar config: {avatar_config}")
@@ -564,8 +564,8 @@ class SimpleVideoComposer:
         """
         Apply arch mask to avatar frame with transparent background.
         
-        This method creates an arch shape (rounded left side, sharp right side)
-        matching CSS border-radius: 50% 0 0 50% (pill shape with rounded left).
+        This method creates an arch shape (rounded top side, sharp bottom side)
+        matching CSS border-radius: 50% 50% 0 0 (rounded top-left and top-right corners).
         
         Args:
             frame: Avatar frame (BGR numpy array)
@@ -578,21 +578,21 @@ class SimpleVideoComposer:
         try:
             height, width = frame.shape[:2]
             
-            # Create arch mask (rounded left side, sharp right side)
-            # CSS equivalent: border-radius: 50% 0 0 50% (pill shape with rounded left)
+            # Create arch mask (rounded top side, sharp bottom side)
+            # CSS equivalent: border-radius: 50% 50% 0 0 (rounded top corners)
             mask = np.zeros((height, width), dtype=np.uint8)
             
-            # Calculate radius for rounded corners (50% of height)
-            radius = height // 2
+            # Calculate radius for rounded corners (50% of width for horizontal rounding)
+            radius = width // 2
             
-            # Draw rectangle covering right portion (straight edges)
-            cv2.rectangle(mask, (radius, 0), (width, height), 255, -1)
+            # Draw rectangle covering bottom portion (straight edges)
+            cv2.rectangle(mask, (0, radius), (width, height), 255, -1)
             
-            # Add rounded left side using two half-circles
-            # Top-left semicircle (angles: 90 to 270 degrees, rotated 90 degrees)
-            cv2.ellipse(mask, (radius, radius), (radius, radius), 90, 90, 270, 255, -1)
-            # Bottom-left semicircle (angles: 270 to 450 degrees, rotated 90 degrees)
-            cv2.ellipse(mask, (radius, height - radius), (radius, radius), 90, 270, 450, 255, -1)
+            # Add rounded top using two quarter-circles
+            # Top-left quarter-circle (angles: 180 to 270 degrees)
+            cv2.ellipse(mask, (radius, radius), (radius, radius), 0, 180, 270, 255, -1)
+            # Top-right quarter-circle (angles: 270 to 360 degrees)
+            cv2.ellipse(mask, (radius, radius), (radius, radius), 0, 270, 360, 255, -1)
             
             # Convert to BGRA for alpha channel
             if frame.shape[2] == 3:  # BGR
@@ -608,14 +608,15 @@ class SimpleVideoComposer:
                 bgr_color = self._hex_to_bgr(border_color)
                 # Draw border along the arch shape
                 # Top-left rounded border
-                cv2.ellipse(frame_bgra, (radius, radius), (radius, radius), 90, 90, 270, (*bgr_color, 255), border_width)
-                # Bottom-left rounded border
-                cv2.ellipse(frame_bgra, (radius, height - radius), (radius, radius), 90, 270, 450, (*bgr_color, 255), border_width)
-                # Right side straight borders
-                cv2.line(frame_bgra, (width, 0), (width, height), (*bgr_color, 255), border_width)
-                # Top and bottom straight borders
-                cv2.line(frame_bgra, (radius, 0), (width, 0), (*bgr_color, 255), border_width)
-                cv2.line(frame_bgra, (radius, height), (width, height), (*bgr_color, 255), border_width)
+                cv2.ellipse(frame_bgra, (radius, radius), (radius, radius), 0, 180, 270, (*bgr_color, 255), border_width)
+                # Top-right rounded border
+                cv2.ellipse(frame_bgra, (radius, radius), (radius, radius), 0, 270, 360, (*bgr_color, 255), border_width)
+                # Left side straight border
+                cv2.line(frame_bgra, (0, radius), (0, height), (*bgr_color, 255), border_width)
+                # Right side straight border
+                cv2.line(frame_bgra, (width-1, radius), (width-1, height), (*bgr_color, 255), border_width)
+                # Bottom straight border
+                cv2.line(frame_bgra, (0, height-1), (width, height-1), (*bgr_color, 255), border_width)
                 logger.debug(f"🎬 [SIMPLE_COMPOSER] Added arch border: {border_width}px, color: {border_color}")
             
             return frame_bgra

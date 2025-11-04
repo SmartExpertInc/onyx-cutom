@@ -1664,13 +1664,14 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     avatarPosition: {
       // ✅ ARCH AVATAR - Based on measured arch background container logs
       // Arch background positioned on right side of slide
-      // CSS: border-radius: 50% 0 0 50% (rounded left side, sharp right side)
+      // Arch shape: Rounded TOP corners (top-left and top-right), sharp bottom corners
+      // CSS equivalent: border-radius: 50% 50% 0 0 (after transform rotation)
       // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
       x: 1075,      // ✅ Measured: 1075px (left edge of arch container)
       y: 235,       // ✅ Measured: 235px (top edge of arch container)
       width: 799,   // ✅ Measured: 799px (arch container width)
       height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
-      shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded left side)
+      shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
       backgroundColor: '#ffffff'  // White background for avatar area
     }
   },
