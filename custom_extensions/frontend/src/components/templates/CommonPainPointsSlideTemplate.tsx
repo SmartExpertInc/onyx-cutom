@@ -62,15 +62,17 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
 
   // Right section with image
   const rightSection: React.CSSProperties = {
-    width: '50%',
-    height: '100%',
-    backgroundColor: '#2563EB',
+    marginTop: '86px',
+    marginLeft: '65px',
+    width: '40%',
+    height: '74%',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    borderRadius: '16px 0 0 16px'
+    borderRadius: '16px'
   };
 
   // Tag container
@@ -78,11 +80,11 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    backgroundColor: '#F3F4F6',
+    border: '1px solid #09090B',
     padding: '6px 12px',
     borderRadius: '20px',
     width: 'fit-content',
-    marginBottom: '30px'
+    marginBottom: '20px'
   };
 
   const tagDot: React.CSSProperties = {
@@ -101,7 +103,7 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
 
   // Title style
   const titleStyle: React.CSSProperties = {
-    fontSize: '56px',
+    fontSize: '48px',
     fontWeight: 700,
     color: '#09090B',
     lineHeight: 1.2,
@@ -114,13 +116,13 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
   const painPointsList: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px'
+    gap: '45px'
   };
 
   // Pain point item
   const painPointItem: React.CSSProperties = {
     display: 'flex',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: '16px'
   };
 
@@ -145,9 +147,10 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
 
   // Pain point text style
   const painPointTextStyle: React.CSSProperties = {
-    fontSize: '18px',
+    fontSize: '23px',
     fontWeight: 400,
     color: '#09090B',
+    opacity: 0.8,
     lineHeight: 1.6,
     margin: 0,
     flex: 1
@@ -166,6 +169,7 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
   const avatarImageStyle: React.CSSProperties = {
     width: '70%',
     height: '90%',
+    marginTop: '100px',
     objectFit: 'contain',
     position: 'relative'
   };
