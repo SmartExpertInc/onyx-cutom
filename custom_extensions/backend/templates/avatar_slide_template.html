@@ -5220,11 +5220,11 @@
                         <div class="arch-background"></div>
 
                         <!-- Image -->
-                        {% if imagePath %}
-                            <div class="image-container">
+                        <div class="image-container" style="background-color: red;">
+                            {% if imagePath %}
                                 <img src="{{ imagePath }}" alt="{{ imageAlt or 'Work-life balance image' }}" class="balance-image">
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 
@@ -6440,7 +6440,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="main-title">{{ title or 'Step-by-step Guide' }}</div>
 
                     <!-- Profile Image -->
-                    <div class="profile-image-container">
+                    <div class="profile-image-container" >
                         {% if profileImagePath %}
                             <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" />
                         {% endif %}
