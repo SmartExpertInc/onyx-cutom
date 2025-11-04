@@ -277,7 +277,7 @@ export default function AvatarRightPanel({
                 <path d="M7.33301 12.6654L1.33301 7.9987L7.33301 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M14.6663 12.6654L8.66634 7.9987L14.6663 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-[10px]" style={{ color: selectedLayer === 'toBack' ? '#171718' : '#878787' }}>
+              <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toBack' ? '#171718' : '#878787' }}>
                 {t('avatarRightPanel.toBack', 'To back')}
               </span>
             </button>
@@ -294,7 +294,7 @@ export default function AvatarRightPanel({
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3.33301 12.668V3.33464M12.6663 13.3346L5.99967 8.0013L12.6663 2.66797V13.3346Z" stroke={selectedLayer === 'backward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-[10px]" style={{ color: selectedLayer === 'backward' ? '#171718' : '#878787' }}>
+              <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'backward' ? '#171718' : '#878787' }}>
                 {t('avatarRightPanel.backward', 'Backward')}
               </span>
             </button>
@@ -311,7 +311,7 @@ export default function AvatarRightPanel({
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.6663 3.33464V12.668M3.33301 2.66797L9.99967 8.0013L3.33301 13.3346V2.66797Z" stroke={selectedLayer === 'forward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-[10px]" style={{ color: selectedLayer === 'forward' ? '#171718' : '#878787' }}>
+              <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'forward' ? '#171718' : '#878787' }}>
                 {t('avatarRightPanel.forward', 'Forward')}
               </span>
             </button>
@@ -329,7 +329,7 @@ export default function AvatarRightPanel({
                 <path d="M8.66699 12.6654L14.667 7.9987L8.66699 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M1.33366 12.6654L7.33366 7.9987L1.33366 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-[10px]" style={{ color: selectedLayer === 'toFront' ? '#171718' : '#878787' }}>
+              <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toFront' ? '#171718' : '#878787' }}>
                 {t('avatarRightPanel.toFront', 'To front')}
               </span>
             </button>
@@ -337,7 +337,7 @@ export default function AvatarRightPanel({
         </div>
 
         {/* Position Section */}
-        <div className="space-y-3 flex-shrink-0">
+        <div className="space-y-2 flex-shrink-0">
           {/* Position Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.position', 'Position')}</h3>

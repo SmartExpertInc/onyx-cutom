@@ -722,6 +722,7 @@ function Projects2ViewPageContent() {
   const handleAvatarButtonClick = (position: { x: number; y: number }) => {
     setAvatarPopupPosition(position);
     setIsAvatarPopupOpen(true);
+    setShowAvatarRightPanel(true);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -1075,7 +1076,7 @@ function Projects2ViewPageContent() {
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
         <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
-          {isAvatarPopupOpen ? (
+          {showAvatarRightPanel ? (
             <AvatarRightPanel
               isMusicEnabled={isMusicEnabled}
               setIsMusicEnabled={setIsMusicEnabled}
@@ -1102,7 +1103,7 @@ function Projects2ViewPageContent() {
               setActiveSettingsPanel={setActiveSettingsPanel}
               componentBasedSlideDeck={componentBasedSlideDeck}
               setActiveTransitionIndex={setActiveTransitionIndex}
-              onClose={() => setIsAvatarPopupOpen(false)}
+              onClose={() => setShowAvatarRightPanel(false)}
             />
           ) : (
             <VideoPresentationRightPanel
@@ -1175,10 +1176,14 @@ function Projects2ViewPageContent() {
       {/* Avatar Popup */}
       <AvatarPopup 
         isOpen={isAvatarPopupOpen} 
-        onClose={() => setIsAvatarPopupOpen(false)} 
+        onClose={() => {
+          // Only close the popup, not the right panel
+          setIsAvatarPopupOpen(false);
+        }}
         position={avatarPopupPosition}
         onAvatarSelect={(avatar, variant) => {
           console.log('Avatar selected:', avatar, variant);
+          // Only close the popup, not the right panel
           setIsAvatarPopupOpen(false);
           // TODO: Handle avatar selection - update video lesson data with selected avatar
         }}
