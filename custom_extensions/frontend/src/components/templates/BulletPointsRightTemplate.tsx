@@ -286,8 +286,8 @@ function UnifiedBulletEditor({
         style={{ 
           padding: '4px', 
           borderRadius: '4px',
-          border: '1px solid #3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.05)',
+          border: '1px solid rgba(59, 130, 246, 0)',
+          backgroundColor: 'transparent',
           position: 'relative',
           width: '100%',
           minWidth: 0,
@@ -298,7 +298,10 @@ function UnifiedBulletEditor({
           listStyle: 'none',
           padding: 0,
           margin: 0,
-          width: '100%'
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
@@ -313,9 +316,8 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '30px',
-                minHeight: '1.6em',
-                width: '80%'
+                marginBottom: '35px',
+                width: '100%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -327,8 +329,7 @@ function UnifiedBulletEditor({
                     {getBulletIcon(bulletStyle, index)}
                   </span>
                 )}
-                <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
-                  <textarea
+                <textarea
                     ref={(el) => {
                       textareaRefs.current[index] = el;
                     }}
@@ -419,22 +420,29 @@ function UnifiedBulletEditor({
                     placeholder={index === 0 ? "Enter bullet points... Press Enter for new line" : ""}
                     className="bullet-edit-textarea"
                     style={{
-                      ...bulletTextStyles,
+                      fontFamily: bulletTextStyles.fontFamily,
+                      fontSize: bulletTextStyles.fontSize,
+                      marginTop: bulletTextStyles.marginTop,
+                      opacity: bulletTextStyles.opacity,
+                      color: bulletTextStyles.color,
+                      lineHeight: bulletTextStyles.lineHeight,
                       background: 'transparent',
                       border: 'none',
                       outline: 'none',
                       boxShadow: 'none',
                       resize: 'none',
                       overflow: 'hidden',
-                      width: '100%',
+                      flex: 1,
+                      minWidth: 0,
+                      maxWidth: '100%',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
-                      minHeight: '1.6em',
                       boxSizing: 'border-box',
                       display: 'block',
                       padding: '0',
                       margin: '0',
-                      height: 'auto'
+                      height: 'auto',
+                      verticalAlign: 'top'
                     }}
                     rows={1}
                     onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -445,7 +453,6 @@ function UnifiedBulletEditor({
                       target.style.height = (target.scrollHeight + 2) + 'px';
                     }}
                   />
-                </div>
               </li>
             );
           })}
@@ -457,8 +464,15 @@ function UnifiedBulletEditor({
   return (
     <div 
       onClick={startEditing}
-      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+      className={isEditable ? 'cursor-pointer' : ''}
+      style={{ 
+        padding: '4px', 
+        borderRadius: '4px', 
+        border: '1px solid transparent',
+        width: '100%', 
+        minWidth: 0, 
+        boxSizing: 'border-box' 
+      }}
     >
       <ul style={{
         listStyle: 'none',
@@ -475,7 +489,7 @@ function UnifiedBulletEditor({
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '35px',
-            width: '80%'
+            width: '100%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
@@ -727,7 +741,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
         </div>
 
         {/* Bullets */}
-        <div data-draggable="true">
+        <div data-draggable="true" style={{ width: '100%', minWidth: '300px', maxWidth: '600px' }}>
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle="arrow"

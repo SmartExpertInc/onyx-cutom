@@ -148,7 +148,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
           gridTemplateColumns: '1fr 1fr', 
           gap: '30px'
         }}>
-          {ideas.map((idea, index) => (
+          {(ideas || []).filter(idea => idea !== null && idea !== undefined).map((idea, index) => (
             <div key={index} style={{ 
               display: 'flex', 
               flexDirection: 'column',

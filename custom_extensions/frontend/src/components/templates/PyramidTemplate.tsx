@@ -385,7 +385,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '25,000' }
   ];
 
-  const displaySteps = steps.length >= 5 ? steps.slice(0, 5) : defaultSteps;
+  // Filter out null/undefined values to prevent errors
+  const validSteps = (steps || []).filter((step): step is PyramidItem => step !== null && step !== undefined);
+  const displaySteps = validSteps.length >= 5 ? validSteps.slice(0, 5) : defaultSteps;
 
   return (
     <div className="pyramid-template" style={slideStyles}>
