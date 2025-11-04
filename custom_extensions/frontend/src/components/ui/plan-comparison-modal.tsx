@@ -359,7 +359,7 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                   <div key={categoryIndex} className="relative group hover:z-10">
                     {/* Blue Background for This Category Only - Shows on Hover */}
                     <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 group-hover:bg-[#CCDBFC] transition-colors duration-200 z-0"
+                      className="absolute left-[-32px] right-[-32px] top-0 group-hover:bg-[#CCDBFC] transition-colors duration-200 z-0 pointer-events-none"
                       style={{ height: `${categoryHeight}px` }}
                     ></div>
                     
