@@ -483,7 +483,7 @@ export default function CreateFromSpecificFilesPage() {
           {/* Back Button */}
           <div className="mb-6">
             <Link
-              href="/custom-projects-ui/create"
+              href="/create"
               className="group inline-flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
