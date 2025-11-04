@@ -1781,7 +1781,7 @@ export default function DynamicAuditLandingPage() {
         <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
           
           {/* Header */}
-          <header className="h-[50px] xl:h-[81px] mb-[33px] xl:hidden">
+          <header className="h-[50px] lg:h-[78px] xl:h-[81px] mb-[33px] lg:hidden xl:hidden">
             <div className="w-full px-[20px] pt-[10px] xl:w-[1440px] xl:mx-auto xl:px-[120px] xl:pt-[22px] h-full">
               <div className="flex items-center justify-between h-full">
                 <svg width="136" height="30" viewBox="0 0 136 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1803,7 +1803,7 @@ export default function DynamicAuditLandingPage() {
                 </svg>
                 
                 {/* Mobile Menu - Only visible on mobile */}
-                <svg className="h-[20px] xl:hidden" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg className="h-[20px] lg:hidden xl:hidden" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clipPath="url(#clip0_379_8707)">
                     <rect width="21" height="2" rx="1" fill="#222222"/>
                     <rect x="4" y="9" width="17" height="2" rx="1" fill="#222222"/>
@@ -1820,12 +1820,12 @@ export default function DynamicAuditLandingPage() {
           </header>
   
           {/* Main Content */}
-          <main className="w-full xl:w-[1440px] xl:mx-auto flex-1">
+          <main className="w-full lg:w-[1440px] lg:mx-auto xl:w-[1440px] xl:mx-auto flex-1">
             {/* First Section */}
-            <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:pt-[22px] xl:h-[660px] xl:relative xl:overflow-hidden">
+            <section className="flex flex-col lg:block xl:block gap-[30px] px-[20px] lg:px-[105px] xl:px-[120px] lg:pt-[20px] xl:pt-[22px] lg:h-[640px] xl:h-[660px] lg:relative lg:relative xl:relative lg:overflow-hidden xl:overflow-hidden">
               
               {/* Navigation Buttons - positioned in top-right */}
-              <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20 flex gap-3">
+              <div className="absolute top-4 right-4 lg:top-[20px] xl:top-[22px] lg:right-[110px] xl:right-[120px] z-20 flex lg:flex-row xl:flex-row flex-col gap-3">
                 {/* Return to Audits Button */}
                 <button
                   onClick={() => window.location.href = '/projects?tab=audits'}
@@ -1913,8 +1913,8 @@ export default function DynamicAuditLandingPage() {
                 </button>
               </div>
 
-              <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
-                <svg className="hidden xl:block xl:mb-[35px]" width="168" height="37" viewBox="0 0 168 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="flex flex-col gap-[20px] lg:gap-[25px] xl:gap-[25px] lg:w-[551px] xl:w-[551px]">
+                <svg className="hidden lg:block xl:block lg:mb-[35px] xl:mb-[35px]" width="168" height="37" viewBox="0 0 168 37" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M47.6003 23.6794C47.6003 24.1541 47.6855 24.5562 47.8559 24.8858C48.0264 25.2154 48.2492 25.4857 48.5245 25.6967C48.8128 25.8945 49.1471 26.0461 49.5272 26.1516C49.9074 26.2439 50.3006 26.29 50.707 26.29C50.9823 26.29 51.2772 26.2702 51.5918 26.2307C51.9064 26.1779 52.2013 26.0857 52.4766 25.9538C52.7519 25.822 52.9813 25.644 53.1648 25.4198C53.3483 25.1825 53.44 24.8858 53.44 24.5298C53.44 24.1475 53.3155 23.8376 53.0665 23.6003C52.8305 23.363 52.5159 23.1652 52.1227 23.007C51.7294 22.8487 51.2837 22.7103 50.7856 22.5916C50.2875 22.473 49.7829 22.3411 49.2716 22.1961C48.7473 22.0642 48.2361 21.906 47.738 21.7214C47.2399 21.5237 46.7942 21.2731 46.4009 20.9699C46.0077 20.6666 45.6865 20.2909 45.4375 19.8426C45.2015 19.3811 45.0836 18.8273 45.0836 18.1813C45.0836 17.4561 45.2343 16.8298 45.5358 16.3024C45.8504 15.7618 46.2567 15.3135 46.7549 14.9575C47.253 14.6015 47.8166 14.3378 48.4458 14.1664C49.075 13.995 49.7042 13.9093 50.3334 13.9093C51.0675 13.9093 51.7687 13.995 52.4373 14.1664C53.1189 14.3247 53.7219 14.5884 54.2462 14.9575C54.7705 15.3267 55.1834 15.8014 55.4849 16.3815C55.7995 16.9485 55.9568 17.6407 55.9568 18.4581H52.9682C52.9419 18.0362 52.8502 17.6868 52.6929 17.4099C52.5487 17.1331 52.3521 16.9155 52.103 16.7573C51.854 16.5991 51.5656 16.487 51.2379 16.4211C50.9233 16.3551 50.5759 16.3222 50.1958 16.3222C49.9467 16.3222 49.6976 16.3485 49.4486 16.4013C49.1995 16.454 48.9701 16.5463 48.7604 16.6782C48.5638 16.81 48.3999 16.9748 48.2689 17.1726C48.1378 17.3704 48.0722 17.6209 48.0722 17.9242C48.0722 18.201 48.1247 18.4252 48.2295 18.5966C48.3344 18.768 48.5376 18.9262 48.8391 19.0712C49.1537 19.2163 49.5797 19.3613 50.1171 19.5063C50.6677 19.6514 51.3821 19.836 52.2603 20.0601C52.5225 20.1129 52.8829 20.2117 53.3417 20.3568C53.8136 20.4886 54.279 20.7062 54.7378 21.0094C55.1965 21.3127 55.5898 21.7214 55.9175 22.2356C56.2583 22.7367 56.4287 23.3827 56.4287 24.1738C56.4287 24.8199 56.3042 25.4198 56.0551 25.9736C55.8061 26.5274 55.4325 27.0086 54.9344 27.4173C54.4494 27.8129 53.8398 28.1227 53.1058 28.3469C52.3848 28.571 51.5459 28.6831 50.589 28.6831C49.8156 28.6831 49.0619 28.5842 48.3278 28.3864C47.6069 28.2018 46.9646 27.9052 46.4009 27.4964C45.8504 27.0877 45.4113 26.5669 45.0836 25.934C44.7558 25.3011 44.5985 24.5496 44.6117 23.6794H47.6003Z" fill="#0F58F9"/>
                   <path d="M58.639 18.1417H61.2738V19.5261H61.3131C61.6801 18.9987 62.1193 18.59 62.6305 18.2999C63.1548 18.0099 63.7512 17.8648 64.4198 17.8648C65.0621 17.8648 65.6454 17.9901 66.1697 18.2406C66.7071 18.4911 67.1135 18.9328 67.3888 19.5657C67.6903 19.1174 68.0966 18.7218 68.6078 18.379C69.1322 18.0362 69.7483 17.8648 70.4561 17.8648C70.9935 17.8648 71.4916 17.9307 71.9504 18.0626C72.4092 18.1944 72.8025 18.4054 73.1302 18.6955C73.4579 18.9855 73.7135 19.3679 73.897 19.8426C74.0805 20.304 74.1723 20.8644 74.1723 21.5237V28.3667H71.3802V22.5719C71.3802 22.229 71.3671 21.906 71.3409 21.6028C71.3147 21.2995 71.2426 21.0358 71.1246 20.8117C71.0066 20.5875 70.8297 20.4095 70.5937 20.2777C70.3709 20.1458 70.0629 20.0799 69.6696 20.0799C69.2764 20.0799 68.9552 20.159 68.7062 20.3172C68.4702 20.4623 68.2801 20.66 68.1359 20.9105C68.0049 21.1479 67.9131 21.4248 67.8607 21.7412C67.8214 22.0445 67.8017 22.3543 67.8017 22.6707V28.3667H65.0096V22.6312C65.0096 22.3279 65.0031 22.0313 64.99 21.7412C64.9769 21.4379 64.9179 21.1611 64.813 20.9105C64.7213 20.66 64.5574 20.4623 64.3214 20.3172C64.0986 20.159 63.7644 20.0799 63.3187 20.0799C63.1876 20.0799 63.0106 20.1129 62.7878 20.1788C62.5781 20.2315 62.3683 20.3436 62.1586 20.515C61.962 20.6732 61.7916 20.9105 61.6474 21.227C61.5032 21.5302 61.4311 21.9324 61.4311 22.4334V28.3667H58.639V18.1417Z" fill="#0F58F9"/>
                   <path d="M76.8513 21.2863C76.8906 20.6271 77.0545 20.0799 77.3428 19.6448C77.6312 19.2097 77.9982 18.8603 78.4439 18.5966C78.8896 18.3329 79.3877 18.1483 79.9383 18.0428C80.5019 17.9242 81.0656 17.8648 81.6292 17.8648C82.1404 17.8648 82.6582 17.9044 83.1825 17.9835C83.7069 18.0494 84.1853 18.1879 84.6179 18.3988C85.0505 18.6098 85.4044 18.9064 85.6797 19.2888C85.9549 19.658 86.0926 20.1524 86.0926 20.7721V26.0922C86.0926 26.5537 86.1188 26.9954 86.1712 27.4173C86.2237 27.8393 86.3154 28.1557 86.4465 28.3667H83.6151C83.5627 28.2084 83.5168 28.0502 83.4775 27.892C83.4513 27.7206 83.4316 27.5492 83.4185 27.3778C82.9728 27.8393 82.4485 28.1623 81.8455 28.3469C81.2425 28.5315 80.6264 28.6238 79.9972 28.6238C79.5122 28.6238 79.06 28.5644 78.6405 28.4458C78.2211 28.3271 77.8541 28.1425 77.5395 27.892C77.2249 27.6415 76.9758 27.325 76.7923 26.9427C76.6219 26.5603 76.5367 26.1054 76.5367 25.578C76.5367 24.9979 76.635 24.5232 76.8316 24.1541C77.0413 23.7717 77.3035 23.4684 77.6181 23.2443C77.9458 23.0201 78.3129 22.8553 78.7192 22.7499C79.1387 22.6312 79.5581 22.5389 79.9776 22.473C80.3971 22.407 80.81 22.3543 81.2163 22.3148C81.6227 22.2752 81.9831 22.2159 82.2977 22.1368C82.6123 22.0576 82.8614 21.9456 83.0449 21.8005C83.2284 21.6423 83.3136 21.4182 83.3005 21.1281C83.3005 20.8248 83.2481 20.5875 83.1432 20.4161C83.0515 20.2315 82.9204 20.0931 82.75 20.0008C82.5927 19.8953 82.4026 19.8294 82.1798 19.803C81.97 19.7635 81.7406 19.7437 81.4916 19.7437C80.941 19.7437 80.5085 19.8623 80.1939 20.0997C79.8793 20.337 79.6958 20.7326 79.6433 21.2863H76.8513ZM83.3005 23.363C83.1825 23.4684 83.0318 23.5541 82.8483 23.6201C82.6779 23.6728 82.4878 23.719 82.2781 23.7585C82.0815 23.7981 81.8717 23.831 81.6489 23.8574C81.426 23.8838 81.2032 23.9167 80.9804 23.9563C80.7706 23.9958 80.5609 24.0486 80.3512 24.1145C80.1545 24.1804 79.9776 24.2727 79.8203 24.3914C79.6761 24.4969 79.5581 24.6353 79.4664 24.8067C79.3746 24.9781 79.3287 25.1957 79.3287 25.4594C79.3287 25.7099 79.3746 25.9208 79.4664 26.0922C79.5581 26.2637 79.6827 26.4021 79.84 26.5076C79.9973 26.5999 80.1808 26.6658 80.3905 26.7053C80.6002 26.7449 80.8165 26.7647 81.0394 26.7647C81.5899 26.7647 82.0159 26.6724 82.3174 26.4878C82.6189 26.3032 82.8417 26.0857 82.9859 25.8351C83.1301 25.5714 83.2153 25.3077 83.2415 25.044C83.2809 24.7803 83.3005 24.5694 83.3005 24.4112V23.363Z" fill="#0F58F9"/>
@@ -2016,14 +2016,14 @@ export default function DynamicAuditLandingPage() {
               </div>
               
               {/* Image */}
-              <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-0 xl:-mx-0 xl:z-10">
+              <div className="-mx-[20px] lg:absolute xl:absolute lg:left-[720px] xl:left-[770px] lg:top-0 xl:top-0 lg:-mx-0 xl:-mx-0 lg:z-10 xl:z-10">
                 {/* Mobile Image */}
                 <Image 
                   src="/custom-projects-ui/images/audit-section-1-mobile.png"
                   alt="Audit"
                   width={360}
                   height={339}
-                  className="w-full xl:hidden"
+                  className="w-full lg:hidden xl:hidden"
                   style={{ height: '339.39px' }}
                 />
                 {/* Desktop Image */}
@@ -2032,7 +2032,7 @@ export default function DynamicAuditLandingPage() {
                   alt="Audit"
                   width={1030}
                   height={660}
-                  className="hidden xl:block"
+                  className="hidden lg:block xl:block"
                   style={{ 
                     width: '1030px',
                     height: '660px'
@@ -2045,10 +2045,10 @@ export default function DynamicAuditLandingPage() {
             <section className="flex flex-col gap-[20px] xl:gap-[20px] bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
               <h2 className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em]">
                 {getLocalizedText(landingPageData?.language, {
-                  en: 'How with AI:',
-                  es: 'Cómo con IA:',
-                  ua: 'Як за допомогою AI:',
-                  ru: 'Как с помощью AI:'
+                  en: 'Purpose of the audit',
+                  es: 'Finalidad de la auditoría',
+                  ua: 'Ціль аудиту',
+                  ru: 'Цель аудита'
                 })}
               </h2>
               <p className="font-regular text-[15px] xl:text-[20px] text-[#71717A] leading-[115%] tracking-[-0.03em]">
@@ -2067,7 +2067,7 @@ export default function DynamicAuditLandingPage() {
                       <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                         <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">1</span>
                       </div>
-                      <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                      <h3 className="font-medium text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(landingPageData?.language, {
                           en: <>Reduce staff turnover <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
                           es: <>Reduzca la rotación <br className="xl:hidden"/> de personal en <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
@@ -2095,7 +2095,7 @@ export default function DynamicAuditLandingPage() {
                       <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                         <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">2</span>
                       </div>
-                      <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                      <h3 className="font-medium text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(landingPageData?.language, {
                           en: <>Increase employee productivity <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           es: <>Aumente la productividad <br className="xl:hidden"/> de empleados en <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
@@ -2123,7 +2123,7 @@ export default function DynamicAuditLandingPage() {
                       <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                         <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">3</span>
                       </div>
-                      <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                      <h3 className="font-medium text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(landingPageData?.language, {
                           en: 'AI Onboarding Implementation',
                           es: 'Implementación de Incorporación IA',
@@ -2232,7 +2232,7 @@ export default function DynamicAuditLandingPage() {
                     {/* First Card */}
                     <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[45px] py-[15px] xl:pt-[30px] xl:pb-[30px] px-[15px] xl:pl-[20px] xl:pr-[35px] justify-center items-center text-center border border-[#E0E0E0] rounded-[4px] xl:w-[620px] xl:h-[284px]">
                       {/* Dynamic Yearly Shortage Number - Mobile */}
-                      <div className="block xl:hidden flex flex-col items-center justify-center w-[164px] h-[164px]">
+                      <div className="block lg:hidden xl:hidden flex flex-col items-center justify-center w-[164px] h-[164px]">
                         <div className="relative w-full h-full flex flex-col items-center justify-center">
                           {/* Circular Progress Background */}
                           <svg className="absolute inset-0 w-full h-full" width="164" height="164" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2317,8 +2317,8 @@ export default function DynamicAuditLandingPage() {
                         </div>
                       </div>
     
-                      <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
-                        <p className="font-semibold text-[16px] text-left xl:text-[20px]">
+                      <div className="flex flex-col gap-[10px] lg:gap-[15px] xl:gap-[15px] lg:w-[266px] xl:w-[296px]">
+                        <p className="font-semibold text-[16px] text-left xl:text-[19px]">
                           {editingField === 'workforceCrisisMissingText' ? (
                             <InlineEditor
                               initialValue={landingPageData?.workforceCrisis?.missingPersonnelDescription || 
@@ -2358,7 +2358,7 @@ export default function DynamicAuditLandingPage() {
     
                     {/* Second Card */}
                     <div 
-                      className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
+                      className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] lg:hidden xl:hidden"
                       style={{ minHeight: '256px', maxHeight: '256px' }}
                     >
                       {landingPageData?.workforceCrisis?.chartData ? (
@@ -2381,7 +2381,7 @@ export default function DynamicAuditLandingPage() {
                       )}
                     </div>
     
-                    <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
+                    <div className="hidden lg:block xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
                       {landingPageData?.workforceCrisis?.chartData ? (
                         <div className="w-full h-full flex justify-center items-center overflow-visible">
                           <PersonnelShortageChart 
@@ -2482,10 +2482,10 @@ export default function DynamicAuditLandingPage() {
                 })} 
                 width={320}
                 height={220}
-                className="w-full xl:hidden"
+                className="w-full lg:hidden xl:hidden"
               />
                 
-              <div className="flex flex-col gap-[15px] xl:hidden">
+              <div className="flex flex-col gap-[15px] lg:hidden xl:hidden">
                 <div className="flex items-center gap-[10px]">
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
@@ -2551,7 +2551,7 @@ export default function DynamicAuditLandingPage() {
                 </p>
               </div>
   
-              <div className="flex flex-col gap-[15px] xl:hidden">
+              <div className="flex flex-col gap-[15px] lg:hidden xl:hidden">
                 <div className="flex items-center gap-[10px]">
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
@@ -2623,7 +2623,7 @@ export default function DynamicAuditLandingPage() {
                 </p>
               </div>
               
-              <div className="flex flex-col gap-[15px] xl:hidden">
+              <div className="flex flex-col gap-[15px] lg:hidden xl:hidden">
                 <div className="flex items-center gap-[10px]">
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
@@ -2686,7 +2686,7 @@ export default function DynamicAuditLandingPage() {
                 </p>
               </div>
               
-              <div className="flex flex-col gap-[15px] xl:hidden">
+              <div className="flex flex-col gap-[15px] lg:hidden xl:hidden">
                 <div className="flex items-center gap-[10px]">
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
@@ -2750,7 +2750,7 @@ export default function DynamicAuditLandingPage() {
                 </p>
               </div>
   
-              <div className="hidden xl:block w-full xl:flex xl:gap-[80px] xl:h-[280px]">
+              <div className="hidden lg:block xl:block w-full xl:flex xl:gap-[80px] xl:h-[280px]">
                 <div className="flex flex-col gap-[50px] my-[36px] w-[340px]">
                   <div className="flex flex-col gap-[12px]">
                     <div className="flex items-center gap-[20px] mb-[10px]">
@@ -2808,10 +2808,10 @@ export default function DynamicAuditLandingPage() {
                         >
                           {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
                             getLocalizedText(landingPageData?.language, {
-                        en: <>Average work duration in<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
-                        es: <>Duración promedio de trabajo en<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
-                        ua: <>Середня тривалість роботи в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
-                        ru: <>Средняя продолжительность работы в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
+                        en: <>Average work duration in<br className="hidden lg:block xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
+                        es: <>Duración promedio de trabajo en<br className="hidden lg:block xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
+                        ua: <>Середня тривалість роботи в<br className="hidden lg:block xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
+                        ru: <>Средняя продолжительность работы в<br className="hidden lg:block xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
                       })}
                         </span>
                       )}
@@ -3031,15 +3031,15 @@ export default function DynamicAuditLandingPage() {
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%]">
                 {getLocalizedText(landingPageData?.language, {
-                  en: 'We offer three',
-                  es: 'Ofrecemos tres',
-                  ua: 'Пропонуємо три',
-                  ru: 'Предлагаем три'
+                  en: 'Trends and',
+                  es: 'Tendencias y',
+                  ua: 'Тренди та',
+                  ru: 'Тренды и'
                 })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                  en: 'ready solutions:',
-                  es: 'soluciones listas:',
-                  ua: 'готових рішення:',
-                  ru: 'готовых решения:'
+                  en: 'effective solutions:',
+                  es: 'soluciones efectivas:',
+                  ua: 'ефективні рішення:',
+                  ru: 'эффективные решения:'
                 })}
               </h2>
   
@@ -3056,7 +3056,7 @@ export default function DynamicAuditLandingPage() {
                   </span>
                 </div>
                 
-                <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
+                <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] lg:hidden xl:hidden">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
                       initialValue={landingPageData?.serviceTemplatesDescription || 
@@ -3089,7 +3089,7 @@ export default function DynamicAuditLandingPage() {
                     es: 'para incorporación',
                     ua: 'для онбордингу',
                     ru: 'курсов для онбординга'
-                  })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                  })}<br className="hidden lg:block xl:block"/> {getLocalizedText(landingPageData?.language, {
                     en: 'and',
                     es: 'y',
                     ua: 'і',
@@ -3104,7 +3104,7 @@ export default function DynamicAuditLandingPage() {
                   )}
                 </h3>
   
-                <h3 className="hidden xl:block font-medium xl:text-[30px] w-[670px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                <h3 className="hidden lg:block xl:block font-medium xl:text-[30px] w-[670px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
                       initialValue={landingPageData?.serviceTemplatesDescription || 
@@ -3128,10 +3128,10 @@ export default function DynamicAuditLandingPage() {
                     >
                       {landingPageData?.serviceTemplatesDescription || 
                         getLocalizedText(landingPageData?.language, {
-                    en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
-                    es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
-                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
-                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
+                    en: <>Ready-made course templates for onboarding<br className="hidden lg:block xl:block"/> and training your employees:</>,
+                    es: <>Plantillas de cursos listas para incorporación<br className="hidden lg:block xl:block"/> y entrenamiento de sus empleados:</>,
+                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden lg:block xl:block"/> та навчання ваших співробітників:</>,
+                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden lg:block xl:block"/> и обучения Ваших сотрудников:</>
                   })}
                     </span>
                   )}
@@ -3140,7 +3140,7 @@ export default function DynamicAuditLandingPage() {
                 <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
                   {/* Dynamic Course Templates */}
                   {landingPageData?.courseTemplates && landingPageData.courseTemplates.length > 0 && landingPageData.courseTemplates.map((template, index) => (
-                    <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
+                    <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden lg:block xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
                       {/* Card Top */}
                       <div 
                         className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" 
@@ -3261,11 +3261,11 @@ export default function DynamicAuditLandingPage() {
                 
                 <div className="flex flex-col gap-[10px] xl:gap-[15px]">
                   <div className="px-[18px] xl:px-[20px] py-[8px] xl:py-[10px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] mt-[25px] xl:mt-0 w-fit">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="15" height="15" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12.726 14H1.274C0.574 14 0 13.426 0 12.726V1.274C0 0.573999 0.574 0 1.274 0H12.726C13.426 0 14 0.573999 14 1.274V12.726C14 13.426 13.426 14 12.726 14ZM2.548 10.822C2.548 11.018 2.674 11.144 2.87 11.144H6.048C6.244 11.144 6.37 11.018 6.37 10.822V7.644C6.37 7.448 6.244 7.322 6.048 7.322H2.87C2.674 7.322 2.548 7.448 2.548 7.644V10.822ZM10.178 2.548C10.178 2.352 10.052 2.226 9.856 2.226H2.856C2.66 2.226 2.534 2.352 2.534 2.548V3.178C2.534 3.374 2.66 3.5 2.856 3.5H9.856C10.052 3.5 10.178 3.374 10.178 3.178V2.548ZM11.452 5.096C11.452 4.9 11.326 4.774 11.13 4.774H2.87C2.674 4.774 2.548 4.9 2.548 5.096V5.726C2.548 5.922 2.674 6.048 2.87 6.048H11.144C11.34 6.048 11.466 5.922 11.466 5.726V5.096H11.452ZM11.452 7.63C11.452 7.434 11.326 7.308 11.13 7.308H7.952C7.756 7.308 7.63 7.434 7.63 7.63V8.26C7.63 8.456 7.756 8.582 7.952 8.582H11.13C11.326 8.582 11.452 8.456 11.452 8.26V7.63ZM11.452 10.178C11.452 9.982 11.326 9.856 11.13 9.856H7.952C7.756 9.856 7.63 9.982 7.63 10.178V10.808C7.63 11.004 7.756 11.13 7.952 11.13H11.13C11.326 11.13 11.452 11.004 11.452 10.808V10.178Z" fill="black"/>
                     </svg>
                     
-                    <span className="font-semibold text-[14px] xl:text-[18px] text-[#09090B]">
+                    <span className="font-medium text-[16px] xl:text-[22px] text-[#09090B]">
                       {getLocalizedText(landingPageData?.language, {
                         en: 'Example of a ready-made template',
                         es: 'Ejemplo de una plantilla prediseñada',
@@ -3392,7 +3392,7 @@ export default function DynamicAuditLandingPage() {
                               })}
                             </span>
   
-                            <h5 className="hidden xl:block font-medium text-[16px]">
+                            <h5 className="hidden lg:block xl:block font-medium text-[16px]">
                               {editingField === 'courseModule_0' ? (
                                 <InlineEditor
                                   initialValue={landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
@@ -3431,7 +3431,7 @@ export default function DynamicAuditLandingPage() {
                           </button>
                         </div>
                         
-                        <h5 className="font-medium text-[16px] xl:hidden">
+                        <h5 className="font-medium text-[16px] lg:hidden xl:hidden">
                           {editingField === 'courseModule_0' ? (
                             <InlineEditor
                               initialValue={landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
@@ -3458,7 +3458,7 @@ export default function DynamicAuditLandingPage() {
                           }`}
                         >
                           {/* XL Desktop Table Layout */}
-                          <div className="hidden xl:block">
+                          <div className="hidden lg:block xl:block">
                             <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
                               {/* Table Header */}
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
@@ -3845,7 +3845,7 @@ export default function DynamicAuditLandingPage() {
                               })}
                             </span>
   
-                            <h5 className="hidden xl:block font-medium text-[16px]">
+                            <h5 className="hidden lg:block xl:block font-medium text-[16px]">
                               {editingField === 'courseModule_1' ? (
                                 <InlineEditor
                                   initialValue={landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
@@ -3884,7 +3884,7 @@ export default function DynamicAuditLandingPage() {
                           </button>
                         </div>
                         
-                        <h5 className="font-medium text-[16px] xl:hidden">
+                        <h5 className="font-medium text-[16px] lg:hidden xl:hidden">
                           {editingField === 'courseModule_1' ? (
                             <InlineEditor
                               initialValue={landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
@@ -3911,7 +3911,7 @@ export default function DynamicAuditLandingPage() {
                           }`}
                         >
                           {/* XL Desktop Table Layout */}
-                          <div className="hidden xl:block">
+                          <div className="hidden lg:block xl:block">
                             <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
                               {/* Table Header */}
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
@@ -4236,7 +4236,7 @@ export default function DynamicAuditLandingPage() {
                               })}
                             </span>
   
-                            <h5 className="font-medium text-[16px] hidden xl:block">
+                            <h5 className="font-medium text-[16px] hidden lg:block xl:block">
                               {editingField === 'courseModule_2' ? (
                                 <InlineEditor
                                   initialValue={landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
@@ -4275,7 +4275,7 @@ export default function DynamicAuditLandingPage() {
                           </button>
                         </div>
                         
-                        <h5 className="font-medium text-[16px] xl:hidden">
+                        <h5 className="font-medium text-[16px] lg:hidden xl:hidden">
                           {editingField === 'courseModule_2' ? (
                             <InlineEditor
                               initialValue={landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
@@ -4302,7 +4302,7 @@ export default function DynamicAuditLandingPage() {
                           }`}
                         >
                           {/* XL Desktop Table Layout */}
-                          <div className="hidden xl:block">
+                          <div className="hidden lg:block xl:block">
                             <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
                               {/* Table Header */}
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
@@ -4627,7 +4627,7 @@ export default function DynamicAuditLandingPage() {
                               })}
                             </span>
   
-                            <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
+                            <h5 className="font-medium text-[16px] text-[#09090B] hidden lg:block xl:block">
                               {editingField === 'courseModule_3' ? (
                                 <InlineEditor
                                   initialValue={landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
@@ -4666,7 +4666,7 @@ export default function DynamicAuditLandingPage() {
                           </button>
                         </div>
                         
-                        <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
+                        <h5 className="font-medium text-[16px] text-[#09090B] lg:hidden xl:hidden">
                           {editingField === 'courseModule_3' ? (
                             <InlineEditor
                               initialValue={landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
@@ -4693,7 +4693,7 @@ export default function DynamicAuditLandingPage() {
                           }`}
                         >
                           {/* XL Desktop Table Layout */}
-                          <div className="hidden xl:block">
+                          <div className="hidden lg:block xl:block">
                             <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
                               {/* Table Header */}
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
@@ -5025,20 +5025,20 @@ export default function DynamicAuditLandingPage() {
                 
                 <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   {getLocalizedText(landingPageData?.language, {
-                    en: <>Engage a methodologist to adapt a ready-made<br className="hidden xl:block"/> course template for your business</>,
-                    es: <>Contrata a un metodólogo para adaptar una plantilla<br className="hidden xl:block"/> de curso lista para tu negocio</>,
-                    ua: <>Залучіть методолога для адаптації готового<br className="hidden xl:block"/> шаблону курсу під ваш бізнес</>,
-                    ru: <>Привлеките методолога для адаптации готового<br className="hidden xl:block"/> шаблона курса под ваш бизнес</>
+                    en: <>Engage a methodologist to adapt a ready-made<br className="hidden lg:block xl:block"/> course template for your business</>,
+                    es: <>Contrata a un metodólogo para adaptar una plantilla<br className="hidden lg:block xl:block"/> de curso lista para tu negocio</>,
+                    ua: <>Залучіть методолога для адаптації готового<br className="hidden lg:block xl:block"/> шаблону курсу під ваш бізнес</>,
+                    ru: <>Привлеките методолога для адаптации готового<br className="hidden lg:block xl:block"/> шаблона курса под ваш бизнес</>
                   })}
                 </h3>
   
-                <div className="xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0] xl:bg-white xl:shadow-[0px_4px_12px_rgba(0,0,0,0.08)]">
+                <div className="xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] lg:border xl:border xl:rounded-[4px] lg:border xl:border-[#E0E0E0] xl:bg-white xl:shadow-[0px_4px_12px_rgba(0,0,0,0.08)]">
                   <Image 
                     src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile-new.png"
                     alt="Card 1"
                     width={320}
                     height={300}
-                    className="w-full xl:h-[490px] xl:w-[490px] object-contain"
+                    className="w-full xl:h-[420px] xl:w-[490px] object-contain"
                   />
   
                   <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">
@@ -5075,7 +5075,7 @@ export default function DynamicAuditLandingPage() {
                     <div className="flex flex-col gap-[15px] xl:gap-[10px]">
                       {/* Card 1 */}
                       <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border border-[#F6F6F6] shadow-xs">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M16.3415 8.79931L16.0405 9.27831C16.1665 9.46431 16.2785 9.65932 16.3775 9.8613L16.9425 9.8413C17.3145 9.8273 17.6455 10.0703 17.7435 10.4283C18.0255 11.4583 18.0245 12.5433 17.7435 13.5712C17.6465 13.9302 17.3135 14.1732 16.9425 14.1602L16.3775 14.1392C16.2795 14.3412 16.1665 14.5362 16.0405 14.7222L16.3415 15.2012C16.5385 15.5162 16.4935 15.9262 16.2325 16.1892C15.4825 16.9472 14.5425 17.4902 13.5105 17.7612C13.1515 17.8552 12.7745 17.6902 12.6005 17.3612L12.3354 16.8622C12.1114 16.8772 11.8864 16.8772 11.6624 16.8612L11.3985 17.3612C11.2235 17.6892 10.8475 17.8552 10.4885 17.7612C9.45647 17.4902 8.51546 16.9472 7.76538 16.1892C7.50439 15.9252 7.45938 15.5162 7.65638 15.2012L7.95739 14.7222C7.83139 14.5362 7.71939 14.3412 7.62039 14.1392L7.0554 14.1592C6.6844 14.1732 6.35239 13.9302 6.2544 13.5722C5.97239 12.5422 5.97339 11.4572 6.2544 10.4293C6.3524 10.0703 6.6844 9.82729 7.0554 9.8403L7.62039 9.8613C7.71839 9.6593 7.83139 9.46429 7.95739 9.27831L7.65738 8.79931C7.45938 8.4843 7.50438 8.07432 7.76538 7.8113C8.51538 7.05331 9.45539 6.51031 10.4885 6.23931C10.8474 6.14531 11.2235 6.31031 11.3975 6.63931L11.6625 7.1383C11.8865 7.1233 12.1125 7.1233 12.3355 7.1393L12.6005 6.63931C12.7745 6.31132 13.1505 6.14531 13.5105 6.23931C14.5415 6.51031 15.4825 7.05331 16.2325 7.8113C16.4935 8.07529 16.5385 8.4843 16.3415 8.79931ZM13.1986 9.9233C12.0526 9.26131 10.5836 9.6553 9.92256 10.8013C9.26057 11.9473 9.65356 13.4153 10.7996 14.0773C11.9466 14.7393 13.4146 14.3453 14.0766 13.1993C14.7376 12.0533 14.3446 10.5853 13.1986 9.9233ZM12.3986 11.3093C12.7806 11.5293 12.9106 12.0173 12.6906 12.3993C12.4706 12.7813 11.9816 12.9123 11.5996 12.6913C11.2186 12.4713 11.0876 11.9833 11.3076 11.6013C11.5286 11.2193 12.0166 11.0883 12.3986 11.3093ZM2.03162 7.83821C3.1266 5.22214 5.22163 3.1273 7.8377 2.03315C7.8117 2.21815 7.7987 2.40714 7.7987 2.60014C7.7987 2.99315 7.8537 3.37413 7.9547 3.73514C6.12271 4.63514 4.63361 6.12413 3.73479 7.95607C3.37378 7.85407 2.9928 7.80007 2.59879 7.80007C2.40679 7.80007 2.2176 7.81321 2.03162 7.83821ZM16.1615 2.03315C18.7766 3.12714 20.8724 5.22214 21.9666 7.83821C21.7806 7.81321 21.5916 7.80021 21.3996 7.80021C21.0056 7.80021 20.6246 7.85421 20.2636 7.95621C19.3646 6.12422 17.8746 4.63512 16.0437 3.7363C16.1447 3.37429 16.1987 2.99332 16.1997 2.6003C16.1997 2.4073 16.1865 2.21814 16.1615 2.03315ZM21.9666 16.162C20.8716 18.7781 18.7766 20.873 16.1605 21.9671C16.1865 21.7821 16.1995 21.5931 16.1995 21.4001C16.1995 21.0071 16.1445 20.6261 16.0435 20.2651C17.8755 19.3651 19.3646 17.8761 20.2634 16.0442C20.6254 16.1462 21.0054 16.2002 21.3994 16.2002C21.5924 16.2002 21.7816 16.187 21.9666 16.162ZM7.8377 21.9671C5.22163 20.8731 3.12576 18.7781 2.03162 16.162C2.21762 16.187 2.4066 16.2 2.5986 16.2C2.99261 16.2 3.37359 16.146 3.7346 16.044C4.6336 17.876 6.1236 19.3651 7.95553 20.264C7.85353 20.626 7.79953 21.0069 7.79953 21.4C7.79953 21.593 7.8127 21.7821 7.8377 21.9671ZM11.9997 0C13.4348 0 14.5997 1.165 14.5997 2.59994C14.5997 4.03487 13.4337 5.19987 11.9987 5.19987C10.5637 5.19987 9.39981 4.03487 9.39981 2.59994C9.39981 1.165 10.5638 0 11.9997 0ZM11.9997 18.8001C13.4348 18.8001 14.5987 19.9651 14.5997 21.4001C14.5997 22.8351 13.4347 24 11.9987 24C10.5637 24 9.39878 22.835 9.39878 21.4001C9.39978 19.9651 10.5648 18.8001 11.9997 18.8001ZM21.3998 9.40006C22.8348 9.40006 23.9997 10.5651 23.9987 12C23.9987 13.435 22.8347 14.5999 21.3998 14.5999C19.9638 14.5999 18.7999 13.4349 18.7999 12C18.7989 10.565 19.9649 9.40006 21.3998 9.40006ZM2.59891 9.40006C4.03492 9.40006 5.19987 10.5651 5.19987 12C5.19987 13.4349 4.03387 14.5999 2.59891 14.5999C1.1649 14.5999 0 13.4349 0 12C0 10.5651 1.165 9.40006 2.59891 9.40006Z" fill="#0F58F9"/>
                           </svg>
@@ -5093,7 +5093,7 @@ export default function DynamicAuditLandingPage() {
   
                       {/* Card 2 */}
                       <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border border-[#F6F6F6] shadow-xs">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12.7031 18.2383L15.5326 21.093L21.343 15.2826L18.5136 12.4531L12.7031 18.2383Z" fill="#0F58F9"/>
                             <path d="M23.8486 12L21.8023 9.95373C21.5749 9.72636 21.2465 9.72636 21.0191 9.95373L19.7812 11.1916L22.6107 14.021L23.8486 12.7832C24.0507 12.5811 24.0507 12.2274 23.8486 12Z" fill="#0F58F9"/>
@@ -5114,7 +5114,7 @@ export default function DynamicAuditLandingPage() {
   
                       {/* Card 3 */}
                       <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border border-[#F6F6F6] shadow-xs">
                           <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18.5143 4.87381C18.1546 4.87381 17.7949 4.91032 17.4532 4.98333C17.1655 2.19039 14.8276 0 11.9951 0C9.17167 0 6.83365 2.19054 6.54591 4.98333C6.20871 4.9126 5.87038 4.87609 5.52533 4.87381C3.01998 4.85441 0.858486 6.45053 0.204455 8.90586C-0.788015 12.6309 1.97135 16 5.48504 16H10.8735C11.1219 16 11.3231 15.7958 11.3231 15.5436V10.6322C11.3231 10.6322 10.261 11.7103 10.2576 11.7137C9.65852 12.3218 8.68176 11.3772 9.30446 10.7462L11.5221 8.49524C11.7851 8.22827 12.2122 8.22827 12.4752 8.49524C12.4752 8.49524 14.685 10.7383 14.6928 10.7462C15.2964 11.3589 14.3612 12.3458 13.7397 11.7137L12.673 10.631V15.5425C12.673 15.7946 12.8742 15.9989 13.1226 15.9989H18.329C21.1119 15.9989 23.5972 13.976 23.9534 11.1738C24.3839 7.78433 21.774 4.87384 18.5146 4.87384L18.5143 4.87381Z" fill="#0F58F9"/>
                           </svg>
@@ -5132,7 +5132,7 @@ export default function DynamicAuditLandingPage() {
   
                       {/* Card 4 */}
                       <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border border-[#F6F6F6] shadow-xs">
                           <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18.3489 20.0391H14.1202C13.8936 20.0391 13.7109 20.1893 13.7109 20.374V21.0653C13.7109 21.2499 13.8947 21.4002 14.1202 21.4002H18.3489C18.5755 21.4002 18.7581 21.2499 18.7581 21.0653V20.374C18.7593 20.1894 18.5755 20.0391 18.3489 20.0391Z" fill="#0F58F9"/>
                             <path d="M3.23586 16.1156V14.1211H1.09375L3.23586 16.1156Z" fill="#0F58F9"/>
@@ -5203,7 +5203,7 @@ export default function DynamicAuditLandingPage() {
                       es: 'todo el trabajo operativo:',
                       ua: 'себе всю операційну',
                       ru: 'себя всю операционную'
-                    })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                    })}<br className="hidden lg:block xl:block"/> {getLocalizedText(landingPageData?.language, {
                       en: 'work: from',
                       es: 'desde',
                       ua: 'роботу: від',
@@ -5223,7 +5223,7 @@ export default function DynamicAuditLandingPage() {
                       es: 'y subirlos al',
                       ua: 'і завантаження їх у',
                       ru: 'и загрузки их в'
-                    })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                    })}<br className="hidden lg:block xl:block"/> {getLocalizedText(landingPageData?.language, {
                       en: 'the system.',
                       es: 'sistema.',
                       ua: 'систему.',
@@ -5247,30 +5247,25 @@ export default function DynamicAuditLandingPage() {
                 </div>
                 
                 <h3 className="font-medium text-[22px] xl:text-[38px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                  ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(landingPageData?.language, {
-                    en: 'platform for',
-                    es: 'plataforma para',
-                    ua: 'платформа для',
-                    ru: 'платформа для'
+                  Використайте AI-<br className="xl:hidden"/>{getLocalizedText(landingPageData?.language, {
+                    en: 'tools for',
+                    es: 'herramientas para',
+                    ua: 'інструменти для',
+                    ru: 'инструменты для'
                   })} <br/> {getLocalizedText(landingPageData?.language, {
-                    en: 'automating course creation',
-                    es: 'automatización de creación de cursos',
-                    ua: 'автоматизації створення курсів',
-                    ru: 'автоматизации создания'
+                    en: 'adaptation of ready-made templates',
+                    es: 'adaptación de plantillas predefinidas',
+                    ua: 'адаптації готових шаблонів',
+                    ru: 'адаптации готовых шаблонов'
                   })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'and updating',
-                    es: 'y actualización',
-                    ua: 'і оновлення',
-                    ru: 'и обновления'
-                  })} {getLocalizedText(landingPageData?.language, {
-                    en: 'courses',
-                    es: 'cursos',
-                    ua: 'курсів',
-                    ru: 'курсов'
+                    en: 'for your business',
+                    es: 'para tu negocio',
+                    ua: 'під ваш бізнес',
+                    ru: 'под ваш бизнес'
                   })}
                 </h3>
   
-                <div className="border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] overflow-hidden" 
+                <div className="border border-[#E0E0E0] rounded-[2px] p-7 xl:mb-[40px] overflow-hidden" 
                      style={{boxShadow: 'rgba(42, 51, 70, 0.03) 0px 6.43px 6.43px -2.14px, rgba(42, 51, 70, 0.03) 0px 2.68px 2.68px -1.34px, rgba(42, 51, 70, 0.03) 0px 1.34px 1.34px -0.67px'}}>
                   {isShowing && (<img 
                     src={`/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${
@@ -5285,7 +5280,7 @@ export default function DynamicAuditLandingPage() {
                 </div>
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:rounded-[6px] mb-[15px] xl:mb-[40px]">
-                <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
+                <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] w-full rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
                   <h4 className="font-semibold text-[20px] xl:text-[32px]">
                     {getLocalizedText(landingPageData?.language, {
                       en: 'Platform capabilities:',
@@ -5298,13 +5293,13 @@ export default function DynamicAuditLandingPage() {
                   {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
                   <div className="flex flex-col gap-[20px] xl:flex xl:flex-col xl:gap-x-[70px] xl:gap-y-[30px]">
                     {/* Left Column - Perks 1-4 */}
-                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[810px]">
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[830px]">
                       {/* Perk 1 */}
                   <div className="flex gap-[15px]">
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="20" height="13" viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="22" height="15" viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.8397 9.66293C8.82642 9.46261 8.74345 9.27686 8.60405 9.14572C8.47793 9.02552 8.31861 8.95996 8.15268 8.95996C7.95355 8.95996 7.76438 9.05466 7.63493 9.21857L6.69902 10.4023C6.57953 10.5553 6.51979 10.7483 6.53307 10.9523C6.54635 11.1526 6.62932 11.3384 6.76872 11.4695C6.89483 11.5897 7.05415 11.6553 7.22009 11.6553C7.41922 11.6553 7.60839 11.5606 7.74115 11.3967L8.67707 10.2166C8.79323 10.0599 8.85297 9.8669 8.8397 9.66293Z" fill="white"/>
                         <path d="M7.84603 7.59336C7.72169 7.48114 7.56462 7.41992 7.40102 7.41992H7.35194C7.17197 7.43352 7.0051 7.51854 6.88728 7.66138L5.16613 9.71545C4.92071 10.0079 4.95018 10.4534 5.23484 10.7119C5.35918 10.8241 5.51625 10.8853 5.67332 10.8853C5.69295 10.8853 5.70931 10.8853 5.72567 10.8819C5.90564 10.8683 6.07251 10.7833 6.19033 10.6405L7.91148 8.58639C8.16016 8.29732 8.13071 7.85182 7.84603 7.59336Z" fill="white"/>
                         <path d="M8.98711 10.501H8.94486C8.77886 10.5127 8.62797 10.5861 8.51628 10.7093L8.22354 11.0349C7.99718 11.2872 8.02436 11.6744 8.28692 11.8915C8.4016 11.9883 8.54648 12.0412 8.69737 12.0412H8.73962C8.90562 12.0294 9.05953 11.9561 9.1682 11.8329L9.45793 11.5072C9.56658 11.384 9.6209 11.2285 9.60883 11.0642C9.59676 10.9029 9.52131 10.7533 9.39455 10.6477C9.2859 10.5567 9.13802 10.501 8.98711 10.501Z" fill="white"/>
@@ -5341,7 +5336,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M16.6014 7.78296V16.3851C16.6014 16.7067 16.3178 16.969 15.9697 16.969H10.294C9.65187 16.969 9.08305 17.2721 8.74605 17.7315C8.74012 17.7389 8.70753 17.7456 8.66013 17.75V7.83707H10.6554C10.9175 7.83707 11.1709 7.75038 11.3775 7.59254C11.5841 7.75037 11.8367 7.83707 12.0996 7.83707H16.1257C16.2894 7.83707 16.4479 7.81855 16.6012 7.78298L16.6014 7.78296ZM8.14691 1.64016C8.03803 1.61867 7.92545 1.60756 7.81066 1.60756C6.84561 1.60756 6.06273 2.39078 6.06273 3.35629C6.06273 3.64675 6.13309 3.92019 6.25825 4.161C5.54055 4.32921 5.00581 4.97311 5.00581 5.743C5.00581 6.64034 5.73312 7.36797 6.63005 7.36797H10.6561C10.8435 7.36797 11.0146 7.29536 11.1435 7.17754V1.03323C10.8591 0.563436 10.3428 0.250008 9.75403 0.250008C8.93635 0.250008 8.26024 0.853983 8.14691 1.64016ZM11.6123 7.17746C11.7412 7.29528 11.9123 7.3679 12.0997 7.3679H16.1258C17.0227 7.3679 17.75 6.64026 17.75 5.74292C17.75 4.97303 17.2153 4.32912 16.4976 4.16092C16.6227 3.92011 16.6931 3.64669 16.6931 3.35621C16.6931 2.39072 15.9102 1.60748 14.9451 1.60748C14.8303 1.60748 14.7178 1.61859 14.6089 1.64008C14.4956 0.853904 13.8194 0.25 13.0017 0.25C12.4129 0.25 11.8966 0.563428 11.6122 1.03322L11.6123 7.17746ZM12.8137 4.0705C12.69 4.10681 12.5596 4.03567 12.5233 3.91193C12.487 3.78818 12.5581 3.65778 12.6818 3.62147C13.0359 3.51699 13.4151 3.5696 13.7284 3.76522C14.0054 3.02127 14.9593 2.82194 15.5141 3.37694C15.6059 3.46882 15.6059 3.61701 15.5141 3.7089C15.4222 3.80079 15.2741 3.80078 15.1823 3.7089C14.7882 3.3147 14.1683 3.57775 14.1283 4.1609C14.1942 4.26315 14.2446 4.37504 14.2794 4.49064C14.3727 4.80557 14.3453 5.15678 14.1757 5.46949C14.1646 5.4895 14.152 5.50802 14.1365 5.52358C13.9476 5.71253 13.6262 5.48505 13.7735 5.23015C13.8735 5.03602 13.8883 4.81816 13.8306 4.62254C13.7024 4.18906 13.2469 3.94232 12.8137 4.0705ZM7.57277 3.70815C7.48092 3.80003 7.3328 3.80003 7.24096 3.70815C7.14911 3.61626 7.14911 3.46807 7.24096 3.37619C7.7957 2.82119 8.74891 3.02125 9.02666 3.76447C9.33921 3.56886 9.71842 3.51624 10.0732 3.62072C10.1969 3.65703 10.268 3.78744 10.2317 3.91117C10.1954 4.03492 10.065 4.10604 9.94137 4.06974C9.50808 3.94155 9.05333 4.18756 8.92519 4.62179C8.86594 4.82333 8.88297 5.04637 8.99037 5.24496C9.00889 5.27905 9.01999 5.31758 9.01925 5.35685C9.01925 5.59914 8.68375 5.69251 8.5682 5.44799C8.40822 5.14122 8.38452 4.79814 8.47562 4.4899C8.50969 4.3743 8.56079 4.26242 8.62671 4.16015C8.58672 3.57626 7.96678 3.31395 7.57277 3.70815ZM10.1992 15.4609H14.8275C14.9571 15.4609 15.0622 15.3557 15.0622 15.226C15.0622 15.0963 14.9571 14.9911 14.8275 14.9911H10.1992C10.0696 14.9911 9.96439 15.0963 9.96439 15.226C9.96439 15.3564 10.0696 15.4609 10.1992 15.4609ZM10.1992 13.4395H14.8275C14.9571 13.4395 15.0622 13.3343 15.0622 13.2046C15.0622 13.075 14.9571 12.9697 14.8275 12.9697H10.1992C10.0696 12.9697 9.96439 13.075 9.96439 13.2046C9.96439 13.3343 10.0696 13.4395 10.1992 13.4395ZM10.1992 11.4174H14.8275C14.9571 11.4174 15.0622 11.3122 15.0622 11.1825C15.0622 11.0529 14.9571 10.9476 14.8275 10.9476H10.1992C10.0696 10.9476 9.96439 11.0529 9.96439 11.1825C9.96439 11.3129 10.0696 11.4174 10.1992 11.4174ZM10.1992 9.39606H14.8275C14.9571 9.39606 15.0622 9.29084 15.0622 9.16117C15.0622 9.0315 14.9571 8.92627 14.8275 8.92627H10.1992C10.0696 8.92627 9.96439 9.03149 9.96439 9.16117C9.96439 9.29084 10.0696 9.39606 10.1992 9.39606ZM2.02395 7.37471H5.3176C5.6768 7.66442 6.13305 7.83708 6.63003 7.83708H8.19205V17.7492C8.14391 17.7448 8.11132 17.7389 8.10614 17.7307C7.76916 17.2713 7.20034 16.9683 6.55818 16.9683H0.881766C0.533669 16.9683 0.25 16.706 0.25 16.3844V5.98165C0.25 5.66007 0.533669 5.39776 0.881766 5.39776H4.56505C4.54653 5.51039 4.53616 5.62598 4.53616 5.74306C4.53616 6.17283 4.66577 6.57222 4.88798 6.90492H2.02398C1.89437 6.90492 1.78919 7.01014 1.78919 7.13982C1.78919 7.26949 1.89434 7.37471 2.02395 7.37471ZM2.02395 15.4611H6.65223C6.78184 15.4611 6.88702 15.3559 6.88702 15.2262C6.88702 15.0965 6.78185 14.9913 6.65223 14.9913H2.02395C1.89434 14.9913 1.78917 15.0965 1.78917 15.2262C1.78917 15.3566 1.89434 15.4611 2.02395 15.4611ZM2.02395 13.4397H6.65223C6.78184 13.4397 6.88702 13.3345 6.88702 13.2048C6.88702 13.0752 6.78185 12.9699 6.65223 12.9699H2.02395C1.89434 12.9699 1.78917 13.0752 1.78917 13.2048C1.78917 13.3345 1.89434 13.4397 2.02395 13.4397ZM2.02395 11.4176H6.65223C6.78184 11.4176 6.88702 11.3124 6.88702 11.1827C6.88702 11.053 6.78185 10.9478 6.65223 10.9478H2.02395C1.89434 10.9478 1.78917 11.053 1.78917 11.1827C1.78917 11.3131 1.89434 11.4176 2.02395 11.4176ZM2.02395 9.39625H6.65223C6.78184 9.39625 6.88702 9.29103 6.88702 9.16136C6.88702 9.03169 6.78185 8.92646 6.65223 8.92646H2.02395C1.89434 8.92646 1.78917 9.03168 1.78917 9.16136C1.78917 9.29103 1.89434 9.39625 2.02395 9.39625Z" fill="white"/>
                       </svg>
                     </div>
@@ -5371,7 +5366,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15.875 9.125V5.75C15.8743 5.15347 15.637 4.58157 15.2152 4.15976C14.7934 3.73795 14.2215 3.50068 13.625 3.5H11.375V2.375C11.3743 1.77847 11.137 1.20657 10.7152 0.784763C10.2934 0.362954 9.72153 0.125682 9.125 0.125H6.875C6.27847 0.125682 5.70657 0.362954 5.28476 0.784763C4.86295 1.20657 4.62568 1.77847 4.625 2.375V3.5H2.375C1.77847 3.50068 1.20657 3.73795 0.784763 4.15976C0.362954 4.58157 0.125682 5.15347 0.125 5.75V9.125H15.875ZM5.75 2.375C5.7503 2.07672 5.86892 1.79075 6.07983 1.57983C6.29075 1.36892 6.57672 1.2503 6.875 1.25H9.125C9.42328 1.2503 9.70925 1.36892 9.92017 1.57983C10.1311 1.79075 10.2497 2.07672 10.25 2.375V3.5H5.75V2.375ZM15.875 10.25V13.625C15.8743 14.2215 15.637 14.7934 15.2152 15.2152C14.7934 15.637 14.2215 15.8743 13.625 15.875H2.375C1.77847 15.8743 1.20657 15.637 0.784763 15.2152C0.362954 14.7934 0.125682 14.2215 0.125 13.625V10.25H5.75V10.8125C5.74996 10.8864 5.76448 10.9595 5.79273 11.0278C5.82098 11.0961 5.86241 11.1581 5.91466 11.2103C5.9669 11.2626 6.02892 11.304 6.09719 11.3323C6.16545 11.3605 6.23862 11.375 6.3125 11.375H9.6875C9.76138 11.375 9.83455 11.3605 9.90281 11.3323C9.97108 11.304 10.0331 11.2626 10.0853 11.2103C10.1376 11.1581 10.179 11.0961 10.2073 11.0278C10.2355 10.9595 10.25 10.8864 10.25 10.8125V10.25H15.875Z" fill="white"/>
                       </svg>
                     </div>
@@ -5406,7 +5401,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="22" height="16" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16.7303 5.13219C16.2366 3.93731 15.0978 3.16353 13.8387 3.16353H10.5405V0.855009C10.5405 0.382616 10.1692 0 9.7108 0C9.25238 0 8.88107 0.382616 8.88107 0.855009V3.16139H5.58289C4.3217 3.16139 3.1829 3.93518 2.68921 5.13005L0.569243 10.5102C0.0900728 11.673 0.523607 13.0196 1.58151 13.6566C2.55023 14.2402 3.77823 14.0649 4.55817 13.2355L5.71358 12.0043C6.172 11.5148 6.8026 11.2391 7.46223 11.2391H11.9552C12.6149 11.2391 13.2455 11.5148 13.7039 12.0043L14.8593 13.2355C15.6392 14.067 16.8672 14.2402 17.8359 13.6566C18.8939 13.0196 19.3274 11.6709 18.8461 10.5081L16.7262 5.13005L16.7303 5.13219ZM7.38963 7.80195H6.55783V8.6591C6.55783 8.95408 6.3255 9.19348 6.03924 9.19348C5.75299 9.19348 5.52066 8.95408 5.52066 8.6591V7.80195H4.68886C4.4026 7.80195 4.17028 7.56255 4.17028 7.26757C4.17028 6.97259 4.4026 6.73319 4.68886 6.73319H5.52066V5.87605C5.52066 5.58107 5.75299 5.34167 6.03924 5.34167C6.3255 5.34167 6.55783 5.58107 6.55783 5.87605V6.73319H7.38963C7.67589 6.73319 7.90821 6.97259 7.90821 7.26757C7.90821 7.56255 7.67589 7.80195 7.38963 7.80195ZM12.7538 8.78308C12.4178 9.12935 11.8723 9.12935 11.5362 8.78308C11.2002 8.4368 11.2002 7.87463 11.5362 7.52835C11.8723 7.18207 12.4178 7.18207 12.7538 7.52835C13.0899 7.87463 13.0899 8.4368 12.7538 8.78308ZM14.4797 7.00466C14.1436 7.35094 13.5981 7.35094 13.2621 7.00466C12.926 6.65838 12.926 6.09621 13.2621 5.74993C13.5981 5.40365 14.1436 5.40365 14.4797 5.74993C14.8157 6.09621 14.8157 6.65838 14.4797 7.00466Z" fill="white"/>
                       </svg>
                     </div>
@@ -5444,7 +5439,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="22" height="18" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M1.74999 0.125C0.990321 0.125 0.375 0.748672 0.375 1.51865V4.30596H19.6249V1.51865C19.6249 0.748672 19.0095 0.125 18.2499 0.125H1.74999ZM19.625 14.5262V5.23521H0.375147V14.5262C0.375147 15.2962 0.990467 15.9199 1.75014 15.9199H18.25C19.0097 15.9199 19.625 15.2962 19.625 14.5262ZM7.24995 10.5776C7.24995 10.0643 7.66014 9.64851 8.16661 9.64851H10.6874C11.1939 9.64851 11.6041 10.0643 11.6041 10.5776V12.9004C11.6041 13.4137 11.1939 13.8295 10.6874 13.8295H8.16661C7.66014 13.8295 7.24995 13.4137 7.24995 12.9004V10.5776ZM10.6875 10.5776H8.16667V12.9004H10.6875V10.5776ZM13.896 9.64851C13.3895 9.64851 12.9793 10.0643 12.9793 10.5776V12.9004C12.9793 13.4137 13.3895 13.8295 13.896 13.8295H16.4168C16.9232 13.8295 17.3334 13.4137 17.3334 12.9004V10.5776C17.3334 10.0643 16.9232 9.64851 16.4168 9.64851H13.896ZM13.896 10.5776H16.4168V12.9004H13.896V10.5776ZM7.47933 7.09341C7.22611 7.09341 7.021 7.3013 7.021 7.55796C7.021 7.81462 7.22611 8.02251 7.47933 8.02251H16.875C17.1282 8.02251 17.3334 7.81462 17.3334 7.55796C17.3334 7.3013 17.1282 7.09341 16.875 7.09341H7.47933ZM2.89603 10.8098C2.89603 10.5532 3.10114 10.3453 3.35436 10.3453H5.41683C5.67006 10.3453 5.87516 10.5532 5.87516 10.8098C5.87516 11.0665 5.67006 11.2744 5.41683 11.2744H3.35436C3.10114 11.2744 2.89603 11.0665 2.89603 10.8098ZM3.35436 12.9003C3.10114 12.9003 2.89603 13.1082 2.89603 13.3648C2.89603 13.6215 3.10114 13.8294 3.35436 13.8294H5.41683C5.67006 13.8294 5.87516 13.6215 5.87516 13.3648C5.87516 13.1082 5.67006 12.9003 5.41683 12.9003H3.35436ZM18.0209 2.21546C18.0209 2.59989 17.7127 2.9123 17.3334 2.9123C16.9541 2.9123 16.6459 2.59989 16.6459 2.21546C16.6459 1.83104 16.9541 1.51862 17.3334 1.51862C17.7127 1.51862 18.0209 1.83104 18.0209 2.21546ZM3.81255 8.25447C4.19182 8.25447 4.50006 7.94206 4.50006 7.55763C4.50006 7.17321 4.19182 6.86079 3.81255 6.86079C3.43327 6.86079 3.12504 7.17321 3.12504 7.55763C3.12504 7.94206 3.43327 8.25447 3.81255 8.25447ZM14.8125 2.21546C14.8125 2.59989 14.5042 2.9123 14.125 2.9123C13.7457 2.9123 13.4374 2.59989 13.4374 2.21546C13.4374 1.83104 13.7457 1.51862 14.125 1.51862C14.5042 1.51862 14.8125 1.83104 14.8125 2.21546Z" fill="white"/>
                       </svg>
                     </div>
@@ -5474,7 +5469,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.5124 8.68801C13.0797 7.46398 12.1578 6.5412 10.9337 2.10925C10.8948 1.9683 10.7668 1.87109 10.621 1.87109C10.4752 1.87109 10.3472 1.9683 10.3083 2.10925C9.08427 6.54203 8.16148 7.46384 3.72954 8.68801C3.58858 8.72689 3.49219 8.85489 3.49219 9.0007C3.49219 9.14651 3.5894 9.2745 3.72954 9.31339C8.16231 10.5374 9.08412 11.4602 10.3083 15.8921C10.3472 16.0331 10.4752 16.1303 10.621 16.1303C10.7668 16.1303 10.8948 16.0331 10.9337 15.8921C12.1577 11.4594 13.0805 10.5376 17.5124 9.31339C17.6534 9.2745 17.7498 9.14651 17.7498 9.0007C17.7498 8.85489 17.6526 8.72689 17.5124 8.68801Z" fill="white"/>
                         <path d="M3.50164 7.14211C3.54052 7.28307 3.66851 7.38027 3.81433 7.38027C3.96014 7.38027 4.08813 7.28306 4.12702 7.14211C4.69408 5.08937 5.08858 4.6948 7.1413 4.12782C7.28226 4.08894 7.37865 3.96095 7.37865 3.81513C7.37865 3.66932 7.28144 3.54133 7.1413 3.50244C5.08856 2.93538 4.694 2.54169 4.12702 0.488157C4.08813 0.347202 3.96014 0.25 3.81433 0.25C3.66851 0.25 3.54052 0.34721 3.50164 0.488157C2.93457 2.5409 2.54007 2.93546 0.487348 3.50244C0.346393 3.54133 0.25 3.66932 0.25 3.81513C0.25 3.96095 0.34721 4.08894 0.487348 4.12782C2.54009 4.69489 2.93466 5.08858 3.50164 7.14211Z" fill="white"/>
                         <path d="M7.62222 14.3581C5.89998 13.8826 5.56948 13.5521 5.09404 11.83C5.05515 11.689 4.92716 11.5918 4.78135 11.5918C4.63554 11.5918 4.50754 11.689 4.46866 11.83C3.99313 13.5522 3.66263 13.8827 1.94047 14.3581C1.79952 14.397 1.70312 14.525 1.70312 14.6708C1.70312 14.8166 1.80033 14.9446 1.94047 14.9835C3.66271 15.459 3.99322 15.7895 4.46866 17.5117C4.50754 17.6527 4.63554 17.7499 4.78135 17.7499C4.92716 17.7499 5.05515 17.6527 5.09404 17.5117C5.56956 15.7895 5.90007 15.459 7.62222 14.9835C7.76318 14.9446 7.85957 14.8166 7.85957 14.6708C7.85957 14.525 7.76236 14.397 7.62222 14.3581Z" fill="white"/>
@@ -5511,7 +5506,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="21" height="20" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6.15865 4.69118L7.1962 6.48006H5.12334L6.15865 4.69118ZM7.66131 7.294L7.58305 7.15536H4.73649L3.98964 8.4523C3.96001 8.50317 3.91759 8.5454 3.8666 8.57482C3.81561 8.60424 3.75781 8.61982 3.69894 8.62C3.63999 8.62084 3.58195 8.60536 3.53124 8.57528C3.45708 8.53093 3.4029 8.45967 3.37998 8.37636C3.35707 8.29304 3.3672 8.20409 3.40825 8.12806L5.8702 3.85264C5.89961 3.80155 5.94196 3.75911 5.993 3.72961C6.04403 3.7001 6.10194 3.68456 6.16089 3.68456C6.21984 3.68456 6.27775 3.7001 6.32878 3.72961C6.37982 3.75911 6.42217 3.80155 6.45158 3.85264L8.17114 6.82218C9.24911 5.9031 10.5966 5.35924 12.0105 5.27256C11.8709 4.35359 11.5166 3.48049 10.9762 2.72419C10.4358 1.9679 9.72467 1.34972 8.90052 0.919881C8.07636 0.490041 7.16244 0.260658 6.23298 0.250363C5.30353 0.240067 4.38475 0.44915 3.55127 0.860629C2.7178 1.27211 1.99313 1.87438 1.43613 2.61852C0.879133 3.36267 0.505512 4.2277 0.345615 5.14336C0.185718 6.05901 0.244054 6.99948 0.515885 7.88835C0.787715 8.77723 1.26538 9.58946 1.91007 10.2591L0.378338 11.4554C0.323393 11.4985 0.283279 11.5577 0.263595 11.6247C0.243911 11.6917 0.245639 11.7632 0.268537 11.8292C0.291435 11.8952 0.334361 11.9524 0.391325 11.9928C0.44829 12.0332 0.51645 12.0548 0.586296 12.0547H5.84113C5.84113 11.9786 5.84113 11.9048 5.84113 11.831C5.84062 10.1402 6.49358 8.51465 7.66355 7.294H7.66131ZM11.0915 10.6481C11.3211 11.5526 11.7783 12.3832 12.4197 13.0609C13.0562 12.3788 13.5127 11.5488 13.748 10.6459L11.0915 10.6481ZM18.2 17.1507C18.255 17.1938 18.2951 17.253 18.3148 17.3201C18.3345 17.3871 18.3327 17.4586 18.3098 17.5245C18.2869 17.5905 18.244 17.6477 18.1871 17.6881C18.1301 17.7286 18.0619 17.7502 17.9921 17.75H12.4197C11.0525 17.7521 9.72668 17.2815 8.66688 16.4178C7.60708 15.554 6.87854 14.3504 6.60477 13.0109C6.33099 11.6714 6.52882 10.2785 7.16472 9.0682C7.80063 7.85791 8.83547 6.90473 10.0939 6.37025C11.3522 5.83577 12.7567 5.75287 14.0692 6.1356C15.3818 6.51833 16.5215 7.34314 17.2954 8.47022C18.0693 9.59731 18.4296 10.9573 18.3153 12.3197C18.201 13.6821 17.6192 14.9631 16.6683 15.9455L18.2 17.1507ZM12.9206 13.4925C13.6567 12.6864 14.1768 11.7072 14.4322 10.6459H15.0114C15.1003 10.6459 15.1856 10.6106 15.2485 10.5477C15.3114 10.4848 15.3468 10.3995 15.3468 10.3105C15.3468 10.2215 15.3114 10.1362 15.2485 10.0733C15.1856 10.0104 15.1003 9.97508 15.0114 9.97508H12.7529V9.18797C12.7529 9.09901 12.7176 9.0137 12.6547 8.9508C12.5918 8.8879 12.5064 8.85256 12.4175 8.85256C12.3285 8.85256 12.2432 8.8879 12.1803 8.9508C12.1174 9.0137 12.0821 9.09901 12.0821 9.18797V9.97508H9.82809C9.73913 9.97508 9.65382 10.0104 9.59092 10.0733C9.52801 10.1362 9.49267 10.2215 9.49267 10.3105C9.49267 10.3995 9.52801 10.4848 9.59092 10.5477C9.65382 10.6106 9.73913 10.6459 9.82809 10.6459H10.4072C10.66 11.7045 11.1761 12.6821 11.9077 13.488C11.3171 13.9041 10.6173 14.1374 9.89517 14.1588C9.80622 14.1606 9.72161 14.1976 9.65996 14.2618C9.59832 14.326 9.56469 14.412 9.56647 14.5009C9.56825 14.5899 9.60529 14.6745 9.66945 14.7362C9.73361 14.7978 9.81963 14.8314 9.90859 14.8296H9.92424C10.8284 14.8039 11.7015 14.4941 12.4197 13.9442C13.136 14.4907 14.0057 14.7988 14.9063 14.8252H14.9219C14.966 14.8261 15.0098 14.8183 15.0508 14.8022C15.0918 14.7862 15.1293 14.7622 15.1611 14.7317C15.1928 14.7012 15.2183 14.6647 15.2359 14.6243C15.2536 14.584 15.2632 14.5405 15.264 14.4965C15.2649 14.4524 15.2571 14.4086 15.2411 14.3676C15.225 14.3266 15.2011 14.2891 15.1705 14.2573C15.14 14.2256 15.1035 14.2001 15.0632 14.1824C15.0228 14.1648 14.9794 14.1552 14.9353 14.1543C14.2137 14.1345 13.5135 13.9044 12.9206 13.4925Z" fill="white"/>
                       </svg>
                     </div>
@@ -5551,7 +5546,7 @@ export default function DynamicAuditLandingPage() {
                     <div 
                       className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
                     >
-                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="22" height="18" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5.84232 8.69152C6.35498 8.69152 6.77058 8.27395 6.77058 7.75885C6.77058 7.24374 6.35498 6.82617 5.84232 6.82617C5.32966 6.82617 4.91406 7.24374 4.91406 7.75885C4.91406 8.27395 5.32966 8.69152 5.84232 8.69152Z" fill="white"/>
                         <path d="M8.08576 12.735C8.08576 11.4542 7.07123 10.4121 5.8241 10.4121C4.57707 10.4121 3.5625 11.4542 3.5625 12.735V12.9347H8.08571L8.08576 12.735Z" fill="white"/>
                         <path d="M8.21875 2.32121C8.21875 3.365 9.06392 4.2142 10.1028 4.2142C11.1416 4.2142 11.9868 3.365 11.9868 2.32121V0.125H8.21875V2.32121Z" fill="white"/>
@@ -5582,7 +5577,7 @@ export default function DynamicAuditLandingPage() {
                   </div>
                 </div>
   
-                  <div className="w-[300px] h-[234px] px-[10px] border border-[#E0E0E0] rounded-[6px] xl:hidden">
+                  <div className="w-[300px] h-[234px] px-[10px] border border-[#E0E0E0] rounded-[6px] lg:hidden xl:hidden">
                     <Image 
                       src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
                       alt="Card 1"
@@ -5597,7 +5592,7 @@ export default function DynamicAuditLandingPage() {
                     alt="Card 1"
                     width={560}
                     height={437}
-                    className="hidden xl:block"
+                    className="hidden lg:block xl:block"
                   />}
                 </div>
   
@@ -5640,7 +5635,7 @@ export default function DynamicAuditLandingPage() {
                             es: 'materiales',
                             ua: 'матеріали',
                             ru: 'материалы'
-                          })}</span><br className="hidden xl:block"/> ({getLocalizedText(landingPageData?.language, {
+                          })}</span><br className="hidden lg:block xl:block"/> ({getLocalizedText(landingPageData?.language, {
                             en: 'texts,',
                             es: 'textos,',
                             ua: 'тексти,',
@@ -5673,7 +5668,7 @@ export default function DynamicAuditLandingPage() {
                           alt="Upload"
                           width={410}
                           height={175}
-                          className="hidden xl:block"
+                          className="hidden lg:block xl:block"
                         />
                       </div>
                     </div>
@@ -5704,7 +5699,7 @@ export default function DynamicAuditLandingPage() {
                             es: 'lecciones,',
                             ua: 'уроки,',
                             ru: 'уроки,'
-                          })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                          })}<br className="hidden lg:block xl:block"/> {getLocalizedText(landingPageData?.language, {
                             en: 'tests,',
                             es: 'pruebas,',
                             ua: 'тести,',
@@ -5737,7 +5732,7 @@ export default function DynamicAuditLandingPage() {
                           alt="Upload"
                           width={375}
                           height={175}
-                          className="hidden xl:block"
+                          className="hidden lg:block xl:block"
                         />
                       </div>
                     </div>
@@ -5795,7 +5790,7 @@ export default function DynamicAuditLandingPage() {
                 <div 
                     className="xl:w-full rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
-                    <h4 className="font-semibold text-[20px] xl:text-[32px]">
+                    <h4 className="font-medium text-[20px] xl:text-[30px]">
                         {getLocalizedText(landingPageData?.language, {
                           en: 'How LMS helps business:',
                           es: 'Cómo ayuda un LMS a las empresas:',
@@ -5810,7 +5805,7 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="28" height="26" viewBox="0 0 28 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="24" height="22" viewBox="0 0 28 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M8.434 20.821L5.16181 17.722L4.31226 18.5266L7.58446 21.6256L8.434 20.821ZM19.7753 17.3151C18.1425 18.5281 16.277 19.631 14.1791 20.6206C14.3567 21.6715 14.2631 22.7575 13.8981 23.8803C13.7026 24.4829 13.4281 25.0933 13.0744 25.7143C16.2222 24.0347 16.9829 23.5529 19.139 21.8504C19.4879 20.8929 19.6995 19.9736 19.7819 19.0788C19.8384 18.4838 19.8351 17.8964 19.7753 17.3151ZM24.0228 2.91811C24.446 3.31886 24.9596 3.60491 25.512 3.76244C25.9529 3.88787 26.418 3.93376 26.8816 3.89093C27.0786 2.64886 27.1642 1.35327 27.1384 0.0041387C25.6993 -0.0203353 24.3152 0.0637928 22.9893 0.254996C22.9521 0.680217 23.0006 1.10395 23.1298 1.50623C23.2961 2.03244 23.598 2.51732 24.0228 2.91811ZM5.36858 12.284C6.41353 10.2986 7.5764 8.53186 8.85718 6.9855C8.24827 6.93043 7.63296 6.9289 7.00627 6.97938C6.06142 7.05739 5.09077 7.25777 4.07973 7.58818C2.28211 9.63021 1.77178 10.3522 0 13.3319C0.655712 12.9969 1.30175 12.7369 1.9365 12.5518C3.11876 12.2061 4.26223 12.1173 5.36858 12.284ZM14.526 8.23034C15.6113 7.20243 17.3702 7.20243 18.4539 8.23034C19.5392 9.25825 19.5392 10.924 18.4539 11.9519C17.3685 12.9798 15.6097 12.9798 14.526 11.9519C13.4406 10.924 13.4406 9.25825 14.526 8.23034ZM23.1943 12.3772C20.4147 15.9076 16.1637 18.7557 10.4381 20.9216L5.05352 15.822C5.43469 14.9195 5.83522 14.0568 6.25513 13.2308C6.26644 13.2109 6.27613 13.191 6.28582 13.1711C7.51492 10.7712 8.91359 8.70003 10.4816 6.95631C10.493 6.94407 10.5059 6.93183 10.5172 6.91807C11.6203 5.69742 12.8074 4.6374 14.0769 3.74102C16.3557 2.13185 18.9123 1.04124 21.7437 0.472193C21.7356 0.940255 21.8051 1.40221 21.9456 1.84427C22.1717 2.55401 22.5787 3.21176 23.1472 3.75019C23.7157 4.28862 24.4102 4.67562 25.1596 4.88821C25.6409 5.02588 26.1464 5.09012 26.6584 5.07941C26.056 7.77461 24.9014 10.2082 23.1943 12.3772Z" fill="white"/>
                         </svg>
                       </div>
@@ -5839,7 +5834,7 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="16" height="26" viewBox="0 0 16 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="12" height="22" viewBox="0 0 16 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2.29824 1.14912C2.29824 0.513728 1.78045 0 1.14912 0C0.517786 0 0 0.513728 0 1.14912C0 1.58632 0.250915 1.96439 0.613177 2.15842L0.390547 24.9557C0.390547 25.3745 0.730348 25.7143 1.14915 25.7143C1.56795 25.7143 1.90775 25.3745 1.90775 24.9557L1.68915 2.15616C2.04912 1.96147 2.29824 1.58465 2.29824 1.14912Z" fill="white"/>
                         <path d="M15.2888 2.96126C15.2659 2.97967 12.954 4.83667 9.86504 3.94968C9.4651 3.83477 9.08354 3.71987 8.72041 3.60496C6.51889 2.92467 4.8457 2.40512 2.29004 3.65075L2.37734 13.184C4.84124 11.9567 6.39928 12.4393 8.61941 13.1288C8.98254 13.2392 9.3641 13.3586 9.76853 13.4735C13.0274 14.4112 15.4084 12.5037 15.5097 12.4209L15.5739 12.3704V2.73145L15.2888 2.96126Z" fill="white"/>
                         </svg>
@@ -5869,7 +5864,7 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="17" height="23" viewBox="0 0 17 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="13" height="20" viewBox="0 0 17 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5.30859 6.30323C5.34584 6.29966 5.38359 6.29048 5.41982 6.27619C5.4438 6.26599 5.46676 6.25425 5.48768 6.24048C5.46625 6.25425 5.4438 6.26599 5.41982 6.27568C5.38359 6.29048 5.34584 6.29966 5.30859 6.30323Z" fill="white"/>
                         <path d="M14.6149 16.7969C14.6006 16.8173 14.5843 16.8367 14.5664 16.854C14.5843 16.8367 14.6006 16.8178 14.6149 16.7969Z" fill="white"/>
                         <path d="M4.55167 5.19214H3.30371V5.19265H4.55167V5.19214Z" fill="white"/>
@@ -5909,24 +5904,8 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="51" height="51" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_d_1715_15155)">
-                        <rect x="4.04785" y="4.04761" width="40" height="40" rx="4" fill="#0F58F9"/>
-                        <path d="M19.1882 33.3284C19.1867 34.9982 19.9951 36.5594 21.3418 37.4888C22.6885 38.4166 24.3976 38.5921 25.8958 37.9542C27.3927 37.3164 28.4839 35.9499 28.8001 34.3114C29.1176 32.6743 28.6196 30.9822 27.4735 29.8C24.425 26.6612 19.1882 28.8945 19.1882 33.3284ZM26.8458 32.0987L23.65 35.3788C23.549 35.4874 23.409 35.5483 23.2632 35.5483C23.1174 35.5483 22.9774 35.4873 22.8749 35.3788L21.251 33.7061H21.2524C21.0403 33.4816 21.0431 33.1247 21.2582 32.9031C21.4718 32.6816 21.8197 32.6786 22.0377 32.8972L23.2632 34.17L26.0606 31.2884V31.2899C26.2771 31.0698 26.6264 31.0713 26.8415 31.2929C27.0566 31.5159 27.058 31.8742 26.8458 32.0987ZM18.4768 31.1382C17.5689 31.1412 16.6985 30.7724 16.0561 30.1138C13.4276 27.3942 16.329 22.9158 19.7643 24.3299C20.0472 24.4444 20.3677 24.3016 20.4803 24.0102C20.5929 23.7203 20.4557 23.3902 20.1728 23.2727C19.0152 22.7939 17.7175 22.8266 16.5844 23.3634C15.4513 23.9002 14.5823 24.8934 14.1811 26.1097C11.8455 24.5559 12.3161 21.124 14.3586 20.0567C15.1338 19.6567 14.0338 18.5029 15.4585 16.7543C16.7057 15.2436 17.7522 15.9127 17.9615 15.1247L17.9629 15.1262C18.3021 13.9828 19.1798 13.0921 20.2941 12.759C21.4099 12.426 22.6137 12.6951 23.4943 13.4757V27.2219C22.3857 27.326 21.3276 27.7482 20.4414 28.4411C19.5536 29.1325 18.8738 30.0677 18.4768 31.1382ZM33.906 26.1095C33.5061 24.8918 32.6372 23.8971 31.5041 23.3603C30.3695 22.8235 29.0718 22.7923 27.9142 23.2725C27.6356 23.3915 27.5028 23.7201 27.614 24.0086C27.7251 24.297 28.0412 24.4397 28.3227 24.3297C29.2711 23.9357 30.3406 23.9981 31.2399 24.4992C32.1392 25.0018 32.7743 25.8909 32.9721 26.9243C33.1684 27.9577 32.9086 29.0283 32.2604 29.8446C31.6123 30.6594 30.6438 31.1337 29.6218 31.1382C29.222 30.0691 28.5407 29.1368 27.6544 28.4439C26.7681 27.7525 25.7115 27.3288 24.6044 27.2217V13.4756C25.4849 12.6964 26.6873 12.4288 27.803 12.7619C28.9174 13.0949 29.7936 13.9826 30.1342 15.126C30.3334 15.9141 31.3814 15.245 32.6271 16.7556C34.0619 18.5042 32.962 19.658 33.7371 20.058C35.781 21.1256 36.2516 24.5558 33.906 26.1095Z" fill="white"/>
-                        </g>
-                        <defs>
-                        <filter id="filter0_d_1715_15155" x="0.000345707" y="0.000101566" width="50.1188" height="50.1188" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                        <feMorphology radius="1.01188" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_1715_15155"/>
-                        <feOffset dx="1.01188" dy="1.01188"/>
-                        <feGaussianBlur stdDeviation="2.02375"/>
-                        <feComposite in2="hardAlpha" operator="out"/>
-                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
-                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1715_15155"/>
-                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1715_15155" result="shape"/>
-                        </filter>
-                        </defs>
+                        <svg width="21" height="24" viewBox="0 0 23 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.56902 20.7095C6.56758 22.3793 7.37592 23.9405 8.72265 24.8699C10.0694 25.7977 11.7784 25.9732 13.2767 25.3353C14.7735 24.6975 15.8648 23.331 16.1809 21.6925C16.4985 20.0554 16.0005 18.3633 14.8544 17.1811C11.8058 14.0423 6.56902 16.2756 6.56902 20.7095ZM14.2267 19.4798L11.0309 22.7599C10.9298 22.8685 10.7898 22.9294 10.644 22.9294C10.4982 22.9294 10.3582 22.8685 10.2557 22.7599L8.63186 21.0872H8.6333C8.42111 20.8627 8.424 20.5058 8.63908 20.2842C8.85271 20.0627 9.20057 20.0597 9.41855 20.2783L10.644 21.5511L13.4415 18.6695V18.671C13.658 18.4509 14.0073 18.4524 14.2224 18.674C14.4374 18.897 14.4389 19.2553 14.2267 19.4798ZM5.85769 18.5193C4.94976 18.5223 4.07935 18.1535 3.437 17.4949C0.808463 14.7754 3.70982 10.2969 7.14519 11.711C7.4281 11.8255 7.74855 11.6827 7.86114 11.3913C7.97373 11.1014 7.8366 10.7713 7.55368 10.6538C6.39604 10.175 5.09838 10.2077 3.96527 10.7445C2.83216 11.2813 1.96318 12.2745 1.56191 13.4908C-0.773594 11.937 -0.303042 8.50511 1.73946 7.43779C2.51461 7.03781 1.41468 5.884 2.83939 4.13541C4.08653 2.62471 5.13303 3.29384 5.34233 2.5058L5.34377 2.50728C5.68298 1.36387 6.56062 0.473203 7.67495 0.14014C8.79074 -0.192922 9.99457 0.0762039 10.8751 0.856815V14.603C9.76654 14.7071 8.70848 15.1293 7.82221 15.8222C6.9345 16.5136 6.25463 17.4488 5.85769 18.5193ZM21.2868 13.4906C20.887 12.2729 20.018 11.2782 18.8849 10.7414C17.7504 10.2046 16.4527 10.1734 15.2951 10.6536C15.0165 10.7726 14.8837 11.1012 14.9948 11.3897C15.106 11.6781 15.4221 11.8209 15.7036 11.7108C16.6519 11.3168 17.7215 11.3793 18.6208 11.8803C19.5201 12.3829 20.1552 13.272 20.3529 14.3054C20.5492 15.3388 20.2894 16.4094 19.6413 17.2257C18.9932 18.0405 18.0246 18.5148 17.0027 18.5193C16.6028 17.4502 15.9215 16.5179 15.0352 15.825C14.149 15.1336 13.0924 14.7099 11.9852 14.6028V0.85668C12.8657 0.077542 14.0681 -0.190088 15.1839 0.142975C16.2982 0.476037 17.1744 1.3637 17.5151 2.50711C17.7143 3.29516 18.7622 2.62606 20.0079 4.13672C21.4427 5.88532 20.3428 7.03912 21.118 7.4391C23.1619 8.50669 23.6325 11.9369 21.2868 13.4906Z" fill="white"/>
                         </svg>
                       </div>
   
@@ -5954,7 +5933,7 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M1.17461 0C1.82308 0 2.34921 0.546749 2.34921 1.22064V16.1391C2.34921 17.712 3.57644 18.9873 5.08996 18.9873H19.4471C20.0956 18.9873 20.6217 19.534 20.6217 20.2079C20.6217 20.8818 20.0956 21.4286 19.4471 21.4286H5.08996C2.27945 21.4286 0 19.0611 0 16.1391V1.22064C0 0.546749 0.526129 0 1.17461 0ZM18.4476 5.97723L19.1401 8.11462C19.3469 8.75417 20.0137 9.09748 20.6279 8.88261C21.2433 8.66646 21.5737 7.97475 21.3669 7.3352L19.7568 2.37126C19.5524 1.73806 18.8954 1.39348 18.2836 1.59819L13.4543 3.21682C12.8376 3.42408 12.4975 4.11196 12.6969 4.75281C12.8963 5.39493 13.5583 5.74713 14.1749 5.53988L16.3883 4.79861L13.7871 10.0282L10.864 7.60595C10.6022 7.38853 10.2645 7.29825 9.93412 7.35674C9.60376 7.4165 9.31255 7.61867 9.13514 7.91364L5.39958 14.1363C5.05575 14.7085 5.22339 15.4612 5.77398 15.8185C6.32458 16.1758 7.04892 16.0016 7.39152 15.4294L10.4308 10.3688L13.4407 12.8648C13.716 13.0924 14.0745 13.1801 14.4184 13.1038C14.7622 13.0275 15.0558 12.7949 15.2173 12.4706L18.4476 5.97723Z" fill="white"/>
                         </svg>
                       </div>
@@ -5983,7 +5962,7 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="26" height="25" viewBox="0 0 26 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="22" height="21" viewBox="0 0 26 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.12918 14.8232C1.9763 14.8232 1.0293 15.8883 1.0293 17.1581V21.9098C1.0293 23.1797 1.9763 24.2447 3.12918 24.2447C4.28206 24.2447 5.22907 23.1797 5.22907 21.9098V17.1581C5.22907 15.8883 4.28206 14.8232 3.12918 14.8232Z" fill="white"/>
                         <path d="M15.8929 13.1028C14.74 13.1028 13.793 14.1678 13.793 15.4377V21.9508C13.793 23.2207 14.74 24.2857 15.8929 24.2857C17.0457 24.2857 17.9927 23.2207 17.9927 21.9508V15.4377C17.9927 14.1269 17.0457 13.1028 15.8929 13.1028Z" fill="white"/>
                         <path d="M9.63406 10.8503C8.48118 10.8503 7.53418 11.9154 7.53418 13.1852V21.9513C7.53418 23.2212 8.48118 24.2862 9.63406 24.2862C10.7869 24.2862 11.734 23.2212 11.734 21.9513V13.1852C11.734 11.9154 10.7869 10.8503 9.63406 10.8503Z" fill="white"/>
@@ -6016,7 +5995,7 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="22" height="22" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.6963 16.5588C19.9534 16.0875 20.1581 15.5876 20.3105 15.0687H21.9006C22.1625 15.0687 22.3767 14.8592 22.3767 14.5926V11.1172C22.3767 10.8505 22.1625 10.6411 21.9006 10.6411H20.3105C20.1581 10.1221 19.9534 9.62221 19.6963 9.1509L20.8199 8.02731C21.0056 7.83688 21.0056 7.53693 20.8199 7.35124L18.3585 4.88984C18.1728 4.70417 17.8729 4.70417 17.6824 4.88984L16.5588 6.01343C16.0875 5.75634 15.5876 5.55162 15.0687 5.39927V3.8091C15.0687 3.54725 14.8592 3.33301 14.5926 3.33301H11.1172C10.8505 3.33301 10.6411 3.54725 10.6411 3.8091V5.39927C10.1221 5.55162 9.62221 5.75635 9.1509 6.01343L8.02731 4.88984C7.83688 4.70417 7.53693 4.70417 7.35124 4.88984L4.88984 7.35124C4.70417 7.53692 4.70417 7.83688 4.88984 8.02731L6.01343 9.1509C5.75634 9.62224 5.55162 10.1221 5.39927 10.6411H3.8091C3.54725 10.6411 3.33301 10.8505 3.33301 11.1172V14.5926C3.33301 14.8592 3.54725 15.0687 3.8091 15.0687H5.39927C5.55162 15.5876 5.75635 16.0875 6.01343 16.5588L4.88984 17.6824C4.70417 17.8729 4.70417 18.1728 4.88984 18.3585L7.35124 20.8199C7.44646 20.9103 7.56549 20.958 7.68928 20.958C7.81307 20.958 7.93209 20.9103 8.02731 20.8199L9.1509 19.6963C9.62224 19.9534 10.1221 20.1581 10.6411 20.3105V21.9006C10.6411 22.1625 10.8505 22.3767 11.1172 22.3767H14.5926C14.8592 22.3767 15.0687 22.1625 15.0687 21.9006V20.3105C15.5876 20.1581 16.0875 19.9534 16.5588 19.6963L17.6824 20.8199C17.7776 20.9103 17.9014 20.958 18.0205 20.958C18.1395 20.958 18.2633 20.9103 18.3585 20.8199L20.8199 18.3585C21.0056 18.1728 21.0056 17.8729 20.8199 17.6824L19.6963 16.5588ZM7.85595 12.8549C7.85595 10.0983 10.0984 7.85598 12.8549 7.85598C15.6114 7.85598 17.8538 10.0984 17.8538 12.8549C17.8538 15.6114 15.6114 17.8538 12.8549 17.8538C10.0984 17.8538 7.85595 15.6114 7.85595 12.8549Z" fill="white"/>
                         <path d="M14.6729 11.0601C14.4491 10.922 14.1539 10.9886 14.0159 11.2124L12.5924 13.4882L11.6259 12.5169C11.4402 12.3312 11.1402 12.3312 10.9498 12.5169C10.7641 12.7026 10.7641 13.0073 10.9498 13.193L12.3448 14.5832C12.4352 14.6736 12.5542 14.7213 12.678 14.7213H12.7352C12.878 14.7022 13.0065 14.6213 13.0827 14.4975L14.8252 11.7171C14.9633 11.4933 14.8966 11.1981 14.6729 11.0601Z" fill="white"/>
                         <path d="M15.4447 24.4719C11.4455 25.3622 7.33204 24.1672 4.43738 21.2725C2.19022 19.0254 0.952219 16.0353 0.952219 12.8552C0.952219 10.0843 1.8949 7.45619 3.62786 5.3376V6.12315C3.62786 6.38501 3.8421 6.59925 4.10395 6.59925C4.3658 6.59925 4.58004 6.38501 4.58004 6.12315V4.10451C4.58004 4.04262 4.56576 3.98073 4.54196 3.9236C4.49435 3.80933 4.39913 3.71411 4.28487 3.66651C4.22773 3.6427 4.16584 3.62842 4.10395 3.62842H2.08531C1.82346 3.62842 1.60921 3.84266 1.60921 4.10451C1.60921 4.36637 1.82346 4.58061 2.08531 4.58061H3.02321C1.06645 6.89444 0 9.79373 0 12.8551C0 16.2878 1.33782 19.5155 3.76579 21.9437C6.20815 24.386 9.46004 25.7094 12.8258 25.7094C13.7637 25.7094 14.7111 25.6047 15.649 25.3952C15.9061 25.3381 16.068 25.0858 16.0108 24.8287C15.9537 24.5716 15.7014 24.4097 15.4443 24.4669L15.4447 24.4719Z" fill="white"/>
@@ -6048,24 +6027,8 @@ export default function DynamicAuditLandingPage() {
                         className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
                         style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                       >
-                        <svg width="51" height="51" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_d_1715_15180)">
-                        <rect x="4.04785" y="4.04736" width="40" height="40" rx="4" fill="#0F58F9"/>
-                        <path d="M33.1333 33.1333C38.1619 28.1047 38.1619 19.9619 33.1333 14.9619C28.1047 9.93329 19.9619 9.93329 14.9619 14.9619C9.93329 19.9904 9.93329 28.1333 14.9619 33.1333C19.9904 38.1619 28.1047 38.1619 33.1333 33.1333ZM17.9904 25.1904L19.4476 26.6476L26.6761 19.419L25.1904 17.9904H30.1047V22.9047L28.6476 21.4476L21.4476 28.6761L22.9047 30.1333H17.9904V25.1904Z" fill="white"/>
-                        </g>
-                        <defs>
-                        <filter id="filter0_d_1715_15180" x="0.000345707" y="-0.000142574" width="50.1188" height="50.1188" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                        <feMorphology radius="1.01188" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_1715_15180"/>
-                        <feOffset dx="1.01188" dy="1.01188"/>
-                        <feGaussianBlur stdDeviation="2.02375"/>
-                        <feComposite in2="hardAlpha" operator="out"/>
-                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
-                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1715_15180"/>
-                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1715_15180" result="shape"/>
-                        </filter>
-                        </defs>
+                        <svg width="22" height="22" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.9429 21.9429C26.9714 16.9143 26.9714 8.77143 21.9429 3.77143C16.9143 -1.25714 8.77143 -1.25714 3.77143 3.77143C-1.25714 8.8 -1.25714 16.9429 3.77143 21.9429C8.8 26.9714 16.9143 26.9714 21.9429 21.9429ZM6.8 14L8.25714 15.4571L15.4857 8.22857L14 6.8H18.9143V11.7143L17.4571 10.2571L10.2571 17.4857L11.7143 18.9429H6.8V14Z" fill="white"/>
                         </svg>
                       </div>
   
@@ -6092,7 +6055,7 @@ export default function DynamicAuditLandingPage() {
 
             {/* ROI Section */}
             <section className="bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
-              <h2 className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[40px]">
+              <h2 className="font-medium text-[30px] xl:text-[42px] leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[40px]">
                 {getLocalizedText(landingPageData?.language, {
                   en: 'ROI from implementing recommendations',
                   es: 'ROI de implementar recomendaciones',
@@ -6103,19 +6066,9 @@ export default function DynamicAuditLandingPage() {
 
               <div className="flex flex-col gap-[20px]">
                 {/* ROI Card 1 */}
-                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
-                  {/* Circular Progress */}
-                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[125px] xl:h-[125px] bg-[#F5F8FF] rounded-[6px] shadow-sm flex items-center justify-center p-3">
-                    <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 3.05176e-05 108.66 3.05176e-05 70C3.05176e-05 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4312 70C16.4312 99.5853 40.4148 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4148 16.4311 16.4312 40.4147 16.4312 70Z" fill="#DEE7FF"/>
-                      <path d="M74.9266 131.588C75.2883 136.111 71.9066 140.121 67.3725 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C20.8876 122.024 11.0374 110.521 5.36286 96.8707C-0.311681 83.2207 -1.51924 68.1246 1.91324 53.7461C4.70722 42.0423 10.4588 31.303 18.5575 22.5271C21.6347 19.1926 26.8629 19.6238 29.814 23.0702V23.0702C32.7652 26.5167 32.3057 31.6678 29.3505 35.1109C23.8264 41.5472 19.8829 49.2354 17.8953 57.5614C15.2685 68.5648 16.1926 80.1174 20.5352 90.5634C24.8777 101.009 32.4158 109.812 42.069 115.711C49.3733 120.174 57.6049 122.801 66.0638 123.424C70.5889 123.758 74.5648 127.065 74.9266 131.588V131.588Z" fill="#82A8FC"/>
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[15px] xl:text-[15px] font-medium text-[#8C9398]">25-40%</span>
-                    </div>
-                  </div>
+                <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
                     <span className="font-medium">1. {getLocalizedText(landingPageData?.language, {
                       en: 'Reduction in staff turnover by',
                       es: 'Reducción en la rotación de personal en',
@@ -6124,22 +6077,31 @@ export default function DynamicAuditLandingPage() {
                     })}</span>{' '}
                     <span className="text-blue-600 font-semibold">25-40%</span>
                   </p>
-                </div>
-
-                {/* ROI Card 2 */}
-                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
-                  {/* Circular Progress */}
-                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[125px] xl:h-[125px] bg-[#F5F8FF] rounded-[6px] shadow-sm flex items-center justify-center p-3">
+                  
+                  {/* Mobile: Progress Bar */}
+                  <div className="w-full xl:hidden">
+                    <div className="relative h-[8px] bg-[#E8F2FF] rounded-full overflow-hidden">
+                      <div className="absolute left-0 top-0 h-full w-[35%] bg-[#3B82F6] rounded-full"></div>
+                      <div className="absolute left-[35%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#93C5FD] rounded-full border-2 border-[#3B82F6]"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Desktop: Circular Progress */}
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#E8F2FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
                     <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M140 70C140 108.66 108.66 140 70.0002 140C31.3403 140 0.000183105 108.66 0.000183105 70C0.000183105 31.3401 31.3403 0 70.0002 0C108.66 0 140 31.3401 140 70ZM16.4313 70C16.4313 99.5853 40.4149 123.569 70.0002 123.569C99.5855 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5855 16.4311 70.0002 16.4311C40.4149 16.4311 16.4313 40.4147 16.4313 70Z" fill="#DEE7FF"/>
                     <path d="M74.9267 131.588C75.2885 136.111 71.9064 140.121 67.3723 139.951C51.7294 139.364 36.6436 133.54 24.6071 123.287C10.4746 111.248 1.7034 94.0877 0.223069 75.5816C-1.25727 57.0756 4.67453 38.7394 16.7135 24.6069C26.967 12.5704 40.9352 4.42285 56.2858 1.35634C60.7353 0.467503 64.7119 3.88941 65.0737 8.41229V8.41229C65.4355 12.9352 62.0357 16.8323 57.6212 17.8808C46.6173 20.4943 36.6467 26.5457 29.2215 35.2621C20.0084 46.0772 15.469 60.1093 16.6019 74.2714C17.7347 88.4335 24.4471 101.566 35.2622 110.779C43.9786 118.204 54.7844 122.593 66.0638 123.424C70.5889 123.758 74.5649 127.065 74.9267 131.588V131.588Z" fill="#FFECC0"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[15px] xl:text-[15px] font-medium text-[#8C9398]">30-50%</span>
+                      <span className="text-[16px] font-medium text-[#8C9398]">25-40%</span>
                     </div>
                   </div>
+                </div>
+
+                {/* ROI Card 2 */}
+                <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
                     <span className="font-medium">2. {getLocalizedText(landingPageData?.language, {
                       en: 'Reduction in onboarding time by',
                       es: 'Reducción en el tiempo de incorporación en',
@@ -6148,22 +6110,31 @@ export default function DynamicAuditLandingPage() {
                     })}</span>{' '}
                     <span className="text-blue-600 font-semibold">30-50%</span>
                   </p>
-                </div>
-
-                {/* ROI Card 3 */}
-                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
-                  {/* Circular Progress */}
-                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[125px] xl:h-[125px] bg-[#F5F8FF] rounded-[6px] shadow-sm flex items-center justify-center p-3">
+                  
+                  {/* Mobile: Progress Bar */}
+                  <div className="w-full xl:hidden">
+                    <div className="relative h-[8px] bg-[#FFF9E6] rounded-full overflow-hidden">
+                      <div className="absolute left-0 top-0 h-full w-[40%] bg-[#F59E0B] rounded-full"></div>
+                      <div className="absolute left-[40%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#FCD34D] rounded-full border-2 border-[#F59E0B]"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Desktop: Circular Progress */}
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#FFF9E6] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
                     <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
                     <path d="M74.9265 131.588C75.2883 136.111 71.9067 140.121 67.3725 139.951C60.9554 139.71 54.5888 138.586 48.4542 136.602C39.7079 133.772 31.6046 129.248 24.6069 123.287C17.6092 117.326 11.8542 110.045 7.67034 101.859C4.73582 96.1182 2.61458 90.0111 1.3565 83.7139C0.46758 79.2645 3.88941 75.2883 8.41229 74.9265V74.9265C12.9352 74.5647 16.8325 77.9642 17.881 82.3787C18.8674 86.5321 20.3491 90.5623 22.301 94.3809C25.5028 100.645 29.9069 106.217 35.2621 110.779C40.6172 115.341 46.8184 118.803 53.5116 120.968C57.592 122.288 61.8065 123.11 66.0639 123.424C70.589 123.757 74.5647 127.065 74.9265 131.588V131.588Z" fill="#B1EFE6"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[15px] xl:text-[15px] font-medium text-[#8C9398]">15-25%</span>
+                      <span className="text-[16px] font-medium text-[#8C9398]">30-50%</span>
                     </div>
                   </div>
+                </div>
+
+                {/* ROI Card 3 */}
+                <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
                     <span className="font-medium">3. {getLocalizedText(landingPageData?.language, {
                       en: 'Increase in productivity of new employees by',
                       es: 'Aumento en la productividad de nuevos empleados en',
@@ -6172,22 +6143,31 @@ export default function DynamicAuditLandingPage() {
                     })}</span>{' '}
                     <span className="text-blue-600 font-semibold">15-25%</span>
                   </p>
-                </div>
-
-                {/* ROI Card 4 */}
-                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
-                  {/* Circular Progress */}
-                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[125px] xl:h-[125px] bg-[#F5F8FF] rounded-[6px] shadow-sm flex items-center justify-center p-3">
+                  
+                  {/* Mobile: Progress Bar */}
+                  <div className="w-full xl:hidden">
+                    <div className="relative h-[8px] bg-[#E8F2FF] rounded-full overflow-hidden">
+                      <div className="absolute left-0 top-0 h-full w-[25%] bg-[#10B981] rounded-full"></div>
+                      <div className="absolute left-[25%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#6EE7B7] rounded-full border-2 border-[#10B981]"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Desktop: Circular Progress */}
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#E6F7F5] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
                     <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
                     <path d="M74.9265 131.588C75.2883 136.111 71.9066 140.121 67.3724 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C23.234 123.458 14.7977 114.669 8.95396 104.255C6.73361 100.298 8.75927 95.4588 12.949 93.717V93.717C17.1387 91.9753 21.8958 94.0042 24.2571 97.8786C28.6713 105.121 34.7646 111.248 42.0689 115.711C49.3732 120.174 57.6048 122.801 66.0638 123.424C70.5888 123.758 74.5647 127.065 74.9265 131.588V131.588Z" fill="#F6D9FC"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[15px] xl:text-[15px] font-medium text-[#8C9398]">20%</span>
+                      <span className="text-[16px] font-medium text-[#8C9398]">15-25%</span>
                     </div>
                   </div>
+                </div>
+
+                {/* ROI Card 4 */}
+                <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
                     <span className="font-medium">4. {getLocalizedText(landingPageData?.language, {
                       en: 'Savings of up to',
                       es: 'Ahorros de hasta',
@@ -6202,6 +6182,25 @@ export default function DynamicAuditLandingPage() {
                       ru: 'затрат на обучение и адаптацию'
                     })}</span>
                   </p>
+                  
+                  {/* Mobile: Progress Bar */}
+                  <div className="w-full xl:hidden">
+                    <div className="relative h-[8px] bg-[#E8F2FF] rounded-full overflow-hidden">
+                      <div className="absolute left-0 top-0 h-full w-[20%] bg-[#A855F7] rounded-full"></div>
+                      <div className="absolute left-[20%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#D8B4FE] rounded-full border-2 border-[#A855F7]"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Desktop: Circular Progress */}
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#F5E6FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
+                    <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
+                    <path d="M74.9265 131.588C75.2883 136.111 71.9066 140.121 67.3724 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C23.234 123.458 14.7977 114.669 8.95396 104.255C6.73361 100.298 8.75927 95.4588 12.949 93.717V93.717C17.1387 91.9753 21.8958 94.0042 24.2571 97.8786C28.6713 105.121 34.7646 111.248 42.0689 115.711C49.3732 120.174 57.6048 122.801 66.0638 123.424C70.5888 123.758 74.5647 127.065 74.9265 131.588V131.588Z" fill="#F6D9FC"/>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[16px] font-medium text-[#8C9398]">20%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -6210,7 +6209,7 @@ export default function DynamicAuditLandingPage() {
             <section className="bg-[#3E3AD9] pt-[60px] xl:pt-[120px] px-[20px] xl:px-[120px]">
               <div className="relative bg-white rounded-t-lg px-8 xl:px-[255px] pt-[30px] xl:pt-[71px] pb-[100px] xl:pb-[172px] flex flex-col items-center justify-center overflow-hidden">
                 <svg 
-                  className="absolute xl:hidden"
+                  className="absolute lg:hidden xl:hidden"
                   style={{
                     width: '204px',
                     height: '195px',
@@ -6235,7 +6234,7 @@ export default function DynamicAuditLandingPage() {
   
                 {/* Left SVG - visible only on XL screens */}
                 <svg 
-                  className="absolute hidden xl:block"
+                  className="absolute hidden lg:block xl:block"
                   style={{
                     width: '352px',
                     height: '335.8px',
@@ -6260,7 +6259,7 @@ export default function DynamicAuditLandingPage() {
   
                 {/* Right SVG - visible only on XL screens */}
                 <svg 
-                  className="absolute hidden xl:block"
+                  className="absolute hidden lg:block xl:block"
                   style={{
                     width: '352px',
                     height: '335.8px',
