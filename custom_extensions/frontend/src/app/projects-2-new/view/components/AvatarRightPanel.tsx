@@ -347,7 +347,7 @@ export default function AvatarRightPanel({
           <div className="flex gap-2">
             {/* X Input */}
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1" style={{ color: '#848485' }}>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
                 {t('avatarRightPanel.xPosition', 'X')}
               </label>
               <input
@@ -364,7 +364,7 @@ export default function AvatarRightPanel({
 
             {/* Y Input */}
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1" style={{ color: '#848485' }}>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
                 {t('avatarRightPanel.yPosition', 'Y')}
               </label>
               <input
