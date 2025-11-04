@@ -2164,7 +2164,7 @@ export default function DynamicAuditLandingPage() {
               
               <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
                 <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
-                  <div className="gap-2 flex items-center pb-[19px]">
+                  <div className="gap-2 flex items-center pb-[18px]">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
                     <p className="font-semibold text-[22px] text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
                       en: 'Open Positions',
@@ -2405,7 +2405,7 @@ export default function DynamicAuditLandingPage() {
               </div>
               
               {/* Conclusion Section */}
-              <div className="w-full xl:px-0 p-[10px]">
+              <div className="w-full xl:px-0 p-[10px] pt-[20px]">
                 <div className="bg-white rounded-md p-[15px] xl:p-[20px]">
                   <div className="flex flex-col items-start gap-[12px] bg-[#F5F8FF] p-10 rounded-md">
                     <div className="flex flex-row items-center gap-7">
@@ -2439,7 +2439,7 @@ export default function DynamicAuditLandingPage() {
   
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
-              <h2 className="font-medium text-[32px] xl:w-[720px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
+              <h2 className="font-medium text-[32px] xl:w-[735px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
                 {editingField === 'workforceCrisisFullTitle' ? (
                   <InlineEditor
                     initialValue={landingPageData?.workforceCrisis?.fullTitle || 
@@ -3046,7 +3046,7 @@ export default function DynamicAuditLandingPage() {
               {/* Service 1 */}
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                  <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
                     {getLocalizedText(landingPageData?.language, {
                       en: 'Service 1:',
                       es: 'Servicio 1:',
@@ -5013,7 +5013,7 @@ export default function DynamicAuditLandingPage() {
               {/* Service 2 */}
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                  <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
                     {getLocalizedText(landingPageData?.language, {
                       en: 'Service 2:',
                       es: 'Servicio 2:',
@@ -5364,7 +5364,7 @@ export default function DynamicAuditLandingPage() {
               {/* Service 3 */}
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                  <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
                     {getLocalizedText(landingPageData?.language, {
                       en: 'Service 3:',
                       es: 'Servicio 3:',
@@ -5709,7 +5709,7 @@ export default function DynamicAuditLandingPage() {
               {/* Service 4 */}
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                  <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
                     {getLocalizedText(landingPageData?.language, {
                       en: 'Service 4:',
                       es: 'Servicio 4:',
@@ -5719,7 +5719,7 @@ export default function DynamicAuditLandingPage() {
                   </span>
                 </div>
                 
-                <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   Expert-as-a-Service — {getLocalizedText(landingPageData?.language, {
                     en: 'Methodologist:',
                     es: 'Metodólogo:',
@@ -5745,17 +5745,17 @@ export default function DynamicAuditLandingPage() {
                         <path d="M5.89895 11.2861C4.52127 10.9057 4.25689 10.6414 3.87657 9.26375C3.84546 9.151 3.74308 9.07324 3.62644 9.07324C3.5098 9.07324 3.40741 9.151 3.37631 9.26375C2.99592 10.6414 2.73154 10.9058 1.35393 11.2861C1.24117 11.3172 1.16406 11.4196 1.16406 11.5363C1.16406 11.6529 1.24182 11.7553 1.35393 11.7864C2.7316 12.1668 2.99598 12.4312 3.37631 13.8088C3.40741 13.9215 3.5098 13.9993 3.62644 13.9993C3.74308 13.9993 3.84546 13.9215 3.87657 13.8088C4.25696 12.4311 4.52134 12.1667 5.89895 11.7864C6.0117 11.7553 6.08881 11.6529 6.08881 11.5363C6.08881 11.4196 6.01105 11.3172 5.89895 11.2861Z" fill="#09090B"/>
                       </svg>
                       
-                      <span className="font-semibold text-[14px] text-[#09090B]">
+                      {/* <span className="font-semibold text-[14px] text-[#09090B]">
                         {getLocalizedText(landingPageData?.language, {
                           en: 'Trial Package',
                           es: 'Paquete de Prueba',
                           ua: 'Пробний пакет',
                           ru: 'Пробный пакет'
                         })}
-                      </span>
+                      </span> */}
                     </div>
   
-                    <div>
+                    {/* <div>
                       <span className="font-bold text-[30px] leading-[120%]">
                         <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(landingPageData?.language, {
                           en: 'hours',
@@ -5764,7 +5764,7 @@ export default function DynamicAuditLandingPage() {
                           ru: 'часов'
                         })}
                       </span>
-                    </div>
+                    </div> */}
   
                     <div className="flex flex-col gap-[15px] xl:gap-[10px]">
                       {/* Card 1 */}
@@ -5854,7 +5854,7 @@ export default function DynamicAuditLandingPage() {
                   </div>
                 </div>
                 
-                <div 
+                {/* <div 
                   className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
                   style={{ background: '#EBF2FF87' }}
                 >
@@ -5929,7 +5929,7 @@ export default function DynamicAuditLandingPage() {
                       ru: 'систему.'
                     })}
                   </span>
-                </div> 
+                </div>  */}
               </div>
             </section>
 
@@ -5949,27 +5949,12 @@ export default function DynamicAuditLandingPage() {
                 <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
                   {/* Circular Progress */}
                   <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="54"
-                        fill="#E8F2FF"
-                        stroke="none"
-                      />
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="48"
-                        fill="none"
-                        stroke="#3B82F6"
-                        strokeWidth="8"
-                        strokeDasharray={`${Math.PI * 2 * 48 * 0.35} ${Math.PI * 2 * 48}`}
-                        strokeLinecap="round"
-                      />
+                    <svg width="100" height="100" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 3.05176e-05 108.66 3.05176e-05 70C3.05176e-05 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4312 70C16.4312 99.5853 40.4148 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4148 16.4311 16.4312 40.4147 16.4312 70Z" fill="#DEE7FF"/>
+                      <path d="M74.9266 131.588C75.2883 136.111 71.9066 140.121 67.3725 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C20.8876 122.024 11.0374 110.521 5.36286 96.8707C-0.311681 83.2207 -1.51924 68.1246 1.91324 53.7461C4.70722 42.0423 10.4588 31.303 18.5575 22.5271C21.6347 19.1926 26.8629 19.6238 29.814 23.0702V23.0702C32.7652 26.5167 32.3057 31.6678 29.3505 35.1109C23.8264 41.5472 19.8829 49.2354 17.8953 57.5614C15.2685 68.5648 16.1926 80.1174 20.5352 90.5634C24.8777 101.009 32.4158 109.812 42.069 115.711C49.3733 120.174 57.6049 122.801 66.0638 123.424C70.5889 123.758 74.5648 127.065 74.9266 131.588V131.588Z" fill="#82A8FC"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">25-40%</span>
+                      <span className="text-[16px] xl:text-[16px] font-medium text-[#8C9398]">25-40%</span>
                     </div>
                   </div>
                   {/* Text */}
@@ -5988,27 +5973,12 @@ export default function DynamicAuditLandingPage() {
                 <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
                   {/* Circular Progress */}
                   <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="54"
-                        fill="#FFF9E6"
-                        stroke="none"
-                      />
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="48"
-                        fill="none"
-                        stroke="#F59E0B"
-                        strokeWidth="8"
-                        strokeDasharray={`${Math.PI * 2 * 48 * 0.4} ${Math.PI * 2 * 48}`}
-                        strokeLinecap="round"
-                      />
+                    <svg width="100" height="100" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M140 70C140 108.66 108.66 140 70.0002 140C31.3403 140 0.000183105 108.66 0.000183105 70C0.000183105 31.3401 31.3403 0 70.0002 0C108.66 0 140 31.3401 140 70ZM16.4313 70C16.4313 99.5853 40.4149 123.569 70.0002 123.569C99.5855 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5855 16.4311 70.0002 16.4311C40.4149 16.4311 16.4313 40.4147 16.4313 70Z" fill="#DEE7FF"/>
+                    <path d="M74.9267 131.588C75.2885 136.111 71.9064 140.121 67.3723 139.951C51.7294 139.364 36.6436 133.54 24.6071 123.287C10.4746 111.248 1.7034 94.0877 0.223069 75.5816C-1.25727 57.0756 4.67453 38.7394 16.7135 24.6069C26.967 12.5704 40.9352 4.42285 56.2858 1.35634C60.7353 0.467503 64.7119 3.88941 65.0737 8.41229V8.41229C65.4355 12.9352 62.0357 16.8323 57.6212 17.8808C46.6173 20.4943 36.6467 26.5457 29.2215 35.2621C20.0084 46.0772 15.469 60.1093 16.6019 74.2714C17.7347 88.4335 24.4471 101.566 35.2622 110.779C43.9786 118.204 54.7844 122.593 66.0638 123.424C70.5889 123.758 74.5649 127.065 74.9267 131.588V131.588Z" fill="#FFECC0"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">30-50%</span>
+                      <span className="text-[16px] xl:text-[16px] font-medium text-[#8C9398]">30-50%</span>
                     </div>
                   </div>
                   {/* Text */}
@@ -6027,27 +5997,12 @@ export default function DynamicAuditLandingPage() {
                 <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
                   {/* Circular Progress */}
                   <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="54"
-                        fill="#E6F7F5"
-                        stroke="none"
-                      />
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="48"
-                        fill="none"
-                        stroke="#10B981"
-                        strokeWidth="8"
-                        strokeDasharray={`${Math.PI * 2 * 48 * 0.25} ${Math.PI * 2 * 48}`}
-                        strokeLinecap="round"
-                      />
+                    <svg width="100" height="100" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
+                    <path d="M74.9265 131.588C75.2883 136.111 71.9067 140.121 67.3725 139.951C60.9554 139.71 54.5888 138.586 48.4542 136.602C39.7079 133.772 31.6046 129.248 24.6069 123.287C17.6092 117.326 11.8542 110.045 7.67034 101.859C4.73582 96.1182 2.61458 90.0111 1.3565 83.7139C0.46758 79.2645 3.88941 75.2883 8.41229 74.9265V74.9265C12.9352 74.5647 16.8325 77.9642 17.881 82.3787C18.8674 86.5321 20.3491 90.5623 22.301 94.3809C25.5028 100.645 29.9069 106.217 35.2621 110.779C40.6172 115.341 46.8184 118.803 53.5116 120.968C57.592 122.288 61.8065 123.11 66.0639 123.424C70.589 123.757 74.5647 127.065 74.9265 131.588V131.588Z" fill="#B1EFE6"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">15-25%</span>
+                      <span className="text-[16px] xl:text-[16px] font-medium text-[#8C9398]">15-25%</span>
                     </div>
                   </div>
                   {/* Text */}
@@ -6066,27 +6021,12 @@ export default function DynamicAuditLandingPage() {
                 <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
                   {/* Circular Progress */}
                   <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="54"
-                        fill="#F5E6FF"
-                        stroke="none"
-                      />
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="48"
-                        fill="none"
-                        stroke="#A855F7"
-                        strokeWidth="8"
-                        strokeDasharray={`${Math.PI * 2 * 48 * 0.2} ${Math.PI * 2 * 48}`}
-                        strokeLinecap="round"
-                      />
+                    <svg width="100" height="100" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
+                    <path d="M74.9265 131.588C75.2883 136.111 71.9066 140.121 67.3724 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C23.234 123.458 14.7977 114.669 8.95396 104.255C6.73361 100.298 8.75927 95.4588 12.949 93.717V93.717C17.1387 91.9753 21.8958 94.0042 24.2571 97.8786C28.6713 105.121 34.7646 111.248 42.0689 115.711C49.3732 120.174 57.6048 122.801 66.0638 123.424C70.5888 123.758 74.5647 127.065 74.9265 131.588V131.588Z" fill="#F6D9FC"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">20%</span>
+                      <span className="text-[16px] xl:text-[16px] font-medium text-[#8C9398]">20%</span>
                     </div>
                   </div>
                   {/* Text */}
