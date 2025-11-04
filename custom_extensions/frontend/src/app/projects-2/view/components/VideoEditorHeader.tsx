@@ -196,19 +196,25 @@ export default function VideoEditorHeader({
     console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
     console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
     
-    // Helper function to attach avatar position from template registry to slides
+    // Helper function to attach avatar position and Elai background color from template registry to slides
     const attachAvatarPositionsToSlides = (slides: any[]) => {
       return slides.map(slide => {
         const templateId = slide.templateId;
         if (templateId) {
           const template = SLIDE_TEMPLATE_REGISTRY[templateId];
+          const updatedSlide: any = { ...slide };
+          
           if (template?.avatarPosition) {
             console.log(`🎬 [AVATAR_POSITION] Attaching avatar position for template ${templateId}:`, template.avatarPosition);
-            return {
-              ...slide,
-              avatarPosition: template.avatarPosition
-            };
+            updatedSlide.avatarPosition = template.avatarPosition;
           }
+          
+          if (template?.elaiBackgroundColor) {
+            console.log(`🎬 [ELAI_BACKGROUND] Attaching Elai background color for template ${templateId}:`, template.elaiBackgroundColor);
+            updatedSlide.elaiBackgroundColor = template.elaiBackgroundColor;
+          }
+          
+          return updatedSlide;
         }
         return slide;
       });

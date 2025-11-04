@@ -521,6 +521,16 @@ class ProfessionalPresentationService:
                 
                 return final_video_path
             
+            # Extract elaiBackgroundColor from slide data
+            elai_background_color = slide_data.get('elaiBackgroundColor')
+            if not elai_background_color:
+                avatar_position = slide_data.get('avatarPosition', {})
+                elai_background_color = avatar_position.get('backgroundColor')
+            if not elai_background_color:
+                elai_background_color = "#ffffff"
+            
+            logger.info(f"🎨 [SINGLE_SLIDE] Using Elai background color: {elai_background_color}")
+            
             # OPTIMIZATION: Generate avatar video FIRST to get actual duration
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Step 1: Generating avatar video (to determine duration)")
             avatar_video_path = await self._generate_avatar_video(
@@ -529,7 +539,8 @@ class ProfessionalPresentationService:
                 request.duration,
                 request.use_avatar_mask,
                 voice_id=request.voice_id,
-                voice_provider=request.voice_provider
+                voice_provider=request.voice_provider,
+                elai_background_color=elai_background_color
             )
             self._update_job_status(job_id, progress=40.0)
             
@@ -1383,7 +1394,8 @@ class ProfessionalPresentationService:
                 voiceover_texts=voiceover_texts,
                 avatar_code=avatar_code,
                 voice_id=voice_id,
-                voice_provider=voice_provider
+                voice_provider=voice_provider,
+                elai_background_color=elai_background_color
             )
             
             if not result["success"]:
@@ -1428,7 +1440,8 @@ class ProfessionalPresentationService:
         avatar_code: Optional[str],
         voice_id: Optional[str] = None,
         voice_provider: Optional[str] = None,
-        slide_index: int = 0
+        slide_index: int = 0,
+        elai_background_color: Optional[str] = None
     ) -> str:
         """
         Initiate avatar video creation and start rendering WITHOUT waiting for completion.
@@ -1440,6 +1453,7 @@ class ProfessionalPresentationService:
             voice_id: Optional voice ID
             voice_provider: Optional voice provider
             slide_index: Slide index for logging
+            elai_background_color: Optional background color for Elai video canvas
             
         Returns:
             video_id from Elai API
@@ -1458,7 +1472,8 @@ class ProfessionalPresentationService:
                 voiceover_texts=[voiceover_text],
                 avatar_code=avatar_code,
                 voice_id=voice_id,
-                voice_provider=voice_provider
+                voice_provider=voice_provider,
+                elai_background_color=elai_background_color
             )
             
             if not result["success"]:
@@ -1512,13 +1527,25 @@ class ProfessionalPresentationService:
             else:
                 logger.info(f"🎬 [BATCH_AVATAR] ✅ Found voiceover text for slide {slide_index + 1}: '{slide_voiceover_text[:100]}...'")
             
+            # Extract Elai background color from slide data (from template registry)
+            elai_background_color = slide_data.get("elaiBackgroundColor")
+            if not elai_background_color:
+                # Fallback: try to extract from avatarPosition backgroundColor
+                avatar_position = slide_data.get("avatarPosition", {})
+                elai_background_color = avatar_position.get("backgroundColor")
+            # Only fallback to white if no color was found at all
+            if not elai_background_color:
+                elai_background_color = "#ffffff"  # Final fallback only if truly missing
+            logger.info(f"🎨 [BATCH_AVATAR] Slide {slide_index + 1} using Elai background color: {elai_background_color}")
+            
             # Create task for this slide
             task = self._initiate_avatar_video(
                 voiceover_text=slide_voiceover_text,
                 avatar_code=avatar_code,
                 voice_id=voice_id,
                 voice_provider=voice_provider,
-                slide_index=slide_index
+                slide_index=slide_index,
+                elai_background_color=elai_background_color
             )
             tasks.append(task)
         
@@ -1571,7 +1598,8 @@ class ProfessionalPresentationService:
         duration: float, 
         use_avatar_mask: bool = True,
         voice_id: Optional[str] = None,
-        voice_provider: Optional[str] = None
+        voice_provider: Optional[str] = None,
+        elai_background_color: Optional[str] = None
     ) -> str:
         """
         Generate avatar video using Elai API.
@@ -1583,6 +1611,7 @@ class ProfessionalPresentationService:
             use_avatar_mask: Whether to use avatar mask service
             voice_id: Optional voice ID from Elai API
             voice_provider: Optional voice provider (azure, elevenlabs, etc.)
+            elai_background_color: Optional background color for Elai video canvas
             
         Returns:
             Path to generated avatar video
@@ -1612,7 +1641,8 @@ class ProfessionalPresentationService:
                 voiceover_texts, 
                 avatar_code,
                 voice_id=voice_id,
-                voice_provider=voice_provider
+                voice_provider=voice_provider,
+                elai_background_color=elai_background_color
             )
             
         except Exception as e:
@@ -1669,7 +1699,8 @@ class ProfessionalPresentationService:
         voiceover_texts: List[str], 
         avatar_code: str,
         voice_id: Optional[str] = None,
-        voice_provider: Optional[str] = None
+        voice_provider: Optional[str] = None,
+        elai_background_color: Optional[str] = None
     ) -> str:
         """
         Generate avatar video using traditional method (Elai API + FFmpeg).
@@ -1679,6 +1710,7 @@ class ProfessionalPresentationService:
             avatar_code: Avatar code to use
             voice_id: Optional voice ID from Elai API
             voice_provider: Optional voice provider (azure, elevenlabs, etc.)
+            elai_background_color: Optional background color for Elai video canvas
             
         Returns:
             Path to generated avatar video
@@ -1694,7 +1726,8 @@ class ProfessionalPresentationService:
                     voiceover_texts, 
                     avatar_code,
                     voice_id=voice_id,
-                    voice_provider=voice_provider
+                    voice_provider=voice_provider,
+                    elai_background_color=elai_background_color
                 )
                 logger.info(f"🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Traditional method completed: {avatar_video_path}")
                 return avatar_video_path
@@ -1727,7 +1760,8 @@ class ProfessionalPresentationService:
         voiceover_texts: List[str], 
         avatar_code: str,
         voice_id: Optional[str] = None,
-        voice_provider: Optional[str] = None
+        voice_provider: Optional[str] = None,
+        elai_background_color: Optional[str] = None
     ) -> str:
         """
         Try to generate avatar video with a specific avatar.
@@ -1737,6 +1771,7 @@ class ProfessionalPresentationService:
             avatar_code: Avatar code to use
             voice_id: Optional voice ID from Elai API
             voice_provider: Optional voice provider (azure, elevenlabs, etc.)
+            elai_background_color: Optional background color for Elai video canvas
             
         Returns:
             Path to generated avatar video
@@ -1749,7 +1784,8 @@ class ProfessionalPresentationService:
                 voiceover_texts=voiceover_texts,
                 avatar_code=avatar_code,
                 voice_id=voice_id,
-                voice_provider=voice_provider
+                voice_provider=voice_provider,
+                elai_background_color=elai_background_color
             )
             
             if not result["success"]:

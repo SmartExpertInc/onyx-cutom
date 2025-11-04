@@ -114,7 +114,7 @@ class ElaiVideoGenerationService:
         finally:
             await client.aclose()
     
-    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, voice_id: str = None, voice_provider: str = None, elai_background_color: str = None) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
         
@@ -124,6 +124,7 @@ class ElaiVideoGenerationService:
             avatar_code: Avatar code to use
             voice_id: Voice ID from Elai API (optional)
             voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
+            elai_background_color: Background color for Elai video canvas (optional, defaults to #ffffff)
             
         Returns:
             Dict containing result with success status and video ID
@@ -294,6 +295,10 @@ class ElaiVideoGenerationService:
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
             
+            # Determine background color: use provided color, or fallback to white
+            background_color = elai_background_color if elai_background_color else "#ffffff"
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using Elai background color: {background_color}")
+            
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request with CORRECT 1080x1080 dimensions")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
             logger.info(f"  - Name: {project_name}")
@@ -301,6 +306,7 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Resolution: 1080p (CORRECT)")
             logger.info(f"  - Avatar scale: 0.3x0.3 (appropriate for 1080x1080)")
             logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
+            logger.info(f"  - Background color: {background_color}")
 
             # FIXED: Official Elai API structure with correct 1080x1080 dimensions
             # Use actual avatar data instead of hardcoded example values
@@ -325,7 +331,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "#110c35",  
+                        "background": background_color,  # ✅ Dynamic background color from slide template
                         "version": "4.4.0"        # Exact from example
                     },
                     "avatar": {
@@ -560,12 +566,24 @@ class ElaiVideoGenerationService:
                 logger.info(f"🔍 END POSITIONING DEBUG for slide {i+1}")
                 logger.info("=" * 80)
                 
+                # Extract Elai background color from slide data (from template registry)
+                elai_background_color = slide.get("elaiBackgroundColor")
+                if not elai_background_color:
+                    # Fallback: try to extract from avatarPosition backgroundColor
+                    avatar_position = slide.get("avatarPosition", {})
+                    elai_background_color = avatar_position.get("backgroundColor")
+                # Only fallback to white if no color was found at all
+                if not elai_background_color:
+                    elai_background_color = "#ffffff"  # Final fallback only if truly missing
+                
+                logger.info(f"🎨 [ELAI_BACKGROUND] Slide {i+1} using background color: {elai_background_color}")
+                
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
                         "objects": canvas_objects,
-                        "background": "#ffffff",  # Keep original white background for safety
+                        "background": elai_background_color,  # ✅ Dynamic background color from slide template
                         "version": "4.4.0"
                     },
                     "avatar": {
