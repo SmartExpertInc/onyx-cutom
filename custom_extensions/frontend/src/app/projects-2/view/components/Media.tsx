@@ -495,7 +495,7 @@ export default function Media({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[500px] overflow-hidden rounded-md ${className}`}
+          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[520px] overflow-hidden rounded-md ${className}`}
         >
           {/* Header */}
           <div className="border-b border-gray-200">
