@@ -75,14 +75,22 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
   };
 
   // Left section container - clipped/cropped
+// Left section container - clipped with rounded inner corner
   const leftSectionContainer: React.CSSProperties = {
     width: '100%',
-    height: '100%',
+    height: '87%',
     position: 'relative',
     borderRadius: '16px',
     overflow: 'hidden',
-    clipPath: 'polygon( 0 0, calc(100% - 160px) 0, calc(100% - 160px) 160px, 100% 160px, 100% 100%, 0 100% )'
+    backgroundColor: '#E0E7FF',
+    WebkitMask: `
+      radial-gradient(20px at calc(100% - 160px) 160px, transparent 99%, black 100%),
+      linear-gradient(black 0 0)
+    `,
+    WebkitMaskComposite: 'destination-out',
+    maskComposite: 'exclude',
   };
+
 
   // Left image style
   const leftImageStyle: React.CSSProperties = {
@@ -96,11 +104,12 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
   // Small image in the cutout corner of left image
   const leftTopImageContainer: React.CSSProperties = {
     position: 'absolute',
-    top: '0',
-    right: '0',
-    width: '160px',
-    height: '160px',
+    top: '77px',
+    right: '41px',
+    width: '150px',
+    height: '157px',
     borderRadius: '0',
+    borderLeftTopRadius: '16px',
     overflow: 'hidden',
     zIndex: 20
   };
@@ -108,7 +117,7 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
   const leftTopImageStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',
-    objectFit: 'cover'
+    objectFit: 'cover',
   };
 
   // Content text style
@@ -118,6 +127,7 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
     color: '#09090B',
     lineHeight: 1.6,
     margin: 0,
+    marginTop: '38px',
     fontFamily: currentTheme.fonts.contentFont,
     flex: 1
   };
@@ -128,6 +138,7 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
     height: '180px',
     borderRadius: '8px',
     overflow: 'hidden',
+    marginBottom: '38px',
     flexShrink: 0
   };
 
