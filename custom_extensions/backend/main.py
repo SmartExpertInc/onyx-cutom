@@ -1687,10 +1687,10 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 1,
       "slideTitle": "Course Overview",
       "templateId": "course-overview-slide",
-      "voiceoverText": "Welcome to this comprehensive course. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This overview sets the stage for what you're about to learn.",
+      "voiceoverText": "Welcome to this comprehensive course. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This overview sets the stage for what you're about to learn. We'll cover essential principles, practical applications, and real-world examples that will help you master these concepts. By the end of this course, you'll have a solid understanding that you can apply immediately in your work.",
       "props": {
         "title": "Welcome to the Course",
-        "subtitle": "This course introduces the main topic and learning objectives",
+        "subtitle": "Introduction to key learning objectives",
         "imagePath": "https://via.placeholder.com/600x400?text=Course+Image",
         "imageAlt": "Course overview illustration",
         "logoPath": "",
@@ -1702,7 +1702,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 2,
       "slideTitle": "Impact Statistics",
       "templateId": "impact-statements-slide",
-      "voiceoverText": "Let's look at some impressive statistics that demonstrate the real-world impact of what we're learning. These numbers show the tangible benefits and results you can expect to achieve.",
+      "voiceoverText": "Let's look at some impressive statistics. These numbers demonstrate the real-world impact of what we're learning. The statistics show tangible benefits and results you can expect to achieve. Understanding these metrics helps you appreciate the practical value of implementing these strategies. Each statistic represents real outcomes from organizations that have successfully applied these principles.",
       "props": {
         "title": "Impact Statistics",
         "statements": [
@@ -1720,13 +1720,13 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 3,
       "slideTitle": "Key Definitions",
       "templateId": "phishing-definition-slide",
-      "voiceoverText": "Now let's define the key concepts we'll be working with. Understanding these definitions is crucial for building a solid foundation of knowledge.",
+      "voiceoverText": "Now let's define the key concepts. Understanding these definitions is crucial for building a solid foundation of knowledge. These terms form the vocabulary we'll use throughout this course, so it's important to grasp them clearly. Each definition represents a fundamental building block that we'll build upon in later lessons. Take your time to understand these concepts fully.",
       "props": {
         "title": "Key Definitions",
         "definitions": [
-          "First important definition with detailed explanation",
-          "Second key concept with comprehensive description",
-          "Third critical term with thorough explanation"
+          "Security Framework",
+          "Risk Assessment",
+          "Compliance Standards"
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "rightImagePrompt": "Realistic cinematic photograph of cybersecurity professionals monitoring a large wall of screens displaying network security dashboards and threat detection systems in a modern Security Operations Center (SOC). The scene features three diverse professionals in business casual attire standing and analyzing data on multiple monitors showing threat maps, firewall status, and intrusion detection alerts. The left monitor displays network topology diagrams in [COLOR1], the center screens show real-time threat maps with attack vectors highlighted in [COLOR2], and the right displays show security metrics and incident response dashboards in [COLOR3]. The SOC environment features sleek workstations with dual monitors, ambient blue security lighting, and glass walls with frosted sections. The professionals are in three-quarter view, one pointing at a critical alert while others take notes. Cinematic photography with professional lighting, 35mm lens, wide angle shot showing the entire command center, depth of field with focused foreground. The background is [BACKGROUND]. Modern corporate cybersecurity aesthetic with clean professional atmosphere.",
@@ -1740,15 +1740,15 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
     "slideNumber": 4,
     "slideTitle": "Culture & Values",
     "templateId": "culture-values-three-columns",
-    "voiceoverText": "Our organizational culture is built on three fundamental pillars that guide everything we do. These core values shape our decision-making, interactions, and commitment to excellence in all our endeavors. They represent not just aspirations, but the lived reality of how we operate every single day.",
+    "voiceoverText": "Our organizational culture is built on three fundamental pillars. First, our Code of Conduct ensures the highest ethical standards in all business practices, creating accountability in every interaction and empowering team members to speak up. Second, our HR Policies support comprehensive employee wellbeing, professional development, and work-life balance through flexible arrangements, mental health support, and career advancement programs. Third, our IT Policies maintain rigorous information security through multi-factor authentication, encryption, and full compliance with standards like GDPR and ISO 27001. These three pillars work together to shape our decision-making and our commitment to excellence.",
     "props": {
         "title": "Our Culture & Values",
         "leftTitle": "Code of Conduct",
-        "leftText": "We maintain the highest ethical standards in all our business practices, ensuring that every decision we make reflects our commitment to integrity and transparency. Our code of conduct goes beyond compliance—it's a framework that ensures accountability in every interaction, from internal team collaboration to client relationships. We believe that ethical behavior isn't just about following rules; it's about creating a culture where doing the right thing is second nature, where every team member feels empowered to speak up, and where trust is built through consistent, principled action across all levels of the organization.",
+        "leftText": "Highest ethical standards, integrity, and transparency in all business practices.",
         "middleTitle": "HR Policies",
-        "middleText": "Our human resources policies are meticulously designed to support comprehensive employee wellbeing, continuous professional development, and sustainable work-life balance. We recognize that our people are our greatest asset, which is why we've created an inclusive environment where diversity is celebrated, growth opportunities are abundant, and every individual can thrive both personally and professionally. From flexible working arrangements and mental health support to career advancement programs and skill development initiatives, our HR framework ensures that every team member has the resources, support, and opportunities they need to reach their full potential while maintaining a healthy, fulfilling life outside of work.",
+        "middleText": "Employee wellbeing, professional development, and work-life balance support.",
         "rightTitle": "IT Policies",
-        "rightText": "Information security and data protection are absolutely paramount in today's digital landscape, which is why our IT policies are comprehensive, continuously updated, and rigorously enforced. We ensure secure access through multi-factor authentication, proper data handling through encryption and access controls, and full compliance with industry standards including GDPR, ISO 27001, and sector-specific regulations. Our approach to cybersecurity is proactive rather than reactive—we conduct regular security audits, provide ongoing training to all staff members, implement cutting-edge threat detection systems, and maintain robust incident response protocols. This commitment to digital security protects not only our organization but also the sensitive data and trust that our clients, partners, and employees place in us every single day.",
+        "rightText": "Comprehensive information security, data protection, and compliance standards.",
         "middlePanelColor": "#3B46FF",
         "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
         "logoPath": ""
@@ -1759,12 +1759,12 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 5,
       "slideTitle": "Assessment Tips",
       "templateId": "soft-skills-assessment-slide",
-      "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
+      "voiceoverText": "Let me share two essential assessment tips with you. First, practice regularly. This means setting aside dedicated time each day to reinforce what you've learned, test yourself on key concepts, and identify any areas where you might need more attention. Consistent practice builds confidence and helps information stick in your long-term memory. Second, review all your materials systematically before the assessment. Go through your notes, revisit challenging topics, and ensure you understand the key concepts thoroughly. These two simple strategies will significantly improve your performance.",
       "props": {
         "title": "Assessment Tips",
         "tips": [
-          { "text": "First important tip for success", "isHighlighted": true },
-          { "text": "Second key recommendation for better results", "isHighlighted": false }
+          { "text": "Practice Regularly", "isHighlighted": true },
+          { "text": "Review Materials", "isHighlighted": false }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "pageNumber": 5,
@@ -1777,10 +1777,10 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 6,
       "slideTitle": "Conclusion",
       "templateId": "work-life-balance-slide",
-      "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
+      "voiceoverText": "As we conclude this lesson, let's reflect on what we've covered. You've learned essential concepts and practical applications that you can use right away. Remember that successfully applying this knowledge requires both dedication and balance. Moving forward, focus on implementing these strategies incrementally in your daily work. Don't try to do everything at once. Instead, choose one or two key concepts to apply first, master them, and then expand. Maintain a healthy balance between learning new material and applying what you already know. This approach leads to sustainable growth and lasting success.",
       "props": {
         "title": "Conclusion and Next Steps",
-        "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
+        "content": "Implement strategies incrementally while maintaining balance.",
         "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
         "pageNumber": 6,
         "logoPath": ""
@@ -1791,13 +1791,13 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 7,
       "slideTitle": "Statistics Overview",
       "templateId": "percent-circles",
-      "voiceoverText": "Let's examine some key statistics that highlight important trends and insights. These numbers tell a compelling story about the current state and future potential in our field.",
+      "voiceoverText": "Let's examine some eye-opening statistics about diversity in leadership. Currently, only ten percent of Fortune 500 CEOs are women. Looking deeper, minorities hold just three percent of executive roles across these companies. But here's the compelling business case: companies with diverse leadership actually outperform their competitors by thirty-five percent. This isn't just about fairness or representation, though those are important. These numbers show that diversity drives better business outcomes, more innovation, and stronger financial performance. The data makes a clear case for prioritizing diversity in leadership.",
       "props": {
         "title": "% of Fortune 500 CEOs\nwho are women",
         "percent": "10%",
         "bottomCards": [
-          { "value": "3%", "text": "Minorities hold just 3% of executive roles." },
-          { "value": "35%", "text": "Companies with diverse leadership outperform competitors by 35%", "hasArrow": true }
+          { "value": "3%", "text": "Minorities in executive roles" },
+          { "value": "35%", "text": "Performance advantage with diverse leadership", "hasArrow": true }
         ],
         "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
         "logoPath": "",
@@ -1810,18 +1810,18 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 8,
       "slideTitle": "Benefits Overview",
       "templateId": "benefits-list-slide",
-      "voiceoverText": "Let's explore the comprehensive benefits package that supports employee wellbeing and professional growth. These benefits are designed to create a supportive work environment where everyone can thrive.",
+      "voiceoverText": "Let's explore our comprehensive employee benefits package. On your screen, you can see six key benefit categories. We offer competitive compensation to ensure financial security, comprehensive insurance coverage to protect you and your family, disability support when you need it most, health benefits that prioritize your wellbeing, COBRA continuation options for transitions, and flexible leave policies. Each of these benefits has been carefully designed to support not just your professional growth, but also your personal wellbeing, creating an environment where everyone can truly thrive.",
       "props": {
         "title": "Benefits",
         "subtitle": "Employment",
-        "description": "Here is a list of benefits that you can offer to your employees to maintain small business compliance:",
+        "description": "Key benefits for employees:",
         "benefits": [
-          "Workers' compensation",
-          "Unemployment insurance",
-          "Disability insurance",
-          "Health insurance",
-          "COBRA benefits",
-          "Leave of absence"
+          "Compensation",
+          "Insurance",
+          "Disability",
+          "Health",
+          "COBRA",
+          "Leave"
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "profileImageAlt": "Profile image",
@@ -1838,18 +1838,18 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 9,
       "slideTitle": "Methods to Meet DEI Standards",
       "templateId": "dei-methods",
-      "voiceoverText": "Here are two practical methods you can apply immediately. We'll walk through each briefly so you know exactly what to do and why it works.",
+      "voiceoverText": "Here are two practical methods to meet diversity, equity, and inclusion standards. First, diverse recruitment. Actively source candidates from underrepresented groups by partnering with diverse professional organizations and universities. Use blind screening techniques that remove identifying information, allowing you to focus purely on skills and qualifications. This reduces unconscious bias in the hiring process. Second, implement mentorship and sponsorship programs. Actively mentor and sponsor diverse talent within your organization. Create clear pathways for growth and advancement opportunities. This ensures that diverse hires don't just join your organization, but thrive and advance into leadership roles.",
       "props": {
         "headerTitle": "Methods to Meet DEI Standards",
         "section1Title": "Diverse Recruitment:",
         "section1Lines": [
-          "Source candidates from underrepresented groups.",
-          "Use blind screening to focus on skills."
+          "Source from underrepresented groups",
+          "Use blind screening for skills"
         ],
         "section2Title": "Mentorship & Sponsorship:",
         "section2Lines": [
-          "Mentor and sponsor diverse talent.",
-          "Create growth and advancement opportunities."
+          "Mentor diverse talent",
+          "Create advancement opportunities"
         ],
         "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
         "logoPath": "",
@@ -1861,31 +1861,31 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "slideNumber": 10,
         "slideTitle": "Company Tools & Resources",
         "templateId": "company-tools-resources-slide",
-        "voiceoverText": "Let me walk you through the essential tools and resources that power our daily operations. Each of these platforms plays a critical role in ensuring seamless collaboration, efficient project delivery, continuous learning, and knowledge sharing across our entire organization.",
+        "voiceoverText": "Let me walk you through our essential company tools and resources. These platforms power our daily operations. For communication, we use Slack for instant messaging and team collaboration, email for formal communications, and Zoom for video conferencing. Project management happens through Jira for agile planning and Trello for visual task boards. For learning and development, we provide access to LinkedIn Learning courses, internal workshops, and certification support. Finally, our knowledge base in Confluence centralizes everything from playbooks to standards and guides, making it easy to find information when you need it.",
         "props": {
             "title": "Company Tools & Resources",
             "sections": [
             {
-                "title": "Communication Tools:",
-                "content": "We leverage Slack for instant messaging and channel-based team collaboration, enabling real-time discussions and quick decision-making. Email remains our formal communication channel for external stakeholders and official documentation. For video conferencing, we use Zoom with screen-sharing capabilities, virtual backgrounds, and recording features to support remote collaboration, client presentations, and team meetings across different time zones.",
+                "title": "Communication",
+                "content": "Slack, Email, Zoom",
                 "backgroundColor": "#E0E7FF",
                 "textColor": "#374151"
             },
             {
-                "title": "Project Management:",
-                "content": "Our project tracking infrastructure centers on Jira for agile sprint planning, issue tracking, and workflow automation, with customizable boards and detailed reporting dashboards. Trello serves as our lightweight alternative for smaller initiatives and visual task management. Both platforms integrate with our CI/CD pipeline, allowing teams to monitor burndown charts, track velocity metrics, manage backlogs efficiently, and maintain complete transparency across all project phases from inception to delivery.",
+                "title": "Project Management",
+                "content": "Jira, Trello",
                 "backgroundColor": "#FFFFFF",
                 "textColor": "#374151"
             },
             {
-                "title": "Learning & Development:",
-                "content": "We invest heavily in continuous professional growth through LinkedIn Learning subscriptions, providing access to thousands of expert-led courses covering technical skills, leadership development, and industry certifications. Our internal workshop series features monthly knowledge-sharing sessions, mentorship programs, and hands-on training labs. Additionally, we offer conference attendance budgets, certification reimbursement, and dedicated learning hours to ensure every team member has opportunities to upskill and stay current with emerging technologies and best practices.",
+                "title": "Learning",
+                "content": "LinkedIn Learning, Workshops",
                 "backgroundColor": "#FFFFFF",
                 "textColor": "#374151"
             },
             {
-                "title": "Knowledge Base:",
-                "content": "Our comprehensive Confluence workspace serves as the central repository for all organizational knowledge, including detailed playbooks, coding standards, architecture decision records, onboarding guides, and reusable templates. The knowledge base is organized into logical spaces by department and project, features powerful search capabilities, version control for documentation, and collaborative editing tools. Regular content reviews ensure documentation stays accurate, relevant, and accessible to all team members across the organization.",
+                "title": "Knowledge Base",
+                "content": "Confluence Documentation",
                 "backgroundColor": "#E0E7FF",
                 "textColor": "#374151"
             }
@@ -1900,7 +1900,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 11,
       "slideTitle": "AI Pharma Market Growth",
       "templateId": "ai-pharma-market-growth-slide",
-      "voiceoverText": "This chart shows remarkable growth in the AI pharma market over the past decade and projections into the future. Notice how the market has expanded exponentially from millions to billions.",
+      "voiceoverText": "This chart shows truly remarkable growth in the AI pharmaceutical market. Look at this trajectory. We started from just ten million dollars in 2012. By 2016, the market had grown tenfold to one hundred million. In 2020, we reached seven hundred million dollars. And the projections for 2030 are astounding - nine billion dollars. This exponential growth demonstrates how artificial intelligence is revolutionizing pharmaceutical research, accelerating drug discovery, and transforming clinical development processes. The pharmaceutical industry is embracing AI technology at an unprecedented pace.",
       "props": {
         "title": "AI Pharma\nMarket Growth",
         "bars": [
@@ -1919,10 +1919,10 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 12,
       "slideTitle": "Critical Thinking and Problem Solving",
       "templateId": "critical-thinking-slide",
-      "voiceoverText": "Critical thinking and problem solving are foundational skills for success. Let's explore how these abilities empower you to analyze information, make informed decisions, and overcome challenges effectively.",
+      "voiceoverText": "Critical thinking and problem solving are absolutely foundational skills for professional success. These abilities empower you to analyze information systematically, make informed decisions based on evidence, and overcome challenges effectively. Critical thinking means evaluating evidence carefully, questioning your assumptions, and considering multiple perspectives before reaching any conclusions. Problem solving requires you to break complex issues into manageable pieces, identify the root causes rather than just symptoms, and develop creative, practical solutions. Together, these skills form the essential foundation for sound decision-making in any professional context.",
       "props": {
         "title": "Critical Thinking\nand Problem Solving",
-        "content": "Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.",
+        "content": "Essential skills to analyze information, make informed decisions, and overcome challenges.",
         "highlightedPhrases": ["analyze information,", "make informed decisions,", "overcome challenges."],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "companyLogoPath": "",
@@ -1934,16 +1934,16 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "slideNumber": 13,
         "slideTitle": "Key Benefits",
         "templateId": "benefits-tags-slide",
-        "voiceoverText": "Let me highlight the six key benefits you'll gain from implementing these strategies. Each represents a critical advantage, with enhanced productivity being the most transformative outcome you can expect from applying what we've learned today.",
+        "voiceoverText": "Let me highlight six key benefits you'll see from implementation. First, cost-effectiveness through smart resource allocation that reduces unnecessary expenses. Second, improved efficiency that streamlines workflows and eliminates time waste. Third, scalability that enables growth without proportional cost increases. Fourth, innovation that drives competitive advantage. Fifth, enhanced security to protect your valuable assets and data. And most importantly, significantly enhanced productivity, which is highlighted here because it combines all these benefits to maximize your output and overall performance. Each of these represents a critical advantage.",
         "props": {
             "title": "Key Benefits",
             "tags": [
-            { "text": "Cost Savings", "isHighlighted": false },
+            { "text": "Cost-Effective", "isHighlighted": false },
             { "text": "Efficiency", "isHighlighted": false },
             { "text": "Scalability", "isHighlighted": false },
             { "text": "Innovation", "isHighlighted": false },
             { "text": "Security", "isHighlighted": false },
-            { "text": "Enhanced Productivity", "isHighlighted": true }
+            { "text": "Productivity", "isHighlighted": true }
             ],
             "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
             "companyLogoPath": "",
@@ -1955,25 +1955,25 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
     "slideNumber": 14,
     "slideTitle": "Q1 2025 KPI Update",
     "templateId": "kpi-update-slide",
-    "voiceoverText": "Let's review our quarterly key performance indicators. These four critical metrics demonstrate measurable progress across our organization and highlight the areas where we're achieving the most significant results and exceeding our strategic targets.",
+      "voiceoverText": "Let's review our Q1 2025 key performance indicators. We have four outstanding metrics to celebrate. First, revenue growth of twenty-four percent, significantly exceeding our fifteen percent target. Second, one hundred twenty-seven new enterprise features deployed, representing a forty percent increase in our delivery velocity. Third, customer satisfaction hit ninety-two percent, our highest rating ever, reflecting major improvements in product quality and support. Finally, we reached two point eight million active users in March, representing thirty-five percent quarter-over-quarter growth. These numbers demonstrate exceptional progress across all key areas.",
     "props": {
         "title": "Q1 2025 KPI Update",
         "items": [
         { 
             "value": "24%", 
-            "description": "Year-over-year revenue growth, significantly exceeding our 15% target and demonstrating strong market performance across all product lines and geographic regions." 
+            "description": "Revenue growth exceeding target" 
         },
         { 
             "value": "127", 
-            "description": "New enterprise features successfully deployed to production this quarter, representing a 40% increase in delivery velocity compared to Q4 2024." 
+            "description": "New enterprise features deployed" 
         },
         { 
             "value": "92%", 
-            "description": "Customer satisfaction score based on quarterly NPS survey, marking our highest rating ever and reflecting improvements in product quality and support responsiveness." 
+            "description": "Customer satisfaction score" 
         },
         { 
             "value": "2.8M", 
-            "description": "Total active users milestone reached in March, representing 35% quarter-over-quarter growth and validating our product-market fit in key demographics." 
+            "description": "Active users milestone" 
         }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
@@ -1988,10 +1988,10 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "slideNumber": 15,
         "slideTitle": "Phishing Threat Growth",
         "templateId": "phishing-rise-slide",
-        "voiceoverText": "Phishing attacks have become an escalating cybersecurity threat over the past four years. This vertical bar chart illustrates the dramatic increase in both incident frequency and financial impact, demonstrating why proactive security awareness and robust prevention strategies are more critical than ever for protecting our organization.",
+        "voiceoverText": "Phishing attacks have become an escalating threat that demands our attention. This chart shows the alarming financial impact. In 2021, losses were forty-two million dollars. By 2022, they jumped to fifty-eight million. In 2023, seventy-one million. And in 2024, we saw eighty-nine million dollars in losses. This consistent upward trend isn't slowing down. What's particularly concerning is that ninety-three percent of modern phishing emails now contain ransomware. This is why proactive security awareness, employee training, advanced email filtering, and multi-factor authentication are absolutely critical for protecting our organizations.",
         "props": {
             "title": "Rise in Phishing Attacks",
-            "description": "Phishing has evolved into one of the most significant cybersecurity threats facing organizations today. Recent data from the Anti-Phishing Working Group shows a 250% surge in malicious phishing sites between 2020 and 2024. Perhaps most alarming, current research indicates that 93% of modern phishing emails now contain ransomware payloads, representing a fundamental shift in attack sophistication and potential organizational impact.",
+            "description": "Phishing threats have increased dramatically, with a 250% surge in malicious sites and 93% of emails containing ransomware.",
             "bars": [
             { "year": "2021", "valueLabel": "42M$", "height": 210 },
             { "year": "2022", "valueLabel": "58M$", "height": 290 },
@@ -2007,7 +2007,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "slideNumber": 16,
         "slideTitle": "Key Operational Challenges",
         "templateId": "problems-grid",
-        "voiceoverText": "Let's examine the four critical operational challenges currently impacting our organization. Understanding these interconnected problems is essential for developing comprehensive solutions. Each challenge represents a barrier to achieving our strategic objectives and requires immediate attention and coordinated response.",
+        "voiceoverText": "Let's examine four critical operational challenges facing organizations today. First, resource constraints that limit budget and personnel. Second, technical debt from legacy systems that slows development. Third, skill gaps in emerging technologies that prevent modernization. And fourth, process inefficiencies that create bottlenecks. Here's what's important to understand: these challenges are deeply interconnected. Resource constraints worsen technical debt. Skill gaps prevent process improvements. And inefficiencies drain the limited resources we have. To solve these problems, we need a coordinated strategic approach that addresses root causes, not just symptoms.",
         "props": {
             "tag": "The Problem",
             "title": "Key Operational Challenges",
@@ -2015,25 +2015,25 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
             { 
                 "number": "1", 
                 "title": "Resource Constraints", 
-                "body": "Limited budget and personnel resources prevent timely project completion and force prioritization of critical initiatives over strategic innovation opportunities."
+                "body": "Limited budget and personnel"
             },
             { 
                 "number": "2", 
                 "title": "Technical Debt", 
-                "body": "Accumulated legacy systems and outdated infrastructure slow development velocity, increase maintenance costs, and create security vulnerabilities across the platform."
+                "body": "Legacy systems slow development"
             },
             { 
                 "number": "3", 
                 "title": "Skill Gaps", 
-                "body": "Lack of specialized expertise in emerging technologies limits our ability to adopt modern solutions and compete effectively in rapidly evolving markets."
+                "body": "Lack of specialized expertise"
             },
             { 
                 "number": "4", 
                 "title": "Process Inefficiency", 
-                "body": "Manual workflows and disconnected systems create bottlenecks, duplicate efforts, and reduce productivity across multiple departments and business functions."
+                "body": "Manual workflows create bottlenecks"
             }
             ],
-            "rightText": "These four challenges are deeply interconnected and create compounding effects on organizational performance. Resource constraints exacerbate technical debt, skill gaps prevent process modernization, and inefficiencies drain the limited resources available. Addressing these issues requires a coordinated, strategic approach that tackles root causes rather than symptoms.",
+            "rightText": "These challenges are interconnected and require a coordinated approach.",
             "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
             "pageNumber": "16"
         }
@@ -2043,7 +2043,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 17,
       "slideTitle": "Step-by-step Solution Guide",
       "templateId": "solution-steps-slide",
-      "voiceoverText": "Here's your practical step-by-step guide to implementing the solution. Follow these three steps in order to achieve the best results.",
+      "voiceoverText": "Here's your practical three-step solution guide. Follow these steps in order for the best results. Step one: Know the regulations. Research and understand all regulations that apply to your specific industry and organization. Step two: Conduct thorough risk assessments. Systematically identify vulnerabilities, compliance gaps, and potential security threats in your current systems and processes. Step three: Provide comprehensive training and education. Ensure every team member understands their specific responsibilities and how to maintain compliance. This systematic approach will lead to successful implementation and sustained ongoing compliance.",
       "props": {
         "subtitle": "The Solution",
         "title": "Step-by-step Guide",
@@ -2062,31 +2062,31 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideNumber": 18,
       "slideTitle": "Hybrid Work Best Practices",
       "templateId": "hybrid-work-best-practices-slide",
-      "voiceoverText": "Adopting hybrid work requires the right people, processes, and technology. Here are four essential best practices to ensure a successful transition and maintain productivity across your distributed workforce.",
+      "voiceoverText": "Successfully adopting hybrid work requires the right people, processes, and technology. Let me share four essential best practices. First, communicate clearly with your employees about all decisions, since hybrid work affects everyone in your workforce. Second, work cross-functionally with both HR and IT teams to ensure seamless technology integration and support. Third, create an office environment that's dynamic and engaging, a place where employees genuinely want to work. And fourth, find creative ways to delight and connect with remote workers, maintaining high engagement regardless of location. Follow these practices for a successful transition.",
       "props": {
         "title": "HYBRID WORK BEST PRACTICES",
         "subtitle": "",
-        "mainStatement": "To adopt a hybrid work model, you need the right people, processes, and technology.",
+        "mainStatement": "You need the right people, processes, and technology.",
         "practices": [
           {
             "number": 1,
             "title": "Communicate with your employees",
-            "description": "When you roll out hybrid work, your decisions will affect everyone in your workforce."
+            "description": "Clear communication about decisions"
           },
           {
             "number": 2,
             "title": "Work with HR and IT",
-            "description": "Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless."
+            "description": "Cross-functional collaboration"
           },
           {
             "number": 3,
             "title": "Create the right work environment",
-            "description": "Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important."
+            "description": "Dynamic and engaging office"
           },
           {
             "number": 4,
             "title": "Delight and connect remote",
-            "description": "Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high."
+            "description": "Maintain engagement for all"
           }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
@@ -14741,16 +14741,27 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `voiceoverText` (string, MANDATORY for Video Lessons): For Video Lesson Presentations, you MUST include conversational voiceover text that explains the slide content in detail. This field is REQUIRED for every slide in video lessons.
 
             **Template Assignment Guidelines:**
-            Assign templateId based on the content structure of each slide:
-            - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
-            - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
-            - If slide has numbered steps → use "process-steps"
-            - If slide has 4 distinct points → use "four-box-grid"
-            - If slide has metrics/statistics → use "big-numbers"
-            - If slide has hierarchical content → use "pyramid"
-            - If slide has timeline content → use "timeline"
-            - For standard content → use "content-slide"
+            For Video Lesson Presentations, prioritize using these 18 specialized templates over generic ones. Choose templates based on content structure:
+            - Course introduction/overview → use "course-overview-slide"
+            - Impact metrics/statistics → use "impact-statements-slide"
+            - Key definitions/terms → use "phishing-definition-slide"
+            - Culture/organizational values (3 columns) → use "culture-values-three-columns"
+            - Assessment tips/advice → use "soft-skills-assessment-slide"
+            - Conclusion/next steps → use "work-life-balance-slide"
+            - Percentage/circular statistics → use "percent-circles"
+            - Benefits/features list → use "benefits-list-slide"
+            - DEI/diversity methods → use "dei-methods"
+            - Company tools/resources (4 sections) → use "company-tools-resources-slide"
+            - Market growth/bar charts → use "ai-pharma-market-growth-slide"
+            - Critical thinking/soft skills → use "critical-thinking-slide"
+            - Benefits as tags/badges → use "benefits-tags-slide"
+            - KPI updates/metrics → use "kpi-update-slide"
+            - Threat/risk growth charts → use "phishing-rise-slide"
+            - Problems/challenges grid → use "problems-grid"
+            - Solution steps/guide → use "solution-steps-slide"
+            - Best practices (4 items) → use "hybrid-work-best-practices-slide"
+            
+            Use these specialized templates whenever content matches, and vary templates throughout the presentation. Avoid using the same template more than once unless necessary.
             
             **CRITICAL TABLE RULE:**
             - If ANY of these words appear in the prompt or slide content → MANDATORY USE `table-dark` or `table-light`:
@@ -14956,6 +14967,319 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               ]
             }
             ```
+
+            **SPECIALIZED VIDEO LESSON TEMPLATES (USE THESE FOR VIDEO LESSONS):**
+
+            15. **`course-overview-slide`** - Course introduction/overview:
+            ```json
+            "props": {
+              "title": "Welcome to the Course",
+              "subtitle": "Brief description of learning objectives",
+              "imagePath": "https://via.placeholder.com/600x400?text=Course+Image",
+              "imageAlt": "Course overview illustration",
+              "logoPath": "",
+              "pageNumber": 1
+            }
+            ```
+
+            16. **`impact-statements-slide`** - Impact metrics with numbers and descriptions:
+            ```json
+            "props": {
+              "title": "Impact Statistics",
+              "statements": [
+                { "number": "95%", "description": "Brief metric description" },
+                { "number": "3x", "description": "Brief metric description" },
+                { "number": "50%", "description": "Brief metric description" }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "pageNumber": 2,
+              "logoNew": ""
+            }
+            ```
+
+            17. **`phishing-definition-slide`** - Key definitions/terms list:
+            ```json
+            "props": {
+              "title": "Key Definitions",
+              "definitions": [
+                "Term 1",
+                "Term 2",
+                "Term 3"
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "rightImagePrompt": "Image description for AI generation",
+              "rightImageAlt": "Image alt text",
+              "pageNumber": 3,
+              "logoPath": ""
+            }
+            ```
+
+            18. **`culture-values-three-columns`** - Three-column layout for values:
+            ```json
+            "props": {
+              "title": "Our Culture & Values",
+              "leftTitle": "First Value",
+              "leftText": "Brief description of first value",
+              "middleTitle": "Second Value",
+              "middleText": "Brief description of second value",
+              "rightTitle": "Third Value",
+              "rightText": "Brief description of third value",
+              "middlePanelColor": "#3B46FF",
+              "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+              "logoPath": ""
+            }
+            ```
+
+            19. **`soft-skills-assessment-slide`** - Assessment tips with highlighted items:
+            ```json
+            "props": {
+              "title": "Assessment Tips",
+              "tips": [
+                { "text": "First tip", "isHighlighted": true },
+                { "text": "Second tip", "isHighlighted": false }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "pageNumber": 5,
+              "logoPath": "",
+              "logoText": "Assessment Guide"
+            }
+            ```
+
+            20. **`work-life-balance-slide`** - Conclusion/next steps with content:
+            ```json
+            "props": {
+              "title": "Conclusion and Next Steps",
+              "content": "Brief summary and action items",
+              "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
+              "pageNumber": 6,
+              "logoPath": ""
+            }
+            ```
+
+            21. **`percent-circles`** - Circular percentage statistics:
+            ```json
+            "props": {
+              "title": "Main Statistic Title",
+              "percent": "10%",
+              "bottomCards": [
+                { "value": "3%", "text": "Brief description" },
+                { "value": "35%", "text": "Brief description", "hasArrow": true }
+              ],
+              "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+              "logoPath": "",
+              "logoText": "Your Logo",
+              "pageNumber": "7"
+            }
+            ```
+
+            22. **`benefits-list-slide`** - List of benefits/features:
+            ```json
+            "props": {
+              "title": "Benefits",
+              "subtitle": "Category",
+              "description": "Brief intro description",
+              "benefits": [
+                "Benefit 1",
+                "Benefit 2",
+                "Benefit 3"
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "profileImageAlt": "Profile image",
+              "currentStep": 3,
+              "totalSteps": 4,
+              "companyName": "Company name",
+              "benefitsListIcon": "",
+              "logoNew": "",
+              "pageNumber": "8"
+            }
+            ```
+
+            23. **`dei-methods`** - Two-section methods layout:
+            ```json
+            "props": {
+              "headerTitle": "Methods Title",
+              "section1Title": "Method 1:",
+              "section1Lines": [
+                "Brief point 1",
+                "Brief point 2"
+              ],
+              "section2Title": "Method 2:",
+              "section2Lines": [
+                "Brief point 1",
+                "Brief point 2"
+              ],
+              "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+              "logoPath": "",
+              "logoText": "Your Logo"
+            }
+            ```
+
+            24. **`company-tools-resources-slide`** - Four-section tools grid:
+            ```json
+            "props": {
+              "title": "Company Tools & Resources",
+              "sections": [
+                {
+                  "title": "Category 1",
+                  "content": "Brief description",
+                  "backgroundColor": "#E0E7FF",
+                  "textColor": "#374151"
+                },
+                {
+                  "title": "Category 2",
+                  "content": "Brief description",
+                  "backgroundColor": "#FFFFFF",
+                  "textColor": "#374151"
+                }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "companyLogoPath": "",
+              "pageNumber": "10"
+            }
+            ```
+
+            25. **`ai-pharma-market-growth-slide`** - Bar chart for growth:
+            ```json
+            "props": {
+              "title": "Market Growth Title",
+              "bars": [
+                { "year": "2020", "label": "$100M", "widthPercent": 50 },
+                { "year": "2024", "label": "$500M", "widthPercent": 100 }
+              ],
+              "doctorImagePath": "https://via.placeholder.com/300x600?text=Doctor",
+              "panelBackgroundColor": "#dfeeff",
+              "pageNumber": "11"
+            }
+            ```
+
+            26. **`critical-thinking-slide`** - Skills with highlighted phrases:
+            ```json
+            "props": {
+              "title": "Critical Thinking and Problem Solving",
+              "content": "Brief description with key phrases",
+              "highlightedPhrases": ["phrase 1,", "phrase 2,", "phrase 3."],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "companyLogoPath": "",
+              "pageNumber": "12"
+            }
+            ```
+
+            27. **`benefits-tags-slide`** - Benefits as tags/badges:
+            ```json
+            "props": {
+              "title": "Key Benefits",
+              "tags": [
+                { "text": "Benefit 1", "isHighlighted": false },
+                { "text": "Benefit 2", "isHighlighted": true }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "companyLogoPath": "",
+              "pageNumber": "13"
+            }
+            ```
+
+            28. **`kpi-update-slide`** - KPI metrics with descriptions:
+            ```json
+            "props": {
+              "title": "Q1 2025 KPI Update",
+              "items": [
+                { 
+                  "value": "24%", 
+                  "description": "Brief description of metric"
+                },
+                { 
+                  "value": "127", 
+                  "description": "Brief description of metric"
+                }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "footerLeft": "Company",
+              "footerCenter": "Report Type",
+              "footerRight": "Date",
+              "pageNumber": "14"
+            }
+            ```
+
+            29. **`phishing-rise-slide`** - Threat growth with bar chart:
+            ```json
+            "props": {
+              "title": "Rise in Threats",
+              "description": "Brief contextual description",
+              "bars": [
+                { "year": "2021", "valueLabel": "42M$", "height": 210 },
+                { "year": "2024", "valueLabel": "89M$", "height": 445 }
+              ],
+              "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "pageNumber": "15"
+            }
+            ```
+
+            30. **`problems-grid`** - Four problems in grid layout:
+            ```json
+            "props": {
+              "tag": "The Problem",
+              "title": "Key Challenges",
+              "cards": [
+                { 
+                  "number": "1", 
+                  "title": "Challenge 1", 
+                  "body": "Brief description"
+                },
+                { 
+                  "number": "2", 
+                  "title": "Challenge 2", 
+                  "body": "Brief description"
+                }
+              ],
+              "rightText": "Brief summary text",
+              "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+              "pageNumber": "16"
+            }
+            ```
+
+            31. **`solution-steps-slide`** - Three-step solution guide:
+            ```json
+            "props": {
+              "subtitle": "The Solution",
+              "title": "Step-by-step Guide",
+              "steps": [
+                { "title": "Step 1", "description": "Brief step description" },
+                { "title": "Step 2", "description": "Brief step description" },
+                { "title": "Step 3", "description": "Brief step description" }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "logoNew": "",
+              "pageNumber": "17"
+            }
+            ```
+
+            32. **`hybrid-work-best-practices-slide`** - Four best practices:
+            ```json
+            "props": {
+              "title": "Best Practices Title",
+              "subtitle": "",
+              "mainStatement": "Brief main statement",
+              "practices": [
+                {
+                  "number": 1,
+                  "title": "Practice 1",
+                  "description": "Brief description"
+                },
+                {
+                  "number": 2,
+                  "title": "Practice 2",
+                  "description": "Brief description"
+                }
+              ],
+              "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+              "teamImagePath": "https://via.placeholder.com/400x200?text=Team",
+              "logoPath": "",
+              "logoText": "Your Logo",
+              "pageNumber": "18"
+            }
+            ```
+
+            **CRITICAL: For Video Lesson Presentations, you MUST use the specialized templates (15-32) above. These templates are specifically designed for video lessons with voiceover. Vary your template selection throughout the presentation - do not use the same template repeatedly unless the content structure specifically requires it.**
 
             **Content Parsing Instructions:**
             - Extract slide titles from headings or "**Slide N: Title**" format
