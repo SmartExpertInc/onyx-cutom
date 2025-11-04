@@ -767,10 +767,10 @@ export default function Media({
               
               {/* Text rows with reduced spacing */}
               <div className="mt-2 flex flex-col gap-0.5">
-                <p style={{ fontSize: '10px', color: '#878787', lineHeight: '1.2' }}>
+                <p style={{ fontSize: '8px', color: '#878787', lineHeight: '1.2' }}>
                   Agent uses credits to deliver advanced AI editing.
                 </p>
-                <p style={{ fontSize: '10px', color: '#719AF5', lineHeight: '1.2', cursor: 'pointer' }}>
+                <p style={{ fontSize: '8px', color: '#719AF5', lineHeight: '1.2', cursor: 'pointer' }}>
                   Learn more
                 </p>
               </div>
@@ -824,9 +824,9 @@ export default function Media({
                 <div className="relative border rounded-md" style={{ borderColor: '#D60AFF' }}>
                   {/* Textarea */}
                   <textarea
-                    className="w-full px-3 pt-3 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
+                    className="w-full px-3 mt-3 mb-3.5 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
                     placeholder="Describe your image..."
-                    style={{ fontSize: '12px', color: '#171718', height: '70px', paddingBottom: '20px' }}
+                    style={{ fontSize: '12px', color: '#171718', height: '50px' }}
                   />
                   <style jsx>{`
                     textarea::placeholder {
@@ -844,7 +844,7 @@ export default function Media({
                   {/* Send button at bottom right */}
                   <button 
                     className="absolute bottom-2 right-2 flex items-center gap-1.5 px-1.5 py-0.5 border rounded-md transition-colors hover:bg-gray-50"
-                    style={{ borderColor: '#D60AFF' }}
+                    style={{ borderColor: '#D60AFF', boxShadow: '0px 1px 2px 0px #0000000D' }}
                   >
                     <span style={{ fontSize: '10px', color: '#D60AFF' }}>Send</span>
                     <svg width="10" height="10" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
