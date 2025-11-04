@@ -82,6 +82,9 @@ import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemp
 import TopicsSlideTemplate from './TopicsSlideTemplate';
 import ImpactValueStatsSlideTemplate from './ImpactValueStatsSlideTemplate';
 import PersonalAccountabilitySlideTemplate from './PersonalAccountabilitySlideTemplate';
+import ImpactValueStatsSidebarSlideTemplate from './ImpactValueStatsSidebarSlideTemplate';
+import CommonPainPointsSlideTemplate from './CommonPainPointsSlideTemplate';
+import FinancialImpactGridSlideTemplate from './FinancialImpactGridSlideTemplate';
 import TwoColumnWithCutoutImageSlideTemplate from './TwoColumnWithCutoutImageSlideTemplate';
 
 
@@ -3019,6 +3022,109 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bottomImagePath: { type: 'image', label: 'Bottom Image' },
       logoPath: { type: 'image', label: 'Logo' },
       pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  },
+
+  'impact-value-stats-sidebar-slide': {
+    id: 'impact-value-stats-sidebar-slide',
+    name: 'Impact Value Stats Sidebar',
+    description: 'Blue sidebar on left with title and avatar, white area on right with three statistics',
+    category: 'content',
+    icon: '📊',
+    component: ImpactValueStatsSidebarSlideTemplate,
+    defaultProps: {
+      title: 'Impact Value',
+      stats: [
+        { value: '+30%', description: 'Trust and loyalty', imagePath: '' },
+        { value: '$3.9', description: 'Saved in costs', imagePath: '' },
+        { value: '-15%', description: 'Legal expenses', imagePath: '' }
+      ],
+      avatarPath: '',
+      logoPath: '',
+      pageNumber: '19',
+      tagText: 'Presentation'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      stats: { type: 'array', label: 'Statistics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' },
+      tagText: { type: 'text', label: 'Tag Text' }
+    }
+  },
+
+  'common-pain-points-slide': {
+    id: 'common-pain-points-slide',
+    name: 'Common Pain Points',
+    description: 'Text on left with pain points list, blue background with avatar on right',
+    category: 'content',
+    icon: '⚠️',
+    component: CommonPainPointsSlideTemplate,
+    defaultProps: {
+      title: 'Common Pain Points',
+      painPoints: [
+        { text: 'Hindered career progression and access to valuable resources.', iconType: 'document' },
+        { text: 'Strained communication and reduced effectiveness.', iconType: 'message' },
+        { text: 'Missed opportunities for collaboration and growth.', iconType: 'arrow' }
+      ],
+      avatarPath: '',
+      logoPath: '',
+      pageNumber: '31',
+      tagText: 'Pain Points'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      painPoints: { type: 'array', label: 'Pain Points', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' },
+      tagText: { type: 'text', label: 'Tag Text' }
+    }
+  },
+
+  'financial-impact-grid-slide': {
+    id: 'financial-impact-grid-slide',
+    name: 'Financial Impact Grid',
+    description: 'Grid layout with 6 sections: top left avatar, top middle image/text, top right stats, bottom left title, bottom middle stats, bottom right image',
+    category: 'content',
+    icon: '💰',
+    component: FinancialImpactGridSlideTemplate,
+    defaultProps: {
+      topLeft: {
+        avatarPath: ''
+      },
+      topMiddle: {
+        imagePath: '',
+        value: '$4-$6',
+        description: 'Reduction in compensation costs'
+      },
+      topRight: {
+        value: '$170 billion',
+        description: 'Annual cost of US workplace accidents & injuries'
+      },
+      bottomLeft: {
+        title: 'The financial impact',
+        subtitle: 'InInterest growth',
+        pageNumber: '18'
+      },
+      bottomMiddle: {
+        value: '$4-$6',
+        description: 'ROI for every $1 invested'
+      },
+      bottomRight: {
+        imagePath: ''
+      },
+      logoPath: ''
+    },
+    propSchema: {
+      topLeft: { type: 'object', label: 'Top Left', required: true },
+      topMiddle: { type: 'object', label: 'Top Middle', required: true },
+      topRight: { type: 'object', label: 'Top Right', required: true },
+      bottomLeft: { type: 'object', label: 'Bottom Left', required: true },
+      bottomMiddle: { type: 'object', label: 'Bottom Middle', required: true },
+      bottomRight: { type: 'object', label: 'Bottom Right', required: true },
+      logoPath: { type: 'image', label: 'Logo' }
     }
   }
 
