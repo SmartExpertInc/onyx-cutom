@@ -2497,13 +2497,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       panelBackgroundColor: { type: 'color', label: 'Panel Color' }
     },
     avatarPosition: {
-      // ✅ RECTANGULAR AVATAR - Based on measured container logs (doctor image area)
+      // ✅ RECTANGULAR AVATAR - Based on updated measured container logs (doctor image area)
       // Doctor image positioned on right side of slide
-      // CSS: position: absolute, right: 144px, top: 48px, bottom: 155px, height: 96%
-      // Width added to CSS: 864px (45% of slide width for balanced layout)
-      x: 912,       // ✅ Calculated: 1920 - 144 (right) - 864 (width) = 912px
+      // CSS UPDATED: position: absolute, right: 40px (was 144px), top: 48px, bottom: 155px
+      // Width: 864px, height: 96%
+      x: 1016,      // ✅ Measured: 1016px (calculated: 1920 - 40 right - 864 width = 1016) ✓
       y: 48,        // ✅ Measured: 48px (matches CSS top)
-      width: 864,   // ✅ Added to CSS: 864px (right-side doctor image area)
+      width: 864,   // ✅ Measured: 864px (right-side doctor image area)
       height: 1037, // ✅ Measured: 1037px (96% of 1080 = 1036.8 ≈ 1037px)
       backgroundColor: '#0F58F9' // Blue background for avatar area
     }
