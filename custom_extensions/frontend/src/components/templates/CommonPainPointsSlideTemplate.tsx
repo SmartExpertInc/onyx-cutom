@@ -219,15 +219,14 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
   });
 
   const getIconPath = (iconType: string) => {
-    // Try different possible paths
-    const basePath = '/icons';
+    // Icons are in public root
     switch(iconType) {
       case 'document':
-        return `${basePath}/documentPainPoints.png`;
+        return '/documentPainPoints.png';
       case 'message':
-        return `${basePath}/messagePainPoints.png`;
+        return '/messagePainPoints.png';
       case 'arrow':
-        return `${basePath}/topArrowPainPoints.png`;
+        return '/topArrowPainPoints.png';
       default:
         return '';
     }
@@ -292,15 +291,11 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
                   style={iconImageStyle}
                   onError={(e) => {
                     console.error(`Failed to load icon: ${getIconPath(point.iconType)}`);
-                    // Try to load from public root if /icons/ doesn't work
                     const img = e.target as HTMLImageElement;
-                    const altPath = getIconPath(point.iconType).replace('/icons/', '/');
-                    if (altPath !== getIconPath(point.iconType) && !img.dataset.triedAlt) {
-                      img.dataset.triedAlt = 'true';
-                      img.src = altPath;
-                    } else {
-                      img.style.display = 'none';
-                    }
+                    img.style.display = 'none';
+                  }}
+                  onLoad={() => {
+                    console.log(`Successfully loaded icon: ${getIconPath(point.iconType)}`);
                   }}
                 />
               </div>
