@@ -21,6 +21,7 @@ export default function Media({
   const popupRef = useRef<HTMLDivElement>(null);
   const [selectedOption, setSelectedOption] = useState<string>('image');
   const [isLocationsExpanded, setIsLocationsExpanded] = useState<boolean>(false);
+  const [selectedMusicIndex, setSelectedMusicIndex] = useState<number | null>(null);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -130,11 +131,11 @@ export default function Media({
         {/* Bottom buttons */}
         <div className="space-y-3">
           {/* Upload button */}
-          <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" style={{ boxShadow: '0px 1px 2px 0px #0000000D' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+          <button className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-white border rounded-md hover:bg-gray-50 transition-colors cursor-pointer" style={{ borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-sm" style={{ color: '#171718' }}>{t('panels.media.upload', 'Upload')}</span>
+            <span className="text-xs text-black">{t('panels.media.upload', 'Upload')}</span>
           </button>
         </div>
       </div>
@@ -251,8 +252,8 @@ export default function Media({
                   <div key={index} className="bg-gray-200 rounded-md w-full relative" style={{ aspectRatio: '16/9' }}>
                     {/* Time overlay in top-left corner */}
                     <div 
-                      className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-sm text-white text-xs"
-                      style={{ backgroundColor: '#00000080' }}
+                      className="absolute top-3 left-3 px-1 py-0.5 rounded-xs text-white"
+                      style={{ backgroundColor: '#00000080', fontSize: '10px' }}
                     >
                       {timeString}
                     </div>
@@ -260,8 +261,35 @@ export default function Media({
                 );
               })}
             </div>
+          ) : selectedOption === 'music' ? (
+            /* Music view - 6 rows of horizontal divs */
+            <div className="flex flex-col gap-3 pb-4">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div 
+                  key={index} 
+                  onClick={() => setSelectedMusicIndex(index)}
+                  className="flex items-center gap-4 p-3 border rounded-md w-full cursor-pointer transition-colors"
+                  style={{ 
+                    borderColor: '#E0E0E0',
+                    backgroundColor: selectedMusicIndex === index ? '#E0E0E0' : 'white'
+                  }}
+                >
+                  {/* Play icon SVG */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24.002 43.9961C35.0476 43.9961 44.002 35.0418 44.002 23.9961C44.002 12.9504 35.0476 3.99609 24.002 3.99609C12.9563 3.99609 4.00195 12.9504 4.00195 23.9961C4.00195 35.0418 12.9563 43.9961 24.002 43.9961Z" stroke="#4D4D4D" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M20.002 15.9961L32.002 23.9961L20.002 31.9961V15.9961Z" stroke="#4D4D4D" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  
+                  {/* Text content */}
+                  <div className="flex flex-col">
+                    <span style={{ color: '#171718', fontSize: '14px' }}>Epic New Wrold</span>
+                    <span style={{ color: '#878787', fontSize: '10px' }}>2:14</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
-            /* Empty view for other options (Music, Icon, AI image) */
+            /* Empty view for other options (Icon, AI image) */
             <div className="flex items-center justify-center h-full">
               {/* Empty for now */}
             </div>
