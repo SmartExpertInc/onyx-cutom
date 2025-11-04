@@ -57,7 +57,7 @@ const Page = async (props: {
 
       <div className="absolute top-10x w-full"></div>
       <div className="flex w-full flex-col justify-center">
-        <h2 className="text-center text-3xl font-bold text-gray-900 mb-6">
+        <h2 className="text-center text-3xl font-bold text-white mb-6">
           Reset Password
         </h2>
 

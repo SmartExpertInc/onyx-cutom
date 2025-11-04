@@ -57,7 +57,7 @@ export default function LoginPage({
                 href="/auth/forgot-password"
                 className="text-blue-600 font-semibold"
               >
-                Reset Password
+                Forgot your password? Click here
               </Link>
             </div>
           )}
@@ -92,7 +92,7 @@ export default function LoginPage({
                 href="/auth/forgot-password"
                 className="text-blue-600 font-semibold"
               >
-                Reset Password
+                Forgot your password? Click here
               </Link>
             </div>
           )}
