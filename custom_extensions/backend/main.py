@@ -19476,8 +19476,24 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Successfully mapped {len(file_ids)} SmartDrive files to Onyx file IDs: {file_ids}")
-                        # Extract context from the mapped file IDs
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract context from the mapped file IDs WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        
+                        if not file_context:
+                            file_context = f"Selected files: {', '.join(raw_paths)}\nNote: File extraction completed but no context was returned."
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths: {smartdrive_file_paths}")
                         file_context = f"Selected files: {', '.join(raw_paths)}\nNote: These files are from SmartDrive but could not be mapped to indexed content. Please ensure the files have been properly imported and indexed."
