@@ -775,13 +775,18 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	// Filter out folders - only allow file selection
 	useEffect(() => {
 		if (mode === 'select' && onFilesSelected) {
+			// Filter to only include files (exclude folders)
+			// We check against current items without adding to deps to avoid re-render loops
 			const filesOnly = Array.from(selected).filter(path => {
 				const item = items.find(i => i.path === path);
 				return item && item.type === 'file';
 			});
 			onFilesSelected(filesOnly);
 		}
-	}, [mode, selected, onFilesSelected, items]);
+		// Note: items is intentionally NOT in deps to avoid constant re-renders
+		// The filter happens with the current items when selected changes
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [mode, selected, onFilesSelected]);
 
 	return (
 		<div className={`space-y-3 text-gray-900 ${className}`}>
