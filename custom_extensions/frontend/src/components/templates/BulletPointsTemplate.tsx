@@ -251,7 +251,7 @@ function UnifiedBulletEditor({
 
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
-    fontSize: '0.95rem',
+    fontSize: '0.9rem',
     marginTop: '-5px',
     opacity: '1',
     color: '#ffffff',
