@@ -875,7 +875,7 @@ export default function Media({
                       // Clear selected prompts if user manually edits
                       setSelectedPrompts([]);
                     }}
-                    className="w-full px-3 mt-3 mb-3.5 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
+                    className="w-full px-3 mt-3 mb-4 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
                     placeholder="Describe your image..."
                     style={{ fontSize: '12px', color: '#171718', height: '50px', paddingBottom: '32px' }}
                   />
