@@ -5246,7 +5246,7 @@ export default function DynamicAuditLandingPage() {
                   </span>
                 </div>
                 
-                <h3 className="font-medium text-[22px] xl:text-[38px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+                <h3 className="font-medium text-[22px] xl:text-[36px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                   Використайте AI-<br className="xl:hidden"/>{getLocalizedText(landingPageData?.language, {
                     en: 'tools for',
                     es: 'herramientas para',
@@ -5788,7 +5788,7 @@ export default function DynamicAuditLandingPage() {
                   }}
                 ></div>
                 <div 
-                    className="xl:w-full rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
+                    className="xl:w-full rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[25px]"
                   >
                     <h4 className="font-medium text-[20px] xl:text-[30px]">
                         {getLocalizedText(landingPageData?.language, {
@@ -6068,7 +6068,7 @@ export default function DynamicAuditLandingPage() {
                 {/* ROI Card 1 */}
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
+                  <p className="font-regular text-[20px] xl:text-[24px] leading-[130%] xl:order-2">
                     <span className="font-medium">1. {getLocalizedText(landingPageData?.language, {
                       en: 'Reduction in staff turnover by',
                       es: 'Reducción en la rotación de personal en',
@@ -6079,15 +6079,60 @@ export default function DynamicAuditLandingPage() {
                   </p>
                   
                   {/* Mobile: Progress Bar */}
-                  <div className="w-full xl:hidden">
-                    <div className="relative h-[8px] bg-[#E8F2FF] rounded-full overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full w-[35%] bg-[#3B82F6] rounded-full"></div>
-                      <div className="absolute left-[35%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#93C5FD] rounded-full border-2 border-[#3B82F6]"></div>
-                    </div>
+                  <div className="w-full xl:hidden lg:hidden">
+                    <svg width="290" height="16" viewBox="0 0 290 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_1766_27290)">
+                    <rect width="290" height="16" rx="8" fill="#DEE7FF"/>
+                    <rect width="116" height="16" rx="8" fill="#82A8FC"/>
+                    <g filter="url(#filter0_di_1766_27290)">
+                    <circle cx="108" cy="8" r="6" fill="white"/>
+                    </g>
+                    <g filter="url(#filter1_di_1766_27290)">
+                    <circle cx="108" cy="8" r="3" fill="#82A8FC"/>
+                    </g>
+                    </g>
+                    <defs>
+                    <filter id="filter0_di_1766_27290" x="98" y="-1" width="20" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27290"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27290" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27290"/>
+                    </filter>
+                    <filter id="filter1_di_1766_27290" x="101" y="2" width="14" height="14" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27290"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27290" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27290"/>
+                    </filter>
+                    <clipPath id="clip0_1766_27290">
+                    <rect width="290" height="16" rx="8" fill="white"/>
+                    </clipPath>
+                    </defs>
+                    </svg>
                   </div>
                   
                   {/* Desktop: Circular Progress */}
-                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#E8F2FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#F5F8FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
                     <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M140 70C140 108.66 108.66 140 70.0002 140C31.3403 140 0.000183105 108.66 0.000183105 70C0.000183105 31.3401 31.3403 0 70.0002 0C108.66 0 140 31.3401 140 70ZM16.4313 70C16.4313 99.5853 40.4149 123.569 70.0002 123.569C99.5855 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5855 16.4311 70.0002 16.4311C40.4149 16.4311 16.4313 40.4147 16.4313 70Z" fill="#DEE7FF"/>
                     <path d="M74.9267 131.588C75.2885 136.111 71.9064 140.121 67.3723 139.951C51.7294 139.364 36.6436 133.54 24.6071 123.287C10.4746 111.248 1.7034 94.0877 0.223069 75.5816C-1.25727 57.0756 4.67453 38.7394 16.7135 24.6069C26.967 12.5704 40.9352 4.42285 56.2858 1.35634C60.7353 0.467503 64.7119 3.88941 65.0737 8.41229V8.41229C65.4355 12.9352 62.0357 16.8323 57.6212 17.8808C46.6173 20.4943 36.6467 26.5457 29.2215 35.2621C20.0084 46.0772 15.469 60.1093 16.6019 74.2714C17.7347 88.4335 24.4471 101.566 35.2622 110.779C43.9786 118.204 54.7844 122.593 66.0638 123.424C70.5889 123.758 74.5649 127.065 74.9267 131.588V131.588Z" fill="#FFECC0"/>
@@ -6101,7 +6146,7 @@ export default function DynamicAuditLandingPage() {
                 {/* ROI Card 2 */}
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
+                  <p className="font-regular text-[20px] xl:text-[24px] leading-[130%] xl:order-2">
                     <span className="font-medium">2. {getLocalizedText(landingPageData?.language, {
                       en: 'Reduction in onboarding time by',
                       es: 'Reducción en el tiempo de incorporación en',
@@ -6112,18 +6157,63 @@ export default function DynamicAuditLandingPage() {
                   </p>
                   
                   {/* Mobile: Progress Bar */}
-                  <div className="w-full xl:hidden">
-                    <div className="relative h-[8px] bg-[#FFF9E6] rounded-full overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full w-[40%] bg-[#F59E0B] rounded-full"></div>
-                      <div className="absolute left-[40%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#FCD34D] rounded-full border-2 border-[#F59E0B]"></div>
-                    </div>
+                  <div className="w-full xl:hidden lg:hidden">
+                    <svg width="290" height="16" viewBox="0 0 290 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_1766_27336)">
+                    <rect width="290" height="16" rx="8" fill="#DEE7FF"/>
+                    <rect width="146" height="16" rx="8" fill="#FFECC0"/>
+                    <g filter="url(#filter0_di_1766_27336)">
+                    <circle cx="138" cy="8" r="6" fill="white"/>
+                    </g>
+                    <g filter="url(#filter1_di_1766_27336)">
+                    <circle cx="138" cy="8" r="3" fill="#FFECC0"/>
+                    </g>
+                    </g>
+                    <defs>
+                    <filter id="filter0_di_1766_27336" x="128" y="-1" width="20" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27336"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27336" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27336"/>
+                    </filter>
+                    <filter id="filter1_di_1766_27336" x="131" y="2" width="14" height="14" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27336"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27336" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27336"/>
+                    </filter>
+                    <clipPath id="clip0_1766_27336">
+                    <rect width="290" height="16" rx="8" fill="white"/>
+                    </clipPath>
+                    </defs>
+                    </svg>
                   </div>
                   
                   {/* Desktop: Circular Progress */}
-                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#FFF9E6] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
-                    <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
-                    <path d="M74.9265 131.588C75.2883 136.111 71.9067 140.121 67.3725 139.951C60.9554 139.71 54.5888 138.586 48.4542 136.602C39.7079 133.772 31.6046 129.248 24.6069 123.287C17.6092 117.326 11.8542 110.045 7.67034 101.859C4.73582 96.1182 2.61458 90.0111 1.3565 83.7139C0.46758 79.2645 3.88941 75.2883 8.41229 74.9265V74.9265C12.9352 74.5647 16.8325 77.9642 17.881 82.3787C18.8674 86.5321 20.3491 90.5623 22.301 94.3809C25.5028 100.645 29.9069 106.217 35.2621 110.779C40.6172 115.341 46.8184 118.803 53.5116 120.968C57.592 122.288 61.8065 123.11 66.0639 123.424C70.589 123.757 74.5647 127.065 74.9265 131.588V131.588Z" fill="#B1EFE6"/>
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#F5F8FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
+                    <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 3.05176e-05 108.66 3.05176e-05 70C3.05176e-05 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4312 70C16.4312 99.5853 40.4148 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4148 16.4311 16.4312 40.4147 16.4312 70Z" fill="#DEE7FF"/>
+                    <path d="M74.9266 131.588C75.2883 136.111 71.9066 140.121 67.3725 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C20.8876 122.024 11.0374 110.521 5.36286 96.8707C-0.311681 83.2207 -1.51924 68.1246 1.91324 53.7461C4.70722 42.0423 10.4588 31.303 18.5575 22.5271C21.6347 19.1926 26.8629 19.6238 29.814 23.0702C32.7652 26.5167 32.3057 31.6678 29.3505 35.1109C23.8264 41.5472 19.8829 49.2354 17.8953 57.5614C15.2685 68.5648 16.1926 80.1174 20.5352 90.5634C24.8777 101.009 32.4158 109.812 42.069 115.711C49.3733 120.174 57.6049 122.801 66.0638 123.424C70.5889 123.758 74.5648 127.065 74.9266 131.588Z" fill="#82A8FC"/>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-[16px] font-medium text-[#8C9398]">30-50%</span>
@@ -6134,7 +6224,7 @@ export default function DynamicAuditLandingPage() {
                 {/* ROI Card 3 */}
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
+                  <p className="font-regular text-[20px] xl:text-[24px] leading-[130%] xl:order-2">
                     <span className="font-medium">3. {getLocalizedText(landingPageData?.language, {
                       en: 'Increase in productivity of new employees by',
                       es: 'Aumento en la productividad de nuevos empleados en',
@@ -6145,19 +6235,64 @@ export default function DynamicAuditLandingPage() {
                   </p>
                   
                   {/* Mobile: Progress Bar */}
-                  <div className="w-full xl:hidden">
-                    <div className="relative h-[8px] bg-[#E8F2FF] rounded-full overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full w-[25%] bg-[#10B981] rounded-full"></div>
-                      <div className="absolute left-[25%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#6EE7B7] rounded-full border-2 border-[#10B981]"></div>
-                    </div>
+                  <div className="w-full xl:hidden lg:hidden">
+                    <svg width="290" height="16" viewBox="0 0 290 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_1766_27387)">
+                    <rect width="290" height="16" rx="8" fill="#DEE7FF"/>
+                    <rect width="67" height="16" rx="8" fill="#B1EFE6"/>
+                    <g filter="url(#filter0_di_1766_27387)">
+                    <circle cx="59" cy="8" r="6" fill="white"/>
+                    </g>
+                    <g filter="url(#filter1_di_1766_27387)">
+                    <circle cx="59" cy="8" r="3" fill="#B1EFE6"/>
+                    </g>
+                    </g>
+                    <defs>
+                    <filter id="filter0_di_1766_27387" x="49" y="-1" width="20" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27387"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27387" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27387"/>
+                    </filter>
+                    <filter id="filter1_di_1766_27387" x="52" y="2" width="14" height="14" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27387"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27387" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27387"/>
+                    </filter>
+                    <clipPath id="clip0_1766_27387">
+                    <rect width="290" height="16" rx="8" fill="white"/>
+                    </clipPath>
+                    </defs>
+                    </svg>
                   </div>
                   
                   {/* Desktop: Circular Progress */}
-                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#E6F7F5] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
-                    <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
-                    <path d="M74.9265 131.588C75.2883 136.111 71.9066 140.121 67.3724 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C23.234 123.458 14.7977 114.669 8.95396 104.255C6.73361 100.298 8.75927 95.4588 12.949 93.717V93.717C17.1387 91.9753 21.8958 94.0042 24.2571 97.8786C28.6713 105.121 34.7646 111.248 42.0689 115.711C49.3732 120.174 57.6048 122.801 66.0638 123.424C70.5888 123.758 74.5647 127.065 74.9265 131.588V131.588Z" fill="#F6D9FC"/>
-                    </svg>
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#F5F8FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
+                      <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
+                      <path d="M74.9265 131.588C75.2883 136.111 71.9067 140.121 67.3725 139.951C60.9554 139.71 54.5888 138.586 48.4542 136.602C39.7079 133.772 31.6046 129.248 24.6069 123.287C17.6092 117.326 11.8542 110.045 7.67034 101.859C4.73582 96.1182 2.61458 90.0111 1.3565 83.7139C0.46758 79.2645 3.88941 75.2883 8.41229 74.9265C12.9352 74.5647 16.8325 77.9642 17.881 82.3787C18.8674 86.5321 20.3491 90.5623 22.301 94.3809C25.5028 100.645 29.9069 106.217 35.2621 110.779C40.6172 115.341 46.8184 118.803 53.5116 120.968C57.592 122.288 61.8065 123.11 66.0639 123.424C70.589 123.757 74.5647 127.065 74.9265 131.588Z" fill="#B1EFE6"/>
+                      </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-[16px] font-medium text-[#8C9398]">15-25%</span>
                     </div>
@@ -6167,7 +6302,7 @@ export default function DynamicAuditLandingPage() {
                 {/* ROI Card 4 */}
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px] xl:items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[20px]">
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%] xl:order-2">
+                  <p className="font-regular text-[20px] xl:text-[24px] leading-[130%] xl:order-2">
                     <span className="font-medium">4. {getLocalizedText(landingPageData?.language, {
                       en: 'Savings of up to',
                       es: 'Ahorros de hasta',
@@ -6184,15 +6319,60 @@ export default function DynamicAuditLandingPage() {
                   </p>
                   
                   {/* Mobile: Progress Bar */}
-                  <div className="w-full xl:hidden">
-                    <div className="relative h-[8px] bg-[#E8F2FF] rounded-full overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full w-[20%] bg-[#A855F7] rounded-full"></div>
-                      <div className="absolute left-[20%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-[#D8B4FE] rounded-full border-2 border-[#A855F7]"></div>
-                    </div>
+                  <div className="w-full xl:hidden lg:hidden">
+                    <svg width="290" height="16" viewBox="0 0 290 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_1766_27397)">
+                    <rect width="290" height="16" rx="8" fill="#DEE7FF"/>
+                    <rect width="58" height="16" rx="8" fill="#F6D9FC"/>
+                    <g filter="url(#filter0_di_1766_27397)">
+                    <circle cx="50" cy="8" r="6" fill="white"/>
+                    </g>
+                    <g filter="url(#filter1_di_1766_27397)">
+                    <circle cx="50" cy="8" r="3" fill="#F6D9FC"/>
+                    </g>
+                    </g>
+                    <defs>
+                    <filter id="filter0_di_1766_27397" x="40" y="-1" width="20" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27397"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27397" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27397"/>
+                    </filter>
+                    <filter id="filter1_di_1766_27397" x="43" y="2" width="14" height="14" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="2"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1766_27397"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1766_27397" result="shape"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dx="1" dy="1"/>
+                    <feGaussianBlur stdDeviation="0.5"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.369685 0 0 0 0 0.352169 0 0 0 0 0.352169 0 0 0 0.15 0"/>
+                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow_1766_27397"/>
+                    </filter>
+                    <clipPath id="clip0_1766_27397">
+                    <rect width="290" height="16" rx="8" fill="white"/>
+                    </clipPath>
+                    </defs>
+                    </svg>
                   </div>
                   
                   {/* Desktop: Circular Progress */}
-                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#F5E6FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
+                  <div className="hidden xl:flex relative flex-shrink-0 w-[120px] h-[120px] bg-[#F5F8FF] rounded-[8px] shadow-sm items-center justify-center p-3 xl:order-1">
                     <svg className="w-full h-full" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M140 70C140 108.66 108.66 140 70 140C31.3401 140 0 108.66 0 70C0 31.3401 31.3401 0 70 0C108.66 0 140 31.3401 140 70ZM16.4311 70C16.4311 99.5853 40.4147 123.569 70 123.569C99.5853 123.569 123.569 99.5853 123.569 70C123.569 40.4147 99.5853 16.4311 70 16.4311C40.4147 16.4311 16.4311 40.4147 16.4311 70Z" fill="#DEE7FF"/>
                     <path d="M74.9265 131.588C75.2883 136.111 71.9066 140.121 67.3724 139.951C55.4391 139.503 43.7693 136.006 33.5017 129.732C23.234 123.458 14.7977 114.669 8.95396 104.255C6.73361 100.298 8.75927 95.4588 12.949 93.717V93.717C17.1387 91.9753 21.8958 94.0042 24.2571 97.8786C28.6713 105.121 34.7646 111.248 42.0689 115.711C49.3732 120.174 57.6048 122.801 66.0638 123.424C70.5888 123.758 74.5647 127.065 74.9265 131.588V131.588Z" fill="#F6D9FC"/>
