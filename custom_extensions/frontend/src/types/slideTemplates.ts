@@ -20,8 +20,8 @@ export interface AvatarPosition {
   width: number;    // Avatar width (pixels)
   height: number;   // Avatar height (pixels)
   backgroundColor?: string; // Optional background color for the template
-  shape?: 'circle' | 'rectangle'; // Avatar shape: 'circle' for circular mask, 'rectangle' for default
-  borderWidth?: number; // Border thickness in pixels (only for circular avatars)
+  shape?: 'circle' | 'rectangle' | 'arch'; // Avatar shape: 'circle' for circular mask, 'arch' for arch mask, 'rectangle' for default
+  borderWidth?: number; // Border thickness in pixels (for circular and arch avatars)
   borderColor?: string; // Border color in hex format (e.g., '#ffffff')
 }
 

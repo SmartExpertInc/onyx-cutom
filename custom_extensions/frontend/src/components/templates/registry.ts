@@ -1662,11 +1662,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
     avatarPosition: {
-      x: 925,       // Right side of slide
-      y: 118,       // Vertically centered
-      width: 935,
-      height: 843,
-      backgroundColor: '#ffffff'  // ✅ White background for avatar video
+      // ✅ ARCH AVATAR - Based on measured arch background container logs
+      // Arch background positioned on right side of slide
+      // CSS: border-radius: 50% 0 0 50% (rounded left side, sharp right side)
+      x: 1075,      // ✅ Measured: 1075px (left edge of arch container)
+      y: 235,       // ✅ Measured: 235px (top edge of arch container)
+      width: 799,   // ✅ Measured: 799px (arch container width)
+      height: 891,  // ✅ Measured: 891px (arch container height)
+      shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded left side)
+      backgroundColor: '#ffffff'  // White background for avatar area
     }
   },
 

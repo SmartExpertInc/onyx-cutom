@@ -65,7 +65,7 @@ class SimpleVideoComposer:
         """
         Compose slide and avatar videos using OpenCV.
         
-        Supports both rectangular and circular avatars based on 'shape' property.
+        Supports rectangular, circular, and arch avatars based on 'shape' property.
         
         Args:
             slide_video_path: Path to slide video (from working pipeline)
@@ -74,10 +74,10 @@ class SimpleVideoComposer:
             progress_callback: Optional callback for progress updates
             avatar_position: Optional dict with custom avatar position:
                            - Required: x, y, width, height (pixels)
-                           - Optional: shape ('circle' or 'rectangle', default: 'rectangle')
+                           - Optional: shape ('circle', 'arch', or 'rectangle', default: 'rectangle')
                            - Optional: backgroundColor (hex color string)
-                           - Optional: borderWidth (pixels, for circular avatars)
-                           - Optional: borderColor (hex color string, for circular avatars)
+                           - Optional: borderWidth (pixels, for circular and arch avatars)
+                           - Optional: borderColor (hex color string, for circular and arch avatars)
                            If not provided, uses default template position
             
         Returns:
@@ -222,12 +222,12 @@ class SimpleVideoComposer:
         2. Scales avatar to template dimensions (from avatar_config)
         3. Positions avatar at template coordinates (from avatar_config)
         4. Overlays avatar onto slide frame by frame
-        5. Supports both rectangular and circular avatars based on 'shape' property
+        5. Supports rectangular, circular, and arch avatars based on 'shape' property
         
         Args:
             avatar_config: Dict with 'x', 'y', 'width', 'height' keys for avatar positioning.
-                          Optional 'shape' key: 'circle' for circular mask, 'rectangle' (default) for rectangular.
-                          Optional 'borderWidth' and 'borderColor' for circular avatars.
+                          Optional 'shape' key: 'circle' for circular mask, 'arch' for arch mask, 'rectangle' (default) for rectangular.
+                          Optional 'borderWidth' and 'borderColor' for circular and arch avatars.
         """
         # Use provided config or fall back to default
         if avatar_config is None:
@@ -235,8 +235,13 @@ class SimpleVideoComposer:
         
         # Log avatar shape information
         shape = avatar_config.get('shape', 'rectangle')
+        shape_desc = {
+            'circle': 'circular mask',
+            'arch': 'arch mask (rounded left side)',
+            'rectangle': 'rectangular'
+        }.get(shape, 'rectangular')
         logger.info(f"🎬 [SIMPLE_COMPOSER] Frame composition using avatar config: {avatar_config}")
-        logger.info(f"🎬 [SIMPLE_COMPOSER] Avatar shape: {shape.upper()} ({'circular mask' if shape == 'circle' else 'rectangular'})")
+        logger.info(f"🎬 [SIMPLE_COMPOSER] Avatar shape: {shape.upper()} ({shape_desc})")
         try:
             logger.info("🎬 [SIMPLE_COMPOSER] Starting frame-by-frame composition")
             
@@ -328,7 +333,7 @@ class SimpleVideoComposer:
                             bg_color = self._hex_to_bgr(avatar_config['backgroundColor'])
                             cv2.rectangle(background, (x, y), (x + avatar_width, y + avatar_height), bg_color, -1)
                         
-                        # ✅ NEW: Apply circular mask if shape is 'circle'
+                        # ✅ NEW: Apply mask based on shape
                         if shape == 'circle':
                             border_width = avatar_config.get('borderWidth', 0)
                             border_color = avatar_config.get('borderColor', '#ffffff')
@@ -345,6 +350,22 @@ class SimpleVideoComposer:
                             
                             if frame_count == 0:  # Log once on first frame
                                 logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Using CIRCULAR avatar (border: {border_width}px)")
+                        elif shape == 'arch':
+                            border_width = avatar_config.get('borderWidth', 0)
+                            border_color = avatar_config.get('borderColor', '#ffffff')
+                            
+                            # Apply arch mask with optional border
+                            avatar_processed = self._apply_arch_mask(
+                                avatar_cropped,
+                                border_width=border_width,
+                                border_color=border_color
+                            )
+                            
+                            # Use alpha compositing for arch avatar (preserves transparency)
+                            background = self._overlay_with_alpha(background, avatar_processed, x, y)
+                            
+                            if frame_count == 0:  # Log once on first frame
+                                logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Using ARCH avatar (border: {border_width}px)")
                         else:
                             # Simple rectangular overlay (existing method - backward compatible)
                             background[y:y + avatar_height, 
@@ -529,6 +550,78 @@ class SimpleVideoComposer:
             
         except Exception as e:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Circular mask error: {str(e)}")
+            # Fallback: return frame with full opacity
+            if frame.shape[2] == 3:
+                frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
+                frame_bgra[:, :, 3] = 255  # Fully opaque
+                return frame_bgra
+            return frame
+    
+    def _apply_arch_mask(self, 
+                        frame: np.ndarray, 
+                        border_width: int = 0,
+                        border_color: str = '#ffffff') -> np.ndarray:
+        """
+        Apply arch mask to avatar frame with transparent background.
+        
+        This method creates an arch shape (rounded left side, sharp right side)
+        matching CSS border-radius: 50% 0 0 50% (pill shape with rounded left).
+        
+        Args:
+            frame: Avatar frame (BGR numpy array)
+            border_width: Border thickness in pixels (optional, default: 0)
+            border_color: Border color in hex format (optional, default: '#ffffff')
+            
+        Returns:
+            Frame with arch mask and alpha channel (BGRA)
+        """
+        try:
+            height, width = frame.shape[:2]
+            
+            # Create arch mask (rounded left side, sharp right side)
+            # CSS equivalent: border-radius: 50% 0 0 50% (pill shape with rounded left)
+            mask = np.zeros((height, width), dtype=np.uint8)
+            
+            # Calculate radius for rounded corners (50% of height)
+            radius = height // 2
+            
+            # Draw rectangle covering right portion (straight edges)
+            cv2.rectangle(mask, (radius, 0), (width, height), 255, -1)
+            
+            # Add rounded left side using two half-circles
+            # Top-left semicircle (angles: 90 to 270 degrees, rotated 90 degrees)
+            cv2.ellipse(mask, (radius, radius), (radius, radius), 90, 90, 270, 255, -1)
+            # Bottom-left semicircle (angles: 270 to 450 degrees, rotated 90 degrees)
+            cv2.ellipse(mask, (radius, height - radius), (radius, radius), 90, 270, 450, 255, -1)
+            
+            # Convert to BGRA for alpha channel
+            if frame.shape[2] == 3:  # BGR
+                frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
+            else:
+                frame_bgra = frame.copy()
+            
+            # Apply mask to alpha channel
+            frame_bgra[:, :, 3] = mask
+            
+            # Add border if specified
+            if border_width > 0:
+                bgr_color = self._hex_to_bgr(border_color)
+                # Draw border along the arch shape
+                # Top-left rounded border
+                cv2.ellipse(frame_bgra, (radius, radius), (radius, radius), 90, 90, 270, (*bgr_color, 255), border_width)
+                # Bottom-left rounded border
+                cv2.ellipse(frame_bgra, (radius, height - radius), (radius, radius), 90, 270, 450, (*bgr_color, 255), border_width)
+                # Right side straight borders
+                cv2.line(frame_bgra, (width, 0), (width, height), (*bgr_color, 255), border_width)
+                # Top and bottom straight borders
+                cv2.line(frame_bgra, (radius, 0), (width, 0), (*bgr_color, 255), border_width)
+                cv2.line(frame_bgra, (radius, height), (width, height), (*bgr_color, 255), border_width)
+                logger.debug(f"🎬 [SIMPLE_COMPOSER] Added arch border: {border_width}px, color: {border_color}")
+            
+            return frame_bgra
+            
+        except Exception as e:
+            logger.error(f"🎬 [SIMPLE_COMPOSER] Arch mask error: {str(e)}")
             # Fallback: return frame with full opacity
             if frame.shape[2] == 3:
                 frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
