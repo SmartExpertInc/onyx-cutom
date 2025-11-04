@@ -2164,7 +2164,7 @@ export default function DynamicAuditLandingPage() {
               
               <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
                 <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
-                  <div className="gap-2 flex items-center pb-[18px]">
+                  <div className="gap-5 flex items-center pb-[17px]">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
                     <p className="font-semibold text-[22px] text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
                       en: 'Open Positions',
@@ -2210,7 +2210,7 @@ export default function DynamicAuditLandingPage() {
                   )}
                 </div>
                 <div>
-                  <div className="gap-2 flex items-center pb-[25px]">
+                  <div className="gap-5 flex items-center pb-[25px]">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
                     <p className="font-semibold text-[22px] text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
                       en: 'Workforce Market Dynamics',
@@ -2305,7 +2305,7 @@ export default function DynamicAuditLandingPage() {
                                 </span>
                               )}
                             </div>
-                            <div className="font-normal text-[14px] text-[#09090B]">
+                            <div className="font-normal text-[24px] text-[#09090B]">
                               {getLocalizedText(landingPageData?.language, {
                                 en: 'specialists',
                                 es: 'especialistas',
@@ -2415,7 +2415,7 @@ export default function DynamicAuditLandingPage() {
                           <path d="M12.813 0.0775973C9.54975 -0.306312 6.28652 0.74944 3.8391 2.90893C1.39167 5.06842 0 8.18769 0 11.4989C0 14.0903 0.863797 16.5377 2.44742 18.6012C2.9753 19.2251 3.69513 20.5208 4.55893 22.2484C4.70289 22.5363 4.84686 22.8722 4.94284 23.2082H17.9958C18.0917 22.8722 18.2357 22.5843 18.3797 22.2484C19.2435 20.5688 19.9633 19.2731 20.4912 18.6492C22.5067 16.1058 23.3225 12.9386 22.8426 9.67534C22.0268 4.58854 17.8998 0.653462 12.813 0.0775973ZM17.2279 10.3952L11.0854 16.5377C10.7495 16.8736 10.3176 17.0176 9.93366 17.0176C9.54975 17.0176 9.06987 16.8736 8.78193 16.5377L5.71066 13.5144C5.0868 12.8906 5.0868 11.8348 5.71066 11.163C6.33451 10.5391 7.39026 10.5391 8.0621 11.163L9.93366 13.0345L14.9245 8.04372C15.5483 7.41987 16.6041 7.41987 17.2759 8.04372C17.8998 8.71556 17.8998 9.77132 17.2279 10.3952Z" fill="#0F58F9"/>
                         </svg>
                       </div>
-                      <h3 className="font-medium text-[40px] xl:text-[46px] leading-[115%] text-gray-900 mb-[10px]">
+                      <h3 className="font-medium text-[30px] xl:text-[40px] leading-[115%] text-gray-900 mb-[10px]">
                         {getLocalizedText(landingPageData?.language, {
                           en: 'Conclusion:',
                           es: 'Conclusión:',
@@ -2424,7 +2424,7 @@ export default function DynamicAuditLandingPage() {
                         })}
                       </h3>
                     </div>
-                    <p className="text-[20px] xl:text-2xl leading-[150%] text-gray-800">
+                    <p className="text-[16px] xl:text-[20px] leading-[150%] text-gray-800">
                       {getLocalizedText(landingPageData?.language, {
                         en: 'The retail sector for food products and everyday goods faces a persistent shortage of qualified personnel.',
                         es: 'El sector minorista de productos alimenticios y bienes de consumo cotidiano enfrenta una escasez persistente de personal calificado.',
@@ -2536,7 +2536,7 @@ export default function DynamicAuditLandingPage() {
                   ) : (
                     <span 
                       onClick={() => startEditing('burnoutFullDescription')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                       title="Click to edit full burnout description"
                     >
                       {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
@@ -2600,7 +2600,7 @@ export default function DynamicAuditLandingPage() {
                   ) : (
                     <span 
                       onClick={() => startEditing('turnoverFullDescription')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                       title="Click to edit full turnover description"
                     >
                       {landingPageData?.workforceCrisis?.turnover?.fullDescription || 
@@ -2671,7 +2671,7 @@ export default function DynamicAuditLandingPage() {
                   ) : (
                     <span 
                       onClick={() => startEditing('lossesFullDescription')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                       title="Click to edit full losses description"
                     >
                       {landingPageData?.workforceCrisis?.losses?.fullDescription || 
@@ -2735,7 +2735,7 @@ export default function DynamicAuditLandingPage() {
                   ) : (
                     <span 
                       onClick={() => startEditing('searchTimeFullDescription')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                       title="Click to edit full search time description"
                     >
                       {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
@@ -2803,7 +2803,7 @@ export default function DynamicAuditLandingPage() {
                       ) : (
                         <span 
                           onClick={() => startEditing('burnoutFullDescription')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                           title="Click to edit full burnout description"
                         >
                           {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
@@ -2867,7 +2867,7 @@ export default function DynamicAuditLandingPage() {
                       ) : (
                         <span 
                           onClick={() => startEditing('turnoverFullDescription')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                           title="Click to edit full turnover description"
                         >
                           {landingPageData?.workforceCrisis?.turnover?.fullDescription || 
@@ -2945,7 +2945,7 @@ export default function DynamicAuditLandingPage() {
                       ) : (
                         <span 
                           onClick={() => startEditing('lossesFullDescription')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                           title="Click to edit full losses description"
                         >
                           {landingPageData?.workforceCrisis?.losses?.fullDescription || 
@@ -3009,7 +3009,7 @@ export default function DynamicAuditLandingPage() {
                       ) : (
                         <span 
                           onClick={() => startEditing('searchTimeFullDescription')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 rounded"
                           title="Click to edit full search time description"
                         >
                           {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
@@ -3104,7 +3104,7 @@ export default function DynamicAuditLandingPage() {
                   )}
                 </h3>
   
-                <h3 className="hidden xl:block font-medium xl:text-[30px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                <h3 className="hidden xl:block font-medium xl:text-[30px] w-[670px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
                       initialValue={landingPageData?.serviceTemplatesDescription || 
@@ -3267,10 +3267,10 @@ export default function DynamicAuditLandingPage() {
                     
                     <span className="font-semibold text-[14px] xl:text-[18px] text-[#09090B]">
                       {getLocalizedText(landingPageData?.language, {
-                        en: 'Course Example',
-                        es: 'Ejemplo de Curso',
-                        ua: 'Приклад курсу',
-                        ru: 'Пример курса'
+                        en: 'Example of a ready-made template',
+                        es: 'Ejemplo de una plantilla prediseñada',
+                        ua: 'Приклад готового шаблону',
+                        ru: 'Пример готового шаблона'
                       })}
                     </span>
                   </div>
@@ -5024,21 +5024,21 @@ export default function DynamicAuditLandingPage() {
                 </div>
                 
                 <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                  Expert-as-a-Service — {getLocalizedText(landingPageData?.language, {
-                    en: 'Methodologist:',
-                    es: 'Metodólogo:',
-                    ua: 'Методолог:',
-                    ru: 'Методолог:'
+                  {getLocalizedText(landingPageData?.language, {
+                    en: <>Engage a methodologist to adapt a ready-made<br className="hidden xl:block"/> course template for your business</>,
+                    es: <>Contrata a un metodólogo para adaptar una plantilla<br className="hidden xl:block"/> de curso lista para tu negocio</>,
+                    ua: <>Залучіть методолога для адаптації готового<br className="hidden xl:block"/> шаблону курсу під ваш бізнес</>,
+                    ru: <>Привлеките методолога для адаптации готового<br className="hidden xl:block"/> шаблона курса под ваш бизнес</>
                   })}
                 </h3>
   
-                <div className="xl:h-[531px] xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
+                <div className="xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0] xl:bg-white xl:shadow-[0px_4px_12px_rgba(0,0,0,0.08)]">
                   <Image 
                     src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile-new.png"
                     alt="Card 1"
-                    width={310}
+                    width={320}
                     height={300}
-                    className="w-full xl:h-[490px] xl:w-[480px]"
+                    className="w-full xl:h-[490px] xl:w-[490px] object-contain"
                   />
   
                   <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">
@@ -5074,8 +5074,8 @@ export default function DynamicAuditLandingPage() {
   
                     <div className="flex flex-col gap-[15px] xl:gap-[10px]">
                       {/* Card 1 */}
-                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                      <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M16.3415 8.79931L16.0405 9.27831C16.1665 9.46431 16.2785 9.65932 16.3775 9.8613L16.9425 9.8413C17.3145 9.8273 17.6455 10.0703 17.7435 10.4283C18.0255 11.4583 18.0245 12.5433 17.7435 13.5712C17.6465 13.9302 17.3135 14.1732 16.9425 14.1602L16.3775 14.1392C16.2795 14.3412 16.1665 14.5362 16.0405 14.7222L16.3415 15.2012C16.5385 15.5162 16.4935 15.9262 16.2325 16.1892C15.4825 16.9472 14.5425 17.4902 13.5105 17.7612C13.1515 17.8552 12.7745 17.6902 12.6005 17.3612L12.3354 16.8622C12.1114 16.8772 11.8864 16.8772 11.6624 16.8612L11.3985 17.3612C11.2235 17.6892 10.8475 17.8552 10.4885 17.7612C9.45647 17.4902 8.51546 16.9472 7.76538 16.1892C7.50439 15.9252 7.45938 15.5162 7.65638 15.2012L7.95739 14.7222C7.83139 14.5362 7.71939 14.3412 7.62039 14.1392L7.0554 14.1592C6.6844 14.1732 6.35239 13.9302 6.2544 13.5722C5.97239 12.5422 5.97339 11.4572 6.2544 10.4293C6.3524 10.0703 6.6844 9.82729 7.0554 9.8403L7.62039 9.8613C7.71839 9.6593 7.83139 9.46429 7.95739 9.27831L7.65738 8.79931C7.45938 8.4843 7.50438 8.07432 7.76538 7.8113C8.51538 7.05331 9.45539 6.51031 10.4885 6.23931C10.8474 6.14531 11.2235 6.31031 11.3975 6.63931L11.6625 7.1383C11.8865 7.1233 12.1125 7.1233 12.3355 7.1393L12.6005 6.63931C12.7745 6.31132 13.1505 6.14531 13.5105 6.23931C14.5415 6.51031 15.4825 7.05331 16.2325 7.8113C16.4935 8.07529 16.5385 8.4843 16.3415 8.79931ZM13.1986 9.9233C12.0526 9.26131 10.5836 9.6553 9.92256 10.8013C9.26057 11.9473 9.65356 13.4153 10.7996 14.0773C11.9466 14.7393 13.4146 14.3453 14.0766 13.1993C14.7376 12.0533 14.3446 10.5853 13.1986 9.9233ZM12.3986 11.3093C12.7806 11.5293 12.9106 12.0173 12.6906 12.3993C12.4706 12.7813 11.9816 12.9123 11.5996 12.6913C11.2186 12.4713 11.0876 11.9833 11.3076 11.6013C11.5286 11.2193 12.0166 11.0883 12.3986 11.3093ZM2.03162 7.83821C3.1266 5.22214 5.22163 3.1273 7.8377 2.03315C7.8117 2.21815 7.7987 2.40714 7.7987 2.60014C7.7987 2.99315 7.8537 3.37413 7.9547 3.73514C6.12271 4.63514 4.63361 6.12413 3.73479 7.95607C3.37378 7.85407 2.9928 7.80007 2.59879 7.80007C2.40679 7.80007 2.2176 7.81321 2.03162 7.83821ZM16.1615 2.03315C18.7766 3.12714 20.8724 5.22214 21.9666 7.83821C21.7806 7.81321 21.5916 7.80021 21.3996 7.80021C21.0056 7.80021 20.6246 7.85421 20.2636 7.95621C19.3646 6.12422 17.8746 4.63512 16.0437 3.7363C16.1447 3.37429 16.1987 2.99332 16.1997 2.6003C16.1997 2.4073 16.1865 2.21814 16.1615 2.03315ZM21.9666 16.162C20.8716 18.7781 18.7766 20.873 16.1605 21.9671C16.1865 21.7821 16.1995 21.5931 16.1995 21.4001C16.1995 21.0071 16.1445 20.6261 16.0435 20.2651C17.8755 19.3651 19.3646 17.8761 20.2634 16.0442C20.6254 16.1462 21.0054 16.2002 21.3994 16.2002C21.5924 16.2002 21.7816 16.187 21.9666 16.162ZM7.8377 21.9671C5.22163 20.8731 3.12576 18.7781 2.03162 16.162C2.21762 16.187 2.4066 16.2 2.5986 16.2C2.99261 16.2 3.37359 16.146 3.7346 16.044C4.6336 17.876 6.1236 19.3651 7.95553 20.264C7.85353 20.626 7.79953 21.0069 7.79953 21.4C7.79953 21.593 7.8127 21.7821 7.8377 21.9671ZM11.9997 0C13.4348 0 14.5997 1.165 14.5997 2.59994C14.5997 4.03487 13.4337 5.19987 11.9987 5.19987C10.5637 5.19987 9.39981 4.03487 9.39981 2.59994C9.39981 1.165 10.5638 0 11.9997 0ZM11.9997 18.8001C13.4348 18.8001 14.5987 19.9651 14.5997 21.4001C14.5997 22.8351 13.4347 24 11.9987 24C10.5637 24 9.39878 22.835 9.39878 21.4001C9.39978 19.9651 10.5648 18.8001 11.9997 18.8001ZM21.3998 9.40006C22.8348 9.40006 23.9997 10.5651 23.9987 12C23.9987 13.435 22.8347 14.5999 21.3998 14.5999C19.9638 14.5999 18.7999 13.4349 18.7999 12C18.7989 10.565 19.9649 9.40006 21.3998 9.40006ZM2.59891 9.40006C4.03492 9.40006 5.19987 10.5651 5.19987 12C5.19987 13.4349 4.03387 14.5999 2.59891 14.5999C1.1649 14.5999 0 13.4349 0 12C0 10.5651 1.165 9.40006 2.59891 9.40006Z" fill="#0F58F9"/>
                           </svg>
@@ -5083,17 +5083,17 @@ export default function DynamicAuditLandingPage() {
   
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
                           {getLocalizedText(landingPageData?.language, {
-                            en: 'Structures and systematizes your knowledge',
-                            es: 'Estructura y sistematiza tu conocimiento',
-                            ua: 'Структурує та систематизує ваші знання',
-                            ru: 'Структурирует и систематизирует ваши знания'
+                            en: 'Takes a ready-made course template',
+                            es: 'Toma una plantilla de curso lista',
+                            ua: 'Бере готовий шаблон курсу',
+                            ru: 'Берёт готовый шаблон курса'
                           })}
                         </span>
                       </div>
   
                       {/* Card 2 */}
-                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                      <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12.7031 18.2383L15.5326 21.093L21.343 15.2826L18.5136 12.4531L12.7031 18.2383Z" fill="#0F58F9"/>
                             <path d="M23.8486 12L21.8023 9.95373C21.5749 9.72636 21.2465 9.72636 21.0191 9.95373L19.7812 11.1916L22.6107 14.021L23.8486 12.7832C24.0507 12.5811 24.0507 12.2274 23.8486 12Z" fill="#0F58F9"/>
@@ -5104,17 +5104,17 @@ export default function DynamicAuditLandingPage() {
   
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
                           {getLocalizedText(landingPageData?.language, {
-                            en: 'Creates courses, video lessons, tests, presentations',
-                            es: 'Crea cursos, lecciones en video, pruebas, presentaciones',
-                            ua: 'Створює курси, відеоуроки, тести, презентації',
-                            ru: 'Создаёт курсы, видеоуроки, тесты, презентации'
+                            en: "Analyzes your company's materials (SOPs, instructions, policies)",
+                            es: 'Analiza los materiales de tu empresa (POEs, instrucciones, políticas)',
+                            ua: 'Аналізує матеріали вашої компанії (SOP-и, інструкції, політики)',
+                            ru: 'Анализирует материалы вашей компании (SOP, инструкции, политики)'
                           })}
                         </span>
                       </div>
   
                       {/* Card 3 */}
-                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                      <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
                           <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18.5143 4.87381C18.1546 4.87381 17.7949 4.91032 17.4532 4.98333C17.1655 2.19039 14.8276 0 11.9951 0C9.17167 0 6.83365 2.19054 6.54591 4.98333C6.20871 4.9126 5.87038 4.87609 5.52533 4.87381C3.01998 4.85441 0.858486 6.45053 0.204455 8.90586C-0.788015 12.6309 1.97135 16 5.48504 16H10.8735C11.1219 16 11.3231 15.7958 11.3231 15.5436V10.6322C11.3231 10.6322 10.261 11.7103 10.2576 11.7137C9.65852 12.3218 8.68176 11.3772 9.30446 10.7462L11.5221 8.49524C11.7851 8.22827 12.2122 8.22827 12.4752 8.49524C12.4752 8.49524 14.685 10.7383 14.6928 10.7462C15.2964 11.3589 14.3612 12.3458 13.7397 11.7137L12.673 10.631V15.5425C12.673 15.7946 12.8742 15.9989 13.1226 15.9989H18.329C21.1119 15.9989 23.5972 13.976 23.9534 11.1738C24.3839 7.78433 21.774 4.87384 18.5146 4.87384L18.5143 4.87381Z" fill="#0F58F9"/>
                           </svg>
@@ -5122,17 +5122,17 @@ export default function DynamicAuditLandingPage() {
                         
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
                           {getLocalizedText(landingPageData?.language, {
-                            en: 'Uploads and adapts materials to LMS',
-                            es: 'Sube y adapta materiales al LMS',
-                            ua: 'Завантажує та адаптує матеріали в LMS',
-                            ru: 'Загружает и адаптирует материалы в LMS'
+                            en: 'Adapts the course to your content and brand',
+                            es: 'Adapta el curso a tu contenido y marca',
+                            ua: 'Адаптує курс під ваш контент і бренд',
+                            ru: 'Адаптирует курс под ваш контент и бренд'
                           })}
                         </span>
                       </div>
   
                       {/* Card 4 */}
-                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
-                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                      <div className="p-[10px] xl:p-[15px] flex gap-[15px] rounded-[8px] bg-white border border-[#E5E7EB]" style={{ boxShadow: '0px 1px 3px rgba(0,0,0,0.1)' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center border-2 border-[#0F58F9]">
                           <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18.3489 20.0391H14.1202C13.8936 20.0391 13.7109 20.1893 13.7109 20.374V21.0653C13.7109 21.2499 13.8947 21.4002 14.1202 21.4002H18.3489C18.5755 21.4002 18.7581 21.2499 18.7581 21.0653V20.374C18.7593 20.1894 18.5755 20.0391 18.3489 20.0391Z" fill="#0F58F9"/>
                             <path d="M3.23586 16.1156V14.1211H1.09375L3.23586 16.1156Z" fill="#0F58F9"/>
@@ -5143,15 +5143,10 @@ export default function DynamicAuditLandingPage() {
                         
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
                           {getLocalizedText(landingPageData?.language, {
-                            en: 'Performs technical and methodological',
-                            es: 'Realiza tareas técnicas y metodológicas',
-                            ua: 'Виконує технічні та методологічні',
-                            ru: 'Выполняет технические и методологические'
-                          })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
-                            en: 'tasks upon your request',
-                            es: 'a tu solicitud',
-                            ua: 'завдання за вашим запитом',
-                            ru: 'задачи по вашему запросу'
+                            en: 'Checks content quality and aligns it with business goals',
+                            es: 'Verifica la calidad del contenido y lo alinea con los objetivos empresariales',
+                            ua: 'Перевіряє якість контенту й узгоджує його з бізнес-цілями',
+                            ru: 'Проверяет качество контента и согласовывает его с бизнес-целями'
                           })}
                         </span>
                       </div>
@@ -5290,357 +5285,6 @@ export default function DynamicAuditLandingPage() {
                 </div>
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:rounded-[6px] mb-[15px] xl:mb-[40px]">
-                  <div 
-                    className="xl:w-full rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
-                  >
-                    <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      AI capabilities:
-                    </h4>
-                    
-                    {/* Capability 1 */}
-                    <div className="flex gap-[15px]">
-                      <div 
-                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
-                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-                      >
-                        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.293 0.9C12.4299 -0.3 7.63535 -0.3 2.77228 0.9C1.33391 1.23333 0.375 2.56667 0.375 3.96667V10.0333C0.375 11.4333 1.33391 12.7667 2.77228 13.1C7.56685 14.3 12.4299 14.3 17.2245 13.1C18.6629 12.7667 19.6218 11.4333 19.6218 10.0333V3.96667C19.6903 2.56667 18.6629 1.3 17.293 0.9ZM12.3614 7.76667L9.48468 9.63333C9.34769 9.7 9.14221 9.76667 9.00522 9.76667C8.86824 9.76667 8.73125 9.7 8.59426 9.63333C8.32028 9.5 8.1148 9.16667 8.1148 8.83333V5.16667C8.1148 4.83333 8.32028 4.5 8.59426 4.36667C8.86823 4.23333 9.2792 4.23333 9.55317 4.43333L12.4299 6.3C12.7039 6.5 12.8409 6.76667 12.8409 7.03333C12.7724 7.36667 12.6354 7.63333 12.3614 7.76667Z" fill="white"/>
-                        </svg>
-                      </div>
-  
-                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'Video lesson generation',
-                          es: 'Generación de lecciones en video',
-                          ua: 'Генерація відеоуроків',
-                          ru: 'Генерация видеоуроков'
-                        })}
-                      </span>
-                    </div>
-  
-                    {/* Capability 2 */}
-                    <div className="flex gap-[15px]">
-                      <div 
-                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
-                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-                      >
-                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.346 0H0.654005C0.431842 0 0.25 0.173272 0.25 0.384963V13.615C0.25 13.8287 0.431842 14 0.654005 14H17.3453C17.5675 14 17.7493 13.828 17.7493 13.615L17.75 0.384963C17.75 0.173272 17.5682 0 17.346 0ZM8.326 4.86581V4.43916H5.91975V9.56344H6.91711C7.13927 9.56344 7.32111 9.73539 7.32111 9.9484C7.32111 10.1601 7.13927 10.3334 6.91711 10.3334H4.11711C3.8929 10.3334 3.71311 10.1601 3.71311 9.9484C3.71311 9.73476 3.89357 9.56344 4.11711 9.56344H5.11311V4.43916H2.70686V4.86581C2.70686 5.0775 2.52502 5.25078 2.30285 5.25078C2.07864 5.25078 1.89885 5.0775 1.89885 4.86581V4.05355C1.89885 3.84186 2.07931 3.66859 2.30285 3.66859H8.7306C8.95276 3.66859 9.1346 3.84186 9.1346 4.05355V4.86581C9.1346 5.0775 8.95276 5.25078 8.7306 5.25078C8.50639 5.25143 8.326 5.0775 8.326 4.86581ZM14.5912 9.04494H9.19417C8.97201 9.04494 8.79017 8.87167 8.79017 8.65998C8.79017 8.44829 8.97201 8.27502 9.19417 8.27502H14.5912C14.8154 8.27502 14.9952 8.44829 14.9952 8.65998C14.9959 8.87297 14.8168 9.04494 14.5912 9.04494ZM14.5912 5.72625H11.7912C11.567 5.72625 11.3872 5.55298 11.3872 5.34129C11.3872 5.12765 11.5676 4.95633 11.7912 4.95633H14.5912C14.8154 4.95633 14.9952 5.12828 14.9952 5.34129C14.9959 5.55298 14.8168 5.72625 14.5912 5.72625Z" fill="white"/>
-                        </svg>
-                      </div>
-  
-                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'Test generation',
-                          es: 'Generación de pruebas',
-                          ua: 'Генерація тестів',
-                          ru: 'Генерация тестов'
-                        })}
-                      </span>
-                    </div>
-  
-                    {/* Capability 3 */}
-                    <div className="flex gap-[15px]">
-                      <div 
-                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
-                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-                      >
-                        <svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M10.0712 4.52778C10.0712 5.65571 10.9849 6.56944 12.1128 6.56944H16.974V16.3889C16.974 17.1408 16.3648 17.75 15.6128 17.75H5.50174C4.74978 17.75 4.14062 17.1408 4.14062 16.3889V15.8056H9.97396C11.2629 15.8056 12.3073 14.7612 12.3073 13.4722V9.38889C12.3073 8.09994 11.2629 7.05556 9.97396 7.05556H4.14062V1.61111C4.14062 0.859156 4.74978 0.25 5.50174 0.25H10.0712V4.52778Z" fill="white"/>
-                          <path d="M2.78016 10.5579C2.9974 10.58 3.16753 10.7638 3.16753 10.9878C3.16753 11.2263 2.97385 11.4193 2.73534 11.42H2.19531V10.5557H2.73534L2.78016 10.5579Z" fill="white"/>
-                          <path d="M5.81761 10.5557C6.07585 10.5557 6.28472 10.7646 6.28472 11.0228V11.8386C6.28472 12.0968 6.07585 12.3057 5.81761 12.3057H5.3125V10.5557L5.81761 10.5557Z" fill="white"/>
-                          <path fill-rule="evenodd" clip-rule="evenodd" d="M9.97222 8.41699C10.5092 8.41699 10.9444 8.85222 10.9444 9.38921V13.4725C10.9444 14.0095 10.5092 14.4448 9.97222 14.4448H1.22222C0.685225 14.4448 0.25 14.0095 0.25 13.4725V9.38921C0.25 8.85222 0.685225 8.41699 1.22222 8.41699H9.97222ZM1.41667 13.0837H2.19444V12.198H2.73448C3.40288 12.1973 3.94444 11.6557 3.94444 10.9881C3.94444 10.3409 3.4363 9.81227 2.79678 9.77962L2.73449 9.7781H1.41668L1.41667 13.0837ZM4.52778 13.0837H5.81066C6.49806 13.0837 7.05556 12.5261 7.05556 11.8388V11.023C7.05556 10.3356 6.49804 9.77812 5.81066 9.77812H4.52778V13.0837ZM7.63889 13.0837H8.41667V12.1084H9.77778V11.3306H8.41667V10.5559H9.77778V9.7781H7.63889V13.0837Z" fill="white"/>
-                          <path d="M11.4375 0.253906C11.9077 0.284288 12.3528 0.484809 12.6877 0.819779L16.4096 4.54164C16.6017 4.73381 16.7491 4.9609 16.8456 5.20853H12.1182C11.7423 5.20853 11.4377 4.90395 11.4377 4.52797L11.4375 0.253906Z" fill="white"/>
-                        </svg>
-                      </div>
-  
-                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'Presentation generation',
-                          es: 'Generación de presentaciones',
-                          ua: 'Генерація презентацій',
-                          ru: 'Генерация презентаций'
-                        })}
-                      </span>
-                    </div>
-  
-                    {/* Capability 4 */}
-                    <div className="flex gap-[15px]">
-                      <div 
-                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
-                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path fill-rule="evenodd" clip-rule="evenodd" d="M15.6562 0.21875V12.25H9.09375L4.71875 15.5312V12.25H0.34375V0.21875H15.6562ZM11.8281 2.95312V1.85938H10.7344V2.95312H9.09375V4.04688H11.8041C11.7762 4.37992 11.7237 4.71023 11.6449 5.03562C11.529 5.51523 11.3567 5.98008 11.1363 6.42086C11.0674 6.33883 11.0007 6.25516 10.9356 6.17094C10.6408 5.78758 10.3816 5.37797 10.1574 4.94977C10.1476 4.93008 10.1372 4.91039 10.1268 4.8907L9.15447 5.39055L9.18671 5.45344L9.22116 5.51906C9.58209 6.19391 10.0191 6.83375 10.538 7.39813C10.4298 7.54578 10.3155 7.68906 10.1957 7.82742C9.96548 8.09375 9.715 8.34203 9.44703 8.57008C9.33054 8.66906 9.20967 8.76313 9.08717 8.855C9.01444 8.9075 9.01446 8.9075 8.94118 8.9589C8.8668 9.00976 8.8668 9.00977 8.79187 9.05953L9.39563 9.97172C9.78172 9.71578 10.1448 9.42976 10.4806 9.11093C10.7929 8.81453 11.0806 8.49297 11.3409 8.15062C11.6148 8.36773 11.9074 8.56079 12.2197 8.71829C12.3887 8.80305 12.5626 8.87523 12.7409 8.93813L13.1029 7.90562C12.988 7.8657 12.8759 7.82086 12.7666 7.76836C12.4707 7.62617 12.1967 7.44078 11.9435 7.23133C12.2634 6.66148 12.5117 6.05172 12.6769 5.41789C12.7939 4.96781 12.8672 4.50953 12.9005 4.04688H13.4688V2.95312H11.8281ZM4.71875 3.5H3.99744L1.65353 8.96875H2.84351L3.07812 8.42188L3.31274 7.875H6.12476L6.59399 8.96875H7.78397L5.44006 3.5H4.71875ZM3.78141 6.78125H5.65609L4.71875 4.59375L3.78141 6.78125Z" fill="white"/>
-                        </svg>
-                      </div>
-  
-                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'Translation to 120+ languages',
-                          es: 'Traducción a 120+ idiomas',
-                          ua: 'Переклад на 120+ мов',
-                          ru: 'Перевод на 120+ языков'
-                        })}
-                      </span>
-                    </div>
-  
-                    {/* Capability 5 */}
-                    <div className="flex gap-[15px]">
-                      <div 
-                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
-                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-                      >
-                        <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.6256 3.12563C15.7571 2.60973 15.3988 2.25058 14.8829 0.382948C14.8404 0.230304 14.7017 0.125 14.5433 0.125C14.385 0.125 14.2462 0.231115 14.2038 0.382948C13.6879 2.2514 13.3295 2.60969 11.4611 3.12563C11.3084 3.16807 11.2031 3.30684 11.2031 3.4652C11.2031 3.62356 11.3092 3.76233 11.4619 3.80477C13.3295 4.32066 13.6886 4.679 14.2046 6.54745C14.2462 6.70009 14.3858 6.8054 14.5441 6.8054C14.7025 6.8054 14.8413 6.69928 14.8837 6.54745C15.3996 4.679 15.7588 4.32071 17.6264 3.80477C17.779 3.76232 17.8852 3.62356 17.8852 3.4652C17.8852 3.30684 17.7799 3.16807 17.6272 3.12563H17.6256Z" fill="white"/>
-                          <path d="M14.5413 7.45803C14.0899 7.45803 13.6907 7.15438 13.5723 6.7193C13.1193 5.07858 12.9275 4.88677 11.286 4.43362C10.8518 4.31445 10.5481 3.9161 10.5481 3.46471C10.5481 3.01414 10.8518 2.61579 11.286 2.4958C11.504 2.43539 11.695 2.37989 11.8656 2.3252H2.51603C1.26631 2.3252 0.25 3.34146 0.25 4.59122V11.1607C0.25 12.4104 1.26627 13.4267 2.51603 13.4267H3.84167V15.2217C3.84167 15.4797 3.99349 15.7139 4.23022 15.8184C4.31511 15.856 4.4049 15.8747 4.49469 15.8747C4.65304 15.8747 4.81058 15.8168 4.93304 15.7058L7.44962 13.4268H13.0035C14.2532 13.4268 15.2695 12.4105 15.2695 11.1608V7.14463C15.0834 7.33972 14.8221 7.45803 14.5413 7.45803ZM3.84156 8.85549C3.84156 9.21629 3.54935 9.50851 3.18854 9.50851C2.82774 9.50851 2.53553 9.21629 2.53553 8.85549V7.22295C2.53553 6.86214 2.82774 6.56993 3.18854 6.56993C3.54935 6.56993 3.84156 6.86214 3.84156 7.22295V8.85549ZM6.12724 9.83502C6.12724 10.1958 5.83502 10.488 5.47422 10.488C5.11342 10.488 4.8212 10.1958 4.8212 9.83502V6.56993C4.8212 6.20913 5.11342 5.91691 5.47422 5.91691C5.83502 5.91691 6.12724 6.20913 6.12724 6.56993V9.83502ZM8.41291 8.85549C8.41291 9.21629 8.12069 9.50851 7.75989 9.50851C7.39909 9.50851 7.10687 9.21629 7.10687 8.85549V7.22295C7.10687 6.86214 7.39909 6.56993 7.75989 6.56993C8.12069 6.56993 8.41291 6.86214 8.41291 7.22295V8.85549ZM10.6986 9.83502C10.6986 10.1958 10.4064 10.488 10.0456 10.488C9.68476 10.488 9.39254 10.1958 9.39254 9.83502V6.56993C9.39254 6.20913 9.68476 5.91691 10.0456 5.91691C10.4064 5.91691 10.6986 6.20913 10.6986 6.56993V9.83502ZM12.9843 8.85549C12.9843 9.21629 12.692 9.50851 12.3312 9.50851C11.9704 9.50851 11.6782 9.21629 11.6782 8.85549V7.22295C11.6782 6.86214 11.9704 6.56993 12.3312 6.56993C12.692 6.56993 12.9843 6.86214 12.9843 7.22295V8.85549Z" fill="white"/>
-                        </svg>
-                      </div>
-  
-                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'Voice-over and AI avatars',
-                          es: 'Voz en off y avatares IA',
-                          ua: 'Озвучка та AI-аватари',
-                          ru: 'Озвучка и AI-аватары'
-                        })}
-                      </span>
-                    </div>
-  
-                    {/* Capability 6 */}
-                    <div className="flex gap-[15px]">
-                      <div 
-                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
-                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-                      >
-                        <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M15.3548 9.69576L14.0618 6.98235C13.9026 6.64847 13.8164 6.2894 13.7682 5.92386C13.3437 2.70736 11.0024 0.25 6.98389 0.25C2.52475 0.25 0.125 3.2751 0.125 7.00609C0.125 8.73522 0.786128 10.3117 1.87166 11.5063C2.3582 12.0417 2.61022 12.7433 2.50648 13.4542L1.98123 17.0535C1.92791 17.4204 2.21719 17.75 2.59413 17.75H9.24992C9.56186 17.75 9.82484 17.5212 9.8643 17.2168L10.1149 15.2633H11.955C12.9201 15.2633 13.7032 14.4926 13.7032 13.5413V10.9055H14.5747C15.2059 10.9055 15.623 10.2592 15.3548 9.69576ZM10.9505 6.59937C11.204 6.59937 11.4093 6.80158 11.4093 7.05054C11.4093 7.30024 11.204 7.50243 10.9505 7.50243H10.0812V8.27021H10.9505C11.204 8.27021 11.4093 8.47242 11.4093 8.72282C11.4093 8.97252 11.204 9.1747 10.9505 9.1747H10.0629C10.0191 9.5899 9.69255 9.91083 9.27104 9.95472V10.829C9.27104 11.078 9.06575 11.2809 8.81228 11.2809C8.5588 11.2809 8.35351 11.0787 8.35351 10.829V9.97272H7.57331V10.829C7.57331 11.078 7.36803 11.2809 7.11455 11.2809C6.86106 11.2809 6.65579 11.0787 6.65579 10.829V9.97272H5.87559V10.829C5.87559 11.078 5.67031 11.2809 5.41683 11.2809C5.16335 11.2809 4.95807 11.0787 4.95807 10.829V9.95472C4.53656 9.91083 4.21075 9.59061 4.16691 9.1747H3.27933C3.02583 9.1747 2.82057 8.9725 2.82057 8.72282C2.82057 8.47312 3.02585 8.27021 3.27933 8.27021H4.14937V7.50243H3.27933C3.02583 7.50243 2.82057 7.30022 2.82057 7.05054C2.82057 6.80086 3.02585 6.59937 3.27933 6.59937H4.14937V5.83087H3.27933C3.02583 5.83087 2.82057 5.62866 2.82057 5.37898C2.82057 5.1293 3.02585 4.92638 3.27933 4.92638H4.16764C4.21147 4.5119 4.53729 4.19025 4.9588 4.14708V3.27351C4.9588 3.02382 5.16408 2.82091 5.41756 2.82091C5.67104 2.82091 5.87632 3.02384 5.87632 3.27351V4.1298H6.65652V3.27351C6.65652 3.02382 6.8618 2.82091 7.11528 2.82091C7.36876 2.82091 7.57404 3.02384 7.57404 3.27351V4.1298H8.35424V3.27351C8.35424 3.02382 8.55953 2.82091 8.81301 2.82091C9.06648 2.82091 9.27177 3.02384 9.27177 3.27351V4.14708C9.69328 4.19025 10.0191 4.51119 10.0637 4.92638H10.9512C11.2047 4.92638 11.41 5.1293 11.41 5.37898C11.41 5.62866 11.2047 5.83087 10.9512 5.83087H10.0819V6.59937H10.9512H10.9505Z" fill="white"/>
-                          <path d="M5.90535 4.98926H8.55819C8.93303 4.98926 9.23698 5.29319 9.23698 5.66805V8.32088C9.23698 8.69573 8.93305 8.99967 8.55819 8.99967H5.90535C5.53051 8.99967 5.22656 8.69502 5.22656 8.32088V5.66879C5.22656 5.29395 5.53049 4.99 5.90535 4.99V4.98926Z" fill="white"/>
-                        </svg>
-                      </div>
-  
-                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'LMS platform integration',
-                          es: 'Integración con plataformas LMS',
-                          ua: 'Інтеграція з LMS платформами',
-                          ru: 'Интеграция с LMS платформами'
-                        })}
-                      </span>
-                    </div>
-                  </div>
-  
-                  <div className="w-[300px] h-[234px] px-[10px] border border-[#E0E0E0] rounded-[6px] xl:hidden">
-                    <Image 
-                      src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
-                      alt="Card 1"
-                      width={280}
-                      height={218}
-                      // className="w-full h-full object-cover rounded-[6px]"
-                    />
-                  </div>
-  
-                  {isShowing && <Image 
-                    src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
-                    alt="Card 1"
-                    width={560}
-                    height={437}
-                    className="hidden xl:block"
-                  />}
-                </div>
-  
-              {isShowing && (
-                <div className="flex flex-col gap-[15px] xl:gap-[40px]">
-                  <h4 className="font-semibold text-[20px] xl:text-[32px] leading-[130%] mb-[5px]">
-                    {getLocalizedText(landingPageData?.language, {
-                      en: 'How it works:',
-                      es: 'Cómo funciona:',
-                      ua: 'Як це працює:',
-                      ru: 'Как это работает:'
-                    })}
-                  </h4>
-                  
-                  <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
-                    {/* Card 1 */}
-                    <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                      <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
-                        <div 
-                          className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
-                          style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
-                        >
-                          1
-                        </div>
-                        
-                        <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                          {getLocalizedText(landingPageData?.language, {
-                            en: 'Methodologist',
-                            es: 'Metodólogo',
-                            ua: 'Методолог',
-                            ru: 'Методолог'
-                          })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
-                            en: 'uploads your',
-                            es: 'sube tus',
-                            ua: 'завантажує ваші',
-                            ru: 'загружает ваши'
-                          })}</span><br className="xl:hidden"/>
-                          <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
-                            en: 'materials',
-                            es: 'materiales',
-                            ua: 'матеріали',
-                            ru: 'материалы'
-                          })}</span><br className="hidden xl:block"/> ({getLocalizedText(landingPageData?.language, {
-                            en: 'texts,',
-                            es: 'textos,',
-                            ua: 'тексти,',
-                            ru: 'тексты,'
-                          })}<br className="xl:hidden"/>
-                          {getLocalizedText(landingPageData?.language, {
-                            en: 'instructions, PDF, videos, etc.)',
-                            es: 'instrucciones, PDF, videos, etc.)',
-                            ua: 'інструкції, PDF, відео та ін.)',
-                            ru: 'инструкции, PDF, видео и др.)'
-                          })}
-                        </h5>
-                      </div>
-                      <div 
-                        className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0]"
-                        style={{
-                          boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                        }}
-                      >
-                        <Image 
-                          src="/custom-projects-ui/images/audit-section-5-service-2-image-3-mobile.png"
-                          alt="Upload"
-                          width={280}
-                          height={175}
-                          className="xl:hidden"
-                        />
-  
-                        <Image 
-                          src="/custom-projects-ui/images/audit-section-5-service-2-image-3-desktop.png"
-                          alt="Upload"
-                          width={410}
-                          height={175}
-                          className="hidden xl:block"
-                        />
-                      </div>
-                    </div>
-  
-                    {/* Card 2 */}
-                    <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                      <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
-                        <div 
-                          className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
-                          style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
-                        >
-                          2
-                        </div>
-                        
-                        <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                          {getLocalizedText(landingPageData?.language, {
-                            en: 'Platform converts',
-                            es: 'La plataforma convierte',
-                            ua: 'Платформа перетворює',
-                            ru: 'Платформа превращает'
-                          })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                            en: 'them into',
-                            es: 'en',
-                            ua: 'їх у',
-                            ru: 'их в'
-                          })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
-                            en: 'lessons,',
-                            es: 'lecciones,',
-                            ua: 'уроки,',
-                            ru: 'уроки,'
-                          })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
-                            en: 'tests,',
-                            es: 'pruebas,',
-                            ua: 'тести,',
-                            ru: 'тесты,'
-                          })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                            en: 'videos and presentations',
-                            es: 'videos y presentaciones',
-                            ua: 'відео та презентації',
-                            ru: 'видео и презентации'
-                          })}</span>
-                        </h5>
-                      </div>
-  
-                      <div 
-                        className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0] overflow-hidden"
-                        style={{
-                          boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                        }}
-                      >
-                        <Image 
-                          src="/custom-projects-ui/images/audit-section-5-service-2-image-4-mobile.png"
-                          alt="Upload"
-                          width={280}
-                          height={175}
-                          className="xl:hidden"
-                        />
-  
-                        <Image 
-                          src="/custom-projects-ui/images/audit-section-5-service-2-image-4-desktop.png"
-                          alt="Upload"
-                          width={375}
-                          height={175}
-                          className="hidden xl:block"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                </div>)}
-              </div>
-  
-              {/* Service 4 */}
-              <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-                <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                  <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
-                    {getLocalizedText(landingPageData?.language, {
-                      en: 'Solution 4:',
-                      es: 'Solución 4:',
-                      ua: 'Рішення 4:',
-                      ru: 'Решение 4:'
-                    })}
-                  </span>
-                </div>
-                
-                <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                  {getLocalizedText(landingPageData?.language, {
-                    en: 'LMS platform',
-                    es: 'Plataforma LMS',
-                    ua: 'LMS-платформа',
-                    ru: 'LMS-платформа'
-                  })}<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'automation',
-                    es: 'automatización',
-                    ua: 'автоматизація',
-                    ru: 'автоматизация'
-                  })}<br /> {getLocalizedText(landingPageData?.language, {
-                    en: 'of corporate',
-                    es: 'de capacitación',
-                    ua: 'корпоративного',
-                    ru: 'корпоративного'
-                  })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'training and onboarding',
-                    es: 'y incorporación',
-                    ua: 'навчання та онбордингу',
-                    ru: 'обучения и онбординга'
-                  })}
-                </h3>
-  
-                <div 
-                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] mb-[15px] xl:mb-[40px] xl:bg-center"
-                  style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png)',
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                  }}
-                ></div>
-  
                 <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
                   <h4 className="font-semibold text-[20px] xl:text-[32px]">
                     {getLocalizedText(landingPageData?.language, {
@@ -5937,6 +5581,512 @@ export default function DynamicAuditLandingPage() {
                     </div>
                   </div>
                 </div>
+  
+                  <div className="w-[300px] h-[234px] px-[10px] border border-[#E0E0E0] rounded-[6px] xl:hidden">
+                    <Image 
+                      src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
+                      alt="Card 1"
+                      width={280}
+                      height={218}
+                      // className="w-full h-full object-cover rounded-[6px]"
+                    />
+                  </div>
+  
+                  {isShowing && <Image 
+                    src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
+                    alt="Card 1"
+                    width={560}
+                    height={437}
+                    className="hidden xl:block"
+                  />}
+                </div>
+  
+              {isShowing && (
+                <div className="flex flex-col gap-[15px] xl:gap-[40px]">
+                  <h4 className="font-semibold text-[20px] xl:text-[32px] leading-[130%] mb-[5px]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'How it works:',
+                      es: 'Cómo funciona:',
+                      ua: 'Як це працює:',
+                      ru: 'Как это работает:'
+                    })}
+                  </h4>
+                  
+                  <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
+                    {/* Card 1 */}
+                    <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                      <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                        <div 
+                          className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                          style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
+                        >
+                          1
+                        </div>
+                        
+                        <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Methodologist',
+                            es: 'Metodólogo',
+                            ua: 'Методолог',
+                            ru: 'Методолог'
+                          })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
+                            en: 'uploads your',
+                            es: 'sube tus',
+                            ua: 'завантажує ваші',
+                            ru: 'загружает ваши'
+                          })}</span><br className="xl:hidden"/>
+                          <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
+                            en: 'materials',
+                            es: 'materiales',
+                            ua: 'матеріали',
+                            ru: 'материалы'
+                          })}</span><br className="hidden xl:block"/> ({getLocalizedText(landingPageData?.language, {
+                            en: 'texts,',
+                            es: 'textos,',
+                            ua: 'тексти,',
+                            ru: 'тексты,'
+                          })}<br className="xl:hidden"/>
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'instructions, PDF, videos, etc.)',
+                            es: 'instrucciones, PDF, videos, etc.)',
+                            ua: 'інструкції, PDF, відео та ін.)',
+                            ru: 'инструкции, PDF, видео и др.)'
+                          })}
+                        </h5>
+                      </div>
+                      <div 
+                        className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0]"
+                        style={{
+                          boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                        }}
+                      >
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-3-mobile.png"
+                          alt="Upload"
+                          width={280}
+                          height={175}
+                          className="xl:hidden"
+                        />
+  
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-3-desktop.png"
+                          alt="Upload"
+                          width={410}
+                          height={175}
+                          className="hidden xl:block"
+                        />
+                      </div>
+                    </div>
+  
+                    {/* Card 2 */}
+                    <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                      <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                        <div 
+                          className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                          style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
+                        >
+                          2
+                        </div>
+                        
+                        <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Platform converts',
+                            es: 'La plataforma convierte',
+                            ua: 'Платформа перетворює',
+                            ru: 'Платформа превращает'
+                          })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                            en: 'them into',
+                            es: 'en',
+                            ua: 'їх у',
+                            ru: 'их в'
+                          })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
+                            en: 'lessons,',
+                            es: 'lecciones,',
+                            ua: 'уроки,',
+                            ru: 'уроки,'
+                          })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                            en: 'tests,',
+                            es: 'pruebas,',
+                            ua: 'тести,',
+                            ru: 'тесты,'
+                          })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                            en: 'videos and presentations',
+                            es: 'videos y presentaciones',
+                            ua: 'відео та презентації',
+                            ru: 'видео и презентации'
+                          })}</span>
+                        </h5>
+                      </div>
+  
+                      <div 
+                        className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0] overflow-hidden"
+                        style={{
+                          boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                        }}
+                      >
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-4-mobile.png"
+                          alt="Upload"
+                          width={280}
+                          height={175}
+                          className="xl:hidden"
+                        />
+  
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-4-desktop.png"
+                          alt="Upload"
+                          width={375}
+                          height={175}
+                          className="hidden xl:block"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>)}
+              </div>
+  
+              {/* Service 4 */}
+              <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+                <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                  <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Solution 4:',
+                      es: 'Solución 4:',
+                      ua: 'Рішення 4:',
+                      ru: 'Решение 4:'
+                    })}
+                  </span>
+                </div>
+                
+                <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+                  {getLocalizedText(landingPageData?.language, {
+                    en: 'LMS platform',
+                    es: 'Plataforma LMS',
+                    ua: 'LMS-платформа',
+                    ru: 'LMS-платформа'
+                  })}<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'automation',
+                    es: 'automatización',
+                    ua: 'автоматизація',
+                    ru: 'автоматизация'
+                  })}<br /> {getLocalizedText(landingPageData?.language, {
+                    en: 'of corporate',
+                    es: 'de capacitación',
+                    ua: 'корпоративного',
+                    ru: 'корпоративного'
+                  })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'training and onboarding',
+                    es: 'y incorporación',
+                    ua: 'навчання та онбордингу',
+                    ru: 'обучения и онбординга'
+                  })}
+                </h3>
+  
+                <div 
+                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] mb-[15px] xl:mb-[40px] xl:bg-center"
+                  style={{ 
+                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png)',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                  }}
+                ></div>
+                <div 
+                    className="xl:w-full rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
+                  >
+                    <h4 className="font-semibold text-[20px] xl:text-[32px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'How LMS helps business:',
+                          es: 'Cómo ayuda un LMS a las empresas:',
+                          ua: 'Як LMS допомагає бізнесу:',
+                          ru: 'Как LMS помогает бизнесу:'
+                        })}
+                    </h4>
+                    
+                    {/* Benefit 1 - Rocket */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="28" height="26" viewBox="0 0 28 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M8.434 20.821L5.16181 17.722L4.31226 18.5266L7.58446 21.6256L8.434 20.821ZM19.7753 17.3151C18.1425 18.5281 16.277 19.631 14.1791 20.6206C14.3567 21.6715 14.2631 22.7575 13.8981 23.8803C13.7026 24.4829 13.4281 25.0933 13.0744 25.7143C16.2222 24.0347 16.9829 23.5529 19.139 21.8504C19.4879 20.8929 19.6995 19.9736 19.7819 19.0788C19.8384 18.4838 19.8351 17.8964 19.7753 17.3151ZM24.0228 2.91811C24.446 3.31886 24.9596 3.60491 25.512 3.76244C25.9529 3.88787 26.418 3.93376 26.8816 3.89093C27.0786 2.64886 27.1642 1.35327 27.1384 0.0041387C25.6993 -0.0203353 24.3152 0.0637928 22.9893 0.254996C22.9521 0.680217 23.0006 1.10395 23.1298 1.50623C23.2961 2.03244 23.598 2.51732 24.0228 2.91811ZM5.36858 12.284C6.41353 10.2986 7.5764 8.53186 8.85718 6.9855C8.24827 6.93043 7.63296 6.9289 7.00627 6.97938C6.06142 7.05739 5.09077 7.25777 4.07973 7.58818C2.28211 9.63021 1.77178 10.3522 0 13.3319C0.655712 12.9969 1.30175 12.7369 1.9365 12.5518C3.11876 12.2061 4.26223 12.1173 5.36858 12.284ZM14.526 8.23034C15.6113 7.20243 17.3702 7.20243 18.4539 8.23034C19.5392 9.25825 19.5392 10.924 18.4539 11.9519C17.3685 12.9798 15.6097 12.9798 14.526 11.9519C13.4406 10.924 13.4406 9.25825 14.526 8.23034ZM23.1943 12.3772C20.4147 15.9076 16.1637 18.7557 10.4381 20.9216L5.05352 15.822C5.43469 14.9195 5.83522 14.0568 6.25513 13.2308C6.26644 13.2109 6.27613 13.191 6.28582 13.1711C7.51492 10.7712 8.91359 8.70003 10.4816 6.95631C10.493 6.94407 10.5059 6.93183 10.5172 6.91807C11.6203 5.69742 12.8074 4.6374 14.0769 3.74102C16.3557 2.13185 18.9123 1.04124 21.7437 0.472193C21.7356 0.940255 21.8051 1.40221 21.9456 1.84427C22.1717 2.55401 22.5787 3.21176 23.1472 3.75019C23.7157 4.28862 24.4102 4.67562 25.1596 4.88821C25.6409 5.02588 26.1464 5.09012 26.6584 5.07941C26.056 7.77461 24.9014 10.2082 23.1943 12.3772Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Launch onboarding',
+                            es: 'Lanza la incorporación',
+                            ua: 'Запустіть онбординг',
+                            ru: 'Запустите онбординг'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'adapt new employees in 7 days',
+                          es: 'adapta nuevos empleados en 7 días',
+                          ua: 'адаптуйте нових співробітників за 7 днів',
+                          ru: 'адаптируйте новых сотрудников за 7 дней'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 2 - Flag */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="16" height="26" viewBox="0 0 16 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.29824 1.14912C2.29824 0.513728 1.78045 0 1.14912 0C0.517786 0 0 0.513728 0 1.14912C0 1.58632 0.250915 1.96439 0.613177 2.15842L0.390547 24.9557C0.390547 25.3745 0.730348 25.7143 1.14915 25.7143C1.56795 25.7143 1.90775 25.3745 1.90775 24.9557L1.68915 2.15616C2.04912 1.96147 2.29824 1.58465 2.29824 1.14912Z" fill="white"/>
+                        <path d="M15.2888 2.96126C15.2659 2.97967 12.954 4.83667 9.86504 3.94968C9.4651 3.83477 9.08354 3.71987 8.72041 3.60496C6.51889 2.92467 4.8457 2.40512 2.29004 3.65075L2.37734 13.184C4.84124 11.9567 6.39928 12.4393 8.61941 13.1288C8.98254 13.2392 9.3641 13.3586 9.76853 13.4735C13.0274 14.4112 15.4084 12.5037 15.5097 12.4209L15.5739 12.3704V2.73145L15.2888 2.96126Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Standardize training',
+                            es: 'Estandariza la capacitación',
+                            ua: 'Стандартизуйте навчання',
+                            ru: 'Стандартизируйте обучение'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'with results control',
+                          es: 'con control de resultados',
+                          ua: 'з контролем результатів',
+                          ru: 'с контролем результатов'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 3 - Clipboard with checkmark */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="17" height="23" viewBox="0 0 17 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.30859 6.30323C5.34584 6.29966 5.38359 6.29048 5.41982 6.27619C5.4438 6.26599 5.46676 6.25425 5.48768 6.24048C5.46625 6.25425 5.4438 6.26599 5.41982 6.27568C5.38359 6.29048 5.34584 6.29966 5.30859 6.30323Z" fill="white"/>
+                        <path d="M14.6149 16.7969C14.6006 16.8173 14.5843 16.8367 14.5664 16.854C14.5843 16.8367 14.6006 16.8178 14.6149 16.7969Z" fill="white"/>
+                        <path d="M4.55167 5.19214H3.30371V5.19265H4.55167V5.19214Z" fill="white"/>
+                        <path d="M2.57163 20.2667C2.46193 20.2667 2.36244 20.2223 2.29102 20.1504C2.36244 20.2228 2.46193 20.2672 2.57163 20.2672H14.2885C14.3844 20.2672 14.4721 20.2336 14.5405 20.1764C14.4716 20.2325 14.3839 20.2667 14.288 20.2667H2.57163Z" fill="white"/>
+                        <path d="M5.16309 6.29053C5.20951 6.30328 5.25849 6.30787 5.30747 6.30328C5.25849 6.30736 5.20951 6.30277 5.16309 6.29053Z" fill="white"/>
+                        <path d="M2.57163 16.9667C2.46193 16.9667 2.36244 16.9223 2.29102 16.8503C2.36244 16.9228 2.46193 16.9672 2.57163 16.9672H14.2885C14.3512 16.9672 14.4104 16.9529 14.463 16.9264C14.4104 16.9524 14.3507 16.9667 14.288 16.9667H2.57163Z" fill="white"/>
+                        <path d="M2.41772 6.27421C2.382 6.25941 2.34986 6.24002 2.32129 6.21655C2.34986 6.24002 2.382 6.25992 2.41772 6.27472C2.46823 6.29563 2.52027 6.30584 2.5718 6.30584C2.65853 6.30584 2.74323 6.27727 2.81211 6.22472C2.74323 6.27676 2.65853 6.30533 2.5718 6.30533C2.52027 6.30533 2.46823 6.29512 2.41772 6.27421Z" fill="white"/>
+                        <path d="M12.6924 1.41138V3.6675C12.6924 4.13025 13.0684 4.50627 13.5306 4.50627H15.5551L15.5281 4.47668L12.6924 1.41138Z" fill="white"/>
+                        <path d="M5.61227 6.10913C5.59339 6.14025 5.57094 6.16882 5.54492 6.19433C5.57145 6.16933 5.59441 6.14025 5.61227 6.10913Z" fill="white"/>
+                        <path d="M14.288 10.3654H2.57163C2.46193 10.3654 2.36244 10.321 2.29102 10.2491C2.36244 10.3215 2.46193 10.3659 2.57163 10.3659H14.2885C14.4206 10.3659 14.5369 10.3016 14.6089 10.2026C14.5364 10.3011 14.4196 10.3654 14.288 10.3654Z" fill="white"/>
+                        <path d="M16.8531 4.85918C16.8515 4.84337 16.848 4.82959 16.8444 4.81429C16.8291 4.74796 16.8026 4.68469 16.7556 4.63367L12.5878 0.127551C12.5388 0.0744898 12.4755 0.0433673 12.4077 0.0234693C12.3893 0.0178571 12.373 0.014796 12.3541 0.012245C12.3342 0.00918376 12.3163 0 12.2959 0H1.63265C0.732143 0 0 0.732653 0 1.63265V21.225C0 22.1255 0.732653 22.8571 1.63265 22.8571H15.2291C16.1291 22.8571 16.8612 22.125 16.8612 21.225V4.90357C16.8612 4.88827 16.8546 4.87449 16.8531 4.85918ZM5.72041 2.46939H5.96276V2.22755C5.96276 2.00816 6.14031 1.83061 6.35969 1.83061C6.57908 1.83061 6.75663 2.00816 6.75663 2.22755V2.46939H6.99847C7.21786 2.46939 7.39541 2.64694 7.39541 2.86633C7.39541 3.08571 7.21786 3.26327 6.99847 3.26327H6.75663V3.5051C6.75663 3.72449 6.57908 3.90204 6.35969 3.90204C6.14031 3.90204 5.96276 3.72449 5.96276 3.5051V3.26327H5.72041C5.50102 3.26327 5.32347 3.08571 5.32347 2.86633C5.32347 2.64694 5.50102 2.46939 5.72041 2.46939ZM2.17908 5.85459C2.17908 5.85153 2.17959 5.84847 2.18061 5.84541C2.18163 5.83571 2.18367 5.82551 2.18622 5.81582C2.18673 5.81276 2.18724 5.80969 2.18878 5.80714C2.19082 5.79694 2.19388 5.78674 2.19796 5.77653C2.19847 5.77398 2.19898 5.77143 2.20051 5.76939C2.20255 5.76429 2.20459 5.75918 2.20663 5.75408L3.57959 2.48776C3.60306 2.43265 3.63724 2.38469 3.6801 2.34592H3.68061C3.75204 2.28214 3.84541 2.2449 3.94541 2.2449C3.94643 2.2449 3.94694 2.2449 3.94796 2.2449C3.98827 2.2449 4.02755 2.25153 4.06429 2.26327C4.12959 2.28367 4.18776 2.3199 4.23367 2.36888C4.24031 2.37551 4.24694 2.38316 4.25306 2.39082C4.25306 2.39133 4.25306 2.39133 4.25357 2.39133C4.26582 2.40612 4.27704 2.42245 4.28673 2.43878C4.29694 2.45612 4.30561 2.47347 4.31327 2.49235L5.63878 5.75867C5.67398 5.84643 5.67602 5.93878 5.65102 6.02296C5.64541 6.04133 5.63827 6.05918 5.6301 6.07653C5.6301 6.07653 5.6301 6.07653 5.6301 6.07704C5.625 6.08827 5.61888 6.09898 5.61327 6.10918C5.59541 6.14031 5.57245 6.16939 5.54592 6.19439C5.52806 6.21123 5.50867 6.22704 5.48776 6.24082C5.46684 6.25459 5.44388 6.26633 5.4199 6.27653C5.38367 6.29082 5.34592 6.3 5.30867 6.30357C5.30867 6.30357 5.30867 6.30357 5.30816 6.30357C5.25918 6.30816 5.2102 6.30357 5.16378 6.29082C5.15204 6.28776 5.14082 6.28367 5.12959 6.27959C5.11173 6.27194 5.09388 6.26378 5.07653 6.25459C5.05969 6.24541 5.04388 6.23469 5.02857 6.22296C5.02092 6.21684 5.01326 6.2102 5.00561 6.20357C4.99796 6.19745 4.99082 6.19031 4.98469 6.18316C4.95051 6.14796 4.92245 6.10561 4.90255 6.05714L4.55153 5.19286H3.30357L2.93827 6.06225C2.9301 6.08163 2.92092 6.09949 2.91071 6.11684C2.9 6.13367 2.88878 6.14949 2.87602 6.16429C2.87551 6.16429 2.87551 6.16429 2.87602 6.1648C2.86633 6.17602 2.85612 6.18622 2.84592 6.19643C2.83571 6.20663 2.82449 6.21582 2.81326 6.22449C2.81275 6.22398 2.81275 6.22398 2.81275 6.22449C2.74388 6.27704 2.65918 6.30561 2.57245 6.30561C2.52092 6.30561 2.46888 6.29541 2.41837 6.27449C2.38265 6.25969 2.35051 6.2398 2.32194 6.21633C2.31276 6.20867 2.30357 6.20051 2.2949 6.19184C2.23776 6.13622 2.19949 6.0648 2.18367 5.98725C2.17704 5.9551 2.17449 5.92194 2.17602 5.88878C2.17602 5.87755 2.17704 5.86582 2.17908 5.85459ZM14.6776 19.95C14.6684 19.9954 14.6515 20.0378 14.6286 20.076C14.6168 20.0954 14.6036 20.1133 14.5893 20.1301C14.5745 20.1464 14.5587 20.1622 14.5413 20.1765C14.473 20.2337 14.3852 20.2673 14.2893 20.2673H2.57245C2.46275 20.2673 2.36326 20.223 2.29184 20.1505C2.28265 20.1418 2.27398 20.1321 2.26633 20.1224C2.25765 20.1128 2.25051 20.1031 2.24337 20.0923V20.0918C2.23571 20.0816 2.22959 20.0709 2.22347 20.0597C2.22347 20.0592 2.22347 20.0592 2.22347 20.0592C2.21735 20.048 2.21173 20.0367 2.20663 20.025C2.20663 20.0245 2.20663 20.0245 2.20663 20.0245C2.20153 20.0128 2.19694 20.001 2.19337 19.9888C2.18163 19.9515 2.17551 19.9112 2.17551 19.8699C2.17551 19.7602 2.2199 19.6612 2.29184 19.5898C2.36326 19.5179 2.46275 19.4735 2.57245 19.4735H14.2888C14.4327 19.4735 14.5582 19.5495 14.6281 19.6638C14.6281 19.6643 14.6281 19.6643 14.6281 19.6643C14.6352 19.675 14.6413 19.6862 14.6464 19.6975C14.6469 19.6975 14.6469 19.6974 14.6464 19.698C14.6525 19.7097 14.6577 19.7214 14.6617 19.7337C14.6643 19.7398 14.6663 19.7459 14.6679 19.752C14.6796 19.7893 14.6857 19.8291 14.6857 19.8699C14.6857 19.8974 14.6832 19.924 14.6776 19.95ZM14.6679 16.6888C14.6622 16.7071 14.6551 16.725 14.6464 16.7418C14.6464 16.7418 14.6464 16.7418 14.6464 16.7423C14.6413 16.7536 14.6352 16.7648 14.6281 16.7755C14.6281 16.7755 14.6281 16.7755 14.6281 16.776C14.6235 16.7832 14.6189 16.7903 14.6143 16.7969C14.6 16.8179 14.5837 16.8367 14.5658 16.8541C14.5362 16.8832 14.5015 16.9071 14.4638 16.926C14.4112 16.9526 14.352 16.9668 14.2893 16.9668H2.57245C2.46275 16.9668 2.36326 16.9224 2.29184 16.85C2.2199 16.7786 2.17551 16.6791 2.17551 16.5694C2.17551 16.5286 2.18163 16.4893 2.19337 16.452C2.1949 16.4459 2.19694 16.4398 2.19949 16.4337C2.20153 16.4276 2.20408 16.4214 2.20663 16.4153V16.4148C2.21173 16.4031 2.21735 16.3918 2.22347 16.3806V16.3801C2.22959 16.3689 2.23571 16.3582 2.24337 16.348V16.3475C2.25051 16.3367 2.25765 16.327 2.26633 16.3173C2.27398 16.3077 2.28214 16.298 2.29184 16.2893C2.36326 16.2173 2.46275 16.173 2.57245 16.173H14.2888C14.4806 16.173 14.6408 16.3087 14.6776 16.4898C14.6832 16.5158 14.6857 16.5423 14.6857 16.5694C14.6857 16.6107 14.6796 16.651 14.6679 16.6888ZM14.6179 13.4918C14.6077 13.5077 14.5959 13.5224 14.5827 13.5362C14.5786 13.5408 14.574 13.5454 14.5694 13.55C14.5429 13.577 14.5117 13.6 14.4781 13.6184C14.4668 13.6245 14.4556 13.6301 14.4434 13.6352C14.3959 13.6551 14.3439 13.6663 14.2888 13.6663H2.57245C2.35306 13.6663 2.17551 13.4888 2.17551 13.2694C2.17551 13.05 2.35306 12.8724 2.57245 12.8724H14.2893C14.3439 12.8724 14.3964 12.8837 14.4434 12.9036C14.4556 12.9087 14.4668 12.9143 14.4781 12.9204C14.5117 12.9388 14.5429 12.9617 14.5694 12.9888C14.5745 12.9934 14.5791 12.998 14.5827 13.0026C14.5959 13.0163 14.6077 13.0311 14.6179 13.0469C14.6607 13.1102 14.6857 13.1867 14.6857 13.2694C14.6857 13.352 14.6607 13.4286 14.6179 13.4918ZM14.6378 10.1582C14.6296 10.1735 14.6199 10.1883 14.6097 10.2026C14.5378 10.3015 14.4214 10.3658 14.2893 10.3658H2.57245C2.46275 10.3658 2.36326 10.3214 2.29184 10.249C2.2199 10.1776 2.17551 10.0781 2.17551 9.96837C2.17551 9.92755 2.18163 9.88827 2.19337 9.85102C2.1949 9.8449 2.19694 9.83878 2.19949 9.83265C2.20153 9.82653 2.20408 9.82041 2.20663 9.81429V9.81378C2.21173 9.80204 2.21735 9.79082 2.22347 9.77959V9.77908C2.22959 9.76786 2.23571 9.75714 2.24337 9.74694V9.74643C2.25051 9.73571 2.25765 9.72602 2.26633 9.71633C2.27398 9.70663 2.28214 9.69694 2.29184 9.68827C2.36326 9.61633 2.46275 9.57194 2.57245 9.57194H14.2888C14.4393 9.57194 14.5704 9.65561 14.6378 9.77908C14.6378 9.77959 14.6378 9.77959 14.6378 9.77959C14.6444 9.79082 14.6495 9.80204 14.6546 9.81378V9.81429C14.6571 9.82041 14.6597 9.82653 14.6617 9.83265C14.6643 9.83878 14.6663 9.8449 14.6679 9.85102C14.6796 9.88827 14.6857 9.92755 14.6857 9.96837C14.6857 10.0372 14.6684 10.102 14.6378 10.1582ZM13.5316 4.50663C13.0694 4.50663 12.6934 4.13061 12.6934 3.66786V1.41173L15.5291 4.47704L15.5561 4.50663H13.5316Z" fill="white"/>
+                        <path d="M4.23051 4.39772L3.93969 3.6814L3.63867 4.39772V4.39823H4.23051V4.39772Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Use competency assessment',
+                            es: 'Usa la evaluación de competencias',
+                            ua: 'Використовуйте оцінку компетенцій',
+                            ru: 'Используйте оценку компетенций'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'track skill development by roles',
+                          es: 'rastrea el desarrollo de habilidades por roles',
+                          ua: 'відстежуйте розвиток навичок за ролями',
+                          ru: 'отслеживайте развитие навыков по ролям'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 4 - Brain with gear */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="51" height="51" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_d_1715_15155)">
+                        <rect x="4.04785" y="4.04761" width="40" height="40" rx="4" fill="#0F58F9"/>
+                        <path d="M19.1882 33.3284C19.1867 34.9982 19.9951 36.5594 21.3418 37.4888C22.6885 38.4166 24.3976 38.5921 25.8958 37.9542C27.3927 37.3164 28.4839 35.9499 28.8001 34.3114C29.1176 32.6743 28.6196 30.9822 27.4735 29.8C24.425 26.6612 19.1882 28.8945 19.1882 33.3284ZM26.8458 32.0987L23.65 35.3788C23.549 35.4874 23.409 35.5483 23.2632 35.5483C23.1174 35.5483 22.9774 35.4873 22.8749 35.3788L21.251 33.7061H21.2524C21.0403 33.4816 21.0431 33.1247 21.2582 32.9031C21.4718 32.6816 21.8197 32.6786 22.0377 32.8972L23.2632 34.17L26.0606 31.2884V31.2899C26.2771 31.0698 26.6264 31.0713 26.8415 31.2929C27.0566 31.5159 27.058 31.8742 26.8458 32.0987ZM18.4768 31.1382C17.5689 31.1412 16.6985 30.7724 16.0561 30.1138C13.4276 27.3942 16.329 22.9158 19.7643 24.3299C20.0472 24.4444 20.3677 24.3016 20.4803 24.0102C20.5929 23.7203 20.4557 23.3902 20.1728 23.2727C19.0152 22.7939 17.7175 22.8266 16.5844 23.3634C15.4513 23.9002 14.5823 24.8934 14.1811 26.1097C11.8455 24.5559 12.3161 21.124 14.3586 20.0567C15.1338 19.6567 14.0338 18.5029 15.4585 16.7543C16.7057 15.2436 17.7522 15.9127 17.9615 15.1247L17.9629 15.1262C18.3021 13.9828 19.1798 13.0921 20.2941 12.759C21.4099 12.426 22.6137 12.6951 23.4943 13.4757V27.2219C22.3857 27.326 21.3276 27.7482 20.4414 28.4411C19.5536 29.1325 18.8738 30.0677 18.4768 31.1382ZM33.906 26.1095C33.5061 24.8918 32.6372 23.8971 31.5041 23.3603C30.3695 22.8235 29.0718 22.7923 27.9142 23.2725C27.6356 23.3915 27.5028 23.7201 27.614 24.0086C27.7251 24.297 28.0412 24.4397 28.3227 24.3297C29.2711 23.9357 30.3406 23.9981 31.2399 24.4992C32.1392 25.0018 32.7743 25.8909 32.9721 26.9243C33.1684 27.9577 32.9086 29.0283 32.2604 29.8446C31.6123 30.6594 30.6438 31.1337 29.6218 31.1382C29.222 30.0691 28.5407 29.1368 27.6544 28.4439C26.7681 27.7525 25.7115 27.3288 24.6044 27.2217V13.4756C25.4849 12.6964 26.6873 12.4288 27.803 12.7619C28.9174 13.0949 29.7936 13.9826 30.1342 15.126C30.3334 15.9141 31.3814 15.245 32.6271 16.7556C34.0619 18.5042 32.962 19.658 33.7371 20.058C35.781 21.1256 36.2516 24.5558 33.906 26.1095Z" fill="white"/>
+                        </g>
+                        <defs>
+                        <filter id="filter0_d_1715_15155" x="0.000345707" y="0.000101566" width="50.1188" height="50.1188" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                        <feMorphology radius="1.01188" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_1715_15155"/>
+                        <feOffset dx="1.01188" dy="1.01188"/>
+                        <feGaussianBlur stdDeviation="2.02375"/>
+                        <feComposite in2="hardAlpha" operator="out"/>
+                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1715_15155"/>
+                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1715_15155" result="shape"/>
+                        </filter>
+                        </defs>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Store knowledge',
+                            es: 'Almacena el conocimiento',
+                            ua: 'Зберігайте знання',
+                            ru: 'Храните знания'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'in a unified database in digital format',
+                          es: 'en una base de datos unificada en formato digital',
+                          ua: 'в єдиній базі у цифровому форматі',
+                          ru: 'в единой базе в цифровом формате'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 5 - Line graph */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.17461 0C1.82308 0 2.34921 0.546749 2.34921 1.22064V16.1391C2.34921 17.712 3.57644 18.9873 5.08996 18.9873H19.4471C20.0956 18.9873 20.6217 19.534 20.6217 20.2079C20.6217 20.8818 20.0956 21.4286 19.4471 21.4286H5.08996C2.27945 21.4286 0 19.0611 0 16.1391V1.22064C0 0.546749 0.526129 0 1.17461 0ZM18.4476 5.97723L19.1401 8.11462C19.3469 8.75417 20.0137 9.09748 20.6279 8.88261C21.2433 8.66646 21.5737 7.97475 21.3669 7.3352L19.7568 2.37126C19.5524 1.73806 18.8954 1.39348 18.2836 1.59819L13.4543 3.21682C12.8376 3.42408 12.4975 4.11196 12.6969 4.75281C12.8963 5.39493 13.5583 5.74713 14.1749 5.53988L16.3883 4.79861L13.7871 10.0282L10.864 7.60595C10.6022 7.38853 10.2645 7.29825 9.93412 7.35674C9.60376 7.4165 9.31255 7.61867 9.13514 7.91364L5.39958 14.1363C5.05575 14.7085 5.22339 15.4612 5.77398 15.8185C6.32458 16.1758 7.04892 16.0016 7.39152 15.4294L10.4308 10.3688L13.4407 12.8648C13.716 13.0924 14.0745 13.1801 14.4184 13.1038C14.7622 13.0275 15.0558 12.7949 15.2173 12.4706L18.4476 5.97723Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Increase engagement',
+                            es: 'Aumenta el compromiso',
+                            ua: 'Підвищуйте залученість',
+                            ru: 'Повышайте вовлеченность'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'gamification, tests, badges, ratings',
+                          es: 'gamificación, pruebas, insignias, calificaciones',
+                          ua: 'гейміфікація, тести, бейджі, рейтинги',
+                          ru: 'геймификация, тесты, бейджи, рейтинги'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 6 - Bar chart */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="26" height="25" viewBox="0 0 26 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3.12918 14.8232C1.9763 14.8232 1.0293 15.8883 1.0293 17.1581V21.9098C1.0293 23.1797 1.9763 24.2447 3.12918 24.2447C4.28206 24.2447 5.22907 23.1797 5.22907 21.9098V17.1581C5.22907 15.8883 4.28206 14.8232 3.12918 14.8232Z" fill="white"/>
+                        <path d="M15.8929 13.1028C14.74 13.1028 13.793 14.1678 13.793 15.4377V21.9508C13.793 23.2207 14.74 24.2857 15.8929 24.2857C17.0457 24.2857 17.9927 23.2207 17.9927 21.9508V15.4377C17.9927 14.1269 17.0457 13.1028 15.8929 13.1028Z" fill="white"/>
+                        <path d="M9.63406 10.8503C8.48118 10.8503 7.53418 11.9154 7.53418 13.1852V21.9513C7.53418 23.2212 8.48118 24.2862 9.63406 24.2862C10.7869 24.2862 11.734 23.2212 11.734 21.9513V13.1852C11.734 11.9154 10.7869 10.8503 9.63406 10.8503Z" fill="white"/>
+                        <path d="M22.3577 10.481C21.2048 10.481 20.2578 11.546 20.2578 12.8159V21.9506C20.2578 23.2205 21.2048 24.2855 22.3577 24.2855C23.5106 24.2855 24.4576 23.2205 24.4576 21.9506V12.8159C24.4576 11.505 23.5106 10.481 22.3577 10.481Z" fill="white"/>
+                        <path d="M25.3629 0.609066C24.7865 -0.0873055 23.7571 -0.210185 23.0572 0.363298L16.5928 5.48368L8.60502 2.903C8.11092 2.73915 7.53449 2.82108 7.12275 3.14878L0.658383 7.94146C-0.0827539 8.47398 -0.206272 9.49805 0.328994 10.2354C0.658388 10.686 1.15248 10.8908 1.64657 10.8908C1.97596 10.8908 2.34653 10.7679 2.63475 10.5631L8.44032 6.26197L16.4693 8.84264C17.0046 9.00649 17.581 8.92457 17.9927 8.55591L25.1571 2.903C25.8159 2.32952 25.8982 1.30544 25.3629 0.609066Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Get analytics',
+                            es: 'Obtén análisis',
+                            ua: 'Отримуйте аналітику',
+                            ru: 'Получайте аналитику'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'progress, results, "bottlenecks" in training',
+                          es: 'progreso, resultados, "cuellos de botella" en la capacitación',
+                          ua: 'прогрес, результати, "вузькі місця" у навчанні',
+                          ru: 'прогресс, результаты, "узкие места" в обучении'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 7 - Gear */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.6963 16.5588C19.9534 16.0875 20.1581 15.5876 20.3105 15.0687H21.9006C22.1625 15.0687 22.3767 14.8592 22.3767 14.5926V11.1172C22.3767 10.8505 22.1625 10.6411 21.9006 10.6411H20.3105C20.1581 10.1221 19.9534 9.62221 19.6963 9.1509L20.8199 8.02731C21.0056 7.83688 21.0056 7.53693 20.8199 7.35124L18.3585 4.88984C18.1728 4.70417 17.8729 4.70417 17.6824 4.88984L16.5588 6.01343C16.0875 5.75634 15.5876 5.55162 15.0687 5.39927V3.8091C15.0687 3.54725 14.8592 3.33301 14.5926 3.33301H11.1172C10.8505 3.33301 10.6411 3.54725 10.6411 3.8091V5.39927C10.1221 5.55162 9.62221 5.75635 9.1509 6.01343L8.02731 4.88984C7.83688 4.70417 7.53693 4.70417 7.35124 4.88984L4.88984 7.35124C4.70417 7.53692 4.70417 7.83688 4.88984 8.02731L6.01343 9.1509C5.75634 9.62224 5.55162 10.1221 5.39927 10.6411H3.8091C3.54725 10.6411 3.33301 10.8505 3.33301 11.1172V14.5926C3.33301 14.8592 3.54725 15.0687 3.8091 15.0687H5.39927C5.55162 15.5876 5.75635 16.0875 6.01343 16.5588L4.88984 17.6824C4.70417 17.8729 4.70417 18.1728 4.88984 18.3585L7.35124 20.8199C7.44646 20.9103 7.56549 20.958 7.68928 20.958C7.81307 20.958 7.93209 20.9103 8.02731 20.8199L9.1509 19.6963C9.62224 19.9534 10.1221 20.1581 10.6411 20.3105V21.9006C10.6411 22.1625 10.8505 22.3767 11.1172 22.3767H14.5926C14.8592 22.3767 15.0687 22.1625 15.0687 21.9006V20.3105C15.5876 20.1581 16.0875 19.9534 16.5588 19.6963L17.6824 20.8199C17.7776 20.9103 17.9014 20.958 18.0205 20.958C18.1395 20.958 18.2633 20.9103 18.3585 20.8199L20.8199 18.3585C21.0056 18.1728 21.0056 17.8729 20.8199 17.6824L19.6963 16.5588ZM7.85595 12.8549C7.85595 10.0983 10.0984 7.85598 12.8549 7.85598C15.6114 7.85598 17.8538 10.0984 17.8538 12.8549C17.8538 15.6114 15.6114 17.8538 12.8549 17.8538C10.0984 17.8538 7.85595 15.6114 7.85595 12.8549Z" fill="white"/>
+                        <path d="M14.6729 11.0601C14.4491 10.922 14.1539 10.9886 14.0159 11.2124L12.5924 13.4882L11.6259 12.5169C11.4402 12.3312 11.1402 12.3312 10.9498 12.5169C10.7641 12.7026 10.7641 13.0073 10.9498 13.193L12.3448 14.5832C12.4352 14.6736 12.5542 14.7213 12.678 14.7213H12.7352C12.878 14.7022 13.0065 14.6213 13.0827 14.4975L14.8252 11.7171C14.9633 11.4933 14.8966 11.1981 14.6729 11.0601Z" fill="white"/>
+                        <path d="M15.4447 24.4719C11.4455 25.3622 7.33204 24.1672 4.43738 21.2725C2.19022 19.0254 0.952219 16.0353 0.952219 12.8552C0.952219 10.0843 1.8949 7.45619 3.62786 5.3376V6.12315C3.62786 6.38501 3.8421 6.59925 4.10395 6.59925C4.3658 6.59925 4.58004 6.38501 4.58004 6.12315V4.10451C4.58004 4.04262 4.56576 3.98073 4.54196 3.9236C4.49435 3.80933 4.39913 3.71411 4.28487 3.66651C4.22773 3.6427 4.16584 3.62842 4.10395 3.62842H2.08531C1.82346 3.62842 1.60921 3.84266 1.60921 4.10451C1.60921 4.36637 1.82346 4.58061 2.08531 4.58061H3.02321C1.06645 6.89444 0 9.79373 0 12.8551C0 16.2878 1.33782 19.5155 3.76579 21.9437C6.20815 24.386 9.46004 25.7094 12.8258 25.7094C13.7637 25.7094 14.7111 25.6047 15.649 25.3952C15.9061 25.3381 16.068 25.0858 16.0108 24.8287C15.9537 24.5716 15.7014 24.4097 15.4443 24.4669L15.4447 24.4719Z" fill="white"/>
+                        <path d="M23.6295 21.1292H22.6916C24.6483 18.8154 25.7148 15.9161 25.7148 12.8548C25.7148 9.42204 24.377 6.19435 21.949 3.76619C18.8258 0.643014 14.379 -0.647088 10.0608 0.309672C9.80371 0.366803 9.64184 0.619125 9.69897 0.876232C9.7561 1.13334 10.0084 1.29519 10.2655 1.23806C14.2647 0.347759 18.3782 1.54276 21.2728 4.43742C23.52 6.68458 24.758 9.67461 24.758 12.8548C24.758 15.6257 23.8153 18.2538 22.0824 20.3723V19.5868C22.0824 19.3249 21.8681 19.1107 21.6063 19.1107C21.3444 19.1107 21.1302 19.3249 21.1302 19.5868V21.6054C21.1302 21.6673 21.1445 21.7292 21.1683 21.7863C21.2159 21.9006 21.3111 21.9958 21.4253 22.0434C21.4825 22.0672 21.5444 22.0815 21.6063 22.0815H23.6249C23.8868 22.0815 24.101 21.8673 24.101 21.6054C24.101 21.3436 23.8868 21.1293 23.6249 21.1293L23.6295 21.1292Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Optimize management',
+                            es: 'Optimiza la gestión',
+                            ua: 'Оптимізуйте управління',
+                            ru: 'Оптимизируйте управление'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'create reports, dashboards, and update content centrally',
+                          es: 'crea informes, paneles y actualiza el contenido de forma centralizada',
+                          ua: 'створюйте звіти, дашборди й оновлюйте контент централізовано',
+                          ru: 'создавайте отчеты, дашборды и обновляйте контент централизованно'
+                        })}</span>
+                      </span>
+                    </div>
+  
+                    {/* Benefit 8 - Pen/Pencil */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="51" height="51" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_d_1715_15180)">
+                        <rect x="4.04785" y="4.04736" width="40" height="40" rx="4" fill="#0F58F9"/>
+                        <path d="M33.1333 33.1333C38.1619 28.1047 38.1619 19.9619 33.1333 14.9619C28.1047 9.93329 19.9619 9.93329 14.9619 14.9619C9.93329 19.9904 9.93329 28.1333 14.9619 33.1333C19.9904 38.1619 28.1047 38.1619 33.1333 33.1333ZM17.9904 25.1904L19.4476 26.6476L26.6761 19.419L25.1904 17.9904H30.1047V22.9047L28.6476 21.4476L21.4476 28.6761L22.9047 30.1333H17.9904V25.1904Z" fill="white"/>
+                        </g>
+                        <defs>
+                        <filter id="filter0_d_1715_15180" x="0.000345707" y="-0.000142574" width="50.1188" height="50.1188" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                        <feMorphology radius="1.01188" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_1715_15180"/>
+                        <feOffset dx="1.01188" dy="1.01188"/>
+                        <feGaussianBlur stdDeviation="2.02375"/>
+                        <feComposite in2="hardAlpha" operator="out"/>
+                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1715_15180"/>
+                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1715_15180" result="shape"/>
+                        </filter>
+                        </defs>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[16px] xl:text-[20px]">
+                        <span className="text-[#09090B] font-medium">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Scale training',
+                            es: 'Escala la capacitación',
+                            ua: 'Масштабуйте навчання',
+                            ru: 'Масштабируйте обучение'
+                          })}
+                        </span>
+                        <span className="text-[#71717A] font-regular"> — {getLocalizedText(landingPageData?.language, {
+                          en: 'implement the system in different locations without loss of quality',
+                          es: 'implementa el sistema en diferentes ubicaciones sin pérdida de calidad',
+                          ua: 'впроваджуйте систему в різних локаціях без втрат якості',
+                          ru: 'внедряйте систему в разных локациях без потерь качества'
+                        })}</span>
+                      </span>
+                    </div>
+                  </div>
               </div>
             </section>
 
@@ -5965,7 +6115,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                   </div>
                   {/* Text */}
-                  <p className="font-regular text-[20px] xl:text-[25px] leading-[130%]">
+                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
                     <span className="font-medium">1. {getLocalizedText(landingPageData?.language, {
                       en: 'Reduction in staff turnover by',
                       es: 'Reducción en la rotación de personal en',
@@ -5989,7 +6139,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                   </div>
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
                     <span className="font-medium">2. {getLocalizedText(landingPageData?.language, {
                       en: 'Reduction in onboarding time by',
                       es: 'Reducción en el tiempo de incorporación en',
@@ -6013,7 +6163,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                   </div>
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
                     <span className="font-medium">3. {getLocalizedText(landingPageData?.language, {
                       en: 'Increase in productivity of new employees by',
                       es: 'Aumento en la productividad de nuevos empleados en',
@@ -6037,7 +6187,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                   </div>
                   {/* Text */}
-                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                  <p className="font-regular text-[18px] xl:text-[23px] leading-[130%]">
                     <span className="font-medium">4. {getLocalizedText(landingPageData?.language, {
                       en: 'Savings of up to',
                       es: 'Ahorros de hasta',
