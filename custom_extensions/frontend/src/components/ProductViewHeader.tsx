@@ -49,6 +49,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a quiz to show Export button
   const isQuiz = projectData?.component_name === 'QuizDisplay';
   const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
+  const isCourseOutline = projectData?.component_name === 'TrainingPlanTable';
   
   // Debug logging for PDF export
   console.log('🔍 ProductViewHeader Debug:', {
@@ -213,7 +214,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </button>
           )}
 
-          {shouldShowButtons && scormEnabled && (
+          {shouldShowButtons && scormEnabled && isCourseOutline && (
             <ToastProvider>
               <ScormDownloadButton
                 courseOutlineId={Number(productId)}

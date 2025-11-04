@@ -1839,86 +1839,79 @@ export default function TextPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3 mb-8">
               <div className="rounded-lg border border-[#CCCCCC] px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
-                    <div className="flex flex-col">
-                      <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.themes', 'Themes')}</h2>
-                      <p className="text-[#A5A5A5] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                <div className="flex flex-row gap-4">
+                  <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4 flex-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                    <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
+                      <div className="flex flex-col">
+                        <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.themes', 'Themes')}</h2>
+                        <p className="text-[#A5A5A5] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below')}</p>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 text-sm text-[#CCCCCC] hover:opacity-80 transition-opacity border border-[#CCCCCC] rounded-lg px-3 py-2"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCCCCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
-                      <span>{t('interface.generate.viewMore', 'View more')}</span>
-                    </button>
-                  </div>
 
-                  <div className="flex flex-col gap-5 px-6">
-                    {/* Themes grid */}
-                    <div className="grid grid-cols-3 gap-5 justify-items-center">
-                      {themeOptions.map((theme) => {
-                        const ThemeSvgComponent = getThemeSvg(theme.id);
-                        const isSelected = selectedTheme === theme.id;
+                    <div className="flex flex-col gap-5 px-6">
+                      {/* Themes grid */}
+                      <div className="grid grid-cols-3 gap-5 justify-items-center">
+                        {themeOptions.slice(0, 1).map((theme) => {
+                          const ThemeSvgComponent = getThemeSvg(theme.id);
+                          const isSelected = selectedTheme === theme.id;
 
-                        return (
-                          <button
-                            key={theme.id}
-                            type="button"
-                            onClick={() => setSelectedTheme(theme.id)}
-                            className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
-                              ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
-                              : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
-                              }`}
-                          >
-                            {/* Status indicator circle - top right */}
-                            <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
-                              ? 'bg-[#0F58F9]'
-                              : 'bg-white border border-[#E0E0E0]'
-                              }`}>
-                              {isSelected && (
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              )}
-                            </div>
-                            
-                            <div className="w-[214px] h-[116px] flex items-center justify-center">
-                              <ThemeSvgComponent />
-                            </div>
-                            <div className="flex items-center justify-left px-3">
-                              <span className={`text-lg ${isSelected ? 'text-[#171718]' : 'text-[#4D4D4D]'} font-medium select-none`}>
-                                {theme.label}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button
+                              key={theme.id}
+                              type="button"
+                              onClick={() => setSelectedTheme(theme.id)}
+                              className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
+                                ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
+                                : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
+                                }`}
+                            >
+                              {/* Status indicator circle - top right */}
+                              <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
+                                ? 'bg-[#0F58F9]'
+                                : 'bg-white border border-[#E0E0E0]'
+                                }`}>
+                                {isSelected && (
+                                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </div>
+                              
+                              <div className="w-[214px] h-[116px] flex items-center justify-center">
+                                <ThemeSvgComponent />
+                              </div>
+                              <div className="flex items-center justify-left px-3">
+                                <span className={`text-lg ${isSelected ? 'text-[#171718]' : 'text-[#4D4D4D]'} font-medium select-none`}>
+                                  {theme.label}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Content section */}
-                <div className="bg-white border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <div className="flex flex-col py-4 border-b border-[#E0E0E0] px-6">
-                    <h2 className="text-base font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
-                    <p className="text-[#A5A5A5] font-light text-xs">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
-                  </div>
+                  {/* Content section */}
+                  <div className="bg-white border border-[#E0E0E0] pb-6 flex flex-col gap-4 flex-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                    <div className="flex flex-col py-4 border-b border-[#E0E0E0] px-6">
+                      <h2 className="text-base font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
+                      <p className="text-[#A5A5A5] font-light text-xs">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
+                    </div>
 
-                  <div className="flex flex-col gap-4 px-6">
-                    {/* Image source dropdown */}
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-[#171718] select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                      <Select value={selectedImageSource} onValueChange={setSelectedImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white text-sm text-[#171718] font-semibold cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-[#E0E0E0]" side="top">
-                          <SelectItem value="ai">{t('interface.generate.aiImages', 'Ai images')}</SelectItem>
-                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
-                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="flex flex-col gap-4 px-6">
+                      {/* Image source dropdown */}
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-[#171718] select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                        <Select value={selectedImageSource} onValueChange={setSelectedImageSource}>
+                          <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white text-sm text-[#171718] font-semibold cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-[#E0E0E0]" side="top">
+                            <SelectItem value="ai">{t('interface.generate.aiImages', 'Ai images')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                 </div>
