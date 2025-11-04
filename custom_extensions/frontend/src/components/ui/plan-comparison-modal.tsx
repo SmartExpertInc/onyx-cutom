@@ -357,11 +357,8 @@ const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({ open, onOpenC
                 const categoryHeight = 48 + category.features.length * 48; // Header (48px) + features
                 return (
                   <div key={categoryIndex} className="relative group hover:z-10">
-                    {/* Blue Background for This Category Only - Shows on Hover */}
-                    <div 
-                      className="absolute left-[-32px] right-[-32px] top-0 group-hover:bg-[#CCDBFC] transition-colors duration-200 z-0 pointer-events-none"
-                      style={{ height: `${categoryHeight}px` }}
-                    ></div>
+                    {/* Blue background that appears on hover - full width */}
+                    <div className="absolute inset-0 left-0 right-0 w-[calc(100%+1000px)] bg-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
                     
                     <div className="grid gap-4 relative z-[1]" style={{ gridTemplateColumns: '250px repeat(4, minmax(0, 1fr))' }}>
                       <div className="pr-4 relative">
