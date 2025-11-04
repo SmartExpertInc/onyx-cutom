@@ -1139,12 +1139,22 @@ export default function LessonPresentationClient() {
         return slideCount;
       }
 
-      // Step 2: Check if JSON was already converted to markdown (check jsonConvertedRef)
+      // Step 2: Try partial JSON extraction (works during streaming)
+      try {
+        const partialSlides = extractSlidesFromPartialJson(text);
+        if (partialSlides.length > 0) {
+          return partialSlides.length;
+        }
+      } catch {
+        // Fall through to markdown parsing
+      }
+
+      // Step 3: Check if JSON was already converted to markdown (check jsonConvertedRef)
       if (jsonConvertedRef.current) {
         console.log(`[SLIDE_COUNT] JSON was already converted to markdown, parsing markdown format`);
       }
 
-      // Step 3: Fallback to markdown parsing
+      // Step 4: Fallback to markdown parsing
       const cleanedText = cleanContent(text);
       if (!cleanedText || !cleanedText.trim()) {
         console.log(`[SLIDE_COUNT] Cleaned text is empty`);
@@ -2177,12 +2187,6 @@ export default function LessonPresentationClient() {
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
                 <LoadingAnimation message={thoughts[thoughtIdx]} showFallback={false} />
-                {formatRetryCounter > 0 && debugInfo && (
-                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
-                    <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
-                    <p>Last attempt: {debugInfo.lastAttemptTime}</p>
-                  </div>
-                )}
               </div>
             )}
             {error && (

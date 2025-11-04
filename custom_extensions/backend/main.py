@@ -202,6 +202,21 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+async def fetch_current_onyx_user_id_via_me(cookies: Dict[str, str]) -> Optional[str]:
+    """Fetch current Onyx user id by calling /me using provided cookies."""
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(f"{ONYX_API_SERVER_URL}/me", cookies=cookies)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("id") or data.get("user_id")
+    except Exception as e:
+        try:
+            logger.warning(f"[USER_ID_FETCH] Failed to fetch user id via /me: {e}")
+        except Exception:
+            pass
+        return None
+
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -1103,508 +1118,553 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Advanced Data Science Mastery: From Theory to Production",
+  "lessonTitle": "Project Management Fundamentals: From Planning to Delivery",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
-      "slideTitle": "Section: Advanced Data Science Mastery",
-      "templateId": "title-slide",
+      "slideTitle": "Section: Project Management Fundamentals",
+      "templateId": "big-image-left",
       "previewKeyPoints": [
-        "Comprehensive data science training program covering theory and practical applications",
-        "Advanced techniques for real-world data challenges and production deployment",
-        "Industry-standard tools and methodologies for professional data scientists",
-        "Career development pathways and specialization opportunities in data science"
+        "Learning Outcome: You will be able to plan and execute projects using structured methodologies",
+        "Learning Outcome: You will be able to identify and mitigate common project risks before they occur",
+        "Learning Outcome: You will be able to apply time management frameworks to meet project deadlines",
+        "Practical Focus: Real workplace scenarios with step-by-step implementation guides"
       ],
       "props": {
-        "title": "Advanced Data Science Mastery",
-        "subtitle": "From theoretical foundations to production-ready solutions and career advancement",
-        "author": "Data Science Excellence Institute"
+        "title": "Project Management Fundamentals",
+        "subtitle": "Learn to plan, execute, and deliver successful projects in any industry",
+        "imagePrompt": "Realistic cinematic scene of a diverse project management team collaborating in a modern office environment. A confident Asian woman in business attire stands at a whiteboard presenting project timelines while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. Other team members are actively participating, some pointing at documents, others contributing ideas. The conference room features floor-to-ceiling windows with natural daylight, a large wooden table, executive chairs, and visible project materials including laptops, tablets, planning boards, and coffee cups. Natural office lighting illuminates the collaborative atmosphere. The presentation screen and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Project management team collaborating in modern office"
       }
     },
     {
-      "slideId": "slide_2_statistical_foundations",
+      "slideId": "slide_2_learning_objectives",
       "slideNumber": 2,
-      "slideTitle": "Advanced Data Science Mastery — Statistical Foundations and Mathematical Prerequisites",
+      "slideTitle": "Project Management Fundamentals — What You Will Be Able To Do",
       "templateId": "two-column",
       "previewKeyPoints": [
-        "Essential statistical concepts including probability distributions and hypothesis testing",
-        "Linear algebra fundamentals for machine learning algorithms and dimensionality reduction",
-        "Calculus applications in optimization and gradient-based learning methods",
-        "Practical implementation using Python libraries like NumPy, SciPy, and statsmodels"
+        "After this lesson, you will identify project scope and create work breakdown structures",
+        "After this lesson, you will apply risk assessment frameworks to predict potential issues",
+        "After this lesson, you will evaluate progress using key performance metrics",
+        "After this lesson, you will create action plans for common project challenges"
       ],
       "props": {
-        "title": "Core Mathematical and Statistical Foundations",
-        "leftTitle": "Statistical Concepts",
-        "leftContent": "Probability distributions model uncertainty in data while hypothesis testing validates experimental assumptions.",
-        "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "Linear algebra powers dimensionality reduction and neural networks while calculus enables gradient-based optimization."
+        "title": "Your Learning Outcomes: Skills You Will Develop",
+        "leftTitle": "Planning Skills",
+        "leftContent": "You will learn to define project scope, create detailed timelines, and allocate resources effectively. These skills apply to any project in any industry.",
+        "rightTitle": "Execution Skills",
+        "rightContent": "You will learn to track progress, identify risks early, and adjust plans when circumstances change. You will practice these skills through real scenarios.",
+        "leftImagePrompt": "Realistic cinematic scene of a focused professional woman in business attire working at a modern desk with project planning materials. She is reviewing a detailed Gantt chart on her laptop screen while organizing project documents and sticky notes on her desk. The workspace features natural office lighting, a clean desk setup with a laptop, planning documents, and a cup of coffee. The laptop screen and planning materials are [COLOR1], her professional attire and workspace accessories are [COLOR2], and the office environment and furniture are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "rightImagePrompt": "Realistic cinematic scene of a focused professional man in a business shirt working at a modern desk with project execution materials. He is monitoring project progress on his laptop screen while reviewing status reports and updating task boards. The workspace features natural office lighting, a clean desk setup with a laptop, project tracking materials, and a notebook. The laptop screen and project materials are [COLOR1], his professional attire and workspace accessories are [COLOR2], and the office environment and furniture are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
       }
     },
     {
-      "slideId": "slide_3_data_pipeline_architecture",
+      "slideId": "slide_3_project_planning_steps",
       "slideNumber": 3,
-      "slideTitle": "Advanced Data Science Mastery — Enterprise Data Pipeline Architecture and ETL Processes",
+      "slideTitle": "Project Management Fundamentals — How To Plan Your Project in 5 Steps",
       "templateId": "process-steps",
       "previewKeyPoints": [
-        "End-to-end data pipeline design from ingestion to serving predictions at scale",
-        "ETL and ELT processes with modern tools like Apache Airflow and dbt for workflow orchestration",
-        "Data quality monitoring and validation frameworks to ensure reliable model inputs",
-        "Scalable architecture patterns for handling big data processing and real-time streaming"
+        "Step 1: Define clear project goals that are specific and measurable",
+        "Step 2: Break down work into manageable tasks using proven techniques",
+        "Step 3: Estimate time and resources needed for each task",
+        "Step 4: Identify potential risks and create backup plans",
+        "Step 5: Set up tracking system to monitor progress against goals"
       ],
       "props": {
-        "title": "Building Production-Ready Data Pipelines",
+        "title": "Your Step-by-Step Project Planning Guide",
         "steps": [
-          "Ingest data from databases, APIs, streams, and files with retries, validation, and error handling to ensure completeness and reliability at scale",
-          "Transform and clean data using outlier handling, imputation, feature engineering, and normalization with Spark, Pandas, or dbt for reusable pipelines",
-          "Monitor data quality via profiling, schema checks, statistical tests, and drift detection to catch issues early and maintain trustworthy inputs",
-          "Serve models with Docker/Kubernetes and ML platforms (e.g., MLflow, Seldon) for reliable real-time and batch prediction endpoints",
-          "Track latency, accuracy, throughput, and business KPIs with dashboards and alerts to keep pipelines healthy and actionable"
+          "Define Project Goals: Write down what success looks like using the SMART framework (Specific, Measurable, Achievable, Relevant, Time-bound). Start by identifying the business problem your project solves and the value it will create. Example: Instead of 'improve online presence', write 'Launch new website with 5 core pages (Home, About, Services, Portfolio, Contact) by March 15, 2024, achieving 25% increase in lead generation within 3 months of launch.' Include success metrics that can be measured objectively, such as user engagement rates, conversion rates, or performance benchmarks. Consider both quantitative metrics (numbers, percentages, timeframes) and qualitative outcomes (user satisfaction, brand perception, operational efficiency). Document assumptions and constraints that could affect goal achievement, such as budget limitations, resource availability, or external dependencies. Review goals with key stakeholders to ensure alignment and obtain buy-in before proceeding to planning.",
+          "Create Work Breakdown Structure: List all tasks needed by starting with major phases (Planning, Development, Testing, Launch) and then breaking each phase into smaller, manageable tasks that take 2-5 days each. This hierarchical approach makes the project less overwhelming and easier to track progress. For each task, include: a clear description of what needs to be accomplished, the expected deliverable or outcome, the person responsible for completion, and any dependencies on other tasks. Use action verbs to describe tasks (e.g., 'Design user interface mockups' rather than 'UI design'). Group related tasks into work packages that can be assigned to specific team members or departments. Include administrative tasks like status meetings, documentation updates, and stakeholder reviews. Review the breakdown with team members to ensure nothing is missed and that task descriptions are clear and actionable.",
+          "Estimate Time and Resources: For each task, estimate the hours needed and identify who will do the work based on their skills, availability, and current workload. Consider the complexity of the task, the experience level of the person assigned, and any learning curve required. Add buffer time (typically 20-30% extra) for unexpected issues, learning curves, and quality assurance activities. Factor in dependencies between tasks and potential delays from external sources. Track your estimates against actual time spent to improve accuracy over time and identify patterns in estimation errors. Include resource costs, equipment needs, and external dependencies in your estimates. Create a resource allocation matrix showing who is working on what and when, to identify potential conflicts or bottlenecks early.",
+          "Identify Risks: Ask 'What could go wrong?' for each phase and create a comprehensive risk register. List the top 5-10 risks that could significantly impact your project's success, including their likelihood (High/Medium/Low) and impact (High/Medium/Low). For each risk, develop a specific backup plan with clear actions, responsible parties, and timelines. Example: Risk 'Key team member becomes unavailable' → Mitigation 'Cross-train second person on critical tasks, maintain documentation of processes, establish external contractor relationships for key skills.' Include both internal risks (team availability, skill gaps, resource constraints) and external risks (market changes, technology failures, regulatory changes). Assign risk owners who are responsible for monitoring and responding to specific risks. Review and update the risk register regularly as the project progresses and new risks emerge.",
+          "Set Up Tracking: Choose a simple tracking method that works for your team size and complexity (spreadsheet, project board, or digital tool like Trello, Asana, or Microsoft Project). Update progress weekly and ensure all team members have access to current information. Track key metrics: tasks completed vs. planned, upcoming deadlines and milestones, current blockers and issues, resource utilization, and budget status. Hold brief weekly check-ins (15-30 minutes) that focus on: what was accomplished since last meeting, what's planned for next week, any blockers or dependencies, and coordination needs. Use a consistent format for status updates that includes: completed work, in-progress tasks, upcoming priorities, risks and issues, and support needed. Create a communication plan that specifies who needs what information, when, and in what format to maintain alignment and prevent surprises."
         ]
       }
     },
     {
-      "slideId": "slide_4_machine_learning_algorithms",
+      "slideId": "slide_4_common_challenges",
       "slideNumber": 4,
-      "slideTitle": "Advanced Data Science Mastery — Advanced Machine Learning Algorithms and Model Selection",
+      "slideTitle": "Project Management Fundamentals — Common Challenges You Will Face",
       "templateId": "bullet-points-right",
       "previewKeyPoints": [
-        "Comprehensive overview of supervised learning algorithms from linear models to ensemble methods",
-        "Unsupervised learning techniques for clustering, dimensionality reduction, and anomaly detection",
-        "Deep learning architectures including CNNs, RNNs, and Transformers for various data types",
-        "Model selection strategies, hyperparameter tuning, and cross-validation best practices"
+        "Challenge: Project scope grows beyond original plan (scope creep)",
+        "Challenge: Team members have conflicting schedules and priorities",
+        "Challenge: Unexpected problems delay progress and consume resources",
+        "Challenge: Stakeholders change requirements mid-project",
+        "How to Apply: Recognize these patterns early and use proven response strategies"
       ],
       "props": {
-        "title": "Comprehensive Machine Learning Algorithm Toolkit",
+        "title": "Typical Project Challenges and How to Address Them",
         "bullets": [
-          "Supervised learning from linear/logistic regression to ensembles (Random Forest, XGBoost, LightGBM, SVM) with guidance on when to use which and key tradeoffs",
-          "Unsupervised learning: clustering (K-means, DBSCAN, hierarchical), dimensionality reduction (PCA, t-SNE, UMAP), and anomaly detection for EDA and features",
-          "Deep learning: CNNs for vision, RNNs/Transformers for NLP, plus transfer learning and attention to tackle complex patterns and limited labeled data",
-          "Model selection and evaluation: proper cross-validation, hyperparameter tuning (grid/random/Bayesian), and metrics for classification, regression, ranking",
-          "Ensembles and stacking to boost accuracy and robustness via voting, bagging, boosting, and layered learners that combine model strengths"
+          "Scope Creep: New features get added during execution without formal approval, often through casual conversations or 'quick additions' that seem minor but accumulate into major delays. This happens because stakeholders don't understand the full impact of changes, or because project managers want to please everyone. Response: Document all changes formally using a standardized change request form that includes: description of the change, business justification, impact on timeline and resources, cost implications, and approval signatures. Before accepting any change, conduct a thorough impact analysis showing how it affects the critical path, resource allocation, and budget. Present this analysis to stakeholders with clear options: accept the change and extend timeline/budget, defer the change to a future phase, or reject the change to maintain original scope. This process creates accountability and helps stakeholders make informed decisions about trade-offs.",
+          "Resource Conflicts: Team members have other commitments, competing priorities, or availability constraints that weren't accounted for during initial planning. This often occurs when team members are shared across multiple projects, have personal commitments, or when organizational priorities shift mid-project. Response: Identify critical dependencies early by mapping out which team members are essential for each project phase and creating a resource allocation matrix. Communicate proactively with other project leads to coordinate schedules and avoid double-booking key resources. Negotiate priorities with management by presenting a clear business case for your project's importance and the consequences of resource conflicts. Keep backup resources identified by cross-training team members on critical tasks, maintaining relationships with external contractors, or developing internal expertise in key areas. Create a resource conflict escalation process that includes clear decision-making criteria and authority levels.",
+          "Unexpected Delays: Technical issues, external dependencies, or unforeseen circumstances cause setbacks that weren't anticipated during planning. These delays often cascade through the project timeline, affecting multiple subsequent tasks and potentially the entire project completion date. Response: Build buffer time into your schedule by adding 20-30% extra time to critical path activities and maintaining a project buffer at the end. Maintain a comprehensive risk log that identifies potential delay sources, their likelihood, and impact. Communicate delays immediately to stakeholders with a revised timeline that includes: what caused the delay, how it affects the overall project, what actions are being taken to mitigate the impact, and the new realistic completion date. Develop contingency plans for common delay scenarios and have them ready to implement quickly when issues arise.",
+          "Changing Requirements: Stakeholders revise what they want based on new information, market changes, or evolving business needs. These changes often come after significant work has already been completed, requiring rework and potentially invalidating previous decisions. Response: Establish a formal change approval process that includes: a standardized change request form, impact assessment by the project team, cost-benefit analysis, stakeholder review and approval, and implementation planning. Show the impact on deadline and budget for each change request with specific numbers and dates. Prioritize changes together with stakeholders by ranking them based on business value, implementation complexity, and project impact. Create a change control board with decision-making authority and clear criteria for approving or rejecting changes. Document all approved changes and their impact on the project baseline.",
+          "Communication Gaps: Team members work in silos without proper alignment, leading to duplicated effort, conflicting approaches, or missed dependencies. This often occurs in distributed teams, complex projects with multiple workstreams, or when team members have different communication preferences and tools. Response: Hold regular brief check-ins (15-30 minutes) that focus on: what was accomplished since last meeting, what's planned for next period, any blockers or dependencies, and coordination needs. Use a shared project tracker that's visible to all team members and updated in real-time. Create a simple status update format that everyone follows, including: completed tasks, in-progress work, upcoming milestones, risks and issues, and coordination needs. Establish clear communication protocols for different types of information (urgent issues, routine updates, decisions needed) and ensure everyone knows how to escalate problems quickly."
         ],
-        "imagePrompt": "Realistic cinematic scene of data scientists collaborating in a modern machine learning lab with multiple monitors displaying algorithm visualizations, code, and model performance metrics. The scene features diverse professionals analyzing complex data patterns on large screens while discussing model architectures. Monitors and visualizations are [COLOR1], data scientists and workstations are [COLOR2], and lab environment is [COLOR3]. Cinematic photography with natural lighting, 50mm lens, three-quarter view, shallow depth of field.",
-        "imageAlt": "Data scientists working on machine learning algorithms"
+        "imagePrompt": "Professional office environment showing diverse team members collaborating around a project planning board with sticky notes and timelines. Team includes people of different backgrounds working together on project strategy. Natural office lighting, realistic workplace setting with laptops and planning materials. Planning board is [COLOR1], team and workspace is [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Team members collaborating on project planning"
       }
     },
     {
-      "slideId": "slide_5_feature_engineering",
+      "slideId": "slide_5_essential_tools",
       "slideNumber": 5,
-      "slideTitle": "Advanced Data Science Mastery — Advanced Feature Engineering and Selection Techniques",
+      "slideTitle": "Project Management Fundamentals — Four Essential Tools You Will Use Daily",
       "templateId": "four-box-grid",
       "previewKeyPoints": [
-        "Systematic approaches to creating meaningful features from raw data across different domains",
-        "Automated feature engineering tools and techniques for scaling feature creation processes",
-        "Feature selection methods to identify most relevant variables and reduce dimensionality",
-        "Domain-specific feature engineering for text, images, time series, and categorical data"
+        "Tool 1: Project Charter - Document that defines project purpose and authority",
+        "Tool 2: Task Board - Visual system to track work progress and identify blockers",
+        "Tool 3: Risk Register - Living document of potential problems and response plans",
+        "Tool 4: Status Report - Regular communication format to keep stakeholders informed"
       ],
       "props": {
-        "title": "Essential Feature Engineering Techniques",
+        "title": "Your Project Management Toolkit: What to Use When",
         "boxes": [
           {
-            "heading": "Domain Knowledge Integration",
-            "text": "Leverage subject matter expertise to create meaningful features that capture underlying patterns and relationships specific to your problem domain."
+            "heading": "Project Charter (Use at Start)",
+            "text": "One-page document defining project goals, scope, key stakeholders, and success criteria that serves as the foundation for all project decisions. Use this to get formal approval before starting work and prevent misunderstandings about what you are building. The charter should include: project title and description, business case and expected benefits, project scope and boundaries, key stakeholders and their roles, success criteria and acceptance criteria, high-level timeline and budget, assumptions and constraints, and decision-making authority. This document becomes your reference point when scope creep occurs or when stakeholders have conflicting expectations. It should be signed by the project sponsor and key stakeholders to ensure everyone is aligned on the project's purpose and boundaries. Review and update the charter if significant changes occur during the project lifecycle."
           },
           {
-            "heading": "Automated Feature Generation",
-            "text": "Use tools like Featuretools and tsfresh to systematically generate hundreds of candidate features from temporal and relational data."
+            "heading": "Task Board (Use Daily)",
+            "text": "Visual board with columns like 'To Do', 'In Progress', 'Blocked', 'Done' that provides real-time visibility into work progress and bottlenecks. Each task is represented as a card that moves through the columns as work progresses. This makes bottlenecks visible immediately and helps identify where work is getting stuck. The board can be physical (whiteboard with sticky notes) or digital (Trello, Asana, Jira). Include additional columns for 'In Review' or 'Waiting for Approval' if your workflow requires it. Each card should contain: task description, assigned person, due date, priority level, and any dependencies. Use color coding to indicate task types, priorities, or team members. Update the board daily during team standup meetings to maintain accuracy and ensure everyone has current information about project status."
           },
           {
-            "heading": "Feature Selection Methods",
-            "text": "Apply statistical tests, recursive feature elimination, and model-based importance to identify the most predictive variables and reduce dimensionality."
+            "heading": "Risk Register (Review Weekly)",
+            "text": "Comprehensive spreadsheet listing potential problems, their likelihood (High/Medium/Low), impact (High/Medium/Low), and detailed response plans for each risk. Update when new risks appear or when existing risks change in likelihood or impact. This helps the team prepare rather than react to problems. Example entry: 'Vendor delay - High likelihood - Medium impact - Response: Order 2 weeks early, maintain backup vendor relationships, include penalty clauses in contracts.' Include columns for: risk description, category (technical, business, external), likelihood, impact, risk score, owner, mitigation strategy, contingency plan, and status. Review the register weekly during project meetings and update based on new information or changing circumstances. Assign risk owners who are responsible for monitoring specific risks and implementing mitigation strategies."
           },
           {
-            "heading": "Domain-Specific Transforms",
-            "text": "Apply specialized encodings for text (TF-IDF, embeddings), images (CNN features), time series (lag features), and categorical data (target encoding)."
+            "heading": "Status Report (Send Weekly)",
+            "text": "Brief update template that includes: accomplishments this week with specific deliverables completed, plans for next week with key milestones and deadlines, blockers needing help with clear description of what's needed, budget status and any cost concerns, timeline status and any schedule changes, and risks and issues that need attention. Keep to one page maximum and send on the same day each week to maintain consistency. This keeps everyone informed without requiring additional meetings and builds trust through transparency. Use a consistent format that stakeholders can quickly scan and understand. Include visual indicators (red/yellow/green) for project health and highlight any decisions that need to be made or approvals that are required. Attach detailed information as appendices for those who need more depth."
           }
         ]
       }
     },
     {
-      "slideId": "slide_6_model_performance_metrics",
+      "slideId": "slide_6_success_indicators",
       "slideNumber": 6,
-      "slideTitle": "Advanced Data Science Mastery — Comprehensive Model Evaluation and Performance Metrics",
+      "slideTitle": "Project Management Fundamentals — Signs Your Project Is On Track",
       "templateId": "big-numbers",
       "previewKeyPoints": [
-        "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation",
-        "Regression evaluation methods with RMSE, MAE, and R-squared for different use cases",
-        "Advanced metrics for imbalanced datasets and multi-class classification problems"
+        "Indicator 1: Tasks are being completed consistently each week without major delays",
+        "Indicator 2: Team members know their responsibilities and communicate proactively",
+        "Indicator 3: Stakeholders receive regular updates and provide timely feedback"
       ],
       "props": {
-        "title": "Critical Performance Metrics for Model Evaluation",
-        "subtitle": "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation, with regression evaluation methods and advanced metrics for imbalanced datasets and multi-class classification problems.",
+        "title": "Key Indicators of Project Health: What to Monitor",
+        "subtitle": "These qualitative indicators help you assess whether your project is progressing well. Most successful projects demonstrate these patterns consistently.",
         "steps": [
           {
-            "value": "95%+",
-            "label": "Model Accuracy Threshold",
-            "description": "Balance precision and recall while accounting for class imbalance and business costs. Ensure consistent performance across segments and set alerts for degradation."
+            "value": "Regular",
+            "label": "Task Completion Pattern",
+            "description": "You complete planned tasks most weeks. When delays occur, you identify them early and adjust the schedule. Consistent progress matters more than speed."
           },
           {
-            "value": "0.85+",
-            "label": "AUC-ROC Score Target",
-            "description": "Indicates strong discriminative power for binary tasks like fraud or churn. Prefer scores >0.9 for high-stakes use cases."
+            "value": "Clear",
+            "label": "Team Communication",
+            "description": "Team members raise blockers before they become critical. Everyone knows who is doing what. People respond to questions within expected timeframes. Confusion is addressed immediately."
           },
           {
-            "value": "<5%",
-            "label": "Acceptable Error Rate",
-            "description": "Error budgets depend on domain. Critical systems need <1%, while recommendations can tolerate higher."
+            "value": "Engaged",
+            "label": "Stakeholder Involvement",
+            "description": "Stakeholders attend scheduled reviews. They provide feedback when requested. They express confidence in project direction. No surprises emerge late in the project."
           }
         ]
       }
     },
     {
-      "slideId": "slide_7_deployment_strategies",
+      "slideId": "slide_7_real_scenario_exercise",
       "slideNumber": 7,
-      "slideTitle": "Model Deployment Strategies and MLOps Best Practices",
-      "templateId": "four-box-grid",
-      "previewKeyPoints": [
-        "Containerization and orchestration strategies for scalable model deployment",
-        "A/B testing frameworks for gradual model rollouts and performance monitoring",
-        "Continuous integration and deployment pipelines for machine learning workflows",
-        "Model versioning, monitoring, and automated retraining processes"
-      ],
-      "props": {
-        "title": "Production Deployment and MLOps Excellence",
-        "boxes": [
-          {
-            "heading": "Containerized Deployment",
-            "text": "Docker + Kubernetes for scalable, reproducible serving with autoscaling, health checks, and zero-downtime rollouts."
-          },
-          {
-            "heading": "A/B Testing Framework",
-            "text": "Controlled rollouts with significance testing and KPI tracking to validate model impact before full deployment."
-          },
-          {
-            "heading": "CI/CD Pipelines",
-            "text": "Automated testing, validation, and deployments (e.g., GitHub Actions, Jenkins, MLflow) with safe rollback."
-          },
-          {
-            "heading": "Monitoring & Alerting",
-            "text": "Track performance, drift, latency, and health with dashboards and alerts for quick remediation."
-          }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_8_industry_challenges",
-      "slideNumber": 8,
-      "slideTitle": "Common Industry Challenges and Proven Solutions",
-      "templateId": "challenges-solutions",
-      "previewKeyPoints": [
-        "Data quality issues and systematic approaches to data validation and cleaning",
-        "Scalability challenges when moving from prototype to production systems",
-        "Model interpretability requirements for regulated industries and stakeholder buy-in",
-        "Talent acquisition and team building strategies for successful data science organizations"
-      ],
-      "props": {
-        "title": "Overcoming Real-World Data Science Obstacles",
-        "challengesTitle": "Industry Challenges",
-        "solutionsTitle": "Proven Solutions",
-        "challenges": [
-          "Data quality degrades model reliability",
-          "Scaling prototypes to production systems",
-          "Stakeholders require interpretable explainable models"
-        ],
-        "solutions": [
-          "Implement validation and quality checks",
-          "Design with cloud-native efficient patterns",
-          "Use XAI tools with documentation"
-        ]
-      }
-    },
-    {
-      "slideId": "slide_9_career_advancement",
-      "slideNumber": 9,
-      "slideTitle": "Data Science Career Paths and Specialization Areas",
-      "templateId": "timeline",
-      "previewKeyPoints": [
-        "Career progression from junior data scientist to senior leadership roles",
-        "Specialization opportunities in machine learning engineering, research, and business analytics",
-        "Skills development roadmap for advancing in different data science career tracks",
-        "Industry trends and emerging roles in artificial intelligence and data science"
-      ],
-      "props": {
-        "title": "Professional Development Timeline and Career Specializations",
-        "events": [
-          {
-            "date": "Year 1-2",
-            "title": "Foundation Building",
-            "description": "Build stats, Python/R, and ML basics; complete projects and assemble a strong portfolio."
-          },
-          {
-            "date": "Year 2-4",
-            "title": "Specialization Focus",
-            "description": "Choose ML eng., data eng., or analytics; deepen algorithms, cloud, and domain expertise."
-          },
-          {
-            "date": "Year 4-6",
-            "title": "Senior Individual Contributor",
-            "description": "Lead complex projects, mentor others, and drive MLOps and cross-functional outcomes."
-          },
-          {
-            "date": "Year 6+",
-            "title": "Leadership and Strategy",
-            "description": "Move into management, research, or senior technical leadership; scale teams and impact."
-          }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_10_emerging_technologies",
-      "slideNumber": 10,
-      "slideTitle": "Section: Emerging Technologies and Future Trends",
-      "templateId": "process-steps",
-      "previewKeyPoints": [
-        "Latest developments in artificial intelligence including large language models and generative AI",
-        "Quantum computing applications in machine learning and optimization problems",
-        "Edge computing and federated learning for distributed AI systems",
-        "Ethical AI considerations and responsible machine learning practices"
-      ],
-      "props": {
-        "title": "Evolution of AI Technologies",
-        "steps": [
-          "Large language models like GPT-4 and Claude enable natural language understanding, generation, and reasoning at unprecedented scale with applications across content creation, coding assistance, and knowledge synthesis.",
-          "Quantum computing promises exponential speedups for optimization problems, with quantum-inspired algorithms already improving classical machine learning performance in portfolio optimization and drug discovery.",
-          "Edge computing and federated learning enable privacy-preserving AI by training models across distributed devices without centralizing sensitive data, crucial for healthcare and IoT applications.",
-          "Responsible AI frameworks incorporate fairness metrics, explainability tools, and bias detection to ensure ethical deployment while maintaining transparency and accountability in automated decision-making systems."
-        ]
-      }
-    },
-    {
-      "slideId": "slide_11_metrics_analytics",
-      "slideNumber": 11,
-      "slideTitle": "Emerging Technologies and Future Trends — Operational Analytics Dashboard Highlights",
-      "templateId": "metrics-analytics",
-      "previewKeyPoints": [
-        "Key performance indicators tracked in day-to-day operations",
-        "Link between analytics and business actions taken",
-        "Alert thresholds and on-call procedures for anomalies",
-        "Ownership and review cadence for metrics dashboards"
-      ],
-      "props": {
-        "title": "Daily Metrics and Operational Insights",
-        "metrics": [
-          { "number": "12.3k", "text": "Daily active users across core products with 7-day rolling trend monitoring and threshold alerts for significant deviations from expected usage patterns." },
-          { "number": "98.6%", "text": "Uptime for model-serving endpoints measured via synthetic probes, SLO mapping, and automatic incident creation when SLAs are breached." },
-          { "number": "320ms", "text": "Median prediction latency for real-time inference with p95 and p99 tracked and auto-scaling triggers configured based on sustained load." },
-          { "number": "0.7%", "text": "Error rate on requests including timeouts and failed responses; categorized by cause and mitigated via retry logic and circuit breakers." },
-          { "number": "0.3", "text": "Data drift score computed nightly using PSI/KS metrics; alerts fire when exceeding thresholds prompting retraining investigations." },
-          { "number": "42", "text": "Open data quality issues prioritized by severity, assigned owners, and target resolution dates to ensure pipeline reliability." }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_12_market_share",
-      "slideNumber": 12,
-      "slideTitle": "Emerging Technologies and Future Trends — Market Share by Segment and Year",
-      "templateId": "market-share",
-      "previewKeyPoints": [
-        "Year-over-year changes in market penetration by segment",
-        "Competitive positioning relative to primary rivals",
-        "Regions and products driving overall growth"
-      ],
-      "props": {
-        "title": "Market Share Overview",
-        "subtitle": "Comparative view across segments and years",
-        "chartData": [
-          { "label": "Segment A", "description": "Enterprise customers in regulated industries", "percentage": 37, "color": "#3b82f6", "year": 2024 },
-          { "label": "Segment B", "description": "Mid-market technology companies", "percentage": 28, "color": "#8b5cf6", "year": 2024 },
-          { "label": "Segment C", "description": "SMB retail and services", "percentage": 22, "color": "#10b981", "year": 2024 },
-          { "label": "Other", "description": "Long-tail customers", "percentage": 13, "color": "#f59e0b", "year": 2024 }
-        ],
-        "bottomText": "Expanding presence in enterprise while maintaining growth in mid-market."
-      }
-    },
-    {
-      "slideId": "slide_13_comparison",
-      "slideNumber": 13,
-      "slideTitle": "Solution Comparison Matrix",
-      "templateId": "comparison-slide",
-      "previewKeyPoints": [
-        "Side-by-side evaluation of key features",
-        "Pricing and support considerations",
-        "Recommended options by use case"
-      ],
-      "props": {
-        "title": "Feature Comparison",
-        "subtitle": "Selecting the right approach by capability",
-        "tableData": {
-          "headers": ["Capability", "Option A", "Option B"],
-          "rows": [
-            ["Deployment Model", "Managed cloud service", "Self-hosted Kubernetes"],
-            ["Latency (p95)", "< 400 ms", "< 250 ms"],
-            ["Maintenance", "Low (SaaS managed)", "Medium (DevOps required)"],
-            ["Cost Profile", "Usage-based pricing", "Fixed infra + ops"],
-            ["Best For", "Fast time-to-value", "Full control & customization"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_14_table_dark",
-      "slideNumber": 14,
-      "slideTitle": "Feature Availability Matrix",
-      "templateId": "table-dark",
-      "previewKeyPoints": [
-        "Feature comparison across different product tiers and versions",
-        "Checkbox-based availability indicators for easy visualization",
-        "Clear comparison matrix for stakeholder decision-making"
-      ],
-      "props": {
-        "title": "Feature Availability by Product Version",
-        "tableData": {
-          "headers": ["Metric", "Free Tier", "Pro Tier", "Enterprise"],
-          "rows": [
-            ["Real-time Analytics", "", "✓", "✓"],
-            ["API Access", "", "✓", "✓"],
-            ["Custom Integrations", "", "", "✓"],
-            ["24/7 Support", "", "", "✓"],
-            ["Advanced Security", "", "✓", "✓"],
-            ["White Label", "", "", "✓"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_15_table_light",
-      "slideNumber": 15,
-      "slideTitle": "Project Milestones (Light Theme)",
-      "templateId": "table-light",
-      "previewKeyPoints": [
-        "Upcoming deliverables and responsible teams",
-        "Dependencies and risk notes",
-        "Tentative timelines"
-      ],
-      "props": {
-        "title": "Milestone Plan",
-        "tableData": {
-          "headers": ["Milestone", "Owner", "Due"],
-          "rows": [
-            ["MVP Release", "Platform", "2024-11-15"],
-            ["Security Review", "SecOps", "2024-12-01"],
-            ["GA Launch", "Go-To-Market", "2025-01-10"]
-          ]
-        },
-        "colors": {
-          "headerBg": "#f3f4f6",
-          "rowAltBg": "#ffffff"
-        }
-      }
-    },
-    {
-      "slideId": "slide_16_event_list",
-      "slideNumber": 16,
-      "slideTitle": "Upcoming Events and Key Dates",
-      "templateId": "timeline",
-      "previewKeyPoints": [
-        "Major internal and external events in the next quarter",
-        "Deadlines that impact delivery timelines",
-        "Engagement opportunities with stakeholders"
-      ],
-      "props": {
-        "title": "Upcoming Events and Key Dates",
-        "events": [
-          { "date": "2024-11-05", "title": "Architecture Review", "description": "Validate scalability and security design decisions." },
-          { "date": "2024-11-20", "title": "Customer Advisory Board", "description": "Gather feedback on beta features and onboarding." },
-          { "date": "2024-12-03", "title": "Enablement Workshop", "description": "Train support and success teams on new tooling." },
-          { "date": "2024-12-17", "title": "Public Webinar", "description": "Share best practices from early adopters." }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_17_pyramid",
-      "slideNumber": 17,
-      "slideTitle": "Capability Maturity Pyramid",
+      "slideTitle": "Project Management Fundamentals — Project Planning Pyramid: Priority Layers",
       "templateId": "pyramid",
       "previewKeyPoints": [
-        "Progression from foundational to advanced capabilities",
-        "Focus areas by maturity level",
-        "Recommended next steps for improvement"
+        "Understand the hierarchical structure of project planning priorities",
+        "Foundation layer: Clear goals and success criteria form the base",
+        "Middle layers: Planning, resources, and risk management build upward",
+        "Top layer: Execution and monitoring complete the project structure"
       ],
       "props": {
-        "title": "Maturity Stages",
-        "steps": [
-          { "heading": "Strategic Optimization", "number": "01" },
-          { "heading": "Production Excellence", "number": "02" },
-          { "heading": "Operationalization", "number": "03" },
-          { "heading": "Prototyping", "number": "04" },
-          { "heading": "Foundations", "number": "05" }
+        "title": "The Project Planning Pyramid: Building Success Layer by Layer",
+        "subtitle": "Each layer supports the next - skip one and your project becomes unstable",
+        "levels": [
+          {
+            "label": "Foundation: Define Clear Goals",
+            "description": "Bottom layer - most critical. Write SMART goals that specify exactly what success looks like. Example: 'Migrate 50,000 customer records to new cloud system by March 15 with zero data loss and 99.9% accuracy.' This foundation supports everything above it. Without clear goals, your project has no direction."
+          },
+          {
+            "label": "Layer 2: Break Down Work & Estimate",
+            "description": "Create detailed task list with time estimates. Identify dependencies between tasks. Assign resources to each task based on skills and availability. Add 20-30% buffer for unexpected issues. This layer translates goals into actionable work packages."
+          },
+          {
+            "label": "Layer 3: Identify Risks & Create Plans",
+            "description": "List potential problems with likelihood and impact ratings. Develop specific mitigation strategies for high-priority risks. Assign risk owners responsible for monitoring. Create contingency plans for critical risks. This layer protects your project from derailment."
+          },
+          {
+            "label": "Top: Execute, Monitor & Adjust",
+            "description": "Track progress against plan using task board and status reports. Hold regular check-ins to identify blockers early. Communicate status to stakeholders weekly. Adjust plans based on actual progress and new information. This layer turns plans into delivered results."
+          }
         ]
       }
     },
     {
-      "slideId": "slide_18_pie_chart",
-      "slideNumber": 18,
-      "slideTitle": "Resource Allocation Breakdown",
-      "templateId": "pie-chart-infographics",
+      "slideId": "slide_8_stakeholder_communication",
+      "slideNumber": 8,
+      "slideTitle": "Project Management Fundamentals — How to Communicate Effectively with Stakeholders",
+      "templateId": "challenges-solutions",
       "previewKeyPoints": [
-        "Distribution of time and budget across activities",
-        "Monthly movement and seasonal trends",
-        "Areas for optimization and rebalancing"
+        "Challenge: Stakeholders don't read long status reports or attend all meetings",
+        "Challenge: Different stakeholders need different levels of detail and frequency",
+        "Challenge: Bad news must be delivered but you don't want to damage trust",
+        "Solution: Use the 3-tier communication framework for different audience needs"
       ],
       "props": {
-        "title": "Team Allocation Overview",
-        "chartData": {
-          "segments": [
-            { "label": "Data Engineering", "value": 35, "color": "#3b82f6" },
-            { "label": "Modeling", "value": 30, "color": "#8b5cf6" },
-            { "label": "MLOps", "value": 20, "color": "#10b981" },
-            { "label": "Enablement", "value": 15, "color": "#f59e0b" }
-          ]
-        },
-        "monthlyData": [62, 70, 65, 68, 72, 75, 73, 78, 80, 77, 74, 79],
-        "chartSize": "large"
+        "title": "Mastering Stakeholder Communication in Project Management",
+        "challengesTitle": "Communication Challenges",
+        "solutionsTitle": "How to Address Them",
+        "challenges": [
+          "Stakeholders ignore lengthy status reports and skip update meetings because they are overwhelmed with information and find the format difficult to digest. This leads to stakeholders making decisions without current information and losing confidence in project management capabilities.",
+          "Executives want high-level summaries focusing on business impact, while technical leads need detailed implementation information. This creates a communication gap where neither audience gets the information they need to make informed decisions.",
+          "Delivering bad news about delays or budget overruns without losing credibility requires careful communication strategy. Stakeholders often react emotionally to bad news and may question the project manager's competence or make hasty decisions."
+        ],
+        "solutions": [
+          "Use one-page visual dashboards with red/yellow/green status indicators that immediately communicate project health. Include current status, key accomplishments, and upcoming milestones in the first 3 bullets. Use consistent formatting and color coding so stakeholders can quickly scan multiple projects.",
+          "Create 3 versions of the same update tailored to different audience needs: a 30-second elevator pitch for executives focusing on business impact, a 5-minute summary for project sponsors with key metrics, and a 30-minute deep dive for technical stakeholders covering implementation details.",
+          "Use the situation-impact-action format for delivering bad news: State what happened using only facts, explain the business impact in terms of timeline and budget, and present your mitigation plan with specific dates and success criteria. Never hide problems or delay communication."
+        ]
       }
     },
     {
-      "slideId": "slide_19_comparison_table_dark",
-      "slideNumber": 19,
-      "slideTitle": "Feature Parity (Dark)",
-      "templateId": "comparison-slide",
+      "slideId": "slide_9_project_timeline_phases",
+      "slideNumber": 9,
+      "slideTitle": "Project Management Fundamentals — Typical Project Timeline and Key Milestones",
+      "templateId": "timeline",
       "previewKeyPoints": [
-        "Detailed parity view across vendors",
-        "Critical features for shortlisting",
-        "Notes for follow-up demos"
+        "Standard project phases from initiation through closure",
+        "What happens in each phase and how long each typically takes",
+        "Key deliverables and decision points at each milestone",
+        "When to involve which stakeholders throughout the lifecycle"
       ],
       "props": {
-        "title": "Vendor Feature Parity",
+        "title": "Your Project Journey: From Kickoff to Completion",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Initiation Phase",
+            "description": "Create project charter defining goals, scope, stakeholders, and success criteria. Get formal approval to proceed. Assemble team and assign roles. Set up project workspace and communication channels. Deliverable: Approved project charter and kickoff meeting."
+          },
+          {
+            "date": "Week 2-4",
+            "title": "Planning Phase",
+            "description": "Break down work into tasks with time estimates. Create detailed schedule with dependencies. Identify risks and create mitigation plans. Define quality standards and acceptance criteria. Deliverable: Comprehensive project plan with schedule, risk register, and resource allocation."
+          },
+          {
+            "date": "Week 4-10",
+            "title": "Execution Phase",
+            "description": "Team performs actual work according to plan. Hold regular stand-ups and check-ins. Track progress against schedule and budget. Address blockers and manage changes. Maintain stakeholder communication. Deliverable: Completed project tasks and intermediate work products."
+          },
+          {
+            "date": "Week 10-12",
+            "title": "Closure Phase",
+            "description": "Verify all deliverables meet acceptance criteria. Conduct final testing and stakeholder sign-off. Document lessons learned and best practices. Archive project materials and celebrate success. Release team members. Deliverable: Final deliverables, project closeout report, and lessons learned document."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_managing_change_requests",
+      "slideNumber": 10,
+      "slideTitle": "Project Management Fundamentals — Change Request Evaluation Framework",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Change requests are inevitable - stakeholders will ask for new features or modifications",
+        "Poor change management causes scope creep and project failure",
+        "Use structured evaluation framework to assess and respond to change requests",
+        "Protect your project timeline while maintaining stakeholder relationships"
+      ],
+      "props": {
+        "title": "Change Request Evaluation Framework: Questions to Ask Before Approving",
         "tableData": {
-          "headers": ["Feature", "Vendor X", "Vendor Y"],
+          "headers": ["Evaluation Category", "Key Questions to Ask", "What to Document"],
           "rows": [
-            ["RBAC", "Yes", "Partial"],
-            ["Audit Logs", "Yes", "Yes"],
-            ["SLA", "99.9%", "99.5%"],
-            ["Hybrid Deploy", "No", "Yes"]
+            ["Business Justification", "What business problem does this solve? What is the expected ROI or benefit? Who is requesting this and why now?", "Business case, expected benefits, urgency level, requester name and role"],
+            ["Scope Impact", "Does this add new features or change existing ones? How does it affect project boundaries? What work is added?", "Detailed description of changes, new tasks required, work breakdown additions"],
+            ["Schedule Impact", "How many additional days/weeks will this add? Which tasks are affected? Does it push the deadline?", "Time estimates per task, impact on critical path, new completion date"],
+            ["Resource Impact", "Do we need additional people, budget, or tools? Are current team members available? What skills are needed?", "Resource requirements, budget increase needed, team capacity analysis"],
+            ["Risk Assessment", "What new risks does this introduce? How does it affect existing risks? What could go wrong?", "New risk entries, risk probability and impact, mitigation strategies"],
+            ["Decision Options", "Can we add it to current scope? Should we defer to phase 2? Can we swap it for lower-priority work?", "3 options with trade-offs, recommendation, stakeholder decision and approval"]
           ]
         }
       }
     },
     {
-      "slideId": "slide_20_case_studies",
-      "slideNumber": 20,
-      "slideTitle": "Section: Real-World Data Science Applications",
-      "templateId": "challenges-solutions",
+      "slideId": "slide_11_team_motivation",
+      "slideNumber": 11,
+      "slideTitle": "Project Management Fundamentals — How to Keep Your Team Motivated and Productive",
+      "templateId": "bullet-points-right",
       "previewKeyPoints": [
-        "Common challenges faced in real-world data science projects",
-        "Proven solutions and best practices from industry leaders",
-        "Lessons learned from successful implementations"
+        "Team motivation directly impacts project success and timeline adherence",
+        "Common demotivators: unclear expectations, lack of recognition, poor communication",
+        "Five practical techniques you can apply immediately to boost team engagement",
+        "Create an environment where team members take ownership and deliver their best work"
       ],
       "props": {
-        "title": "Overcoming Real-World Data Science Challenges",
-        "challengesTitle": "Key Challenges",
-        "solutionsTitle": "Proven Solutions",
+        "title": "Building and Maintaining High-Performing Project Teams",
+        "bullets": [
+          "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply.",
+          "Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort.",
+          "Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved.",
+          "Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares what they completed yesterday, what they will work on today, and any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused.",
+          "Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption and revenue growth by 40% based on our analysis'."
+        ],
+        "imagePrompt": "Realistic cinematic scene of a diverse project team having an engaged discussion around a conference table in a modern office. A confident Asian woman in business attire stands presenting project updates on a large screen while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. Other team members are actively participating, some pointing at documents, others contributing ideas. The conference room features floor-to-ceiling windows with natural daylight, a large wooden table, executive chairs, and visible project materials including laptops, tablets, planning boards, and coffee cups. Natural office lighting illuminates the collaborative atmosphere. The presentation screen and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Project team engaged in productive planning meeting"
+      }
+    },
+    {
+      "slideId": "slide_12_project_recovery",
+      "slideNumber": 12,
+      "slideTitle": "Project Management Fundamentals — Critical Project Recovery Milestones",
+      "templateId": "event-dates",
+      "previewKeyPoints": [
+        "Most projects encounter delays - knowing how to recover is a critical skill",
+        "Follow a structured 4-week recovery timeline to get back on track",
+        "Week 1: Assessment and triage of current situation",
+        "Weeks 2-3: Implementation of recovery actions and quality controls",
+        "Week 4: Verification and stakeholder communication of revised plan"
+      ],
+      "props": {
+        "title": "Project Recovery Timeline: 4-Week Plan to Get Back on Track",
+        "subtitle": "When your project falls behind, follow this structured recovery schedule",
+        "events": [
+          {
+            "date": "Week 1: Days 1-2",
+            "title": "Conduct Rapid Triage Assessment",
+            "description": "Stop all new work immediately. List every remaining task with realistic time estimates. Identify which deliverables are must-have vs. nice-to-have. Create priority matrix plotting tasks by Impact (High/Low) vs. Effort (High/Low). Focus only on high-impact items. Document current project health: how many tasks behind, budget status, team capacity, and quality metrics."
+          },
+          {
+            "date": "Week 1: Days 3-5",
+            "title": "Develop Recovery Options",
+            "description": "Create 3 options for stakeholders: (Option 1) Extend deadline by X weeks with same scope, (Option 2) Reduce scope to meet original deadline, (Option 3) Add resources to accelerate delivery. Include specific trade-offs, costs, and risks for each option. Calculate the realistic revised timeline for each scenario. Prepare presentation showing current status, causes of delay, and recovery options with recommendations."
+          },
+          {
+            "date": "Week 2: Days 1-2",
+            "title": "Get Stakeholder Decision & Approval",
+            "description": "Present recovery options to project sponsor and key stakeholders. Walk through impact analysis for each option. Get formal written approval of chosen recovery path. Update project charter, timeline, and budget to reflect approved changes. Communicate the new plan to entire team with clear priorities and expectations. Hold team meeting to address concerns and ensure alignment."
+          },
+          {
+            "date": "Week 2: Days 3-7",
+            "title": "Implement Quality Gates",
+            "description": "Stop accepting new feature requests - focus on completing existing work. Add mandatory code review checkpoints before any task is marked complete. Implement daily standup meetings (15 minutes) to identify blockers early. Create 'definition of done' checklist that includes testing and documentation requirements. Sometimes slowing down to fix issues properly gets you to finish line faster than rushing with poor quality."
+          },
+          {
+            "date": "Week 3: Full Week",
+            "title": "Execute Recovery Plan with Daily Monitoring",
+            "description": "Team works ONLY on high-priority items from the approved recovery plan. Project manager removes blockers within 24 hours of being reported. Hold brief daily reviews of top 5 priorities to ensure progress. Track actual progress vs. recovery timeline daily. Escalate any new issues immediately to stakeholders. Maintain team morale through recognition of progress and quick wins."
+          },
+          {
+            "date": "Week 4: Days 1-3",
+            "title": "Verify Progress & Adjust Course",
+            "description": "Compare actual progress to recovery timeline projections. Identify any remaining gaps between current state and recovery goals. Make final adjustments to priorities or resources if needed. Conduct quality checks on completed work to ensure standards are maintained. Document lessons learned about what caused the delays and how to prevent similar issues in future projects."
+          },
+          {
+            "date": "Week 4: Days 4-5",
+            "title": "Communicate Updated Status",
+            "description": "Prepare comprehensive status update showing recovery progress, remaining work, and confidence level in revised timeline. Present to stakeholders with evidence of improved velocity and quality. Update all project documentation to reflect current reality. Send formal status report to all stakeholders with revised timeline and next milestones. Build trust through transparency about both successes and remaining challenges."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_13_decision_making_framework",
+      "slideNumber": 13,
+      "slideTitle": "Project Management Fundamentals — How to Make Good Project Decisions Quickly",
+      "templateId": "comparison-slide",
+      "previewKeyPoints": [
+        "Projects require constant decision-making under uncertainty and time pressure",
+        "Compare options systematically using the decision matrix framework",
+        "Evaluate technical approaches, vendor selections, and priority trade-offs",
+        "Document your decisions to build organizational knowledge"
+      ],
+      "props": {
+        "title": "Decision Matrix: Comparing Options Objectively",
+        "subtitle": "Example: Choosing Between Two Technical Approaches for Data Migration",
+        "tableData": {
+          "headers": ["Evaluation Criteria", "Big Bang Migration", "Phased Rollout"],
+          "rows": [
+            ["Implementation Time", "Fast (2 weeks)", "Slower (6 weeks)"],
+            ["Risk Level", "High - all data moves at once", "Low - can test and adjust"],
+            ["Rollback Difficulty", "Very difficult if issues arise", "Easy - can revert one phase"],
+            ["Team Resource Needs", "Intense for 2 weeks", "Steady over 6 weeks"],
+            ["User Disruption", "One weekend downtime", "Minimal ongoing disruption"],
+            ["Recommended For", "Simple data, tight deadline", "Complex data, risk-averse stakeholders"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_14_lessons_learned",
+      "slideNumber": 14,
+      "slideTitle": "Project Management Fundamentals — Conducting Effective Lessons Learned Sessions",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Capture what worked and what did not work to improve future projects",
+        "Hold lessons learned session within 2 weeks of project completion while memories are fresh",
+        "Focus on actionable improvements, not blame or vague observations",
+        "Document and share learnings with other project teams across organization"
+      ],
+      "props": {
+        "title": "Your Lessons Learned Template: Questions to Ask Your Team",
+        "tableData": {
+          "headers": ["Question Category", "Specific Questions to Ask", "What to Document"],
+          "rows": [
+            ["What Went Well", "Which practices helped us succeed? What should we repeat?", "Specific techniques that delivered results"],
+            ["What Went Wrong", "What slowed us down? What would we avoid next time?", "Concrete problems with root causes identified"],
+            ["Unexpected Issues", "What surprised us? What did we not plan for?", "Gaps in initial planning or risk assessment"],
+            ["Process Improvements", "How could we work more efficiently? What tools would help?", "Actionable changes for next project"],
+            ["Team Feedback", "What did team members find frustrating or helpful?", "Insights on team dynamics and communication"],
+            ["Key Takeaways", "What are the top 3 lessons for future projects?", "Prioritized list shared with organization"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_15_agile_vs_waterfall",
+      "slideNumber": 15,
+      "slideTitle": "Project Management Fundamentals — When to Use Agile vs Waterfall Methodology",
+      "templateId": "table-dark",
+      "previewKeyPoints": [
+        "Different project types need different management approaches",
+        "Agile works best when requirements are uncertain and may change",
+        "Waterfall works best when requirements are clear and unlikely to change",
+        "Choose based on your specific project characteristics and constraints"
+      ],
+      "props": {
+        "title": "Agile vs Waterfall: Choosing the Right Approach for Your Project",
+        "tableData": {
+          "headers": ["Project Characteristic", "Use Agile When", "Use Waterfall When"],
+          "rows": [
+            ["Requirements Clarity", "Requirements evolving or unclear", "Requirements well-defined upfront"],
+            ["Stakeholder Availability", "Stakeholders can provide frequent feedback", "Limited stakeholder interaction needed"],
+            ["Project Complexity", "High uncertainty, need to experiment", "Clear path to solution, proven approach"],
+            ["Team Structure", "Cross-functional team co-located or well-connected", "Specialized teams work sequentially"],
+            ["Change Tolerance", "Changes expected and welcomed", "Changes costly and discouraged"],
+            ["Delivery Preference", "Deliver working increments every 2-4 weeks", "Deliver complete solution at end"],
+            ["Example Projects", "New product development, software apps", "Construction, manufacturing, compliance projects"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_16_virtual_team_management",
+      "slideNumber": 16,
+      "slideTitle": "Project Management Fundamentals — Managing Remote and Distributed Project Teams",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "Remote work is now standard - learn to manage distributed teams effectively",
+        "Challenges: time zones, communication gaps, lack of informal interaction",
+        "Four-step framework for remote team success",
+        "Build trust and accountability without physical presence"
+      ],
+      "props": {
+        "title": "Your Remote Team Management Framework",
+        "steps": [
+          "Establish Communication Norms: Define how team communicates. Examples: Urgent issues via instant message with response expected in 2 hours. Status updates via email by 10am daily. Video calls for complex discussions. Document questions in shared workspace. Everyone knows where to post what and expected response times.",
+          "Create Shared Visibility: Use collaborative tools where everyone sees project status in real-time. Examples: Shared task board updated daily, centralized document repository, visible project timeline. No information should live only in someone's local files or email. This replaces the visibility you would have in an office.",
+          "Schedule Regular Face-Time: Hold video calls (cameras on) at recurring times. Daily 15-minute check-in for immediate coordination. Weekly 1-hour team meeting for deeper discussions. Monthly virtual team lunch for social connection. Seeing faces builds trust that chat alone cannot create. Respect time zones - rotate meeting times if team spans continents.",
+          "Document Everything: What would happen in hallway conversations in office must now be written down. Decisions made in calls should be summarized in email. Context should be explained in task descriptions. Meeting notes should be shared. This creates transparency and helps new team members get up to speed quickly."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_17_project_manager_maturity",
+      "slideNumber": 17,
+      "slideTitle": "Project Management Fundamentals — Your Growth Path as a Project Manager",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Project management is a skill that develops through experience and practice",
+        "Five maturity levels from beginner to strategic leader",
+        "Each level builds on previous capabilities and adds new responsibilities",
+        "Understand where you are now and what skills to develop next"
+      ],
+      "props": {
+        "title": "Project Manager Capability Maturity Levels",
+        "steps": [
+          { "heading": "Strategic Portfolio Leader: Manage multiple high-impact projects, mentor other PMs, shape organizational strategy", "number": "01" },
+          { "heading": "Senior PM: Lead complex projects with multiple teams, manage stakeholder expectations proactively, navigate organizational politics", "number": "02" },
+          { "heading": "Competent PM: Handle mid-size projects independently, anticipate issues, adapt plans effectively, build strong team relationships", "number": "03" },
+          { "heading": "Developing PM: Execute project plans with guidance, learn from mistakes, follow established processes, build basic PM skills", "number": "04" },
+          { "heading": "Beginner PM: Learn project management fundamentals, assist experienced PMs, manage small low-risk projects with close supervision", "number": "05" }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_18_budget_management",
+      "slideNumber": 18,
+      "slideTitle": "Project Management Fundamentals — Tracking and Managing Project Budget",
+      "templateId": "bullet-points-right",
+      "previewKeyPoints": [
+        "Most projects have budget constraints - you must track spending carefully",
+        "Common budget categories: labor costs, external vendors, software/tools, travel",
+        "How to forecast remaining costs and identify budget overruns early",
+        "Communicating budget status to financial stakeholders"
+      ],
+      "props": {
+        "title": "Your Project Budget Management Guide",
+        "bullets": [
+          "Create Budget Baseline: At project start, document your approved budget broken down by category (labor, contractors, software licenses, hardware, travel, contingency). Example: Total $100k budget split as: $60k labor, $20k contractors, $10k software, $5k travel, $5k contingency. Get stakeholder sign-off on this baseline.",
+          "Track Actuals Weekly: Every week, record actual spending in each category. Compare to planned spending for that time period. Calculate burn rate (spending per week) and project if you will finish over or under budget. Use simple spreadsheet or project management tool to track this. Update takes 30 minutes weekly.",
+          "Monitor Labor Costs: Labor is usually largest expense. Track hours team members spend on project. Multiply hours by their hourly rate to calculate labor cost consumed. Example: Developer working 40 hours at $75/hour rate = $3,000 labor cost that week. Sum across all team members to get total labor spend.",
+          "Identify Variances Early: If any budget category is trending 10% over plan, investigate immediately. Examples: Contractor work taking longer than estimated, team needs additional software license, unanticipated travel required. Calculate impact on total budget and present options to stakeholders before money is spent.",
+          "Maintain Contingency Reserve: Set aside 5-10% of budget for unexpected costs. Only use contingency with project sponsor approval. Document what contingency was used for. Common uses: scope changes, quality issues requiring rework, team member turnover requiring contractor help."
+        ],
+        "imagePrompt": "Professional photograph of a project manager reviewing financial reports and budget spreadsheets at their desk. Person is focused on laptop screen showing charts and numbers, with printed budget documents and calculator nearby. Clean, organized workspace with natural office lighting. The workspace is [COLOR1], documents and screens are [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Project manager reviewing budget and financial reports"
+      }
+    },
+    {
+      "slideId": "slide_19_conflict_resolution",
+      "slideNumber": 19,
+      "slideTitle": "Project Management Fundamentals — Resolving Team Conflicts and Disagreements",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Conflict on projects is normal - different perspectives on priorities and approaches",
+        "Unresolved conflict damages team morale and derails project progress",
+        "Address conflicts quickly before they escalate and affect other team members",
+        "Use structured conflict resolution techniques to find win-win solutions"
+      ],
+      "props": {
+        "title": "Handling Team Conflicts: Your Facilitation Framework",
+        "challengesTitle": "Common Project Conflicts",
+        "solutionsTitle": "Your Resolution Approach",
         "challenges": [
-          "Incomplete or messy datasets",
-          "Model deployment at scale",
-          "Stakeholder alignment and communication",
-          "Balancing speed and accuracy"
+          "Two team members disagree on technical approach and tensions are rising in meetings, creating project delays and affecting team morale.",
+          "Team member feels overloaded while another has lighter workload, creating resentment and unequal contribution to project success.",
+          "Stakeholder keeps changing requirements frequently, causing team frustration and complaints about wasted effort and unclear direction."
         ],
         "solutions": [
-          "Automated data quality pipelines",
-          "MLOps and containerization strategies",
-          "Executive dashboards and visualization",
-          "Iterative development and A/B testing"
+          "Meet privately with each person separately first to understand their perspective fully. Then facilitate joint discussion focused on project goals, not personal positions. Use data to evaluate options objectively. Example: 'Let us test both approaches on small scale and measure performance before deciding'. Focus on finding solution that serves project, not winning argument.",
+          "Privately review workload distribution with facts: actual tasks and time required for each person. Rebalance if needed. If workload is truly equal but perceived as unfair, make task assignments more visible to entire team so everyone sees the distribution. Sometimes perception issue rather than real imbalance.",
+          "Schedule meeting with stakeholder to establish change management process. Explain impact of frequent changes on team morale and timeline. Propose: changes documented formally, evaluated for impact, approved by sponsor before implementation. Protect your team's time while accommodating legitimate business needs."
         ]
+      }
+    },
+    {
+      "slideId": "slide_20_next_steps_application",
+      "slideNumber": 20,
+      "slideTitle": "Project Management Fundamentals — Your Next Steps: Applying What You Learned",
+      "templateId": "big-image-top",
+      "previewKeyPoints": [
+        "You now have the fundamental frameworks and tools to manage projects successfully",
+        "Move from learning to doing: apply these concepts to real projects immediately",
+        "Start with small projects to build confidence and refine your approach",
+        "Continue learning from each project experience to develop mastery over time"
+      ],
+      "props": {
+        "title": "From Learning to Doing: Your Action Plan This Week",
+        "subtitle": "Transform your project management knowledge into practical skills through structured practice and mentorship",
+        "imagePrompt": "Realistic cinematic scene of a confident professional woman in business attire standing in a modern office environment, reviewing project documents on a large wall-mounted display. She is holding a tablet with project planning materials while standing near a whiteboard covered with project timelines, task lists, and success metrics. The office features floor-to-ceiling windows with natural daylight, contemporary furniture, and visible project management tools including laptops, planning boards, and organizational materials. Natural office lighting illuminates the focused workspace. The project display and planning materials are [COLOR1], her professional attire and devices are [COLOR2], and the office environment and furniture are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Professional reviewing project management materials in modern office",
+        "content": "Identify Your First Project: Choose a small, low-risk project to practice these skills. Ideal first project: 4-8 weeks duration, 3-5 team members, clear deliverable, supportive stakeholder. Examples: process improvement initiative, internal tool development, department event planning. Avoid choosing your organization's most critical strategic project for your first application. Create Your Project Documents: This week, create your basic project management toolkit for this project: (1) One-page project charter defining goals, scope, and success criteria, (2) Simple work breakdown structure with tasks and time estimates, (3) Basic risk register with top 5 risks and mitigation plans, (4) Weekly status report template. Use templates from this lesson. Set Up Your Tracking System: Choose your project tracking method: simple spreadsheet, free project management tool, or physical task board. Set it up this week with all your tasks. Update it every Friday. Schedule 15-minute weekly review with your team. The system does not need to be fancy - it needs to be used consistently. Find a Mentor: Identify someone who has managed projects successfully in your organization. Ask them to review your project plan and provide feedback. Schedule monthly 30-minute coffee chats to discuss challenges you are facing. Learn from their experiences. Most experienced project managers are happy to mentor and share what they have learned."
       }
     }
   ],
@@ -2039,6 +2099,161 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
+def validate_presentation_slides(slides: List[Dict]) -> Dict[str, List[str]]:
+    """
+    Validate presentation slides for common issues:
+    1. big-image-left missing imagePrompt
+    2. challenges-solutions having more than 3 pairs
+    3. big-image-top in middle positions
+    4. content-slide usage (banned)
+    5. comparison-slide usage (banned)
+    6. title-slide in middle positions
+    7. big-image-left in middle positions
+    """
+    issues = {
+        "big_image_left_missing_prompt": [],
+        "challenges_solutions_count": [],
+        "big_image_top_positioning": [],
+        "banned_templates": [],
+        "title_slide_positioning": [],
+        "big_image_left_positioning": []
+    }
+    
+    for i, slide in enumerate(slides):
+        slide_num = i + 1
+        template_id = slide.get('templateId', '')
+        props = slide.get('props', {})
+        
+        # Check big-image-left for missing imagePrompt
+        if template_id == 'big-image-left':
+            if 'imagePrompt' not in props or not props.get('imagePrompt', '').strip():
+                issues["big_image_left_missing_prompt"].append(f"Slide {slide_num}: big-image-left missing imagePrompt")
+        
+        # Check challenges-solutions for count
+        if template_id == 'challenges-solutions':
+            challenges = props.get('challenges', [])
+            solutions = props.get('solutions', [])
+            if len(challenges) != 3 or len(solutions) != 3:
+                issues["challenges_solutions_count"].append(
+                    f"Slide {slide_num}: challenges-solutions has {len(challenges)} challenges and {len(solutions)} solutions (should be exactly 3 each)"
+                )
+        
+        # Check big-image-top positioning (not first or last slide)
+        if template_id == 'big-image-top':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["big_image_top_positioning"].append(
+                    f"Slide {slide_num}: big-image-top should only be used for first or last slide"
+                )
+        
+        # Check for banned templates
+        if template_id in ['content-slide', 'comparison-slide']:
+            issues["banned_templates"].append(
+                f"Slide {slide_num}: {template_id} is banned and should not be used"
+            )
+        
+        # Check title-slide positioning (not middle positions)
+        if template_id == 'title-slide':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["title_slide_positioning"].append(
+                    f"Slide {slide_num}: title-slide should only be used for first or last slide"
+                )
+        
+        # Check big-image-left positioning (not middle positions)
+        if template_id == 'big-image-left':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["big_image_left_positioning"].append(
+                    f"Slide {slide_num}: big-image-left should only be used for first or last slide"
+                )
+    
+    return issues
+
+def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
+    """
+    Fix common presentation issues automatically:
+    1. Add default imagePrompt to big-image-left slides
+    2. Remove excess pairs from challenges-solutions slides
+    3. Replace big-image-top in middle with bullet-points-right
+    4. Replace banned templates with appropriate alternatives
+    5. Move position-restricted templates to first/last positions
+    """
+    fixed_slides = []
+    
+    for i, slide in enumerate(slides):
+        slide_num = i + 1
+        template_id = slide.get('templateId', '')
+        props = slide.get('props', {})
+        
+        # Fix big-image-left missing imagePrompt
+        if template_id == 'big-image-left' and ('imagePrompt' not in props or not props.get('imagePrompt', '').strip()):
+            props['imagePrompt'] = "Realistic cinematic scene of professionals working in a modern office environment with natural lighting and contemporary furniture. The workspace features clean, organized materials and professional equipment. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+            logger.info(f"Fixed big-image-left slide {slide_num}: Added default imagePrompt")
+        
+        # Fix challenges-solutions count
+        if template_id == 'challenges-solutions':
+            challenges = props.get('challenges', [])
+            solutions = props.get('solutions', [])
+            if len(challenges) > 3:
+                props['challenges'] = challenges[:3]
+                logger.info(f"Fixed challenges-solutions slide {slide_num}: Reduced challenges from {len(challenges)} to 3")
+            if len(solutions) > 3:
+                props['solutions'] = solutions[:3]
+                logger.info(f"Fixed challenges-solutions slide {slide_num}: Reduced solutions from {len(solutions)} to 3")
+        
+        # Fix big-image-top positioning
+        if template_id == 'big-image-top' and slide_num != 1 and slide_num != len(slides):
+            # Replace with bullet-points-right
+            slide['templateId'] = 'bullet-points-right'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed big-image-top slide {slide_num}: Replaced with bullet-points-right")
+        
+        # Fix banned templates
+        if template_id in ['content-slide', 'comparison-slide']:
+            # Replace with bullet-points
+            slide['templateId'] = 'bullet-points'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed banned template slide {slide_num}: Replaced {template_id} with bullet-points")
+        
+        # Fix title-slide positioning
+        if template_id == 'title-slide' and slide_num != 1 and slide_num != len(slides):
+            # Replace with hero-title-slide
+            slide['templateId'] = 'hero-title-slide'
+            logger.info(f"Fixed title-slide slide {slide_num}: Replaced with hero-title-slide")
+        
+        # Fix big-image-left positioning
+        if template_id == 'big-image-left' and slide_num != 1 and slide_num != len(slides):
+            # Replace with bullet-points-right
+            slide['templateId'] = 'bullet-points-right'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed big-image-left slide {slide_num}: Replaced with bullet-points-right")
+        
+        fixed_slides.append(slide)
+    
+    return fixed_slides
+
 async def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
     """
     Normalize slide props to match frontend template schemas.
@@ -2119,16 +2334,16 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 content_lower = content_sample.lower()
                 
                 if 'tool' in title_lower or 'software' in content_lower or 'application' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a developer using programming tools at a clean workstation. The scene features a young Asian woman sitting at a modern desk with a single laptop displaying simple code interface elements (no readable text) and one external monitor showing basic geometric development tool mockups. A wireless keyboard and mouse are positioned on the desk alongside a coffee cup. The laptop screen and coding interface are [COLOR1], the external monitor and keyboard are [COLOR2], and the desk and accessories are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table. A Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]."
                 elif 'trend' in title_lower or 'future' in title_lower or 'innovation' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of futuristic technology concepts in a clean tech environment. The scene features a Hispanic male scientist in a white lab coat standing next to a single large holographic display showing simple geometric patterns and flowing data visualizations (no readable text). A modern desk with a tablet displaying basic technology interface elements sits nearby. The holographic display and data flows are [COLOR1], the scientist's lab coat and tablet are [COLOR2], and the desk and lab environment are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of innovation researchers in a modern technology laboratory. A Hispanic male scientist in a white lab coat stands at a large holographic display showing complex data visualizations and research findings, while a young Asian woman in business attire reviews research data on a tablet. A Black female researcher in a blazer examines prototype devices at a nearby workstation. Natural laboratory lighting illuminates the high-tech research environment with advanced equipment, holographic displays, and research materials visible. The holographic displays and research equipment are [COLOR1], the team's professional attire and devices are [COLOR2], and the laboratory environment and furniture are [COLOR3]."
                 elif 'learn' in title_lower or 'education' in title_lower or 'skill' in content_lower or 'training' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of modern learning in a clean educational environment. The scene features a young Black female student sitting at a modern desk using a tablet displaying simple educational interface elements and geometric learning modules (no readable text). A single interactive whiteboard in the background shows basic diagrams with simple shapes and connecting lines. Educational materials like a notebook and digital stylus are positioned on the desk. The tablet interface and learning modules are [COLOR1], the interactive whiteboard and educational tools are [COLOR2], and the desk and educational environment are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in collaborative learning in a modern educational environment. A young Black female student in business attire sits at a modern desk using a tablet displaying educational content and learning modules, while a Hispanic male instructor in a blazer stands at an interactive whiteboard explaining concepts to the group. A Caucasian female colleague in casual attire takes notes on a laptop while reviewing educational materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive whiteboard and learning displays are [COLOR1], the team's clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]."
                 elif 'business' in title_lower or 'strategy' in content_lower or 'management' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of professional business strategy and management in a modern corporate environment. The scene features a contemporary conference room with three business professionals engaged in strategic planning. A confident Latina businesswoman in a navy blazer stands at the left presenting to a large wall display showing simple business charts, process flows, and strategic diagrams with geometric shapes (no readable text). In the center, a Black male executive sits at a glass conference table reviewing documents and tablets displaying abstract business analytics as simple bar charts and pie segments. On the right, a Caucasian female manager takes notes while sitting in an ergonomic chair, with a laptop showing business interface mockups with geometric layouts. Business materials like documents, tablets, coffee cups, and strategic planning boards are arranged throughout the professional space. The presentation displays and business interfaces are [COLOR1], conference furniture and professional devices are [COLOR2], documents and planning materials are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of business professionals engaged in strategic planning in a modern corporate conference room. A confident Latina businesswoman in a navy blazer stands at a large wall display presenting business charts and strategic diagrams, while a Black male executive in a suit sits at a glass conference table reviewing documents and tablets displaying business analytics. A Caucasian female manager in a blazer takes notes on a laptop while reviewing strategic planning materials. Natural office lighting illuminates the professional conference room with laptops, tablets, documents, coffee cups, and presentation materials visible. The presentation displays and business interfaces are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]."
                 else:
                     # General professional/educational fallback
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of professional collaboration and knowledge sharing in a modern educational environment. The scene features three diverse professionals working together in a bright, contemporary workspace. A young Hispanic woman in business attire sits at a modern desk on the left, using a laptop displaying simple interface elements and geometric data visualizations (no readable text). In the center, a Black male professional stands presenting to a wall-mounted display showing abstract concepts as interconnected nodes, flowcharts, and simple diagrams with geometric shapes. On the right, a Caucasian female colleague sits in a comfortable chair reviewing materials on a tablet, with documents and notebooks arranged on a side table. Professional tools like laptops, tablets, notebooks, coffee cups, and presentation materials are positioned throughout the collaborative workspace. The digital displays and interface elements are [COLOR1], professional devices and presentation tools are [COLOR2], furniture and workspace accessories are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals engaged in collaborative work in a modern office environment. A young Hispanic woman in business attire sits at a modern desk using a laptop displaying work interfaces and data visualizations, while a Black male professional stands presenting to a wall-mounted display showing project concepts and workflow diagrams. A Caucasian female colleague sits in a comfortable chair reviewing materials on a tablet, with documents and notebooks arranged on a side table. Natural office lighting illuminates the collaborative workspace with laptops, tablets, notebooks, coffee cups, and presentation materials visible. The digital displays and work interfaces are [COLOR1], the team's professional attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]."
                 
                 normalized_props['imageAlt'] = f"Professional illustration for {title}"
             
@@ -2355,47 +2570,71 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('leftImagePrompt') and normalized_props.get('leftContent'):
                     left_content_sample = normalized_props.get('leftContent', '')[:100].lower()
                     if 'network' in left_content_sample or 'event' in left_content_sample or 'meeting' in left_content_sample:
-                        normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of {left_title.lower()} showing people networking and collaborating. The scene features a group of diverse professionals in business attire engaging in conversations, exchanging ideas, and building connections in a modern corporate environment. People are positioned throughout the scene in small groups, with some standing and others sitting around tables. Professional networking activities are highlighted with [COLOR1], conversation indicators in [COLOR2], and background elements in [COLOR3]. NO text, labels, or readable content on any surfaces or documents. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals networking and collaborating at a modern corporate event. A confident Asian woman in a navy blazer engages in conversation with a Black male executive in a suit while exchanging business cards, while a Hispanic woman in a blazer takes notes on a tablet and a Caucasian man in a button-down shirt reviews documents. The networking event features high-top tables, professional lighting, and modern corporate decor with people positioned throughout the scene in small groups. Natural event lighting illuminates the professional networking environment with business cards, tablets, coffee cups, and presentation materials visible. The networking materials and business cards are [COLOR1], the professionals' attire and devices are [COLOR2], and the event furniture and environment are [COLOR3]. No readable text on any surfaces or documents. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'technology' in left_content_sample or 'digital' in left_content_sample or 'system' in left_content_sample:
-                        normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of {left_title.lower()} featuring modern technology and digital systems. The scene shows interconnected technological components, digital interfaces, and system architectures with detailed visual elements. Main technology components are [COLOR1], connecting elements are [COLOR2], and supporting details are [COLOR3]. All screens and displays show abstract geometric patterns with NO readable text or labels. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'process' in left_content_sample or 'step' in left_content_sample or 'method' in left_content_sample:
-                        normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of {left_title.lower()} showing a detailed process workflow. The scene features sequential steps connected by arrows, with clear visual indicators for each stage of the process. Process elements are rendered in [COLOR1], connecting arrows in [COLOR2], and step indicators in [COLOR3]. Use symbols and geometric shapes instead of text labels. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals implementing a structured workflow process in a modern office environment. A confident Asian woman in a navy blazer stands at a large whiteboard mapping out process steps with a Black male colleague in a suit reviewing documentation on a tablet, while a Hispanic woman in a blazer takes detailed notes on a laptop and a Caucasian man in a button-down shirt points to specific workflow elements. The office features collaborative workspaces with multiple monitors, process documentation, and workflow tools. Natural office lighting illuminates the professional setting with laptops, tablets, whiteboards, and process materials visible. The whiteboard and process documentation are [COLOR1], the team's professional attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     else:
                         # Create specific, contextual scene based on content
                         left_content_lower = normalized_props.get('leftContent', '').lower()
                         title_lower = title.lower()
                         
                         if 'learn' in left_content_lower or 'education' in left_content_lower or 'student' in left_content_lower:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of students learning in a modern classroom setting. The scene features diverse students sitting at desks with laptops, a teacher presenting at the front, and educational materials around the room. Students are engaged and taking notes, with some raising hands to ask questions. Student laptops and materials are [COLOR1], the teacher and presentation board are [COLOR2], and classroom furniture is [COLOR3]. No readable text on any surfaces. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'business' in left_content_lower or 'meeting' in left_content_lower or 'team' in left_content_lower:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of professionals collaborating in a modern office meeting room. The scene features a diverse group of business people sitting around a conference table, engaged in discussion, with one person presenting ideas. Laptops and documents are on the table, and a presentation screen shows charts. Conference table and laptops are [COLOR1], people and presentation screen are [COLOR2], and office furniture is [COLOR3]. No readable text anywhere. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'data' in left_content_lower or 'analysis' in left_content_lower or 'research' in left_content_lower:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of a data analyst working with information in a modern office. The scene features a focused professional at a desk with multiple monitors displaying charts and graphs, surrounded by organized workspace elements. The person is analyzing data patterns on screen while taking notes. Computer monitors and data visualizations are [COLOR1], the analyst and desk setup are [COLOR2], and office environment is [COLOR3]. All screens show abstract geometric patterns without text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of data analysts and researchers collaborating in a modern office environment. A focused Asian woman in business casual attire sits at a desk with multiple monitors displaying charts and graphs while analyzing data patterns, while a Black male colleague in a button-down shirt reviews research documents on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The office features organized workspace elements with laptops, tablets, research materials, and data visualization tools. Natural office lighting illuminates the professional setting with computer monitors, research documents, and analytical tools visible. The computer monitors and data visualizations are [COLOR1], the analysts' clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         else:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of people working together in a professional environment related to {left_title.lower()}. The scene features diverse professionals engaged in relevant activities, using modern tools and technology. The setting shows a clean, organized workspace with people collaborating effectively. Primary work elements are [COLOR1], people and main activities are [COLOR2], and environmental details are [COLOR3]. No readable text on any surfaces or screens. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            # Create specific, contextual scene based on the actual content and title
+                            content_keywords = left_content_lower.split()[:10]  # Get first 10 words for context
+                            title_keywords = title_lower.split()[:5]  # Get first 5 words from title
+                            
+                            # Determine specific professional context
+                            if any(word in left_content_lower for word in ['management', 'leadership', 'supervision']):
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in left_content_lower for word in ['training', 'education', 'learning', 'development']):
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in left_content_lower for word in ['technology', 'software', 'digital', 'system']):
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            else:
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals implementing solutions in a modern workplace related to {left_title.lower()}. The scene features a confident Latina businesswoman in a navy blazer presenting strategic plans to a group of colleagues, while a Black male executive in a suit reviews documents and takes notes on a tablet, and a Caucasian woman in a blazer collaborates on a laptop. The professional environment shows organized, efficient operations with people engaged in meaningful work using contemporary tools and methods. Implementation tools and equipment are [COLOR1], team members and activities are [COLOR2], and workplace environment is [COLOR3]. No readable text on any surfaces or equipment. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                 
                 # Generate right image prompt if missing using detailed format
                 if not normalized_props.get('rightImagePrompt') and normalized_props.get('rightContent'):
                     right_content_sample = normalized_props.get('rightContent', '')[:100].lower()
                     if 'association' in right_content_sample or 'professional' in right_content_sample or 'group' in right_content_sample:
-                        normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of {right_title.lower()} showing professional associations and industry connections. The scene features business professionals in formal attire attending conferences, participating in panel discussions, and engaging in professional development activities. A large conference hall setting with speakers, audience members, and networking areas. Association activities are highlighted in [COLOR1], professional interactions in [COLOR2], and venue elements in [COLOR3]. NO visible text on presentations, banners, or displays - use abstract symbols instead. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse group of business professionals attending a high-level industry conference in a modern convention center. A confident Asian woman in a navy blazer presents to a seated audience while a Black male executive in a suit takes notes on a tablet, and a Hispanic woman in a blazer reviews conference materials on a laptop. The conference hall features professional lighting, presentation screens, and networking areas with business professionals in formal attire engaging in professional development activities. Natural event lighting illuminates the professional conference environment with presentation materials, tablets, laptops, and networking materials visible. The presentation screens and conference materials are [COLOR1], the professionals' attire and devices are [COLOR2], and the conference venue and environment are [COLOR3]. No readable text on any surfaces or displays. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'technology' in right_content_sample or 'digital' in right_content_sample or 'system' in right_content_sample:
-                        normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of {right_title.lower()} featuring advanced technology and digital innovation. The scene shows cutting-edge technological solutions, modern interfaces, and innovative systems with comprehensive visual details. Technology components are [COLOR1], interface elements are [COLOR2], and innovation indicators are [COLOR3]. All digital displays show abstract geometric patterns with NO readable text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'strategy' in right_content_sample or 'approach' in right_content_sample or 'solution' in right_content_sample:
-                        normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of {right_title.lower()} showing strategic planning and solution implementation. The scene features strategic diagrams, planning documents, and implementation frameworks with detailed visual representations. Strategic elements are [COLOR1], planning components are [COLOR2], and implementation details are [COLOR3]. Documents and charts show abstract shapes and symbols with NO readable text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     else:
                         # Create specific, contextual scene based on content
                         right_content_lower = normalized_props.get('rightContent', '').lower()
                         title_lower = title.lower()
                         
                         if 'learn' in right_content_lower or 'education' in right_content_lower or 'student' in right_content_lower:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of students using technology for learning. The scene features diverse students in a modern computer lab, working on individual projects with tablets and laptops. Some students are collaborating on assignments while others focus independently. A teacher walks among them providing guidance. Student devices and work materials are [COLOR1], students and teacher are [COLOR2], and lab environment is [COLOR3]. No readable text on any screens or materials. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'business' in right_content_lower or 'meeting' in right_content_lower or 'team' in right_content_lower:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of business professionals in a client presentation meeting. The scene features a confident presenter explaining concepts to seated clients, with visual aids displayed on a large screen. The atmosphere is professional and engaging, with participants actively listening and taking notes. Presentation equipment and materials are [COLOR1], presenter and clients are [COLOR2], and meeting room elements are [COLOR3]. No readable text on presentations or documents. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'data' in right_content_lower or 'analysis' in right_content_lower or 'research' in right_content_lower:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of researchers collaborating on data analysis in a modern lab setting. The scene features scientists and analysts working together around computer workstations, discussing findings and sharing insights. Multiple screens display data visualizations while team members point to specific patterns. Computer equipment and data displays are [COLOR1], researchers and team members are [COLOR2], and lab environment is [COLOR3]. All screens show abstract patterns without text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of data analysts and researchers collaborating in a modern office environment. A focused Asian woman in business casual attire sits at a desk with multiple monitors displaying charts and graphs while analyzing data patterns, while a Black male colleague in a button-down shirt reviews research documents on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The office features organized workspace elements with laptops, tablets, research materials, and data visualization tools. Natural office lighting illuminates the professional setting with computer monitors, research documents, and analytical tools visible. The computer monitors and data visualizations are [COLOR1], the analysts' clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         else:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of professionals implementing solutions in a modern workplace related to {right_title.lower()}. The scene features a diverse team actively working on practical applications, using contemporary tools and methods. The environment shows organized, efficient operations with people engaged in meaningful work. Implementation tools and equipment are [COLOR1], team members and activities are [COLOR2], and workplace environment is [COLOR3]. No readable text on any surfaces or equipment. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            # Create specific, contextual scene based on the actual content and title
+                            content_keywords = right_content_lower.split()[:10]  # Get first 10 words for context
+                            title_keywords = title_lower.split()[:5]  # Get first 5 words from title
+                            
+                            # Determine specific professional context
+                            if any(word in right_content_lower for word in ['management', 'leadership', 'supervision']):
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in right_content_lower for word in ['training', 'education', 'learning', 'development']):
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in right_content_lower for word in ['technology', 'software', 'digital', 'system']):
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            else:
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals implementing solutions in a modern workplace related to {right_title.lower()}. The scene features a confident Latina businesswoman in a navy blazer presenting strategic plans to a group of colleagues, while a Black male executive in a suit reviews documents and takes notes on a tablet, and a Caucasian woman in a blazer collaborates on a laptop. The professional environment shows organized, efficient operations with people engaged in meaningful work using contemporary tools and methods. Implementation tools and equipment are [COLOR1], team members and activities are [COLOR2], and workplace environment is [COLOR3]. No readable text on any surfaces or equipment. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                 
                 # Handle case where AI used leftContent/rightContent but missing titles
                 if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
@@ -4524,6 +4763,10 @@ class AiAuditScrapedData(BaseModel):
     priorities: list[str]
     priorityOther: str = ""
 
+class CommercialProposalCreateRequest(BaseModel):
+    project_id: int
+    language: str = "ru"  # Default to Russian
+
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
     type: str = "unknown"
@@ -5915,6 +6158,202 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+def get_assistant_instructions(wizard_payload=None):
+    """
+    Load base instructions + product-specific instructions based on wizard payload.
+    
+    Args:
+        wizard_payload: Optional dict with 'product' key to determine which product file to load
+        
+    Returns:
+        Combined system instructions as a string
+    """
+    base_path = "custom_assistants/content_builder_base.txt"
+    
+    # Read base instructions
+    try:
+        with open(base_path, 'r', encoding='utf-8') as f:
+            instructions = f.read()
+    except FileNotFoundError:
+        logger.warning(f"[GET_INSTRUCTIONS] Base file not found: {base_path}")
+        return "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+    
+    # Detect product type from wizard payload
+    if wizard_payload:
+        product = wizard_payload.get('product', '').lower()
+        try:
+            logger.info(f"[GET_INSTRUCTIONS] wizard_payload.product='{product}' | base_len={len(instructions)}")
+        except Exception:
+            pass
+        
+        # Map product names to file names
+        product_file_map = {
+            'slides deck': 'content_builder_presentation.txt',
+            'lesson presentation': 'content_builder_presentation.txt',
+            'video lesson presentation': 'content_builder_presentation.txt',
+            'video lesson slides deck': 'content_builder_presentation.txt',
+            'text presentation': 'content_builder_onepager.txt',
+            'quiz': 'content_builder_quiz.txt',
+            'course outline': 'content_builder_outline.txt',
+            'video lesson script': 'content_builder_video.txt',
+        }
+        
+        product_file = product_file_map.get(product)
+        if product_file:
+            product_path = f"custom_assistants/{product_file}"
+            try:
+                with open(product_path, 'r', encoding='utf-8') as f:
+                    product_instructions = f.read()
+                    instructions += "\n\n" + product_instructions
+                    try:
+                        logger.info(f"[GET_INSTRUCTIONS] Loaded product file: {product_file} | product_len={len(product_instructions)} | combined_len={len(instructions)}")
+                    except Exception:
+                        pass
+            except FileNotFoundError:
+                logger.warning(f"[GET_INSTRUCTIONS] Product file not found: {product_path}")
+    
+    return instructions
+
+async def stream_openai_response(prompt: str, model: str = None, wizard_payload: dict = None, temperature: float = 0.2, max_tokens: int = None):
+    """
+    Stream response directly from OpenAI API.
+    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
+    
+    Args:
+        prompt: User/wizard message to send
+        model: OpenAI model to use
+        wizard_payload: Optional wizard payload dict for loading product-specific instructions
+        temperature: Temperature for response generation (default: 0.2)
+        max_tokens: Maximum tokens to generate (if None, uses model default or 16000)
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
+        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
+        if max_tokens:
+            logger.info(f"[OPENAI_STREAM] Using max_tokens: {max_tokens}")
+        
+        # Read assistant instructions (base + product-specific)
+        system_prompt = get_assistant_instructions(wizard_payload=wizard_payload)
+        try:
+            product_logged = (wizard_payload or {}).get('product') if wizard_payload else None
+            logger.info(f"[OPENAI_STREAM] System prompt loaded | product='{product_logged}' | sys_len={len(system_prompt)}")
+        except Exception:
+            pass
+
+        # Check for preservation mode instructions
+        enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
+        
+        # Add educational depth requirements ONLY for non-file generation
+        # DO NOT add these for file-based generation as they could contradict source fidelity
+        educational_enhancement = ""
+        
+        # Check if this is file-based generation (check for source fidelity markers)
+        is_file_based = ("SOURCE DOCUMENTS" in prompt or 
+                        "fromFiles" in prompt or 
+                        "ABSOLUTE SOURCE FIDELITY" in prompt)
+        
+        if not is_file_based:
+            educational_enhancement = """
+
+**EDUCATIONAL CONTENT REQUIREMENTS (FOR NON-FILE GENERATION ONLY):**
+
+Your content must provide deep educational value suitable for corporate training:
+
+**BLOOM'S TAXONOMY PROGRESSION:**
+• REMEMBER: Define key terms with precise definitions
+• UNDERSTAND: Explain WHY concepts work and provide mental models
+• APPLY: Show HOW to use concepts with step-by-step procedures
+• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
+
+**CORPORATE TRAINING STANDARDS:**
+• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
+• Include realistic scenarios with decision points
+• Provide mental models and frameworks learners can remember
+• Add "what would you do?" reflection prompts
+• Show both correct and incorrect examples with analysis
+
+**ANTI-HALLUCINATION PROTOCOL:**
+• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
+• NEVER present made-up examples as if they were real case studies
+• NEVER invent statistics, company names, or specific details
+• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
+
+**BULLET POINT DEPTH (for presentations):**
+Each bullet point MUST contain 60-100 words structured as:
+1. Core concept statement (15-20 words)
+2. Explanation of WHY/HOW it matters (20-30 words)  
+3. Practical application or example (20-30 words)
+4. Key takeaway or implication (10-20 words)
+
+**ONE-PAGER PEDAGOGICAL ELEMENTS:**
+1. MENTAL MODELS: Provide 2-3 frameworks learners can use
+2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
+4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
+5. SKILL PRACTICE: Include 3-5 scenario-based practice items
+
+        """
+        
+        # Create the streaming chat completion
+        api_params = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt + educational_enhancement},
+                {"role": "user", "content": enhanced_message}
+            ],
+            "stream": True,
+            "temperature": temperature
+        }
+        
+        # Use provided max_tokens or default to 16000 for large JSON responses
+        if max_tokens:
+            api_params["max_tokens"] = max_tokens
+        else:
+            api_params["max_tokens"] = 16000  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
+        
+        stream = await client.chat.completions.create(**api_params)
+        
+        logger.info(f"[OPENAI_STREAM] Stream created successfully")
+        
+        # DEBUG: Collect full response for logging
+        full_response = ""
+        chunk_count = 0
+        
+        async for chunk in stream:
+            chunk_count += 1
+            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
+            
+            if chunk.choices and len(chunk.choices) > 0:
+                choice = chunk.choices[0]
+                if choice.delta and choice.delta.content:
+                    content = choice.delta.content
+                    full_response += content  # DEBUG: Accumulate full response
+                    yield {"type": "delta", "text": content}
+                    
+                # Check for finish reason
+                if choice.finish_reason:
+                    finish_reason = choice.finish_reason
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
+                    logger.info(f"[OPENAI_STREAM] Response length: {len(full_response)} chars")
+                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
+                    
+                    # CRITICAL: Detect truncation due to token limit
+                    if finish_reason == "length":
+                        logger.error(f"⚠️ [OPENAI_STREAM] Response truncated due to max_tokens limit! Response length: {len(full_response)} chars")
+                        logger.error(f"⚠️ [OPENAI_STREAM] This indicates max_tokens ({max_tokens if max_tokens else 'default'}) was insufficient")
+                        yield {"type": "truncated", "text": "Response was truncated due to token limit. Consider increasing max_tokens.", "finish_reason": finish_reason}
+                    else:
+                        logger.info(f"[OPENAI_STREAM] Stream completed successfully with finish_reason: {finish_reason}")
+                        yield {"type": "done", "finish_reason": finish_reason}
+                    break
+                    
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
+        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -10993,6 +11432,34 @@ async def delete_design_template(template_id: int, pool: asyncpg.Pool = Depends(
         detail_msg = "An error occurred during design template deletion." if IS_PRODUCTION else f"DB error on design template deletion: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
+@app.post("/api/custom/ensure-video-product-template")
+async def ensure_video_product_template_endpoint(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Ensure video product template exists and return its ID"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        if not onyx_user_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        
+        template_id = await _ensure_video_product_template(pool)
+        
+        # Fetch full template details
+        async with pool.acquire() as conn:
+            template = await conn.fetchrow(
+                "SELECT id, template_name, microproduct_type, component_name FROM design_templates WHERE id = $1",
+                template_id
+            )
+        
+        return {
+            "id": template["id"],
+            "template_name": template["template_name"],
+            "microproduct_type": template["microproduct_type"],
+            "component_name": template["component_name"]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in ensure video product template endpoint: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
     "Training Plan", "PDF Lesson", "Slide Deck", "Text Presentation"
 ]
@@ -11237,128 +11704,6 @@ def validate_edit_preservation(original_content: str, edited_content: str, edit_
         return True, ""  # Don't block on validation errors
 
 # --- OpenAI Streaming Functions ---
-
-async def stream_openai_response(message: str, temperature: float = 0.7, max_tokens: int = None):
-    """
-    Stream response from OpenAI directly without file context.
-    
-    Args:
-        message: The message to send to OpenAI
-        temperature: Temperature for response generation
-        max_tokens: Maximum tokens to generate (if None, uses OpenAI default)
-        
-    Yields:
-        Dict with type 'delta' (text chunk), 'done' (completion), 'error', or 'truncated' (if hit token limit)
-    """
-    try:
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not openai_api_key:
-            logger.error("[OPENAI_STREAM] No OpenAI API key found")
-            yield {"type": "error", "text": "OpenAI API key not configured"}
-            return
-        
-        client = AsyncOpenAI(api_key=openai_api_key)
-        
-        logger.info(f"[OPENAI_STREAM] Starting streaming with message length: {len(message)}")
-        if max_tokens:
-            logger.info(f"[OPENAI_STREAM] Using max_tokens: {max_tokens}")
-        
-        # Check for preservation mode instructions
-        enhanced_message = add_preservation_mode_if_needed(message, {"prompt": message})
-        
-        # Add educational depth requirements for non-file generation
-        educational_enhancement = """
-
-**EDUCATIONAL CONTENT REQUIREMENTS:**
-
-Your content must provide deep educational value suitable for corporate training:
-
-**BLOOM'S TAXONOMY PROGRESSION:**
-• REMEMBER: Define key terms with precise definitions
-• UNDERSTAND: Explain WHY concepts work and provide mental models
-• APPLY: Show HOW to use concepts with step-by-step procedures
-• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
-
-**CORPORATE TRAINING STANDARDS:**
-• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
-• Include realistic scenarios with decision points
-• Provide mental models and frameworks learners can remember
-• Add "what would you do?" reflection prompts
-• Show both correct and incorrect examples with analysis
-
-**ANTI-HALLUCINATION PROTOCOL:**
-• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
-• NEVER present made-up examples as if they were real case studies
-• NEVER invent statistics, company names, or specific details
-• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
-
-**BULLET POINT DEPTH (for presentations):**
-Each bullet point MUST contain 60-100 words structured as:
-1. Core concept statement (15-20 words)
-2. Explanation of WHY/HOW it matters (20-30 words)  
-3. Practical application or example (20-30 words)
-4. Key takeaway or implication (10-20 words)
-
-**ONE-PAGER PEDAGOGICAL ELEMENTS:**
-1. MENTAL MODELS: Provide 2-3 frameworks learners can use
-2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
-3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
-4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
-5. SKILL PRACTICE: Include 3-5 scenario-based practice items
-
-"""
-        
-        enhanced_message += educational_enhancement
-        
-        # Build API call parameters
-        api_params = {
-            "model": "gpt-4-turbo-preview",
-            "messages": [{
-                "role": "system", 
-                "content": """You are an EDUCATIONAL CONTENT CREATOR specializing in corporate training materials. Generate deep, comprehensive educational content that teaches concepts through multiple cognitive levels. Focus on practical application, real-world scenarios, and actionable insights that learners can immediately implement."""
-            }, {
-                "role": "user", 
-                "content": enhanced_message
-            }],
-            "temperature": temperature,
-            "stream": True
-        }
-        
-        # Add max_tokens if provided
-        if max_tokens:
-            api_params["max_tokens"] = max_tokens
-        
-        stream = await client.chat.completions.create(**api_params)
-        
-        finish_reason = None
-        async for chunk in stream:
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content
-                    yield {"type": "delta", "text": content}
-                
-                # Check for finish reason
-                if choice.finish_reason:
-                    finish_reason = choice.finish_reason
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Response length: {len(full_response)} chars")
-                    
-                    # CRITICAL: Detect truncation due to token limit
-                    if finish_reason == "length":
-                        logger.error(f"⚠️ [OPENAI_STREAM] Response truncated due to max_tokens limit! Response length: {len(full_response)} chars")
-                        logger.error(f"⚠️ [OPENAI_STREAM] This indicates max_tokens ({max_tokens if max_tokens else 'default'}) was insufficient")
-                        yield {"type": "truncated", "text": "Response was truncated due to token limit. Consider increasing max_tokens.", "finish_reason": finish_reason}
-                    else:
-                        logger.info(f"[OPENAI_STREAM] Stream completed successfully with finish_reason: {finish_reason}")
-                        yield {"type": "done", "finish_reason": finish_reason}
-                    break
-                
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error: {e}", exc_info=True)
-        yield {"type": "error", "text": str(e)}
 
 async def stream_hybrid_response(message: str, file_context: Any, product_type: str = "Course Outline", temperature: float = 0.7):
     """
@@ -11619,8 +11964,8 @@ async def extract_file_context_from_onyx_with_progress(
         Dict with type 'progress' (progress update) or 'complete' (final context)
     """
     try:
-        # Create cache key
-        cache_key = f"{hash(tuple(sorted(file_ids)))}_{hash(tuple(sorted(folder_ids)))}"
+        # Create cache key - convert all IDs to strings to handle mixed int/str types from different sources
+        cache_key = f"{hash(tuple(sorted([str(fid) for fid in file_ids])))}_{hash(tuple(sorted([str(fid) for fid in folder_ids])))}"
         
         # Check cache first
         if cache_key in FILE_CONTEXT_CACHE:
@@ -11832,27 +12177,51 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         temp_chat_id = await create_onyx_chat_session(search_persona_id, cookies)
         logger.info(f"[CONNECTOR_CONTEXT] Created search chat session: {temp_chat_id}")
         
-        # Create a comprehensive search prompt (similar to Knowledge Base approach)
+        # Create a comprehensive search-and-extract prompt with verbatim snippets
+        connector_sources_csv = ", ".join(connector_list)
         search_prompt = f"""
-        Please search within the following connector sources for information relevant to this topic: "{prompt}"
-        
-        Search only within these specific sources: {', '.join(connector_list)}
-        
-        I need you to:
-        1. Search within the specified connector sources only
-        2. Find the most relevant information related to this topic
-        3. Provide a comprehensive summary of what you find
-        4. Extract key topics, concepts, and important details
-        5. Identify any specific examples, case studies, or practical applications
-        
-        Please format your response as:
-        SUMMARY: [comprehensive summary of relevant information found]
-        KEY_TOPICS: [comma-separated list of key topics and concepts]
-        IMPORTANT_DETAILS: [specific details, examples, or practical information]
-        RELEVANT_SOURCES: [mention of any specific documents or sources that were particularly relevant]
-        
-        Focus only on content from these connector sources: {', '.join(connector_list)}
-        Be thorough and comprehensive in your search and analysis.
+You are a CONNECTOR SEARCH AND EXTRACTION specialist. Work ONLY within these connector sources: {connector_sources_csv}. Topic: "{prompt}".
+
+STRICT RULES:
+- Use ONLY content found in the specified connector sources. No external knowledge.
+- Prefer documents with strong topical match; skip generic/low-signal files.
+- Extract VERBATIM passages (exact wording). No paraphrasing.
+- Diversify across different high-signal documents; avoid repeating near-duplicates.
+
+PROCESS:
+1) High-recall search: expand the topic with synonyms/phrases and find candidate docs.
+2) Rank candidates by topical relevance and information density. Keep top 12.
+3) For each selected doc, extract 3–5 key snippets (50–200 words each) that directly support the topic.
+4) Deduplicate near-identical snippets across docs (keep the clearest one).
+5) Cite every snippet with source metadata.
+
+OUTPUT FORMAT (exactly):
+SUMMARY: <=200 words summary of findings from these connectors only.
+KEY_TOPICS: comma-separated list (<=12)
+IMPORTANT_DETAILS:
+- Up to 10 bullets of concrete facts (numbers, names, definitions) from sources only
+EXTRACTED_CONTENT:
+[DOC 1]
+- SOURCE_DOC: <name or path>
+- CONNECTOR: <e.g., SmartDrive/GoogleDrive>
+- DOC_ID: <id if available>
+- SNIPPETS:
+  1) "<verbatim passage>"
+     - WHY_RELEVANT: <brief reason>
+     - CONFIDENCE: High/Med/Low
+  2) ...
+
+[DOC 2]
+- SOURCE_DOC: ...
+- ...
+
+RELEVANT_SOURCES:
+- <doc name/path> — reason for inclusion
+- ...
+
+CONSTRAINTS:
+- If there are hundreds of files, include only the most relevant 5–12 documents.
+- Prefer dense, example-rich or data-rich sections.
         """
         
         # Use the Search persona to perform the connector-filtered search
@@ -11866,11 +12235,12 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         if len(search_result) == 0:
             logger.warning(f"[CONNECTOR_CONTEXT] Search result is empty! This might indicate no documents in connectors or search failed")
         
-        # Parse the search result - handle Onyx response format (same as Knowledge Base)
+        # Parse the search result - handle extended connector format with EXTRACTED_CONTENT
         summary = ""
         key_topics = []
         important_details = ""
         relevant_sources = ""
+        extracted_snippets: List[Dict[str, Any]] = []
         
         # Extract content flexibly using string searching
         logger.info(f"[CONNECTOR_CONTEXT] Starting content extraction from search result")
@@ -11913,6 +12283,49 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
             relevant_sources = search_result[sources_start:].strip()
             logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {len(relevant_sources)} chars")
         
+        # Try to parse EXTRACTED_CONTENT blocks with snippets
+        if "EXTRACTED_CONTENT:" in search_result:
+            try:
+                content_start = search_result.find("EXTRACTED_CONTENT:") + len("EXTRACTED_CONTENT:")
+                tail = search_result[content_start:]
+                current_doc: Dict[str, Any] = None
+                for raw_line in tail.splitlines():
+                    line = raw_line.strip()
+                    if not line:
+                        continue
+                    if line.startswith("[DOC "):
+                        if current_doc:
+                            extracted_snippets.append(current_doc)
+                        current_doc = {"source_doc": None, "connector": None, "doc_id": None, "snippets": []}
+                    elif line.startswith("- SOURCE_DOC:") and current_doc is not None:
+                        current_doc["source_doc"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- CONNECTOR:") and current_doc is not None:
+                        current_doc["connector"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- DOC_ID:") and current_doc is not None:
+                        current_doc["doc_id"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- SNIPPETS:"):
+                        # header, skip
+                        pass
+                    elif line[0].isdigit() and ') "' in line:
+                        # snippet line like:  1) "<verbatim>"
+                        try:
+                            first_quote = line.find('"')
+                            last_quote = line.rfind('"')
+                            snippet_text = line[first_quote+1:last_quote]
+                            if current_doc is not None and snippet_text:
+                                current_doc["snippets"].append({"text": snippet_text})
+                        except Exception:
+                            continue
+                    elif line.startswith("- WHY_RELEVANT:") and current_doc is not None and current_doc.get("snippets"):
+                        current_doc["snippets"][-1]["why"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- CONFIDENCE:") and current_doc is not None and current_doc.get("snippets"):
+                        current_doc["snippets"][-1]["confidence"] = line.split(":", 1)[1].strip()
+                if current_doc:
+                    extracted_snippets.append(current_doc)
+                logger.info(f"[CONNECTOR_CONTEXT] Parsed connector snippets: {sum(len(d.get('snippets', [])) for d in extracted_snippets)} total")
+            except Exception as perr:
+                logger.warning(f"[CONNECTOR_CONTEXT] Failed to parse EXTRACTED_CONTENT: {perr}")
+        
         # Final fallback if still no content
         if not summary and not key_topics:
             summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
@@ -11925,7 +12338,119 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         logger.info(f"[CONNECTOR_CONTEXT] Extracted important details: {important_details[:200]}...")
         logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {relevant_sources[:200]}...")
         
-        # Return context in the same format as knowledge base context
+        # Build combined raw content from snippets for downstream token budgeting
+        combined_raw = "\n\n".join(
+            [
+                f"[{doc.get('source_doc','Unknown')}]\n" + "\n\n".join(
+                    [s.get('text','') for s in doc.get('snippets', []) if s.get('text')]
+                )
+                for doc in extracted_snippets if doc.get('snippets')
+            ]
+        )
+
+        # If nothing useful found, retry once with a tweaked prompt (broader query and softer constraints)
+        should_retry = (
+            (not summary or "no relevant content" in summary.lower()) and
+            not key_topics and
+            not extracted_snippets and
+            len(important_details.strip()) < 50
+        )
+        if should_retry:
+            try:
+                logger.info("[CONNECTOR_CONTEXT] No relevant content found; retrying with tweaked prompt")
+                tweaked_prompt = f"""
+You are a CONNECTOR SEARCH AND EXTRACTION specialist. Search ONLY in: {connector_sources_csv}. Topic: "{prompt}".
+
+Goal: maximize recall first, then precision. If exact matches are scarce, include near-topic documents that define, introduce, or summarize the topic.
+
+PROCESS:
+1) Run multiple queries (synonyms, abbreviations, expansions): e.g., AWS, Amazon Web Services, cloud basics, cloud infrastructure.
+2) Select up to 12 strongest candidates by topical overlap and information density.
+3) Extract 2–3 short, high-signal snippets per document (50–150 words). Prefer definitions, lists of components, and key facts.
+
+OUTPUT:
+SUMMARY: <=150 words
+KEY_TOPICS: comma-separated (<=12)
+IMPORTANT_DETAILS: 3–8 bullets of concrete facts (numbers/names)
+EXTRACTED_CONTENT: [DOC blocks with SNIPPETS as before]
+RELEVANT_SOURCES: list
+"""
+                search_result = await enhanced_stream_chat_message_with_filters(temp_chat_id, tweaked_prompt, cookies, connector_list)
+                logger.info(f"[CONNECTOR_CONTEXT] Retry received search result ({len(search_result)} chars)")
+                # Re-parse with same logic
+                summary = ""; key_topics = []; important_details = ""; relevant_sources = ""; extracted_snippets = []
+                if "SUMMARY:" in search_result:
+                    summary_start = search_result.find("SUMMARY:") + 8
+                    next_marker = min([x for x in [
+                        search_result.find("KEY_TOPICS:", summary_start),
+                        search_result.find("IMPORTANT_DETAILS:", summary_start),
+                        search_result.find("RELEVANT_SOURCES:", summary_start)
+                    ] if x != -1] or [len(search_result)])
+                    summary = search_result[summary_start:next_marker].strip()
+                if "KEY_TOPICS:" in search_result:
+                    topics_start = search_result.find("KEY_TOPICS:") + 11
+                    next_section = min([x for x in [
+                        search_result.find("IMPORTANT_DETAILS:", topics_start),
+                        search_result.find("RELEVANT_SOURCES:", topics_start)
+                    ] if x != -1] or [len(search_result)])
+                    topics_text = search_result[topics_start:next_section].strip()
+                    key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                if "IMPORTANT_DETAILS:" in search_result:
+                    details_start = search_result.find("IMPORTANT_DETAILS:") + 18
+                    details_end = search_result.find("RELEVANT_SOURCES:", details_start)
+                    if details_end == -1:
+                        details_end = len(search_result)
+                    important_details = search_result[details_start:details_end].strip()
+                if "RELEVANT_SOURCES:" in search_result:
+                    sources_start = search_result.find("RELEVANT_SOURCES:") + 17
+                    relevant_sources = search_result[sources_start:].strip()
+                if "EXTRACTED_CONTENT:" in search_result:
+                    try:
+                        content_start = search_result.find("EXTRACTED_CONTENT:") + len("EXTRACTED_CONTENT:")
+                        tail = search_result[content_start:]
+                        current_doc = None
+                        for raw_line in tail.splitlines():
+                            line = raw_line.strip()
+                            if not line:
+                                continue
+                            if line.startswith("[DOC "):
+                                if current_doc:
+                                    extracted_snippets.append(current_doc)
+                                current_doc = {"source_doc": None, "connector": None, "doc_id": None, "snippets": []}
+                            elif line.startswith("- SOURCE_DOC:") and current_doc is not None:
+                                current_doc["source_doc"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- CONNECTOR:") and current_doc is not None:
+                                current_doc["connector"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- DOC_ID:") and current_doc is not None:
+                                current_doc["doc_id"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- SNIPPETS:"):
+                                pass
+                            elif line and line[0].isdigit() and ') "' in line:
+                                try:
+                                    first_quote = line.find('"'); last_quote = line.rfind('"')
+                                    snippet_text = line[first_quote+1:last_quote]
+                                    if current_doc is not None and snippet_text:
+                                        current_doc["snippets"].append({"text": snippet_text})
+                                except Exception:
+                                    continue
+                            elif line.startswith("- WHY_RELEVANT:") and current_doc is not None and current_doc.get("snippets"):
+                                current_doc["snippets"][-1]["why"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- CONFIDENCE:") and current_doc is not None and current_doc.get("snippets"):
+                                current_doc["snippets"][-1]["confidence"] = line.split(":", 1)[1].strip()
+                        if current_doc:
+                            extracted_snippets.append(current_doc)
+                        logger.info(f"[CONNECTOR_CONTEXT] Retry parsed connector snippets: {sum(len(d.get('snippets', [])) for d in extracted_snippets)} total")
+                    except Exception as perr:
+                        logger.warning(f"[CONNECTOR_CONTEXT] Retry parse EXTRACTED_CONTENT failed: {perr}")
+                # recompute combined_raw
+                combined_raw = "\n\n".join([
+                    f"[{doc.get('source_doc','Unknown')}]\n" + "\n\n".join([s.get('text','') for s in doc.get('snippets', []) if s.get('text')])
+                    for doc in extracted_snippets if doc.get('snippets')
+                ])
+            except Exception as re:
+                logger.warning(f"[CONNECTOR_CONTEXT] Retry failed: {re}")
+        
+        # Return context in the same format as knowledge base context, plus snippets/raw
         return {
             "connector_search": True,
             "topic": prompt,
@@ -11935,6 +12460,8 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
             "important_details": important_details,
             "relevant_sources": relevant_sources,
             "full_search_result": search_result,
+            "extracted_snippets": extracted_snippets,
+            "extracted_raw_content": combined_raw,
             "file_summaries": [{
                 "file_id": "connector_search",
                 "name": f"Connector Search: {', '.join(connector_list)}",
@@ -12478,18 +13005,65 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         persona_id = await get_contentbuilder_persona_id(cookies)
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
-        # Step 3: Flexible analysis prompt that works with both text files and images
-        analysis_prompt = f"""        
-        Please describe:
-        1. What is this file? (image, document, etc.)
-        2. What does it contain or show? (min 500 words)
-        3. What are the main topics, concepts, or subjects?
-        4. What information would be most relevant for lesson planning or content creation?
+        # Step 3: Enhanced extraction prompt that gets actual content snippets
+        analysis_prompt = f"""
+        You are a CONTENT EXTRACTION SPECIALIST. Your task is to extract and reproduce ACTUAL CONTENT from this file.
+
+        CRITICAL INSTRUCTIONS:
+        1. Extract VERBATIM text, quotes, facts, examples, data, and information from the file
+        2. Do NOT summarize or paraphrase - copy the actual content
+        3. Include specific examples, case studies, statistics, formulas, and detailed explanations
+        4. Preserve all facts, numbers, names, dates, and technical details EXACTLY as they appear
+        5. Extract as much of actual content from the file as possible
+        6. Focus on educationally valuable content that can be used for teaching
         
-        Format your response as:
-        SUMMARY: [what this file contains/shows]
-        TOPICS: [main topics or subjects, comma-separated]  
-        KEY_INFO: [most educational/relevant information]
+        WHAT TO EXTRACT:
+        - Key concepts with their full explanations (not summaries)
+        - All examples, case studies, and scenarios (complete, not abbreviated)
+        - Important facts, statistics, and data points
+        - Definitions, formulas, and methodologies
+        - Step-by-step processes and procedures
+        - Quotes and important statements (exact wording)
+        - Any diagrams, charts, or visual content descriptions (detailed)
+        
+        FORMAT YOUR RESPONSE AS:
+        
+        SUMMARY: [Brief 2-sentence overview of what this file contains]
+        
+        TOPICS: [Main topics, comma-separated]
+        
+        KEY_INFO: [Most important takeaway in 1 sentence]
+        
+        EXTRACTED_CONTENT:
+        [THIS IS THE MOST IMPORTANT PART - Extract 2000-3000 words of ACTUAL CONTENT from the file]
+        [Include full explanations, complete examples, all relevant details]
+        [Use headings to organize different sections]
+        [Copy text verbatim when possible]
+        [Be thorough and comprehensive - this content will be used to teach others]
+        
+        Remember: Your goal is to EXTRACT as much useful content as possible, not to summarize it.
+        The more detailed and complete your extraction, the better the educational material will be.
+        """
+        # Less-invasive prompt (used only if the first attempt is refused or generic)
+        softer_prompt = f"""
+        You are a CONTENT ANALYST.
+
+        Goal: Provide a faithful, detailed representation of the file's information for educational use.
+
+        RULES:
+        - Where permitted, include short, highly relevant quotations (short exact phrases) to preserve fidelity.
+        - If full verbatim excerpts are not permitted, provide detailed, section-by-section summaries capturing all facts, numbers, names, and definitions precisely.
+        - Preserve critical terminology exactly as written.
+
+        FORMAT:
+        SUMMARY: [<=2 sentences]
+        TOPICS: [comma-separated]
+        KEY_INFO: [one most important takeaway]
+        EXTRACTED_CONTENT:
+        [Provide a comprehensive, structured outline of the file's content. Use headings. Under each heading, include:
+         - Key points (with exact terminology)
+         - Short quotes where allowed (a few words to short phrases), otherwise detailed paraphrase capturing all substance
+         - Numbers, names, dates, and definitions precisely]
         """
         
         # Step 4: Single attempt - skip file if it fails (no retries)
@@ -12497,10 +13071,22 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
             result = await attempt_file_analysis_with_retry(
                 temp_chat_id, file_id, analysis_prompt, cookies, 0
             )
-            if result and not is_generic_response(result):
+            # Detect refusal/generic
+            refusal_markers = [
+                "can’t provide verbatim", "can't provide verbatim", "can’t provide that", "can't provide that",
+                "cannot provide verbatim", "not provide verbatim", "I can’t extract", "I can't extract"
+            ]
+            is_refusal = any(m in (result or "").lower() for m in refusal_markers)
+            if result and not is_generic_response(result) and not is_refusal:
                 return parse_analysis_result(file_id, result)
-            else:
-                logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed, skipping...")
+            # Retry once with less invasive prompt and alternate strategy (attempt 2)
+            logger.info(f"[FILE_CONTEXT] Retrying file {file_id} with less invasive prompt")
+            retry_result = await attempt_file_analysis_with_retry(
+                temp_chat_id, file_id, softer_prompt, cookies, 1
+            )
+            if retry_result and not is_generic_response(retry_result):
+                return parse_analysis_result(file_id, retry_result)
+            logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed after retry, skipping...")
         except Exception as e:
             logger.error(f"[FILE_CONTEXT] File {file_id} analysis error: {e}, skipping...")
         
@@ -12710,25 +13296,44 @@ def is_generic_response(text: str) -> bool:
 
 def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
     """
-    Parse the analysis result and extract structured information.
+    Parse the analysis result and extract structured information including extracted content.
     """
     summary = ""
     topics = []
     key_info = ""
+    extracted_content = ""
     
     # Log the raw response for debugging
     logger.info(f"[FILE_CONTEXT] Raw analysis response for file {file_id} (length: {len(analysis_text)}): "
                f"{analysis_text[:500]}{'...' if len(analysis_text) > 500 else ''}")
     
+    # Parse line by line for simple fields
     lines = analysis_text.split('\n')
+    in_extracted_content = False
+    extracted_lines = []
+    
     for line in lines:
         if line.startswith("SUMMARY:"):
             summary = line.replace("SUMMARY:", "").strip()
+            in_extracted_content = False
         elif line.startswith("TOPICS:"):
             topics_text = line.replace("TOPICS:", "").strip()
             topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+            in_extracted_content = False
         elif line.startswith("KEY_INFO:"):
             key_info = line.replace("KEY_INFO:", "").strip()
+            in_extracted_content = False
+        elif line.startswith("EXTRACTED_CONTENT:"):
+            in_extracted_content = True
+            # Don't include the header itself
+        elif in_extracted_content:
+            # Collect all lines after EXTRACTED_CONTENT:
+            extracted_lines.append(line)
+    
+    # Join extracted content lines
+    if extracted_lines:
+        extracted_content = '\n'.join(extracted_lines).strip()
+        logger.info(f"[FILE_CONTEXT] Extracted {len(extracted_content)} chars of content from file {file_id}")
     
     # If no structured response, try to extract meaningful content
     if not summary and analysis_text.strip():
@@ -12743,12 +13348,15 @@ def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
         summary = f"File content analyzed successfully (ID: {file_id})"
         logger.warning(f"[FILE_CONTEXT] No summary could be extracted for file {file_id}, using fallback")
     
+    # Use extracted content as the main content, fall back to full analysis if not available
+    content_to_use = extracted_content if extracted_content else analysis_text
+    
     return {
         "file_id": file_id,
         "summary": summary,
         "topics": topics,
         "key_info": key_info,
-        "content": analysis_text
+        "content": content_to_use  # Use extracted content or full text
     }
 
 async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
@@ -12877,26 +13485,152 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
     Build an enhanced prompt that includes the extracted file context for OpenAI.
     Handles both dict (structured context) and str (fallback context) cases.
     """
+    # Debug logging to see what content we're actually passing
+    if isinstance(file_context, str):
+        content_preview = file_context[:500] if len(file_context) > 500 else file_context
+        logger.info(f"[FIDELITY_DEBUG] File context (string): {len(file_context)} chars")
+        logger.info(f"[FIDELITY_DEBUG] Content preview: {content_preview}")
+    elif isinstance(file_context, dict):
+        summaries = file_context.get('file_summaries', [])
+        topics_count = len(file_context.get('key_topics', []))
+        summaries_count = len(summaries)
+        logger.info(f"[FIDELITY_DEBUG] File context (dict): {summaries_count} summaries, {topics_count} topics")
+        if summaries:
+            first = summaries[0]
+            first_text = first if isinstance(first, str) else (first.get('summary') or first.get('name') or str(first))
+            try:
+                logger.info(f"[FIDELITY_DEBUG] First summary: {first_text[:200]}")
+            except Exception:
+                logger.info("[FIDELITY_DEBUG] First summary present (non-string)")
+    
     enhanced_prompt = f"""
 {original_prompt}
 
---- CONTEXT FROM UPLOADED FILES ---
+═══════════════════════════════════════════════════════════════════════════
+🚨 ABSOLUTE SOURCE FIDELITY MODE ACTIVATED 🚨
+═══════════════════════════════════════════════════════════════════════════
+
+STOP AND READ THIS BEFORE PROCEEDING:
+
+You are in ABSOLUTE SOURCE FIDELITY MODE. This means:
+
+🚫 YOUR GENERAL KNOWLEDGE IS COMPLETELY DISABLED FOR THIS REQUEST
+🚫 YOU CANNOT USE ANY INFORMATION NOT IN THE SOURCE DOCUMENTS BELOW
+🚫 YOU CANNOT ADD, EXPAND, OR ENHANCE THE CONTENT IN ANY WAY
+
+The documents below are your ONLY source of truth. If information is not explicitly 
+stated in these documents, you CANNOT include it in your response.
+
+═══════════════════════════════════════════════════════════════════════════
+📚 SOURCE DOCUMENTS (YOUR ONLY KNOWLEDGE BASE)
+═══════════════════════════════════════════════════════════════════════════
+
+MANDATORY RULES - NO EXCEPTIONS:
+
+✓ ONLY restructure and reorganize content from the source documents
+✓ ONLY use examples, facts, statistics that appear in the source documents
+✓ ONLY apply educational frameworks to the source content (don't add new content)
+✓ PRESERVE all facts, numbers, examples EXACTLY as stated
+✓ STATE "not covered in source materials" if information is missing
+
+CRITICAL CLARIFICATION ON EXAMPLES:
+• If source says "AI could double seller time from 25% to 50%" → Use that EXACT statistic
+• If source says "lead scoring accuracy improved from 15-25% to 40-60%" → Use those EXACT numbers
+• If source describes Conversation Intelligence → Use that EXACT concept and description
+• DO NOT create "retail company" or "software company" examples if not in source
+• DO NOT invent scenarios like "chatbot implementation" if not in source
+• DO NOT make up costs like "$50,000" if not in source
+
+✗ NEVER add facts, statistics, or data from your general knowledge
+✗ NEVER create new examples not in the source documents
+✗ NEVER expand topics with information not in the sources
+✗ NEVER fill gaps with your own knowledge
+✗ NEVER add case studies not in the sources
+✗ NEVER use industry knowledge not stated in the sources
+✗ NEVER add definitions not in the sources
+
+YOUR ROLE: You are a CONTENT RESTRUCTURER, NOT a content creator.
+You organize existing content into educational format. You do NOT add content.
+
+VERIFICATION CHECKPOINT #1:
+Before reading the source documents, confirm:
+□ I understand I can ONLY use content from the source documents
+□ I understand I CANNOT use my general knowledge
+□ I understand I CANNOT add any information
+
+IF YOU CANNOT CONFIRM ALL THREE - STOP AND RE-READ THESE INSTRUCTIONS
+
+═══════════════════════════════════════════════════════════════════════════
+SOURCE DOCUMENTS START HERE ↓↓↓
+═══════════════════════════════════════════════════════════════════════════
 
 """
     
     # Handle string file_context (fallback case)
     if isinstance(file_context, str):
         enhanced_prompt += file_context
-        enhanced_prompt += "\n\nPlease create the content based on the information above.\n"
+        enhanced_prompt += """
+
+═══════════════════════════════════════════════════════════════════════════
+↑↑↑ SOURCE DOCUMENTS END HERE
+═══════════════════════════════════════════════════════════════════════════
+
+🚨 VERIFICATION CHECKPOINT #2 - ANSWER THESE QUESTIONS:
+
+Question 1: What SPECIFIC topics, statistics, and examples were in the source documents?
+Answer: [List actual topics AND specific numbers/examples you saw - e.g., "25% to 50%", "Conversation Intelligence", etc.]
+
+Question 2: What are you allowed to include in your response?
+Answer: ONLY information from the source documents above. NOTHING from my general knowledge.
+
+Question 3: Can you create NEW examples (like "retail company with chatbot") not in the source?
+Answer: NO. I can ONLY use examples that were explicitly stated in the source documents.
+
+Question 4: What should you do if the source lacks information on a typical topic?
+Answer: State "not covered in source materials" - DO NOT add information from general knowledge.
+
+Question 5: Can you add statistics, costs, or numbers not in the source?
+Answer: NO. Absolutely not. Never. ONLY use exact numbers from the source.
+
+FINAL VERIFICATION CHECKLIST:
+□ I have read and understood the source documents above
+□ I will use ONLY content from those source documents
+□ I will NOT use any information from my general knowledge
+□ I will NOT add examples, facts, or cases not in the source
+□ I will state "not in source" if information is missing
+□ I am acting as a RESTRUCTURER, not a CREATOR
+
+IF ANY BOX IS UNCHECKED - YOU MUST STOP AND RE-READ THE INSTRUCTIONS
+
+═══════════════════════════════════════════════════════════════════════════
+🛑 FINAL COMMAND - READ THIS CAREFULLY 🛑
+═══════════════════════════════════════════════════════════════════════════
+
+BEFORE YOU START GENERATING, ANSWER THIS QUESTION:
+
+❓ What was the MAIN TOPIC of the source documents you just read above?
+
+If you read about "AI in Sales" → Your product must be about AI in Sales
+If you read about "Marketing Strategies" → Your product must be about Marketing Strategies
+If you read about "Leadership Skills" → Your product must be about Leadership Skills
+
+⚠️ YOUR PRODUCT TOPIC MUST MATCH THE SOURCE DOCUMENT TOPIC EXACTLY ⚠️
+
+DO NOT:
+❌ Generate about "Market Analysis" if source was about "AI in Sales"
+❌ Generate about "Five Forces" if source didn't mention it
+❌ Generate about "GlobalSensors" if source didn't mention it
+❌ Generate about ANY topic different from what you read above
+
+NOW GENERATE THE REQUESTED PRODUCT:
+→ Use ONLY the source content above
+→ Keep the SAME TOPIC as the source
+→ Use the EXACT statistics from the source
+→ DO NOT add information from your general knowledge
+"""
         return enhanced_prompt
     
     # Handle dict file_context (normal case)
-    # Handle string file_context (fallback case)
-    if isinstance(file_context, str):
-        enhanced_prompt += file_context
-        enhanced_prompt += "\n\nPlease create the content based on the information above.\n"
-        return enhanced_prompt
-    
     # Check if fallback was used (dict case)
     if file_context.get("metadata", {}).get("fallback_used"):
         enhanced_prompt += "NOTE: File context extraction was limited, but files were provided for content creation.\n\n"
@@ -12904,9 +13638,20 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
     # Add file summaries
     if file_context.get("file_summaries"):
         enhanced_prompt += "FILE SUMMARIES:\n"
-        for i, summary in enumerate(file_context["file_summaries"], 1):
-            enhanced_prompt += f"{i}. {summary}\n"
+        for i, s in enumerate(file_context["file_summaries"], 1):
+            if isinstance(s, str):
+                line = s
+            elif isinstance(s, dict):
+                # Prefer explicit summary; fallback to name; fallback to repr
+                line = s.get("summary") or s.get("name") or json.dumps(s, ensure_ascii=False)[:400]
+            else:
+                line = str(s)
+            enhanced_prompt += f"{i}. {line}\n"
         enhanced_prompt += "\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['file_summaries'])} summaries | first_len={len(file_context['file_summaries'][0]) if file_context['file_summaries'] else 0}")
+        except Exception:
+            pass
     
     # Add folder contexts
     if file_context.get("folder_contexts"):
@@ -12918,6 +13663,32 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
     # Add key topics
     if file_context.get("key_topics"):
         enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['key_topics'])} key topics")
+        except Exception:
+            pass
+
+    # Add extracted content block (verbatim excerpts) using token-aware budgeting
+    try:
+        assembled_text = assemble_context_with_budget(
+            original_prompt=original_prompt,
+            file_context=file_context,
+            product_type=product_type,
+            model="gpt-4o-mini"
+        )
+        if assembled_text:
+            enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+            enhanced_prompt += assembled_text + "\n\n"
+        try:
+            logger.info(f"[ASSEMBLER_OUTPUT] BEGIN EXTRACTED_CONTENT BLOCK\n{assembled_text}\n[ASSEMBLER_OUTPUT] END EXTRACTED_CONTENT BLOCK")
+        except Exception:
+            pass
+    except Exception as ass_err:
+        logger.error(f"[FIDELITY_DEBUG] Assembler failed, falling back to simple clip: {ass_err}")
+        file_contents = file_context.get("file_contents") or []
+        joined = "\n\n".join([c for c in file_contents if c])
+        enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+        enhanced_prompt += joined[:20000] + "\n\n"
     
     # Add specific instructions for the product type with enhanced formatting guidance
     if product_type == "Course Outline":
@@ -12974,23 +13745,269 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
 """
     
-    # Add specific instructions for the product type
-    if file_context.get("metadata", {}).get("fallback_used"):
-        enhanced_prompt += f"""
-IMPORTANT: Files were provided for content creation. Create a {product_type} that is relevant to the uploaded materials.
-If specific content details are not available, focus on creating high-quality educational content that would be appropriate for the file types provided.
-"""
-    else:
-        enhanced_prompt += f"""
-IMPORTANT: Use the context from the uploaded files to create a {product_type} that is relevant and accurate to the source materials. 
-Ensure that the content aligns with the topics and information provided in the file summaries and folder contexts.
+    # Presentation fidelity rules are now in product-specific txt files
+    
+    # Add closing source fidelity reminder
+    enhanced_prompt += """
+═══════════════════════════════════════════════════════════════════════════
+↑↑↑ SOURCE DOCUMENTS END HERE
+═══════════════════════════════════════════════════════════════════════════
+
+🚨 VERIFICATION CHECKPOINT #2 - ANSWER THESE QUESTIONS:
+
+Question 1: What SPECIFIC topics, statistics, and examples were in the source documents?
+Answer: [List actual topics AND specific numbers/examples you saw - e.g., "25% to 50%", "Conversation Intelligence", etc.]
+
+Question 2: What are you allowed to include in your response?
+Answer: ONLY information from the source documents above. NOTHING from my general knowledge.
+
+Question 3: Can you create NEW examples (like "retail company with chatbot") not in the source?
+Answer: NO. I can ONLY use examples that were explicitly stated in the source documents.
+
+Question 4: What should you do if the source lacks information on a typical topic?
+Answer: State "not covered in source materials" - DO NOT add information from general knowledge.
+
+Question 5: Can you add statistics, costs, or numbers not in the source?
+Answer: NO. Absolutely not. Never. ONLY use exact numbers from the source.
+
+FINAL VERIFICATION CHECKLIST:
+□ I have read and understood the source documents above
+□ I will use ONLY content from those source documents
+□ I will NOT use any information from my general knowledge
+□ I will NOT add examples, facts, or cases not in the source
+□ I will state "not in source" if information is missing
+□ I am acting as a RESTRUCTURER, not a CREATOR
+
+IF ANY BOX IS UNCHECKED - YOU MUST STOP AND RE-READ THE INSTRUCTIONS
+
+═══════════════════════════════════════════════════════════════════════════
+🛑 FINAL COMMAND - READ THIS CAREFULLY 🛑
+═══════════════════════════════════════════════════════════════════════════
+
+BEFORE YOU START GENERATING, ANSWER THIS QUESTION:
+
+❓ What was the MAIN TOPIC of the source documents you just read above?
+
+If you read about "AI in Sales" → Your product must be about AI in Sales
+If you read about "Marketing Strategies" → Your product must be about Marketing Strategies
+If you read about "Leadership Skills" → Your product must be about Leadership Skills
+
+⚠️ YOUR PRODUCT TOPIC MUST MATCH THE SOURCE DOCUMENT TOPIC EXACTLY ⚠️
+
+DO NOT:
+❌ Generate about "Market Analysis" if source was about "AI in Sales"
+❌ Generate about "Five Forces" if source didn't mention it
+❌ Generate about "GlobalSensors" if source didn't mention it
+❌ Generate about ANY topic different from what you read above
+
+NOW GENERATE THE REQUESTED PRODUCT:
+→ Use ONLY the source content above
+→ Keep the SAME TOPIC as the source
+→ Use the EXACT statistics from the source
+→ DO NOT add information from your general knowledge
 """
     
     return enhanced_prompt
 
-async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = None):
+# ---- Token-budgeted, relevance-ranked assembler ----
+def _safe_encoding(model: str):
+    try:
+        return tiktoken.encoding_for_model(model)
+    except Exception:
+        return tiktoken.get_encoding("cl100k_base")
+
+def _count_tokens(text: str, enc) -> int:
+    try:
+        return len(enc.encode(text or ""))
+    except Exception:
+        return len((text or "").split())
+
+def _chunk_text(text: str, enc, target_tokens: int = 800, overlap_tokens: int = 120) -> List[str]:
+    if not text:
+        return []
+    tokens = enc.encode(text)
+    chunks = []
+    i = 0
+    n = len(tokens)
+    step = max(1, target_tokens - overlap_tokens)
+    while i < n:
+        window = tokens[i:i+target_tokens]
+        chunks.append(enc.decode(window))
+        i += step
+    return chunks
+
+def _simple_relevance(prompt: str, chunk: str) -> float:
+    # Keyword overlap + length prior (favor denser chunks)
+    p_words = set([w.lower() for w in re.findall(r"[A-Za-z0-9_]+", prompt or "") if len(w) > 2])
+    if not p_words:
+        return 0.0
+    c_words = [w.lower() for w in re.findall(r"[A-Za-z0-9_]+", chunk or "")]
+    if not c_words:
+        return 0.0
+    overlap = sum(1 for w in c_words if w in p_words)
+    density = overlap / max(1, len(c_words))
+    return overlap + 5.0 * density
+
+def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, Any], product_type: str, model: str) -> str:
+    enc = _safe_encoding(model)
+    # Global budget assumptions (approximate): keep room for system + output
+    total_budget = 100000
+    reserve_for_completion = 12000 if product_type in {"Course Outline", "Lesson Presentation", "Video Lesson Presentation"} else 8000
+    reserve_for_scaffold = 6000
+    available = max(10000, total_budget - reserve_for_completion - reserve_for_scaffold)
+    try:
+        logger.info(f"[ASSEMBLER] model={model} product_type={product_type}")
+        logger.info(f"[ASSEMBLER] budgets: total={total_budget} reserve_completion={reserve_for_completion} reserve_scaffold={reserve_for_scaffold} available={available}")
+    except Exception:
+        pass
+
+    # Gather candidate texts: file_contents + connector extracted_raw_content (if any)
+    candidates: List[Tuple[str, str]] = []  # (source_id, text)
+    for idx, c in enumerate(file_context.get("file_contents") or []):
+        if c:
+            candidates.append((f"file_{idx}", c))
+    # Add connector raw content if present
+    connector_raw = file_context.get("extracted_raw_content") or ""
+    if connector_raw:
+        candidates.append(("connectors", connector_raw))
+    try:
+        logger.info(f"[ASSEMBLER] candidates={len(candidates)} | files={len(file_context.get('file_contents') or [])} | has_connector_raw={bool(connector_raw)}")
+        for sid, txt in candidates[:10]:
+            logger.info(f"[ASSEMBLER] candidate[{sid}] chars={len(txt)}")
+    except Exception:
+        pass
+
+    if not candidates:
+        return ""
+
+    # Score sources by rough relevance (use first 2000 chars per source as proxy)
+    source_scores: List[Tuple[str, float]] = []
+    for sid, txt in candidates:
+        sample = txt[:2000]
+        score = _simple_relevance(original_prompt, sample)
+        source_scores.append((sid, score))
+    try:
+        logger.info("[ASSEMBLER] source scores:")
+        for sid, s in source_scores:
+            logger.info(f"[ASSEMBLER]  - {sid}: score={s:.3f}")
+    except Exception:
+        pass
+    # Normalize and allocate per-source budgets with floors/ceilings
+    total_score = sum(s for _, s in source_scores) or 1.0
+    min_per_source = 3000
+    max_per_source = max(min_per_source, available // 2)
+    allocations: Dict[str, int] = {}
+    remaining = available
+    # First pass proportional
+    for sid, s in source_scores:
+        share = int(available * (s / total_score)) if total_score > 0 else available // len(source_scores)
+        allocations[sid] = min(max(share, min_per_source), max_per_source)
+    # Adjust to sum to available
+    total_alloc = sum(allocations.values())
+    if total_alloc > available:
+        factor = available / total_alloc
+        for sid in allocations:
+            allocations[sid] = max(min_per_source, int(allocations[sid] * factor))
+    elif total_alloc < available:
+        # Distribute remainder
+        remainder = available - total_alloc
+        for sid, _ in sorted(source_scores, key=lambda x: -x[1]):
+            take = min(remainder, max_per_source - allocations[sid])
+            allocations[sid] += take
+            remainder -= take
+            if remainder <= 0:
+                break
+    try:
+        logger.info("[ASSEMBLER] allocations (tokens per source):")
+        for sid, tok in allocations.items():
+            logger.info(f"[ASSEMBLER]  - {sid}: tokens={tok}")
+    except Exception:
+        pass
+
+    # Build ranked chunks per source
+    assembled_parts: List[str] = []
+    for sid, full_text in candidates:
+        budget = allocations.get(sid, 0)
+        if budget <= 0:
+            continue
+        chunks = _chunk_text(full_text, enc, target_tokens=900, overlap_tokens=120)
+        try:
+            logger.info(f"[ASSEMBLER] {sid}: total_chunks={len(chunks)} budget_tokens={budget}")
+        except Exception:
+            pass
+        ranked = sorted(chunks, key=lambda ch: _simple_relevance(original_prompt, ch), reverse=True)
+        try:
+            preview = [(_simple_relevance(original_prompt, ch), len(ch)) for ch in ranked[:5]]
+            logger.info(f"[ASSEMBLER] {sid}: top5_chunk_scores={[round(p[0],3) for p in preview]} top5_chunk_sizes={[p[1] for p in preview]}")
+        except Exception:
+            pass
+        taken_tokens = 0
+        selected: List[str] = []
+        for ch in ranked:
+            ct = _count_tokens(ch, enc)
+            if taken_tokens + ct > budget:
+                # take a slice to fit
+                remaining_tokens = max(0, budget - taken_tokens)
+                if remaining_tokens <= 0:
+                    break
+                # approximate trim by characters
+                frac = remaining_tokens / max(1, ct)
+                approx_len = int(len(ch) * frac)
+                selected.append(ch[:approx_len])
+                taken_tokens = budget
+                break
+            selected.append(ch)
+            taken_tokens += ct
+            if taken_tokens >= budget:
+                break
+        try:
+            logger.info(f"[ASSEMBLER] {sid}: selected_chunks={len(selected)} used_tokens~={taken_tokens}")
+        except Exception:
+            pass
+        header = "[CONNECTORS]" if sid == "connectors" else f"[SOURCE {sid}]"
+        assembled_parts.append(header + "\n" + "\n\n".join(selected))
+
+    final_text = "\n\n".join(assembled_parts)
+    try:
+        logger.info(f"[ASSEMBLER] final_assembled_chars={len(final_text)} final_assembled_tokens~={_count_tokens(final_text, enc)}")
+    except Exception:
+        pass
+    return final_text
+
+# ---- Context merging utilities ----
+def merge_source_contexts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+    merged: Dict[str, Any] = {
+        "file_summaries": [],
+        "file_contents": [],
+        "folder_contexts": [],
+        "key_topics": [],
+        "metadata": {}
+    }
+    for ctx in (a or {}, b or {}):
+        if not isinstance(ctx, dict):
+            continue
+        merged["file_summaries"].extend(ctx.get("file_summaries") or [])
+        merged["file_contents"].extend(ctx.get("file_contents") or [])
+        merged["folder_contexts"].extend(ctx.get("folder_contexts") or [])
+        merged["key_topics"].extend(ctx.get("key_topics") or [])
+        # carry through connector raw content if present
+        if ctx.get("extracted_raw_content"):
+            # Represent connector raw as a synthetic source block
+            merged["file_contents"].append(ctx["extracted_raw_content"])
+    # Deduplicate topics
+    merged["key_topics"] = list(dict.fromkeys(merged["key_topics"]))
+    return merged
+
+async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini", wizard_payload: dict = None):
     """
     Stream response using OpenAI with enhanced context from Onyx file extraction.
+    
+    Args:
+        prompt: The wizard message containing WIZARD_REQUEST and JSON payload
+        file_context: File context extracted from Onyx
+        product_type: Type of product being generated
+        model: OpenAI model to use
+        wizard_payload: Optional wizard payload dict for loading product-specific instructions
     """
     try:
         # Build enhanced prompt with file context
@@ -13002,7 +14019,7 @@ async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any]
         logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
         
         # Use OpenAI with enhanced prompt
-        async for chunk_data in stream_openai_response(enhanced_prompt, model):
+        async for chunk_data in stream_openai_response(enhanced_prompt, model, wizard_payload=wizard_payload):
             yield chunk_data
             
     except Exception as e:
@@ -13320,6 +14337,23 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             **CRITICAL: Parse Component-Based Slides with templateId and props**
             You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
 
+            **MANDATORY: IMAGE PROMPTS FOR VISUAL TEMPLATES**
+            - ALL `big-image-left` slides MUST include `imagePrompt` property
+            - ALL `big-image-top` slides MUST include `imagePrompt` property  
+            - ALL `bullet-points` and `bullet-points-right` slides MUST include `imagePrompt` property
+            - ALL `two-column` slides MUST include `leftImagePrompt` and `rightImagePrompt` properties
+            - NEVER leave image prompt fields empty or undefined - this breaks automatic image generation
+
+            **🚨 CRITICAL: FIRST SLIDE MUST BE big-image-left WITH imagePrompt 🚨**
+            - The first slide of EVERY presentation MUST use templateId: "big-image-left"
+            - The first slide MUST include imagePrompt property with detailed scene description
+            - This is MANDATORY - no exceptions, no alternatives
+
+            **CRITICAL: big-image-left VALIDATION CHECKPOINT**
+            - BEFORE generating any `big-image-left` slide, verify you are including the `imagePrompt` property
+            - The `imagePrompt` must describe a realistic cinematic scene with specific people, settings, and objects
+            - If you forget to include `imagePrompt` for `big-image-left`, the slide will not display images
+
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
                 - Look for patterns like "**Course Name** : **Lesson Presentation** : **Title**" or similar
@@ -13353,11 +14387,25 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has 2-3 numerical metrics/statistics with clear values → use "big-numbers"
             - If slide has hierarchical content → use "pyramid"
+            - If slide is the FIRST slide with title + subtitle → use "big-image-left" (MUST include imagePrompt)
+            - **CRITICAL**: The first slide of EVERY presentation MUST use "big-image-left" template with imagePrompt
             - If slide has timeline content → use "timeline"
             - If slide has event dates → use "event-list"
             - If slide has 6 numbered ideas → use "six-ideas-list"
             - If slide has challenges vs solutions → use "challenges-solutions"
             - If slide has analytics metrics in bullet points → use "metrics-analytics"
+
+            **🚨 CRITICAL: big-image-top USAGE RESTRICTION 🚨**
+            - big-image-top template is ONLY allowed for the FIRST slide or LAST slide
+            - NEVER use big-image-top for middle slides (slides 2 through n-1)
+            - If you need a visual slide in the middle, use bullet-points, bullet-points-right, or two-column instead
+
+            **CRITICAL: VISUAL TEMPLATES REQUIRE IMAGE PROMPTS**
+            When using visual templates, you MUST include the required image prompt properties:
+            - `big-image-left`: MUST include `imagePrompt` property
+            - `big-image-top`: MUST include `imagePrompt` property
+            - `bullet-points` and `bullet-points-right`: MUST include `imagePrompt` property
+            - `two-column`: MUST include `leftImagePrompt` and `rightImagePrompt` properties
             - For standard content → use "content-slide"
             
             **CRITICAL TEMPLATE SELECTION RULES:**
@@ -14609,6 +15657,15 @@ Return ONLY the JSON object.
         derived_product_type = selected_design_template.microproduct_type
         derived_microproduct_type = selected_design_template.template_name
 
+        logger.info(f"🎬 [VIDEO_PRODUCT_DEBUG] Selected template details:")
+        logger.info(f"  - Template ID: {selected_design_template.id}")
+        logger.info(f"  - Template Name: {selected_design_template.template_name}")
+        logger.info(f"  - Microproduct Type: {selected_design_template.microproduct_type}")
+        logger.info(f"  - Component Name: {selected_design_template.component_name}")
+        logger.info(f"🎬 [VIDEO_PRODUCT_DEBUG] Derived types:")
+        logger.info(f"  - derived_product_type: {derived_product_type}")
+        logger.info(f"  - derived_microproduct_type: {derived_microproduct_type}")
+
         logger.info(f"Content prepared for DB storage (first 200 chars of JSON): {str(content_to_store_for_db)[:200]}")
 
         # Determine if this is a standalone product (default to True for general project creation)
@@ -15118,6 +16175,10 @@ async def get_project_instance_detail(
         logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Final image blocks for frontend: {json.dumps(image_blocks, indent=2)}")
     else:
         logger.info(f"📋 [BACKEND VIEW] Project {project_id} - No contentBlocks in parsed_details or parsed_details is None")
+    
+    # Log mainTitle for course outlines (Training Plans)
+    if component_name == COMPONENT_NAME_TRAINING_PLAN and parsed_details and isinstance(parsed_details, dict):
+        logger.info(f"📋 [BACKEND VIEW] Training Plan {project_id} mainTitle: '{parsed_details.get('mainTitle', 'NOT_FOUND')}'")
     
     web_link_path = None
     pdf_link_path = None
@@ -15630,6 +16691,43 @@ async def download_slide_deck_pdf(
         # Validate slides structure
         if not isinstance(slide_deck_data['slides'], list):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid slides structure.")
+
+        # Post-process challenges-solutions slides to enforce 3-item limit
+        for slide in slide_deck_data['slides']:
+            if slide.get('templateId') == 'challenges-solutions':
+                props = slide.get('props', {})
+                challenges = props.get('challenges', [])
+                solutions = props.get('solutions', [])
+                
+                # Enforce 3-item limit for challenges
+                if len(challenges) > 3:
+                    logger.info(f"Truncating challenges from {len(challenges)} to 3 items")
+                    props['challenges'] = challenges[-3:]  # Keep only last 3
+                
+                # Enforce 3-item limit for solutions
+                if len(solutions) > 3:
+                    logger.info(f"Truncating solutions from {len(solutions)} to 3 items")
+                    props['solutions'] = solutions[-3:]  # Keep only last 3
+
+        # Post-process big-image-top slides to enforce first/last slide restriction
+        total_slides = len(slide_deck_data['slides'])
+        for i, slide in enumerate(slide_deck_data['slides']):
+            if slide.get('templateId') == 'big-image-top':
+                slide_number = i + 1
+                # Check if it's not the first slide (1) or last slide
+                if slide_number != 1 and slide_number != total_slides:
+                    logger.info(f"Replacing big-image-top in middle slide {slide_number} with bullet-points")
+                    # Replace with bullet-points template
+                    slide['templateId'] = 'bullet-points'
+                    # Add basic props if missing
+                    if 'props' not in slide:
+                        slide['props'] = {}
+                    if 'title' not in slide['props']:
+                        slide['props']['title'] = slide.get('slideTitle', 'Key Points')
+                    if 'bullets' not in slide['props']:
+                        slide['props']['bullets'] = ['Key point 1', 'Key point 2', 'Key point 3']
+                    if 'imagePrompt' not in slide['props']:
+                        slide['props']['imagePrompt'] = "Realistic cinematic scene of a focused professional working at a modern desk with relevant materials. Natural office lighting illuminates the workspace. Professional attire and workspace accessories are [COLOR1], materials and environment are [COLOR2], office setting is [COLOR3]. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
 
         logger.info(f"Slide Deck PDF Gen (Project {project_id}): Generating PDF with {len(slide_deck_data['slides'])} slides, theme: {theme}")
 
@@ -17129,8 +18227,9 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
     actual_paths = []
     
     for item in smartdrive_paths:
-        # Check if this is a numeric string (direct Onyx file ID from products-as-context)
-        if item.strip().isdigit():
+        token = item.strip()
+        # Treat as direct Onyx ID only if token is strictly digits and not a path-like value
+        if token.isdigit() and not any(ch in token for ch in ['/', '%', '+', '.', '-']):
             direct_onyx_ids.append(int(item.strip()))
             logger.info(f"[SMARTDRIVE_MAPPING] Detected direct Onyx file ID: {item}")
         else:
@@ -17786,7 +18885,19 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     else:
                         # For connector-based filtering only, extract context from specific connectors
                         logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
+                            if file_ids:
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -18054,7 +19165,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
             
             try:
                 logger.info(f"[OPENAI_STREAM_DEBUG] Starting to iterate over chunks")
-                async for chunk_data in stream_openai_response(enhanced_wizard_message):
+                async for chunk_data in stream_openai_response(enhanced_wizard_message, wizard_payload=wiz_payload):
                     logger.info(f"[OPENAI_STREAM_DEBUG] Received chunk: {chunk_data.get('type', 'unknown')}")
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
@@ -18758,6 +19869,185 @@ async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, r
     return {"jobId": job_id}
 
 
+@app.post("/api/custom/commercial-proposal/generate")
+async def generate_commercial_proposal(payload: CommercialProposalCreateRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Generate a commercial proposal by copying an existing AI audit project.
+    """
+    try:
+        logger.info(f"🚀 [COMMERCIAL PROPOSAL] Starting commercial proposal generation for project ID: {payload.project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the source AI audit project with all necessary fields
+        query = """
+        SELECT microproduct_content, microproduct_name, created_at, product_type, microproduct_type, 
+               design_template_id, source_chat_session_id, folder_id
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            source_row = await conn.fetchrow(query, payload.project_id, onyx_user_id)
+            
+        if not source_row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL] Source project {payload.project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Source AI audit project not found")
+        
+        source_content = source_row["microproduct_content"]
+        source_name = source_row["microproduct_name"]
+        source_created_at = source_row["created_at"]
+        source_product_type = source_row["product_type"]
+        source_microproduct_type = source_row["microproduct_type"]
+        source_design_template_id = source_row["design_template_id"]
+        source_chat_session_id = source_row["source_chat_session_id"]
+        source_folder_id = source_row["folder_id"]
+        
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] Source project data retrieved:")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Name: {source_name}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Product Type: {source_product_type}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Microproduct Type: {source_microproduct_type}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Content keys: {list(source_content.keys()) if source_content else 'None'}")
+        
+        # Create commercial proposal content based on AI audit data
+        commercial_proposal_content = {
+            "projectId": payload.project_id,
+            "projectName": f"{source_name} - Commercial Proposal",
+            "companyName": source_content.get("companyName", None),
+            "companyDescription": source_content.get("companyDescription", None),
+            "courseOutlineModules": source_content.get("courseOutlineModules", []),
+            "courseTemplates": source_content.get("courseTemplates", []),
+            "serviceTemplatesDescription": "",
+            "language": payload.language,
+            "courseOutlineTableHeaders": source_content.get("courseOutlineTableHeaders", None)
+        }
+        
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] Created commercial proposal content:")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Project Name: {commercial_proposal_content['projectName']}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Company Name: {commercial_proposal_content['companyName']}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Course Templates: {len(commercial_proposal_content['courseTemplates'])}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Language: {commercial_proposal_content['language']}")
+        
+        # Insert new commercial proposal project with proper product type and template
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)
+        RETURNING id
+        """
+        
+        # Use the same template as the source project or get a text presentation template
+        template_id = source_design_template_id
+        if not template_id:
+            template_id = await _ensure_text_presentation_template(pool)
+        
+        async with pool.acquire() as conn:
+            new_project_id = await conn.fetchval(
+                insert_query, 
+                onyx_user_id,
+                commercial_proposal_content["projectName"],  # project_name
+                "Commercial Proposal",  # product_type - changed from AI Audit
+                "Commercial Proposal",  # microproduct_type - changed from AI Audit
+                commercial_proposal_content["projectName"],  # microproduct_name
+                commercial_proposal_content,  # microproduct_content
+                template_id,  # design_template_id
+                source_chat_session_id,  # source_chat_session_id
+                source_folder_id  # folder_id - keep same folder as source
+            )
+        
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] Successfully created commercial proposal project with ID: {new_project_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Product Type: Commercial Proposal")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Microproduct Type: Commercial Proposal")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Template ID: {template_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Folder ID: {source_folder_id}")
+        
+        return {
+            "success": True,
+            "projectId": new_project_id,
+            "message": "Commercial proposal generated successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL] Error generating commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.get("/api/custom/commercial-proposal/{project_id}")
+async def get_commercial_proposal_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Get the commercial proposal data for a specific project.
+    """
+    try:
+        logger.info(f"📥 [COMMERCIAL PROPOSAL DATA] Request for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the project data
+        query = """
+        SELECT microproduct_content, microproduct_name 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
+            
+        if not row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL DATA] Project {project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        content = row["microproduct_content"]
+        project_name = row["microproduct_name"]
+        
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] Retrieved project data: {content}")
+
+        # 🎯 CRITICAL INSTRUMENTATION: Check assessment data in database
+        if content and isinstance(content, dict) and 'courseOutlineModules' in content:
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Project {project_id} - courseOutlineModules EXISTS in database!")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Number of modules: {len(content['courseOutlineModules'])}")
+            for idx, module in enumerate(content.get('courseOutlineModules', [])):
+                if isinstance(module, dict):
+                    has_assessments = 'lessonAssessments' in module
+                    logger.info(f"🎯 [ASSESSMENT DB READ] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                    logger.info(f"🎯 [ASSESSMENT DB READ] - Has lessonAssessments: {has_assessments}")
+                    if has_assessments:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                    else:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - ❌ NO lessonAssessments in database for module {idx}")
+            logger.info(f"🎯 [ASSESSMENT DB READ] This data WILL BE sent to frontend")
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+        
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Project name: '{project_name}'")
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Content keys: {list(content.keys()) if content else 'None'}")
+        
+        # Build response data by merging all microproduct_content fields
+        response_data = {
+            "projectId": project_id,
+            "projectName": project_name,
+            # Include all fields from microproduct_content
+            **content
+        }
+        
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] Final response data:")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project ID: {response_data['projectId']}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project Name: '{response_data['projectName']}'")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Total fields included: {len(response_data)}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - All content fields: {list(content.keys()) if content else 'None'}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL DATA] Error getting commercial proposal data: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 @app.get("/api/custom/ai-audit/landing-page/{project_id}")
 async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """
@@ -19124,6 +20414,435 @@ async def get_public_audit(
         raise
     except Exception as e:
         logger.error(f"Error getting public audit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
+
+
+# Course outline sharing models
+class ShareCourseOutlineRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareCourseOutlineResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/course-outlines/{course_id}/share")
+async def share_course_outline(
+    course_id: int, 
+    request_data: ShareCourseOutlineRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareCourseOutlineResponse:
+    """
+    Generate a share token for a course outline project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"🔍 [COURSE SHARING] User {onyx_user_id} attempting to share course {course_id}")
+        
+        # Verify the course outline belongs to the user
+        query = """
+        SELECT id, project_name, microproduct_content, onyx_user_id, microproduct_type
+        FROM projects 
+        WHERE id = $1
+        """
+        
+        async with pool.acquire() as conn:
+            course = await conn.fetchrow(query, course_id)
+            
+        if not course:
+            logger.error(f"❌ [COURSE SHARING] Course {course_id} not found")
+            raise HTTPException(status_code=404, detail="Course outline not found")
+        
+        # Check if the user owns this course
+        if str(course["onyx_user_id"]) != str(onyx_user_id):
+            logger.error(f"❌ [COURSE SHARING] User {onyx_user_id} does not own course {course_id} (owner: {course['onyx_user_id']})")
+            raise HTTPException(status_code=403, detail="You do not have permission to share this course outline")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, course_id)
+        
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/course/{share_token}"
+        
+        logger.info(f"🔗 [COURSE SHARING] Created share token for course {course_id}: {share_token}")
+        
+        return ShareCourseOutlineResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing course outline: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share course outline")
+
+@app.get("/api/custom/public/course-outlines/{share_token}")
+async def get_public_course_outline(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get course outline data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public course outline by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public, onyx_user_id
+        FROM projects 
+        WHERE share_token = $1
+        """
+        
+        async with pool.acquire() as conn:
+            course = await conn.fetchrow(query, share_token)
+            
+        if not course:
+            logger.error(f"❌ [COURSE SHARING] No course found for share_token: {share_token}")
+            raise HTTPException(status_code=404, detail="Shared course outline not found")
+        
+        # Check if the share has expired
+        if course["expires_at"] and course["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared course outline link has expired")
+        
+        content = course["microproduct_content"]
+        project_name = course["project_name"]
+        course_owner_id = course["onyx_user_id"]
+        
+        # Parse the course outline structure
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.error(f"Failed to parse course outline content JSON: {e}")
+                content = {}
+        
+        # Fetch all user's projects to find attached products
+        all_projects_query = """
+        SELECT p.id, p.project_name, dt.microproduct_type, dt.component_name 
+        FROM projects p 
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+        WHERE p.onyx_user_id = $1 
+        ORDER BY p.created_at
+        """
+        
+        async with pool.acquire() as conn:
+            all_projects = await conn.fetch(all_projects_query, course_owner_id)
+        
+        # Convert to list of dicts for easier processing
+        all_projects_list = [dict(project) for project in all_projects]
+        
+        # Extract course outline structure
+        sections = content.get("sections", [])
+        main_title = content.get("mainTitle", project_name)
+        detected_language = content.get("detectedLanguage", "en")
+        
+        # For each lesson, find attached products using the same naming pattern logic as the frontend
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            lessons = section.get("lessons", [])
+            for lesson in lessons:
+                if not isinstance(lesson, dict):
+                    continue
+                lesson_title = lesson.get("title", "")
+                
+                # Expected project name pattern: "Outline Name: Lesson Title"
+                expected_project_name = f"{main_title}: {lesson_title}"
+                
+                # Also check legacy patterns for backward compatibility
+                legacy_quiz_pattern = f"Quiz - {main_title}: {lesson_title}"
+                legacy_text_presentation_pattern = f"Text Presentation - {main_title}: {lesson_title}"
+                
+                attached_products = []
+                
+                # Find matching projects
+                for project in all_projects_list:
+                    project_name_to_check = project.get("project_name", "").strip()
+                    
+                    # Check if this project matches the lesson
+                    if (project_name_to_check == expected_project_name or 
+                        project_name_to_check == legacy_quiz_pattern or 
+                        project_name_to_check == legacy_text_presentation_pattern):
+                        
+                        attached_products.append({
+                            "id": project.get("id"),
+                            "name": project.get("project_name"),
+                            "type": project.get("microproduct_type"),
+                            "component_name": project.get("component_name")
+                        })
+                
+                # Add product information to lesson
+                lesson["attached_products"] = attached_products
+        
+        # Return the course outline data for public viewing
+        response_data = {
+            "projectId": course["id"],
+            "projectName": project_name,
+            "mainTitle": main_title,
+            "sections": sections,
+            "language": detected_language,
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": course["shared_at"].isoformat() if course["shared_at"] else None,
+            "expiresAt": course["expires_at"].isoformat() if course["expires_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC COURSE ACCESS] Served public course outline with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public course outline: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared course outline")
+
+@app.get("/api/custom/public/products/{product_id}")
+async def get_public_product(
+    product_id: int,
+    share_token: Optional[str] = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get product data for public access when part of a shared course outline.
+    This endpoint allows accessing products via a share token, bypassing normal authentication.
+    """
+    try:
+        if not share_token:
+            raise HTTPException(status_code=400, detail="Share token is required for public product access")
+        
+        # Verify the share token is valid and the product belongs to the course owner
+        verify_query = """
+        SELECT p.id, p.onyx_user_id, p.microproduct_content, p.project_name, dt.microproduct_type, dt.component_name
+        FROM projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.id = $1 AND EXISTS (
+            SELECT 1 FROM projects course 
+            WHERE course.share_token = $2 
+            AND course.onyx_user_id = p.onyx_user_id
+            AND (course.expires_at IS NULL OR course.expires_at > NOW())
+        )
+        """
+        
+        async with pool.acquire() as conn:
+            product = await conn.fetchrow(verify_query, product_id, share_token)
+        
+        if not product:
+            logger.error(f"❌ [PUBLIC PRODUCT ACCESS] Product {product_id} not found or not accessible with share_token: {share_token}")
+            raise HTTPException(status_code=404, detail="Product not found or not accessible via this share link")
+        
+        # Parse product content
+        content = product["microproduct_content"]
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.error(f"Failed to parse product content JSON: {e}")
+                content = {}
+        
+        # Return product data in read-only format
+        response_data = {
+            "id": product["id"],
+            "name": product["project_name"],
+            "type": product["microproduct_type"],
+            "component_name": product["component_name"],
+            "content": content,
+            "isPublicView": True
+        }
+        
+        logger.info(f"🌐 [PUBLIC PRODUCT ACCESS] Served public product {product_id} with share token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public product: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve product")
+
+
+# Commercial proposal sharing models
+class ShareCommercialProposalRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareCommercialProposalResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/commercial-proposal/{commercial_proposal_id}/share")
+async def share_commercial_proposal(
+    commercial_proposal_id: int, 
+    request_data: ShareCommercialProposalRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareCommercialProposalResponse:
+    """
+    Generate a share token for a commercial proposal project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Verify the commercial proposal belongs to the user and is a commercial proposal project
+        query = """
+        SELECT id, project_name, microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2 
+        AND (project_name LIKE '%Commercial Proposal')
+        """
+        
+        async with pool.acquire() as conn:
+            commercial_proposal = await conn.fetchrow(query, commercial_proposal_id, onyx_user_id)
+            
+        if not commercial_proposal:
+            raise HTTPException(status_code=404, detail="Commercial proposal not found or access denied")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, commercial_proposal_id)
+        
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/commercial-proposal/{share_token}"
+        
+        logger.info(f"🔗 [COMMERCIAL PROPOSAL SHARING] Created share token for commercial proposal {commercial_proposal_id}: {share_token}")
+        
+        return ShareCommercialProposalResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share commercial proposal")
+
+@app.get("/api/custom/public/commercial-proposal/{share_token}")
+async def get_public_commercial_proposal(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get commercial proposal data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public commercial proposal by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public
+        FROM projects 
+        WHERE share_token = $1 AND is_public = TRUE
+        """
+        
+        async with pool.acquire() as conn:
+            commercial_proposal = await conn.fetchrow(query, share_token)
+            
+        if not commercial_proposal:
+            raise HTTPException(status_code=404, detail="Shared commercial proposal not found")
+        
+        # Check if the share has expired
+        if commercial_proposal["expires_at"] and commercial_proposal["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared commercial proposal link has expired")
+        
+        content = commercial_proposal["microproduct_content"]
+        project_name = commercial_proposal["project_name"]
+        
+        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        logger.info(f"🎯 [PUBLIC COMMERCIAL PROPOSAL TABLE HEADERS] Project {commercial_proposal['id']} - content: {content}")
+        
+        # Return the same structure as the private endpoint but without sensitive info
+        response_data = {
+            "projectId": commercial_proposal["id"],
+            "projectName": project_name,
+            **content,
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": commercial_proposal["shared_at"].isoformat() if commercial_proposal["shared_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC COMMERCIAL PROPOSAL ACCESS] Served public commercial proposal with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public commercial proposal: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
 
 
@@ -22418,7 +24137,7 @@ async def generate_and_finalize_course_outline_for_position(
     prompt = json.dumps(wizard_request, ensure_ascii=False)
 
     outline_text = ""
-    async for chunk_data in stream_openai_response(prompt):
+    async for chunk_data in stream_openai_response(prompt, wizard_payload={"product": "Course Outline"}):
         if chunk_data.get("type") == "delta":
             outline_text += chunk_data["text"]
         elif chunk_data.get("type") == "error":
@@ -22982,7 +24701,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             try:
                 # Use OpenAI streaming for finalization instead of Onyx
                 logger.info(f"[FINALIZE_OPENAI_STREAM] ✅ USING OPENAI DIRECT STREAMING for finalization")
-                async for chunk_data in stream_openai_response(wizard_message):
+                async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -23447,6 +25166,43 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
 
 
+# Ensure a design template for Video Product exists, return its ID
+async def _ensure_video_product_template(pool: asyncpg.Pool) -> int:
+    """Ensure a design template for Video Product exists, return its ID"""
+    try:
+        async with pool.acquire() as conn:
+            # Check if template already exists
+            template_result = await conn.fetchval(
+                "SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", 
+                COMPONENT_NAME_VIDEO_PRODUCT
+            )
+            
+            if template_result:
+                return template_result
+            
+            # Create video product template if it doesn't exist
+            insert_query = """
+                INSERT INTO design_templates 
+                (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id
+            """
+            template_id = await conn.fetchval(
+                insert_query,
+                "Generated Video Product",
+                "Display a rendered video product generated from presentation slides.",
+                "Video Product",
+                COMPONENT_NAME_VIDEO_PRODUCT,
+                "/video-product.png"
+            )
+            logger.info(f"✅ Created Video Product template with ID: {template_id}")
+            return template_id
+            
+    except Exception as e:
+        logger.error(f"Error ensuring video product template: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure video product template")
+
+
 # -------- Course Context Helper Functions ---------
 
 async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool: asyncpg.Pool) -> Optional[Dict[str, Any]]:
@@ -23458,6 +25214,8 @@ async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool:
     - modules: List of modules with their lessons
     - detectedLanguage: Language of the course
     """
+    import json
+    
     try:
         logger.info(f"[COURSE_CONTEXT] Fetching outline structure | outline_id={outline_id}")
         
@@ -23476,7 +25234,6 @@ async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool:
         
         # Parse the outline content
         if isinstance(content, str):
-            import json
             content = json.loads(content)
         
         if not isinstance(content, dict):
@@ -23668,17 +25425,20 @@ async def _fetch_lesson_product_content(
     3. Onepager (rich narrative content)
     4. Quiz (question-focused, less preferred for context)
     """
+    import json
+    
     try:
         # Query all products for this lesson
         async with pool.acquire() as conn:
             products = await conn.fetch(
                 """
-                SELECT microproduct_content, microproduct_type, component_name
-                FROM projects
-                WHERE course_id = $1
-                  AND onyx_user_id = $2
-                  AND LOWER(project_name) LIKE '%' || $3 || '%'
-                ORDER BY created_at DESC
+                SELECT p.microproduct_content, p.microproduct_type, dt.component_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.course_id = $1
+                  AND p.onyx_user_id = $2
+                  AND LOWER(p.project_name) LIKE '%' || $3 || '%'
+                ORDER BY p.created_at DESC
                 """,
                 outline_id, onyx_user_id, lesson_title.lower()
             )
@@ -23752,7 +25512,6 @@ async def _fetch_lesson_product_content(
         
         # Parse and extract content
         if isinstance(selected_content, str):
-            import json
             selected_content = json.loads(selected_content)
         
         content_str = json.dumps(selected_content, ensure_ascii=False)
@@ -23771,6 +25530,102 @@ async def _fetch_lesson_product_content(
     except Exception as e:
         logger.error(f"[COURSE_CONTEXT] Error fetching lesson product | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
         return None
+
+
+async def get_same_lesson_products(
+    outline_id: int,
+    lesson_title: str,
+    exclude_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool
+) -> List[Dict[str, Any]]:
+    """
+    Fetch all generated products for the same lesson to provide as context.
+    Useful for quiz generation - can quiz on content from presentation/onepager.
+    
+    Args:
+        outline_id: The course outline ID
+        lesson_title: Title of the current lesson
+        exclude_product_type: Product type being generated (to avoid fetching incomplete product)
+        onyx_user_id: User ID
+        pool: Database connection pool
+    
+    Returns:
+        List of products with their content: [{title, productType, content, contentSize}]
+    """
+    import json
+    
+    try:
+        logger.info(f"[SAME_LESSON_PRODUCTS] Fetching products for lesson | lesson=\"{lesson_title}\" | exclude_type={exclude_product_type}")
+        
+        # Query all products for this lesson
+        async with pool.acquire() as conn:
+            products = await conn.fetch(
+                """
+                SELECT p.microproduct_content, p.microproduct_type, dt.component_name, p.project_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.course_id = $1
+                  AND p.onyx_user_id = $2
+                  AND LOWER(p.project_name) LIKE '%' || $3 || '%'
+                  AND p.microproduct_content IS NOT NULL
+                ORDER BY p.created_at DESC
+                """,
+                outline_id, onyx_user_id, lesson_title.lower()
+            )
+        
+        if not products:
+            logger.info(f"[SAME_LESSON_PRODUCTS] No products found for lesson | title=\"{lesson_title}\"")
+            return []
+        
+        # Classify and collect products
+        result = []
+        exclude_normalized = exclude_product_type.lower()
+        
+        for product in products:
+            content = product['microproduct_content']
+            microproduct_type = (product['microproduct_type'] or '').lower()
+            component_name = (product['component_name'] or '').lower()
+            project_name = product['project_name']
+            
+            # Classify product type
+            product_type = None
+            if any(keyword in microproduct_type or keyword in component_name 
+                   for keyword in ['presentation', 'slide', 'video_lesson']):
+                product_type = 'presentation'
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['onepager', 'text_presentation', 'pdflesson']):
+                product_type = 'onepager'
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['quiz']):
+                product_type = 'quiz'
+            
+            # Skip if this is the type being generated or if we can't classify it
+            if not product_type or product_type in exclude_normalized:
+                continue
+            
+            # Parse content if string
+            if isinstance(content, str):
+                content = json.loads(content)
+            
+            content_str = json.dumps(content, ensure_ascii=False)
+            content_size = len(content_str)
+            
+            result.append({
+                'projectName': project_name,
+                'productType': product_type,
+                'content': content,
+                'contentSize': content_size
+            })
+            
+            logger.info(f"[SAME_LESSON_PRODUCTS] Found {product_type} | name=\"{project_name}\" | size={content_size} chars")
+        
+        logger.info(f"[SAME_LESSON_PRODUCTS] Total products found: {len(result)} (excluding {exclude_product_type})")
+        return result
+        
+    except Exception as e:
+        logger.error(f"[SAME_LESSON_PRODUCTS] Error fetching products | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
+        return []
 
 
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
@@ -23841,6 +25696,8 @@ class LessonWizardFinalize(BaseModel):
 
 @app.post("/api/custom/lesson-presentation/preview")
 async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    import json
+    
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -23890,6 +25747,8 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 if course_structure:
                     wizard_dict["courseStructure"] = course_structure
                     logger.info(f"[COURSE_CONTEXT] Course structure added to wizard request")
+                    # Log full course structure
+                    logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
                 
                 # Get adjacent lesson content with product type priority
                 product_type = "presentation"  # This is a presentation/slide deck
@@ -23911,17 +25770,21 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     if 'previousLesson' in adjacent_context:
                         wizard_dict["previousLesson"] = adjacent_context['previousLesson']
                         prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
-                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                        prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                        # Log full previous lesson content
+                        logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
                     
-                    # Add next lesson context (without full content, just structure)
+                    # Add next lesson title to avoid covering topics meant for next lesson
                     if 'nextLesson' in adjacent_context:
                         next_lesson = adjacent_context['nextLesson']
-                        # Include only title and position, not full content
+                        # Include title and position to help AI understand what topics to avoid
                         wizard_dict["nextLesson"] = {
                             'title': next_lesson.get('title'),
                             'position': next_lesson.get('position')
                         }
-                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                        logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wizard_dict['nextLesson'], ensure_ascii=False, indent=2)}")
                     
                     context_summary = []
                     if 'courseStructure' in wizard_dict:
@@ -24029,6 +25892,7 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Continue with original text if decompression fails
     
     # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
     course_context_instructions = ""
     if 'courseStructure' in wizard_dict or 'previousLesson' in wizard_dict:
         course_context_instructions = """
@@ -24038,9 +25902,14 @@ You have been provided with course context information. You MUST use this contex
 1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, explanations, or scenarios already covered
 2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "As we learned in the previous lesson...")
 3. **Adjust Complexity**: Use lessonPosition to gauge depth - early lessons need more fundamentals, later lessons can assume knowledge
-4. **Maintain Consistency**: Use the same terminology as previous lessons
-5. **Create Progression**: Prepare groundwork for nextLesson topics when provided
-6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons"""
+4. **Maintain Terminology**: Use the same key terms as previous lessons - extract core terminology from previousLesson and maintain it
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
+6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT cover advanced configuration in the current lesson
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
+- Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
     wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
@@ -24082,6 +25951,29 @@ You have been provided with course context information. You MUST use this contex
         if not is_video_lesson:
             json_preview_instructions += f"""
 
+⚠️⚠️⚠️ CRITICAL VIOLATIONS TO AVOID (READ THIS FIRST) ⚠️⚠️⚠️
+
+VIOLATION #1 - NEVER INVENT STATISTICS OR NUMBERS (INSTANT REJECTION IF VIOLATED):
+❌ ABSOLUTELY FORBIDDEN: Any percentages or metrics you make up: "100%", "75%", "50%", "30%", "95%", "85%", "3x", "2.5x"
+❌ FORBIDDEN in big-numbers: {{"value": "85%"}} or {{"value": "100%"}} or {{"value": "50%"}} → ALL PERCENTAGES ARE FORBIDDEN
+❌ FORBIDDEN everywhere: Invented statistics, fake success rates, made-up adoption numbers, fabricated metrics
+✅ REQUIRED for big-numbers: {{"value": "Strong"}}, {{"value": "High"}}, {{"value": "Growing"}}, {{"value": "Active"}}
+✅ REQUIRED: Use ONLY qualitative words: Strong, High, Regular, Growing, Active, Consistent, Steady, Frequent, Common
+
+VIOLATION #2 - NEVER USE GENERIC LABELS (INSTANT REJECTION IF VIOLATED):
+❌ ABSOLUTELY FORBIDDEN: "Company A", "Company B", "Approach A", "Approach B", "Option A/B", "Method X/Y"
+❌ FORBIDDEN: "Product 1/2", "Tool A/B", "System X", "Solution A", "Platform Y", ANY generic letter/number labels
+✅ REQUIRED: Use specific descriptive names: "Big Bang Migration vs Phased Rollout", "Cloud vs On-Premise"
+✅ REQUIRED: Make comparisons concrete and topic-specific, never use placeholder labels
+
+VIOLATION #3 - NEVER COPY EXAMPLE TOPICS (INSTANT REJECTION IF VIOLATED):
+❌ ABSOLUTELY FORBIDDEN: Slides about budget, conflict resolution, team motivation when teaching technical topics
+❌ FORBIDDEN: Reusing project management examples when teaching NextCloud, Python, Marketing, etc.
+✅ REQUIRED: Create 100% unique slides specifically for the ACTUAL lesson topic
+✅ THINK: "What does someone need to learn to DO [this specific topic]?" Create THOSE slides only
+
+═══════════════════════════════════════════════════════════════════════════════
+
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
 {json_example}
@@ -24095,8 +25987,8 @@ MANDATORY PREVIEW UI REQUIREMENT:
 - Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
-- **CRITICAL ENFORCEMENT**: Before finalizing your JSON output, you MUST count the slides in the slides[] array. If the count does not match the requested slidesCount parameter, you MUST add or remove slides until the count is EXACTLY correct. This validation is mandatory and your response will be rejected if the count is wrong.
+- **MANDATORY SLIDE COUNT (GENERAL CASE)**: You SHOULD generate EXACTLY the requested number of slides. Count your slides before finishing to ensure you meet the target.
+- **OVERRIDE WHEN fromFiles=true**: SOURCE FIDELITY comes first. If any slide cannot be populated with source-backed content, DO NOT create that slide. It is acceptable to output fewer slides than requested. NEVER output placeholders like "No content", "N/A", or empty/whitespace-only bullets just to meet the count. Remove such slides and RENUMBER the remaining slides.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -24105,13 +25997,76 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
-CONTENT DENSITY AND LEARNING REQUIREMENTS:
-- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
-- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
-- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
-- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
-- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+🎯 EDUCATIONAL PRESENTATION REQUIREMENTS (CRITICAL - NOT PRODUCT MARKETING):
+
+Your presentation must TEACH skills, not describe features. Follow these mandatory principles:
+
+**1. FOCUS ON "HOW TO DO" NOT "WHAT EXISTS":**
+- ❌ BAD: "File Sharing Features" with bullet list of feature names
+- ✅ GOOD: "How to Set Up Secure File Sharing in 4 Steps" with detailed step-by-step process
+- ❌ BAD: "Project Management Tools Overview" 
+- ✅ GOOD: "How to Track Your Project Progress Using These Specific Tools"
+- Every slide title should answer "How do I..." or "What will I be able to do..."
+
+**2. PROVIDE COMPREHENSIVE EXPLANATIONS (60-100 WORDS):**
+- Each bullet point, process step, or content block must be 60-100 words
+- Include: WHAT it is, WHY it matters, HOW to apply it, WHEN to use it, concrete EXAMPLES
+- ❌ BAD: "Use Gantt charts for scheduling" (7 words)
+- ✅ GOOD: "Use Gantt charts to visualize your project timeline by creating bars for each task showing start date, duration, and dependencies. This helps you identify scheduling conflicts early - for example, if Task B requires completion of Task A, the chart shows this dependency visually. Update your Gantt chart weekly to track actual progress against plan. Free tools like Excel or ProjectLibre work well for projects under 50 tasks." (70 words)
+
+**3. INCLUDE REAL WORKPLACE SCENARIOS:**
+- Every concept must be paired with concrete application example
+- Use realistic scenarios: "When managing a database migration project..." or "If your team member reports a blocker..."
+- Provide specific contexts, not abstract theory
+- Show before/after, common mistakes, troubleshooting steps
+
+**4. BUILD PRACTICAL SKILLS PROGRESSIVELY:**
+- Slide 1-2: What will learners be able to DO after this lesson (action verbs)
+- Slides 3-8: Core concepts with HOW-TO guidance
+- Slides 9-15: Advanced techniques and troubleshooting
+- Slides 16-20: Application exercises, decision frameworks, next steps
+- Each slide builds on previous slides - reference earlier concepts
+
+**5. AVOID FEATURE-LIST PRESENTATIONS:**
+- Do NOT create slides that just list features, capabilities, or components
+- Do NOT create "Overview of X" slides without actionable guidance  
+- Do NOT use business/marketing language like "benefits", "value proposition", "key advantages"
+- This is EDUCATION not SALES - teach practical skills
+
+**6. USE APPROPRIATE TEMPLATES FOR EDUCATION:**
+- process-steps: for sequential how-to guidance
+- challenges-solutions: for common problems and how to solve them
+- two-column: for comparison or before/after scenarios
+- bullet-points-right: for detailed explanations with examples
+- comparison-slide/table: for decision frameworks (when to use option A vs option B)
+- Avoid using metrics-analytics, market-share, pie-chart unless teaching data analysis skills
+
+**7. NEVER INVENT STATISTICS OR PERCENTAGES (CRITICAL - MOST COMMON VIOLATION):**
+- ❌ ABSOLUTELY FORBIDDEN: "100%", "75%", "50%", "95% success rate", "3x improvement", "2.5x faster"
+- ❌ FORBIDDEN: Any specific numbers, percentages, or metrics you did not receive in the source materials
+- ❌ FORBIDDEN: "User Role Management: 100%, 75%, 50%" or similar fake data visualizations
+- ✅ REQUIRED for big-numbers slides: Use qualitative descriptors ONLY
+  - Examples: "High", "Strong", "Regular", "Growing", "Consistent", "Active", "Steady", "Improving"
+  - Examples: "Frequent", "Occasional", "Rare", "Common", "Widespread", "Limited", "Emerging"
+- ✅ REQUIRED: Use descriptive language instead of invented numbers
+  - Instead of "95% of teams" → "Most teams" or "The majority of teams"
+  - Instead of "3x productivity increase" → "Substantial productivity improvement" or "Significant gains"
+  - Instead of "50% reduction" → "Considerable reduction" or "Significant decrease"
+- ✅ For big-numbers template: The "value" field MUST contain qualitative words (High, Strong, etc), NEVER percentages or numbers
+- This is a MANDATORY requirement - violating this makes the content factually inaccurate and untrustworthy
+
+**8. CREATE UNIQUE CONTENT FOR EACH TOPIC (DO NOT COPY THE EXAMPLE):**
+- The JSON example shows "Project Management Fundamentals" - this is ONLY an example of structure and depth
+- ❌ DO NOT copy slide topics from the example (budget management, conflict resolution, change requests, etc.)
+- ❌ DO NOT reuse the example's specific scenarios or frameworks verbatim
+- ✅ CREATE completely new content relevant to the actual lesson topic
+- ✅ ADAPT the depth and structure approach to your specific topic
+- ✅ GENERATE unique scenarios, examples, and frameworks appropriate for your subject
+- Example: If teaching "NextCloud Customization", do NOT include slides about project budgets or team conflicts
+- Example: If teaching "Digital Marketing", create marketing-specific scenarios, not generic project management examples
+- Think: "What does someone need to learn to DO this specific topic?" then create slides teaching those skills
+
+NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
@@ -24120,11 +26075,22 @@ General Rules:
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content. Do not end with title slides or resources slides; end on substantive content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
-MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
-- You MUST use a wide variety of templates from the full catalog below. DO NOT repeat the same templates.
-- For 10-15 slides, use each template AT MOST ONCE, preferring: title-slide (1), bullet-points-right (max 2), two-column (1), process-steps (1), problems-grid (1), timeline (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), table variants (1), pyramid (1).
-- Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
-- Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
+MANDATORY TEMPLATE DIVERSITY (CRITICAL - REPETITION IS FAILURE):
+- ❌ FORBIDDEN: Using the same template 3+ times in a single presentation
+- ❌ FORBIDDEN: Defaulting to bullet-points-right for every slide - this is lazy and boring
+- ❌ FORBIDDEN: Using only 3-4 different templates when you have 20+ available
+- ✅ REQUIRED: Use a WIDE VARIETY of templates. Mix and match for visual interest
+- ✅ REQUIRED: For 10-15 slides, use AT LEAST 8-10 different template types
+- ✅ Template budget for 10-15 slides:
+  - title-slide (1x), bullet-points-right (MAX 2x), two-column (1-2x), process-steps (1-2x)
+  - four-box-grid (1x), timeline (1x), big-numbers (1x), challenges-solutions (1x)
+  - comparison-slide or tables (1x), pyramid or big-image variants (1x)
+- ✅ Strategy: Choose template that BEST expresses each specific slide's content
+  - Teaching sequential steps? → process-steps
+  - Comparing two options? → comparison-slide or table
+  - Showing problems + solutions? → challenges-solutions
+  - Need detailed explanations? → bullet-points-right or two-column
+- COUNT YOUR TEMPLATES before finalizing - if you used bullet-points-right 5 times, you failed
 
 PROFESSIONAL IMAGE GENERATION GUIDELINES (AUTHENTIC WORKPLACE PHOTOGRAPHY):
 Create professional photographs showing people actively working in authentic environments relevant to the slide topic.
@@ -24171,13 +26137,48 @@ If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
 **VALIDATION CHECK**: Before outputting your final JSON, count the slides in the slides[] array. If the count does not match slidesCount, you MUST adjust immediately. The system will reject responses with incorrect slide counts.
 
+🚨 IMAGE PROMPT VALIDATION 🚨
+Before finalizing your JSON output, verify that ALL visual templates have the required image prompt properties:
+- Check every `big-image-left` slide has `imagePrompt` property
+- Check every `big-image-top` slide has `imagePrompt` property  
+- Check every `bullet-points` and `bullet-points-right` slide has `imagePrompt` property
+- Check every `two-column` slide has `leftImagePrompt` and `rightImagePrompt` properties
+If any visual template is missing its required image prompt properties, ADD THEM before submitting your response.
+
+🚨 CHALLENGES-SOLUTIONS VALIDATION 🚨
+Before finalizing your JSON output, verify that ALL challenges-solutions slides have exactly 3 challenges and 3 solutions:
+- Count challenges: MUST be exactly 3, never 4 or more
+- Count solutions: MUST be exactly 3, never 4 or more  
+- If you generated 4+ items, keep only the LAST 3 pairs
+- Each challenge: 60-80 words
+- Each solution: 80-100 words
+
+**MANDATORY POST-PROCESSING FOR CHALLENGES-SOLUTIONS:**
+After generating your JSON, scan for challenges-solutions slides and enforce the 3-item limit:
+- If challenges array has 4+ items: keep only the last 3 items
+- If solutions array has 4+ items: keep only the last 3 items
+- This is a hard requirement - no exceptions
+
+🚨 FICTIONAL DATA VALIDATION 🚨
+Before finalizing your JSON output, scan for and eliminate fictional data:
+- NO "Company A", "Company B", "Approach A", "Option B", "Method X", "Product 1/2"
+- NO generic placeholder labels in four-box-grid or big-numbers slides
+- REPLACE with specific descriptive names: "Big Bang Migration", "Phased Rollout", "Cloud Deployment"
+- Use real, meaningful names that describe the actual content or approach
+
+🚨 big-image-top USAGE VALIDATION 🚨
+Before finalizing your JSON output, verify big-image-top usage:
+- Check that big-image-top is ONLY used for the first slide (slide 1) or last slide
+- If big-image-top appears in middle slides (2 through n-1), REPLACE with bullet-points, bullet-points-right, or two-column
+- This ensures proper visual flow and prevents overuse of large image templates
+
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
   • Usage: ONLY for the first slide of the presentation; opening/section title with heading and short subtitle.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: DO NOT USE except for first slide. Use other templates instead.
+  • Usage: Opening slides with strong visual impact and lesson introduction. MUST include imagePrompt for automatic image generation.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: hero image across top; explanatory text below.
+  • Usage: hero image across top; explanatory text below. RESTRICTED to FIRST slide or LAST slide only.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
   • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
@@ -24244,13 +26245,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
-CONTENT DENSITY AND LEARNING REQUIREMENTS:
-- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
-- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
-- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
-- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
-- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
@@ -24549,10 +26544,133 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Use inclusive language ("we", "you", "let's"), smooth transitions, and approximately 30–60 seconds speaking time per slide.
 - The root object MUST include hasVoiceover: true.
 """
+        # Prepend a strict guard when generating from files to avoid any contradiction
+        has_file_context = bool(
+            getattr(payload, 'fromFiles', None) or
+            getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None) or
+            (getattr(payload, 'fromConnectors', None) and (getattr(payload, 'connectorSources', None) or getattr(payload, 'selectedFiles', None)))
+        )
+        if has_file_context:
+            files_guard = """
+
+FILES-ONLY MODE (OVERRIDE GUARD):
+When file context is present, you MUST use ONLY content that appears in the provided sources. All educational guidance below (explanations, scenarios, examples, images, diversity targets, etc.) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT it. Do NOT add general-knowledge facts, scenarios, named entities (companies, tools, programs, certifications), or any numbers not present in the sources. Do NOT extend topics with your own knowledge (e.g., pricing model variants, security playbooks, industry case studies, future trends). If a topic would require knowledge beyond the sources, OMIT that slide. If a strict slide count MUST be met and the only alternative is using general knowledge, repeat existing source-backed topics with new phrasing as a last resort. Fidelity overrides length and slide-count targets.
+
+"""
+            json_preview_instructions = files_guard + json_preview_instructions
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | has_file_context={has_file_context} | fromFiles={getattr(payload, 'fromFiles', None)} | fileIds={getattr(payload, 'fileIds', None)} | folderIds={getattr(payload, 'folderIds', None)} | fromConnectors={getattr(payload, 'fromConnectors', None)} | selectedFiles={getattr(payload, 'selectedFiles', None)}")
+            except Exception:
+                pass
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard)} | instr_len={len(json_preview_instructions)}")
+            except Exception:
+                pass
+
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
     except Exception as e:
         logger.warning(f"[PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+    
+    # Add ABSOLUTE FINAL fidelity rules if generating from files
+    # These override ANY previous instructions about adding scenarios, case studies, etc.
+    if payload.fromFiles:
+        wizard_message += """
+
+═══════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 ABSOLUTE FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS RULES 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════
+
+YOU ARE GENERATING FROM FILES. THIS CHANGES EVERYTHING.
+
+CRITICAL: When fromFiles=true, the "INCLUDE REAL WORKPLACE SCENARIOS" instruction means:
+- Use scenarios ONLY if they appear in the source files
+- DO NOT invent scenarios to meet educational quality requirements
+- DO NOT add case studies unless they are explicitly in the source
+
+ABSOLUTE PROHIBITIONS (OVERRIDE ALL PREVIOUS "INCLUDE" INSTRUCTIONS):
+❌ NEVER add "Netflix", "Airbnb", "NASA", "GE" case studies unless in source
+❌ NEVER add "ISO 27001", "PCI DSS", "HIPAA" compliance unless in source
+❌ NEVER add "AWS Certified" certifications unless in source
+❌ NEVER add support plan details unless in source
+❌ NEVER add specific percentages or durability metrics unless in source
+❌ NEVER add IAM features or security best practices unless in source
+❌ NEVER invent "real workplace scenarios" - use ONLY scenarios from source
+
+TEMPLATE DIVERSITY WITH SOURCE FIDELITY - BOTH ARE MANDATORY:
+🚨 CRITICAL: Fidelity does NOT excuse poor diversity! You MUST satisfy BOTH requirements:
+
+STEP 1: ANALYZE SOURCE CONTENT STRUCTURE
+Before selecting templates, scan the source and identify:
+□ Are there problems + solutions mentioned? → USE challenges-solutions
+□ Are there sequential steps or processes? → USE process-steps
+□ Are there 2 things being compared/contrasted? → USE two-column
+□ Are there 4 related concepts or categories? → USE four-box-grid
+□ Are there chronological events or timeline info? → USE timeline
+□ Are there hierarchical levels or foundations? → USE pyramid
+□ Are there 3 key metrics or achievements? → USE big-numbers (with qualitative values)
+□ Is there a table structure in source? → USE table-dark or table-light
+
+STEP 2: MAP CONTENT TO DIVERSE TEMPLATES
+✅ For each section of content, ask: "What template BEST represents this structure?"
+✅ Even simple lists can use: two-column (split list), four-box-grid (group of 4), six-ideas-list (6 items)
+✅ Comparison content? → two-column or table, NOT bullet-points
+✅ Process/workflow content? → process-steps or timeline, NOT bullet-points
+✅ Problem/solution content? → challenges-solutions, NOT bullet-points
+
+STEP 3: COUNT AND VERIFY
+Before finalizing, count your templates:
+□ How many bullet-points slides? (Must be ≤ 2)
+□ How many bullet-points-right slides? (Must be ≤ 2)
+□ Total bullet-point slides? (Combined must be ≤ 2)
+□ How many different template types? (Must be ≥ 3 for small, ≥ 8 for large presentations)
+
+CRITICAL ENFORCEMENT:
+❌ If you have 3+ bullet-point slides: FAIL - Go back and convert them to appropriate templates
+❌ If you have only 2-3 template types total: FAIL - Find more structure in the source content
+✅ Even with sparse source, you can achieve diversity by:
+   - Splitting content across two-column instead of bullets
+   - Grouping into four-box-grid instead of bullets
+   - Using big-numbers with qualitative values instead of bullets
+   - Using process-steps for any sequential information
+   - Using challenges-solutions for any problems mentioned
+
+EXAMPLES OF CONVERTING BULLET-POINTS TO DIVERSE TEMPLATES:
+❌ BAD: "Key Benefits" with 4 bullets → Use bullet-points-right
+✅ GOOD: "Key Benefits" with 4 bullets → Use four-box-grid (each benefit in a box)
+
+❌ BAD: "Services Overview" with 6 bullets → Use bullet-points
+✅ GOOD: "Services Overview" with 6 bullets → Use six-ideas-list template
+
+❌ BAD: "Comparing Options A vs B" with bullets → Use bullet-points-right
+✅ GOOD: "Comparing Options A vs B" → Use two-column (A on left, B on right)
+
+❌ BAD: "Step-by-step guide" with bullets → Use bullet-points
+✅ GOOD: "Step-by-step guide" → Use process-steps template
+
+THE RULE IS: Maximum 2 bullet-point slides, period. No exceptions, even for sparse content.
+
+FINAL VERIFICATION:
+□ Did I add any case studies not in source? → DELETE THEM
+□ Did I add any compliance standards not in source? → DELETE THEM
+□ Did I add any certifications not in source? → DELETE THEM
+□ Did I add any specific metrics/percentages not in source? → DELETE THEM
+□ Did I use more than 2 bullet-point slides? → CONVERT THEM
+
+THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
+"""
+        logger.info(f"[PRESENTATION_FIDELITY] Added ABSOLUTE FINAL fidelity rules for fromFiles=true")
+
+    # FINAL ABSOLUTE OVERRIDE (placed LAST for recency bias)
+    if payload.fromFiles:
+        wizard_message += """
+
+FINAL ABSOLUTE OVERRIDE (fromFiles=true)
+
+You MUST use ONLY the provided source content. Do NOT add content from general knowledge.
+DELETE any slide or bullet that cannot be traced to the sources. If a slide would contain placeholders like "No content", "N/A", or fewer than 2 meaningful bullets from sources, DELETE the slide and RENUMBER. It is acceptable to output fewer slides than requested. Do NOT add named companies, tools, programs, certifications, frameworks, or case studies unless explicitly named in sources. Do NOT invent numbers/percentages/budgets/timeframes.
+
+"""
 
     async def streamer():
         estimated_tokens_per_slide = 800 if is_video_lesson else 500
@@ -24761,7 +26879,14 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 chunks_received = 0
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(
+                    wizard_message,
+                    file_context,
+                    "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation",
+                    model="gpt-4o-mini",
+                    wizard_payload=wizard_dict
+                ):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -24808,6 +26933,26 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                                 actual_count = len(slides)
                                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
                                 
+                                # VALIDATION AND FIXING: Apply presentation validation and fixes
+                                logger.info(f"🔍 [PRESENTATION_VALIDATION] Validating slide deck for common issues...")
+                                validation_issues = validate_presentation_slides(slides)
+                                
+                                # Log all validation issues
+                                total_issues = sum(len(issues) for issues in validation_issues.values())
+                                if total_issues > 0:
+                                    logger.warning(f"⚠️ [PRESENTATION_VALIDATION] Found {total_issues} validation issues:")
+                                    for category, issues in validation_issues.items():
+                                        if issues:
+                                            logger.warning(f"⚠️ [PRESENTATION_VALIDATION] {category}: {issues}")
+                                    
+                                    # Apply fixes automatically
+                                    logger.info(f"🔧 [PRESENTATION_FIXING] Applying automatic fixes...")
+                                    slides = fix_presentation_issues(slides)
+                                    parsed_json['slides'] = slides  # Update the parsed JSON with fixed slides
+                                    logger.info(f"✅ [PRESENTATION_FIXING] Automatic fixes applied successfully")
+                                else:
+                                    logger.info(f"✅ [PRESENTATION_VALIDATION] No validation issues found")
+                                
                                 # Validate slide count matches request
                                 requested_count = wizard_dict.get('slidesCount', 5)
                                 if actual_count != requested_count:
@@ -24815,16 +26960,14 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                                 else:
                                     logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
                                 
-                                # Log slide details for video lessons
-                                if is_video_lesson:
-                                    for i, slide in enumerate(slides):
-                                        if isinstance(slide, dict):
-                                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
-                                            slide_title = slide.get('slideTitle', 'NO_TITLE')
-                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
-                                            if 'voiceoverText' in slide:
-                                                voiceover = slide['voiceoverText']
-                                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                                for i, slide in enumerate(slides):
+                                    if isinstance(slide, dict):
+                                        template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                                        slide_title = slide.get('slideTitle', 'NO_TITLE')
+                                        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                                        if 'voiceoverText' in slide:
+                                            voiceover = slide['voiceoverText']
+                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
                             else:
                                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
                         else:
@@ -24846,7 +26989,8 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 chunks_received = 0
-                async for chunk_data in stream_openai_response(wizard_message, max_tokens=max_tokens_for_stream):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wizard_dict):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -24893,6 +27037,26 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                                 actual_count = len(slides)
                                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
                                 
+                                # VALIDATION AND FIXING: Apply presentation validation and fixes
+                                logger.info(f"🔍 [PRESENTATION_VALIDATION] Validating slide deck for common issues...")
+                                validation_issues = validate_presentation_slides(slides)
+                                
+                                # Log all validation issues
+                                total_issues = sum(len(issues) for issues in validation_issues.values())
+                                if total_issues > 0:
+                                    logger.warning(f"⚠️ [PRESENTATION_VALIDATION] Found {total_issues} validation issues:")
+                                    for category, issues in validation_issues.items():
+                                        if issues:
+                                            logger.warning(f"⚠️ [PRESENTATION_VALIDATION] {category}: {issues}")
+                                    
+                                    # Apply fixes automatically
+                                    logger.info(f"🔧 [PRESENTATION_FIXING] Applying automatic fixes...")
+                                    slides = fix_presentation_issues(slides)
+                                    parsed_json['slides'] = slides  # Update the parsed JSON with fixed slides
+                                    logger.info(f"✅ [PRESENTATION_FIXING] Automatic fixes applied successfully")
+                                else:
+                                    logger.info(f"✅ [PRESENTATION_VALIDATION] No validation issues found")
+                                
                                 # Validate slide count matches request
                                 requested_count = wizard_dict.get('slidesCount', 5)
                                 if actual_count != requested_count:
@@ -24900,16 +27064,14 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                                 else:
                                     logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
                                 
-                                # Log slide details for video lessons
-                                if is_video_lesson:
-                                    for i, slide in enumerate(slides):
-                                        if isinstance(slide, dict):
-                                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
-                                            slide_title = slide.get('slideTitle', 'NO_TITLE')
-                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
-                                            if 'voiceoverText' in slide:
-                                                voiceover = slide['voiceoverText']
-                                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                                for i, slide in enumerate(slides):
+                                    if isinstance(slide, dict):
+                                        template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                                        slide_title = slide.get('slideTitle', 'NO_TITLE')
+                                        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                                        if 'voiceoverText' in slide:
+                                            voiceover = slide['voiceoverText']
+                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
                             else:
                                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
                         else:
@@ -24924,7 +27086,6 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-
     return StreamingResponse(streamer(), media_type="text/plain")
 
 
@@ -24985,7 +27146,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         )
                         # Collect once-off response
                         regenerated_text = ""
-                        async for chunk in stream_openai_response(wizard_message):
+                        async for chunk in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                             if chunk.get("type") == "delta":
                                 regenerated_text += chunk.get("text", "")
                         cleaned = regenerated_text.strip()
@@ -27853,9 +30014,14 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 if 'courseOutlineTableHeaders' in saved_content:
                     logger.info(f"🎯 [TABLE HEADER DB VERIFY] ✅ courseOutlineTableHeaders CONFIRMED SAVED to database!")
                     logger.info(f"🎯 [TABLE HEADER DB VERIFY] Saved data: {json.dumps(saved_content['courseOutlineTableHeaders'], indent=2)}")
-                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Lessons: '{saved_content['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
-                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Assessment: '{saved_content['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
-                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Duration: '{saved_content['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                    
+                    # Check if courseOutlineTableHeaders is not None before calling .get()
+                    if saved_content['courseOutlineTableHeaders'] is not None:
+                        logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Lessons: '{saved_content['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
+                        logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Assessment: '{saved_content['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
+                        logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Duration: '{saved_content['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                    else:
+                        logger.warning(f"🎯 [TABLE HEADER DB VERIFY] ⚠️ courseOutlineTableHeaders is NULL in database!")
                 else:
                     logger.warning(f"🎯 [TABLE HEADER DB VERIFY] ⚠️ courseOutlineTableHeaders NOT FOUND in saved database content!")
                     logger.warning(f"🎯 [TABLE HEADER DB VERIFY] This means the data was NOT persisted to database")
@@ -29656,6 +31822,8 @@ async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
 @app.post("/api/custom/quiz/generate")
 async def quiz_generate(payload: QuizWizardPreview, request: Request):
     """Generate quiz content with streaming response"""
+    import json
+    
     logger.info(f"[QUIZ_PREVIEW_START] Quiz preview initiated")
     logger.info(f"[QUIZ_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[QUIZ_PREVIEW_PARAMS] questionTypes={payload.questionTypes} lang={payload.language}")
@@ -29712,6 +31880,8 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
             if course_structure:
                 wiz_payload["courseStructure"] = course_structure
                 logger.info(f"[COURSE_CONTEXT] Course structure added to quiz wizard request")
+                # Log full course structure
+                logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
             
             # Get adjacent lesson content with product type priority
             product_type = "quiz"  # This is a quiz
@@ -29733,16 +31903,20 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 if 'previousLesson' in adjacent_context:
                     wiz_payload["previousLesson"] = adjacent_context['previousLesson']
                     prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
-                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                    prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                    # Log full previous lesson content
+                    logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
                 
-                # Add next lesson context (without full content, just structure)
+                # Add next lesson title to avoid covering topics meant for next lesson
                 if 'nextLesson' in adjacent_context:
                     next_lesson = adjacent_context['nextLesson']
                     wiz_payload["nextLesson"] = {
                         'title': next_lesson.get('title'),
                         'position': next_lesson.get('position')
                     }
-                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                    logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wiz_payload['nextLesson'], ensure_ascii=False, indent=2)}")
                 
                 context_summary = []
                 if 'courseStructure' in wiz_payload:
@@ -29757,6 +31931,27 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                     context_summary.append('nextLesson✗')
                 
                 logger.info(f"[COURSE_CONTEXT] Context added to quiz wizard: {' | '.join(context_summary)}")
+            
+            # IMPORTANT: Fetch all products for the SAME lesson to quiz on covered content
+            if payload.lesson:
+                same_lesson_products = await get_same_lesson_products(
+                    payload.outlineId,
+                    payload.lesson,
+                    "quiz",  # Exclude quiz type (being generated)
+                    onyx_user_id,
+                    pool
+                )
+                
+                if same_lesson_products:
+                    wiz_payload["sameLessonProducts"] = same_lesson_products
+                    product_summary = ', '.join([f"{p['productType']} ({p['contentSize']} chars)" for p in same_lesson_products])
+                    logger.info(f"[SAME_LESSON_PRODUCTS] Added to quiz wizard | products: {product_summary}")
+                    # Log full content
+                    import json
+                    for product in same_lesson_products:
+                        logger.info(f"[SAME_LESSON_PRODUCTS] FULL {product['productType'].upper()} CONTENT: {json.dumps(product['content'], ensure_ascii=False, indent=2)[:3000]}...")
+                else:
+                    logger.info(f"[SAME_LESSON_PRODUCTS] No other products found for this lesson yet")
             
         except Exception as e:
             logger.warning(f"Failed to fetch course context for quiz | outline_id={payload.outlineId} | error={e}")
@@ -29873,18 +32068,34 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
     # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
     course_context_instructions_quiz = ""
-    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload or 'sameLessonProducts' in wiz_payload:
         course_context_instructions_quiz = """
 
 **COURSE CONTEXT INSTRUCTIONS:**
 You have been provided with course context information. You MUST use this context to:
-1. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
-2. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
-3. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
-4. **Maintain Consistency**: Use the same terminology as previous lessons in your questions
-5. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
-6. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes"""
+1. **Quiz on Covered Content**: If sameLessonProducts is provided, these are products (presentations, onepagers) already created for THIS lesson. Base your quiz questions PRIMARILY on the content covered in these products. Test understanding of concepts, examples, and procedures taught in them.
+2. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
+3. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
+4. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
+5. **Maintain Terminology**: Use the same key terms as previous lessons and same-lesson products - extract and reuse core terminology
+6. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT create questions about topics that clearly belong to that lesson. Keep questions focused on the current lesson's scope only.
+7. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
+8. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes
+
+CRITICAL - SAME LESSON PRODUCTS:
+If sameLessonProducts is provided (e.g., presentation and onepager for this lesson):
+- These products contain the ACTUAL content taught in this lesson
+- Your quiz MUST test understanding of THIS specific content
+- Extract key concepts, procedures, examples, and frameworks from these products
+- Create questions that verify the student understood the material in these products
+- Do NOT create generic questions - make them specific to what was taught
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT ask about advanced configuration
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT test deep knowledge of data types
+- Keep quiz questions focused on the current lesson only"""
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
@@ -29932,7 +32143,22 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                 if payload.fromConnectors and payload.connectorSources:
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    # If specific SmartDrive files were also selected, map and extract them too, then merge
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        # Reuse existing mapping flow
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)  # best-effort using /me
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
+                            if file_ids:
+                                logger.info(f"[HYBRID_CONTEXT] Extracting context from mapped files (count={len(file_ids)}) and merging with connector context")
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -30055,7 +32281,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -30088,7 +32315,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
             logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -30198,7 +32426,7 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         # NEW: Use OpenAI directly for quiz editing
         logger.info(f"[QUIZ_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for quiz editing")
         try:
-            async for chunk_data in stream_openai_response(wizard_message):
+            async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
                     assistant_reply += delta_text
@@ -30833,11 +33061,11 @@ CRITICAL REQUIREMENTS:
 # Pedagogical elements: Mental models, worked examples, common mistakes, decision frameworks
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "Steps to Conduct Effective Market Analysis",
+  "textTitle": "[TOPIC NAME] - Comprehensive Guide",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO MARKET ANALYSIS" },
-    { "type": "paragraph", "text": "Market analysis is a crucial skill in the corporate world, enabling businesses to make informed decisions, understand their competitors, and identify new opportunities. It involves collecting, analyzing, and interpreting data about the market, including sales growth, trends, and patterns. By mastering market analysis, businesses can make informed decisions, identify new opportunities, understand their competitors, and anticipate future market conditions. This presentation delves into the steps necessary for effective market analysis, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
-    { "type": "paragraph", "text": "The fundamental challenge every business faces is understanding not just what the market looks like today, but how it will evolve and where the best opportunities lie. Market analysis transforms raw data and observations into strategic insights that drive decision-making. By the end of this guide, you'll have a systematic framework for conducting thorough market analysis that uncovers opportunities others miss." },
+    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO [YOUR TOPIC]" },
+    { "type": "paragraph", "text": "[Your topic] is a crucial skill/concept in [your domain], enabling practitioners to [key benefits and outcomes]. It involves [core activities and processes]. By mastering [your topic], professionals can [specific achievements and capabilities]. This lesson delves into [your topic] with a structured approach, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
+    { "type": "paragraph", "text": "The fundamental challenge every practitioner faces is understanding not just the basic concepts, but how to apply them effectively in real-world situations. This guide provides you with a systematic framework for [mastering your topic] that goes beyond theory to practical application. By the end of this lesson, you'll have [specific outcomes related to your topic]." },
     
     { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
     { "type": "paragraph", "text": "Before diving into the steps, let's establish a common vocabulary. Market Analysis is the process of gathering, interpreting, and utilizing information about a market, including trends, competitor behavior, and customer preferences. Understanding this concept helps stakeholders align on objectives and methodology. Market Size refers to the volume or value of a specific market, indicating potential sales opportunities. This metric helps businesses assess whether a market is worth entering and how much they can realistically capture. Market Growth is the rate at which a market's size is increasing over time, reflecting industry health and future potential. High-growth markets attract more investment but also more competition, making timing critical." },
@@ -30852,11 +33080,32 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Mental models are frameworks that help simplify complex information into understandable and usable forms. For market analysis, several proven models provide structured approaches to evaluating markets systematically." },
     
     { "type": "headline", "level": 3, "text": "PESTLE Analysis Framework" },
-    { "type": "paragraph", "text": "PESTLE Analysis evaluates external factors across six dimensions: Political (government policies, trade regulations, political stability), Economic (GDP growth, interest rates, inflation, exchange rates), Social (demographics, cultural trends, consumer attitudes), Technological (innovation rates, automation, R&D investment), Legal (employment law, health and safety regulations, intellectual property), and Environmental (climate change regulations, sustainability trends, resource scarcity). This framework is particularly useful for evaluating both internal and external factors influencing a company, helping identify opportunities and threats that might not be immediately obvious." },
-    { "type": "paragraph", "text": "How to apply PESTLE: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the highest impact and likelihood. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
+    { "type": "paragraph", "text": "PESTLE Analysis evaluates **external factors across six dimensions** that shape your market environment. Understanding these forces helps you anticipate changes before they become critical threats or missed opportunities. The six dimensions are:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Political factors**: Government policies, trade regulations, political stability, and policy changes that affect market access and operations. For example, new data privacy laws can require significant compliance investments.",
+        "**Economic factors**: GDP growth, interest rates, inflation, exchange rates, and consumer spending power. Rising interest rates increase your capital costs while decreasing customer purchasing power.",
+        "**Social factors**: Demographics, cultural trends, consumer attitudes, and lifestyle changes. The shift to remote work created massive demand for collaboration tools and home office equipment.",
+        "**Technological factors**: Innovation rates, automation trends, R&D investment, and emerging technologies. Cloud computing transformed software delivery from licenses to subscriptions.",
+        "**Legal factors**: Employment law, health and safety regulations, intellectual property rights, and industry-specific regulations. Healthcare providers face strict HIPAA requirements affecting their technology choices.",
+        "**Environmental factors**: Climate change regulations, sustainability trends, resource scarcity, and green business practices. Carbon taxes are changing transportation and logistics economics."
+      ]
+    },
+    { "type": "paragraph", "text": "**How to apply PESTLE systematically**: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the **highest impact** and **highest likelihood**. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
     
     { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
-    { "type": "paragraph", "text": "Porter's Five Forces helps assess industry attractiveness and competitive intensity by examining: (1) Threat of New Entrants—how easy is it for new competitors to enter your market? High barriers like capital requirements or regulatory hurdles protect incumbents. (2) Bargaining Power of Suppliers—can suppliers dictate terms? If you have few supplier options, they can squeeze your margins. (3) Bargaining Power of Buyers—can customers demand lower prices? Large customers or commoditized products increase buyer power. (4) Threat of Substitutes—can customers solve their problem differently? Substitutes don't have to be direct competitors—video conferencing substituted for business travel. (5) Competitive Rivalry—how intense is competition among existing players? High rivalry leads to price wars and margin erosion." },
+    { "type": "paragraph", "text": "Porter's Five Forces helps assess **industry attractiveness** and **competitive intensity** by examining five structural factors that determine profitability. Each force either increases or decreases your ability to capture value:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Threat of New Entrants**: How easy is it for new competitors to enter your market? **High barriers** like capital requirements or regulatory hurdles protect incumbents and preserve margins. **Low barriers** mean constant new competition and pressure on pricing.",
+        "**Bargaining Power of Suppliers**: Can suppliers dictate terms? If you have few supplier options or switching costs are high, they can squeeze your margins. Multiple supplier options give you **negotiating leverage**.",
+        "**Bargaining Power of Buyers**: Can customers demand lower prices? Large customers or commoditized products increase buyer power. When buyers are fragmented and your product is differentiated, you maintain **pricing power**.",
+        "**Threat of Substitutes**: Can customers solve their problem differently? Substitutes don't have to be direct competitors—video conferencing substituted for business travel. **Strong substitutes** limit how much you can charge before customers switch to alternatives.",
+        "**Competitive Rivalry**: How intense is competition among existing players? High rivalry leads to price wars and margin erosion. Industries with **few large players** and differentiated products have healthier margins than crowded markets with commodity products."
+      ]
+    },
     { "type": "paragraph", "text": "These models offer structured approaches for analyzing markets, ensuring comprehensive evaluation rather than ad-hoc guesswork. Use PESTLE when evaluating macro-environmental factors and market entry decisions. Use Five Forces when assessing industry profitability and competitive positioning. Combine both for a complete picture: PESTLE shows you which markets are attractive from a macro perspective, while Five Forces reveals whether you can actually make money in those markets given competitive dynamics." },
     
     { "type": "headline", "level": 2, "text": "🎬 STEP-BY-STEP PROCEDURES FOR MARKET ANALYSIS" },
@@ -30867,8 +33116,18 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Why this matters: Without clear boundaries, you'll collect irrelevant data and draw misleading conclusions. A company analyzing 'the healthcare market' might include everything from hospital equipment to consumer vitamins—markets with completely different dynamics, customers, and competitors. The narrower your initial scope, the more actionable your insights. You can always expand later once you understand one segment deeply. Common pitfall: Defining the market too broadly to make the opportunity look bigger for stakeholders, then realizing you can't actually serve that entire market." },
     
     { "type": "headline", "level": 3, "text": "Step 2: Collect Data from Multiple Sources" },
-    { "type": "paragraph", "text": "Gather quantitative and qualitative data from various sources. Primary data comes directly from the market via surveys, interviews, or social media. This data is expensive and time-consuming but highly relevant to your specific questions. Secondary data can be found in existing reports or databases—industry reports from Gartner or Forrester, government statistics, trade association publications, or competitor financial filings. A mix of both types provides a comprehensive view while balancing cost and relevance." },
-    { "type": "paragraph", "text": "Best practices for data collection: Start with secondary research to understand the landscape, then use primary research to fill gaps and validate assumptions. When conducting interviews, talk to customers, potential customers, AND non-customers who chose alternatives—understanding why people didn't choose you is as valuable as understanding why they did. Aim for at least 20-30 interviews to identify patterns. For surveys, quality matters more than quantity—500 responses from your actual target segment beat 5,000 responses from a generic audience. Document your sources meticulously—you'll need to reference them later when stakeholders question your conclusions." },
+    { "type": "paragraph", "text": "Gather both **quantitative** and **qualitative data** from various sources. **Primary data** comes directly from the market via surveys, interviews, or social media—expensive and time-consuming but highly relevant to your specific questions. **Secondary data** can be found in existing reports or databases like industry reports from Gartner or Forrester, government statistics, trade association publications, or competitor financial filings. A mix of both types provides a comprehensive view while balancing cost and relevance." },
+    { "type": "paragraph", "text": "**Best practices for systematic data collection** follow this prioritized sequence:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Start with secondary research** to understand the overall landscape: Read 2-3 recent industry reports, study competitor websites and case studies, analyze government statistics or trade association data. This gives you context before talking to people.",
+        "**Conduct customer interviews** (20-30 minimum) to understand real needs: Talk to current customers, potential customers, AND non-customers who chose alternatives. Understanding **why people didn't choose you** is as valuable as understanding why they did. Record and transcribe interviews to identify patterns.",
+        "**Survey for quantification** after interviews reveal key themes: Use surveys to test how widespread the patterns are. **Quality matters more than quantity**—500 responses from your actual target segment beat 5,000 responses from a generic audience.",
+        "**Observe actual behavior** where possible: Watch how customers use existing solutions, attend industry events, analyze publicly available usage data. People's **revealed preferences** (what they do) often differ from **stated preferences** (what they say).",
+        "**Document sources meticulously**: Create a reference database linking every insight to its source. You'll need this when stakeholders question your conclusions or when you need to update analysis later."
+      ]
+    },
     
     { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
     { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. Calculate TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) to understand the full opportunity, the portion you can realistically serve, and the portion you can actually capture given competition and your capabilities. For example, the global CRM software market might be $50B (TAM), but if you only serve small businesses in Europe, your SAM might be $2B, and your realistic SOM in year three might be $50M based on expected market share." },
@@ -30876,39 +33135,81 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     
     { "type": "headline", "level": 3, "text": "Step 4: Identify Market Trends" },
     { "type": "paragraph", "text": "Analyze data to spot patterns and trends in consumer behavior, technology adoptions, and regulatory changes. Trends offer insights into market direction, helping businesses anticipate changes rather than merely reacting. Look for convergence of multiple signals—a real trend will show up in customer interviews, industry reports, and competitor behavior simultaneously. For instance, the shift to subscription models appeared in customer preferences for predictable costs, analyst reports on recurring revenue valuations, and competitor launches of subscription offerings." },
-    { "type": "paragraph", "text": "Distinguishing trends from fads: Trends are driven by fundamental changes in technology, demographics, or economics and build gradually over years. Fads are driven by social dynamics and novelty, peaking quickly then disappearing. Ask: What underlying force drives this change? Is it reversible? Are multiple independent factors pointing the same direction? For example, remote work is a trend driven by technology (collaboration tools), economics (real estate costs), and demographics (millennial preferences)—all durable factors. Cryptocurrency adoption in 2021 showed fad characteristics—driven primarily by speculation and social contagion rather than fundamental utility, leading to a crash when sentiment shifted." },
+    { "type": "paragraph", "text": "**Key indicators to identify genuine trends** follow this systematic approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Multiple independent signals**: A real trend appears in customer interviews, industry reports, competitor behavior, and technology adoption simultaneously. If only one source shows the trend, it might be an outlier or temporary spike.",
+        "**Durable underlying drivers**: Trends are driven by fundamental changes in technology, demographics, or economics that build gradually over years. Ask: What underlying force drives this change? Is it reversible? Are multiple independent factors pointing the same direction?",
+        " **Convergence of evidence**: Look for the same pattern across different data sources—customer preferences, analyst reports, competitor strategies, and market behavior all pointing in the same direction.",
+        "**Timeline consistency**: Real trends develop over months or years, not days or weeks. They show consistent directional movement rather than sudden spikes followed by crashes.",
+        "**Cross-industry validation**: Genuine trends often appear across multiple industries or sectors, not just in one specific market or use case."
+      ]
+    },
+    { "type": "paragraph", "text": "Distinguishing trends from fads: Trends are driven by fundamental changes in technology, demographics, or economics and build gradually over years. Fads are driven by social dynamics and novelty, peaking quickly then disappearing. For example, remote work is a trend driven by technology (collaboration tools), economics (real estate costs), and demographics (millennial preferences)—all durable factors. Cryptocurrency adoption in 2021 showed fad characteristics—driven primarily by speculation and social contagion rather than fundamental utility, leading to a crash when sentiment shifted." },
     
     { "type": "headline", "level": 3, "text": "Step 5: Conduct Competitive Analysis" },
     { "type": "paragraph", "text": "Examine your competitors' strengths, weaknesses, market share, strategies, and weaknesses. Understanding competition is key to differentiation and gaining competitive advantage. Create a detailed competitor matrix documenting: pricing models, target segments, key features, strengths/weaknesses, recent funding or strategic moves, and estimated market share. Don't limit analysis to direct competitors—include substitute products and potential new entrants. For example, a taxi company should analyze not just other taxi companies but also Uber, Lyft, public transit, bicycle sharing, and any other way customers solve the transportation problem." },
-    { "type": "paragraph", "text": "Porter's Five Forces is particularly useful here—it reveals not just who your competitors are, but the structural factors that determine how intense competition will be. Practical application: Categorize competitors into strategic groups based on their approach (e.g., premium vs. budget, enterprise vs. SMB, product-led vs. sales-led). Within each group, identify the leader and understand their strategy. Then look for underserved segments—gaps where customer needs aren't being met. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental. If customers choose a competitor because they prefer a feature you can build, that's fixable. If they choose competitors because they need enterprise-scale support you can't economically provide at your size, that reveals a segment you should avoid until you're larger." },
+    { "type": "paragraph", "text": "**Systematic competitive analysis** follows this structured approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Map all competitive alternatives**: Include direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). Don't limit analysis to companies that look like you.",
+        "**Categorize competitors into strategic groups**: Group competitors by approach (premium vs. budget, enterprise vs. SMB, product-led vs. sales-led). Within each group, identify the leader and understand their strategy and positioning.",
+        "**Analyze competitive gaps**: Look for underserved segments where customer needs aren't being met. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental.",
+        "**Assess switching costs**: For each competitive alternative, understand what it costs, what's good enough about it, and what the switching cost would be for customers to move to your solution.",
+        "**Identify competitive advantages**: Determine whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war but lose the value war."
+      ]
+    },
+    { "type": "paragraph", "text": "Porter's Five Forces is particularly useful here—it reveals not just who your competitors are, but the structural factors that determine how intense competition will be. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental. If customers choose a competitor because they prefer a feature you can build, that's fixable. If they choose competitors because they need enterprise-scale support you can't economically provide at your size, that reveals a segment you should avoid until you're larger." },
     
     { "type": "headline", "level": 3, "text": "Step 6: Evaluate Customer Needs and Preferences" },
     { "type": "paragraph", "text": "Use your data to identify what your potential customers need and want. Customer insights drive product development, marketing, and customer service strategies. Go beyond what customers say they want to understand their underlying jobs-to-be-done. People don't want a quarter-inch drill, they want a quarter-inch hole—or actually, they want to hang a picture to make their home feel complete. Understanding these layers helps you identify non-obvious solutions. Use techniques like focus groups for exploratory research, surveys for quantifying preferences across larger groups, and observational research to see what customers actually do versus what they say they do." },
-    { "type": "paragraph", "text": "The biggest insight often comes from understanding the gap between stated and revealed preferences. Customers might say they want more features, but behavioral data shows they primarily use three core functions and find additional features confusing. They might say price is their top priority, but they consistently choose premium options when the value proposition is clear. This is why combining surveys (stated preferences), interviews (deeper context), and behavioral data (revealed preferences) gives you the complete picture. Prioritization framework: Identify needs that are (1) important to customers, (2) unsatisfied by current solutions, and (3) feasible for you to address profitably. The intersection of these three is your opportunity space." },
+    { "type": "paragraph", "text": "**Effective customer needs analysis** requires this multi-layered approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Surface-level needs (what they say)**: Use surveys and interviews to capture stated preferences, feature requests, and explicit feedback. This gives you the 'what' but not necessarily the 'why' behind customer behavior.",
+        "**Behavioral needs (what they do)**: Observe actual customer behavior through usage analytics, purchase patterns, and real-world interactions. People's revealed preferences often differ significantly from their stated preferences.",
+        "**Jobs-to-be-done (what they're trying to accomplish)**: Dig deeper to understand the underlying job customers are hiring your product to do. This reveals non-obvious solutions and helps you identify adjacent opportunities.",
+        "**Emotional needs (how they want to feel)**: Understand the emotional outcomes customers seek—confidence, security, status, convenience, or peace of mind. These often drive purchasing decisions more than functional features.",
+        "**Unmet needs (gaps in current solutions)**: Identify needs that are important to customers, unsatisfied by current solutions, and feasible for you to address profitably. The intersection of these three criteria defines your opportunity space."
+      ]
+    },
+    { "type": "paragraph", "text": "The biggest insight often comes from understanding the gap between stated and revealed preferences. Customers might say they want more features, but behavioral data shows they primarily use three core functions and find additional features confusing. They might say price is their top priority, but they consistently choose premium options when the value proposition is clear. This is why combining surveys (stated preferences), interviews (deeper context), and behavioral data (revealed preferences) gives you the complete picture." },
     
     { "type": "headline", "level": 3, "text": "Step 7: Synthesize Insights and Draw Conclusions" },
     { "type": "paragraph", "text": "Combine all findings to draw conclusions about market opportunities, challenges, and strategic directions. This synthesis guides decision-making, ensuring strategies are data-driven rather than based on assumptions or intuition alone. Create a clear narrative that connects your findings: What is the market opportunity? Who are the customers? What do they need? Who else serves them and how? Where are the gaps? What trends are creating new opportunities or threats? This narrative becomes your strategic foundation." },
-    { "type": "paragraph", "text": "The synthesis should answer three critical questions: (1) Should we enter/remain in this market? Base this on market attractiveness (size, growth, profitability) and competitive advantage (can we win?). (2) If yes, what segments should we target? Prioritize based on segment attractiveness and your ability to serve them profitably. (3) How should we position ourselves? Based on competitive gaps and customer needs. Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
+    { "type": "paragraph", "text": "**Effective synthesis** requires answering these critical questions systematically:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Market attractiveness assessment**: Should we enter/remain in this market? Base this on market size, growth rate, profitability potential, and competitive dynamics. Consider both current conditions and future projections.",
+        "**Competitive advantage evaluation**: Can we win in this market? Assess your unique strengths, resources, and capabilities against competitive requirements and customer needs. Be honest about gaps and limitations.",
+        "**Target segment prioritization**: If yes to entering, what segments should we target? Prioritize based on segment attractiveness (size, growth, profitability) and your ability to serve them profitably given your constraints.",
+        "**Positioning strategy development**: How should we position ourselves? Based on competitive gaps, customer needs, and your unique value proposition. Define your differentiation and messaging strategy.",
+        "**Risk and confidence assessment**: Present findings with clear confidence levels—distinguish between facts you're certain about and assumptions you're testing. This transparency helps stakeholders understand risks and make informed decisions."
+      ]
+    },
+    { "type": "paragraph", "text": "Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
     
-    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: SaaS Company Analyzing Healthcare Market" },
-    { "type": "paragraph", "text": "Let's walk through a complete market analysis example to see how these steps work in practice." },
+    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: Applying [YOUR TOPIC] in a Real Scenario" },
+    { "type": "paragraph", "text": "Let's walk through a complete, topic-specific example to see how the concepts work in practice. Replace all placeholders with details appropriate to the user's topic. Do not switch to market analysis unless the topic itself is market/competitive strategy." },
     
     { "type": "headline", "level": 3, "text": "Background and Situation" },
-    { "type": "paragraph", "text": "TechFlow is a SaaS company with $10M annual revenue, currently selling project management software to technology companies. They're considering entering the healthcare vertical. Their board wants analysis to support a go/no-go decision within three months. The team has $50K budget for research and two analysts dedicated to the project." },
+    { "type": "paragraph", "text": "[Organization/Context] is working on [your topic outcome]. Constraints: [time/budget/team], Environment: [relevant stack/process], Objective: [clear success criterion tied to the topic]." },
     
-    { "type": "headline", "level": 3, "text": "Step-by-Step Analysis" },
-    { "type": "paragraph", "text": "Step 1 - Define Market Scope: The team initially considered 'healthcare project management' but realized this was too broad—hospitals have completely different needs than medical practices or pharmaceutical companies. After preliminary research, they narrowed to: 'Project management software for clinical research teams at mid-size pharmaceutical and biotech companies (500-5000 employees) in North America.' This specificity made the analysis manageable and insights actionable." },
-    { "type": "paragraph", "text": "Step 2 - Collect Data: Secondary research included three industry reports ($15K total) showing clinical trial management market dynamics, FDA databases showing number of clinical trials and sponsors, and competitor websites and case studies. Primary research included 30 interviews with clinical research managers, attending two industry conferences, and surveying 120 clinical research professionals on LinkedIn. Total research cost: $45K (under budget)." },
-    { "type": "paragraph", "text": "Step 3 - Analyze Market Size: TAM (all clinical trial project management globally): $2.3B. SAM (mid-size pharma/biotech, North America only): $380M. SOM (realistic capture in 3 years given competition): $15-25M. This SOM was calculated by estimating 200 target companies, 40% reachable through their channels, 25% conversion rate (based on their historical performance in tech), at $30K average annual contract value. The SOM range ($15-25M) accounts for uncertainty in conversion rates." },
-    { "type": "paragraph", "text": "Step 4 - Identify Trends: Three major trends identified: (1) FDA increasing scrutiny of clinical trial data management, creating demand for better documentation and audit trails (regulatory driver). (2) Rise of decentralized clinical trials requiring coordination across more dispersed teams (technology and COVID-driven). (3) Growing emphasis on trial speed as cost of delays increases, particularly for biotech companies with finite runway (economic driver). These trends converged to increase willingness-to-pay for better project management tools." },
-    { "type": "paragraph", "text": "Step 5 - Competitive Analysis: Four main competitors identified: TrialMaster (market leader, enterprise-focused, $100K+ deals, strong with large pharma), Medidata (comprehensive suite, expensive, long implementation), SmallPharma PM (budget option, limited features, $10K/year), and Excel + Email (surprisingly common among mid-size companies, free but inefficient). Gap identified: No solution optimized for mid-size companies that want more than Excel but can't afford or don't need enterprise solutions like Medidata. TechFlow's sweet spot—they've built a business on serving the mid-market that enterprises ignore and startups can't profitably serve." },
-    { "type": "paragraph", "text": "Step 6 - Customer Needs: Interviews revealed clinical research managers' biggest frustrations: (1) Compliance burden—every project change requires extensive documentation for FDA audits, (2) Cross-functional coordination—clinical trials involve medical, regulatory, data management, and operations teams that don't communicate well, (3) Visibility—leadership constantly asks 'when will the trial complete?' but answering requires manually aggregating data from multiple systems. Current solutions either don't address these needs (Excel) or are overkill with features they don't need (enterprise systems). TechFlow's existing strength in visual project timelines and stakeholder communication directly addresses needs #2 and #3." },
+    { "type": "headline", "level": 3, "text": "Step-by-Step Application" },
+    { "type": "paragraph", "text": "Step 1 – Frame the problem using a topic-appropriate model: [e.g., for AWS: workload requirements → reliability, performance, cost]. Identify inputs, constraints, and non-functional requirements tied to [your topic]." },
+    { "type": "paragraph", "text": "Step 2 – Apply the core procedures for [your topic]: [list the concrete steps, e.g., for AWS: choose regions/AZs, VPC design, service selection, IAM, networking, data storage, security]. Justify each choice with trade-offs." },
+    { "type": "paragraph", "text": "Step 3 – Execute a focused analysis aligned to the topic: [e.g., for AWS: capacity estimates, cost modeling, scaling strategy, failure domains]. Use measurements or realistic assumptions; avoid business-market frameworks unless topic is strategy." },
+    { "type": "paragraph", "text": "Step 4 – Validate and iterate: define tests/metrics to confirm success (e.g., for AWS: latency SLOs, error budgets, cost per request, recovery time). Capture lessons to inform the final recommendation." },
     
-    { "type": "headline", "level": 3, "text": "Synthesis and Decision" },
-    { "type": "paragraph", "text": "Market Attractiveness: High. Growing market ($380M SAM, 12% annual growth), strong willingness-to-pay driven by regulatory and economic pressures, clear competitive gap in the mid-market segment. Competitive Advantage: Medium-High. TechFlow's core strengths (visual project management, cross-functional collaboration, mid-market focus) align well with identified needs. However, they lack healthcare domain expertise and compliance features. Risk: Entering a regulated industry requires compliance investment and longer sales cycles than their current tech market. Recommendation: Enter the market with a focused pilot—target 5-10 mid-size biotech customers to validate assumptions before full launch. Build compliance features (audit trails, user permissions, data retention) into roadmap. Hire one clinical research expert as product advisor. Budget $2M for year-one investment with expectation of $3-5M revenue by year three. This staged approach allows learning while limiting risk." },
+    { "type": "headline", "level": 3, "text": "Decision and Rationale" },
+    { "type": "paragraph", "text": "Recommend a concrete plan specific to [your topic] with explicit trade-offs. Example (AWS): 'Use EC2 + ALB + RDS (Multi-AZ) with S3 for assets and CloudWatch alarms; chosen for reliability ≥99.9%, p95 latency <200ms, monthly budget <$X. Alternatives considered: [alt], rejected due to [reason].'" },
     
     { "type": "headline", "level": 3, "text": "Key Lessons from This Example" },
-    { "type": "paragraph", "text": "First, market definition narrowing was crucial. 'Healthcare' → 'Clinical Research' → 'Mid-size Pharma/Biotech' → 'North America' transformed an impossibly broad analysis into an actionable one. Second, primary research revealed insights secondary research couldn't—the Excel + Email finding only emerged from customer interviews, yet it was critical for understanding the actual competition. Third, connecting customer needs to existing strengths is how you identify genuine competitive advantages rather than wishful thinking. TechFlow didn't need to be better at everything, just better at what mattered most to their target segment. Finally, staged entry reduces risk—the pilot approach lets them test assumptions with limited investment before full commitment." },
+    { "type": "paragraph", "text": "Focus on topic-appropriate frameworks and artifacts. Keep analysis within the boundaries of [your topic]. Avoid PESTLE/Five Forces/market-entry unless the topic is market strategy. Document assumptions, risks, and validation results tied directly to the topic's success criteria." },
     
     { "type": "headline", "level": 2, "text": "❌ ANALYZING COMMON MISTAKES IN DEPTH" },
     { "type": "paragraph", "text": "Understanding what NOT to do is as valuable as knowing best practices. Let's examine the most frequent and costly mistakes in market analysis with detailed analysis of why they happen and how to avoid them." },
@@ -30932,8 +33233,9 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "How to correct it: Reframe competitive analysis around customer jobs-to-be-done instead of product categories. Ask: 'What are all the ways customers currently solve this problem?' not just 'Who else sells this type of product?'. In customer interviews, always ask: 'What do you do today when you encounter this problem?' and 'What would you do if our product didn't exist?'. The answers reveal your real competition. Create a comprehensive competitor map including: direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). For each alternative, understand: What does it cost? What's good enough about it? What's the switching cost from it to you? What would have to be true for customers to switch? This reveals whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war against direct competitors but lose the value war against substitutes and status quo." },
     
     { "type": "headline", "level": 2, "text": "✅ RECOMMENDATIONS FOR EFFECTIVE MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "**Best practices for ongoing market analysis** follow this prioritized sequence:" },
     {
-      "type": "bullet_list",
+      "type": "numbered_list",
       "items": [
         "**Use a combination of data sources to ensure a comprehensive view of the market**: Relying on a single data source creates blind spots and biases in your analysis. Primary research gives you specific insights about your target customers that no report can provide, revealing nuances like workflow details, political dynamics, and unspoken pain points. Secondary research provides market sizing, trend validation, and competitive benchmarking that would take years to gather yourself. This approach mitigates the risk of bias and provides a solid basis for a more reliable analysis that combines the depth of primary research with the breadth of secondary data.",
         "**Regularly update your market analysis to reflect current conditions**: Markets are dynamic—what was true last year may not be true today. Customer preferences shift, new competitors emerge, regulations change, and technological innovations disrupt established patterns. Schedule quarterly reviews of key metrics and assumptions to catch changes early when you can still adapt. Regular updates help strategies remain relevant and responsive to market changes, preventing you from optimizing for yesterday's market. Assign someone ownership of market intelligence—if it's everyone's job, it's no one's job. This person should maintain competitor tracking, customer feedback loops, and industry monitoring.",
@@ -30942,16 +33244,29 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
       ]
     },
     
-    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply Your Learning" },
-    { "type": "paragraph", "text": "Now let's test your understanding with a realistic scenario. Work through this analysis using the frameworks and steps you've learned." },
+    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply [YOUR TOPIC]" },
+    { "type": "paragraph", "text": "Now test your understanding with a realistic, topic-specific scenario. Complete the tasks using the frameworks and steps you've learned for [your topic] — do not switch to business or market analysis unless the topic itself is market strategy." },
     
-    { "type": "paragraph", "text": "**Scenario**: GlobalSensors Inc. manufactures industrial sensors ($500/unit) primarily for automotive manufacturing (70% of revenue) and aerospace (30% of revenue). Total revenue: $25M annually. They're considering entering the agricultural technology market. Your task is to conduct a preliminary market analysis." },
+    { "type": "paragraph", "text": "**Scenario**: You are working on [your topic]. You have the following context: [brief, topic-appropriate setup with concrete details]. Your goal is to apply [topic frameworks/techniques] to decide on the next best actions and explain your reasoning." },
     
-    { "type": "paragraph", "text": "**Available Data**: (1) Agricultural technology market size: $12B globally, growing at 8% annually. (2) Three major competitors control 60% combined market share: AgriTech Solutions, FarmSense, and CropMonitor. Pricing ranges from $300-$800 per unit. (3) Your sensors have tighter tolerances (0.1mm vs. industry standard 0.2mm) but most agricultural applications don't require that precision. (4) GlobalSensors has zero existing agricultural customer relationships or distribution channels. (5) Sales cycles: Current business 3-6 months, agricultural sector typically 6-12 months. (6) Agricultural customers are highly price-sensitive and seasonal in their purchasing." },
+    { "type": "headline", "level": 3, "text": "What You Have" },
+    { "type": "bullet_list", "items": [
+      "[Data point A relevant to the topic]",
+      "[Data point B relevant to the topic]",
+      "[Constraint or requirement relevant to the topic]",
+      "[Tooling or resources available relevant to the topic]"
+    ] },
     
-    { "type": "paragraph", "text": "**Your Analysis Tasks**: (1) How would you define the specific target market (don't just say 'agriculture')? (2) What data would you collect first and why? List your top 5 priorities. (3) What are the 3 biggest risks you identify for this market entry? (4) Using Five Forces analysis, assess two forces that concern you most. (5) What conditions would make you recommend NOT entering this market?" },
+    { "type": "headline", "level": 3, "text": "Your Tasks" },
+    { "type": "numbered_list", "items": [
+      "Outline your approach using [topic-appropriate framework or steps].",
+      "Perform the key analysis or design steps and state assumptions.",
+      "Identify 2-3 risks or trade-offs and how you'd mitigate them.",
+      "Provide a concrete recommendation with justification tied to the data."
+    ] },
     
-    { "type": "paragraph", "text": "**Expert Analysis**: Let's walk through how an experienced analyst would approach this scenario. **Market Definition**: Don't target 'agriculture' broadly—too diverse. Instead, focus on 'precision agriculture for large commercial farms (1,000+ acres) in North America growing commodity crops (corn, soybeans, wheat).' Why this narrowing? Large farms have budget for optimization technology, commodity crops have thin margins making efficiency gains valuable, and North America allows leveraging existing geographic footprint. Exclude: small farms (can't afford), specialty crops (different needs), and international markets initially (different regulations, distribution complexity). **Data Collection Priorities**: (1) Interview 20-30 large farm operators to understand their sensor needs, buying process, and pain points—this primary research is critical since you know nothing about this customer segment. (2) Analyze competitors' positioning and customer segments from their websites, case studies, and customer reviews—understand where they're strong and where gaps exist. (3) Talk to 5-10 agricultural equipment distributors to understand channel dynamics—you'll need distribution and don't have it. (4) Attend two agricultural technology conferences to observe buying behavior and network with potential customers. (5) Commission a focused industry report on precision agriculture sensor adoption rates and barriers—validates market size within your target segment. **Top 3 Risks**: (1) Channel risk—you have no agricultural distribution relationships and building them takes 12-18 months. Competitors have established relationships making customer acquisition very difficult. (2) Product-market fit risk—your differentiator (tighter tolerances) isn't valued in this market; customers optimize for price and durability, not precision. You'd be selling premium features no one wants to pay for. (3) Sales cycle risk—6-12 month sales cycles are twice your current length, while agricultural seasonality means customers only buy during narrow windows. This strains cash flow and makes iteration slower. **Five Forces Concerns**: Bargaining Power of Buyers is HIGH—commodity farmers are extremely price-sensitive with thin margins, they see sensors as commoditized, and they can easily switch between suppliers. This leads to price pressure and low margins. Threat of Substitutes is MEDIUM-HIGH—farmers have used traditional methods for decades and many still do. Free/manual alternatives (observation, experience, simple instruments) work 'good enough' for many. You're competing against inertia and the mindset of 'we've always done it this way.' **Conditions for No-Go**: Recommend NOT entering if: (1) Customer interviews reveal farmers don't value your precision advantage and won't pay a premium for it. (2) Distribution partners require exclusivity or minimum volumes you can't commit to without abandoning current business. (3) Realistic SOM calculation shows less than $5M capturable revenue in three years—not enough to justify the channel investment and organizational distraction. (4) Competitors are engaging in price wars with margin compression—entering a race to the bottom is value-destructive. (5) Regulatory or liability requirements (sensor failures affecting crop yields) create risk exposure your current insurance doesn't cover. **Recommendation**: Likely NO-GO unless a specific niche emerges. The core issues are: your key differentiator isn't valued, you lack distribution channels, and market dynamics favor price competition where you don't want to compete. However, one possible pivot: Target agricultural research institutions and university agricultural programs instead of commercial farms—they value precision, have different buying processes, and might serve as a beachhead before commercial expansion. This would require a separate analysis of that segment." },
+    { "type": "headline", "level": 3, "text": "Walkthrough Solution (Expert Reasoning)" },
+    { "type": "paragraph", "text": "Explain your reasoning step-by-step using [topic frameworks/techniques], referencing the provided data. Keep it specific to [your topic]; do not introduce market-entry, PESTLE, or Five Forces unless the topic is market strategy." },
     
     { "type": "alert", "alertType": "info", "title": "Key Takeaway", "text": "Market analysis is an ongoing process, not a one-time task. Regularly revisiting and updating your analysis ensures that your business strategies remain aligned with market realities and ahead of competitive forces. The most successful companies treat market analysis as a continuous learning system that informs every major decision." },
     
@@ -31018,6 +33333,8 @@ class TextPresentationEditRequest(BaseModel):
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
     """Generate text presentation content with streaming response"""
+    import json
+    
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_START] Text presentation preview initiated")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
@@ -31077,6 +33394,8 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             if course_structure:
                 wiz_payload["courseStructure"] = course_structure
                 logger.info(f"[COURSE_CONTEXT] Course structure added to onepager wizard request")
+                # Log full course structure
+                logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
             
             # Get adjacent lesson content with product type priority
             product_type = "onepager"  # This is a text presentation/onepager
@@ -31098,16 +33417,20 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 if 'previousLesson' in adjacent_context:
                     wiz_payload["previousLesson"] = adjacent_context['previousLesson']
                     prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
-                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                    prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                    # Log full previous lesson content
+                    logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
                 
-                # Add next lesson context (without full content, just structure)
+                # Add next lesson title to avoid covering topics meant for next lesson
                 if 'nextLesson' in adjacent_context:
                     next_lesson = adjacent_context['nextLesson']
                     wiz_payload["nextLesson"] = {
                         'title': next_lesson.get('title'),
                         'position': next_lesson.get('position')
                     }
-                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                    logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wiz_payload['nextLesson'], ensure_ascii=False, indent=2)}")
                 
                 context_summary = []
                 if 'courseStructure' in wiz_payload:
@@ -31208,6 +33531,7 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             # Continue with original text if decompression fails
     
     # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
     course_context_instructions_onepager = ""
     if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
         course_context_instructions_onepager = """
@@ -31217,9 +33541,14 @@ You have been provided with course context information. You MUST use this contex
 1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, case studies, or explanations already covered
 2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "Building on what we covered earlier...")
 3. **Adjust Depth**: Use lessonPosition to gauge appropriate depth - early lessons need comprehensive fundamentals, later lessons can assume foundation
-4. **Maintain Consistency**: Use the same terminology, frameworks, and mental models as previous lessons
-5. **Create Progression**: Prepare groundwork for nextLesson topics when provided - introduce terms that will be explored later
-6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons"""
+4. **Maintain Terminology**: Use the same key terms, frameworks, and mental models as previous lessons - extract and maintain core vocabulary
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
+6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT cover advanced configuration in the current lesson
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
+- Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
@@ -31347,9 +33676,94 @@ You have been provided with course context information. You MUST use this contex
 4. Aim for 4-6 level 2 sections in a complete one-pager
 5. Each level 2 section can have 2-5 level 3 subsections
 
+⚠️ CRITICAL FORMATTING FEATURES YOU MUST USE ⚠️
+
+**1. NUMBERED LISTS (numbered_list) - USE FOR SEQUENTIAL/ORDERED CONTENT:**
+- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels, systematic approaches, decision frameworks, analysis methods, implementation sequences
+- ❌ DON'T USE for: Random collection of related points (use bullet_list instead)
+- Structure: {{"type": "numbered_list", "items": ["First item...", "Second item...", "Third item..."]}}
+- **INCLUDE AT LEAST 4-6 NUMBERED LISTS** in every onepager where sequential content exists
+- **MANDATORY**: Every onepager MUST have numbered lists for any sequential content
+- Examples of when to use:
+  * "Five Steps to Conduct Market Analysis" → numbered_list (it's a process)
+  * "Three Phases of Product Development" → numbered_list (it's sequential)
+  * "PESTLE Six Dimensions" → numbered_list (it's a defined framework with ordered components)
+  * "Key indicators to identify trends" → numbered_list (it's a systematic approach)
+  * "Systematic competitive analysis" → numbered_list (it's a structured method)
+  * "Effective customer needs analysis" → numbered_list (it's a multi-layered approach)
+  * "Best practices for ongoing market analysis" → numbered_list (it's a prioritized sequence)
+
+**2. BULLET LISTS (bullet_list) - USE FOR NON-SEQUENTIAL RELATED POINTS:**
+- ✅ USE for: Benefits, features, characteristics, recommendations, tips, considerations
+- ❌ DON'T USE for: Sequential steps or ranked priorities (use numbered_list instead)
+- Structure: {{"type": "bullet_list", "items": ["Point A...", "Point B...", "Point C..."]}}
+
+**3. BOLD TEXT WITH ASTERISKS - EMPHASIZE KEY TERMS:**
+- ✅ **REQUIRED**: Use **asterisks** around important terms throughout all content
+- Format: **term** (asterisks on both sides, no spaces inside)
+- **Each list item should have 3-5 bold terms** highlighting key concepts
+- Use bold for: Technical terms, key concepts, critical actions, important names, emphasis points
+- Examples:
+  * "**Primary data** comes from direct market research" (term definition)
+  * "Calculate **TAM**, **SAM**, and **SOM** for market sizing" (key concepts)
+  * "Use **qualitative research** before **quantitative validation**" (process steps)
+  * "The **biggest risk** is ignoring **competitive substitutes**" (emphasis)
+
+❌ COMMON MISTAKES TO AVOID:
+1. Writing "1. First step, 2. Second step" in a paragraph instead of using numbered_list
+2. No bold text anywhere → Makes content look flat and unprofessional
+3. Using bullet_list for sequential steps → Should be numbered_list
+4. Using numbered_list for random related points → Should be bullet_list
+5. Missing numbered lists for systematic approaches → Every "how to" or "steps to" should be numbered_list
+6. Not using numbered lists for frameworks → PESTLE, Five Forces, SWOT, etc. should be numbered_list
+7. Converting sequential content to paragraphs → Any ordered process MUST be numbered_list
+
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
+
+⚠️⚠️⚠️ CRITICAL WARNING ABOUT THE EXAMPLE ABOVE: ⚠️⚠️⚠️
+The example shows "Market Analysis" as the TOPIC being taught.
+🚨 "Market Analysis" is just ONE example topic - YOU MUST REPLACE IT WITH YOUR ACTUAL TOPIC! 🚨
+
+THE EXAMPLE TOPIC: "Market Analysis" (teaching how to analyze markets)
+YOUR ACTUAL TOPIC: [Whatever the user requested - AI in Sales, AWS, Python, etc.]
+
+DO NOT THINK: "I need to do market analysis of [my topic]"
+INSTEAD THINK: "I need to teach [my topic] using the same structure the example used"
+
+IF YOUR TOPIC IS "AI in Sales":
+❌ DO NOT create: "Market Analysis of AI in Sales" or "How to analyze the AI sales market"
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, agricultural scenarios, market entry analysis
+✅ CREATE: "AI in Sales" lesson teaching Sales Funnel, Lead Scoring, CRM integration, AI chatbot deployment
+✅ USE: AI sales scenarios, CRM examples, lead scoring case studies, sales automation workflows
+
+IF YOUR TOPIC IS "AWS":
+❌ DO NOT create: "Market Analysis of AWS" or "How to analyze the cloud market"
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, market analysis frameworks
+✅ CREATE: "AWS" lesson teaching cloud architecture, services, best practices
+✅ USE: Well-Architected Framework, EC2/S3/RDS examples, cost optimization scenarios, cloud migration case studies
+
+IF YOUR TOPIC IS "Python Programming":
+❌ DO NOT create: "Market Analysis of Python" or business strategy content
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, market/business frameworks
+✅ CREATE: "Python Programming" lesson teaching syntax, best practices, design patterns
+✅ USE: Code examples, testing pyramid, refactoring scenarios, debugging case studies
+
+THE EXAMPLE SHOWS YOU:
+✅ How to STRUCTURE content (paragraph-heavy, worked examples, decision frameworks)
+✅ How to ORGANIZE sections (mental models, skill practice, common mistakes)
+✅ What QUALITY looks like (60-100 word bullets, detailed analysis, Bloom's Taxonomy)
+
+THE EXAMPLE DOES NOT SHOW YOU:
+❌ What CONTENT to use - adapt all content to YOUR topic
+❌ What FRAMEWORKS to use - select topic-appropriate frameworks
+❌ What SCENARIOS to create - create scenarios about YOUR topic
+
+VERIFICATION BEFORE GENERATING:
+□ Are my frameworks appropriate for THIS topic? (Not PESTLE/Five Forces unless topic is business strategy)
+□ Are my scenarios about THIS topic? (Not GlobalSensors/market entry unless topic is market strategy)
+□ Would a user recognize this is about THEIR topic?
 
 The example above demonstrates 90+ quality score with:
 - Proper paragraph-heavy structure (not list-heavy)
@@ -31364,7 +33778,13 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
 - contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, alert, etc.)
 - Use "paragraph" type liberally (60% of content) - this is where deep learning happens
-- Use bullet_list ONLY when listing related points, and make each item 60-100 words
+- **LIST USAGE RULES (CRITICAL)**:
+  - Use **numbered_list** for: Sequential steps, ranked priorities, ordered procedures, chronological events, hierarchical levels
+  - Use **bullet_list** for: Related but non-sequential points, benefits/features, characteristics, recommendations
+  - Example numbered_list: {{"type": "numbered_list", "items": ["**Step 1**: Do this first...", "**Step 2**: Then do this...", "**Step 3**: Finally do this..."]}}
+  - Example bullet_list: {{"type": "bullet_list", "items": ["**Benefit A**: Detailed explanation...", "**Benefit B**: Another point...", "**Benefit C**: Third point..."]}}
+- Make each list item 60-100 words with **bold text** for emphasis on key terms/concepts
+- **BOLD TEXT FORMATTING**: Use asterisks to emphasize important terms: **important term**, **key concept**, **critical point**
 - Include alert blocks for warnings/recommendations with alertType: "warning"|"info"|"success"
 - Preserve original language across all text
 
@@ -31372,6 +33792,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Word count: 3,000-5,000 words total?
 ✅ Paragraph usage: ~60% of content blocks are paragraphs?
 ✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
+✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 4-6 numbered lists included? Every sequential process MUST use numbered_list format?
+✅ **Bold text**: Key terms and concepts emphasized with **asterisks** throughout? Each list item has 3-5 bold terms?
 ✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
 ✅ Content grouping: Related concepts grouped under ONE level 2 header?
 ✅ Mental models: 2-3 frameworks with HOW to apply them?
@@ -31384,10 +33806,35 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
+        # Prepend strict files-only guard to one-pager preview instructions when generating from files
+        has_file_context_text = bool(
+            getattr(payload, 'fromFiles', None) or
+            getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None) or
+            (getattr(payload, 'fromConnectors', None) and (getattr(payload, 'connectorSources', None) or getattr(payload, 'selectedFiles', None)))
+        )
+        if has_file_context_text:
+            files_guard_text = """
+
+FILES-ONLY MODE (OVERRIDE GUARD for Text Presentation):
+When fromFiles=true, you MUST use ONLY content that appears in the provided sources. All educational guidance below (examples, frameworks, practice, common mistakes, procedures, recommendations, numbers) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT the entire section. Do NOT add general-knowledge facts, named entities (companies, tools, programs, certifications), worked examples, or ANY numbers/percentages unless they appear verbatim in the sources. Fidelity overrides length and density targets.
+
+"""
+            json_preview_instructions_text = files_guard_text + json_preview_instructions_text
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | has_file_context={has_file_context_text} | fromFiles={getattr(payload, 'fromFiles', None)} | fileIds={getattr(payload, 'fileIds', None)} | folderIds={getattr(payload, 'folderIds', None)} | fromConnectors={getattr(payload, 'fromConnectors', None)} | selectedFiles={getattr(payload, 'selectedFiles', None)}")
+            except Exception:
+                pass
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard_text)} | instr_len={len(json_preview_instructions_text)}")
+            except Exception:
+                pass
+
         wizard_message = wizard_message + json_preview_instructions_text
         logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+    
+    # Onepager fidelity rules are now in product-specific txt files
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -31412,7 +33859,19 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
                 if payload.fromConnectors and payload.connectorSources:
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
+                            if file_ids:
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -31535,7 +33994,8 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -31568,7 +34028,8 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
             logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -31654,7 +34115,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         # NEW: Use OpenAI directly for text presentation editing
         logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for text presentation editing")
         try:
-            async for chunk_data in stream_openai_response(wizard_message):
+            async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
                     assistant_reply += delta_text
@@ -34922,6 +37383,41 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     # Training Plan duplication - handle connected products
                     new_session_id = str(uuid4())
                     
+                    # Update microproduct_content to reflect the new course name
+                    new_content = orig['microproduct_content']
+                    logger.info(f"[DUPLICATE] Original content type: {type(new_content)}")
+                    
+                    if new_content:
+                        # Parse JSON string if needed
+                        if isinstance(new_content, str):
+                            try:
+                                import json
+                                new_content = json.loads(new_content)
+                                logger.info(f"[DUPLICATE] Parsed JSON string to dict")
+                            except (json.JSONDecodeError, TypeError) as e:
+                                logger.error(f"[DUPLICATE] ❌ Failed to parse JSON: {e}")
+                                new_content = {}
+                        
+                        # Deep copy to avoid mutating original
+                        import copy
+                        new_content = copy.deepcopy(new_content)
+                        logger.info(f"[DUPLICATE] After processing, content type: {type(new_content)}")
+                        
+                        # Update mainTitle in the content
+                        if isinstance(new_content, dict):
+                            if 'mainTitle' in new_content:
+                                old_main_title = new_content['mainTitle']
+                                new_content['mainTitle'] = new_name
+                                logger.info(f"[DUPLICATE] ✅ Updated mainTitle: '{old_main_title}' -> '{new_name}'")
+                            else:
+                                # mainTitle doesn't exist, add it
+                                new_content['mainTitle'] = new_name
+                                logger.info(f"[DUPLICATE] ⚠️ mainTitle didn't exist, added: '{new_name}'")
+                        else:
+                            logger.error(f"[DUPLICATE] ❌ Content is still not a dict! Type: {type(new_content)}")
+                    else:
+                        logger.error(f"[DUPLICATE] ❌ microproduct_content is None or empty!")
+                    
                     # Duplicate the main Training Plan with all fields
                     new_outline_id = await conn.fetchval(
                         """
@@ -34939,7 +37435,7 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                         orig['product_type'],
                         orig['microproduct_type'],
                         orig['microproduct_name'],
-                        orig['microproduct_content'],  # JSONB will be handled automatically by asyncpg
+                        new_content,  # Updated content with new mainTitle
                         orig['design_template_id'],
                         now,
                         new_session_id,
@@ -34952,6 +37448,20 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     )
                     
                     logger.info(f"Created new Training Plan with ID {new_outline_id}")
+                    
+                    # Verify what was actually inserted
+                    verify_row = await conn.fetchrow(
+                        "SELECT microproduct_content FROM projects WHERE id = $1",
+                        new_outline_id
+                    )
+                    if verify_row:
+                        verify_content = verify_row['microproduct_content']
+                        if isinstance(verify_content, dict) and 'mainTitle' in verify_content:
+                            logger.info(f"[DUPLICATE] ✅ VERIFIED: Database has mainTitle = '{verify_content['mainTitle']}'")
+                        else:
+                            logger.error(f"[DUPLICATE] ❌ VERIFICATION FAILED: Database mainTitle not found or content is not dict!")
+                    else:
+                        logger.error(f"[DUPLICATE] ❌ VERIFICATION FAILED: Could not fetch inserted row!")
                     
                     # Find all connected products using the same naming patterns as frontend
                     # Get all user's projects to search through
@@ -35034,23 +37544,62 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                             connected.append(project)
                     
                     logger.info(f"Found {len(connected)} connected products to duplicate")
+                    for prod in connected:
+                        logger.info(f"  - Product ID {prod['id']}: '{prod['project_name']}' (micro: '{prod.get('microproduct_name')}')")
                     
-                    # Duplicate each connected product
+                    # Duplicate each connected product with pattern-aware logic
                     duplicated_products = []
                     for i, prod in enumerate(connected):
                         try:
-                            # Smart name replacement - handle various naming patterns
                             prod_name = prod['project_name']
-                            if prod_name.startswith(orig['project_name']):
-                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
-                            else:
-                                # If name doesn't start with parent name, just add "Copy of" prefix
-                                prod_name = f"Copy of {prod_name}"
-                            
-                            # Update microproduct name if it references the parent
                             micro_name = prod['microproduct_name']
-                            if micro_name and micro_name.startswith(orig['project_name']):
-                                micro_name = micro_name.replace(orig['project_name'], new_name, 1)
+                            
+                            logger.info(f"[DUPLICATE] Processing product {prod['id']}: project_name='{prod_name}', microproduct_name='{micro_name}'")
+                            
+                            # Pattern 1: "Outline: Lesson" 
+                            if ': ' in prod_name and prod_name.startswith(orig['project_name'] + ': '):
+                                # Replace outline name only
+                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
+                                # microproduct_name stays unchanged (it's the lesson title)
+                                logger.info(f"Pattern 1 (Outline:Lesson) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 2: "Quiz - Outline: Lesson"
+                            elif prod_name.startswith('Quiz - ') and ': ' in prod_name:
+                                quiz_part = prod_name.replace('Quiz - ', '', 1)
+                                if quiz_part.startswith(orig['project_name'] + ': '):
+                                    quiz_part = quiz_part.replace(orig['project_name'], new_name, 1)
+                                    prod_name = f"Quiz - {quiz_part}"
+                                    logger.info(f"Pattern 2 (Quiz) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 3: "Type - Outline: Lesson" (generic prefixed)
+                            elif ' - ' in prod_name and ': ' in prod_name:
+                                parts = prod_name.split(' - ', 1)
+                                if len(parts) == 2:
+                                    prefix = parts[0]
+                                    rest = parts[1]
+                                    if rest.startswith(orig['project_name'] + ': '):
+                                        rest = rest.replace(orig['project_name'], new_name, 1)
+                                        prod_name = f"{prefix} - {rest}"
+                                        logger.info(f"Pattern 3 (Prefixed) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 4: project_name == outline AND microproduct_name == lesson (Legacy)
+                            elif prod_name == orig['project_name'] and micro_name:
+                                prod_name = new_name
+                                # microproduct_name stays as lesson title
+                                logger.info(f"Pattern 4 (Legacy) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 5: Default fallback
+                            else:
+                                prod_name = f"Copy of {prod_name}"
+                                logger.info(f"Pattern 5 (Fallback) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Update microproduct_name if it references the parent outline
+                            if micro_name and orig['project_name'] in micro_name:
+                                micro_name = micro_name.replace(orig['project_name'], new_name)
+                                logger.info(f"Updated microproduct_name: '{prod['microproduct_name']}' -> '{micro_name}'")
+                            
+                            # Log the final names for debugging
+                            logger.info(f"[DUPLICATE] Final names: project_name='{prod_name}', microproduct_name='{micro_name}'")
                             
                             # Insert the duplicated product with all fields
                             new_prod_id = await conn.fetchval(
@@ -35088,7 +37637,8 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                                 'name': prod_name
                             })
                             
-                            logger.info(f"Duplicated {prod['microproduct_type']} '{prod['project_name']}' -> '{prod_name}' (ID: {new_prod_id})")
+                            logger.info(f"✅ Duplicated {prod['microproduct_type']} '{prod['project_name']}' -> '{prod_name}' (ID: {new_prod_id})")
+                            logger.info(f"   Original microproduct_name: '{prod['microproduct_name']}' -> New: '{micro_name}'")
                             
                         except Exception as e:
                             logger.error(f"Failed to duplicate connected product {prod['id']} ({prod['microproduct_type']}): {str(e)}")
@@ -35099,6 +37649,14 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                             )
                     
                     logger.info(f"Successfully duplicated Training Plan and {len(duplicated_products)} connected products")
+                    logger.info(f"📋 [DUPLICATION SUMMARY]")
+                    logger.info(f"   Original Course: '{orig['project_name']}' (ID: {project_id})")
+                    logger.info(f"   Original mainTitle: '{orig.get('microproduct_content', {}).get('mainTitle') if isinstance(orig.get('microproduct_content'), dict) else 'N/A'}'")
+                    logger.info(f"   New Course: '{new_name}' (ID: {new_outline_id})")
+                    logger.info(f"   New mainTitle: '{new_content.get('mainTitle') if isinstance(new_content, dict) else 'N/A'}'")
+                    logger.info(f"   Duplicated {len(duplicated_products)} products:")
+                    for dp in duplicated_products:
+                        logger.info(f"      - {dp['type']}: '{dp['name']}' (Original ID: {dp['original_id']} -> New ID: {dp['new_id']})")
                     
                     return {
                         "id": new_outline_id,
@@ -36334,14 +38892,8 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
         logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI request with model {model}")
         logger.info(f"[OPENAI_DIRECT] Prompt length: {len(prompt)} chars")
         
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_DIRECT] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        # Read assistant instructions (base + product-specific)
+        system_prompt = get_assistant_instructions()
         
         # Create the chat completion (non-streaming)
         response = await client.chat.completions.create(
@@ -42288,39 +44840,65 @@ async def export_scorm_package(
     http_request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Build and return a SCORM 2004 (4th Ed) package zip for a course outline."""
-    try:
-        # Resolve user identity
-        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
-        onyx_user_id = user_uuid
+    """Build and return a SCORM 2004 (4th Ed) package zip for a course outline with progress updates."""
+    
+    async def generate_with_progress():
+        try:
+            # Resolve user identity
+            user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
+            onyx_user_id = user_uuid
 
-        # Validate access: ensure the course is a Training Plan owned by the user
-        async with pool.acquire() as connection:
-            row = await connection.fetchrow(
-                """
-                SELECT p.id
-                FROM projects p
-                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
-                """,
-                request.courseOutlineId, onyx_user_id
-            )
-            if not row:
-                raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
+            # Validate access: ensure the course is a Training Plan owned by the user
+            async with pool.acquire() as connection:
+                row = await connection.fetchrow(
+                    """
+                    SELECT p.id
+                    FROM projects p
+                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                    WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
+                    """,
+                    request.courseOutlineId, onyx_user_id
+                )
+                if not row:
+                    raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
 
-        # Build SCORM package
-        from app.services.scorm_packager import build_scorm_package_zip
-        filename, zip_bytes = await build_scorm_package_zip(request.courseOutlineId, onyx_user_id)
+                # Build SCORM package with progress updates
+                from app.services.scorm_packager import build_scorm_package_zip_with_progress
+                
+                async for update in build_scorm_package_zip_with_progress(request.courseOutlineId, onyx_user_id):
+                    if update["type"] == "progress":
+                        # Send progress update as keep-alive
+                        progress_packet = {"type": "progress", "message": update["message"]}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        logger.info(f"[SCORM_EXPORT_PROGRESS] {update['message']}")
+                    elif update["type"] == "complete":
+                        # Send the actual ZIP file
+                        filename = update["filename"]
+                        zip_bytes = update["zip_bytes"]
+                        
+                        # Send completion message with filename
+                        completion_packet = {"type": "complete", "filename": filename, "size": len(zip_bytes)}
+                        yield (json.dumps(completion_packet) + "\n").encode()
+                        
+                        # Send the ZIP bytes
+                        yield zip_bytes
+                        logger.info(f"[SCORM_EXPORT_COMPLETE] {filename} ({len(zip_bytes)} bytes)")
+                        break
+                    
+        except HTTPException as he:
+            error_packet = {"type": "error", "message": he.detail}
+            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[API:SCORM] Export HTTP error: {he.detail}")
+        except Exception as e:
+            error_packet = {"type": "error", "message": "Failed to export SCORM package"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[API:SCORM] Export failed: {e}")
 
-        return StreamingResponse(
-            content=io.BytesIO(zip_bytes),
-            media_type="application/zip",
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}"
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"[API:SCORM] Export failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to export SCORM package")
+    return StreamingResponse(
+    content=generate_with_progress(),
+    media_type="application/octet-stream",
+        headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no"
+        }
+    )

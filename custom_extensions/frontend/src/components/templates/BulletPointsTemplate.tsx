@@ -251,9 +251,9 @@ function UnifiedBulletEditor({
 
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
     marginTop: '-5px',
-    opacity: '0.8',
+    opacity: '1',
     color: '#ffffff',
     lineHeight: '1.6'
   };
@@ -281,7 +281,8 @@ function UnifiedBulletEditor({
           margin: 0,
           width: '100%',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          alignItems: 'flex-end'
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
@@ -294,9 +295,8 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '30px',
-                minHeight: '1.6em',
-                width: '100%'
+                marginBottom: '35px',
+                width: '80%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -442,7 +442,7 @@ function UnifiedBulletEditor({
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '35px',
-            width: '90%'
+            width: '80%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
@@ -558,7 +558,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
+    fontSize: '1.4rem',
     color: currentTheme.colors.subtitleColor,
     marginBottom: '32px',
     fontFamily: currentTheme.fonts.contentFont,

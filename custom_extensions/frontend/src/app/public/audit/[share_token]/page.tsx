@@ -2082,22 +2082,27 @@ export default function PublicAuditPage() {
                   })}
                 </h3>
   
-                <div 
-                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
-                  style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                  }}
-                ></div>
+                <div className="border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] overflow-hidden" 
+                     style={{boxShadow: 'rgba(42, 51, 70, 0.03) 0px 6.43px 6.43px -2.14px, rgba(42, 51, 70, 0.03) 0px 2.68px 2.68px -1.34px, rgba(42, 51, 70, 0.03) 0px 1.34px 1.34px -0.67px'}}>
+                  <img 
+                    src={`/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${
+                      language === 'ua' ? 'ua' : 'en'
+                    }.png`}
+                    alt="Service Image"
+                    className="w-full h-auto block rounded-[2px]" />
+                </div>
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] mb-[15px] xl:mb-[40px]">
                   <div 
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      AI capabilities:
+                      {getLocalizedText(language, {
+                        en: 'AI capabilities:',
+                        es: 'Capacidades de IA:',
+                        ua: 'Можливості ШІ:',
+                        ru: 'Возможности ИИ:'
+                      })}
                     </h4>
                     
                     {/* Capability 1 */}

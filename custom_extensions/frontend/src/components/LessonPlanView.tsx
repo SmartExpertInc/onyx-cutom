@@ -1381,7 +1381,7 @@ const OnePagerBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm max-w-4xl mx-auto">
-          <div className="[&_.max-w-3xl]:!max-w-2xl [&_.mx-auto]:!mx-0 [&_p]:!text-sm [&_li]:!text-sm [&_span]:!text-sm [&_p]:!pl-4 [&_li]:!pl-4 [&_h1]:!pl-4 [&_h2]:!pl-4 [&_h3]:!pl-4">
+          <div className="[&_.max-w-3xl]:!max-w-2xl [&_.mx-auto]:!mx-0 [&_p]:!text-base [&_li]:!text-base [&_span]:!text-base [&_p]:!pl-4 [&_li]:!pl-4 [&_h1]:!pl-4 [&_h2]:!pl-4 [&_h3]:!pl-4">
             <TextPresentationDisplay 
                 dataToDisplay={data}
                isEditing={false}
