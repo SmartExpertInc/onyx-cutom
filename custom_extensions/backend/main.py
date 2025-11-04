@@ -24996,6 +24996,8 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for {'video lesson' if is_video_lesson else 'lesson'} presentation:")
                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
 
                 # For lesson presentations, parse JSON and validate slide count
                 if is_video_lesson or payload.productType == "lesson_presentation":
@@ -25079,6 +25081,8 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for {'video lesson' if is_video_lesson else 'lesson'} presentation:")
                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
 
                 # For lesson presentations, parse JSON and validate slide count
                 if is_video_lesson or payload.productType == "lesson_presentation":
