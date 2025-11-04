@@ -1933,9 +1933,9 @@ export default function DynamicAuditLandingPage() {
                 </svg>
                 
                 {/* Pill-shaped div */}
-                <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] xl:px-[25px] py-[6px] xl:py-[4px] flex items-center gap-2 xl:mb-[5px]">
+                <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-full w-fit px-[15px] xl:px-[25px] py-[6px] xl:py-[4px] flex items-center gap-2 xl:mb-[5px]">
                   {/* Circle with gradient background */}
-                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#FAFAFA] to-[#FAFAFA] xl:bg-gradient-to-r xl:from-[#FAFAFA] xl:to-[#FAFAFA]"></div>
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#0F58F9] to-[#6496F8] xl:bg-gradient-to-r xl:from-[#0F58F9] xl:to-[#6496F8]"></div>
                   
                   {/* Text */}
                   <span className="font-medium text-[13px] xl:text-[16px] text-[#71717A] xl:text-[#09090B] tracking-[0.05em]">
@@ -2042,7 +2042,7 @@ export default function DynamicAuditLandingPage() {
             </section>
   
             {/* Second Section */}
-            <section className="flex flex-col gap-[30px] xl:gap-[50px] bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
+            <section className="flex flex-col gap-[20px] xl:gap-[20px] bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
               <h2 className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em]">
                 {getLocalizedText(landingPageData?.language, {
                   en: 'How with AI:',
@@ -2059,7 +2059,7 @@ export default function DynamicAuditLandingPage() {
                   ru: 'Показать, как внедрение AI может:'
                 })}
               </p>
-              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px]">
+              <div className="flex flex-col xl:flex-row pt-10 gap-[15px] xl:gap-[20px]">
                 {/* Card 1 */}
                 <div className="h-[350px] border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
                   <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
@@ -2164,7 +2164,7 @@ export default function DynamicAuditLandingPage() {
               
               <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
                 <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
-                  <div className="gap-2 flex items-center">
+                  <div className="gap-2 flex items-center pb-[19px]">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
                     <p className="font-semibold text-[22px] text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
                       en: 'Open Positions',
@@ -2210,13 +2210,13 @@ export default function DynamicAuditLandingPage() {
                   )}
                 </div>
                 <div>
-                  <div className="gap-2 flex items-center">
+                  <div className="gap-2 flex items-center pb-[25px]">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
                     <p className="font-semibold text-2xl text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
-                      en: 'Open Positions',
-                      es: 'Posiciones Abiertas',
-                      ua: 'Відкриті вакансії',
-                      ru: 'Открытые вакансии'
+                      en: 'Workforce Market Dynamics',
+                      es: 'Dinámica del mercado laboral',
+                      ua: 'Динаміка ринку праці',
+                      ru: 'Динамика рынка труда'
                     })}</p>
                   </div>
                   <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px] xl:h-[870px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
@@ -2392,7 +2392,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                       ) : (
                         <Image 
-                          src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
+                          src="/custom-projects-ui/images/audit-section-3-card-2-desktop-new.png" 
                           alt="Audit section 3 card 2 desktop" 
                           width={620}
                           height={420}
@@ -2406,15 +2406,15 @@ export default function DynamicAuditLandingPage() {
               
               {/* Conclusion Section */}
               <div className="w-full xl:px-0 p-[10px]">
-                <div className="bg-[#F5F8FF] rounded-[12px] p-[20px] xl:p-[30px]">
-                  <div className="flex items-start gap-[12px]">
-                    <div className="flex-shrink-0 w-[24px] h-[24px] flex items-center justify-center">
-                      <svg width="23" height="34" viewBox="0 0 23 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.32617 29.1533C5.32617 29.8251 5.75807 30.401 6.38192 30.593L7.48566 30.8809C8.01354 33.0404 9.98108 34.0002 11.4687 34.0002C12.9084 34.0002 14.9239 33.0404 15.4518 30.8809L16.5555 30.593C17.1794 30.401 17.6113 29.8251 17.6113 29.1533V26.5139H5.32617V29.1533Z" fill="#0F58F9"/>
-                        <path d="M12.813 0.0775973C9.54975 -0.306312 6.28652 0.74944 3.8391 2.90893C1.39167 5.06842 0 8.18769 0 11.4989C0 14.0903 0.863797 16.5377 2.44742 18.6012C2.9753 19.2251 3.69513 20.5208 4.55893 22.2484C4.70289 22.5363 4.84686 22.8722 4.94284 23.2082H17.9958C18.0917 22.8722 18.2357 22.5843 18.3797 22.2484C19.2435 20.5688 19.9633 19.2731 20.4912 18.6492C22.5067 16.1058 23.3225 12.9386 22.8426 9.67534C22.0268 4.58854 17.8998 0.653462 12.813 0.0775973ZM17.2279 10.3952L11.0854 16.5377C10.7495 16.8736 10.3176 17.0176 9.93366 17.0176C9.54975 17.0176 9.06987 16.8736 8.78193 16.5377L5.71066 13.5144C5.0868 12.8906 5.0868 11.8348 5.71066 11.163C6.33451 10.5391 7.39026 10.5391 8.0621 11.163L9.93366 13.0345L14.9245 8.04372C15.5483 7.41987 16.6041 7.41987 17.2759 8.04372C17.8998 8.71556 17.8998 9.77132 17.2279 10.3952Z" fill="#0F58F9"/>
-                      </svg>
-                    </div>
-                    <div className="flex-1">
+                <div className="bg-white rounded-md p-[15px] xl:p-[20px]">
+                  <div className="flex flex-col items-start gap-[12px] bg-[#F5F8FF] p-10 rounded-md">
+                    <div className="flex flex-row items-center gap-7">
+                      <div className="flex-shrink-0 w-[24px] h-[24px] mt-3 flex items-center justify-center">
+                        <svg width="23" height="34" viewBox="0 0 23 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5.32617 29.1533C5.32617 29.8251 5.75807 30.401 6.38192 30.593L7.48566 30.8809C8.01354 33.0404 9.98108 34.0002 11.4687 34.0002C12.9084 34.0002 14.9239 33.0404 15.4518 30.8809L16.5555 30.593C17.1794 30.401 17.6113 29.8251 17.6113 29.1533V26.5139H5.32617V29.1533Z" fill="#0F58F9"/>
+                          <path d="M12.813 0.0775973C9.54975 -0.306312 6.28652 0.74944 3.8391 2.90893C1.39167 5.06842 0 8.18769 0 11.4989C0 14.0903 0.863797 16.5377 2.44742 18.6012C2.9753 19.2251 3.69513 20.5208 4.55893 22.2484C4.70289 22.5363 4.84686 22.8722 4.94284 23.2082H17.9958C18.0917 22.8722 18.2357 22.5843 18.3797 22.2484C19.2435 20.5688 19.9633 19.2731 20.4912 18.6492C22.5067 16.1058 23.3225 12.9386 22.8426 9.67534C22.0268 4.58854 17.8998 0.653462 12.813 0.0775973ZM17.2279 10.3952L11.0854 16.5377C10.7495 16.8736 10.3176 17.0176 9.93366 17.0176C9.54975 17.0176 9.06987 16.8736 8.78193 16.5377L5.71066 13.5144C5.0868 12.8906 5.0868 11.8348 5.71066 11.163C6.33451 10.5391 7.39026 10.5391 8.0621 11.163L9.93366 13.0345L14.9245 8.04372C15.5483 7.41987 16.6041 7.41987 17.2759 8.04372C17.8998 8.71556 17.8998 9.77132 17.2279 10.3952Z" fill="#0F58F9"/>
+                        </svg>
+                      </div>
                       <h3 className="font-medium text-[40px] xl:text-[46px] leading-[115%] text-gray-900 mb-[10px]">
                         {getLocalizedText(landingPageData?.language, {
                           en: 'Conclusion:',
@@ -2423,15 +2423,15 @@ export default function DynamicAuditLandingPage() {
                           ru: 'Вывод:'
                         })}
                       </h3>
-                      <p className="text-[20px] xl:text-2xl leading-[150%] text-gray-800">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: 'The retail sector for food products and everyday goods faces a persistent shortage of qualified personnel.',
-                          es: 'El sector minorista de productos alimenticios y bienes de consumo cotidiano enfrenta una escasez persistente de personal calificado.',
-                          ua: 'Галузь роздрібної торгівлі продуктами харчування та товарами повсякденного попиту стикається зі стійким дефіцитом кваліфікованих кадрів.',
-                          ru: 'Отрасль розничной торговли продуктами питания и товарами повседневного спроса сталкивается с устойчивым дефицитом квалифицированных кадров.'
-                        })}
-                      </p>
                     </div>
+                    <p className="text-[20px] xl:text-2xl leading-[150%] text-gray-800">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'The retail sector for food products and everyday goods faces a persistent shortage of qualified personnel.',
+                        es: 'El sector minorista de productos alimenticios y bienes de consumo cotidiano enfrenta una escasez persistente de personal calificado.',
+                        ua: 'Галузь роздрібної торгівлі продуктами харчування та товарами повсякденного попиту стикається зі стійким дефіцитом кваліфікованих кадрів.',
+                        ru: 'Отрасль розничной торговли продуктами питания и товарами повседневного спроса сталкивается с устойчивым дефицитом квалифицированных кадров.'
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2439,7 +2439,7 @@ export default function DynamicAuditLandingPage() {
   
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
-              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
+              <h2 className="font-medium text-[32px] xl:w-[670px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
                 {editingField === 'workforceCrisisFullTitle' ? (
                   <InlineEditor
                     initialValue={landingPageData?.workforceCrisis?.fullTitle || 
@@ -3104,7 +3104,7 @@ export default function DynamicAuditLandingPage() {
                   )}
                 </h3>
   
-                <h3 className="hidden xl:block font-medium xl:text-[32px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                <h3 className="hidden xl:block font-medium xl:text-[30px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
                       initialValue={landingPageData?.serviceTemplatesDescription || 
@@ -3265,7 +3265,7 @@ export default function DynamicAuditLandingPage() {
                       <path d="M12.726 14H1.274C0.574 14 0 13.426 0 12.726V1.274C0 0.573999 0.574 0 1.274 0H12.726C13.426 0 14 0.573999 14 1.274V12.726C14 13.426 13.426 14 12.726 14ZM2.548 10.822C2.548 11.018 2.674 11.144 2.87 11.144H6.048C6.244 11.144 6.37 11.018 6.37 10.822V7.644C6.37 7.448 6.244 7.322 6.048 7.322H2.87C2.674 7.322 2.548 7.448 2.548 7.644V10.822ZM10.178 2.548C10.178 2.352 10.052 2.226 9.856 2.226H2.856C2.66 2.226 2.534 2.352 2.534 2.548V3.178C2.534 3.374 2.66 3.5 2.856 3.5H9.856C10.052 3.5 10.178 3.374 10.178 3.178V2.548ZM11.452 5.096C11.452 4.9 11.326 4.774 11.13 4.774H2.87C2.674 4.774 2.548 4.9 2.548 5.096V5.726C2.548 5.922 2.674 6.048 2.87 6.048H11.144C11.34 6.048 11.466 5.922 11.466 5.726V5.096H11.452ZM11.452 7.63C11.452 7.434 11.326 7.308 11.13 7.308H7.952C7.756 7.308 7.63 7.434 7.63 7.63V8.26C7.63 8.456 7.756 8.582 7.952 8.582H11.13C11.326 8.582 11.452 8.456 11.452 8.26V7.63ZM11.452 10.178C11.452 9.982 11.326 9.856 11.13 9.856H7.952C7.756 9.856 7.63 9.982 7.63 10.178V10.808C7.63 11.004 7.756 11.13 7.952 11.13H11.13C11.326 11.13 11.452 11.004 11.452 10.808V10.178Z" fill="black"/>
                     </svg>
                     
-                    <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
+                    <span className="font-semibold text-[14px] xl:text-[18px] text-[#09090B]">
                       {getLocalizedText(landingPageData?.language, {
                         en: 'Course Example',
                         es: 'Ejemplo de Curso',
@@ -5023,7 +5023,7 @@ export default function DynamicAuditLandingPage() {
                   </span>
                 </div>
                 
-                <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+                <h3 className="font-medium text-[22px] xl:text-[38px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                   ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(landingPageData?.language, {
                     en: 'platform for',
                     es: 'plataforma para',
