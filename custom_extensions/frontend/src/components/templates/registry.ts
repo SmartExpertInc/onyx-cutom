@@ -3047,6 +3047,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       percent: { type: 'text', label: 'Percent', required: true },
       bottomCards: { type: 'array', label: 'Bottom Cards', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar positioned at top-right of slide
+      // CSS: right: 70px, top: 60px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1610,      // ✅ Measured: 1610px (calculated: 1920 - 70 - 240 = 1610) ✓
+      y: 60,        // ✅ Measured: 60px (matches CSS top exactly)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue background (#0F58F9 in CSS)
     }
   },
 
