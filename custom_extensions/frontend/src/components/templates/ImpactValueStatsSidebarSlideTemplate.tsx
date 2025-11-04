@@ -98,7 +98,7 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
     borderRadius: '50%',
     overflow: 'hidden',
     flexShrink: 0,
-    marginbottom: '35px',
+    marginBottom: '35px',
     marginLeft: '40px'
   };
 
