@@ -653,11 +653,11 @@ function Projects2ViewPageContent() {
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
       const modalWidth = 950;
-      const modalHeight = 440;
+      const modalHeight = 420;
       const gap = 10;
       
       // Calculate position centered under the button, shifted to the left
-      let x = rect.left + (rect.width / 2) - (modalWidth / 2) - 150;
+      let x = rect.left + (rect.width / 2) - (modalWidth / 2) - 110;
       let y = 70; // Fixed position below the header, matching other popups
       
       // Check if modal would go off the left edge
@@ -1109,7 +1109,7 @@ function Projects2ViewPageContent() {
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
             width: '950px',
-            height: '440px',
+            height: '420px',
             zIndex: 9999
           }}
         >
