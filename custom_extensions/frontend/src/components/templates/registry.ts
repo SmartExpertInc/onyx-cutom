@@ -2498,6 +2498,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       doctorImagePath: { type: 'image', label: 'Right Image' },
       doctorImageAlt: { type: 'text', label: 'Right Image Alt Text' },
       panelBackgroundColor: { type: 'color', label: 'Panel Color' }
+    },
+    avatarPosition: {
+      // ✅ RECTANGULAR AVATAR - Based on measured container logs (doctor image area)
+      // Doctor image positioned on right side of slide
+      // CSS: position: absolute, right: 144px, top: 48px, bottom: 155px, height: 96%
+      // Width added to CSS: 864px (45% of slide width for balanced layout)
+      x: 912,       // ✅ Calculated: 1920 - 144 (right) - 864 (width) = 912px
+      y: 48,        // ✅ Measured: 48px (matches CSS top)
+      width: 864,   // ✅ Added to CSS: 864px (right-side doctor image area)
+      height: 1037, // ✅ Measured: 1037px (96% of 1080 = 1036.8 ≈ 1037px)
+      backgroundColor: '#0F58F9' // Blue background for avatar area
     }
   },
 
