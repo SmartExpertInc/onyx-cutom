@@ -18694,9 +18694,18 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                     logger.info(f"[SMARTDRIVE_MAPPING] {len(unmapped)} paths not found by exact match, trying filename matching...")
                     
                     for unmapped_path in unmapped:
-                        # Extract filename from path
+                        # Extract filename from path and decode it
                         filename = unmapped_path.split('/')[-1] if '/' in unmapped_path else unmapped_path
                         if filename:
+                            # Decode URL encoding if present
+                            from urllib.parse import unquote
+                            try:
+                                decoded_filename = unquote(filename)
+                            except:
+                                decoded_filename = filename
+                            
+                            logger.info(f"[SMARTDRIVE_MAPPING] Searching for filename: '{decoded_filename[:50]}...'")
+                            
                             # Try to find by filename (handles encoding differences)
                             filename_query = """
                                 SELECT onyx_file_id, smartdrive_path 
@@ -18706,10 +18715,12 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                                 AND onyx_file_id IS NOT NULL
                                 LIMIT 1
                             """
-                            filename_rows = await connection.fetch(filename_query, user_id, f'%{filename}')
+                            filename_rows = await connection.fetch(filename_query, user_id, f'%{decoded_filename}')
                             if filename_rows:
                                 rows.extend(filename_rows)
-                                logger.info(f"[SMARTDRIVE_MAPPING] Matched '{unmapped_path}' by filename to '{filename_rows[0]['smartdrive_path']}'")
+                                logger.info(f"[SMARTDRIVE_MAPPING] ✅ Matched '{unmapped_path[:50]}...' by filename to '{filename_rows[0]['smartdrive_path'][:50]}...'")
+                            else:
+                                logger.warning(f"[SMARTDRIVE_MAPPING] ❌ No match found for filename '{decoded_filename[:50]}...'")
                 
                 rows = list(rows)  # Ensure we have a list
                 
