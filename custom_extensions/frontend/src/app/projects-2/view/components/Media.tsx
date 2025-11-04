@@ -207,7 +207,7 @@ export default function Media({
           
           {/* Upload to Library button - only show when Library is selected */}
           {selectedOption === 'library' && (
-            <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border h-[34px]" style={{ borderColor: '#171718' }}>
+            <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border h-[34px] cursor-pointer" style={{ borderColor: '#171718' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
                 <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -466,7 +466,7 @@ export default function Media({
                   Drag and drop files here or click "Upload" to add them.
                 </p>
                 
-                <button className="flex items-center gap-2 px-4 py-2 rounded-md hover:opacity-90 transition-opacity" style={{ backgroundColor: '#0F58F9' }}>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-md hover:opacity-90 transition-opacity cursor-pointer" style={{ backgroundColor: '#0F58F9' }}>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.1378 7.57364V9.94975C11.1378 10.2648 11.0126 10.567 10.7898 10.7898C10.567 11.0126 10.2648 11.1378 9.94975 11.1378H1.63337C1.31828 11.1378 1.01609 11.0126 0.793286 10.7898C0.570482 10.567 0.445313 10.2648 0.445312 9.94975V7.57364M8.7617 3.41545L5.79156 0.445312M5.79156 0.445312L2.82142 3.41545M5.79156 0.445312V7.57364" stroke="white" strokeWidth="0.891041" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -477,7 +477,7 @@ export default function Media({
             /* Library view - Simple grid of 18 rectangles */
             <div className="grid grid-cols-3 gap-3 pb-4">
               {Array.from({ length: 18 }).map((_, index) => (
-                <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                <div key={index} className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
               ))}
             </div>
             )
@@ -489,8 +489,8 @@ export default function Media({
                 <h3 className="text-xs font-medium text-[#171718] mb-4">{t('panels.media.locations', 'Locations')}</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {/* First 2 rectangles */}
-                  <div className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
-                  <div className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                  <div className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+                  <div className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
                   
                   {/* Last rectangle - clickable with "+ 6" or more rectangles when expanded */}
                   {!isLocationsExpanded ? (
@@ -502,7 +502,7 @@ export default function Media({
                       <span className="text-base font-semibold text-[#171718]">+ 6</span>
                     </div>
                   ) : (
-                    <div className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                    <div className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
                   )}
                 </div>
                 
@@ -510,7 +510,7 @@ export default function Media({
                 {isLocationsExpanded && (
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     {Array.from({ length: 6 }).map((_, index) => (
-                      <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                      <div key={index} className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
                     ))}
                   </div>
                 )}
@@ -522,7 +522,7 @@ export default function Media({
                 <div className="grid grid-cols-3 gap-3">
                   {/* 4 rows of 3 rectangles = 12 rectangles */}
                   {Array.from({ length: 12 }).map((_, index) => (
-                    <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                    <div key={index} className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
                   ))}
                 </div>
               </div>
@@ -537,7 +537,7 @@ export default function Media({
                 const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 
                 return (
-                  <div key={index} className="bg-gray-200 rounded-md w-full relative" style={{ aspectRatio: '16/9' }}>
+                  <div key={index} className="bg-gray-200 rounded-md w-full relative cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}>
                     {/* Time overlay in top-left corner */}
                     <div 
                       className="absolute top-3 left-3 px-1 py-0.5 rounded-xs text-white"
@@ -587,7 +587,7 @@ export default function Media({
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div 
                       key={index} 
-                      className="bg-gray-200 rounded-md w-full" 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '1/1' }}
                     ></div>
                   ))}
@@ -606,7 +606,7 @@ export default function Media({
                     </div>
                   ) : (
                     <div 
-                      className="bg-gray-200 rounded-md w-full" 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '1/1' }}
                     ></div>
                   )}
@@ -618,7 +618,7 @@ export default function Media({
                     {Array.from({ length: 14 }).map((_, index) => (
                       <div 
                         key={index} 
-                        className="bg-gray-200 rounded-md w-full" 
+                        className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                         style={{ aspectRatio: '1/1' }}
                       ></div>
                     ))}
@@ -646,7 +646,7 @@ export default function Media({
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div 
                       key={index} 
-                      className="bg-gray-200 rounded-md w-full" 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '1/1' }}
                     ></div>
                   ))}
@@ -665,7 +665,7 @@ export default function Media({
                     </div>
                   ) : (
                     <div 
-                      className="bg-gray-200 rounded-md w-full" 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '1/1' }}
                     ></div>
                   )}
@@ -677,7 +677,7 @@ export default function Media({
                     {Array.from({ length: 14 }).map((_, index) => (
                       <div 
                         key={index} 
-                        className="bg-gray-200 rounded-md w-full" 
+                        className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                         style={{ aspectRatio: '1/1' }}
                       ></div>
                     ))}
@@ -705,7 +705,7 @@ export default function Media({
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div 
                       key={index} 
-                      className="bg-gray-200 rounded-md w-full" 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '1/1' }}
                     ></div>
                   ))}
@@ -724,7 +724,7 @@ export default function Media({
                     </div>
                   ) : (
                     <div 
-                      className="bg-gray-200 rounded-md w-full" 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '1/1' }}
                     ></div>
                   )}
@@ -736,7 +736,7 @@ export default function Media({
                     {Array.from({ length: 14 }).map((_, index) => (
                       <div 
                         key={index} 
-                        className="bg-gray-200 rounded-md w-full" 
+                        className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
                         style={{ aspectRatio: '1/1' }}
                       ></div>
                     ))}
@@ -772,7 +772,7 @@ export default function Media({
                 <p style={{ fontSize: '8px', color: '#878787', lineHeight: '1.2' }}>
                   Agent uses credits to deliver advanced AI editing.
                 </p>
-                <p style={{ fontSize: '8px', color: '#719AF5', lineHeight: '1.2', cursor: 'pointer' }}>
+                <p className="cursor-pointer" style={{ fontSize: '8px', color: '#719AF5', lineHeight: '1.2' }}>
                   Learn more
                 </p>
               </div>
@@ -875,9 +875,9 @@ export default function Media({
                       // Clear selected prompts if user manually edits
                       setSelectedPrompts([]);
                     }}
-                    className="w-full px-3 pt-3 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
+                    className="w-full px-3 mt-3 mb-3.5 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
                     placeholder="Describe your image..."
-                    style={{ fontSize: '12px', color: '#171718', height: '70px', paddingBottom: '32px' }}
+                    style={{ fontSize: '12px', color: '#171718', height: '50px', paddingBottom: '32px' }}
                   />
                   <style jsx>{`
                     textarea::placeholder {
