@@ -149,7 +149,7 @@ export default function Media({
       {/* Main content area */}
       <div className="flex-1 flex flex-col p-4">
         {/* Search bar and upload button */}
-        <div className="flex items-center gap-6 pb-6">
+        <div className="flex items-center gap-6 pb-4">
           {/* Search bar */}
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -307,8 +307,8 @@ export default function Media({
                     ></div>
                   ))}
                   
-                  {/* See more button - only show in first row when not expanded */}
-                  {!isOutlinedExpanded && (
+                  {/* 7th square - See more button when collapsed, placeholder when expanded */}
+                  {!isOutlinedExpanded ? (
                     <div 
                       onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
                       className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
@@ -319,6 +319,11 @@ export default function Media({
                       </svg>
                       <span className="text-xs text-[#09090B] mt-1">See more</span>
                     </div>
+                  ) : (
+                    <div 
+                      className="bg-gray-200 rounded-md w-full" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
                   )}
                 </div>
                 
@@ -361,8 +366,8 @@ export default function Media({
                     ></div>
                   ))}
                   
-                  {/* See more button - only show in first row when not expanded */}
-                  {!isFilledExpanded && (
+                  {/* 7th square - See more button when collapsed, placeholder when expanded */}
+                  {!isFilledExpanded ? (
                     <div 
                       onClick={() => setIsFilledExpanded(!isFilledExpanded)}
                       className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
@@ -373,6 +378,11 @@ export default function Media({
                       </svg>
                       <span className="text-xs text-[#09090B] mt-1">See more</span>
                     </div>
+                  ) : (
+                    <div 
+                      className="bg-gray-200 rounded-md w-full" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
                   )}
                 </div>
                 
@@ -415,8 +425,8 @@ export default function Media({
                     ></div>
                   ))}
                   
-                  {/* See more button - only show in first row when not expanded */}
-                  {!isColoredExpanded && (
+                  {/* 7th square - See more button when collapsed, placeholder when expanded */}
+                  {!isColoredExpanded ? (
                     <div 
                       onClick={() => setIsColoredExpanded(!isColoredExpanded)}
                       className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
@@ -427,6 +437,11 @@ export default function Media({
                       </svg>
                       <span className="text-xs text-[#09090B] mt-1">See more</span>
                     </div>
+                  ) : (
+                    <div 
+                      className="bg-gray-200 rounded-md w-full" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
                   )}
                 </div>
                 
