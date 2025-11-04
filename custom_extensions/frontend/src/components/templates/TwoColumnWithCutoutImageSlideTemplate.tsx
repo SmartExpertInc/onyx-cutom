@@ -109,7 +109,6 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
     width: '150px',
     height: '157px',
     borderRadius: '0',
-    borderLeftTopRadius: '16px',
     overflow: 'hidden',
     zIndex: 20
   };
