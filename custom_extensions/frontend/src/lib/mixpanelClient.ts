@@ -182,7 +182,7 @@ export const trackCreateOffer = async (action: string) => {
   );
 };
 
-export const trackConnector = async (action: string, connectorId: string, connectorName: string) => {
+export const trackConnectConnector = async (action: string, connectorId: string, connectorName: string) => {
   const props = {
     "Feature Category": "Smart Drive",
     "Action": action,
@@ -192,6 +192,21 @@ export const trackConnector = async (action: string, connectorId: string, connec
 
   await track(
     "Connect Connector", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackSyncConnector = async (action: string, connectorId: string, connectorName: string) => {
+  const props = {
+    "Feature Category": "Smart Drive",
+    "Connector Id": connectorId,
+    "Connector Name": connectorName,
+    "Action Type": action
+  };
+
+  await track(
+    "Sync Connector",
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );
@@ -220,6 +235,60 @@ export const trackAddMember = async (action: string, role?: string) => {
 
   await track(
     "Add Member", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackFeedback = async () => {
+  await track(
+    "Feedback Sent", 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackSmartDrive = async (action: string) => {
+  await track(
+    "SmartDrive Used", 
+    {
+      "Action Type": action
+    },
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackOpenProductEditor = async () => {
+  await track(
+    "Open Product Editor", 
+    {
+      "Feature Category": "Products",
+    },
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackSaveDraft = async (productType: string, exportFormat: string, action: string) => {
+  const props = {
+    "Product Type": productType,
+    "Export Format": exportFormat,
+    "Action": action
+  };
+
+  await track(
+    "Save Draft", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackImportFiles = async (importType: string, fileFormat: string[]) => {
+  const props = {
+    "Import Type": importType,
+    "Formats": fileFormat
+  };
+
+  await track(
+    "Import Files", 
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );

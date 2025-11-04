@@ -43,6 +43,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
+import { trackOpenProductEditor, trackSaveDraft } from '@/lib/mixpanelClient';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -243,6 +244,7 @@ export default function ProjectInstanceViewPage() {
 
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
+  const [currentProjectType, setCurrentProjectType] = useState<string>('unknown');
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
 
   const [pageState, setPageState] = useState<'initial_loading' | 'fetching' | 'error' | 'success' | 'nodata'>('initial_loading');
@@ -743,6 +745,7 @@ export default function ProjectInstanceViewPage() {
         const allMicroproductsData: ProjectListItem[] = await listRes.json();
         setAllUserMicroproducts(allMicroproductsData);
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
+        setCurrentProjectType(currentMicroproductInList?.design_microproduct_type || 'unknown');
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
         // Resilient Event Poster detection based on parent project name (cannot be renamed)
         const parentName = currentMicroproductInList?.projectName || '';
@@ -1429,6 +1432,8 @@ export default function ProjectInstanceViewPage() {
     if (isEditing) {
       handleSave();
     } else {
+      // Track open product editor event
+      trackOpenProductEditor();
       const lang = projectInstanceData.details?.detectedLanguage || 'en';
       if (projectInstanceData.details) {
         setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
@@ -1547,6 +1552,9 @@ export default function ProjectInstanceViewPage() {
                 reader.releaseLock();
             }
 
+            // Track save draft event
+            trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf', 'Completed');
+
             // Set the download ready state instead of trying to open window immediately
             console.log('PDF generation completed, setting download ready state');
             if (downloadUrl) {
@@ -1571,9 +1579,14 @@ export default function ProjectInstanceViewPage() {
             setIsExportingPdf(false);
             setPdfDownloadReady(null);
             setPdfProgress(null);
+            // Track save draft event
+            trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf', 'Failed');
         }
         return;
     }
+
+    // Track save draft event
+    trackSaveDraft(sessionStorage.getItem('activeProductType') || currentProjectType, 'pdf', 'Completed');
 
     // Original PDF download logic for other component types
     const nameForSlug = projectInstanceData.name || 'document';

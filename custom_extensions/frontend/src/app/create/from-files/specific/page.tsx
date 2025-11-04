@@ -9,6 +9,7 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
 import SmartDriveBrowser from '../../../../components/SmartDrive/SmartDrive/SmartDriveBrowser';
 import { Input } from '@/components/ui/input';
+import { trackImportFiles } from '@/lib/mixpanelClient';
 import { ConnectorCard } from '@/components/ui/connector-card';
 import { Button } from '@/components/ui/button';
 import { HeadTextCustom } from '@/components/ui/head-text-custom';
@@ -263,6 +264,41 @@ export default function CreateFromSpecificFilesPage() {
     const hasProducts = selectedProducts.length > 0;
 
     console.log('[CreateFromSpecificFiles] Generation mode flags:', { hasConnectors, hasFiles, hasProducts });
+
+    // Track import files event with detailed context
+    if (hasConnectors) {
+      const connectorSourcesForTracking: string[] =  Array.from(new Set(
+        selectedConnectors
+          .map(id => connectors.find(c => c.id === id)?.source)
+          .filter((s): s is string => !!s)
+      ));
+
+      trackImportFiles('Connectors', connectorSourcesForTracking);
+    } else if (hasFiles) {
+      const fileExtensionsForTracking: string[] = Array.from(new Set(
+        selectedFiles
+          .map(f => {
+            try {
+              const name = (f.split('/').pop() || f).split('?')[0];
+              const parts = name.split('.');
+              return parts.length > 1 ? parts.pop()!.toLowerCase() : undefined;
+            } catch {
+              return undefined;
+            }
+          })
+          .filter((ext): ext is string => !!ext)
+        ));
+      
+      trackImportFiles('Files', fileExtensionsForTracking);
+    } else if (hasProducts) {
+      const productTypesForTracking: string[] =  Array.from(new Set(
+        products.filter((p: any) => selectedProducts.includes(p?.id))
+          .map((p: any) => p?.design_microproduct_type)
+          .filter((t: any): t is string => typeof t === 'string' && t.length > 0)
+      ));
+
+      trackImportFiles('Products', productTypesForTracking);
+    }
 
     // Construct flexible context based on what's selected
     const combinedContext: any = {

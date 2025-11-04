@@ -22,6 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input as UiInput } from '@/components/ui/input';
+import { trackSmartDrive } from '@/lib/mixpanelClient';
 
 export type SmartDriveItem = {
 	name: string;
@@ -196,6 +197,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
 			});
 			if (!res.ok) throw new Error(await res.text());
+			// track successfully create folder event
+			trackSmartDrive('Create Folder');
 			setMkdirOpen(false);
 			setMkdirName('');
 			await fetchList(currentPath);
@@ -790,7 +793,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					<div className="w-64">
 						<Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search files..." className="border-slate-200 focus:border-blue-400" />
 					</div>
-					<Button variant="outline" onClick={onUploadClick} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
+					<Button variant="outline" onClick={()=>{ trackSmartDrive('Upload'); onUploadClick(); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
 						<Upload className="w-4 h-4 mr-2"/>Upload
 					</Button>
 					<input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />

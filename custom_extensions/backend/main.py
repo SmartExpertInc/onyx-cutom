@@ -68,6 +68,7 @@ from app.models.workspace_models import (
 from app.services.workspace_service import WorkspaceService
 from app.services.role_service import RoleService
 from app.services.product_access_service import ProductAccessService
+import app.utils.mixpanel_helper as mixpanel_helper
 
 # Product JSON indexing service (for products-as-context feature)
 from app.services.product_json_indexer import upload_product_json_to_onyx
@@ -130,7 +131,7 @@ TIER_TO_CREDITS: dict[str, int] = {
     "business_yearly": 24000,
 }
 
-def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
+def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str], dict[str, str]]:
     """Load price id → addon mapping and tier mapping from env once."""
     addon_map: dict[str, dict] = {}
     def _reg(price_id: Optional[str], addon_type: str, units: int):
@@ -151,27 +152,27 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
     # Provided mapping (explicit IDs)
     provided_map = {
         # credits
-        "price_1SGHlMH2U2KQUmUhkXKhj4g3": ("credits", 100),
-        "price_1SGHm0H2U2KQUmUhG5utzGFf": ("credits", 300),
-        "price_1SGHmYH2U2KQUmUh89PNgGAx": ("credits", 1000),
+        "price_1SNvJURs3JMUTmUv3O1gjGrw": ("credits", 100),
+        "price_1SNvJFRs3JMUTmUvXMQigg7f": ("credits", 300),
+        "price_1SNvIpRs3JMUTmUvp7GcaP4h": ("credits", 1000),
         # storage (monthly)
         "price_1SGHjIH2U2KQUmUhpWRcRxxH": ("storage", 1),
-        "price_1SGHk9H2U2KQUmUhLrwnk2tQ": ("storage", 5),
-        "price_1SGHkgH2U2KQUmUh0hI2Mp07": ("storage", 10),
+        "price_1SNvKWRs3JMUTmUvJyiNeqWq": ("storage", 5),
+        "price_1SNvKCRs3JMUTmUvfNJqJ127": ("storage", 10),
         # connectors (monthly)
-        "price_1SGHegH2U2KQUmUh4guOuoV7": ("connectors", 1),
-        "price_1SGHgFH2U2KQUmUhS0Blys9w": ("connectors", 5),
-        "price_1SGHgZH2U2KQUmUhSuFJ6SOi": ("connectors", 10),
+        "price_1SNvMBRs3JMUTmUviPBKNjfy": ("connectors", 1),
+        "price_1SNvLgRs3JMUTmUvtyzgwvnd": ("connectors", 5),
+        "price_1SNvLTRs3JMUTmUvHmhigeTk": ("connectors", 10),
     }
     for pid, (ptype, units) in provided_map.items():
         addon_map[pid] = {"type": ptype, "units": units}
 
     # Hard-wired tier price IDs
     price_to_tier: dict[str, str] = {
-        "price_1SEBM4H2U2KQUmUhkn6A7Hlm": "pro_monthly",      # Pro
-        "price_1SEBTeH2U2KQUmUhi02e1uC9": "business_monthly", # Business
-        "price_1SEBUCH2U2KQUmUhkym5Q9TS": "pro_yearly",       # Pro Yearly
-        "price_1SEBUoH2U2KQUmUhMktbhCsm": "business_yearly",  # Business Yearly
+        "price_1SNvOKRs3JMUTmUvYiwoB3Rl": "pro_monthly",      # Pro
+        "price_1SNvO7Rs3JMUTmUvCASBdYG0": "business_monthly", # Business
+        "price_1SNvOkRs3JMUTmUvt8N2h2vX": "pro_yearly",       # Pro Yearly
+        "price_1SNvNCRs3JMUTmUvvvHtI01M": "business_yearly",  # Business Yearly
     }
     # Also support env vars as fallback
     def _tier(price_id: Optional[str], tier: str):
@@ -181,9 +182,13 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
     _tier(os.getenv("STRIPE_PRICE_BUSINESS_MONTHLY"), "business_monthly")
     _tier(os.getenv("STRIPE_PRICE_PRO_YEARLY"), "pro_yearly")
     _tier(os.getenv("STRIPE_PRICE_BUSINESS_YEARLY"), "business_yearly")
-    return addon_map, price_to_tier
+    
+    # Create inverse mapping: tier → price_id
+    tier_to_price_id: dict[str, str] = {tier: price_id for price_id, tier in price_to_tier.items()}
+    
+    return addon_map, price_to_tier, tier_to_price_id
 
-PRICE_TO_ADDON, PRICE_TO_TIER = _load_price_maps_once()
+PRICE_TO_ADDON, PRICE_TO_TIER, TIER_TO_PRICE_ID = _load_price_maps_once()
 
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
@@ -33128,8 +33133,7 @@ async def create_billing_portal_session(
 
 
 class CreateCheckoutRequest(BaseModel):
-    priceId: str
-    planName: Optional[str] = None
+    planName: str  # format: <plan_name>_<billing_cycle> (e.g. pro_monthly, business_yearly)
     upgradeFromSubscriptionId: Optional[str] = None
 
 
@@ -33143,6 +33147,10 @@ async def create_checkout_session(
     try:
         if not STRIPE_SECRET_KEY:
             raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        price_id = TIER_TO_PRICE_ID.get(payload.planName)
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Invalid plan name")
 
         onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
 
@@ -33187,7 +33195,7 @@ async def create_checkout_session(
             customer=stripe_customer_id,
             payment_method_types=['card'],
             line_items=[{
-                'price': payload.priceId,
+                'price': price_id,
                 'quantity': 1,
             }],
             mode='subscription',
@@ -33226,15 +33234,15 @@ def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
     key = sku.lower()
     # Direct mapping to provided price IDs
     sku_map = {
-        'credits_100': 'price_1SGHlMH2U2KQUmUhkXKhj4g3',
-        'credits_300': 'price_1SGHm0H2U2KQUmUhG5utzGFf',
-        'credits_1000': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
-        'storage_1gb': 'price_1SGHjIH2U2KQUmUhpWRcRxxH',
-        'storage_5gb': 'price_1SGHk9H2U2KQUmUhLrwnk2tQ',
-        'storage_10gb': 'price_1SGHkgH2U2KQUmUh0hI2Mp07',
-        'connectors_1': 'price_1SGHegH2U2KQUmUh4guOuoV7',
-        'connectors_5': 'price_1SGHgFH2U2KQUmUhS0Blys9w',
-        'connectors_10': 'price_1SGHgZH2U2KQUmUhSuFJ6SOi',
+        'credits_100': 'price_1SNvJURs3JMUTmUv3O1gjGrw',
+        'credits_300': 'price_1SNvJFRs3JMUTmUvXMQigg7f',
+        'credits_1000': 'price_1SNvIpRs3JMUTmUvp7GcaP4h',
+        'storage_1gb': 'price_1SNvKnRs3JMUTmUvR0WD35Ap',
+        'storage_5gb': 'price_1SNvKWRs3JMUTmUvJyiNeqWq',
+        'storage_10gb': 'price_1SNvKCRs3JMUTmUvfNJqJ127',
+        'connectors_1': 'price_1SNvMBRs3JMUTmUviPBKNjfy',
+        'connectors_5': 'price_1SNvLgRs3JMUTmUvtyzgwvnd',
+        'connectors_10': 'price_1SNvLTRs3JMUTmUvHmhigeTk',
     }
     # Fallback to env if present
     env_overrides = {
@@ -33249,6 +33257,16 @@ def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
         'credits_1000': os.getenv('STRIPE_PRICE_CREDITS_1000'),
     }
     return env_overrides.get(key) or sku_map.get(key)
+
+def _map_plan_to_value(plan: str) -> int:
+    if plan == 'pro':
+        return 1
+    elif plan == 'business':
+        return 2
+    elif plan == 'enterprise':
+        return 3
+    else:
+        return 0
 
 @app.post("/api/custom/billing/addons/checkout")
 async def addons_checkout(
@@ -33697,12 +33715,28 @@ async def stripe_webhook(
         # Idempotency: skip already processed events
         async with pool.acquire() as conn:
             if await conn.fetchval("SELECT 1 FROM processed_stripe_events WHERE event_id=$1", event['id']):
+                logger.info(f"[WEBHOOK] Event {event['id']} already processed, skipping")
                 return {"status": "ignored"}
+
+        # Log full event JSON at the start
+        try:
+            import json
+            event_json = json.dumps(event, indent=2, default=str)
+            logger.info(f"[WEBHOOK] ====== RECEIVED EVENT ======\nEvent ID: {event.get('id')}\nEvent Type: {event.get('type')}\nFull Event JSON:\n{event_json}\n{'='*50}")
+        except Exception as log_err:
+            logger.warning(f"[WEBHOOK] Failed to log full event JSON: {log_err}")
 
         # Handle the event
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
             onyx_user_id = session.get('metadata', {}).get('onyx_user_id')
+            
+            # Log full session object
+            try:
+                session_json = json.dumps(session, indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CHECKOUT.SESSION.COMPLETED ======\nSession ID: {session.get('id')}\nUser ID: {onyx_user_id}\nMode: {session.get('mode')}\nFull Session JSON:\n{session_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full session JSON: {log_err}")
             
             logger.info(f"[BILLING] checkout.session.completed for user {onyx_user_id}, mode={session.get('mode')}, session_id={session.get('id')}")
             
@@ -33710,11 +33744,21 @@ async def stripe_webhook(
                 subscription_id = session.get('subscription')
                 customer_id = session.get('customer')
                 
+                logger.info(f"[BILLING] Processing subscription checkout: subscription_id={subscription_id}, customer_id={customer_id}")
+                
                 # Get subscription details
                 subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
                 
+                # Log full subscription object
+                try:
+                    subscription_json = json.dumps(subscription if isinstance(subscription, dict) else subscription.to_dict(), indent=2, default=str)
+                    logger.info(f"[WEBHOOK] ====== RETRIEVED SUBSCRIPTION ======\nSubscription ID: {subscription_id}\nFull Subscription JSON:\n{subscription_json}\n{'='*50}")
+                except Exception as log_err:
+                    logger.warning(f"[WEBHOOK] Failed to log full subscription JSON: {log_err}")
+                
                 # Get existing user plan before making any changes
                 existing_plan = None
+                logger.info(f"[BILLING] Retrieving existing plan for user {onyx_user_id}")
                 async with pool.acquire() as conn:
                     existing_record = await conn.fetchrow(
                         "SELECT current_plan FROM user_billing WHERE onyx_user_id = $1",
@@ -33722,22 +33766,27 @@ async def stripe_webhook(
                     )
                     if existing_record:
                         existing_plan = existing_record['current_plan']
+                        logger.info(f"[BILLING] Found existing plan in DB: {existing_plan}")
+                    else:
+                        logger.info(f"[BILLING] No existing plan found in DB for user {onyx_user_id}")
                 
-                logger.info(f"[BILLING] User {onyx_user_id} existing plan: {existing_plan}, subscription items count: {len(subscription.get('items', {}).get('data', []))}")
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                
+                logger.info(f"[BILLING] ====== PLAN DETECTION START ======\nUser: {onyx_user_id}\nExisting Plan: {existing_plan}\nSubscription Items Count: {len(data_list) if data_list else 0}\n{'='*50}")
                 
                 # Extract plan info - LOOP through ALL items to find tier price (not just first!)
                 plan = None
                 interval = None
                 price_id = None
                 
-                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
-                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
-                
                 # Check metadata to see if this is an addon-only purchase
                 is_addon_purchase = session.get('metadata', {}).get('purpose') == 'addons'
+                logger.info(f"[BILLING] Is addon-only purchase: {is_addon_purchase} (metadata.purpose={session.get('metadata', {}).get('purpose')})")
                 
                 if data_list:
                     # Log all items for debugging
+                    logger.info(f"[BILLING] ====== PROCESSING {len(data_list)} SUBSCRIPTION ITEMS ======")
                     for idx, item_data in enumerate(data_list):
                         item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
                         item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
@@ -33755,11 +33804,14 @@ async def stripe_webhook(
                             plan = tier_key.replace('_monthly', '').replace('_yearly', '')
                             recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
                             interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
-                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
+                            logger.info(f"[BILLING] FOUND TIER PRICE: price_id={item_price_id}, tier_key={tier_key}, plan={plan}, interval={interval}")
                             break
+                        else:
+                            logger.debug(f"[BILLING] Item price {item_price_id} is not a tier price, continuing search...")
                     
                     # If no tier price found, try product name fallback on first item
                     if not plan and len(data_list) > 0:
+                        logger.info(f"[BILLING] No tier price found in items, attempting product name fallback on first item")
                         price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
                         item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
                         recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
@@ -33768,23 +33820,28 @@ async def stripe_webhook(
                         product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
                         product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
                         lowered = product_name.lower()
-                        logger.info(f"[BILLING] No tier price found, checking product name: {product_name}")
+                        logger.info(f"[BILLING] Checking product name fallback: product_name='{product_name}', price_id={item_price_id}")
                         if 'business' in lowered:
                             plan = 'business'
                             price_id = item_price_id
                         elif 'pro' in lowered:
                             plan = 'pro'
                             price_id = item_price_id
+                        else:
+                            logger.warning(f"[BILLING] Product name '{product_name}' does not contain 'business' or 'pro'")
                 
                 # CRITICAL FIX: If no plan found (addon-only subscription) and user has existing plan, preserve it
+                logger.info(f"[BILLING] ====== FINAL PLAN DECISION ======\nDetected Plan: {plan}\nIs Addon Purchase: {is_addon_purchase}\nExisting Plan: {existing_plan}\nPrice ID: {price_id}\n{'='*50}")
                 if not plan and is_addon_purchase and existing_plan:
                     logger.warning(f"[BILLING] Addon-only subscription detected for user {onyx_user_id}. Preserving existing plan: {existing_plan}")
                     plan = existing_plan
                 elif not plan:
                     logger.warning(f"[BILLING] No tier price found for user {onyx_user_id}, defaulting to starter")
                     plan = "starter"
+                logger.info(f"[BILLING] FINAL PLAN SELECTED: {plan}, interval={interval}, price_id={price_id}")
                 
                 # Update user billing - preserve plan if this was addon-only purchase
+                logger.info(f"[BILLING] ====== UPDATING USER BILLING ======\nUser: {onyx_user_id}\nPlan: {plan}\nPrice ID: {price_id}\nInterval: {interval}\nIs Addon Purchase: {is_addon_purchase}\n{'='*50}")
                 async with pool.acquire() as conn:
                     if is_addon_purchase and not price_id:
                         # Addon-only purchase: only update subscription_id and status, preserve plan
@@ -33805,6 +33862,7 @@ async def stripe_webhook(
                             onyx_user_id, customer_id, subscription.status,
                             subscription_id, plan
                         )
+                        logger.info(f"[BILLING] Successfully updated user_billing for addon-only purchase")
                         
                         # Sync addon items to user_billing_addons for addon-only subscriptions
                         try:
@@ -33837,38 +33895,45 @@ async def stripe_webhook(
                             logger.error(f"[BILLING] Failed to sync addon items from addon-only subscription: {addon_sync_err}", exc_info=True)
                     else:
                         # Normal plan purchase: update everything including plan
-                        logger.info(f"[BILLING] Updating billing for plan purchase: plan={plan}, price_id={price_id}")
-                    await conn.execute(
-                        """
-                        INSERT INTO user_billing (
-                            onyx_user_id, stripe_customer_id, subscription_status, 
-                            subscription_id, current_price_id, current_plan, 
-                            current_interval, updated_at
+                        logger.info(f"[BILLING] Updating billing for normal plan purchase: plan={plan}, price_id={price_id}, interval={interval}")
+                        await conn.execute(
+                            """
+                            INSERT INTO user_billing (
+                                onyx_user_id, stripe_customer_id, subscription_status, 
+                                subscription_id, current_price_id, current_plan, 
+                                current_interval, updated_at
+                            )
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET 
+                                subscription_status = EXCLUDED.subscription_status,
+                                subscription_id = EXCLUDED.subscription_id,
+                                current_price_id = EXCLUDED.current_price_id,
+                                current_plan = EXCLUDED.current_plan,
+                                current_interval = EXCLUDED.current_interval,
+                                updated_at = now()
+                            """,
+                            onyx_user_id, customer_id, subscription.status,
+                            subscription_id, price_id, plan, interval
                         )
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, now())
-                        ON CONFLICT (onyx_user_id)
-                        DO UPDATE SET 
-                            subscription_status = EXCLUDED.subscription_status,
-                            subscription_id = EXCLUDED.subscription_id,
-                            current_price_id = EXCLUDED.current_price_id,
-                            current_plan = EXCLUDED.current_plan,
-                            current_interval = EXCLUDED.current_interval,
-                            updated_at = now()
-                        """,
-                        onyx_user_id, customer_id, subscription.status,
-                        subscription_id, price_id, plan, interval
-                    )
+                        logger.info(f"[BILLING] Successfully updated user_billing for normal plan purchase")
 
                 # If this was an upgrade, cancel the previous subscription
+                logger.info(f"[BILLING] Checking for previous subscription to cancel (upgrade scenario)")
                 try:
                     prev_sub_id = session.get('metadata', {}).get('upgrade_from_subscription_id')
                     if prev_sub_id:
+                        logger.info(f"[BILLING] Cancelling previous subscription: {prev_sub_id}")
                         stripe.Subscription.delete(prev_sub_id)
+                        logger.info(f"[BILLING] Successfully cancelled previous subscription")
+                    else:
+                        logger.info(f"[BILLING] No previous subscription to cancel")
                 except Exception as cancel_err:
-                    logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
+                    logger.error(f"[BILLING] Upgrade cancel previous subscription failed: {cancel_err}", exc_info=True)
                 
                 # Compute and persist entitlements based on plan tier
                 # Only update base entitlements if this is NOT an addon-only purchase
+                logger.info(f"[BILLING] ====== UPDATING ENTITLEMENTS ======\nPlan: {plan}\nIs Addon Purchase: {is_addon_purchase}\nPrice ID: {price_id}\nWill Update: {not is_addon_purchase or price_id}\n{'='*50}")
                 if not is_addon_purchase or price_id:
                     try:
                         # Set base entitlements by plan
@@ -33879,7 +33944,7 @@ async def stripe_webhook(
                         else:
                             base_connectors, base_storage, base_slides = 0, 1, 20
                         
-                            logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
                         async with pool.acquire() as conn:
                             await conn.execute(
                                 """
@@ -33890,12 +33955,45 @@ async def stripe_webhook(
                                 """,
                                 onyx_user_id, base_connectors, base_storage, base_slides
                             )
+                        logger.info(f"[BILLING] Successfully updated base entitlements in database")
                     except Exception as e:
-                            logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
+                        logger.error(f"[BILLING] Failed to persist base entitlements: {e}", exc_info=True)
                 else:
                     logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
                 
-                logger.info(f"[BILLING] Updated billing for user {onyx_user_id}: plan={plan}, interval={interval}, is_addon_purchase={is_addon_purchase}")
+                logger.info(f"[BILLING] ====== CHECKOUT.SESSION.COMPLETED PROCESSING COMPLETE ======\nUser: {onyx_user_id}\nPlan: {plan}\nInterval: {interval}\nIs Addon Purchase: {is_addon_purchase}\n{'='*50}")
+                
+                # Track successful payment to Mixpanel
+                try:
+                    # Get payment details from the session
+                    amount_total = session.get('amount_total', 0)
+                    currency = session.get('currency', 'usd').upper()
+                    subscription_item = "Unknown"
+                    if price_id:
+                        tier_name = PRICE_TO_TIER.get(price_id)
+                        if tier_name:
+                            subscription_item = tier_name
+                        else:
+                            addon = PRICE_TO_ADDON.get(price_id, {})
+                            if addon:
+                                subscription_item = f"{addon.get('type', 'Unknown')} {addon.get('units', 'Unknown')}"
+                    
+                    # Track directly with user_id since we're in a webhook context
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Payment Succeeded",
+                        {
+                            "Mode": "Subscription",
+                            "Plan Type": plan.capitalize(),
+                            "Subscription ID": subscription_id,
+                            "Subscription Item": subscription_item,
+                            "Amount": (amount_total or 0) / 100,  # Convert from cents
+                            "Currency": currency
+                        }
+                    )
+                    logger.info(f"Tracked payment success to Mixpanel for user {onyx_user_id}: plan={plan}, subscription_id={subscription_id}, subscription_item={subscription_item}, amount={amount_total / 100}, currency={currency}")
+                except Exception as track_err:
+                    logger.warning(f"Failed to track payment to Mixpanel: {track_err}")
 
             # One-time credits purchase via Checkout Session (mode=payment)
             if onyx_user_id and session.get('mode') == 'payment':
@@ -33927,6 +34025,27 @@ async def stripe_webhook(
                                 """,
                                 str(uuid.uuid4()), onyx_user_id, total_credits
                             )
+                    
+                    # Track one-time credits purchase to Mixpanel
+                    try:
+                        # Get payment details from the session
+                        amount_total = session.get('amount_total', 0)
+                        currency = session.get('currency', 'usd').upper()
+                        
+                        # Track directly with user_id since we're in a webhook context
+                        mixpanel_helper.track_to_mp(
+                            onyx_user_id,
+                            "Payment Succeeded",
+                            {
+                                "Mode": "Payment",
+                                "Addon Type": "Credits",
+                                "Amount": amount_total / 100,  # Convert from cents
+                                "Currency": currency
+                            }
+                        )
+                        logger.info(f"Tracked payment success to Mixpanel for user {onyx_user_id}: amount={amount_total / 100}, currency={currency}")
+                    except Exception as track_err:
+                        logger.warning(f"Failed to track payment to Mixpanel: {track_err}")
                 except Exception as ce:
                     logger.error(f"Failed to grant one-time credits: {ce}")
 
@@ -33935,22 +34054,38 @@ async def stripe_webhook(
             subscription_id = subscription_obj.get('id') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'id', None)
             customer_id = subscription_obj.get('customer') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'customer', None)
             
+            # Log full subscription object from event
+            try:
+                sub_obj_json = json.dumps(subscription_obj if isinstance(subscription_obj, dict) else subscription_obj.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CUSTOMER.SUBSCRIPTION.UPDATED ======\nSubscription ID: {subscription_id}\nCustomer ID: {customer_id}\nFull Subscription Object:\n{sub_obj_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full subscription object: {log_err}")
+            
             logger.info(f"[BILLING] customer.subscription.updated event: subscription_id={subscription_id}, customer_id={customer_id}")
             
             # Re-fetch subscription with expanded product data to ensure we have all info
             subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+            
+            # Log full retrieved subscription
+            try:
+                subscription_json = json.dumps(subscription if isinstance(subscription, dict) else subscription.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== RETRIEVED UPDATED SUBSCRIPTION ======\nFull Subscription JSON:\n{subscription_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full retrieved subscription: {log_err}")
+            
             logger.info(f"[BILLING] Subscription status: {subscription.get('status')}, items count: {len(subscription.get('items', {}).get('data', []))}")
             
             # Find user by customer ID
             async with pool.acquire() as conn:
                 user_record = await conn.fetchrow(
-                    "SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1",
+                    "SELECT onyx_user_id, current_plan, current_price_id FROM user_billing WHERE stripe_customer_id = $1",
                     customer_id
                 )
             
             if user_record:
                 onyx_user_id = user_record['onyx_user_id']
                 existing_plan = user_record['current_plan']
+                old_price_id = user_record['current_price_id']
                 logger.info(f"[BILLING] Found user {onyx_user_id} with existing plan: {existing_plan}")
                 try:
                     # Cache email if present in customer object
@@ -34038,6 +34173,7 @@ async def stripe_webhook(
                             onyx_user_id, subscription['status'], price_id, plan, interval
                         )
                     logger.info(f"[BILLING] Updated subscription for user {onyx_user_id}: plan={plan}, status={subscription['status']}")
+
                 else:
                     # No base tier found - this is likely just add-ons being added
                     # Only update status, preserve existing plan
@@ -34080,17 +34216,42 @@ async def stripe_webhook(
                     except Exception as e:
                         logger.error(f"[BILLING] Failed to persist base entitlements on update: {e}", exc_info=True)
 
-        elif event['type'] == 'invoice.paid':
+        elif event['type'] == 'invoice.payment_succeeded':
             invoice = event['data']['object']
             customer_id = invoice.get('customer')
+            amount_paid = invoice.get('amount_paid', 0) or 0
+            currency = (invoice.get('currency') or 'usd').upper()
+            
+            # Log full invoice object from event
+            try:
+                invoice_json = json.dumps(invoice, indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== INVOICE.PAYMENT_SUCCEEDED ======\nInvoice ID: {invoice.get('id')}\nCustomer ID: {customer_id}\nAmount Paid: {amount_paid}\nCurrency: {currency}\nFull Invoice Object:\n{invoice_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full invoice object: {log_err}")
+            
+            logger.info(f"[BILLING] invoice.payment_succeeded event: invoice_id={invoice.get('id')}, customer_id={customer_id}, amount_paid={amount_paid}, currency={currency}")
+            
+            full_invoice = stripe.Invoice.retrieve(
+                invoice.get('id'),
+                expand=['lines.data.price.product']
+            )
+            
+            # Log full retrieved invoice
+            try:
+                full_invoice_json = json.dumps(full_invoice if isinstance(full_invoice, dict) else full_invoice.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== RETRIEVED FULL INVOICE ======\nFull Invoice JSON:\n{full_invoice_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full retrieved invoice: {log_err}")
+
             async with pool.acquire() as conn:
-                rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+                rec = await conn.fetchrow("SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1", customer_id)
             if rec:
                 onyx_user_id = rec['onyx_user_id']
+                plan_type = rec['current_plan']
                 # Grant credits for base tier renewal
                 try:
                     total_tier_credits = 0
-                    for li in invoice.get('lines', {}).get('data', []):
+                    for li in full_invoice.get('lines', {}).get('data', []):
                         price = (li.get('price') or {})
                         pid = price.get('id')
                         tier_key = PRICE_TO_TIER.get(pid or '', '')
@@ -34113,14 +34274,14 @@ async def stripe_webhook(
                                 INSERT INTO credit_grant_events (id, onyx_user_id, source, amount, stripe_invoice_id, created_at)
                                 VALUES ($1, $2, 'tier_renewal', $3, $4, now())
                                 """,
-                                str(uuid.uuid4()), onyx_user_id, total_tier_credits, invoice.get('id')
+                                str(uuid.uuid4()), onyx_user_id, total_tier_credits, full_invoice.get('id')
                             )
                 except Exception as te:
                     logger.error(f"Failed to grant tier renewal credits: {te}")
 
                 # Sync recurring add-ons status from subscription
                 try:
-                    sub_id = invoice.get('subscription')
+                    sub_id = full_invoice.get('subscription')
                     if sub_id:
                         sub = stripe.Subscription.retrieve(sub_id, expand=['items.data.price'])
                         async with pool.acquire() as conn:
@@ -34141,12 +34302,278 @@ async def stripe_webhook(
                 except Exception as ae:
                     logger.error(f"Failed to sync add-ons: {ae}")
 
+                # 3) Track Mixpanel: Payment Succeeded (mode=Invoice)
+                try:
+                    lines_data = full_invoice.get('lines', {}).get('data', [])
+                    price_id = None
+                    if lines_data:
+                        first_line = lines_data[0]
+                        pricing = first_line.get('pricing') if isinstance(first_line, dict) else getattr(first_line, 'pricing', None)
+                        if pricing and isinstance(pricing, dict):
+                            pricing_details = pricing.get('pricing_details', {})
+                            price_id = pricing_details.get('price') if pricing_details else None
+                    invoice_item = "Unknown"
+                    if price_id:
+                        tier_name = PRICE_TO_TIER.get(price_id)
+                        if tier_name:
+                            invoice_item = tier_name
+                        else:
+                            addon = PRICE_TO_ADDON.get(price_id, {})
+                            if addon:
+                                invoice_item = f"{addon.get('type', 'Unknown')} {addon.get('units', 'Unknown')}"
+                    
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Payment Succeeded",
+                        {
+                            "Mode": "Invoice",
+                            "Plan Type": plan_type.capitalize() if plan_type else None,
+                            "Invoice ID": invoice.get('id'),
+                            "Invoice Item": invoice_item,
+                            "Amount": (amount_paid or 0) / 100,
+                            "Currency": currency,
+                        }
+                    )
+                    logger.info(f"Tracked payment success to Mixpanel for user {onyx_user_id}: plan={plan_type}, invoice_id={invoice.get('id')}, invoice_item={invoice_item}, amount={(amount_paid or 0) / 100}, currency={currency}")
+                except Exception as track_err:
+                    logger.warning(f"Failed to track invoice.payment_succeeded to Mixpanel: {track_err}")
+
+        elif event['type'] == 'invoice.payment_failed':
+            invoice = event['data']['object']
+            customer_id = invoice.get('customer')
+            attempt_count = invoice.get('attempt_count')
+            reason = None
+            try:
+                # Try to get detailed failure reason from the PaymentIntent if present
+                pi_id = invoice.get('payment_intent')
+                if pi_id:
+                    pi = stripe.PaymentIntent.retrieve(pi_id)
+                    last_err = (pi.get('last_payment_error') if isinstance(pi, dict) else getattr(pi, 'last_payment_error', None)) or {}
+                    # Prefer error message; fall back to code
+                    reason = last_err.get('message') or last_err.get('code')
+                # Fallbacks
+                if not reason:
+                    reason = (invoice.get('last_finalization_error') or {}).get('message') or invoice.get('status')
+            except Exception as e:
+                logger.warning(f"[BILLING] Failed to retrieve payment failure reason: {e}")
+
+            # Lookup user and track
+            onyx_user_id = None
+            try:
+                async with pool.acquire() as conn:
+                    rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+                    if rec:
+                        onyx_user_id = rec['onyx_user_id']
+                if onyx_user_id:
+                    mixpanel_helper.track_to_mp(
+                        onyx_user_id,
+                        "Payment Failed",
+                        {
+                            "Reason": reason,
+                            "Attempt Count": attempt_count,
+                        }
+                    )
+                    logger.info(f"Tracked payment failure to Mixpanel for user {onyx_user_id}: reason={reason}, attempt_count={attempt_count}")
+            except Exception as track_err:
+                logger.warning(f"Failed to track payment failure to Mixpanel: {track_err}")
+
+        elif event['type'] == 'customer.subscription.created':
+            sub = event['data']['object']
+            subscription_id = sub.get('id') if isinstance(sub, dict) else getattr(sub, 'id', None)
+            customer_id = sub.get('customer') if isinstance(sub, dict) else getattr(sub, 'customer', None)
+            
+            # Log full subscription object from event
+            try:
+                sub_json = json.dumps(sub if isinstance(sub, dict) else sub.to_dict(), indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CUSTOMER.SUBSCRIPTION.CREATED ======\nSubscription ID: {subscription_id}\nCustomer ID: {customer_id}\nFull Subscription Object:\n{sub_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full subscription object: {log_err}")
+            
+            # Ensure we have expanded price.product to read plan name easily when possible
+            try:
+                subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+                # Log full retrieved subscription
+                try:
+                    subscription_json = json.dumps(subscription if isinstance(subscription, dict) else subscription.to_dict(), indent=2, default=str)
+                    logger.info(f"[WEBHOOK] ====== RETRIEVED CREATED SUBSCRIPTION ======\nFull Subscription JSON:\n{subscription_json}\n{'='*50}")
+                except Exception:
+                    pass
+            except Exception:
+                subscription = sub
+                logger.warning(f"[BILLING] Failed to retrieve subscription, using event object")
+
+            # Extract updated plan info - find base tier price (not add-ons)
+            onyx_user_id = None
+            plan = None
+            existing_plan = None
+            price_id = None
+            amount_major = None
+            currency = None
+            try:
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list:
+                    # Log all items for debugging
+                    logger.info(f"[BILLING] Subscription items:")
+                    for idx, item_data in enumerate(data_list):
+                        item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
+                        is_tier = item_price_id in PRICE_TO_TIER
+                        is_addon = item_price_id in PRICE_TO_ADDON
+                        logger.info(f"[BILLING]   Item {idx}: price_id={item_price_id}, is_tier={is_tier}, is_addon={is_addon}")
+                    
+                    # Look for base tier price among all items
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        
+                        # Check if this is a base tier price
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}")
+                            break
+                    
+                    # If no tier price found, try product name fallback on first item
+                    if not plan and len(data_list) > 0:
+                        logger.info(f"[BILLING] No tier price found among items, trying product name fallback")
+                        price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                        
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        logger.info(f"[BILLING] Product name: '{product_name}'")
+                        if 'business' in lowered:
+                            plan = 'business'
+                        elif 'pro' in lowered:
+                            plan = 'pro'
+                        
+                        if plan:
+                            logger.info(f"[BILLING] Inferred plan from product name: {plan}")
+                        else:
+                            logger.warning(f"[BILLING] Could not infer plan from product name")
+                
+                # Amount and currency from base plan price
+                if price_id:
+                    try:
+                        p = stripe.Price.retrieve(price_id)
+                        unit_amount = getattr(p, 'unit_amount', None)
+                        currency = getattr(p, 'currency', None)
+                        if unit_amount is not None:
+                            amount_major = round(unit_amount / 100.0, 2)
+                    except Exception as pe:
+                        logger.warning(f"[BILLING] Failed to retrieve price for subscription.created: {pe}")
+                
+            except Exception as e:
+                logger.warning(f"[BILLING] Failed to parse subscription.created: {e}")
+
+            start_date = (subscription.get('start_date') if isinstance(subscription, dict) else getattr(subscription, 'start_date', None))
+
+            # Lookup user
+            async with pool.acquire() as conn:
+                rec = await conn.fetchrow("SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+                if rec:
+                    onyx_user_id = rec['onyx_user_id']
+                    existing_plan = rec['current_plan']
+
+            if plan:
+                # Compute price difference between old plan and new plan (normalized monthly)
+                price_difference_major = None
+                try:
+                    old_amt = old_ccy = old_interval = None
+                    new_amt = new_ccy = new_interval = None
+
+                    if old_price_id:
+                        old_price = stripe.Price.retrieve(old_price_id)
+                        old_amt = getattr(old_price, 'unit_amount', None)
+                        old_ccy = getattr(old_price, 'currency', None)
+                        old_rec = getattr(old_price, 'recurring', None) or {}
+                        old_interval = old_rec.get('interval')
+
+                    if price_id:
+                        new_price = stripe.Price.retrieve(price_id)
+                        new_amt = getattr(new_price, 'unit_amount', None)
+                        new_ccy = getattr(new_price, 'currency', None)
+                        new_rec = getattr(new_price, 'recurring', None) or {}
+                        new_interval = new_rec.get('interval')
+
+                    def to_monthly(amount_cents, interval):
+                        if amount_cents is None:
+                            return None
+                        if interval == 'month':
+                            return float(amount_cents)
+                        if interval == 'year':
+                            return float(amount_cents) / 12.0
+                        # Unknown interval: treat as monthly-equivalent fallback
+                        return float(amount_cents)
+
+                    if old_amt is not None and new_amt is not None and old_ccy and new_ccy and old_ccy == new_ccy:
+                        old_monthly = to_monthly(old_amt, old_interval)
+                        new_monthly = to_monthly(new_amt, new_interval)
+                        if old_monthly is not None and new_monthly is not None:
+                            # Convert cents to major units
+                            price_difference_major = round((new_monthly - old_monthly) / 100.0, 2)
+                except Exception as _pd_err:
+                    logger.warning(f"[BILLING] Failed to compute price difference: {_pd_err}")
+                
+                if plan != existing_plan:
+                    # Track plan upgrade/downgrade to Mixpanel
+                    try:
+                        mixpanel_helper.track_to_mp(
+                            onyx_user_id,
+                            "Plan Upgraded" if _map_plan_to_value(plan) > _map_plan_to_value(existing_plan) else "Plan Downgraded",
+                            {
+                                "New Plan": plan.capitalize(),
+                                "Old Plan": existing_plan.capitalize() if existing_plan else None,
+                                "Price Difference": price_difference_major,  # monthly-equivalent, in major units
+                                "Currency": new_ccy.upper() if price_difference_major is not None and new_ccy else None,
+                            }
+                        )
+                        logger.info(f"Tracked plan upgrade/downgrade to Mixpanel for user {onyx_user_id}: new_plan={plan}, old_plan={existing_plan}, price_difference={price_difference_major}, currency={new_ccy.upper()}")
+                    except Exception as track_err:
+                        logger.warning(f"Failed to track plan upgrade/downgrade to Mixpanel: {track_err}")
+
+            # Track subscription creation to Mixpanel
+            try:
+                mixpanel_helper.track_to_mp(
+                    onyx_user_id,
+                    "Subscription Created",
+                    {
+                        "Plan Type": plan.capitalize() if plan else rec['current_plan'].capitalize(), # Fallback to current plan if not found
+                        "Subscription Id": subscription_id,
+                        "Amount": amount_major,
+                        "Start Date": start_date,
+                        "Currency": currency.upper() if currency else None,
+                    }
+                )
+                logger.info(f"Tracked subscription creation to Mixpanel for user {onyx_user_id}.")
+                    
+            except Exception as track_err:
+                logger.warning(f"Failed to track subscription.created to Mixpanel: {track_err}")
+
         elif event['type'] == 'customer.subscription.deleted':
             subscription = event['data']['object']
             customer_id = subscription.get('customer')
             
+            # Log full subscription object from event
+            try:
+                sub_json = json.dumps(subscription, indent=2, default=str)
+                logger.info(f"[WEBHOOK] ====== CUSTOMER.SUBSCRIPTION.DELETED ======\nSubscription ID: {subscription.get('id')}\nCustomer ID: {customer_id}\nFull Subscription Object:\n{sub_json}\n{'='*50}")
+            except Exception as log_err:
+                logger.warning(f"[WEBHOOK] Failed to log full subscription object: {log_err}")
+            
+            logger.info(f"[BILLING] customer.subscription.deleted event: subscription_id={subscription.get('id')}, customer_id={customer_id}")
+            
             # Find user by customer ID and mark as cancelled
             async with pool.acquire() as conn:
+                user_record = await conn.fetchrow(
+                    "SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1",
+                    customer_id
+                )
                 await conn.execute(
                     """
                     UPDATE user_billing 
@@ -34158,6 +34585,22 @@ async def stripe_webhook(
                 )
             
             logger.info(f"Cancelled subscription for customer {customer_id}")
+
+            # Track subscription cancellation to Mixpanel
+            try:
+                mixpanel_helper.track_to_mp(
+                    user_record['onyx_user_id'],
+                    "Subscription Cancelled",
+                    {
+                        "Plan Type": user_record['current_plan'].capitalize() if user_record else None,
+                        "Subscription Id": subscription.get('id'),
+                        "End Date": subscription.get('canceled_at'),
+                        "Cancelation Reason": (subscription.get('cancellation_details') or {}).get('reason')
+                    }
+                )
+                logger.info(f"Tracked subscription cancellation to Mixpanel for user {user_record['onyx_user_id']}: plan={user_record['current_plan'].capitalize() if user_record else None}, subscription_id={subscription.get('id')}, end_date={subscription.get('canceled_at')}, cancelation_reason={(subscription.get('cancellation_details') or {}).get('reason')}")
+            except Exception as track_err:
+                logger.warning(f"Failed to track subscription cancellation to Mixpanel: {track_err}")
 
         # Mark processed
         try:

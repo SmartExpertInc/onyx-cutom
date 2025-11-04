@@ -250,15 +250,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       try {
                         setPortalLoading(true);
                         
-                        // Map plan to Stripe price ID
-                        const priceIdMap: Record<string, string> = {
-                          'pro': billingCycle === 'yearly' ? 'price_1SEBUCH2U2KQUmUhkym5Q9TS' : 'price_1SEBM4H2U2KQUmUhkn6A7Hlm',
-                          'business': billingCycle === 'yearly' ? 'price_1SEBUoH2U2KQUmUhMktbhCsm' : 'price_1SEBTeH2U2KQUmUhi02e1uC9'
-                        };
-                        
-                        const priceId = priceIdMap[selectedPlan.id];
-                        if (!priceId) {
-                          throw new Error('Price ID not configured for this plan');
+                        if (!['Pro', 'Business', 'Enterprise'].includes(selectedPlan.name)) {
+                          throw new Error('Plan not supported');
                         }
                         
                         const res = await fetch('/api/custom-projects-backend/billing/checkout', { 
@@ -266,8 +259,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           credentials: 'same-origin',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ 
-                            priceId: priceId,
-                            planName: selectedPlan.name 
+                            planName: `${selectedPlan.name.toLowerCase()}_${billingCycle === 'yearly' ? 'yearly' : 'monthly'}`,
                           })
                         });
                         if (!res.ok) throw new Error('Failed to create checkout session');
