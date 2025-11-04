@@ -1519,8 +1519,10 @@ class ProfessionalPresentationService:
                 # Fallback: try to extract from avatarPosition backgroundColor
                 avatar_position = slide_data.get("avatarPosition", {})
                 elai_background_color = avatar_position.get("backgroundColor")
-            if elai_background_color:
-                logger.info(f"🎨 [BATCH_AVATAR] Slide {slide_index + 1} using Elai background color: {elai_background_color}")
+            # Only fallback to white if no color was found at all
+            if not elai_background_color:
+                elai_background_color = "#ffffff"  # Final fallback only if truly missing
+            logger.info(f"🎨 [BATCH_AVATAR] Slide {slide_index + 1} using Elai background color: {elai_background_color}")
             
             # Create task for this slide
             task = self._initiate_avatar_video(

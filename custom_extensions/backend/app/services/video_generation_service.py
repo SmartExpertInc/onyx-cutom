@@ -534,10 +534,10 @@ class ElaiVideoGenerationService:
                 if not elai_background_color:
                     # Fallback: try to extract from avatarPosition backgroundColor
                     avatar_position = slide.get("avatarPosition", {})
-                    elai_background_color = avatar_position.get("backgroundColor", "#ffffff")
-                if not elai_background_color or elai_background_color == "#ffffff":
-                    # Final fallback to white for safety
-                    elai_background_color = "#ffffff"
+                    elai_background_color = avatar_position.get("backgroundColor")
+                # Only fallback to white if no color was found at all
+                if not elai_background_color:
+                    elai_background_color = "#ffffff"  # Final fallback only if truly missing
                 
                 logger.info(f"🎨 [ELAI_BACKGROUND] Slide {i+1} using background color: {elai_background_color}")
                 
