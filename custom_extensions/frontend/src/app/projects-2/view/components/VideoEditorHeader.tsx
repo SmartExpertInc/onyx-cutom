@@ -712,15 +712,15 @@ export default function VideoEditorHeader({
         }
       }, 2000);
 
-      // Set a timeout to stop polling after 10 minutes
+      // Set a timeout to stop polling after 60 minutes
       setTimeout(() => {
-        console.log('🎬 [VIDEO_GENERATION] Polling timeout reached (10 minutes)');
+        console.log('🎬 [VIDEO_GENERATION] Polling timeout reached (60 minutes)');
         clearInterval(pollInterval);
         if (generationStatus === 'generating') {
           setGenerationStatus('error');
-          setGenerationError('Video generation timed out after 10 minutes. This may indicate a backend issue. Please check the status manually.');
+          setGenerationError('Video generation timed out after 60 minutes. This may indicate a backend issue. Please check the status manually.');
         }
-      }, 600000);
+      }, 3600000);
 
     } catch (error) {
       console.error('🎬 [VIDEO_GENERATION] Video generation failed:', error);

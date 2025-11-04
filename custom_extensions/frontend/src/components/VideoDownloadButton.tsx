@@ -224,15 +224,15 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         }
       }, 2000);
 
-      // Set a timeout to stop polling after 10 minutes (increased from 5 minutes)
+      // Set a timeout to stop polling after 60 minutes
       // This accounts for longer processing times in multi-slide presentations
       setTimeout(() => {
         clearInterval(pollInterval);
         if (status === 'generating') {
           setStatus('error');
-          onError?.('Video generation timed out after 10 minutes. This may indicate a backend issue. Please check the status manually.');
+          onError?.('Video generation timed out after 60 minutes. This may indicate a backend issue. Please check the status manually.');
         }
-      }, 600000);
+      }, 3600000);
 
     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Video generation failed:', error);

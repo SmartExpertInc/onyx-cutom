@@ -13,7 +13,7 @@ import { AvatarService } from './AvatarService';
 
 export class VideoGenerationService {
   private static readonly CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-  private static readonly MAX_WAIT_TIME = 15 * 60 * 1000; // 15 minutes
+  private static readonly MAX_WAIT_TIME = 60 * 60 * 1000; // 60 minutes
   private static readonly POLL_INTERVAL = 30 * 1000; // 30 seconds
   
   /**
