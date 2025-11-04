@@ -653,7 +653,7 @@ function Projects2ViewPageContent() {
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
       const modalWidth = 950;
-      const modalHeight = 470;
+      const modalHeight = 440;
       const gap = 10;
       
       // Calculate position centered under the button, shifted to the left
@@ -1109,7 +1109,7 @@ function Projects2ViewPageContent() {
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
             width: '950px',
-            height: '470px',
+            height: '440px',
             zIndex: 9999
           }}
         >
