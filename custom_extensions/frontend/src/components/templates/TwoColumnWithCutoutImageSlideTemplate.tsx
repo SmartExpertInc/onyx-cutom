@@ -75,20 +75,13 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
   };
 
   // Left section container - clipped/cropped
-// Left section container - clipped with rounded inner corner
   const leftSectionContainer: React.CSSProperties = {
     width: '100%',
     height: '87%',
     position: 'relative',
     borderRadius: '16px',
     overflow: 'hidden',
-    backgroundColor: '#E0E7FF',
-    WebkitMask: `
-      radial-gradient(20px at calc(100% - 160px) 160px, transparent 99%, black 100%),
-      linear-gradient(black 0 0)
-    `,
-    WebkitMaskComposite: 'destination-out',
-    maskComposite: 'exclude',
+    clipPath: 'polygon( 0 0, calc(100% - 160px) 0, calc(100% - 160px) 160px, 100% 160px, 100% 100%, 0 100% )'
   };
 
 
