@@ -59,7 +59,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '45px',
+    top: '25px',
     left: '310px',
     right: '40px',
     fontSize: '37px',
@@ -71,7 +71,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
 
   const subtitleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '155px',
+    top: '185px',
     left: '310px',
     right: '170px',
     fontSize: '18px',

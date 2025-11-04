@@ -5,12 +5,16 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 export interface OralHygieneSignsProps extends BaseTemplateProps {
   heading: string;
   leftItems: Array<{ number: string; title: string; body: string }>;
   rightItems: Array<{ number: string; title: string; body: string }>;
   avatarPath?: string;
+  logoText?: string;
+  logoPath?: string;
+  pageNumber?: string;
 }
 
 export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { theme?: SlideTheme | string }> = ({
@@ -27,6 +31,9 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
     { number: '06', title: 'Toothache', body: 'Minor toothaches can come from ...' }
   ],
   avatarPath = '',
+  logoText = 'Your Logo',
+  logoPath = '',
+  pageNumber = '15',
   isEditable = false,
   onUpdate,
   theme
@@ -36,7 +43,7 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
   const [editItem, setEditItem] = useState<{ side: 'left' | 'right'; idx: number; field: 'title' | 'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const headingStyle: React.CSSProperties = { position:'absolute', top:'30px', fontSize:'58px', width:'600px', fontWeight:800, color:'#1F2937', lineHeight:1.05 };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'30px', top:'30px', fontSize:'58px', width:'700px', fontWeight:800, color:'#1F2937', lineHeight:1.05 };
   const avatar: React.CSSProperties = { position:'absolute', right:'56px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#4B71D6' };
   const grid: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'56px', top:'285px', display:'grid', gridTemplateColumns:'1fr 1fr', columnGap:'72px' };
   const list: React.CSSProperties = { display:'grid', rowGap:'22px' };
@@ -44,6 +51,8 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
   const num: React.CSSProperties = { fontSize:'64px', fontWeight:800, color:'#5B78E6' };
   const title: React.CSSProperties = { fontSize:'18px', color:'#111827', marginBottom:'4px' };
   const body: React.CSSProperties = { fontSize:'14px', color:'#6B7280', lineHeight:1.6 };
+  const logoStyle: React.CSSProperties = { position:'absolute', bottom:'20px', right:'20px', color:'#000000', fontFamily:'Inter, sans-serif', fontWeight:500 };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'0px', color:'#5F616D', fontSize:'16px', fontWeight:600, fontFamily:'Inter, sans-serif', display:'flex', alignItems:'center', gap:'8px' };
 
   const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
   const inlineTitle = { ...title, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
@@ -97,6 +106,27 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
             ))}
           </div>
         ))}
+      </div>
+
+      {/* Logo in bottom-right corner */}
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+        isEditable={isEditable}
+        color="#000000"
+        fontSize="17px"
+        text={logoText}
+        style={logoStyle}
+      />
+
+      {/* Page number in bottom-left corner */}
+      <div style={pageNumberStyle}>
+        <div style={{
+          width: '15px',
+          height: '1px',
+          backgroundColor: '#5F616D'
+        }}></div>
+        <div>{pageNumber}</div>
       </div>
     </div>
   );

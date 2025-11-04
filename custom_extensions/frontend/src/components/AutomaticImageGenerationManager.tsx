@@ -173,6 +173,22 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           }
           break;
 
+        case 'phishing-definition-slide':
+          // Handle right side image
+          const phishingRightImageElementId = `${slideId}-right-image`;
+          if (slide.props.rightImagePrompt && !slide.props.rightImagePath) {
+            extractedPlaceholders.push({
+              elementId: phishingRightImageElementId,
+              slideId,
+              templateId,
+              imagePrompt: slide.props.rightImagePrompt,
+              imagePath: slide.props.rightImagePath,
+              placeholderDimensions: { width: 935, height: 843 }, // Large right section - portrait orientation
+              isGenerating: false
+            });
+          }
+          break;
+
         default:
           // Check for generic image properties
           if (slide.props.imagePrompt && !slide.props.imagePath) {

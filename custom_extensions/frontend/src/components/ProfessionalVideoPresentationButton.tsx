@@ -27,7 +27,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
   const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
   // Function to extract actual slide data from current project
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[], transitions: any[] }> => {
     console.log('🎬 [PROFESSIONAL_VIDEO] Extracting slide data from current project...');
     
     try {
@@ -43,10 +43,15 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         
         console.log('🎬 [PROFESSIONAL_VIDEO] Extracted voiceover texts:', voiceoverTexts);
         
+        // Extract transitions from deck (new feature)
+        const transitions = slideViewerData.deck.transitions || [];
+        console.log('🎬 [PROFESSIONAL_VIDEO] Extracted transitions:', transitions);
+        
         return {
           slides: slideViewerData.deck.slides,
           theme: slideViewerData.deck.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts
+          voiceoverTexts: voiceoverTexts,
+          transitions: transitions
         };
       }
 
@@ -72,21 +77,26 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
             
             console.log('🎬 [PROFESSIONAL_VIDEO] Extracted voiceover texts:', voiceoverTexts);
             
+            // Extract transitions from project data
+            const transitions = projectData.details?.transitions || [];
+            console.log('🎬 [PROFESSIONAL_VIDEO] Extracted transitions from API:', transitions);
+            
             return {
               slides: projectData.details.slides,
               theme: projectData.details.theme || 'dark-purple',
-              voiceoverTexts: voiceoverTexts
+              voiceoverTexts: voiceoverTexts,
+              transitions: transitions
             };
           }
         }
       }
 
       console.log('🎬 [PROFESSIONAL_VIDEO] Could not extract slide data');
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
       
     } catch (error) {
       console.error('🎬 [PROFESSIONAL_VIDEO] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
     }
   };
 
@@ -129,6 +139,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       console.log('🎬 [PROFESSIONAL_VIDEO] Slide data extracted successfully');
       console.log('🎬 [PROFESSIONAL_VIDEO] Slides count:', slideData.slides.length);
       console.log('🎬 [PROFESSIONAL_VIDEO] Theme:', slideData.theme);
+      console.log('🎬 [PROFESSIONAL_VIDEO] Transitions count:', slideData.transitions.length);
 
       // Create the request payload
       const requestPayload = {
@@ -138,6 +149,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         ],  // Use actual voiceover texts or fallback
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
+        transitions: slideData.transitions,  // Add transitions for multi-slide concatenation
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
         useAvatarMask: true,
         layout: 'picture_in_picture',

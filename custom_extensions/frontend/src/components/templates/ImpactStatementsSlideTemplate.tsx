@@ -7,11 +7,13 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps & {
   theme?: SlideTheme | string;
   pageNumber?: string;
   logoNew?: string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Here are some impact value statements backed by numbers:',
@@ -31,7 +33,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingStatements, setEditingStatements] = useState<number | null>(null);
@@ -40,6 +43,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const [currentStatements, setCurrentStatements] = useState(statements);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const statementEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const numberEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
@@ -161,15 +169,20 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           fontWeight: 500
         }}>
           {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
+              placeholder="Enter title..."
               className="impact-title-editor title-element"
               style={{
                 fontSize: '50px',
                 color: '#09090B',
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
                 lineHeight: '1.2',
                 width: '100%',
                 height: 'auto',
@@ -192,9 +205,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 lineHeight: '1.2',
                 minHeight: '4.17%'
               }}
-            >
-              {currentTitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
         </div>
 
@@ -213,10 +225,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             size="LARGE"
             position="CENTER"
             style={{
-              width: '80%',
-              height: '110%',
+              width: '75%',
+              height: '105%',
               position: 'relative',
-              bottom: '-4.17%',
+              bottom: '-8%',
             }}
           />
         </div>
@@ -309,8 +321,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               fontSize: '27px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
-              cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
+              cursor: isEditable ? 'pointer' : 'default'
             }}
           >
             {currentPageNumber}
@@ -371,17 +382,27 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 fontWeight: 500
               }}>
                 {isEditable && editingNumbers === index ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (!numberEditorRefs.current) numberEditorRefs.current = [];
+                      numberEditorRefs.current[index] = el;
+                    }}
                     initialValue={statement.number}
                     onSave={(value) => handleNumberSave(index, value)}
                     onCancel={handleNumberCancel}
+                    placeholder="Enter number..."
                     className="statement-number-editor title-element"
                     style={{
                       fontSize: '60px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto',
+                      padding: '8px 12px',
+                      border: '1px solid rgba(0,0,0,0.2)',
+                      borderRadius: '4px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)'
                     }}
+                    onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `number-${index}`, computedStyles)}
                   />
                 ) : (
                   <div
@@ -389,7 +410,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onClick={() => isEditable && setEditingNumbers(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none',
                       width: '100%',
                       height: '100%',
                       display: 'flex',
@@ -398,9 +418,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       color: themeBg,
                       overflow: 'hidden'
                     }}
-                  >
-                    {statement.number}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: statement.number }}
+                  />
                 )}
               </div>
 
@@ -414,11 +433,15 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingStatements === index ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (!statementEditorRefs.current) statementEditorRefs.current = [];
+                      statementEditorRefs.current[index] = el;
+                    }}
                     initialValue={statement.description}
                     onSave={(value) => handleStatementSave(index, value)}
                     onCancel={handleStatementCancel}
-                    multiline={true}
+                    placeholder="Enter description..."
                     className="statement-description-editor"
                     style={{
                       fontSize: '22px',
@@ -426,16 +449,19 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto',
-                      whiteSpace: 'pre-line',
+                      padding: '8px 12px',
+                      border: '1px solid rgba(0,0,0,0.2)',
+                      borderRadius: '4px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
                       fontFamily: 'Inter, sans-serif'
                     }}
+                    onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `description-${index}`, computedStyles)}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingStatements(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none',
                       fontSize: '22px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
@@ -443,9 +469,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       whiteSpace: 'pre-line',
                       fontFamily: 'Inter, sans-serif'
                     }}
-                  >
-                    {statement.description}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: statement.description.replace(/\n/g, '<br/>') }}
+                  />
                 )}
               </div>
             </div>
@@ -518,11 +543,15 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingStatements === 1 ? (
-                  <ImprovedInlineEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (!statementEditorRefs.current) statementEditorRefs.current = [];
+                      statementEditorRefs.current[1] = el;
+                    }}
                     initialValue={currentStatements[1].description}
                     onSave={(value) => handleStatementSave(1, value)}
                     onCancel={handleStatementCancel}
-                    multiline={true}
+                    placeholder="Enter description..."
                     className="statement-description-editor"
                     style={{
                       fontSize: '22px',
@@ -530,24 +559,27 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto',
+                      padding: '8px 12px',
+                      border: '1px solid rgba(0,0,0,0.2)',
+                      borderRadius: '4px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
                       fontFamily: 'Inter, sans-serif'
                     }}
+                    onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'description-1', computedStyles)}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingStatements(1)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none',
                       fontSize: '22px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
                       fontFamily: 'Inter, sans-serif'
                     }}
-                  >
-                    {currentStatements[1].description}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: currentStatements[1].description.replace(/\n/g, '<br/>') }}
+                  />
                 )}
               </div>
             </div>

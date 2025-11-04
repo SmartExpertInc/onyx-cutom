@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 
 export interface DeiMethodsProps extends BaseTemplateProps {
@@ -102,7 +102,18 @@ export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: S
       {/* Header section */}
       <div style={header} />
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <AvatarImageDisplay
+          size="MEDIUM"
+          position="CENTER"
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
+        />
       </div>
 
       {isEditable && editKey==='headerTitle' ? (
@@ -126,6 +137,7 @@ export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: S
           <div className="title-element" onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
         </div>
       )}
+      <h1>Old Template</h1>
 
       {/* Content block wrapper */}
       <div style={contentBlock}>
@@ -163,7 +175,7 @@ export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: S
             <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
           </div>
         )}
-
+<h1>Old Template</h1>
         <div style={section2TitleStyle}>
           {isEditable && editKey==='s2t' ? (
             <ImprovedInlineEditor 
@@ -199,7 +211,7 @@ export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: S
           </div>
         )}
       </div>
-
+      <h1>Old Template</h1>
       {/* Footer with page number and logo */}
       <div style={{
         position: 'absolute',
@@ -235,7 +247,7 @@ export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: S
           </div>
         )}
       </div>
-      
+      <h1>Old Template</h1>
       {/* Logo */}
       <div className='dei-methods-slide-logo' style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
         <YourLogo

@@ -1,15 +1,18 @@
 // custom_extensions/frontend/src/components/templates/BenefitsListSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BenefitsListSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 
 export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId: _slideId,
   title = 'Benefits',
@@ -38,7 +41,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText: _voiceoverText
+  voiceoverText: _voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -49,6 +53,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
+  const benefitEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
@@ -57,12 +62,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    background: themeBg,
+    aspectRatio: '16/9',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -153,12 +157,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const handleLogoNewUploaded = (newLogoPath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
-    }
-  };
-
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
@@ -363,11 +361,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             <div
               key={i}
               style={{
-                width: '45px',
-                height: '45px',
-                borderRadius: '50%',
-                border: `2px solid ${themeBg}`,
-                background: i + 1 === currentStep ? themeBg : 'transparent',
+                width: '55px',
+                height: '55px',
+                borderRadius: '2px',
+                border: `2px solid #ffffff`,
+                backgroundColor: i + 1 === currentStep ? "#ffffff" : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -382,7 +380,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           ))}
         </div>
 
-        {/* Profile image */}
+        {/* Avatar in circular container */}
         <div style={{
           position: 'absolute',
           top: '60px',
@@ -393,21 +391,15 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           overflow: 'hidden',
           backgroundColor: '#ffffff',
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
-              width: '110%',
-              height: '110%',
+              width: '88%',
+              height: '135%',
               borderRadius: '50%',
               position: 'relative',
-              bottom: '-10px',
-              left: '50%',
-              transform: 'translateX(-50%)',
+              bottom: '0px',
               objectFit: 'cover'
             }}
           />
@@ -417,7 +409,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        background: themeBg,
+        backgroundColor: '#E0E7FF',
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -446,34 +438,42 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
               </svg>
               {isEditable && editingBenefits === index ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!benefitEditorRefs.current) benefitEditorRefs.current = [];
+                    benefitEditorRefs.current[index] = el;
+                  }}
                   initialValue={benefit}
                   onSave={(value) => handleBenefitSave(index, value)}
                   onCancel={handleBenefitCancel}
+                  placeholder="Enter benefit..."
                   className="benefit-editor"
                   style={{
                     fontSize: '24px',
                     color: '#5E5E5E',
                     fontFamily: currentTheme.fonts.contentFont,
                     letterSpacing: '0.05rem',
-                    flex: '1'
+                    flex: '1',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
                   }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `benefit-${index}`, computedStyles)}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingBenefits(index)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
                     flex: '1',
                     fontSize: '24px',
                     color: '#5E5E5E',
                     fontFamily: currentTheme.fonts.contentFont,
                     letterSpacing: '0.05rem'
                   }}
-                >
-                  {benefit}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: benefit }}
+                />
               )}
             </div>
           ))}

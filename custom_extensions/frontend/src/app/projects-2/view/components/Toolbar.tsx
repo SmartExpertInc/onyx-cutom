@@ -25,6 +25,7 @@ interface ToolbarProps {
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onInteractionButtonClick?: (position: { x: number; y: number }) => void;
   onLanguageVariantModalOpen?: () => void;
+  showReady?: boolean;
 }
 
 interface Tool {
@@ -34,7 +35,7 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onLanguageVariantModalOpen }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onLanguageVariantModalOpen, showReady }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
@@ -155,38 +156,59 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     }
   ];
 
+  const disabledToolIdsWhenReady = new Set(['background','shapes','media','text','music','transition','interaction','comments','default']);
+
   const handleToolClick = (toolId: string, _event?: React.MouseEvent<HTMLDivElement>) => {
+    if (showReady && disabledToolIdsWhenReady.has(toolId)) {
+      // Disabled in ready mode
+      return;
+    }
     // Always set the active tool ID first
     setActiveToolId(toolId);
     
-    if (toolId === 'text' && onTextButtonClick && textButtonRef.current) {
-      const rect = textButtonRef.current.getBoundingClientRect();
-      const position = {
-        x: rect.left + (rect.width / 2) - 100, // Center popup (assuming 200px popup width)
-        y: rect.bottom + 5 // Position popup 5px below the button
-      };
-      onTextButtonClick(position);
-      return;
+    if (toolId === 'text') {
+      if (activeToolId === 'text') {
+        setActiveToolId('script');
+        onActiveToolChange?.('script');
+        return;
+      }
+      if (onTextButtonClick && textButtonRef.current) {
+        const rect = textButtonRef.current.getBoundingClientRect();
+        const position = { x: rect.left + (rect.width / 2) - 100, y: rect.bottom + 5 };
+        onActiveToolChange?.('text');
+        onTextButtonClick(position);
+        return;
+      }
     }
     
-    if (toolId === 'shapes' && onShapesButtonClick && shapesButtonRef.current) {
-      const rect = shapesButtonRef.current.getBoundingClientRect();
-      const position = {
-        x: 8, // Position popup close to the left side of the page (8px from left border)
-        y: rect.bottom + 8 // Position popup 8px below the button
-      };
-      onShapesButtonClick(position);
-      return;
+    if (toolId === 'shapes') {
+      if (activeToolId === 'shapes') {
+        setActiveToolId('script');
+        onActiveToolChange?.('script');
+        return;
+      }
+      if (onShapesButtonClick && shapesButtonRef.current) {
+        const rect = shapesButtonRef.current.getBoundingClientRect();
+        const position = { x: 8, y: rect.bottom + 8 };
+        onActiveToolChange?.('shapes');
+        onShapesButtonClick(position);
+        return;
+      }
     }
     
-    if (toolId === 'interaction' && onInteractionButtonClick && interactionButtonRef.current) {
-      const rect = interactionButtonRef.current.getBoundingClientRect();
-      const position = {
-        x: rect.left + (rect.width / 2) - 250, // Center popup horizontally (assuming 500px popup width)
-        y: rect.bottom + 8 // Position popup 8px below the button
-      };
-      onInteractionButtonClick(position);
-      return;
+    if (toolId === 'interaction') {
+      if (activeToolId === 'interaction') {
+        setActiveToolId('script');
+        onActiveToolChange?.('script');
+        return;
+      }
+      if (onInteractionButtonClick && interactionButtonRef.current) {
+        const rect = interactionButtonRef.current.getBoundingClientRect();
+        const position = { x: rect.left + (rect.width / 2) - 250, y: rect.bottom + 8 };
+        onActiveToolChange?.('interaction');
+        onInteractionButtonClick(position);
+        return;
+      }
     }
     
 
@@ -266,16 +288,20 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
       <div className="flex items-start justify-between max-w-full h-full">
             {/* Left side - all tools except Default */}
             <div className="flex items-start gap-2">
-              {tools.filter(tool => tool.id !== 'default').map((tool) => {
+              {tools
+                .filter(tool => tool.id !== 'default')
+                .map((tool) => {
+                  const disabled = !!showReady && disabledToolIdsWhenReady.has(tool.id);
 
                 return (
                   <div
                     key={tool.id}
                     ref={tool.id === 'text' ? textButtonRef : tool.id === 'shapes' ? shapesButtonRef : tool.id === 'interaction' ? interactionButtonRef : tool.id === 'avatar' ? avatarButtonRef : undefined}
-                    onClick={(event) => handleToolClick(tool.id, event)}
-                    className={`flex flex-col items-center cursor-pointer transition-all duration-200 p-2 ${
+                      onClick={(event) => handleToolClick(tool.id, event)}
+                      title={disabled ? 'Soon' : undefined}
+                      className={`flex flex-col items-center transition-all duration-200 p-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
-                    }`}
+                    } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     {/* Icon */}
                     <div className="flex items-center justify-center mb-3 w-4 h-4">
@@ -309,16 +335,20 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
               })}
             </div>
             
-            {/* Right side - Default button */}
+            {/* Right side - Default button (flag) */}
             <div className="flex items-start relative">
               {tools.filter(tool => tool.id === 'default').map((tool) => (
                 <div key={tool.id} className="relative">
                   <div
                     ref={defaultButtonRef}
-                    onClick={handleChevronClick}
+                    onClick={(e) => {
+                      if (showReady && disabledToolIdsWhenReady.has('default')) return;
+                      handleChevronClick(e);
+                    }}
+                    title={showReady ? 'Soon' : undefined}
                     className={`flex items-center gap-1 cursor-pointer transition-all duration-200 px-2 py-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
-                    }`}
+                    } ${showReady ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {/* Left side - Black flag with Default text under it */}
                     <div className="flex flex-col items-center">

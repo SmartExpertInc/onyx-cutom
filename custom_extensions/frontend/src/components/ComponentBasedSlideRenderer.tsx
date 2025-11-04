@@ -11,6 +11,7 @@ interface ComponentBasedSlideRendererProps {
   isEditable?: boolean;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
   theme?: string;
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
@@ -22,6 +23,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
+  onEditorActive,
   theme,
   deckTemplateVersion,
   getPlaceholderGenerationState,
@@ -111,6 +113,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     slideId: slide.slideId,
     isEditable,
     onUpdate: handlePropsUpdate,
+    onEditorActive,
     theme: currentTheme,
     getPlaceholderGenerationState
   };
@@ -180,6 +183,7 @@ interface ComponentBasedSlideDeckRendererProps {
   isEditable?: boolean;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
   theme?: string;
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
@@ -192,6 +196,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
+  onEditorActive,
   theme,
   deckTemplateVersion,
   getPlaceholderGenerationState,
@@ -224,6 +229,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             isEditable={isEditable}
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
+            onEditorActive={onEditorActive}
             theme={theme}
             deckTemplateVersion={deckTemplateVersion}
             getPlaceholderGenerationState={getPlaceholderGenerationState}

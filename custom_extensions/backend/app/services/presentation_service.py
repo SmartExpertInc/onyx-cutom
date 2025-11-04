@@ -10,6 +10,7 @@ combining slide capture, avatar generation, and video composition.
 import asyncio
 import logging
 import os
+import shutil
 import subprocess
 import uuid
 from pathlib import Path
@@ -44,6 +45,8 @@ class PresentationRequest:
     # NEW: Voice parameters
     voice_id: Optional[str] = None  # Voice ID from Elai API
     voice_provider: Optional[str] = None  # Voice provider (azure, elevenlabs, etc.)
+    # NEW: Transitions between slides
+    transitions: Optional[List[Dict[str, Any]]] = None  # Transition effects between slides
 
 @dataclass
 class PresentationJob:
@@ -489,13 +492,15 @@ class ProfessionalPresentationService:
             
             # Check if this is a slide-only video (no avatar needed)
             if request.slide_only:
-                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] SLIDE-ONLY MODE: Generating slide video with requested duration")
+                # Use hardcoded 10 second duration for debug rendering (fast testing)
+                debug_duration = 10.0
+                logger.info(f"🐛 [DEBUG_MODE] SINGLE-SLIDE SLIDE-ONLY MODE: Generating slide video with hardcoded {debug_duration}s duration (NO AVATAR)")
                 
-                # Generate slide video with requested duration
+                # Generate slide video with debug duration
                 result = await clean_video_generation_service.generate_avatar_slide_video(
                     slide_props=slide_data,
                     theme=request.theme or "dark-purple",
-                    slide_duration=request.duration,
+                    slide_duration=debug_duration,
                     quality=request.quality
                 )
                 
@@ -612,6 +617,12 @@ class ProfessionalPresentationService:
         try:
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing multi-slide presentation with {len(slides_data)} slides")
             
+            # Log mode
+            if request.slide_only:
+                logger.info(f"🐛 [DEBUG_MODE] SLIDE-ONLY MODE ENABLED: Skipping avatar generation (Debug Render)")
+            else:
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Standard mode: Will generate avatars for each slide")
+            
             # Import the clean video generation service
             from .clean_video_generation_service import clean_video_generation_service
             
@@ -655,11 +666,13 @@ class ProfessionalPresentationService:
                 
                 # Check if this is slide-only mode
                 if request.slide_only:
-                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] SLIDE-ONLY MODE: Generating slide video with requested duration")
+                    # Use hardcoded 10 second duration for debug rendering (fast testing)
+                    debug_duration = 10.0
+                    logger.info(f"🐛 [DEBUG_MODE] SLIDE-ONLY MODE: Generating slide video with hardcoded {debug_duration}s duration (NO AVATAR)")
                     slide_result = await clean_video_generation_service.generate_avatar_slide_video(
                         slide_props=slide_data,
                         theme=request.theme or "dark-purple",
-                        slide_duration=request.duration,
+                        slide_duration=debug_duration,
                         quality=request.quality
                     )
                     
@@ -669,6 +682,7 @@ class ProfessionalPresentationService:
                     slide_video_path = slide_result["video_path"]
                     temp_files_to_cleanup.append(slide_video_path)
                     individual_videos.append(slide_video_path)
+                    logger.info(f"🐛 [DEBUG_MODE] Slide {slide_index + 1} video generated (no avatar): {slide_video_path}")
                     continue
                 
                 # OPTIMIZATION: Wait for avatar video (already rendering in parallel)
@@ -754,7 +768,23 @@ class ProfessionalPresentationService:
             
             # Concatenate all individual videos into final presentation
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
-            final_video_path = await self._concatenate_videos(individual_videos, job_id)
+            
+            # Log if this is debug mode (slide-only)
+            if request.slide_only:
+                logger.info(f"🐛 [DEBUG_MODE] Slide-only mode: Videos contain NO AVATAR, only slide content")
+            
+            # Use transitions if provided, otherwise use simple concatenation
+            if request.transitions and len(request.transitions) > 0:
+                logger.info(f"🎞️ [MULTI_SLIDE_PROCESSING] Using {len(request.transitions)} transitions for concatenation")
+                final_video_path = await self._concatenate_videos_with_transitions(
+                    individual_videos, 
+                    job_id, 
+                    request.transitions
+                )
+            else:
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Using simple concatenation (no transitions)")
+                final_video_path = await self._concatenate_videos(individual_videos, job_id)
+            
             self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
@@ -850,6 +880,325 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Video concatenation failed: {e}")
+            raise
+
+    async def _check_video_has_audio(self, video_path: str) -> bool:
+        """
+        Check if a video file has an audio stream.
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            True if video has audio, False otherwise
+        """
+        try:
+            probe_cmd = [
+                'ffprobe',
+                '-v', 'error',
+                '-select_streams', 'a',
+                '-show_entries', 'stream=codec_type',
+                '-of', 'default=noprint_wrappers=1',
+                video_path
+            ]
+            result = subprocess.run(probe_cmd, capture_output=True, text=True, timeout=10)
+            has_audio = bool(result.stdout.strip())
+            logger.info(f"🎞️ [AUDIO_CHECK] {os.path.basename(video_path)}: has_audio={has_audio}")
+            return has_audio
+        except Exception as e:
+            logger.warning(f"🎞️ [AUDIO_CHECK] Failed to check audio for {video_path}: {e}")
+            return False  # Assume no audio if probe fails
+
+    async def _concatenate_videos_with_transitions(
+        self,
+        video_paths: List[str],
+        job_id: str,
+        transitions: List[Dict[str, Any]]
+    ) -> str:
+        """
+        Concatenate videos with fade transitions using FFmpeg xfade filter.
+        
+        Args:
+            video_paths: List of paths to individual slide videos
+            job_id: Job ID for output filename
+            transitions: List of transition configurations
+            
+        Returns:
+            Path to final concatenated video with transitions
+        """
+        try:
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Concatenating {len(video_paths)} videos with transitions")
+            
+            if not video_paths:
+                logger.error("🎞️ [CONCATENATION_WITH_TRANSITIONS] No video files to concatenate")
+                raise ValueError("No video files to concatenate")
+            
+            if len(video_paths) == 1:
+                # If only one slide - just copy it
+                output_filename = f"presentation_{job_id}.mp4"
+                output_path = str(self.output_dir / output_filename)
+                shutil.copy(video_paths[0], output_path)
+                logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Single video, copied directly: {output_path}")
+                return output_path
+            
+            # Validate all video files exist
+            for i, video_path in enumerate(video_paths):
+                if not os.path.exists(video_path):
+                    logger.error(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Video file {i+1} not found: {video_path}")
+                    raise FileNotFoundError(f"Video file {i+1} not found: {video_path}")
+            
+            # Check if videos have audio streams (for debug mode with slide-only videos)
+            has_audio = await self._check_video_has_audio(video_paths[0])
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Videos have audio: {has_audio}")
+            if not has_audio:
+                logger.info(f"🐛 [DEBUG_MODE] Video-only mode detected: Will use xfade without audio crossfade")
+            
+            # Get duration of each video using ffprobe
+            durations = []
+            for i, video_path in enumerate(video_paths):
+                probe_cmd = [
+                    'ffprobe',
+                    '-v', 'error',
+                    '-show_entries', 'format=duration',
+                    '-of', 'default=noprint_wrappers=1:nokey=1',
+                    video_path
+                ]
+                result = subprocess.run(probe_cmd, capture_output=True, text=True)
+                duration = float(result.stdout.strip())
+                durations.append(duration)
+                logger.info(f"  🎞️ Video {i+1}: {duration:.2f}s - {os.path.basename(video_path)}")
+            
+            # Map frontend transition types to FFmpeg xfade types
+            transition_type_map = {
+            # Basic
+            'none': None,
+            'fade': 'fade',
+            'dissolve': 'dissolve',
+            
+            # Wipes - Directional
+            'wipeleft': 'wipeleft',
+            'wiperight': 'wiperight',
+            'wipeup': 'wipeup',
+            'wipedown': 'wipedown',
+            
+            # Wipes - Diagonal
+            'wipetl': 'wipetl',
+            'wipetr': 'wipetr',
+            'wipebl': 'wipebl',
+            'wipebr': 'wipebr',
+            
+            # Slides
+            'slideleft': 'slideleft',
+            'slideright': 'slideright',
+            'slideup': 'slideup',
+            'slidedown': 'slidedown',
+            
+            # Smooth transitions
+            'smoothleft': 'smoothleft',
+            'smoothright': 'smoothright',
+            'smoothup': 'smoothup',
+            'smoothdown': 'smoothdown',
+            
+            # Circle effects
+            'circlecrop': 'circlecrop',
+            'circleopen': 'circleopen',
+            'circleclose': 'circleclose',
+            'radial': 'radial',
+            
+            # Diagonal transitions
+            'diagtl': 'diagtl',
+            'diagtr': 'diagtr',
+            'diagbl': 'diagbl',
+            'diagbr': 'diagbr',
+            
+            # Slice effects
+            'hlslice': 'hlslice',
+            'hrslice': 'hrslice',
+            'vuslice': 'vuslice',
+            'vdslice': 'vdslice',
+            
+            # Squeeze & Zoom
+            'squeezeh': 'squeezeh',
+            'squeezev': 'squeezev',
+            'zoomin': 'zoomin',
+            
+            # Special effects
+            'distance': 'distance',
+            'hblur': 'hblur',
+            'pixelize': 'pixelize',
+            
+            # Fade variations
+            'fadeblack': 'fadeblack',
+            'fadewhite': 'fadewhite',
+            'fadefast': 'fadefast',
+            'fadeslow': 'fadeslow',
+          
+        }
+                    
+            # Build FFmpeg command with xfade filters
+            inputs = []
+            filter_complex_parts = []
+            
+            # Add all input files
+            for i, video_path in enumerate(video_paths):
+                inputs.extend(['-i', video_path])
+            
+            # Build filter_complex for sequential fade transitions
+            offset = 0  # Transition start time
+            current_video_stream = '[0:v]'
+            current_audio_stream = '[0:a]'
+            
+            for i in range(len(video_paths) - 1):
+                next_video_stream = f'[{i+1}:v]'
+                next_audio_stream = f'[{i+1}:a]'
+                output_video_stream = f'[v{i}]' if i < len(video_paths) - 2 else '[vout]'
+                output_audio_stream = f'[a{i}]' if i < len(video_paths) - 2 else '[aout]'
+                
+                # Get transition config for this segment
+                transition_config = transitions[i] if i < len(transitions) else {'type': 'none', 'duration': 0.5}
+                transition_type_raw = transition_config.get('type', 'none')
+                transition_duration = float(transition_config.get('duration', 0.5))
+                
+                # Map transition type
+                transition_type_ffmpeg = transition_type_map.get(transition_type_raw, 'fade')
+                
+                logger.info(f"  🎞️ Transition {i+1}: {transition_type_raw} → {transition_type_ffmpeg} ({transition_duration}s)")
+                
+                # Calculate offset: sum of all previous videos minus overlap
+                if i > 0:
+                    offset += durations[i] - transition_duration
+                else:
+                    offset = durations[i] - transition_duration
+                
+                # Add xfade filter for video (if transition is not 'none')
+                if transition_type_ffmpeg:
+                    xfade_filter = (
+                        f"{current_video_stream}{next_video_stream}"
+                        f"xfade=transition={transition_type_ffmpeg}:"
+                        f"duration={transition_duration}:"
+                        f"offset={offset:.3f}"
+                        f"{output_video_stream}"
+                    )
+                    filter_complex_parts.append(xfade_filter)
+                    current_video_stream = output_video_stream
+                else:
+                    # No transition - just use concat
+                    logger.info(f"  🎞️ No transition for segment {i+1}, will use simple cut")
+                    # For 'none' transition, we still need to handle it, but without crossfade
+                    # We'll use a simple concat approach for this segment
+                    xfade_filter = (
+                        f"{current_video_stream}{next_video_stream}"
+                        f"xfade=transition=fade:"  # Use minimal fade
+                        f"duration=0.01:"  # Extremely short duration
+                        f"offset={offset:.3f}"
+                        f"{output_video_stream}"
+                    )
+                    filter_complex_parts.append(xfade_filter)
+                    current_video_stream = output_video_stream
+                
+                # Add acrossfade filter for audio (only if videos have audio)
+                if has_audio:
+                    if transition_type_ffmpeg:
+                        acrossfade_filter = (
+                            f"{current_audio_stream}{next_audio_stream}"
+                            f"acrossfade=d={transition_duration}:"
+                            f"c1=tri:"  # Triangular curve for fade out
+                            f"c2=tri"   # Triangular curve for fade in
+                            f"{output_audio_stream}"
+                        )
+                        filter_complex_parts.append(acrossfade_filter)
+                        current_audio_stream = output_audio_stream
+                    else:
+                        # No audio crossfade for 'none' transition
+                        acrossfade_filter = (
+                            f"{current_audio_stream}{next_audio_stream}"
+                            f"acrossfade=d=0.01:"  # Extremely short duration
+                            f"c1=tri:"
+                            f"c2=tri"
+                            f"{output_audio_stream}"
+                        )
+                        filter_complex_parts.append(acrossfade_filter)
+                        current_audio_stream = output_audio_stream
+                else:
+                    logger.info(f"  🐛 [DEBUG_MODE] Skipping audio crossfade for segment {i+1} (no audio stream)")
+            
+            # Build final filter_complex string
+            filter_complex = ';'.join(filter_complex_parts)
+            
+            # Output path for concatenated video
+            output_filename = f"presentation_{job_id}.mp4"
+            output_path = str(self.output_dir / output_filename)
+            
+            # Form final FFmpeg command - adjust based on audio presence
+            if has_audio:
+                # Videos with audio (standard mode)
+                ffmpeg_cmd = [
+                    'ffmpeg',
+                    '-y',  # Overwrite output file
+                    *inputs,
+                    '-filter_complex', filter_complex,
+                    '-map', '[vout]',
+                    '-map', '[aout]',
+                    '-c:v', 'libx264',
+                    '-preset', 'medium',
+                    '-crf', '23',
+                    '-pix_fmt', 'yuv420p',
+                    '-c:a', 'aac',
+                    '-b:a', '192k',
+                    '-movflags', '+faststart',
+                    output_path
+                ]
+            else:
+                # Videos without audio (debug mode)
+                logger.info(f"🐛 [DEBUG_MODE] Building FFmpeg command for video-only (no audio mapping)")
+                ffmpeg_cmd = [
+                    'ffmpeg',
+                    '-y',  # Overwrite output file
+                    *inputs,
+                    '-filter_complex', filter_complex,
+                    '-map', '[vout]',  # Video only, no audio mapping
+                    '-c:v', 'libx264',
+                    '-preset', 'medium',
+                    '-crf', '23',
+                    '-pix_fmt', 'yuv420p',
+                    '-movflags', '+faststart',
+                    output_path
+                ]
+            
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Running FFmpeg with xfade transitions...")
+            logger.debug(f"Command: {' '.join(ffmpeg_cmd)}")
+            
+            # Execute command
+            process = subprocess.run(
+                ffmpeg_cmd,
+                capture_output=True,
+                text=True,
+                timeout=600  # 10 minutes timeout
+            )
+            
+            if process.returncode != 0:
+                logger.error(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] FFmpeg failed: {process.stderr}")
+                raise Exception(f"FFmpeg concatenation with transitions failed: {process.stderr}")
+            
+            # Check result
+            if not os.path.exists(output_path):
+                logger.error(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Output file not created: {output_path}")
+                raise Exception(f"Output file not created: {output_path}")
+            
+            output_size = os.path.getsize(output_path) / (1024 * 1024)  # MB
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] ✅ Concatenation with transitions successful!")
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Output: {output_path}")
+            logger.info(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Size: {output_size:.2f} MB")
+            
+            return output_path
+            
+        except subprocess.TimeoutExpired:
+            logger.error(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] FFmpeg timeout after 10 minutes")
+            raise Exception("Video concatenation with transitions timeout")
+        except Exception as e:
+            logger.error(f"🎞️ [CONCATENATION_WITH_TRANSITIONS] Error during concatenation: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
             raise
     
     async def _extract_slide_props_from_url(self, slide_url: str) -> Dict[str, Any]:

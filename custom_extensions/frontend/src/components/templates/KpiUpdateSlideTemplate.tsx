@@ -1,13 +1,18 @@
 // custom_extensions/frontend/src/components/templates/KpiUpdateSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { KpiUpdateSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
-export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: SlideTheme | string }>= ({
+export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { 
+  theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+}> = ({
   slideId,
   title = 'KPI Update',
   items = [
@@ -23,7 +28,8 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   footerRight = 'February 2023',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -32,6 +38,11 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentItems, setCurrentItems] = useState(items);
   const [editingItem, setEditingItem] = useState<{ index: number; field: 'value' | 'description' } | null>(null);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const itemValueEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const itemDescriptionEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [editingFooterLeft, setEditingFooterLeft] = useState(false);
   const [editingFooterCenter, setEditingFooterCenter] = useState(false);
   const [editingFooterRight, setEditingFooterRight] = useState(false);
@@ -172,20 +183,28 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         <div style={titlePillStyle}>
           <div style={titleDotStyle} />
           {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={title}
               onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
               onCancel={() => setEditingTitle(false)}
+              placeholder="Enter title..."
               className="kpi-title-editor"
-              style={{ ...titleTextStyle, background: 'transparent', border: 'none', outline: 'none' }}
+              style={{
+                ...titleTextStyle,
+                padding: '8px 12px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)'
+              }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
             <div 
               onClick={() => isEditable && setEditingTitle(true)} 
               style={{ ...titleTextStyle, cursor: isEditable ? 'pointer' : 'default' }}
-            >
-              {title}
-            </div>
+              dangerouslySetInnerHTML={{ __html: title }}
+            />
           )}
         </div>
       </div>
@@ -197,31 +216,55 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             {/* Value cell */}
             <div style={{ minHeight: '116px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'value' ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!itemValueEditorRefs.current) itemValueEditorRefs.current = [];
+                    itemValueEditorRefs.current[i] = el;
+                  }}
                   initialValue={it.value}
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
+                  placeholder="Enter value..."
                   className="kpi-value-editor"
-                  style={{ ...valueStyle }}
+                  style={{
+                    ...valueStyle,
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `item-${i}-value`, computedStyles)}
                 />
               ) : (
-                <div style={valueStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
+                <div style={valueStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })} dangerouslySetInnerHTML={{ __html: it.value }} />
               )}
             </div>
 
             {/* Description cell */}
             <div style={{ minHeight: '64px', position: 'relative' }}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
-                <ImprovedInlineEditor
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (!itemDescriptionEditorRefs.current) itemDescriptionEditorRefs.current = [];
+                    itemDescriptionEditorRefs.current[i] = el;
+                  }}
                   initialValue={it.description}
-                  multiline={true}
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
+                  placeholder="Enter description..."
                   className="kpi-desc-editor"
-                  style={{ ...descStyle, minHeight: 'auto' }}
+                  style={{
+                    ...descStyle,
+                    minHeight: 'auto',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                  }}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `item-${i}-description`, computedStyles)}
                 />
               ) : (
-                <div style={descStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
+                <div style={descStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })} dangerouslySetInnerHTML={{ __html: it.description }} />
               )}
               
               {/* Separator line under each description */}
@@ -238,16 +281,19 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         ))}
       </div>
 
-      {/* Profile image absolute bottom-left */}
+      {/* Avatar absolute bottom-left */}
       <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#0F58F9', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
-          size="LARGE"
+        <AvatarImageDisplay
+          size="MEDIUM"
           position="CENTER"
-          description="Profile"
-          isEditable={isEditable}
-          style={{ height: '125%', objectFit: 'cover', borderRadius: '50%' }}
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
         />
       </div>
 

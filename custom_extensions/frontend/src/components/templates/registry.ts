@@ -1998,7 +1998,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: '',
       profileImageAlt: 'Profile image',
       rightImagePath: '',
-      rightImageAlt: 'Right side image'
+      rightImageAlt: 'Right side image',
+      rightImagePrompt: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -2006,7 +2007,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
-      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
+      rightImagePrompt: { type: 'text', label: 'Right Image Prompt', required: false }
     },
     avatarPosition: {
       x: 925,       // Right side of slide (for large right image)
@@ -2660,8 +2662,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       leftText: { type: 'text', label: 'Left Text', required: true },
       middleText: { type: 'text', label: 'Middle Text', required: true },
       rightText: { type: 'text', label: 'Right Text', required: true },
-      middlePanelColor: { type: 'color', label: 'Middle Panel' },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      middlePanelColor: { type: 'color', label: 'Middle Panel' }
     }
   }
   ,
@@ -3208,7 +3209,7 @@ const OLD_TEMPLATE_COMPONENTS: Record<string, any> = {
   'metrics-analytics': MetricsAnalyticsTemplate_old,
   'oral-hygiene-signs': OralHygieneSignsSlideTemplate_old,
   'org-chart': OrgChartTemplate_old,
-  'percent-circles': PercentCirclesSlideTemplate_old,
+  'percent-circles': PercentCirclesSlideTemplate,
   'phishing-definition': PhishingDefinitionSlideTemplate_old,
   'phishing-rise': PhishingRiseSlideTemplate_old,
   'pie-chart-infographics': PieChartInfographicsTemplate_old,

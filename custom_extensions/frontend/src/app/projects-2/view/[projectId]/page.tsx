@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import VideoEditorHeader from '../components/VideoEditorHeader';
@@ -71,6 +71,21 @@ export default function Projects2ViewPage() {
   
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
+  
+  // NEW: Track active text editor for TextSettings control
+  const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
+  const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
+  
+  // NEW: Track active transition for Transition panel
+  const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
+
+  // Ref for slide editor container to detect clicks outside
+  const slideEditorRef = useRef<HTMLDivElement>(null);
+
+  // Ready flag to hide advanced controls per requirements
+  const showReady = true;
+
+  // Debug v1/v2 toggle removed; always using v2
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -120,7 +135,7 @@ export default function Projects2ViewPage() {
         slideId: newSlide.slideId,
         slideNumber: videoLessonData.slides.length + 1,
         slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${videoLessonData.slides.length + 1}`,
-        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || '',
+        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || 'Add your text here',
         displayedPictureDescription: '',
         displayedVideoDescription: '',
         voiceoverText: ''
@@ -271,6 +286,49 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
+  };
+
+  // NEW: Handle transition button click
+  const handleTransitionClick = (transitionIndex: number) => {
+    console.log('🎬 Transition clicked:', transitionIndex);
+    setActiveTransitionIndex(transitionIndex);
+    setActiveSettingsPanel('transition');
+  };
+
+  // NEW: Handle transition change
+  const handleTransitionChange = (transitionData: any) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || activeTransitionIndex === null) return;
+    
+    console.log('🎬 Transition change:', { transitionIndex: activeTransitionIndex, transitionData });
+    
+    // Initialize transitions array if it doesn't exist
+    const transitions = componentBasedSlideDeck.transitions || [];
+    
+    // Ensure array is large enough (should be slides.length - 1)
+    const requiredLength = componentBasedSlideDeck.slides.length - 1;
+    while (transitions.length < requiredLength) {
+      transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
+    }
+    
+    // Check if "Apply to all" is enabled
+    if (transitionData.applyToAll) {
+      // Apply the same transition to ALL transition slots
+      for (let i = 0; i < transitions.length; i++) {
+        transitions[i] = { ...transitionData };
+      }
+    } else {
+      // Update only the specific transition
+      transitions[activeTransitionIndex] = { ...transitionData };
+    }
+    
+    // Update the deck with new transitions
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      transitions: [...transitions]
+    };
+    
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
   };
 
   // NEW: Function to delete slide (following old interface pattern)
@@ -505,6 +563,29 @@ export default function Projects2ViewPage() {
     };
   }, [openMenuSceneId, menuPosition]);
 
+  // Close text editor panel when clicking outside slide editor
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeSettingsPanel === 'text' && slideEditorRef.current) {
+        const target = event.target as Node;
+        if (!slideEditorRef.current.contains(target)) {
+          // Click is outside the slide editor, close text panel
+          setActiveSettingsPanel(null);
+          setActiveTextEditor(null);
+          setComputedTextStyles(null);
+          setActiveComponent('script');
+        }
+      }
+    };
+
+    if (activeSettingsPanel === 'text') {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [activeSettingsPanel]);
+
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
     
@@ -533,6 +614,12 @@ export default function Projects2ViewPage() {
       setIsMediaPopupOpen(true);
     } else {
       setActiveComponent(toolId);
+      // Ensure side panels are closed when switching, especially when returning to script
+      if (toolId === 'script') {
+        setActiveSettingsPanel(null);
+        setActiveTextEditor(null);
+        setComputedTextStyles(null);
+      }
       setIsMediaPopupOpen(false);
     }
     // Close text, shapes, interaction, and AI popups when switching tools
@@ -619,13 +706,22 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'text':
-          return <TextSettings />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
           return <AvatarSettings />;
         case 'shape':
           return <ShapeSettings />;
+        case 'transition':
+          const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
+          return (
+            <Transition 
+              transitionIndex={activeTransitionIndex}
+              currentTransition={currentTransition}
+              onTransitionChange={handleTransitionChange}
+            />
+          );
         default:
           break;
       }
@@ -635,7 +731,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -649,6 +745,7 @@ export default function Projects2ViewPage() {
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             currentSlideId={currentSlideId}
             onTextChange={handleTextChange}
+            showReady={showReady}
           />;
       }
     }
@@ -662,6 +759,7 @@ export default function Projects2ViewPage() {
           componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
+          showReady={showReady}
         />;
       case 'templates':
         return <TemplateSelector 
@@ -672,8 +770,6 @@ export default function Projects2ViewPage() {
         return <Background />;
       case 'music':
         return <Music />;
-      case 'transition':
-        return <Transition />;
       case 'comments':
         return <Comments />;
       default:
@@ -683,6 +779,7 @@ export default function Projects2ViewPage() {
           componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
+          showReady={showReady}
         />;
     }
   };
@@ -700,6 +797,7 @@ export default function Projects2ViewPage() {
         videoLessonData={videoLessonData}
         componentBasedSlideDeck={componentBasedSlideDeck}
         currentSlideId={currentSlideId}
+        showReady={showReady}
       />
 
       {/* Toolbar */}
@@ -710,8 +808,11 @@ export default function Projects2ViewPage() {
           onShapesButtonClick={handleShapesButtonClick}
           onInteractionButtonClick={handleInteractionButtonClick}
           onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
+          showReady={showReady}
         />
       </div>
+
+      {/* Debug v1/v2 toggle removed */}
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
@@ -726,7 +827,7 @@ export default function Projects2ViewPage() {
           {/* Top Container - Takes 80% of main container height (increased from 75%) */}
           <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Settings Buttons - Top Left Corner */}
-            {isComponentBasedVideoLesson && componentBasedSlideDeck && (
+            {false && isComponentBasedVideoLesson && componentBasedSlideDeck && (
               <div className="absolute top-2 left-2 z-10 flex gap-1">
                 <button
                   onClick={() => handleSettingsButtonClick('text')}
@@ -779,12 +880,8 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center"
-                style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  margin: 'auto'
-                }}
+                ref={slideEditorRef}
+                className="bg-white rounded-md relative overflow-hidden flex items-center justify-center w-full h-full"
               >
                 {/* Slide Container - Keeps original size */}
                 <div
@@ -801,7 +898,6 @@ export default function Projects2ViewPage() {
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
                       width: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
@@ -840,7 +936,15 @@ export default function Projects2ViewPage() {
                           saveVideoLessonData(updatedDeck);
                         }
                       }}
-                      theme="default"
+                      onEditorActive={(editor, field, computedStyles) => {
+                        console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
+                        setActiveTextEditor(editor);
+                        setComputedTextStyles(computedStyles || null);
+                        setActiveSettingsPanel('text');
+                        // Don't change activeComponent when text editor activates - let it stay as is
+                        // The activeSettingsPanel will override the sidebar display
+                      }}
+                      theme={'default'}
                       isVideoMode={true}
                     />
                       </div>
@@ -870,6 +974,9 @@ export default function Projects2ViewPage() {
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
             onOpenTemplateSelector={handleOpenTemplateSelector}
+            onTransitionClick={handleTransitionClick}
+            activeTransitionIndex={activeTransitionIndex}
+            showReady={showReady}
           />
         </div>
       </div>

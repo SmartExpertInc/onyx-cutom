@@ -207,6 +207,21 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+async def fetch_current_onyx_user_id_via_me(cookies: Dict[str, str]) -> Optional[str]:
+    """Fetch current Onyx user id by calling /me using provided cookies."""
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(f"{ONYX_API_SERVER_URL}/me", cookies=cookies)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("id") or data.get("user_id")
+    except Exception as e:
+        try:
+            logger.warning(f"[USER_ID_FETCH] Failed to fetch user id via /me: {e}")
+        except Exception:
+            pass
+        return None
+
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -1714,14 +1729,34 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           "Third critical term with thorough explanation"
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "rightImagePath": "https://via.placeholder.com/300x200?text=Definition+Image",
+        "rightImagePrompt": "Realistic cinematic photograph of cybersecurity professionals monitoring a large wall of screens displaying network security dashboards and threat detection systems in a modern Security Operations Center (SOC). The scene features three diverse professionals in business casual attire standing and analyzing data on multiple monitors showing threat maps, firewall status, and intrusion detection alerts. The left monitor displays network topology diagrams in [COLOR1], the center screens show real-time threat maps with attack vectors highlighted in [COLOR2], and the right displays show security metrics and incident response dashboards in [COLOR3]. The SOC environment features sleek workstations with dual monitors, ambient blue security lighting, and glass walls with frosted sections. The professionals are in three-quarter view, one pointing at a critical alert while others take notes. Cinematic photography with professional lighting, 35mm lens, wide angle shot showing the entire command center, depth of field with focused foreground. The background is [BACKGROUND]. Modern corporate cybersecurity aesthetic with clean professional atmosphere.",
+        "rightImageAlt": "Cybersecurity professionals in security operations center",
         "pageNumber": 3,
         "logoPath": ""
       }
     },
     {
-      "slideId": "slide_4_soft_skills_assessment",
-      "slideNumber": 4,
+    "slideId": "slide_4_culture_values",
+    "slideNumber": 4,
+    "slideTitle": "Culture & Values",
+    "templateId": "culture-values-three-columns",
+    "voiceoverText": "Our organizational culture is built on three fundamental pillars that guide everything we do. These core values shape our decision-making, interactions, and commitment to excellence in all our endeavors. They represent not just aspirations, but the lived reality of how we operate every single day.",
+    "props": {
+        "title": "Our Culture & Values",
+        "leftTitle": "Code of Conduct",
+        "leftText": "We maintain the highest ethical standards in all our business practices, ensuring that every decision we make reflects our commitment to integrity and transparency. Our code of conduct goes beyond compliance—it's a framework that ensures accountability in every interaction, from internal team collaboration to client relationships. We believe that ethical behavior isn't just about following rules; it's about creating a culture where doing the right thing is second nature, where every team member feels empowered to speak up, and where trust is built through consistent, principled action across all levels of the organization.",
+        "middleTitle": "HR Policies",
+        "middleText": "Our human resources policies are meticulously designed to support comprehensive employee wellbeing, continuous professional development, and sustainable work-life balance. We recognize that our people are our greatest asset, which is why we've created an inclusive environment where diversity is celebrated, growth opportunities are abundant, and every individual can thrive both personally and professionally. From flexible working arrangements and mental health support to career advancement programs and skill development initiatives, our HR framework ensures that every team member has the resources, support, and opportunities they need to reach their full potential while maintaining a healthy, fulfilling life outside of work.",
+        "rightTitle": "IT Policies",
+        "rightText": "Information security and data protection are absolutely paramount in today's digital landscape, which is why our IT policies are comprehensive, continuously updated, and rigorously enforced. We ensure secure access through multi-factor authentication, proper data handling through encryption and access controls, and full compliance with industry standards including GDPR, ISO 27001, and sector-specific regulations. Our approach to cybersecurity is proactive rather than reactive—we conduct regular security audits, provide ongoing training to all staff members, implement cutting-edge threat detection systems, and maintain robust incident response protocols. This commitment to digital security protects not only our organization but also the sensitive data and trust that our clients, partners, and employees place in us every single day.",
+        "middlePanelColor": "#3B46FF",
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": ""
+    }
+    },
+    {
+      "slideId": "slide_5_soft_skills_assessment",
+      "slideNumber": 5,
       "slideTitle": "Assessment Tips",
       "templateId": "soft-skills-assessment-slide",
       "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
@@ -1732,14 +1767,14 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           { "text": "Second key recommendation for better results", "isHighlighted": false }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "pageNumber": 4,
+        "pageNumber": 5,
         "logoPath": "",
         "logoText": "Assessment Guide"
       }
     },
     {
-      "slideId": "slide_5_work_life_balance",
-      "slideNumber": 5,
+      "slideId": "slide_6_work_life_balance",
+      "slideNumber": 6,
       "slideTitle": "Conclusion",
       "templateId": "work-life-balance-slide",
       "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
@@ -1747,14 +1782,325 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "title": "Conclusion and Next Steps",
         "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
         "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
-        "pageNumber": 5,
+        "pageNumber": 6,
         "logoPath": ""
+      }
+    },
+    {
+      "slideId": "slide_7_percent_circles",
+      "slideNumber": 7,
+      "slideTitle": "Statistics Overview",
+      "templateId": "percent-circles",
+      "voiceoverText": "Let's examine some key statistics that highlight important trends and insights. These numbers tell a compelling story about the current state and future potential in our field.",
+      "props": {
+        "title": "% of Fortune 500 CEOs\nwho are women",
+        "percent": "10%",
+        "bottomCards": [
+          { "value": "3%", "text": "Minorities hold just 3% of executive roles." },
+          { "value": "35%", "text": "Companies with diverse leadership outperform competitors by 35%", "hasArrow": true }
+        ],
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": "",
+        "logoText": "Your Logo",
+        "pageNumber": "7"
+      }
+    },
+    {
+      "slideId": "slide_8_benefits_list",
+      "slideNumber": 8,
+      "slideTitle": "Benefits Overview",
+      "templateId": "benefits-list-slide",
+      "voiceoverText": "Let's explore the comprehensive benefits package that supports employee wellbeing and professional growth. These benefits are designed to create a supportive work environment where everyone can thrive.",
+      "props": {
+        "title": "Benefits",
+        "subtitle": "Employment",
+        "description": "Here is a list of benefits that you can offer to your employees to maintain small business compliance:",
+        "benefits": [
+          "Workers' compensation",
+          "Unemployment insurance",
+          "Disability insurance",
+          "Health insurance",
+          "COBRA benefits",
+          "Leave of absence"
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "profileImageAlt": "Profile image",
+        "currentStep": 3,
+        "totalSteps": 4,
+        "companyName": "Company name",
+        "benefitsListIcon": "",
+        "logoNew": "",
+        "pageNumber": "8"
+      }
+    },
+    {
+      "slideId": "slide_9_dei_methods",
+      "slideNumber": 9,
+      "slideTitle": "Methods to Meet DEI Standards",
+      "templateId": "dei-methods",
+      "voiceoverText": "Here are two practical methods you can apply immediately. We'll walk through each briefly so you know exactly what to do and why it works.",
+      "props": {
+        "headerTitle": "Methods to Meet DEI Standards",
+        "section1Title": "Diverse Recruitment:",
+        "section1Lines": [
+          "Source candidates from underrepresented groups.",
+          "Use blind screening to focus on skills."
+        ],
+        "section2Title": "Mentorship & Sponsorship:",
+        "section2Lines": [
+          "Mentor and sponsor diverse talent.",
+          "Create growth and advancement opportunities."
+        ],
+        "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoPath": "",
+        "logoText": "Your Logo"
+      }
+    },
+    {
+        "slideId": "slide_10_company_tools_resources",
+        "slideNumber": 10,
+        "slideTitle": "Company Tools & Resources",
+        "templateId": "company-tools-resources-slide",
+        "voiceoverText": "Let me walk you through the essential tools and resources that power our daily operations. Each of these platforms plays a critical role in ensuring seamless collaboration, efficient project delivery, continuous learning, and knowledge sharing across our entire organization.",
+        "props": {
+            "title": "Company Tools & Resources",
+            "sections": [
+            {
+                "title": "Communication Tools:",
+                "content": "We leverage Slack for instant messaging and channel-based team collaboration, enabling real-time discussions and quick decision-making. Email remains our formal communication channel for external stakeholders and official documentation. For video conferencing, we use Zoom with screen-sharing capabilities, virtual backgrounds, and recording features to support remote collaboration, client presentations, and team meetings across different time zones.",
+                "backgroundColor": "#E0E7FF",
+                "textColor": "#374151"
+            },
+            {
+                "title": "Project Management:",
+                "content": "Our project tracking infrastructure centers on Jira for agile sprint planning, issue tracking, and workflow automation, with customizable boards and detailed reporting dashboards. Trello serves as our lightweight alternative for smaller initiatives and visual task management. Both platforms integrate with our CI/CD pipeline, allowing teams to monitor burndown charts, track velocity metrics, manage backlogs efficiently, and maintain complete transparency across all project phases from inception to delivery.",
+                "backgroundColor": "#FFFFFF",
+                "textColor": "#374151"
+            },
+            {
+                "title": "Learning & Development:",
+                "content": "We invest heavily in continuous professional growth through LinkedIn Learning subscriptions, providing access to thousands of expert-led courses covering technical skills, leadership development, and industry certifications. Our internal workshop series features monthly knowledge-sharing sessions, mentorship programs, and hands-on training labs. Additionally, we offer conference attendance budgets, certification reimbursement, and dedicated learning hours to ensure every team member has opportunities to upskill and stay current with emerging technologies and best practices.",
+                "backgroundColor": "#FFFFFF",
+                "textColor": "#374151"
+            },
+            {
+                "title": "Knowledge Base:",
+                "content": "Our comprehensive Confluence workspace serves as the central repository for all organizational knowledge, including detailed playbooks, coding standards, architecture decision records, onboarding guides, and reusable templates. The knowledge base is organized into logical spaces by department and project, features powerful search capabilities, version control for documentation, and collaborative editing tools. Regular content reviews ensure documentation stays accurate, relevant, and accessible to all team members across the organization.",
+                "backgroundColor": "#E0E7FF",
+                "textColor": "#374151"
+            }
+            ],
+            "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+            "companyLogoPath": "",
+            "pageNumber": "10"
+        }
+    },
+    {
+      "slideId": "slide_11_ai_pharma_market_growth",
+      "slideNumber": 11,
+      "slideTitle": "AI Pharma Market Growth",
+      "templateId": "ai-pharma-market-growth-slide",
+      "voiceoverText": "This chart shows remarkable growth in the AI pharma market over the past decade and projections into the future. Notice how the market has expanded exponentially from millions to billions.",
+      "props": {
+        "title": "AI Pharma\nMarket Growth",
+        "bars": [
+          { "year": "2012", "label": "$10 million", "widthPercent": 24 },
+          { "year": "2016", "label": "$100 million", "widthPercent": 72 },
+          { "year": "2020", "label": "$700 million", "widthPercent": 92 },
+          { "year": "2030", "label": "$9000 billion", "widthPercent": 100 }
+        ],
+        "doctorImagePath": "https://via.placeholder.com/300x600?text=Doctor",
+        "panelBackgroundColor": "#dfeeff",
+        "pageNumber": "11"
+      }
+    },
+    {
+      "slideId": "slide_12_critical_thinking",
+      "slideNumber": 12,
+      "slideTitle": "Critical Thinking and Problem Solving",
+      "templateId": "critical-thinking-slide",
+      "voiceoverText": "Critical thinking and problem solving are foundational skills for success. Let's explore how these abilities empower you to analyze information, make informed decisions, and overcome challenges effectively.",
+      "props": {
+        "title": "Critical Thinking\nand Problem Solving",
+        "content": "Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.",
+        "highlightedPhrases": ["analyze information,", "make informed decisions,", "overcome challenges."],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "companyLogoPath": "",
+        "pageNumber": "12"
+      }
+    },
+    {
+        "slideId": "slide_13_benefits_tags",
+        "slideNumber": 13,
+        "slideTitle": "Key Benefits",
+        "templateId": "benefits-tags-slide",
+        "voiceoverText": "Let me highlight the six key benefits you'll gain from implementing these strategies. Each represents a critical advantage, with enhanced productivity being the most transformative outcome you can expect from applying what we've learned today.",
+        "props": {
+            "title": "Key Benefits",
+            "tags": [
+            { "text": "Cost Savings", "isHighlighted": false },
+            { "text": "Efficiency", "isHighlighted": false },
+            { "text": "Scalability", "isHighlighted": false },
+            { "text": "Innovation", "isHighlighted": false },
+            { "text": "Security", "isHighlighted": false },
+            { "text": "Enhanced Productivity", "isHighlighted": true }
+            ],
+            "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+            "companyLogoPath": "",
+            "pageNumber": "13"
+        }
+    },
+    {
+    "slideId": "slide_14_kpi_update",
+    "slideNumber": 14,
+    "slideTitle": "Q1 2025 KPI Update",
+    "templateId": "kpi-update-slide",
+    "voiceoverText": "Let's review our quarterly key performance indicators. These four critical metrics demonstrate measurable progress across our organization and highlight the areas where we're achieving the most significant results and exceeding our strategic targets.",
+    "props": {
+        "title": "Q1 2025 KPI Update",
+        "items": [
+        { 
+            "value": "24%", 
+            "description": "Year-over-year revenue growth, significantly exceeding our 15% target and demonstrating strong market performance across all product lines and geographic regions." 
+        },
+        { 
+            "value": "127", 
+            "description": "New enterprise features successfully deployed to production this quarter, representing a 40% increase in delivery velocity compared to Q4 2024." 
+        },
+        { 
+            "value": "92%", 
+            "description": "Customer satisfaction score based on quarterly NPS survey, marking our highest rating ever and reflecting improvements in product quality and support responsiveness." 
+        },
+        { 
+            "value": "2.8M", 
+            "description": "Total active users milestone reached in March, representing 35% quarter-over-quarter growth and validating our product-market fit in key demographics." 
+        }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "footerLeft": "TechCorp Industries",
+        "footerCenter": "Quarterly KPI Report",
+        "footerRight": "Q1 2025",
+        "pageNumber": "14"
+    }
+    },
+    {
+        "slideId": "slide_15_phishing_rise",
+        "slideNumber": 15,
+        "slideTitle": "Phishing Threat Growth",
+        "templateId": "phishing-rise-slide",
+        "voiceoverText": "Phishing attacks have become an escalating cybersecurity threat over the past four years. This vertical bar chart illustrates the dramatic increase in both incident frequency and financial impact, demonstrating why proactive security awareness and robust prevention strategies are more critical than ever for protecting our organization.",
+        "props": {
+            "title": "Rise in Phishing Attacks",
+            "description": "Phishing has evolved into one of the most significant cybersecurity threats facing organizations today. Recent data from the Anti-Phishing Working Group shows a 250% surge in malicious phishing sites between 2020 and 2024. Perhaps most alarming, current research indicates that 93% of modern phishing emails now contain ransomware payloads, representing a fundamental shift in attack sophistication and potential organizational impact.",
+            "bars": [
+            { "year": "2021", "valueLabel": "42M$", "height": 210 },
+            { "year": "2022", "valueLabel": "58M$", "height": 290 },
+            { "year": "2023", "valueLabel": "71M$", "height": 355 },
+            { "year": "2024", "valueLabel": "89M$", "height": 445 }
+            ],
+            "actorImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+            "pageNumber": "15"
+        }
+    },
+    {
+        "slideId": "slide_16_problems_grid",
+        "slideNumber": 16,
+        "slideTitle": "Key Operational Challenges",
+        "templateId": "problems-grid",
+        "voiceoverText": "Let's examine the four critical operational challenges currently impacting our organization. Understanding these interconnected problems is essential for developing comprehensive solutions. Each challenge represents a barrier to achieving our strategic objectives and requires immediate attention and coordinated response.",
+        "props": {
+            "tag": "The Problem",
+            "title": "Key Operational Challenges",
+            "cards": [
+            { 
+                "number": "1", 
+                "title": "Resource Constraints", 
+                "body": "Limited budget and personnel resources prevent timely project completion and force prioritization of critical initiatives over strategic innovation opportunities."
+            },
+            { 
+                "number": "2", 
+                "title": "Technical Debt", 
+                "body": "Accumulated legacy systems and outdated infrastructure slow development velocity, increase maintenance costs, and create security vulnerabilities across the platform."
+            },
+            { 
+                "number": "3", 
+                "title": "Skill Gaps", 
+                "body": "Lack of specialized expertise in emerging technologies limits our ability to adopt modern solutions and compete effectively in rapidly evolving markets."
+            },
+            { 
+                "number": "4", 
+                "title": "Process Inefficiency", 
+                "body": "Manual workflows and disconnected systems create bottlenecks, duplicate efforts, and reduce productivity across multiple departments and business functions."
+            }
+            ],
+            "rightText": "These four challenges are deeply interconnected and create compounding effects on organizational performance. Resource constraints exacerbate technical debt, skill gaps prevent process modernization, and inefficiencies drain the limited resources available. Addressing these issues requires a coordinated, strategic approach that tackles root causes rather than symptoms.",
+            "avatarPath": "https://via.placeholder.com/200x200?text=Avatar",
+            "pageNumber": "16"
+        }
+    },
+    {
+      "slideId": "slide_17_solution_steps",
+      "slideNumber": 17,
+      "slideTitle": "Step-by-step Solution Guide",
+      "templateId": "solution-steps-slide",
+      "voiceoverText": "Here's your practical step-by-step guide to implementing the solution. Follow these three steps in order to achieve the best results.",
+      "props": {
+        "subtitle": "The Solution",
+        "title": "Step-by-step Guide",
+        "steps": [
+          { "title": "Step 1", "description": "Know the Regulations" },
+          { "title": "Step 2", "description": "Conduct Risk Assessments" },
+          { "title": "Step 3", "description": "Provide Training and Education" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "logoNew": "",
+        "pageNumber": "17"
+      }
+    },
+    {
+      "slideId": "slide_18_hybrid_work_best_practices",
+      "slideNumber": 18,
+      "slideTitle": "Hybrid Work Best Practices",
+      "templateId": "hybrid-work-best-practices-slide",
+      "voiceoverText": "Adopting hybrid work requires the right people, processes, and technology. Here are four essential best practices to ensure a successful transition and maintain productivity across your distributed workforce.",
+      "props": {
+        "title": "HYBRID WORK BEST PRACTICES",
+        "subtitle": "",
+        "mainStatement": "To adopt a hybrid work model, you need the right people, processes, and technology.",
+        "practices": [
+          {
+            "number": 1,
+            "title": "Communicate with your employees",
+            "description": "When you roll out hybrid work, your decisions will affect everyone in your workforce."
+          },
+          {
+            "number": 2,
+            "title": "Work with HR and IT",
+            "description": "Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless."
+          },
+          {
+            "number": 3,
+            "title": "Create the right work environment",
+            "description": "Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important."
+          },
+          {
+            "number": 4,
+            "title": "Delight and connect remote",
+            "description": "Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high."
+          }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "teamImagePath": "https://via.placeholder.com/400x200?text=Team",
+        "logoPath": "",
+        "logoText": "Your Logo",
+        "pageNumber": "18"
       }
     }
   ],
   "currentSlideId": "slide_1_course_overview",
   "detectedLanguage": "en",
-  "hasVoiceover": true
+  "hasVoiceover": true,
+  "templateVersion": "v2"
 }
 """
 
@@ -1764,11 +2110,18 @@ def validate_presentation_slides(slides: List[Dict]) -> Dict[str, List[str]]:
     1. big-image-left missing imagePrompt
     2. challenges-solutions having more than 3 pairs
     3. big-image-top in middle positions
+    4. content-slide usage (banned)
+    5. comparison-slide usage (banned)
+    6. title-slide in middle positions
+    7. big-image-left in middle positions
     """
     issues = {
         "big_image_left_missing_prompt": [],
         "challenges_solutions_count": [],
-        "big_image_top_positioning": []
+        "big_image_top_positioning": [],
+        "banned_templates": [],
+        "title_slide_positioning": [],
+        "big_image_left_positioning": []
     }
     
     for i, slide in enumerate(slides):
@@ -1796,6 +2149,26 @@ def validate_presentation_slides(slides: List[Dict]) -> Dict[str, List[str]]:
                 issues["big_image_top_positioning"].append(
                     f"Slide {slide_num}: big-image-top should only be used for first or last slide"
                 )
+        
+        # Check for banned templates
+        if template_id in ['content-slide', 'comparison-slide']:
+            issues["banned_templates"].append(
+                f"Slide {slide_num}: {template_id} is banned and should not be used"
+            )
+        
+        # Check title-slide positioning (not middle positions)
+        if template_id == 'title-slide':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["title_slide_positioning"].append(
+                    f"Slide {slide_num}: title-slide should only be used for first or last slide"
+                )
+        
+        # Check big-image-left positioning (not middle positions)
+        if template_id == 'big-image-left':
+            if slide_num != 1 and slide_num != len(slides):
+                issues["big_image_left_positioning"].append(
+                    f"Slide {slide_num}: big-image-left should only be used for first or last slide"
+                )
     
     return issues
 
@@ -1805,6 +2178,8 @@ def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
     1. Add default imagePrompt to big-image-left slides
     2. Remove excess pairs from challenges-solutions slides
     3. Replace big-image-top in middle with bullet-points-right
+    4. Replace banned templates with appropriate alternatives
+    5. Move position-restricted templates to first/last positions
     """
     fixed_slides = []
     
@@ -1843,6 +2218,42 @@ def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
                 if 'content' in props:
                     del props['content']
             logger.info(f"Fixed big-image-top slide {slide_num}: Replaced with bullet-points-right")
+        
+        # Fix banned templates
+        if template_id in ['content-slide', 'comparison-slide']:
+            # Replace with bullet-points
+            slide['templateId'] = 'bullet-points'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed banned template slide {slide_num}: Replaced {template_id} with bullet-points")
+        
+        # Fix title-slide positioning
+        if template_id == 'title-slide' and slide_num != 1 and slide_num != len(slides):
+            # Replace with hero-title-slide
+            slide['templateId'] = 'hero-title-slide'
+            logger.info(f"Fixed title-slide slide {slide_num}: Replaced with hero-title-slide")
+        
+        # Fix big-image-left positioning
+        if template_id == 'big-image-left' and slide_num != 1 and slide_num != len(slides):
+            # Replace with bullet-points-right
+            slide['templateId'] = 'bullet-points-right'
+            # Convert content to bullets format
+            content = props.get('content', '')
+            if content:
+                # Split content into bullet points
+                bullets = [line.strip() for line in content.split('.') if line.strip()]
+                props['bullets'] = bullets[:5]  # Limit to 5 bullets
+                # Remove content field
+                if 'content' in props:
+                    del props['content']
+            logger.info(f"Fixed big-image-left slide {slide_num}: Replaced with bullet-points-right")
         
         fixed_slides.append(slide)
     
@@ -2090,21 +2501,28 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props.pop('subtitle')
                     logger.info(f"Removed subtitle from process-steps slide {slide_index + 1}")
                     
-            # Fix four-box-grid template props
-            elif template_id == 'four-box-grid':
-                boxes = normalized_props.get('boxes', [])
-                if boxes and isinstance(boxes, list):
-                    fixed_boxes = []
-                    for box in boxes:
-                        if isinstance(box, dict):
-                            # Convert title/content to heading/text
-                            fixed_box = {
-                                'heading': box.get('heading') or box.get('title', ''),
-                                'text': box.get('text') or box.get('content', '')
+            # Fix problems-grid template props
+            elif template_id == 'problems-grid':
+                cards = normalized_props.get('cards', [])
+                if cards and isinstance(cards, list):
+                    fixed_cards = []
+                    for card in cards:
+                        if isinstance(card, dict):
+                            # Ensure number, title, and body fields exist
+                            fixed_card = {
+                                'number': str(card.get('number', '')),
+                                'title': card.get('title', ''),
+                                'body': card.get('body', '')
                             }
-                            if fixed_box['heading']:  # Only add if heading exists
-                                fixed_boxes.append(fixed_box)
-                    normalized_props['boxes'] = fixed_boxes
+                            if fixed_card['title']:  # Only add if title exists
+                                fixed_cards.append(fixed_card)
+                    normalized_props['cards'] = fixed_cards[:4]  # Ensure exactly 4 cards
+                    
+                # Ensure required fields exist
+                if not normalized_props.get('tag'):
+                    normalized_props['tag'] = 'The problem'
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'These challenges require comprehensive solutions.'
                     
             # Fix two-column template props
             elif template_id == 'two-column':
@@ -2595,6 +3013,433 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Assessment Guide'
                     
+            elif template_id == 'culture-values-three-columns':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Our Culture & Values'
+                if not normalized_props.get('leftTitle'):
+                    normalized_props['leftTitle'] = 'Code of Conduct'
+                if not normalized_props.get('leftText'):
+                    normalized_props['leftText'] = 'We maintain the highest ethical standards in all our business practices. Our code of conduct ensures transparency, integrity, and accountability in every interaction.'
+                if not normalized_props.get('middleTitle'):
+                    normalized_props['middleTitle'] = 'HR Policies'
+                if not normalized_props.get('middleText'):
+                    normalized_props['middleText'] = 'Our human resources policies are designed to support employee wellbeing, professional development, and work-life balance. We believe in creating an inclusive environment where everyone can thrive.'
+                if not normalized_props.get('rightTitle'):
+                    normalized_props['rightTitle'] = 'IT Policies'
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'Information security and data protection are paramount. Our IT policies ensure secure access, proper data handling, and compliance with industry standards and regulations.'
+                if not normalized_props.get('middlePanelColor'):
+                    normalized_props['middlePanelColor'] = '#3B46FF'
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'percent-circles':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = '% of Fortune 500 CEOs\nwho are women'
+                if not normalized_props.get('percent'):
+                    normalized_props['percent'] = '10%'
+                if not normalized_props.get('bottomCards'):
+                    normalized_props['bottomCards'] = [
+                        { 'value': '3%', 'text': 'Minorities hold just 3% of executive roles.' },
+                        { 'value': '35%', 'text': 'Companies with diverse leadership outperform competitors by 35%', 'hasArrow': True }
+                    ]
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'benefits-list-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Benefits'
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'Employment'
+                if not normalized_props.get('description'):
+                    normalized_props['description'] = 'Here is a list of benefits that you can offer to your employees to maintain small business compliance:'
+                if not normalized_props.get('benefits'):
+                    normalized_props['benefits'] = [
+                        "Workers' compensation",
+                        "Unemployment insurance",
+                        "Disability insurance",
+                        "Health insurance",
+                        "COBRA benefits",
+                        "Leave of absence"
+                    ]
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('profileImageAlt'):
+                    normalized_props['profileImageAlt'] = 'Profile image'
+                if not normalized_props.get('currentStep'):
+                    normalized_props['currentStep'] = 3
+                if not normalized_props.get('totalSteps'):
+                    normalized_props['totalSteps'] = 4
+                if not normalized_props.get('companyName'):
+                    normalized_props['companyName'] = 'Company name'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # Don't set logoNew - let it be empty so the "Your Logo" placeholder shows
+                
+            elif template_id == 'dei-methods':
+                # Ensure required props exist and correct shapes
+                if not normalized_props.get('headerTitle'):
+                    normalized_props['headerTitle'] = 'Methods to Meet DEI Standards'
+                if not normalized_props.get('section1Title'):
+                    normalized_props['section1Title'] = 'Diverse Recruitment:'
+                s1 = normalized_props.get('section1Lines')
+                if isinstance(s1, str):
+                    s1 = [line.strip() for line in s1.split('\n') if line.strip()]
+                if not (isinstance(s1, list) and s1):
+                    s1 = [
+                        'Source candidates from underrepresented groups.',
+                        'Use blind screening to focus on skills and qualifications.'
+                    ]
+                normalized_props['section1Lines'] = [str(x) for x in s1[:2]]
+
+                if not normalized_props.get('section2Title'):
+                    normalized_props['section2Title'] = 'Mentorship and Sponsorship Programs:'
+                s2 = normalized_props.get('section2Lines')
+                if isinstance(s2, str):
+                    s2 = [line.strip() for line in s2.split('\n') if line.strip()]
+                if not (isinstance(s2, list) and s2):
+                    s2 = [
+                        'Mentor and sponsor diverse talent.',
+                        'Create opportunities for growth & advancement.'
+                    ]
+                normalized_props['section2Lines'] = [str(x) for x in s2[:2]]
+
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                # logoPath can remain empty to show placeholder
+
+            elif template_id == 'company-tools-resources-slide':
+                # Ensure required props and normalize sections
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Company tools and resources'
+
+                sections = normalized_props.get('sections')
+                if isinstance(sections, str):
+                    sections = [s.strip() for s in sections.split('\n\n') if s.strip()]
+                if not isinstance(sections, list) or not sections:
+                    sections = [
+                        { 'title': 'Communication Tools:', 'content': 'We use Slack and email for daily communication, and Zoom for video meetings.', 'backgroundColor': '#E0E7FF', 'textColor': '#374151' },
+                        { 'title': 'Project Management:', 'content': 'Track work with Jira or Trello; plan sprints and monitor burndown charts.', 'backgroundColor': '#FFFFFF', 'textColor': '#374151' },
+                        { 'title': 'Learning & Development:', 'content': 'Access LinkedIn Learning and internal workshops for ongoing upskilling.', 'backgroundColor': '#FFFFFF', 'textColor': '#374151' },
+                        { 'title': 'Knowledge Base:', 'content': 'Browse our Confluence space for playbooks, standards, and templates.', 'backgroundColor': '#E0E7FF', 'textColor': '#374151' }
+                    ]
+                fixed_sections = []
+                for sec in sections[:4]:
+                    if isinstance(sec, dict):
+                        fixed_sections.append({
+                            'title': str(sec.get('title', 'Section')),
+                            'content': str(sec.get('content', '')),
+                            'backgroundColor': sec.get('backgroundColor', '#FFFFFF'),
+                            'textColor': sec.get('textColor', '#374151')
+                        })
+                    else:
+                        fixed_sections.append({
+                            'title': 'Section',
+                            'content': str(sec),
+                            'backgroundColor': '#FFFFFF',
+                            'textColor': '#374151'
+                        })
+                normalized_props['sections'] = fixed_sections
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                # companyLogoPath may remain empty; UI shows placeholder text
+
+            elif template_id == 'ai-pharma-market-growth-slide':
+                # Ensure required props and normalize bars
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'AI Pharma\nMarket Growth'
+
+                bars = normalized_props.get('bars')
+                if not isinstance(bars, list) or not bars:
+                    bars = [
+                        { 'year': '2012', 'label': '$10 million', 'widthPercent': 24 },
+                        { 'year': '2016', 'label': '$100 million', 'widthPercent': 72 },
+                        { 'year': '2020', 'label': '$700 million', 'widthPercent': 92 },
+                        { 'year': '2030', 'label': '$9000 billion', 'widthPercent': 100 }
+                    ]
+                fixed_bars = []
+                for bar in bars:
+                    if isinstance(bar, dict):
+                        fixed_bars.append({
+                            'year': str(bar.get('year', '2020')),
+                            'label': str(bar.get('label', '$0')),
+                            'widthPercent': int(bar.get('widthPercent', 50))
+                        })
+                    else:
+                        fixed_bars.append({
+                            'year': '2020',
+                            'label': str(bar),
+                            'widthPercent': 50
+                        })
+                normalized_props['bars'] = fixed_bars
+
+                if not normalized_props.get('doctorImagePath'):
+                    normalized_props['doctorImagePath'] = 'https://via.placeholder.com/300x600?text=Doctor'
+                if not normalized_props.get('panelBackgroundColor'):
+                    normalized_props['panelBackgroundColor'] = '#dfeeff'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'critical-thinking-slide':
+                # Ensure required props and normalize highlightedPhrases
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Critical Thinking\nand Problem Solving'
+                if not normalized_props.get('content'):
+                    normalized_props['content'] = 'Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.'
+
+                phrases = normalized_props.get('highlightedPhrases')
+                if isinstance(phrases, str):
+                    phrases = [p.strip() for p in phrases.split(',') if p.strip()]
+                if not isinstance(phrases, list) or not phrases:
+                    phrases = ['analyze information,', 'make informed decisions,', 'overcome challenges.']
+                normalized_props['highlightedPhrases'] = [str(p) for p in phrases]
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('companyLogoPath'):
+                    normalized_props['companyLogoPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'benefits-tags-slide':
+                # Ensure required props and normalize tags
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Benefits'
+
+                tags = normalized_props.get('tags')
+                if isinstance(tags, str):
+                    tags = [t.strip() for t in tags.split(',') if t.strip()]
+                if not isinstance(tags, list) or not tags:
+                    tags = [
+                        { 'text': 'Better decisions', 'isHighlighted': False },
+                        { 'text': 'Insight', 'isHighlighted': False },
+                        { 'text': 'Growth', 'isHighlighted': False },
+                        { 'text': 'Progress', 'isHighlighted': False },
+                        { 'text': 'Creativity', 'isHighlighted': False },
+                        { 'text': 'Innovative solutions', 'isHighlighted': True }
+                    ]
+                fixed_tags = []
+                for tag in tags[:6]:  # Limit to 6 tags
+                    if isinstance(tag, dict):
+                        fixed_tags.append({
+                            'text': str(tag.get('text', 'Tag')),
+                            'isHighlighted': bool(tag.get('isHighlighted', False))
+                        })
+                    else:
+                        fixed_tags.append({
+                            'text': str(tag),
+                            'isHighlighted': False
+                        })
+                normalized_props['tags'] = fixed_tags
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('companyLogoPath'):
+                    normalized_props['companyLogoPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'kpi-update-slide':
+                # Ensure required props and normalize items
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'KPI Update'
+
+                items = normalized_props.get('items')
+                if not isinstance(items, list) or not items:
+                    items = [
+                        { 'value': '10%', 'description': 'Improvement in efficiency across all teams this quarter' },
+                        { 'value': '75', 'description': 'New features successfully deployed to production' },
+                        { 'value': '86%', 'description': 'Customer satisfaction rating, exceeding our target' },
+                        { 'value': '1M', 'description': 'Active users reached, marking a major milestone' }
+                    ]
+                fixed_items = []
+                for item in items[:4]:  # Limit to 4 KPIs
+                    if isinstance(item, dict):
+                        fixed_items.append({
+                            'value': str(item.get('value', '0')),
+                            'description': str(item.get('description', 'No description'))
+                        })
+                    else:
+                        fixed_items.append({
+                            'value': str(item),
+                            'description': 'No description'
+                        })
+                normalized_props['items'] = fixed_items
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('footerLeft'):
+                    normalized_props['footerLeft'] = 'Company name'
+                if not normalized_props.get('footerCenter'):
+                    normalized_props['footerCenter'] = 'KPI Report'
+                if not normalized_props.get('footerRight'):
+                    normalized_props['footerRight'] = 'February 2023'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'phishing-rise-slide':
+                # Ensure required props and normalize bars
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Phishing rise'
+                if not normalized_props.get('description'):
+                    normalized_props['description'] = 'This has become a growing threat in the world of today. The Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016.'
+
+                bars = normalized_props.get('bars')
+                if not isinstance(bars, list) or not bars:
+                    bars = [
+                        { 'year': '2019', 'valueLabel': '33M$', 'height': 160 },
+                        { 'year': '2020', 'valueLabel': '39M$', 'height': 200 },
+                        { 'year': '2021', 'valueLabel': '55M$', 'height': 330 },
+                        { 'year': '2022', 'valueLabel': '44M$', 'height': 270 },
+                        { 'year': '2023', 'valueLabel': '67M$', 'height': 420 },
+                        { 'year': '2024', 'valueLabel': '35M$', 'height': 210 }
+                    ]
+                fixed_bars = []
+                for bar in bars[:6]:  # Limit to 6 bars
+                    if isinstance(bar, dict):
+                        fixed_bars.append({
+                            'year': str(bar.get('year', '2020')),
+                            'valueLabel': str(bar.get('valueLabel', '0$')),
+                            'height': int(bar.get('height', 200))
+                        })
+                    else:
+                        fixed_bars.append({
+                            'year': '2020',
+                            'valueLabel': str(bar),
+                            'height': 200
+                        })
+                normalized_props['bars'] = fixed_bars
+
+                if not normalized_props.get('actorImagePath'):
+                    normalized_props['actorImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'problems-grid':
+                # Ensure required props and normalize cards
+                if not normalized_props.get('tag'):
+                    normalized_props['tag'] = 'The problem'
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Key Challenges'
+
+                cards = normalized_props.get('cards')
+                if not isinstance(cards, list) or len(cards) < 4:
+                    cards = [
+                        { 'number': '1', 'title': 'Challenge One', 'body': 'First challenge with detailed explanation of its impact' },
+                        { 'number': '2', 'title': 'Challenge Two', 'body': 'Second challenge showing how it compounds existing issues' },
+                        { 'number': '3', 'title': 'Challenge Three', 'body': 'Third challenge demonstrating real-world consequences' },
+                        { 'number': '4', 'title': 'Challenge Four', 'body': 'Fourth challenge highlighting the urgency for solutions' }
+                    ]
+                fixed_cards = []
+                for card in cards[:4]:  # Exactly 4 cards
+                    if isinstance(card, dict):
+                        fixed_cards.append({
+                            'number': str(card.get('number', '1')),
+                            'title': str(card.get('title', 'Challenge')),
+                            'body': str(card.get('body', 'Challenge description'))
+                        })
+                    else:
+                        fixed_cards.append({
+                            'number': str(len(fixed_cards) + 1),
+                            'title': 'Challenge',
+                            'body': str(card)
+                        })
+                normalized_props['cards'] = fixed_cards
+                
+                if not normalized_props.get('rightText'):
+                    normalized_props['rightText'] = 'These challenges are interconnected and require a comprehensive approach to address effectively.'
+                if not normalized_props.get('avatarPath'):
+                    normalized_props['avatarPath'] = ''
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+
+            elif template_id == 'solution-steps-slide':
+                # Ensure required props and normalize steps
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'The Solution'
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Step-by-step Guide'
+
+                steps = normalized_props.get('steps')
+                if not isinstance(steps, list) or not steps:
+                    steps = [
+                        { 'title': 'Step 1', 'description': 'Know the Regulations' },
+                        { 'title': 'Step 2', 'description': 'Conduct Risk Assessments' },
+                        { 'title': 'Step 3', 'description': 'Provide Training and Education' }
+                    ]
+                fixed_steps = []
+                for step in steps[:3]:  # Limit to 3 steps
+                    if isinstance(step, dict):
+                        fixed_steps.append({
+                            'title': str(step.get('title', 'Step')),
+                            'description': str(step.get('description', 'Description'))
+                        })
+                    else:
+                        fixed_steps.append({
+                            'title': 'Step',
+                            'description': str(step)
+                        })
+                normalized_props['steps'] = fixed_steps
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # logoNew can remain empty to show placeholder
+
+            elif template_id == 'hybrid-work-best-practices-slide':
+                # Ensure required props and normalize practices
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'HYBRID WORK BEST PRACTICES'
+                if not normalized_props.get('mainStatement'):
+                    normalized_props['mainStatement'] = 'To adopt a hybrid work model, you need the right people, processes, and technology.'
+
+                practices = normalized_props.get('practices')
+                if not isinstance(practices, list) or len(practices) < 4:
+                    practices = [
+                        { 'number': 1, 'title': 'Communicate with your employees', 'description': 'When you roll out hybrid work, your decisions will affect everyone in your workforce.' },
+                        { 'number': 2, 'title': 'Work with HR and IT', 'description': 'Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless.' },
+                        { 'number': 3, 'title': 'Create the right work environment', 'description': 'Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important.' },
+                        { 'number': 4, 'title': 'Delight and connect remote', 'description': 'Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high.' }
+                    ]
+                fixed_practices = []
+                for i, practice in enumerate(practices[:4], 1):  # Exactly 4 practices
+                    if isinstance(practice, dict):
+                        fixed_practices.append({
+                            'number': practice.get('number', i),
+                            'title': str(practice.get('title', 'Practice')),
+                            'description': str(practice.get('description', 'Description'))
+                        })
+                    else:
+                        fixed_practices.append({
+                            'number': i,
+                            'title': 'Practice',
+                            'description': str(practice)
+                        })
+                normalized_props['practices'] = fixed_practices
+
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('teamImagePath'):
+                    normalized_props['teamImagePath'] = 'https://via.placeholder.com/400x200?text=Team'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Your Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = str(slide_index + 1)
+                # logoPath can remain empty to show placeholder
+
             elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
@@ -5318,10 +6163,73 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
+def get_assistant_instructions(wizard_payload=None):
+    """
+    Load base instructions + product-specific instructions based on wizard payload.
+    
+    Args:
+        wizard_payload: Optional dict with 'product' key to determine which product file to load
+        
+    Returns:
+        Combined system instructions as a string
+    """
+    base_path = "custom_assistants/content_builder_base.txt"
+    
+    # Read base instructions
+    try:
+        with open(base_path, 'r', encoding='utf-8') as f:
+            instructions = f.read()
+    except FileNotFoundError:
+        logger.warning(f"[GET_INSTRUCTIONS] Base file not found: {base_path}")
+        return "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+    
+    # Detect product type from wizard payload
+    if wizard_payload:
+        product = wizard_payload.get('product', '').lower()
+        try:
+            logger.info(f"[GET_INSTRUCTIONS] wizard_payload.product='{product}' | base_len={len(instructions)}")
+        except Exception:
+            pass
+        
+        # Map product names to file names
+        product_file_map = {
+            'slides deck': 'content_builder_presentation.txt',
+            'lesson presentation': 'content_builder_presentation.txt',
+            'video lesson presentation': 'content_builder_presentation.txt',
+            'video lesson slides deck': 'content_builder_presentation.txt',
+            'text presentation': 'content_builder_onepager.txt',
+            'quiz': 'content_builder_quiz.txt',
+            'course outline': 'content_builder_outline.txt',
+            'video lesson script': 'content_builder_video.txt',
+        }
+        
+        product_file = product_file_map.get(product)
+        if product_file:
+            product_path = f"custom_assistants/{product_file}"
+            try:
+                with open(product_path, 'r', encoding='utf-8') as f:
+                    product_instructions = f.read()
+                    instructions += "\n\n" + product_instructions
+                    try:
+                        logger.info(f"[GET_INSTRUCTIONS] Loaded product file: {product_file} | product_len={len(product_instructions)} | combined_len={len(instructions)}")
+                    except Exception:
+                        pass
+            except FileNotFoundError:
+                logger.warning(f"[GET_INSTRUCTIONS] Product file not found: {product_path}")
+    
+    return instructions
+
+async def stream_openai_response(prompt: str, model: str = None, wizard_payload: dict = None, temperature: float = 0.2, max_tokens: int = None):
     """
     Stream response directly from OpenAI API.
     Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
+    
+    Args:
+        prompt: User/wizard message to send
+        model: OpenAI model to use
+        wizard_payload: Optional wizard payload dict for loading product-specific instructions
+        temperature: Temperature for response generation (default: 0.2)
+        max_tokens: Maximum tokens to generate (if None, uses model default or 16000)
     """
     try:
         client = get_openai_client()
@@ -5329,17 +6237,18 @@ async def stream_openai_response(prompt: str, model: str = None):
         
         logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
         logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
+        if max_tokens:
+            logger.info(f"[OPENAI_STREAM] Using max_tokens: {max_tokens}")
         
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        # Read assistant instructions (base + product-specific)
+        system_prompt = get_assistant_instructions(wizard_payload=wizard_payload)
         try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+            product_logged = (wizard_payload or {}).get('product') if wizard_payload else None
+            logger.info(f"[OPENAI_STREAM] System prompt loaded | product='{product_logged}' | sys_len={len(system_prompt)}")
+        except Exception:
+            pass
 
-                # Check for preservation mode instructions
+        # Check for preservation mode instructions
         enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
         
         # Add educational depth requirements ONLY for non-file generation
@@ -5394,16 +6303,23 @@ Each bullet point MUST contain 60-100 words structured as:
         """
         
         # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
+        api_params = {
+            "model": model,
+            "messages": [
                 {"role": "system", "content": system_prompt + educational_enhancement},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": enhanced_message}
             ],
-            stream=True,
-            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
-            temperature=0.2
-        )
+            "stream": True,
+            "temperature": temperature
+        }
+        
+        # Use provided max_tokens or default to 16000 for large JSON responses
+        if max_tokens:
+            api_params["max_tokens"] = max_tokens
+        else:
+            api_params["max_tokens"] = 16000  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
+        
+        stream = await client.chat.completions.create(**api_params)
         
         logger.info(f"[OPENAI_STREAM] Stream created successfully")
         
@@ -5424,15 +6340,25 @@ Each bullet point MUST contain 60-100 words structured as:
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    finish_reason = choice.finish_reason
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {finish_reason}")
                     logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
+                    logger.info(f"[OPENAI_STREAM] Response length: {len(full_response)} chars")
                     logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
+                    
+                    # CRITICAL: Detect truncation due to token limit
+                    if finish_reason == "length":
+                        logger.error(f"⚠️ [OPENAI_STREAM] Response truncated due to max_tokens limit! Response length: {len(full_response)} chars")
+                        logger.error(f"⚠️ [OPENAI_STREAM] This indicates max_tokens ({max_tokens if max_tokens else 'default'}) was insufficient")
+                        yield {"type": "truncated", "text": "Response was truncated due to token limit. Consider increasing max_tokens.", "finish_reason": finish_reason}
+                    else:
+                        logger.info(f"[OPENAI_STREAM] Stream completed successfully with finish_reason: {finish_reason}")
+                        yield {"type": "done", "finish_reason": finish_reason}
                     break
                     
     except Exception as e:
         logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
         yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -7641,6 +8567,10 @@ class ProjectCreateRequest(BaseModel):
     # Source context tracking
     source_context_type: Optional[str] = None  # 'files', 'connectors', 'knowledge_base', 'text', 'prompt'
     source_context_data: Optional[dict] = None  # JSON data about the source
+    # NEW: original JSON response from preview (for fast-path parsing)
+    originalJsonResponse: Optional[str] = None
+    # NEW: slides count for validation (lesson presentations)
+    slidesCount: Optional[int] = None
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -10349,7 +11279,7 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                         logger.info(f"🔍 [DATA EXTRACTION] Last 100 chars: {image_data_raw[-100:]}")
                     break
                 else:
-                    logger.warning(f"⚠️ [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
+                    logger.warning(f"WARNING: [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
         
         if not image_data_raw:
             logger.error(f"❌ [DATA EXTRACTION ERROR] No image data found in response parts")
@@ -10400,7 +11330,7 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         elif image_data.startswith(b'\xff\xd8\xff'):
             logger.info(f"✅ [IMAGE VALIDATION] Detected JPEG format")
         else:
-            logger.warning(f"⚠️ [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
+            logger.warning(f"WARNING: [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
         
         logger.info(f"🔍 [IMAGE VALIDATION] Image data first 20 bytes: {image_data[:20]}")
         logger.info(f"🔍 [IMAGE VALIDATION] Image data last 20 bytes: {image_data[-20:]}")
@@ -10863,6 +11793,181 @@ def validate_edit_preservation(original_content: str, edited_content: str, edit_
         logger.error(f"[VALIDATION_ERROR] Error validating edit preservation: {e}")
         return True, ""  # Don't block on validation errors
 
+# --- OpenAI Streaming Functions ---
+
+async def stream_hybrid_response(message: str, file_context: Any, product_type: str = "Course Outline", temperature: float = 0.7):
+    """
+    Stream response from OpenAI using extracted file context as PRIMARY knowledge source.
+    
+    This function intelligently handles large files:
+    - Counts tokens to stay within limits (100k tokens max for context)
+    - Uses full content when possible
+    - Falls back to enhanced summaries for large files
+    - Prioritizes file data over general internet knowledge
+    
+    Args:
+        message: The base wizard message/request
+        file_context: Extracted context from Onyx files (dict with summaries, contents, topics)
+        product_type: Type of product being generated
+        temperature: Temperature for response generation
+        
+    Yields:
+        Dict with type 'delta' (text chunk) or 'error'
+    """
+    try:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.error("[HYBRID_STREAM] No OpenAI API key found")
+            yield {"type": "error", "text": "OpenAI API key not configured"}
+            return
+        
+        client = AsyncOpenAI(api_key=openai_api_key)
+        
+        # Token limits for GPT-4 Turbo (128k total, reserve 28k for response)
+        MAX_CONTEXT_TOKENS = 100000  # Conservative limit for context
+        TOKENS_PER_CHAR_ESTIMATE = 0.25  # Rough estimate: 1 token ≈ 4 characters
+        
+        # Build enhanced prompt that prioritizes file content
+        file_content_section = ""
+        
+        if isinstance(file_context, dict):
+            # Extract file contents and summaries
+            file_contents = file_context.get("file_contents", [])
+            file_summaries = file_context.get("file_summaries", [])
+            key_topics = file_context.get("key_topics", [])
+            
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_contents)} contents, {len(file_summaries)} summaries, {len(key_topics)} topics")
+            
+            if file_contents or file_summaries:
+                file_content_section = "\n\n" + "="*80 + "\n"
+                file_content_section += "📚 SOURCE DOCUMENTS - YOUR ONLY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+                file_content_section += "⚠️ CRITICAL INSTRUCTION ⚠️\n"
+                file_content_section += "The documents below are YOUR COMPLETE KNOWLEDGE BASE.\n"
+                file_content_section += "You MUST:\n"
+                file_content_section += "  ✓ Use ONLY information from these documents\n"
+                file_content_section += "  ✓ Quote specific passages and reference document sections\n"
+                file_content_section += "  ✓ Use examples, data, and cases ONLY from these documents\n"
+                file_content_section += "  ✓ State 'not provided in source materials' if information is missing\n"
+                file_content_section += "  ✗ NEVER use general knowledge or make assumptions\n"
+                file_content_section += "  ✗ NEVER hallucinate examples not in the documents\n\n"
+                
+                # Add key topics if available
+                if key_topics:
+                    file_content_section += f"**Key Topics from Documents**: {', '.join(key_topics[:20])}\n\n"
+                
+                # Calculate total content size
+                total_content_chars = sum(len(content) for content in file_contents if content)
+                estimated_tokens = total_content_chars * TOKENS_PER_CHAR_ESTIMATE
+                
+                logger.info(f"[HYBRID_STREAM] Total content size: {total_content_chars} chars, estimated {int(estimated_tokens)} tokens")
+                
+                # Decide whether to use full content or enhanced summaries
+                if estimated_tokens < MAX_CONTEXT_TOKENS:
+                    # Use FULL CONTENT - files are small enough
+                    logger.info(f"[HYBRID_STREAM] Using FULL CONTENT (within token limit)")
+                    
+                    # Add document structure with clear markers
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"\n{'='*80}\n"
+                            file_content_section += f"📄 SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                            file_content_section += f"{content}\n\n"
+                            file_content_section += f"{'='*80}\n"
+                            file_content_section += f"END OF SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                else:
+                    # Use ENHANCED SUMMARIES - files are too large
+                    logger.info(f"[HYBRID_STREAM] Using ENHANCED SUMMARIES (content exceeds token limit)")
+                    
+                    # Calculate how much content we can include per file
+                    max_chars_per_file = int((MAX_CONTEXT_TOKENS / TOKENS_PER_CHAR_ESTIMATE) / len(file_contents))
+                    
+                    file_content_section += "---\n**DOCUMENT CONTENT** (Enhanced excerpts from large documents):\n---\n\n"
+                    file_content_section += f"**Note**: Documents were too large to include in full. Below are key excerpts and summaries.\n\n"
+                    
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"### Document {i}:\n\n"
+                            
+                            # Include summary if available
+                            if i <= len(file_summaries) and file_summaries[i-1]:
+                                file_content_section += f"**Summary**: {file_summaries[i-1]}\n\n"
+                            
+                            # Include beginning excerpt
+                            if len(content) > max_chars_per_file:
+                                excerpt = content[:max_chars_per_file]
+                                # Try to cut at sentence boundary
+                                last_period = excerpt.rfind('.')
+                                if last_period > max_chars_per_file * 0.8:  # If we can find a period in last 20%
+                                    excerpt = excerpt[:last_period + 1]
+                                file_content_section += f"**Key Content Excerpt** (first ~{len(excerpt)} chars of {len(content)}):\n{excerpt}\n\n"
+                                file_content_section += f"*[Document continues with {len(content) - len(excerpt)} more characters]*\n\n"
+                            else:
+                                file_content_section += f"**Full Content**:\n{content}\n\n"
+                            
+                            file_content_section += "---\n\n"
+                
+                # Add summaries if we only have those (no content)
+                if not file_contents and file_summaries:
+                    file_content_section += "**Document Summaries**:\n\n"
+                    for i, summary in enumerate(file_summaries, 1):
+                        if summary and len(summary.strip()) > 0:
+                            file_content_section += f"{i}. {summary}\n\n"
+                
+                file_content_section += "="*80 + "\n"
+                file_content_section += "END OF SOURCE DOCUMENTS - USE THIS AS YOUR PRIMARY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+                
+                # Add validation checkpoint reminder
+                file_content_section += "⚠️ FINAL REMINDER ⚠️\n"
+                file_content_section += "Before generating your response, confirm:\n"
+                file_content_section += "• Have I used ONLY the source documents above?\n"
+                file_content_section += "• Have I quoted or referenced specific document content?\n"
+                file_content_section += "• Have I avoided general knowledge and assumptions?\n\n"
+        elif isinstance(file_context, str):
+            # Handle string context (fallback case)
+            file_content_section = f"\n\n**SOURCE DOCUMENT CONTENT**:\n{file_context}\n\n"
+            file_content_section += "**Note**: Base your content on the above document content.\n\n"
+        
+        # Combine with original message
+        enhanced_message = file_content_section + message
+        
+        logger.info(f"[HYBRID_STREAM] Enhanced message length: {len(enhanced_message)} (original: {len(message)}, file context: {len(file_content_section)})")
+        logger.info(f"[HYBRID_STREAM] Starting streaming for product type: {product_type}")
+        
+        stream = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{
+                "role": "system",
+                "content": """You are an EDUCATIONAL CONTENT CREATOR with STRICT SOURCE FIDELITY.
+
+ABSOLUTE RULES:
+1. SOURCE DOCUMENTS ARE YOUR ONLY KNOWLEDGE BASE - You must ONLY use information explicitly present in the source documents provided below
+2. NEVER use general internet knowledge, common knowledge, or assumptions
+3. If information is not in the source documents, state "This information is not provided in the source materials"
+4. DIRECTLY QUOTE and reference specific sections from source documents
+5. Every claim, example, statistic, or case study MUST come from the source documents
+6. Mark any illustrative examples you create as [ILLUSTRATIVE EXAMPLE - not from source]
+
+VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents."""
+            }, {
+                "role": "user",
+                "content": enhanced_message
+            }],
+            temperature=temperature,
+            stream=True
+        )
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+                
+    except Exception as e:
+        logger.error(f"[HYBRID_STREAM] Error: {e}", exc_info=True)
+        yield {"type": "error", "text": str(e)}
+
 # --- Enhanced Hybrid Approach Functions ---
 
 # Cache for file contexts to avoid repeated extraction
@@ -11162,27 +12267,51 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         temp_chat_id = await create_onyx_chat_session(search_persona_id, cookies)
         logger.info(f"[CONNECTOR_CONTEXT] Created search chat session: {temp_chat_id}")
         
-        # Create a comprehensive search prompt (similar to Knowledge Base approach)
+        # Create a comprehensive search-and-extract prompt with verbatim snippets
+        connector_sources_csv = ", ".join(connector_list)
         search_prompt = f"""
-        Please search within the following connector sources for information relevant to this topic: "{prompt}"
-        
-        Search only within these specific sources: {', '.join(connector_list)}
-        
-        I need you to:
-        1. Search within the specified connector sources only
-        2. Find the most relevant information related to this topic
-        3. Provide a comprehensive summary of what you find
-        4. Extract key topics, concepts, and important details
-        5. Identify any specific examples, case studies, or practical applications
-        
-        Please format your response as:
-        SUMMARY: [comprehensive summary of relevant information found]
-        KEY_TOPICS: [comma-separated list of key topics and concepts]
-        IMPORTANT_DETAILS: [specific details, examples, or practical information]
-        RELEVANT_SOURCES: [mention of any specific documents or sources that were particularly relevant]
-        
-        Focus only on content from these connector sources: {', '.join(connector_list)}
-        Be thorough and comprehensive in your search and analysis.
+You are a CONNECTOR SEARCH AND EXTRACTION specialist. Work ONLY within these connector sources: {connector_sources_csv}. Topic: "{prompt}".
+
+STRICT RULES:
+- Use ONLY content found in the specified connector sources. No external knowledge.
+- Prefer documents with strong topical match; skip generic/low-signal files.
+- Extract VERBATIM passages (exact wording). No paraphrasing.
+- Diversify across different high-signal documents; avoid repeating near-duplicates.
+
+PROCESS:
+1) High-recall search: expand the topic with synonyms/phrases and find candidate docs.
+2) Rank candidates by topical relevance and information density. Keep top 12.
+3) For each selected doc, extract 3–5 key snippets (50–200 words each) that directly support the topic.
+4) Deduplicate near-identical snippets across docs (keep the clearest one).
+5) Cite every snippet with source metadata.
+
+OUTPUT FORMAT (exactly):
+SUMMARY: <=200 words summary of findings from these connectors only.
+KEY_TOPICS: comma-separated list (<=12)
+IMPORTANT_DETAILS:
+- Up to 10 bullets of concrete facts (numbers, names, definitions) from sources only
+EXTRACTED_CONTENT:
+[DOC 1]
+- SOURCE_DOC: <name or path>
+- CONNECTOR: <e.g., SmartDrive/GoogleDrive>
+- DOC_ID: <id if available>
+- SNIPPETS:
+  1) "<verbatim passage>"
+     - WHY_RELEVANT: <brief reason>
+     - CONFIDENCE: High/Med/Low
+  2) ...
+
+[DOC 2]
+- SOURCE_DOC: ...
+- ...
+
+RELEVANT_SOURCES:
+- <doc name/path> — reason for inclusion
+- ...
+
+CONSTRAINTS:
+- If there are hundreds of files, include only the most relevant 5–12 documents.
+- Prefer dense, example-rich or data-rich sections.
         """
         
         # Use the Search persona to perform the connector-filtered search
@@ -11196,11 +12325,12 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         if len(search_result) == 0:
             logger.warning(f"[CONNECTOR_CONTEXT] Search result is empty! This might indicate no documents in connectors or search failed")
         
-        # Parse the search result - handle Onyx response format (same as Knowledge Base)
+        # Parse the search result - handle extended connector format with EXTRACTED_CONTENT
         summary = ""
         key_topics = []
         important_details = ""
         relevant_sources = ""
+        extracted_snippets: List[Dict[str, Any]] = []
         
         # Extract content flexibly using string searching
         logger.info(f"[CONNECTOR_CONTEXT] Starting content extraction from search result")
@@ -11243,6 +12373,49 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
             relevant_sources = search_result[sources_start:].strip()
             logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {len(relevant_sources)} chars")
         
+        # Try to parse EXTRACTED_CONTENT blocks with snippets
+        if "EXTRACTED_CONTENT:" in search_result:
+            try:
+                content_start = search_result.find("EXTRACTED_CONTENT:") + len("EXTRACTED_CONTENT:")
+                tail = search_result[content_start:]
+                current_doc: Dict[str, Any] = None
+                for raw_line in tail.splitlines():
+                    line = raw_line.strip()
+                    if not line:
+                        continue
+                    if line.startswith("[DOC "):
+                        if current_doc:
+                            extracted_snippets.append(current_doc)
+                        current_doc = {"source_doc": None, "connector": None, "doc_id": None, "snippets": []}
+                    elif line.startswith("- SOURCE_DOC:") and current_doc is not None:
+                        current_doc["source_doc"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- CONNECTOR:") and current_doc is not None:
+                        current_doc["connector"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- DOC_ID:") and current_doc is not None:
+                        current_doc["doc_id"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- SNIPPETS:"):
+                        # header, skip
+                        pass
+                    elif line[0].isdigit() and ') "' in line:
+                        # snippet line like:  1) "<verbatim>"
+                        try:
+                            first_quote = line.find('"')
+                            last_quote = line.rfind('"')
+                            snippet_text = line[first_quote+1:last_quote]
+                            if current_doc is not None and snippet_text:
+                                current_doc["snippets"].append({"text": snippet_text})
+                        except Exception:
+                            continue
+                    elif line.startswith("- WHY_RELEVANT:") and current_doc is not None and current_doc.get("snippets"):
+                        current_doc["snippets"][-1]["why"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("- CONFIDENCE:") and current_doc is not None and current_doc.get("snippets"):
+                        current_doc["snippets"][-1]["confidence"] = line.split(":", 1)[1].strip()
+                if current_doc:
+                    extracted_snippets.append(current_doc)
+                logger.info(f"[CONNECTOR_CONTEXT] Parsed connector snippets: {sum(len(d.get('snippets', [])) for d in extracted_snippets)} total")
+            except Exception as perr:
+                logger.warning(f"[CONNECTOR_CONTEXT] Failed to parse EXTRACTED_CONTENT: {perr}")
+        
         # Final fallback if still no content
         if not summary and not key_topics:
             summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
@@ -11255,7 +12428,119 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
         logger.info(f"[CONNECTOR_CONTEXT] Extracted important details: {important_details[:200]}...")
         logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {relevant_sources[:200]}...")
         
-        # Return context in the same format as knowledge base context
+        # Build combined raw content from snippets for downstream token budgeting
+        combined_raw = "\n\n".join(
+            [
+                f"[{doc.get('source_doc','Unknown')}]\n" + "\n\n".join(
+                    [s.get('text','') for s in doc.get('snippets', []) if s.get('text')]
+                )
+                for doc in extracted_snippets if doc.get('snippets')
+            ]
+        )
+
+        # If nothing useful found, retry once with a tweaked prompt (broader query and softer constraints)
+        should_retry = (
+            (not summary or "no relevant content" in summary.lower()) and
+            not key_topics and
+            not extracted_snippets and
+            len(important_details.strip()) < 50
+        )
+        if should_retry:
+            try:
+                logger.info("[CONNECTOR_CONTEXT] No relevant content found; retrying with tweaked prompt")
+                tweaked_prompt = f"""
+You are a CONNECTOR SEARCH AND EXTRACTION specialist. Search ONLY in: {connector_sources_csv}. Topic: "{prompt}".
+
+Goal: maximize recall first, then precision. If exact matches are scarce, include near-topic documents that define, introduce, or summarize the topic.
+
+PROCESS:
+1) Run multiple queries (synonyms, abbreviations, expansions): e.g., AWS, Amazon Web Services, cloud basics, cloud infrastructure.
+2) Select up to 12 strongest candidates by topical overlap and information density.
+3) Extract 2–3 short, high-signal snippets per document (50–150 words). Prefer definitions, lists of components, and key facts.
+
+OUTPUT:
+SUMMARY: <=150 words
+KEY_TOPICS: comma-separated (<=12)
+IMPORTANT_DETAILS: 3–8 bullets of concrete facts (numbers/names)
+EXTRACTED_CONTENT: [DOC blocks with SNIPPETS as before]
+RELEVANT_SOURCES: list
+"""
+                search_result = await enhanced_stream_chat_message_with_filters(temp_chat_id, tweaked_prompt, cookies, connector_list)
+                logger.info(f"[CONNECTOR_CONTEXT] Retry received search result ({len(search_result)} chars)")
+                # Re-parse with same logic
+                summary = ""; key_topics = []; important_details = ""; relevant_sources = ""; extracted_snippets = []
+                if "SUMMARY:" in search_result:
+                    summary_start = search_result.find("SUMMARY:") + 8
+                    next_marker = min([x for x in [
+                        search_result.find("KEY_TOPICS:", summary_start),
+                        search_result.find("IMPORTANT_DETAILS:", summary_start),
+                        search_result.find("RELEVANT_SOURCES:", summary_start)
+                    ] if x != -1] or [len(search_result)])
+                    summary = search_result[summary_start:next_marker].strip()
+                if "KEY_TOPICS:" in search_result:
+                    topics_start = search_result.find("KEY_TOPICS:") + 11
+                    next_section = min([x for x in [
+                        search_result.find("IMPORTANT_DETAILS:", topics_start),
+                        search_result.find("RELEVANT_SOURCES:", topics_start)
+                    ] if x != -1] or [len(search_result)])
+                    topics_text = search_result[topics_start:next_section].strip()
+                    key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                if "IMPORTANT_DETAILS:" in search_result:
+                    details_start = search_result.find("IMPORTANT_DETAILS:") + 18
+                    details_end = search_result.find("RELEVANT_SOURCES:", details_start)
+                    if details_end == -1:
+                        details_end = len(search_result)
+                    important_details = search_result[details_start:details_end].strip()
+                if "RELEVANT_SOURCES:" in search_result:
+                    sources_start = search_result.find("RELEVANT_SOURCES:") + 17
+                    relevant_sources = search_result[sources_start:].strip()
+                if "EXTRACTED_CONTENT:" in search_result:
+                    try:
+                        content_start = search_result.find("EXTRACTED_CONTENT:") + len("EXTRACTED_CONTENT:")
+                        tail = search_result[content_start:]
+                        current_doc = None
+                        for raw_line in tail.splitlines():
+                            line = raw_line.strip()
+                            if not line:
+                                continue
+                            if line.startswith("[DOC "):
+                                if current_doc:
+                                    extracted_snippets.append(current_doc)
+                                current_doc = {"source_doc": None, "connector": None, "doc_id": None, "snippets": []}
+                            elif line.startswith("- SOURCE_DOC:") and current_doc is not None:
+                                current_doc["source_doc"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- CONNECTOR:") and current_doc is not None:
+                                current_doc["connector"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- DOC_ID:") and current_doc is not None:
+                                current_doc["doc_id"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- SNIPPETS:"):
+                                pass
+                            elif line and line[0].isdigit() and ') "' in line:
+                                try:
+                                    first_quote = line.find('"'); last_quote = line.rfind('"')
+                                    snippet_text = line[first_quote+1:last_quote]
+                                    if current_doc is not None and snippet_text:
+                                        current_doc["snippets"].append({"text": snippet_text})
+                                except Exception:
+                                    continue
+                            elif line.startswith("- WHY_RELEVANT:") and current_doc is not None and current_doc.get("snippets"):
+                                current_doc["snippets"][-1]["why"] = line.split(":", 1)[1].strip()
+                            elif line.startswith("- CONFIDENCE:") and current_doc is not None and current_doc.get("snippets"):
+                                current_doc["snippets"][-1]["confidence"] = line.split(":", 1)[1].strip()
+                        if current_doc:
+                            extracted_snippets.append(current_doc)
+                        logger.info(f"[CONNECTOR_CONTEXT] Retry parsed connector snippets: {sum(len(d.get('snippets', [])) for d in extracted_snippets)} total")
+                    except Exception as perr:
+                        logger.warning(f"[CONNECTOR_CONTEXT] Retry parse EXTRACTED_CONTENT failed: {perr}")
+                # recompute combined_raw
+                combined_raw = "\n\n".join([
+                    f"[{doc.get('source_doc','Unknown')}]\n" + "\n\n".join([s.get('text','') for s in doc.get('snippets', []) if s.get('text')])
+                    for doc in extracted_snippets if doc.get('snippets')
+                ])
+            except Exception as re:
+                logger.warning(f"[CONNECTOR_CONTEXT] Retry failed: {re}")
+        
+        # Return context in the same format as knowledge base context, plus snippets/raw
         return {
             "connector_search": True,
             "topic": prompt,
@@ -11265,6 +12550,8 @@ async def extract_connector_context_from_onyx(connector_sources: str, prompt: st
             "important_details": important_details,
             "relevant_sources": relevant_sources,
             "full_search_result": search_result,
+            "extracted_snippets": extracted_snippets,
+            "extracted_raw_content": combined_raw,
             "file_summaries": [{
                 "file_id": "connector_search",
                 "name": f"Connector Search: {', '.join(connector_list)}",
@@ -11847,16 +13134,49 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         Remember: Your goal is to EXTRACT as much useful content as possible, not to summarize it.
         The more detailed and complete your extraction, the better the educational material will be.
         """
+        # Less-invasive prompt (used only if the first attempt is refused or generic)
+        softer_prompt = f"""
+        You are a CONTENT ANALYST.
+
+        Goal: Provide a faithful, detailed representation of the file's information for educational use.
+
+        RULES:
+        - Where permitted, include short, highly relevant quotations (short exact phrases) to preserve fidelity.
+        - If full verbatim excerpts are not permitted, provide detailed, section-by-section summaries capturing all facts, numbers, names, and definitions precisely.
+        - Preserve critical terminology exactly as written.
+
+        FORMAT:
+        SUMMARY: [<=2 sentences]
+        TOPICS: [comma-separated]
+        KEY_INFO: [one most important takeaway]
+        EXTRACTED_CONTENT:
+        [Provide a comprehensive, structured outline of the file's content. Use headings. Under each heading, include:
+         - Key points (with exact terminology)
+         - Short quotes where allowed (a few words to short phrases), otherwise detailed paraphrase capturing all substance
+         - Numbers, names, dates, and definitions precisely]
+        """
         
         # Step 4: Single attempt - skip file if it fails (no retries)
         try:
             result = await attempt_file_analysis_with_retry(
                 temp_chat_id, file_id, analysis_prompt, cookies, 0
             )
-            if result and not is_generic_response(result):
+            # Detect refusal/generic
+            refusal_markers = [
+                "can’t provide verbatim", "can't provide verbatim", "can’t provide that", "can't provide that",
+                "cannot provide verbatim", "not provide verbatim", "I can’t extract", "I can't extract"
+            ]
+            is_refusal = any(m in (result or "").lower() for m in refusal_markers)
+            if result and not is_generic_response(result) and not is_refusal:
                 return parse_analysis_result(file_id, result)
-            else:
-                logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed, skipping...")
+            # Retry once with less invasive prompt and alternate strategy (attempt 2)
+            logger.info(f"[FILE_CONTEXT] Retrying file {file_id} with less invasive prompt")
+            retry_result = await attempt_file_analysis_with_retry(
+                temp_chat_id, file_id, softer_prompt, cookies, 1
+            )
+            if retry_result and not is_generic_response(retry_result):
+                return parse_analysis_result(file_id, retry_result)
+            logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed after retry, skipping...")
         except Exception as e:
             logger.error(f"[FILE_CONTEXT] File {file_id} analysis error: {e}, skipping...")
         
@@ -12261,11 +13581,17 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union
         logger.info(f"[FIDELITY_DEBUG] File context (string): {len(file_context)} chars")
         logger.info(f"[FIDELITY_DEBUG] Content preview: {content_preview}")
     elif isinstance(file_context, dict):
-        summaries_count = len(file_context.get('file_summaries', []))
+        summaries = file_context.get('file_summaries', [])
         topics_count = len(file_context.get('key_topics', []))
+        summaries_count = len(summaries)
         logger.info(f"[FIDELITY_DEBUG] File context (dict): {summaries_count} summaries, {topics_count} topics")
-        if file_context.get('file_summaries'):
-            logger.info(f"[FIDELITY_DEBUG] First summary: {file_context['file_summaries'][0][:200]}")
+        if summaries:
+            first = summaries[0]
+            first_text = first if isinstance(first, str) else (first.get('summary') or first.get('name') or str(first))
+            try:
+                logger.info(f"[FIDELITY_DEBUG] First summary: {first_text[:200]}")
+            except Exception:
+                logger.info("[FIDELITY_DEBUG] First summary present (non-string)")
     
     enhanced_prompt = f"""
 {original_prompt}
@@ -12402,9 +13728,20 @@ NOW GENERATE THE REQUESTED PRODUCT:
     # Add file summaries
     if file_context.get("file_summaries"):
         enhanced_prompt += "FILE SUMMARIES:\n"
-        for i, summary in enumerate(file_context["file_summaries"], 1):
-            enhanced_prompt += f"{i}. {summary}\n"
+        for i, s in enumerate(file_context["file_summaries"], 1):
+            if isinstance(s, str):
+                line = s
+            elif isinstance(s, dict):
+                # Prefer explicit summary; fallback to name; fallback to repr
+                line = s.get("summary") or s.get("name") or json.dumps(s, ensure_ascii=False)[:400]
+            else:
+                line = str(s)
+            enhanced_prompt += f"{i}. {line}\n"
         enhanced_prompt += "\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['file_summaries'])} summaries | first_len={len(file_context['file_summaries'][0]) if file_context['file_summaries'] else 0}")
+        except Exception:
+            pass
     
     # Add folder contexts
     if file_context.get("folder_contexts"):
@@ -12416,6 +13753,32 @@ NOW GENERATE THE REQUESTED PRODUCT:
     # Add key topics
     if file_context.get("key_topics"):
         enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
+        try:
+            logger.info(f"[FIDELITY_DEBUG] Using {len(file_context['key_topics'])} key topics")
+        except Exception:
+            pass
+
+    # Add extracted content block (verbatim excerpts) using token-aware budgeting
+    try:
+        assembled_text = assemble_context_with_budget(
+            original_prompt=original_prompt,
+            file_context=file_context,
+            product_type=product_type,
+            model="gpt-4o-mini"
+        )
+        if assembled_text:
+            enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+            enhanced_prompt += assembled_text + "\n\n"
+        try:
+            logger.info(f"[ASSEMBLER_OUTPUT] BEGIN EXTRACTED_CONTENT BLOCK\n{assembled_text}\n[ASSEMBLER_OUTPUT] END EXTRACTED_CONTENT BLOCK")
+        except Exception:
+            pass
+    except Exception as ass_err:
+        logger.error(f"[FIDELITY_DEBUG] Assembler failed, falling back to simple clip: {ass_err}")
+        file_contents = file_context.get("file_contents") or []
+        joined = "\n\n".join([c for c in file_contents if c])
+        enhanced_prompt += "EXTRACTED_CONTENT (VERBATIM EXCERPTS):\n"
+        enhanced_prompt += joined[:20000] + "\n\n"
     
     # Add specific instructions for the product type with enhanced formatting guidance
     if product_type == "Course Outline":
@@ -12471,6 +13834,8 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 
 ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
 """
+    
+    # Presentation fidelity rules are now in product-specific txt files
     
     # Add closing source fidelity reminder
     enhanced_prompt += """
@@ -12534,9 +13899,205 @@ NOW GENERATE THE REQUESTED PRODUCT:
     
     return enhanced_prompt
 
-async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini"):
+# ---- Token-budgeted, relevance-ranked assembler ----
+def _safe_encoding(model: str):
+    try:
+        return tiktoken.encoding_for_model(model)
+    except Exception:
+        return tiktoken.get_encoding("cl100k_base")
+
+def _count_tokens(text: str, enc) -> int:
+    try:
+        return len(enc.encode(text or ""))
+    except Exception:
+        return len((text or "").split())
+
+def _chunk_text(text: str, enc, target_tokens: int = 800, overlap_tokens: int = 120) -> List[str]:
+    if not text:
+        return []
+    tokens = enc.encode(text)
+    chunks = []
+    i = 0
+    n = len(tokens)
+    step = max(1, target_tokens - overlap_tokens)
+    while i < n:
+        window = tokens[i:i+target_tokens]
+        chunks.append(enc.decode(window))
+        i += step
+    return chunks
+
+def _simple_relevance(prompt: str, chunk: str) -> float:
+    # Keyword overlap + length prior (favor denser chunks)
+    p_words = set([w.lower() for w in re.findall(r"[A-Za-z0-9_]+", prompt or "") if len(w) > 2])
+    if not p_words:
+        return 0.0
+    c_words = [w.lower() for w in re.findall(r"[A-Za-z0-9_]+", chunk or "")]
+    if not c_words:
+        return 0.0
+    overlap = sum(1 for w in c_words if w in p_words)
+    density = overlap / max(1, len(c_words))
+    return overlap + 5.0 * density
+
+def assemble_context_with_budget(original_prompt: str, file_context: Dict[str, Any], product_type: str, model: str) -> str:
+    enc = _safe_encoding(model)
+    # Global budget assumptions (approximate): keep room for system + output
+    total_budget = 100000
+    reserve_for_completion = 12000 if product_type in {"Course Outline", "Lesson Presentation", "Video Lesson Presentation"} else 8000
+    reserve_for_scaffold = 6000
+    available = max(10000, total_budget - reserve_for_completion - reserve_for_scaffold)
+    try:
+        logger.info(f"[ASSEMBLER] model={model} product_type={product_type}")
+        logger.info(f"[ASSEMBLER] budgets: total={total_budget} reserve_completion={reserve_for_completion} reserve_scaffold={reserve_for_scaffold} available={available}")
+    except Exception:
+        pass
+
+    # Gather candidate texts: file_contents + connector extracted_raw_content (if any)
+    candidates: List[Tuple[str, str]] = []  # (source_id, text)
+    for idx, c in enumerate(file_context.get("file_contents") or []):
+        if c:
+            candidates.append((f"file_{idx}", c))
+    # Add connector raw content if present
+    connector_raw = file_context.get("extracted_raw_content") or ""
+    if connector_raw:
+        candidates.append(("connectors", connector_raw))
+    try:
+        logger.info(f"[ASSEMBLER] candidates={len(candidates)} | files={len(file_context.get('file_contents') or [])} | has_connector_raw={bool(connector_raw)}")
+        for sid, txt in candidates[:10]:
+            logger.info(f"[ASSEMBLER] candidate[{sid}] chars={len(txt)}")
+    except Exception:
+        pass
+
+    if not candidates:
+        return ""
+
+    # Score sources by rough relevance (use first 2000 chars per source as proxy)
+    source_scores: List[Tuple[str, float]] = []
+    for sid, txt in candidates:
+        sample = txt[:2000]
+        score = _simple_relevance(original_prompt, sample)
+        source_scores.append((sid, score))
+    try:
+        logger.info("[ASSEMBLER] source scores:")
+        for sid, s in source_scores:
+            logger.info(f"[ASSEMBLER]  - {sid}: score={s:.3f}")
+    except Exception:
+        pass
+    # Normalize and allocate per-source budgets with floors/ceilings
+    total_score = sum(s for _, s in source_scores) or 1.0
+    min_per_source = 3000
+    max_per_source = max(min_per_source, available // 2)
+    allocations: Dict[str, int] = {}
+    remaining = available
+    # First pass proportional
+    for sid, s in source_scores:
+        share = int(available * (s / total_score)) if total_score > 0 else available // len(source_scores)
+        allocations[sid] = min(max(share, min_per_source), max_per_source)
+    # Adjust to sum to available
+    total_alloc = sum(allocations.values())
+    if total_alloc > available:
+        factor = available / total_alloc
+        for sid in allocations:
+            allocations[sid] = max(min_per_source, int(allocations[sid] * factor))
+    elif total_alloc < available:
+        # Distribute remainder
+        remainder = available - total_alloc
+        for sid, _ in sorted(source_scores, key=lambda x: -x[1]):
+            take = min(remainder, max_per_source - allocations[sid])
+            allocations[sid] += take
+            remainder -= take
+            if remainder <= 0:
+                break
+    try:
+        logger.info("[ASSEMBLER] allocations (tokens per source):")
+        for sid, tok in allocations.items():
+            logger.info(f"[ASSEMBLER]  - {sid}: tokens={tok}")
+    except Exception:
+        pass
+
+    # Build ranked chunks per source
+    assembled_parts: List[str] = []
+    for sid, full_text in candidates:
+        budget = allocations.get(sid, 0)
+        if budget <= 0:
+            continue
+        chunks = _chunk_text(full_text, enc, target_tokens=900, overlap_tokens=120)
+        try:
+            logger.info(f"[ASSEMBLER] {sid}: total_chunks={len(chunks)} budget_tokens={budget}")
+        except Exception:
+            pass
+        ranked = sorted(chunks, key=lambda ch: _simple_relevance(original_prompt, ch), reverse=True)
+        try:
+            preview = [(_simple_relevance(original_prompt, ch), len(ch)) for ch in ranked[:5]]
+            logger.info(f"[ASSEMBLER] {sid}: top5_chunk_scores={[round(p[0],3) for p in preview]} top5_chunk_sizes={[p[1] for p in preview]}")
+        except Exception:
+            pass
+        taken_tokens = 0
+        selected: List[str] = []
+        for ch in ranked:
+            ct = _count_tokens(ch, enc)
+            if taken_tokens + ct > budget:
+                # take a slice to fit
+                remaining_tokens = max(0, budget - taken_tokens)
+                if remaining_tokens <= 0:
+                    break
+                # approximate trim by characters
+                frac = remaining_tokens / max(1, ct)
+                approx_len = int(len(ch) * frac)
+                selected.append(ch[:approx_len])
+                taken_tokens = budget
+                break
+            selected.append(ch)
+            taken_tokens += ct
+            if taken_tokens >= budget:
+                break
+        try:
+            logger.info(f"[ASSEMBLER] {sid}: selected_chunks={len(selected)} used_tokens~={taken_tokens}")
+        except Exception:
+            pass
+        header = "[CONNECTORS]" if sid == "connectors" else f"[SOURCE {sid}]"
+        assembled_parts.append(header + "\n" + "\n\n".join(selected))
+
+    final_text = "\n\n".join(assembled_parts)
+    try:
+        logger.info(f"[ASSEMBLER] final_assembled_chars={len(final_text)} final_assembled_tokens~={_count_tokens(final_text, enc)}")
+    except Exception:
+        pass
+    return final_text
+
+# ---- Context merging utilities ----
+def merge_source_contexts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+    merged: Dict[str, Any] = {
+        "file_summaries": [],
+        "file_contents": [],
+        "folder_contexts": [],
+        "key_topics": [],
+        "metadata": {}
+    }
+    for ctx in (a or {}, b or {}):
+        if not isinstance(ctx, dict):
+            continue
+        merged["file_summaries"].extend(ctx.get("file_summaries") or [])
+        merged["file_contents"].extend(ctx.get("file_contents") or [])
+        merged["folder_contexts"].extend(ctx.get("folder_contexts") or [])
+        merged["key_topics"].extend(ctx.get("key_topics") or [])
+        # carry through connector raw content if present
+        if ctx.get("extracted_raw_content"):
+            # Represent connector raw as a synthetic source block
+            merged["file_contents"].append(ctx["extracted_raw_content"])
+    # Deduplicate topics
+    merged["key_topics"] = list(dict.fromkeys(merged["key_topics"]))
+    return merged
+
+async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = "gpt-4o-mini", wizard_payload: dict = None):
     """
     Stream response using OpenAI with enhanced context from Onyx file extraction.
+    
+    Args:
+        prompt: The wizard message containing WIZARD_REQUEST and JSON payload
+        file_context: File context extracted from Onyx
+        product_type: Type of product being generated
+        model: OpenAI model to use
+        wizard_payload: Optional wizard payload dict for loading product-specific instructions
     """
     try:
         # Build enhanced prompt with file context
@@ -12548,7 +14109,7 @@ async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any]
         logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
         
         # Use OpenAI with enhanced prompt
-        async for chunk_data in stream_openai_response(enhanced_prompt, model):
+        async for chunk_data in stream_openai_response(enhanced_prompt, model, wizard_payload=wizard_payload):
             yield chunk_data
             
     except Exception as e:
@@ -13740,15 +15301,35 @@ Return ONLY the JSON object.
                 )
         # Add fast path for presentations (Slide Deck and Video Lesson Presentation) 
         elif selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION]:
+            # Try to use originalJsonResponse if available (from frontend preview)
+            json_to_parse = None
+            if hasattr(project_data, 'originalJsonResponse') and project_data.originalJsonResponse:
+                logger.info(f"[FAST_PATH_DEBUG] Using originalJsonResponse from frontend (length: {len(project_data.originalJsonResponse)})")
+                json_to_parse = project_data.originalJsonResponse
+            else:
+                logger.info(f"[FAST_PATH_DEBUG] No originalJsonResponse, using aiResponse (length: {len(project_data.aiResponse)})")
+                json_to_parse = project_data.aiResponse
+            
             try:
                 # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw AI response for presentation:")
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(project_data.aiResponse)} characters")
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {project_data.aiResponse[:500]}")
-                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {project_data.aiResponse[-500:]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw JSON for presentation:")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(json_to_parse)} characters")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {json_to_parse[:500]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {json_to_parse[-500:]}")
                 
-                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Presentation: {project_data.aiResponse[:200]}...")
-                cached_json = json.loads(project_data.aiResponse.strip())
+                # Try to parse JSON with better error handling
+                cleaned_json = json_to_parse.strip()
+                # Remove markdown code blocks if present
+                if cleaned_json.startswith('```json'):
+                    cleaned_json = cleaned_json[7:]
+                elif cleaned_json.startswith('```'):
+                    cleaned_json = cleaned_json[3:]
+                if cleaned_json.endswith('```'):
+                    cleaned_json = cleaned_json[:-3]
+                cleaned_json = cleaned_json.strip()
+                
+                logger.info(f"[FAST_PATH_DEBUG] Attempting to parse JSON (cleaned length: {len(cleaned_json)})...")
+                cached_json = json.loads(cleaned_json)
                 logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
                 if isinstance(cached_json, dict) and "slides" in cached_json:
                     slides = cached_json.get('slides', [])
@@ -13801,6 +15382,15 @@ Return ONLY the JSON object.
                     except Exception as _cleanup_err:
                         logger.debug(f"[FAST_PATH_DEBUG] Failed to strip preview fields: {_cleanup_err}")
                     
+                    # Validate slide count if slidesCount was provided
+                    if hasattr(project_data, 'slidesCount') and project_data.slidesCount and project_data.slidesCount > 0:
+                        actual_slide_count = len(slides)
+                        requested_count = project_data.slidesCount
+                        if actual_slide_count != requested_count:
+                            logger.warning(f"[SLIDE_COUNT_VALIDATION] Mismatch: requested {requested_count} slides, but got {actual_slide_count} slides")
+                            # Don't reject - just log warning. The AI might have generated a different count
+                            # In future, we could add retry logic here
+                    
                     parsed_content_model_instance = SlideDeckDetails(**cached_json)
                     logger.info(f"[FAST_PATH_DEBUG] SlideDeckDetails created successfully with {len(parsed_content_model_instance.slides)} slides")
                 else:
@@ -13814,15 +15404,218 @@ Return ONLY the JSON object.
                         target_json_example=llm_json_example
                     )
             except (json.JSONDecodeError, KeyError, Exception) as e:
-                logger.info(f"[FAST_PATH] Presentation JSON validation failed ({e}), falling back to LLM parsing")
-                parsed_content_model_instance = await parse_ai_response_with_llm(
-                    ai_response=project_data.aiResponse,
-                    project_name=project_data.projectName,
-                    target_model=target_content_model,
-                    default_error_model_instance=default_error_instance,
-                    dynamic_instructions=component_specific_instructions,
-                    target_json_example=llm_json_example
-                )
+                error_msg = str(e)
+                logger.info(f"[FAST_PATH] Presentation JSON validation failed ({error_msg}), attempting recovery...")
+                
+                # Try to fix common JSON issues
+                if "Unterminated string" in error_msg or "Expecting" in error_msg:
+                    logger.info(f"[FAST_PATH_RECOVERY] Attempting to fix truncated/malformed JSON...")
+                    try:
+                        # Try to find and close unclosed strings/objects
+                        # Look for the last complete slide object
+                        fixed_json = cleaned_json
+                        # If error mentions a character position, try to truncate at last complete object
+                        if "char" in error_msg:
+                            import re
+                            char_match = re.search(r'char (\d+)', error_msg)
+                            if char_match:
+                                error_pos = int(char_match.group(1))
+                                # Try to find last complete slide before error position
+                                # Look backwards for closing brace of last slide
+                                last_slide_end = cleaned_json.rfind('}', 0, error_pos)
+                                if last_slide_end > 0:
+                                    # Try to reconstruct JSON by closing arrays/objects
+                                    partial_json = cleaned_json[:last_slide_end + 1]
+                                    
+                                    # Remove any trailing incomplete field (e.g., "description": or "description": "incomplete)
+                                    # Look for the last complete field before the closing brace
+                                    # Find the last complete key-value pair
+                                    last_comma = partial_json.rfind(',', 0, last_slide_end)
+                                    if last_comma > 0:
+                                        # Check if there's an incomplete field after the last comma
+                                        after_comma = partial_json[last_comma + 1:last_slide_end].strip()
+                                        # If after comma looks like start of a field but incomplete, remove it
+                                        if after_comma and (':' in after_comma or after_comma.startswith('"')):
+                                            # Check if the field is complete (has a value)
+                                            if ':' in after_comma:
+                                                field_parts = after_comma.split(':', 1)
+                                                if len(field_parts) == 2:
+                                                    value = field_parts[1].strip()
+                                                    # If value is incomplete (starts with quote but doesn't end, or empty, or just whitespace)
+                                                    if (value.startswith('"') and not value.endswith('"')) or value == '' or (value and not value.endswith('"') and not value.endswith(',') and not value.endswith('}')):
+                                                        # Remove the incomplete field by truncating at the last comma
+                                                        partial_json = partial_json[:last_comma]
+                                                        # Find the new last slide end
+                                                        last_slide_end = partial_json.rfind('}', 0, len(partial_json))
+                                                        if last_slide_end < 0:
+                                                            # No closing brace found, this is a problem
+                                                            raise ValueError("Cannot reconstruct valid slide structure")
+                                                        partial_json = partial_json[:last_slide_end + 1]
+                                    
+                                    # Additional check: ensure the last property before closing brace is complete
+                                    # Look for patterns like "prop": value\n       } which might be missing comma
+                                    # Find the text before the last closing brace
+                                    before_last_brace = partial_json[:last_slide_end].rstrip()
+                                    # Check if it ends with a value (quote, number, true/false/null, or closing bracket/brace)
+                                    if before_last_brace:
+                                        # Check last non-whitespace characters
+                                        last_chars = before_last_brace.rstrip(' \n\r\t')
+                                        # If it doesn't end with a valid JSON value terminator, might be incomplete
+                                        valid_terminators = ['"', '}', ']', ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'e', 'l', 'u', 'e']  # covers strings, objects, arrays, numbers, true/false/null
+                                        if last_chars and not any(last_chars.endswith(term) for term in ['"', '}', ']', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                                            # Might be incomplete - try to find a safer truncation point
+                                            # Look for the last complete property that ends properly
+                                            # Find the last complete property-value pair
+                                            safer_comma = partial_json.rfind(',', 0, last_slide_end - 10)  # Look a bit before the end
+                                            if safer_comma > 0:
+                                                # Check if the part after this comma looks complete
+                                                after_safer = partial_json[safer_comma + 1:last_slide_end].strip()
+                                                # If it has a complete property (key:value), use it
+                                                if ':' in after_safer and after_safer.count('"') >= 2:
+                                                    # This looks like a complete property, truncate here
+                                                    partial_json = partial_json[:safer_comma]
+                                                    last_slide_end = partial_json.rfind('}', 0, len(partial_json))
+                                                    if last_slide_end > 0:
+                                                        partial_json = partial_json[:last_slide_end + 1]
+                                    
+                                    # Check if we're inside the slides array (look for "slides": [ before this position)
+                                    slides_array_start = cleaned_json.find('"slides": [', 0, min(len(partial_json), last_slide_end + 1))
+                                    if slides_array_start >= 0:
+                                        # We're inside the slides array, need to:
+                                        # 1. Close the current slide's object (already done by last_slide_end)
+                                        # 2. Close the slides array with ]
+                                        # 3. Close the root object with }
+                                        # Count open/close braces and brackets in the partial JSON up to last_slide_end
+                                        partial_up_to_slide = partial_json[:last_slide_end + 1]
+                                        open_braces = partial_up_to_slide.count('{')
+                                        close_braces = partial_up_to_slide.count('}')
+                                        # Count open/close brackets for arrays
+                                        open_brackets = partial_up_to_slide.count('[')
+                                        close_brackets = partial_up_to_slide.count(']')
+                                        
+                                        # Check what comes after last_slide_end in the original JSON
+                                        # to see if slides array and root are already closed
+                                        after_slide_end = cleaned_json[last_slide_end + 1:error_pos].strip()
+                                        # If there's already closing brackets/braces, we might not need to add them
+                                        if after_slide_end.startswith(']'):
+                                            # Slides array already closed, just close root if needed
+                                            if open_braces > close_braces:
+                                                partial_json += '}'
+                                        elif after_slide_end.startswith(']}'):
+                                            # Both already closed - don't add anything
+                                            pass
+                                        else:
+                                            # Need to close slides array and root
+                                            # Close slides array first if needed
+                                            if open_brackets > close_brackets:
+                                                partial_json += ']'
+                                            # Then close the root object
+                                            if open_braces > close_braces:
+                                                partial_json += '}'
+                                    else:
+                                        # Not in slides array yet, just close objects
+                                        open_braces = partial_json.count('{')
+                                        close_braces = partial_json.count('}')
+                                        if open_braces > close_braces:
+                                            partial_json += '}'
+                                    
+                                    # Before trying to parse, ensure proper JSON structure
+                                    # Remove trailing whitespace/newlines that might cause issues
+                                    partial_json = partial_json.rstrip(' \n\r\t')
+                                    
+                                    # If the last character before closing braces is not a quote, number, or closing bracket,
+                                    # we might have an incomplete value - try to remove the last property
+                                    if partial_json and partial_json[-1] == '}':
+                                        # Find the position of the last closing brace
+                                        brace_pos = len(partial_json) - 1
+                                        # Look backwards for the opening brace of this object
+                                        depth = 0
+                                        obj_start = brace_pos
+                                        for i in range(brace_pos, -1, -1):
+                                            if partial_json[i] == '}':
+                                                depth += 1
+                                            elif partial_json[i] == '{':
+                                                depth -= 1
+                                                if depth == 0:
+                                                    obj_start = i
+                                                    break
+                                        # Check the content before the closing brace
+                                        obj_content = partial_json[obj_start + 1:brace_pos]
+                                        # If it ends with a newline/whitespace and no valid terminator, might be incomplete
+                                        obj_content_stripped = obj_content.rstrip(' \n\r\t')
+                                        if obj_content_stripped and not any(obj_content_stripped.endswith(c) for c in ['"', '}', ']', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                                            # Last property might be incomplete - remove it
+                                            last_comma_in_obj = obj_content.rfind(',')
+                                            if last_comma_in_obj > 0:
+                                                # Truncate at the last comma
+                                                partial_json = partial_json[:obj_start + 1 + last_comma_in_obj] + '}'
+                                                # Re-find last_slide_end
+                                                last_slide_end = partial_json.rfind('}')
+                                                if last_slide_end < 0:
+                                                    raise ValueError("Cannot reconstruct valid structure")
+                                    
+                                    logger.info(f"[FAST_PATH_RECOVERY] Attempting to parse fixed JSON (length: {len(partial_json)})...")
+                                    logger.info(f"[FAST_PATH_RECOVERY] Last 200 chars of fixed JSON: {partial_json[-200:]}")
+                                    fixed_cached = json.loads(partial_json)
+                                    if isinstance(fixed_cached, dict) and "slides" in fixed_cached:
+                                        logger.info(f"[FAST_PATH_RECOVERY] Successfully fixed JSON! Found {len(fixed_cached.get('slides', []))} slides")
+                                        # Use fixed JSON - process it the same way as normal parsing
+                                        cached_json = fixed_cached
+                                        slides = cached_json.get('slides', [])
+                                        
+                                        # Strip preview-only fields before model construction (same as normal path)
+                                        try:
+                                            slides_list = cached_json.get('slides') or []
+                                            for s in slides_list:
+                                                if isinstance(s, dict) and 'previewKeyPoints' in s:
+                                                    s.pop('previewKeyPoints', None)
+                                        except Exception as _cleanup_err:
+                                            logger.debug(f"[FAST_PATH_RECOVERY] Failed to strip preview fields: {_cleanup_err}")
+                                        
+                                        # Validate slide count if slidesCount was provided
+                                        if hasattr(project_data, 'slidesCount') and project_data.slidesCount and project_data.slidesCount > 0:
+                                            actual_slide_count = len(slides)
+                                            requested_count = project_data.slidesCount
+                                            if actual_slide_count != requested_count:
+                                                logger.warning(f"[FAST_PATH_RECOVERY] [SLIDE_COUNT_VALIDATION] Mismatch: requested {requested_count} slides, but got {actual_slide_count} slides")
+                                        
+                                        # Create model instance
+                                        parsed_content_model_instance = SlideDeckDetails(**cached_json)
+                                        logger.info(f"[FAST_PATH_RECOVERY] SlideDeckDetails created successfully with {len(parsed_content_model_instance.slides)} slides")
+                                        # Successfully parsed recovered JSON - will skip LLM parsing below
+                                    else:
+                                        raise ValueError("Fixed JSON doesn't have slides field")
+                                else:
+                                    raise ValueError("Cannot find valid slide structure")
+                            else:
+                                raise ValueError("Cannot extract error position")
+                        else:
+                            raise ValueError("Error message doesn't contain position info")
+                    except (ValueError, json.JSONDecodeError) as recovery_error:
+                        logger.warning(f"[FAST_PATH_RECOVERY] Recovery attempt failed: {recovery_error}")
+                        # Continue to LLM parsing fallback
+                    except Exception as recovery_error:
+                        # If we successfully recovered, parsed_content_model_instance is set
+                        # Check if it was set
+                        if 'parsed_content_model_instance' in locals() and parsed_content_model_instance is not None:
+                            logger.info(f"[FAST_PATH_RECOVERY] Successfully recovered from JSON error, using recovered JSON")
+                            # Don't fall through to LLM parsing
+                            pass
+                        else:
+                            logger.warning(f"[FAST_PATH_RECOVERY] Recovery attempt failed: {recovery_error}")
+                            # Continue to LLM parsing fallback
+                
+                # If recovery didn't work or wasn't attempted, fall back to LLM parsing
+                if 'parsed_content_model_instance' not in locals() or parsed_content_model_instance is None:
+                    logger.info(f"[FAST_PATH] Falling back to LLM parsing after JSON validation/recovery failure")
+                    parsed_content_model_instance = await parse_ai_response_with_llm(
+                        ai_response=project_data.aiResponse,
+                        project_name=project_data.projectName,
+                        target_model=target_content_model,
+                        default_error_model_instance=default_error_instance,
+                        dynamic_instructions=component_specific_instructions,
+                        target_json_example=llm_json_example
+                    )
         else:
             parsed_content_model_instance = await parse_ai_response_with_llm(
                 ai_response=project_data.aiResponse,
@@ -16524,8 +18317,9 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
     actual_paths = []
     
     for item in smartdrive_paths:
-        # Check if this is a numeric string (direct Onyx file ID from products-as-context)
-        if item.strip().isdigit():
+        token = item.strip()
+        # Treat as direct Onyx ID only if token is strictly digits and not a path-like value
+        if token.isdigit() and not any(ch in token for ch in ['/', '%', '+', '.', '-']):
             direct_onyx_ids.append(int(item.strip()))
             logger.info(f"[SMARTDRIVE_MAPPING] Detected direct Onyx file ID: {item}")
         else:
@@ -17181,7 +18975,19 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     else:
                         # For connector-based filtering only, extract context from specific connectors
                         logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
+                            if file_ids:
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -17449,7 +19255,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
             
             try:
                 logger.info(f"[OPENAI_STREAM_DEBUG] Starting to iterate over chunks")
-                async for chunk_data in stream_openai_response(enhanced_wizard_message):
+                async for chunk_data in stream_openai_response(enhanced_wizard_message, wizard_payload=wiz_payload):
                     logger.info(f"[OPENAI_STREAM_DEBUG] Received chunk: {chunk_data.get('type', 'unknown')}")
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
@@ -17904,7 +19710,7 @@ async def extract_company_metadata_from_website(website_content: str, company_we
             logger.info(f"📊 [WEBSITE SCRAPING] Extracted company metadata: {company_data}")
             return company_data
         except json.JSONDecodeError:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
             return {
                 "employees": "Unknown",
                 "franchise": "Unknown",
@@ -22081,8 +23887,8 @@ async def generate_company_specific_fallback_positions(company_name: str, langua
             logger.info(f"💼 [WEBSITE SCRAPING] Generated {len(formatted_positions)} company-specific fallback positions")
             return formatted_positions
         except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             # Language-specific generic fallback
             if language == "en":
                 return [
@@ -22239,8 +24045,8 @@ async def extract_job_positions_from_website_content(website_content: str, compa
             logger.info(f"💼 [WEBSITE SCRAPING] Extracted {len(job_positions)} job positions from website")
             return job_positions
         except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
+            logger.warning(f"WARNING: [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             return []
         
     except Exception as e:
@@ -22421,7 +24227,7 @@ async def generate_and_finalize_course_outline_for_position(
     prompt = json.dumps(wizard_request, ensure_ascii=False)
 
     outline_text = ""
-    async for chunk_data in stream_openai_response(prompt):
+    async for chunk_data in stream_openai_response(prompt, wizard_payload={"product": "Course Outline"}):
         if chunk_data.get("type") == "delta":
             outline_text += chunk_data["text"]
         elif chunk_data.get("type") == "error":
@@ -22985,7 +24791,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             try:
                 # Use OpenAI streaming for finalization instead of Onyx
                 logger.info(f"[FINALIZE_OPENAI_STREAM] ✅ USING OPENAI DIRECT STREAMING for finalization")
-                async for chunk_data in stream_openai_response(wizard_message):
+                async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -23958,6 +25764,8 @@ class LessonWizardFinalize(BaseModel):
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     editedSlides: Optional[List[Dict[str, Any]]] = None
+    # NEW: original JSON response from preview (for fast-path parsing)
+    originalJsonResponse: Optional[str] = None
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -24269,7 +26077,8 @@ MANDATORY PREVIEW UI REQUIREMENT:
 - Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
+- **MANDATORY SLIDE COUNT (GENERAL CASE)**: You SHOULD generate EXACTLY the requested number of slides. Count your slides before finishing to ensure you meet the target.
+- **OVERRIDE WHEN fromFiles=true**: SOURCE FIDELITY comes first. If any slide cannot be populated with source-backed content, DO NOT create that slide. It is acceptable to output fewer slides than requested. NEVER output placeholders like "No content", "N/A", or empty/whitespace-only bullets just to meet the count. Remove such slides and RENUMBER the remaining slides.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -24416,6 +26225,7 @@ Always specify: realistic workplace, professional attire, authentic tools/equipm
 Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
+**VALIDATION CHECK**: Before outputting your final JSON, count the slides in the slides[] array. If the count does not match slidesCount, you MUST adjust immediately. The system will reject responses with incorrect slide counts.
 
 🚨 IMAGE PROMPT VALIDATION 🚨
 Before finalizing your JSON output, verify that ALL visual templates have the required image prompt properties:
@@ -24465,8 +26275,8 @@ Template Catalog with required props and usage:
   • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each.
 - process-steps: title, steps[]
   • Usage: sequential workflow; 3–5 labeled steps in a row.
-- four-box-grid: title, boxes[] (heading,text or title,content)
-  • Usage: 2×2 grid of highlights; four concise boxes.
+- problems-grid: tag, title, cards[] (number,title,body), rightText, [avatarPath]
+  • Usage: 2×2 grid of problems/challenges with narrative context and avatar.
 - timeline: title, events[] (date,title,description)
   • Usage: chronological milestones; left-to-right progression. Do not use event-list.
 - big-numbers: title, subtitle, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
@@ -24493,7 +26303,7 @@ CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
 - Prioritize variety: use different templates for different content types to maintain visual interest.
 - Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
-- NEVER use big-image-left or big-image-top templates after slide 1. Use bullet-points-right, four-box-grid, or other content-rich templates instead.
+- NEVER use big-image-left or big-image-top templates after slide 1. Use bullet-points-right, problems-grid, or other content-rich templates instead.
 """
         else:
             json_preview_instructions += f"""
@@ -24516,6 +26326,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
+- **CRITICAL ENFORCEMENT**: Before finalizing your JSON output, you MUST count the slides in the slides[] array. If the count does not match the requested slidesCount parameter, you MUST add or remove slides until the count is EXACTLY correct. This validation is mandatory and your response will be rejected if the count is wrong.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -24533,7 +26344,37 @@ General Rules:
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
+VIDEO LESSON TEMPLATE DIVERSITY (CRITICAL - MAINTAIN VARIETY):
+- You MUST use a wide variety of templates from the 18 available video lesson templates below.
+- DO NOT repeat the same template unless absolutely necessary for content structure.
+- For typical video lessons (5-15 slides), aim to use each template AT MOST ONCE or TWICE.
 
+RECOMMENDED TEMPLATE DISTRIBUTION:
+- Start with: course-overview-slide (opening/welcome)
+- Content slides: Use diverse templates that fit your content:
+  * phishing-definition-slide (for definitions and key concepts)
+  * impact-statements-slide (for statistics and metrics)
+  * culture-values-three-columns-slide (for 3-part content)
+  * percent-circles (for percentage-based data)
+  * benefits-list-slide (for listing benefits/features)
+  * dei-methods-slide (for methodologies)
+  * company-tools-resources-slide (for tools/resources)
+  * ai-pharma-market-growth-slide (for growth/trend data)
+  * critical-thinking-slide (for analytical content)
+  * benefits-tags-slide (for tag-style benefits)
+  * kpi-update-slide (for KPI/metrics updates)
+  * phishing-rise-slide (for rising trends/statistics)
+  * problems-grid (for challenges/problems in 2x2 grid)
+  * solution-steps-slide (for step-by-step solutions)
+  * soft-skills-assessment-slide (for tips/recommendations)
+  * hybrid-work-best-practices-slide (for best practices)
+- End with: work-life-balance-slide (conclusion/next steps)
+
+TEMPLATE SELECTION GUIDELINES:
+- Prioritize templates that best express your content structure
+- Use specialty templates when content naturally fits (e.g., percent-circles for percentage data)
+- Avoid defaulting to the same template repeatedly
+- Match template to content type (statistics → impact-statements-slide, definitions → phishing-definition-slide, etc.)
 
 PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
 Based on presentation design best practices, follow these rules for selecting appropriate images:
@@ -24574,8 +26415,9 @@ Based on presentation design best practices, follow these rules for selecting ap
 Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
 If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
 After generation, verify your slides[] array has the correct length. This is a critical requirement.
+**VALIDATION CHECK**: Before outputting your final JSON, count the slides in the slides[] array. If the count does not match slidesCount, you MUST adjust immediately. The system will reject responses with incorrect slide counts.
 
-EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 18 TEMPLATES ALLOWED):
 
 - course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
   • Purpose: Opening slide for course introduction with strong visual impact
@@ -24609,6 +26451,38 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
   • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
 
+- culture-values-three-columns: title, leftTitle, leftText, middleTitle, middleText, rightTitle, rightText, [middlePanelColor], [avatarPath], [logoPath]
+  • Purpose: Present organizational culture, values, policies, or three-pillar concepts with structured content
+  • Structure: Top bar with logo and title, three equal columns with colored middle panel and avatar display
+  • Required props: title (main heading), leftTitle/leftText (first pillar), middleTitle/middleText (central concept), rightTitle/rightText (third pillar)
+  • Visual elements: middlePanelColor (accent color for middle column), avatarPath (instructor/representative image), logoPath (branding)
+  • Usage: Explain company culture, organizational values, policy frameworks, or any three-part conceptual structure
+  • Content guidelines: 
+    - CRITICAL TEXT LENGTH: Each column's text (leftText, middleText, rightText) MUST be comprehensive and detailed (100-120 words / 600-700 characters each)
+    - DO NOT write short summaries - each column should provide thorough explanation with specific examples, benefits, and implementation details
+    - Each column should present a distinct but related concept with depth and substance
+    - Middle column often serves as the central/primary concept and should be particularly detailed
+    - Include concrete examples of how each value/policy is implemented in practice
+    - Explain WHY each pillar is important and HOW it impacts the organization
+    - Maintain consistent depth and professional tone across all three sections
+    - Think of each column as a mini-essay that fully explores the topic, not just a brief description
+
+- percent-circles: title, percent, bottomCards[] (array of {{value, text, hasArrow}}), [avatarPath], [logoPath], [logoText], [pageNumber]
+  • Purpose: Present statistical data with visual percentage circles and supporting statistics cards
+  • Structure: Top section with title and 10 circles (1 filled with percentage + 9 empty), avatar display, bottom section with two statistics cards
+  • Required props: title (main heading, supports multiline), percent (percentage value like "10%"), bottomCards (EXACTLY 2 items with 'value' field and 'text' field, optional 'hasArrow' boolean)
+  • Visual elements: avatarPath (instructor/representative image), logoPath (branding), logoText (contextual label)
+  • Usage: Display key statistics, percentage data, diversity metrics, or comparative statistics with visual emphasis
+  • Content guidelines: Title should clearly state what percentage represents; percent should be a meaningful statistic; bottomCards should provide supporting context or related statistics; use hasArrow: true for the most important secondary statistic
+
+- benefits-list-slide: title, subtitle, description, benefits[] (array of strings), [profileImagePath], [currentStep], [totalSteps], [companyName], [logoNew], [pageNumber]
+  • Purpose: Present comprehensive lists of benefits, features, or items with professional layout and navigation indicators
+  • Structure: Top section with blue gradient background containing title/subtitle/description and navigation squares, profile image, bottom section with benefits list in 3-column grid
+  • Required props: title (main heading), subtitle (category/subject), description (introductory text), benefits (array of 6+ benefit strings)
+  • Visual elements: profileImagePath (instructor/representative image), currentStep/totalSteps (navigation indicators), logoNew (company branding)
+  • Usage: Display employee benefits, product features, service offerings, compliance requirements, or any comprehensive list with professional presentation
+  • Content guidelines: Title should be clear and specific; subtitle should categorize the content; description should introduce the list; benefits should be concise but descriptive; maintain consistent formatting across all list items
+
 - work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
   • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
   • Structure: Content-rich slide with gradient background, visual arch design, and avatar display for lengthy text
@@ -24617,29 +26491,284 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
   • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
 
-MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
-- Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
-  1. FIRST SLIDE: course-overview-slide (Welcome and course introduction)
-  2. SECOND SLIDE: impact-statements-slide (Key statistics and impact metrics)
-  3. THIRD SLIDE: phishing-definition-slide (Core definitions and concepts)
-  4. FOURTH SLIDE: soft-skills-assessment-slide (Critical tips and recommendations)
-  5. FIFTH SLIDE: work-life-balance-slide (Conclusion and next steps)
-- NO template repetition allowed - each template used EXACTLY ONCE
-- NO additional slides beyond these 5 - maintain strict 5-slide structure
-- NO substitutions - you must use these exact 5 templates in this exact order
-- This structure ensures comprehensive coverage: Introduction → Data → Education → Application → Conclusion
+
+- dei-methods: headerTitle, section1Title, section1Lines[] (array of 2 strings), section2Title, section2Lines[] (array of 2 strings), [avatarPath], [logoPath], [logoText]
+  • Purpose: Present two key methods/sections with concise bullet lines under each
+  • Structure: Gradient header with title, two content sections with headings and two lines each, optional avatar and logo
+  • Required props: headerTitle (slide heading), section1Title/section1Lines (exactly 2 lines), section2Title/section2Lines (exactly 2 lines)
+  • Visual elements: avatarPath (speaker image), logoPath/logoText (branding)
+  • Usage: Summarize methods, approaches, or policies in two focused sections
+  • Content guidelines: Keep lines concise; ensure each section contains two clear, actionable lines
+
+- company-tools-resources-slide: title, sections[] (array of {{title, content, backgroundColor, textColor}}), [profileImagePath], [companyLogoPath]
+  • Purpose: Present key internal tools and resources in a 2x2 grid layout
+  • Structure: Blue header with logo and title; four content blocks alternating background styles
+  • Required props: title; sections (ideally 4) with title and content strings
+  • Visual elements: profileImagePath (speaker image), companyLogoPath (branding)
+  • Usage: Summarize communication, project management, L&D, or other internal resources
+  • Content guidelines: Keep section titles concise; content can be short paragraphs or lists
+  • MANDATORY: sections array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
+  • CRITICAL TEXT LENGTH: Each section's content MUST be comprehensive (85-100 words / 500-600 characters)
+
+- ai-pharma-market-growth-slide: title, bars[] (array of {{year, label, widthPercent}}), [doctorImagePath], [panelBackgroundColor], [pageNumber]
+  • Purpose: Display progressive growth or timeline data with horizontal bar chart
+  • Structure: Rounded light panel with title, horizontal bars showing year labels and values, optional right image
+  • Required props: title (multiline heading), bars (array with year, label like "$10 million", widthPercent 0-100)
+  • Visual elements: doctorImagePath (right-side image), panelBackgroundColor (defaults to light blue)
+  • Usage: Show market growth, revenue progression, or any timeline-based metrics
+  • Content guidelines: Title can include line breaks; bars should be chronological; labels should be clear monetary/metric values
+
+- critical-thinking-slide: title, content, highlightedPhrases[] (array of strings), [profileImagePath], [companyLogoPath], [pageNumber]
+  • Purpose: Present key concept with highlighted phrases for emphasis
+  • Structure: Light panel with circular profile background, title, and content with highlighted key phrases
+  • Required props: title (multiline heading), content (paragraph text), highlightedPhrases (array of 2-4 phrase strings to highlight)
+  • Visual elements: profileImagePath (profile image with colored background), companyLogoPath (branding)
+  • Usage: Introduce core concepts, highlight critical thinking skills, or emphasize important ideas
+  • Content guidelines: Title supports line breaks; content should be 2-3 sentences; highlightedPhrases should be exact substrings from content
+
+- benefits-tags-slide: title, tags[] (array of {{text, isHighlighted}}), [profileImagePath], [companyLogoPath], [pageNumber]
+  • Purpose: Display benefits or key concepts as visual tags with emphasis on one highlighted tag
+  • Structure: Light panel with circular profile background, title, and 6 tags in 3 rows (3-2-1 layout)
+  • Required props: title (main heading), tags (EXACTLY 6 tag objects with text and isHighlighted boolean)
+  • Visual elements: profileImagePath (profile image with gradient background), companyLogoPath (branding)
+  • Usage: Present benefits, key features, values, or concepts with visual emphasis on the most important one
+  • Content guidelines:
+    - MANDATORY: tags array MUST contain EXACTLY 6 items (not 5, not 7 - exactly 6)
+    - CRITICAL TEXT LENGTH: Each tag.text MUST be 1-2 words MAXIMUM - NO EXCEPTIONS
+      * PREFERRED: Single word (e.g., "Efficiency", "Security", "Innovation")
+      * ACCEPTABLE: Two-word compound terms (e.g., "Cost Savings", "Time Management", "Data Protection")
+      * FORBIDDEN: Three or more words (e.g., "Better Business Decisions" , "Improved Team Communication" )
+    - Tags should be concise benefit names or key concept labels
+    - Set isHighlighted: true for EXACTLY ONE tag (typically the last/most important one)
+    - All other tags should have isHighlighted: false
+    - Think of tags as hashtags or single-concept labels, not full phrases or sentences
+    - Examples of good tags: "Scalability", "ROI", "Productivity", "Cost Reduction", "Growth", "Innovation"
+    - Examples of bad tags: "Better decision making process", "Increased customer satisfaction", "Improved workflow efficiency"
+
+- kpi-update-slide: title, items[] (array of {{value, description}}), [profileImagePath], [footerLeft], [footerCenter], [footerRight], [pageNumber]
+  • Purpose: Present KPI metrics with large values and detailed descriptions
+  • Structure: Light panel with title pill, grid layout of values and descriptions, profile image in bottom-left
+  • Required props: title (report name), items (EXACTLY 4 KPI objects with numeric value and description text)
+  • Visual elements: profileImagePath (profile image with blue background), footer text for company/report/date
+  • Usage: Display key performance indicators, metrics reports, or quantified results
+  • Content guidelines:
+    - MANDATORY: items array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
+    - CRITICAL VALUE FORMAT: Each item.value MUST be a NUMERIC metric - NEVER use words or text labels
+      * REQUIRED: Values must contain numbers (digits 0-9)
+      * ACCEPTABLE formats:
+        - Percentages: "15%", "92.5%", "100%"
+        - Integers: "50", "127", "1000"
+        - Decimals: "3.2", "45.8", "99.9"
+        - Large numbers with suffixes: "1.5M", "2.8M", "500K", "3.5B"
+        - Currency: "$50M", "€2.5K", "£100K"
+        - Ratios: "3:1", "95:5"
+      * FORBIDDEN formats:
+        - Text labels: "High" , "Excellent" , "Strong" 
+        - Words: "Many" , "Most" , "Few" 
+        - Qualitative terms: "Significant" , "Improved" 
+    - Maintain consistent formatting across all 4 KPIs for professional appearance
+
+- phishing-rise-slide: title, description, bars[] (array of {{year, valueLabel, height}}), [actorImagePath], [pageNumber]
+  • Purpose: Show trend data or threat growth with vertical bar chart
+  • Structure: Two-column layout with narrative on left (light blue panel) and bar chart on right (white panel)
+  • Required props: title (main heading), description (detailed 3-4 sentence narrative), bars (array of 3-4 bars MAXIMUM with year, valueLabel, height)
+  • Visual elements: actorImagePath (avatar in left panel with blue background)
+  • Usage: Display threat trends, security incidents, growth patterns, or any vertical bar chart data showing progression over time
+  • Content guidelines:
+    - MANDATORY: bars array MUST contain 3-4 items MAXIMUM (NEVER more than 4)
+      * 3 bars: Minimum for showing meaningful trend
+      * 4 bars: OPTIMAL for visual clarity and trend demonstration
+      * 5+ bars: FORBIDDEN - creates visual clutter and reduces readability
+    - Title: Keep concise (2-5 words) describing the trend or threat
+    - CRITICAL DESCRIPTION LENGTH: description MUST be 20-30 words (150-200 characters)
+
+- problems-grid: tag, title, cards[] (array of {{number, title, body}}), rightText, [avatarPath], [pageNumber]
+  • Purpose: Present key challenges, problems, or issues in a structured 2x2 grid layout with narrative context
+  • Structure: Tag badge at top, large title, four problem cards in 2x2 grid, right-side narrative text, and avatar display
+  • Required props: tag (category label like "The problem"), title (main heading), cards (EXACTLY 4 items with number, title, and body fields), rightText (comprehensive narrative explaining the problems)
+  • Visual elements: avatarPath (instructor/representative image), pageNumber (slide numbering)
+  • Usage: Identify challenges, present problems, showcase issues, or highlight critical concerns requiring attention
+  • Content guidelines: 
+    - MANDATORY: cards array MUST contain EXACTLY 4 items (not 3, not 5 - exactly 4)
+    - CRITICAL CARD TITLE LENGTH: Each card.title MUST be 1-2 words MAXIMUM (NEVER 3 or more words)
+      * PREFERRED: Single word (e.g., "Scalability", "Security", "Costs")
+      * ACCEPTABLE: Two-word compound terms (e.g., "Data Privacy", "Team Alignment", "Budget Constraints")
+      * FORBIDDEN: Three or more words (e.g., "Lack of Resources" ❌, "Poor Team Communication" ❌)
+    - Card number: Sequential numbering ("1", "2", "3", "4")
+    - Card body: Detailed explanation (15-25 words / 100-150 characters per card)
+    - Tag should be concise (1-3 words) identifying the category (e.g., "The Problem", "Key Challenges", "Issues")
+    - Title should clearly state what problems are being presented (3-5 words)
+    - rightText MUST be comprehensive (30-40 words / 200-250 characters) explaining the interconnected nature of problems or their overall significance
+    - Maintain consistent depth and professional tone across all four problem cards
+
+- solution-steps-slide: subtitle, title, steps[] (array of {{title, description}}), [profileImagePath], [logoNew], [pageNumber]
+  • Purpose: Present sequential solution steps with visual timeline
+  • Structure: Subtitle chip, main title, profile image, horizontal timeline with circles, and step descriptions below
+  • Required props: subtitle (category like "The Solution"), title (main heading), steps (EXACTLY 3 steps with title and description)
+  • Visual elements: profileImagePath (profile image with blue background), logoNew (branding), timeline with connecting circles
+  • Usage: Show step-by-step guides, sequential solutions, process workflows, or implementation phases
+  • Content guidelines:
+    - MANDATORY: steps array MUST contain EXACTLY 3 items (not 2, not 4 - exactly 3)
+    - Step title format: Use "Step 1", "Step 2", "Step 3" or similar sequential numbering
+    - CRITICAL DESCRIPTION LENGTH: Each step.description MUST be very concise (3-5 words MAXIMUM)
+      * REQUIRED: Keep descriptions ultra-short - they are labels, not explanations
+      * ACCEPTABLE examples: "Know the Regulations" (3 words), "Conduct Risk Assessments" (3 words), "Implement Security Measures" (3 words)
+      * FORBIDDEN: Long sentences or detailed explanations (e.g., "Conduct a comprehensive risk assessment across all departments" ❌)
+    - Think of descriptions as action labels or phase names, not detailed instructions
+    - The visual timeline displays these steps horizontally with connecting circles
+    - Steps should follow logical sequence: preparation → execution → validation/completion
+    - Use imperative verbs for descriptions: "Assess", "Implement", "Monitor", "Validate", "Deploy"
+
+- hybrid-work-best-practices-slide: title, subtitle, mainStatement, practices[] (array of {{number, title, description}}), [profileImagePath], [teamImagePath], [logoPath], [logoText], [pageNumber]
+  • Purpose: Present best practices or recommendations in a 2x2 grid with supporting statement
+  • Structure: Tag with title, main statement, 4 numbered practices in grid, profile image, and team image
+  • Required props: title (category tag), mainStatement (introductory statement), practices (EXACTLY 4 items with number, title, description)
+  • Visual elements: profileImagePath (profile with blue background), teamImagePath (team photo in bottom-right), logoPath/logoText (branding)
+  • Usage: Display best practices, recommendations, guidelines, or key principles
+  • Content guidelines: Keep practice titles concise; descriptions should be actionable; maintain consistent length across all 4 practices
+
+
 
 VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.
 - Use inclusive language ("we", "you", "let's"), smooth transitions, and approximately 30–60 seconds speaking time per slide.
 - The root object MUST include hasVoiceover: true.
 """
+        # Prepend a strict guard when generating from files to avoid any contradiction
+        has_file_context = bool(
+            getattr(payload, 'fromFiles', None) or
+            getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None) or
+            (getattr(payload, 'fromConnectors', None) and (getattr(payload, 'connectorSources', None) or getattr(payload, 'selectedFiles', None)))
+        )
+        if has_file_context:
+            files_guard = """
+
+FILES-ONLY MODE (OVERRIDE GUARD):
+When file context is present, you MUST use ONLY content that appears in the provided sources. All educational guidance below (explanations, scenarios, examples, images, diversity targets, etc.) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT it. Do NOT add general-knowledge facts, scenarios, named entities (companies, tools, programs, certifications), or any numbers not present in the sources. Do NOT extend topics with your own knowledge (e.g., pricing model variants, security playbooks, industry case studies, future trends). If a topic would require knowledge beyond the sources, OMIT that slide. If a strict slide count MUST be met and the only alternative is using general knowledge, repeat existing source-backed topics with new phrasing as a last resort. Fidelity overrides length and slide-count targets.
+
+"""
+            json_preview_instructions = files_guard + json_preview_instructions
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | has_file_context={has_file_context} | fromFiles={getattr(payload, 'fromFiles', None)} | fileIds={getattr(payload, 'fileIds', None)} | folderIds={getattr(payload, 'folderIds', None)} | fromConnectors={getattr(payload, 'fromConnectors', None)} | selectedFiles={getattr(payload, 'selectedFiles', None)}")
+            except Exception:
+                pass
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][presentation] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard)} | instr_len={len(json_preview_instructions)}")
+            except Exception:
+                pass
+
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
     except Exception as e:
         logger.warning(f"[PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+    
+    # Add ABSOLUTE FINAL fidelity rules if generating from files
+    # These override ANY previous instructions about adding scenarios, case studies, etc.
+    if payload.fromFiles:
+        wizard_message += """
+
+═══════════════════════════════════════════════════════════════════════════
+🚨🚨🚨 ABSOLUTE FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS RULES 🚨🚨🚨
+═══════════════════════════════════════════════════════════════════════════
+
+YOU ARE GENERATING FROM FILES. THIS CHANGES EVERYTHING.
+
+CRITICAL: When fromFiles=true, the "INCLUDE REAL WORKPLACE SCENARIOS" instruction means:
+- Use scenarios ONLY if they appear in the source files
+- DO NOT invent scenarios to meet educational quality requirements
+- DO NOT add case studies unless they are explicitly in the source
+
+ABSOLUTE PROHIBITIONS (OVERRIDE ALL PREVIOUS "INCLUDE" INSTRUCTIONS):
+❌ NEVER add "Netflix", "Airbnb", "NASA", "GE" case studies unless in source
+❌ NEVER add "ISO 27001", "PCI DSS", "HIPAA" compliance unless in source
+❌ NEVER add "AWS Certified" certifications unless in source
+❌ NEVER add support plan details unless in source
+❌ NEVER add specific percentages or durability metrics unless in source
+❌ NEVER add IAM features or security best practices unless in source
+❌ NEVER invent "real workplace scenarios" - use ONLY scenarios from source
+
+TEMPLATE DIVERSITY WITH SOURCE FIDELITY - BOTH ARE MANDATORY:
+🚨 CRITICAL: Fidelity does NOT excuse poor diversity! You MUST satisfy BOTH requirements:
+
+STEP 1: ANALYZE SOURCE CONTENT STRUCTURE
+Before selecting templates, scan the source and identify:
+□ Are there problems + solutions mentioned? → USE challenges-solutions
+□ Are there sequential steps or processes? → USE process-steps
+□ Are there 2 things being compared/contrasted? → USE two-column
+□ Are there 4 related concepts or categories? → USE four-box-grid
+□ Are there chronological events or timeline info? → USE timeline
+□ Are there hierarchical levels or foundations? → USE pyramid
+□ Are there 3 key metrics or achievements? → USE big-numbers (with qualitative values)
+□ Is there a table structure in source? → USE table-dark or table-light
+
+STEP 2: MAP CONTENT TO DIVERSE TEMPLATES
+✅ For each section of content, ask: "What template BEST represents this structure?"
+✅ Even simple lists can use: two-column (split list), four-box-grid (group of 4), six-ideas-list (6 items)
+✅ Comparison content? → two-column or table, NOT bullet-points
+✅ Process/workflow content? → process-steps or timeline, NOT bullet-points
+✅ Problem/solution content? → challenges-solutions, NOT bullet-points
+
+STEP 3: COUNT AND VERIFY
+Before finalizing, count your templates:
+□ How many bullet-points slides? (Must be ≤ 2)
+□ How many bullet-points-right slides? (Must be ≤ 2)
+□ Total bullet-point slides? (Combined must be ≤ 2)
+□ How many different template types? (Must be ≥ 3 for small, ≥ 8 for large presentations)
+
+CRITICAL ENFORCEMENT:
+❌ If you have 3+ bullet-point slides: FAIL - Go back and convert them to appropriate templates
+❌ If you have only 2-3 template types total: FAIL - Find more structure in the source content
+✅ Even with sparse source, you can achieve diversity by:
+   - Splitting content across two-column instead of bullets
+   - Grouping into four-box-grid instead of bullets
+   - Using big-numbers with qualitative values instead of bullets
+   - Using process-steps for any sequential information
+   - Using challenges-solutions for any problems mentioned
+
+EXAMPLES OF CONVERTING BULLET-POINTS TO DIVERSE TEMPLATES:
+❌ BAD: "Key Benefits" with 4 bullets → Use bullet-points-right
+✅ GOOD: "Key Benefits" with 4 bullets → Use four-box-grid (each benefit in a box)
+
+❌ BAD: "Services Overview" with 6 bullets → Use bullet-points
+✅ GOOD: "Services Overview" with 6 bullets → Use six-ideas-list template
+
+❌ BAD: "Comparing Options A vs B" with bullets → Use bullet-points-right
+✅ GOOD: "Comparing Options A vs B" → Use two-column (A on left, B on right)
+
+❌ BAD: "Step-by-step guide" with bullets → Use bullet-points
+✅ GOOD: "Step-by-step guide" → Use process-steps template
+
+THE RULE IS: Maximum 2 bullet-point slides, period. No exceptions, even for sparse content.
+
+FINAL VERIFICATION:
+□ Did I add any case studies not in source? → DELETE THEM
+□ Did I add any compliance standards not in source? → DELETE THEM
+□ Did I add any certifications not in source? → DELETE THEM
+□ Did I add any specific metrics/percentages not in source? → DELETE THEM
+□ Did I use more than 2 bullet-point slides? → CONVERT THEM
+
+THIS IS YOUR LAST CHECKPOINT. VERIFY NOW BEFORE GENERATING.
+"""
+        logger.info(f"[PRESENTATION_FIDELITY] Added ABSOLUTE FINAL fidelity rules for fromFiles=true")
+
+    # FINAL ABSOLUTE OVERRIDE (placed LAST for recency bias)
+    if payload.fromFiles:
+        wizard_message += """
+
+FINAL ABSOLUTE OVERRIDE (fromFiles=true)
+
+You MUST use ONLY the provided source content. Do NOT add content from general knowledge.
+DELETE any slide or bullet that cannot be traced to the sources. If a slide would contain placeholders like "No content", "N/A", or fewer than 2 meaningful bullets from sources, DELETE the slide and RENUMBER. It is acceptable to output fewer slides than requested. Do NOT add named companies, tools, programs, certifications, frameworks, or case studies unless explicitly named in sources. Do NOT invent numbers/percentages/budgets/timeframes.
+
+"""
 
     async def streamer():
+        estimated_tokens_per_slide = 800 if is_video_lesson else 500
+        requested_slides = wizard_dict.get('slidesCount', 5)
+        calculated_max_tokens = (estimated_tokens_per_slide * requested_slides) + 2000  # +2000 for JSON structure/metadata
+        # Cap at reasonable maximum (e.g., 32k for gpt-4-turbo)
+        max_tokens_for_stream = min(calculated_max_tokens, 32000)
+
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
@@ -24841,7 +26970,13 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 chunks_received = 0
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation", model="gpt-4o-mini"):
+                async for chunk_data in stream_hybrid_response(
+                    wizard_message,
+                    file_context,
+                    "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation",
+                    model="gpt-4o-mini",
+                    wizard_payload=wizard_dict
+                ):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -24866,6 +27001,69 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 if chat_id:
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for {'video lesson' if is_video_lesson else 'lesson'} presentation:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
+
+                # For lesson presentations, parse JSON and validate slide count
+                if is_video_lesson or payload.productType == "lesson_presentation":
+                    try:
+                        import re
+                        json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+                        if json_match:
+                            json_text = json_match.group()
+                            parsed_json = json.loads(json_text)
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                            if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                                slides = parsed_json['slides']
+                                actual_count = len(slides)
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
+                                
+                                # VALIDATION AND FIXING: Apply presentation validation and fixes
+                                logger.info(f"🔍 [PRESENTATION_VALIDATION] Validating slide deck for common issues...")
+                                validation_issues = validate_presentation_slides(slides)
+                                
+                                # Log all validation issues
+                                total_issues = sum(len(issues) for issues in validation_issues.values())
+                                if total_issues > 0:
+                                    logger.warning(f"⚠️ [PRESENTATION_VALIDATION] Found {total_issues} validation issues:")
+                                    for category, issues in validation_issues.items():
+                                        if issues:
+                                            logger.warning(f"⚠️ [PRESENTATION_VALIDATION] {category}: {issues}")
+                                    
+                                    # Apply fixes automatically
+                                    logger.info(f"🔧 [PRESENTATION_FIXING] Applying automatic fixes...")
+                                    slides = fix_presentation_issues(slides)
+                                    parsed_json['slides'] = slides  # Update the parsed JSON with fixed slides
+                                    logger.info(f"✅ [PRESENTATION_FIXING] Automatic fixes applied successfully")
+                                else:
+                                    logger.info(f"✅ [PRESENTATION_VALIDATION] No validation issues found")
+                                
+                                # Validate slide count matches request
+                                requested_count = wizard_dict.get('slidesCount', 5)
+                                if actual_count != requested_count:
+                                    logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
+                                else:
+                                    logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
+                                
+                                for i, slide in enumerate(slides):
+                                    if isinstance(slide, dict):
+                                        template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                                        slide_title = slide.get('slideTitle', 'NO_TITLE')
+                                        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                                        if 'voiceoverText' in slide:
+                                            voiceover = slide['voiceoverText']
+                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                            else:
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+                        else:
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+                    except Exception as e:
+                        logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
                 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
@@ -24882,7 +27080,7 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             try:
                 chunks_received = 0
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wizard_dict):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -24907,6 +27105,69 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 if chat_id:
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for {'video lesson' if is_video_lesson else 'lesson'} presentation:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
+
+                # For lesson presentations, parse JSON and validate slide count
+                if is_video_lesson or payload.productType == "lesson_presentation":
+                    try:
+                        import re
+                        json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+                        if json_match:
+                            json_text = json_match.group()
+                            parsed_json = json.loads(json_text)
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                            if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                                slides = parsed_json['slides']
+                                actual_count = len(slides)
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
+                                
+                                # VALIDATION AND FIXING: Apply presentation validation and fixes
+                                logger.info(f"🔍 [PRESENTATION_VALIDATION] Validating slide deck for common issues...")
+                                validation_issues = validate_presentation_slides(slides)
+                                
+                                # Log all validation issues
+                                total_issues = sum(len(issues) for issues in validation_issues.values())
+                                if total_issues > 0:
+                                    logger.warning(f"⚠️ [PRESENTATION_VALIDATION] Found {total_issues} validation issues:")
+                                    for category, issues in validation_issues.items():
+                                        if issues:
+                                            logger.warning(f"⚠️ [PRESENTATION_VALIDATION] {category}: {issues}")
+                                    
+                                    # Apply fixes automatically
+                                    logger.info(f"🔧 [PRESENTATION_FIXING] Applying automatic fixes...")
+                                    slides = fix_presentation_issues(slides)
+                                    parsed_json['slides'] = slides  # Update the parsed JSON with fixed slides
+                                    logger.info(f"✅ [PRESENTATION_FIXING] Automatic fixes applied successfully")
+                                else:
+                                    logger.info(f"✅ [PRESENTATION_VALIDATION] No validation issues found")
+                                
+                                # Validate slide count matches request
+                                requested_count = wizard_dict.get('slidesCount', 5)
+                                if actual_count != requested_count:
+                                    logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
+                                else:
+                                    logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
+                                
+                                for i, slide in enumerate(slides):
+                                    if isinstance(slide, dict):
+                                        template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                                        slide_title = slide.get('slideTitle', 'NO_TITLE')
+                                        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                                        if 'voiceoverText' in slide:
+                                            voiceover = slide['voiceoverText']
+                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                            else:
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+                        else:
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+                    except Exception as e:
+                        logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
                 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
@@ -24915,81 +27176,6 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-
-        # Cache full raw outline for later finalize step
-        if chat_id:
-            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
-            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
-
-        modules_preview = _parse_outline_markdown(assistant_reply)
-        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
-        # Send completion packet with the parsed outline.
-        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-
-        # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for video lesson presentation:")
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
-        
-        # Try to extract and log JSON structure if present
-        try:
-            import re
-            json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
-            if json_match:
-                json_text = json_match.group()
-                parsed_json = json.loads(json_text)
-                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
-                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
-                if isinstance(parsed_json, dict) and 'slides' in parsed_json:
-                    slides = parsed_json['slides']
-                    actual_count = len(slides)
-                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
-                    
-                    # VALIDATION AND FIXING: Apply presentation validation and fixes
-                    logger.info(f"🔍 [PRESENTATION_VALIDATION] Validating slide deck for common issues...")
-                    validation_issues = validate_presentation_slides(slides)
-                    
-                    # Log all validation issues
-                    total_issues = sum(len(issues) for issues in validation_issues.values())
-                    if total_issues > 0:
-                        logger.warning(f"⚠️ [PRESENTATION_VALIDATION] Found {total_issues} validation issues:")
-                        for category, issues in validation_issues.items():
-                            if issues:
-                                logger.warning(f"⚠️ [PRESENTATION_VALIDATION] {category}: {issues}")
-                        
-                        # Apply fixes automatically
-                        logger.info(f"🔧 [PRESENTATION_FIXING] Applying automatic fixes...")
-                        slides = fix_presentation_issues(slides)
-                        parsed_json['slides'] = slides  # Update the parsed JSON with fixed slides
-                        logger.info(f"✅ [PRESENTATION_FIXING] Automatic fixes applied successfully")
-                    else:
-                        logger.info(f"✅ [PRESENTATION_VALIDATION] No validation issues found")
-                    
-                    # Validate slide count matches request
-                    requested_count = wizard_dict.get('slidesCount', 5)
-                    if actual_count != requested_count:
-                        logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
-                    else:
-                        logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
-                    
-                    for i, slide in enumerate(slides):
-                        if isinstance(slide, dict):
-                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
-                            slide_title = slide.get('slideTitle', 'NO_TITLE')
-                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
-                            if 'voiceoverText' in slide:
-                                voiceover = slide['voiceoverText']
-                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
-                else:
-                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
-            else:
-                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
-        except Exception as e:
-            logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
-
-        yield (json.dumps(done_packet) + "\n").encode()
-
     return StreamingResponse(streamer(), media_type="text/plain")
 
 
@@ -25050,7 +27236,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         )
                         # Collect once-off response
                         regenerated_text = ""
-                        async for chunk in stream_openai_response(wizard_message):
+                        async for chunk in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                             if chunk.get("type") == "delta":
                                 regenerated_text += chunk.get("text", "")
                         cleaned = regenerated_text.strip()
@@ -25153,7 +27339,9 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
             theme=payload.theme,  # Pass selected theme
             source_context_type=source_context_type,
-            source_context_data=source_context_data
+            source_context_data=source_context_data,
+            originalJsonResponse=payload.originalJsonResponse,  # Pass original JSON for fast-path parsing
+            slidesCount=payload.slidesCount  # Pass slides count for validation
         )
         
         # Create project with proper error handling
@@ -30045,7 +32233,22 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                 if payload.fromConnectors and payload.connectorSources:
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    # If specific SmartDrive files were also selected, map and extract them too, then merge
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        # Reuse existing mapping flow
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)  # best-effort using /me
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
+                            if file_ids:
+                                logger.info(f"[HYBRID_CONTEXT] Extracting context from mapped files (count={len(file_ids)}) and merging with connector context")
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -30203,7 +32406,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -30313,7 +32516,7 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         # NEW: Use OpenAI directly for quiz editing
         logger.info(f"[QUIZ_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for quiz editing")
         try:
-            async for chunk_data in stream_openai_response(wizard_message):
+            async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
                     assistant_reply += delta_text
@@ -30948,11 +33151,11 @@ CRITICAL REQUIREMENTS:
 # Pedagogical elements: Mental models, worked examples, common mistakes, decision frameworks
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "Steps to Conduct Effective Market Analysis",
+  "textTitle": "[TOPIC NAME] - Comprehensive Guide",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO MARKET ANALYSIS" },
-    { "type": "paragraph", "text": "Market analysis is a crucial skill in the corporate world, enabling businesses to make informed decisions, understand their competitors, and identify new opportunities. It involves collecting, analyzing, and interpreting data about the market, including sales growth, trends, and patterns. By mastering market analysis, businesses can make informed decisions, identify new opportunities, understand their competitors, and anticipate future market conditions. This presentation delves into the steps necessary for effective market analysis, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
-    { "type": "paragraph", "text": "The fundamental challenge every business faces is understanding not just what the market looks like today, but how it will evolve and where the best opportunities lie. Market analysis transforms raw data and observations into strategic insights that drive decision-making. By the end of this guide, you'll have a systematic framework for conducting thorough market analysis that uncovers opportunities others miss." },
+    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO [YOUR TOPIC]" },
+    { "type": "paragraph", "text": "[Your topic] is a crucial skill/concept in [your domain], enabling practitioners to [key benefits and outcomes]. It involves [core activities and processes]. By mastering [your topic], professionals can [specific achievements and capabilities]. This lesson delves into [your topic] with a structured approach, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
+    { "type": "paragraph", "text": "The fundamental challenge every practitioner faces is understanding not just the basic concepts, but how to apply them effectively in real-world situations. This guide provides you with a systematic framework for [mastering your topic] that goes beyond theory to practical application. By the end of this lesson, you'll have [specific outcomes related to your topic]." },
     
     { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
     { "type": "paragraph", "text": "Before diving into the steps, let's establish a common vocabulary. Market Analysis is the process of gathering, interpreting, and utilizing information about a market, including trends, competitor behavior, and customer preferences. Understanding this concept helps stakeholders align on objectives and methodology. Market Size refers to the volume or value of a specific market, indicating potential sales opportunities. This metric helps businesses assess whether a market is worth entering and how much they can realistically capture. Market Growth is the rate at which a market's size is increasing over time, reflecting industry health and future potential. High-growth markets attract more investment but also more competition, making timing critical." },
@@ -31080,25 +33283,23 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     },
     { "type": "paragraph", "text": "Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
     
-    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: SaaS Company Analyzing Healthcare Market" },
-    { "type": "paragraph", "text": "Let's walk through a complete market analysis example to see how these steps work in practice." },
+    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: Applying [YOUR TOPIC] in a Real Scenario" },
+    { "type": "paragraph", "text": "Let's walk through a complete, topic-specific example to see how the concepts work in practice. Replace all placeholders with details appropriate to the user's topic. Do not switch to market analysis unless the topic itself is market/competitive strategy." },
     
     { "type": "headline", "level": 3, "text": "Background and Situation" },
-    { "type": "paragraph", "text": "TechFlow is a SaaS company with $10M annual revenue, currently selling project management software to technology companies. They're considering entering the healthcare vertical. Their board wants analysis to support a go/no-go decision within three months. The team has $50K budget for research and two analysts dedicated to the project." },
+    { "type": "paragraph", "text": "[Organization/Context] is working on [your topic outcome]. Constraints: [time/budget/team], Environment: [relevant stack/process], Objective: [clear success criterion tied to the topic]." },
     
-    { "type": "headline", "level": 3, "text": "Step-by-Step Analysis" },
-    { "type": "paragraph", "text": "Step 1 - Define Market Scope: The team initially considered 'healthcare project management' but realized this was too broad—hospitals have completely different needs than medical practices or pharmaceutical companies. After preliminary research, they narrowed to: 'Project management software for clinical research teams at mid-size pharmaceutical and biotech companies (500-5000 employees) in North America.' This specificity made the analysis manageable and insights actionable." },
-    { "type": "paragraph", "text": "Step 2 - Collect Data: Secondary research included three industry reports ($15K total) showing clinical trial management market dynamics, FDA databases showing number of clinical trials and sponsors, and competitor websites and case studies. Primary research included 30 interviews with clinical research managers, attending two industry conferences, and surveying 120 clinical research professionals on LinkedIn. Total research cost: $45K (under budget)." },
-    { "type": "paragraph", "text": "Step 3 - Analyze Market Size: TAM (all clinical trial project management globally): $2.3B. SAM (mid-size pharma/biotech, North America only): $380M. SOM (realistic capture in 3 years given competition): $15-25M. This SOM was calculated by estimating 200 target companies, 40% reachable through their channels, 25% conversion rate (based on their historical performance in tech), at $30K average annual contract value. The SOM range ($15-25M) accounts for uncertainty in conversion rates." },
-    { "type": "paragraph", "text": "Step 4 - Identify Trends: Three major trends identified: (1) FDA increasing scrutiny of clinical trial data management, creating demand for better documentation and audit trails (regulatory driver). (2) Rise of decentralized clinical trials requiring coordination across more dispersed teams (technology and COVID-driven). (3) Growing emphasis on trial speed as cost of delays increases, particularly for biotech companies with finite runway (economic driver). These trends converged to increase willingness-to-pay for better project management tools." },
-    { "type": "paragraph", "text": "Step 5 - Competitive Analysis: Four main competitors identified: TrialMaster (market leader, enterprise-focused, $100K+ deals, strong with large pharma), Medidata (comprehensive suite, expensive, long implementation), SmallPharma PM (budget option, limited features, $10K/year), and Excel + Email (surprisingly common among mid-size companies, free but inefficient). Gap identified: No solution optimized for mid-size companies that want more than Excel but can't afford or don't need enterprise solutions like Medidata. TechFlow's sweet spot—they've built a business on serving the mid-market that enterprises ignore and startups can't profitably serve." },
-    { "type": "paragraph", "text": "Step 6 - Customer Needs: Interviews revealed clinical research managers' biggest frustrations: (1) Compliance burden—every project change requires extensive documentation for FDA audits, (2) Cross-functional coordination—clinical trials involve medical, regulatory, data management, and operations teams that don't communicate well, (3) Visibility—leadership constantly asks 'when will the trial complete?' but answering requires manually aggregating data from multiple systems. Current solutions either don't address these needs (Excel) or are overkill with features they don't need (enterprise systems). TechFlow's existing strength in visual project timelines and stakeholder communication directly addresses needs #2 and #3." },
+    { "type": "headline", "level": 3, "text": "Step-by-Step Application" },
+    { "type": "paragraph", "text": "Step 1 – Frame the problem using a topic-appropriate model: [e.g., for AWS: workload requirements → reliability, performance, cost]. Identify inputs, constraints, and non-functional requirements tied to [your topic]." },
+    { "type": "paragraph", "text": "Step 2 – Apply the core procedures for [your topic]: [list the concrete steps, e.g., for AWS: choose regions/AZs, VPC design, service selection, IAM, networking, data storage, security]. Justify each choice with trade-offs." },
+    { "type": "paragraph", "text": "Step 3 – Execute a focused analysis aligned to the topic: [e.g., for AWS: capacity estimates, cost modeling, scaling strategy, failure domains]. Use measurements or realistic assumptions; avoid business-market frameworks unless topic is strategy." },
+    { "type": "paragraph", "text": "Step 4 – Validate and iterate: define tests/metrics to confirm success (e.g., for AWS: latency SLOs, error budgets, cost per request, recovery time). Capture lessons to inform the final recommendation." },
     
-    { "type": "headline", "level": 3, "text": "Synthesis and Decision" },
-    { "type": "paragraph", "text": "Market Attractiveness: High. Growing market ($380M SAM, 12% annual growth), strong willingness-to-pay driven by regulatory and economic pressures, clear competitive gap in the mid-market segment. Competitive Advantage: Medium-High. TechFlow's core strengths (visual project management, cross-functional collaboration, mid-market focus) align well with identified needs. However, they lack healthcare domain expertise and compliance features. Risk: Entering a regulated industry requires compliance investment and longer sales cycles than their current tech market. Recommendation: Enter the market with a focused pilot—target 5-10 mid-size biotech customers to validate assumptions before full launch. Build compliance features (audit trails, user permissions, data retention) into roadmap. Hire one clinical research expert as product advisor. Budget $2M for year-one investment with expectation of $3-5M revenue by year three. This staged approach allows learning while limiting risk." },
+    { "type": "headline", "level": 3, "text": "Decision and Rationale" },
+    { "type": "paragraph", "text": "Recommend a concrete plan specific to [your topic] with explicit trade-offs. Example (AWS): 'Use EC2 + ALB + RDS (Multi-AZ) with S3 for assets and CloudWatch alarms; chosen for reliability ≥99.9%, p95 latency <200ms, monthly budget <$X. Alternatives considered: [alt], rejected due to [reason].'" },
     
     { "type": "headline", "level": 3, "text": "Key Lessons from This Example" },
-    { "type": "paragraph", "text": "First, market definition narrowing was crucial. 'Healthcare' → 'Clinical Research' → 'Mid-size Pharma/Biotech' → 'North America' transformed an impossibly broad analysis into an actionable one. Second, primary research revealed insights secondary research couldn't—the Excel + Email finding only emerged from customer interviews, yet it was critical for understanding the actual competition. Third, connecting customer needs to existing strengths is how you identify genuine competitive advantages rather than wishful thinking. TechFlow didn't need to be better at everything, just better at what mattered most to their target segment. Finally, staged entry reduces risk—the pilot approach lets them test assumptions with limited investment before full commitment." },
+    { "type": "paragraph", "text": "Focus on topic-appropriate frameworks and artifacts. Keep analysis within the boundaries of [your topic]. Avoid PESTLE/Five Forces/market-entry unless the topic is market strategy. Document assumptions, risks, and validation results tied directly to the topic's success criteria." },
     
     { "type": "headline", "level": 2, "text": "❌ ANALYZING COMMON MISTAKES IN DEPTH" },
     { "type": "paragraph", "text": "Understanding what NOT to do is as valuable as knowing best practices. Let's examine the most frequent and costly mistakes in market analysis with detailed analysis of why they happen and how to avoid them." },
@@ -31133,62 +33334,29 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
       ]
     },
     
-    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply Your Learning" },
-    { "type": "paragraph", "text": "Now let's test your understanding with a realistic scenario. Work through this analysis using the frameworks and steps you've learned." },
+    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply [YOUR TOPIC]" },
+    { "type": "paragraph", "text": "Now test your understanding with a realistic, topic-specific scenario. Complete the tasks using the frameworks and steps you've learned for [your topic] — do not switch to business or market analysis unless the topic itself is market strategy." },
     
-    { "type": "paragraph", "text": "**Scenario**: GlobalSensors Inc. manufactures industrial sensors ($500/unit) primarily for automotive manufacturing (70% of revenue) and aerospace (30% of revenue). Total revenue: $25M annually. They're considering entering the agricultural technology market. Your task is to conduct a preliminary market analysis." },
+    { "type": "paragraph", "text": "**Scenario**: You are working on [your topic]. You have the following context: [brief, topic-appropriate setup with concrete details]. Your goal is to apply [topic frameworks/techniques] to decide on the next best actions and explain your reasoning." },
     
-    { "type": "headline", "level": 3, "text": "Available Data" },
+    { "type": "headline", "level": 3, "text": "What You Have" },
     { "type": "bullet_list", "items": [
-      "Agricultural technology market size: $12B globally, growing at 8% annually.",
-      "Three major competitors control 60% combined market share: AgriTech Solutions, FarmSense, and CropMonitor. Pricing ranges from $300-$800 per unit.",
-      "Your sensors have tighter tolerances (0.1mm vs. industry standard 0.2mm) but most agricultural applications don't require that precision.",
-      "GlobalSensors has zero existing agricultural customer relationships or distribution channels.",
-      "Sales cycles: Current business 3-6 months, agricultural sector typically 6-12 months.",
-      "Agricultural customers are highly price-sensitive and seasonal in their purchasing."
+      "[Data point A relevant to the topic]",
+      "[Data point B relevant to the topic]",
+      "[Constraint or requirement relevant to the topic]",
+      "[Tooling or resources available relevant to the topic]"
     ] },
     
-    { "type": "headline", "level": 3, "text": "Your Analysis Tasks" },
+    { "type": "headline", "level": 3, "text": "Your Tasks" },
     { "type": "numbered_list", "items": [
-      "Define the specific target market (don't just say 'agriculture').",
-      "Identify the first data you would collect and explain why (top 5 priorities).",
-      "List the 3 biggest risks for this market entry.",
-      "Using Five Forces, assess two forces that concern you most.",
-      "State the conditions that would make you recommend NOT entering this market."
+      "Outline your approach using [topic-appropriate framework or steps].",
+      "Perform the key analysis or design steps and state assumptions.",
+      "Identify 2-3 risks or trade-offs and how you'd mitigate them.",
+      "Provide a concrete recommendation with justification tied to the data."
     ] },
     
-    { "type": "headline", "level": 3, "text": "Expert Analysis" },
-    { "type": "headline", "level": 4, "text": "Market Definition" },
-    { "type": "paragraph", "text": "Don't target 'agriculture' broadly—too diverse. Focus on 'precision agriculture for large commercial farms (1,000+ acres) in North America growing commodity crops (corn, soybeans, wheat).' Rationale: large farms have budget for optimization technology; commodity crops have thin margins making efficiency gains valuable; North America leverages existing geographic footprint. Exclude: small farms (limited budget), specialty crops (different needs), and international markets initially (regulatory and distribution complexity)." },
-    { "type": "headline", "level": 4, "text": "Data Collection Priorities" },
-    { "type": "numbered_list", "items": [
-      "Interview 20-30 large farm operators to understand sensor needs, buying process, and pain points (critical primary research).",
-      "Analyze competitors' positioning and segments from websites, case studies, and reviews to identify strengths/gaps.",
-      "Talk to 5-10 agricultural equipment distributors to understand channel dynamics (you'll need distribution).",
-      "Attend two agricultural technology conferences to observe buying behavior and network with potential customers.",
-      "Commission a focused industry report on precision agriculture sensor adoption rates and barriers to validate target segment size."
-    ] },
-    { "type": "headline", "level": 4, "text": "Top 3 Risks" },
-    { "type": "numbered_list", "items": [
-      "Channel risk: no agricultural distribution relationships; building them takes 12-18 months against entrenched competitors.",
-      "Product-market fit risk: your precision differentiator isn't valued; customers optimize for price and durability over tolerances.",
-      "Sales cycle risk: 6-12 month cycles (vs. current 3-6) + seasonal purchasing windows strain cash flow and slow iteration."
-    ] },
-    { "type": "headline", "level": 4, "text": "Five Forces Concerns" },
-    { "type": "bullet_list", "items": [
-      "Bargaining Power of Buyers: HIGH — price-sensitive commodity farmers see sensors as commoditized; switching is easy → margin pressure.",
-      "Threat of Substitutes: MEDIUM-HIGH — traditional methods (observation, experience, simple instruments) remain viable 'good enough' alternatives."
-    ] },
-    { "type": "headline", "level": 4, "text": "Conditions for No-Go" },
-    { "type": "numbered_list", "items": [
-      "Customer interviews show no willingness to pay for precision advantage.",
-      "Distribution partners demand exclusivity/minimums that conflict with current business.",
-      "Realistic SOM < $5M in three years — insufficient to justify channel investment and distraction.",
-      "Active price wars with margin compression — race to the bottom is value-destructive.",
-      "Regulatory/liability risks (crop yield impact) exceed current insurance coverage."
-    ] },
-    { "type": "headline", "level": 4, "text": "Recommendation" },
-    { "type": "paragraph", "text": "Likely NO-GO unless a specific niche emerges. Core issues: precision isn't valued, distribution is missing, and dynamics favor price competition. Potential pivot: target agricultural research institutions and university programs (value precision, different buying processes) as a beachhead before commercial expansion; validate separately." },
+    { "type": "headline", "level": 3, "text": "Walkthrough Solution (Expert Reasoning)" },
+    { "type": "paragraph", "text": "Explain your reasoning step-by-step using [topic frameworks/techniques], referencing the provided data. Keep it specific to [your topic]; do not introduce market-entry, PESTLE, or Five Forces unless the topic is market strategy." },
     
     { "type": "alert", "alertType": "info", "title": "Key Takeaway", "text": "Market analysis is an ongoing process, not a one-time task. Regularly revisiting and updating your analysis ensures that your business strategies remain aligned with market realities and ahead of competitive forces. The most successful companies treat market analysis as a continuous learning system that informs every major decision." },
     
@@ -31644,6 +33812,49 @@ CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
 
+⚠️⚠️⚠️ CRITICAL WARNING ABOUT THE EXAMPLE ABOVE: ⚠️⚠️⚠️
+The example shows "Market Analysis" as the TOPIC being taught.
+🚨 "Market Analysis" is just ONE example topic - YOU MUST REPLACE IT WITH YOUR ACTUAL TOPIC! 🚨
+
+THE EXAMPLE TOPIC: "Market Analysis" (teaching how to analyze markets)
+YOUR ACTUAL TOPIC: [Whatever the user requested - AI in Sales, AWS, Python, etc.]
+
+DO NOT THINK: "I need to do market analysis of [my topic]"
+INSTEAD THINK: "I need to teach [my topic] using the same structure the example used"
+
+IF YOUR TOPIC IS "AI in Sales":
+❌ DO NOT create: "Market Analysis of AI in Sales" or "How to analyze the AI sales market"
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, agricultural scenarios, market entry analysis
+✅ CREATE: "AI in Sales" lesson teaching Sales Funnel, Lead Scoring, CRM integration, AI chatbot deployment
+✅ USE: AI sales scenarios, CRM examples, lead scoring case studies, sales automation workflows
+
+IF YOUR TOPIC IS "AWS":
+❌ DO NOT create: "Market Analysis of AWS" or "How to analyze the cloud market"
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, market analysis frameworks
+✅ CREATE: "AWS" lesson teaching cloud architecture, services, best practices
+✅ USE: Well-Architected Framework, EC2/S3/RDS examples, cost optimization scenarios, cloud migration case studies
+
+IF YOUR TOPIC IS "Python Programming":
+❌ DO NOT create: "Market Analysis of Python" or business strategy content
+❌ DO NOT use: GlobalSensors, PESTLE, Five Forces, market/business frameworks
+✅ CREATE: "Python Programming" lesson teaching syntax, best practices, design patterns
+✅ USE: Code examples, testing pyramid, refactoring scenarios, debugging case studies
+
+THE EXAMPLE SHOWS YOU:
+✅ How to STRUCTURE content (paragraph-heavy, worked examples, decision frameworks)
+✅ How to ORGANIZE sections (mental models, skill practice, common mistakes)
+✅ What QUALITY looks like (60-100 word bullets, detailed analysis, Bloom's Taxonomy)
+
+THE EXAMPLE DOES NOT SHOW YOU:
+❌ What CONTENT to use - adapt all content to YOUR topic
+❌ What FRAMEWORKS to use - select topic-appropriate frameworks
+❌ What SCENARIOS to create - create scenarios about YOUR topic
+
+VERIFICATION BEFORE GENERATING:
+□ Are my frameworks appropriate for THIS topic? (Not PESTLE/Five Forces unless topic is business strategy)
+□ Are my scenarios about THIS topic? (Not GlobalSensors/market entry unless topic is market strategy)
+□ Would a user recognize this is about THEIR topic?
+
 The example above demonstrates 90+ quality score with:
 - Proper paragraph-heavy structure (not list-heavy)
 - Bloom's Taxonomy progression
@@ -31685,10 +33896,35 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
+        # Prepend strict files-only guard to one-pager preview instructions when generating from files
+        has_file_context_text = bool(
+            getattr(payload, 'fromFiles', None) or
+            getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None) or
+            (getattr(payload, 'fromConnectors', None) and (getattr(payload, 'connectorSources', None) or getattr(payload, 'selectedFiles', None)))
+        )
+        if has_file_context_text:
+            files_guard_text = """
+
+FILES-ONLY MODE (OVERRIDE GUARD for Text Presentation):
+When fromFiles=true, you MUST use ONLY content that appears in the provided sources. All educational guidance below (examples, frameworks, practice, common mistakes, procedures, recommendations, numbers) applies ONLY if fully supported by the sources. If a requirement is not supported by the sources, OMIT the entire section. Do NOT add general-knowledge facts, named entities (companies, tools, programs, certifications), worked examples, or ANY numbers/percentages unless they appear verbatim in the sources. Fidelity overrides length and density targets.
+
+"""
+            json_preview_instructions_text = files_guard_text + json_preview_instructions_text
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | has_file_context={has_file_context_text} | fromFiles={getattr(payload, 'fromFiles', None)} | fileIds={getattr(payload, 'fileIds', None)} | folderIds={getattr(payload, 'folderIds', None)} | fromConnectors={getattr(payload, 'fromConnectors', None)} | selectedFiles={getattr(payload, 'selectedFiles', None)}")
+            except Exception:
+                pass
+            try:
+                logger.info(f"[FILES_ONLY_GUARD][onepager] applied=True | fromFiles={getattr(payload, 'fromFiles', None)} | guard_len={len(files_guard_text)} | instr_len={len(json_preview_instructions_text)}")
+            except Exception:
+                pass
+
         wizard_message = wizard_message + json_preview_instructions_text
         logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+    
+    # Onepager fidelity rules are now in product-specific txt files
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -31713,7 +33949,19 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
                 if payload.fromConnectors and payload.connectorSources:
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    file_context = connector_context
+                    if getattr(payload, 'selectedFiles', None):
+                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
+                        try:
+                            file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
+                            if file_ids:
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                file_context = merge_source_contexts(connector_context, files_ctx)
+                        except Exception as merr:
+                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -31837,7 +34085,7 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini"):
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -31871,7 +34119,7 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
-                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini", wizard_payload=wiz_payload):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -31957,7 +34205,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         # NEW: Use OpenAI directly for text presentation editing
         logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for text presentation editing")
         try:
-            async for chunk_data in stream_openai_response(wizard_message):
+            async for chunk_data in stream_openai_response(wizard_message, wizard_payload=wiz_payload):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
                     assistant_reply += delta_text
@@ -36129,6 +38377,32 @@ async def get_avatars():
             "avatars": []
         }
 
+@app.get("/api/custom/video/voices")
+async def get_voices():
+    """Get available voices from Elai API."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False, 
+                "error": "Video generation service not available. Please check backend configuration.",
+                "voices": []
+            }
+        
+        result = await video_generation_service.get_voices()
+        
+        if result["success"]:
+            return {"success": True, "voices": result["voices"]}
+        else:
+            return {"success": False, "error": result["error"], "voices": []}
+            
+    except Exception as e:
+        logger.error(f"Error fetching voices: {str(e)}")
+        return {
+            "success": False, 
+            "error": f"Failed to fetch voices: {str(e)}",
+            "voices": []
+        }
+
 @app.post("/api/custom/video/generate")
 async def generate_video(request: Request):
     """Generate video from slides and avatar data."""
@@ -36228,6 +38502,36 @@ async def create_video(request: Request):
             
     except Exception as e:
         logger.error(f"Error creating video: {str(e)}")
+        return {"success": False, "error": f"Failed to create video: {str(e)}"}
+
+@app.post("/api/custom/video/create-from-request")
+async def create_video_from_request(request: Request):
+    """Create a video from frontend Elai video request format."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body - expects full Elai video request format
+        body = await request.json()
+        
+        # Create video using the frontend's request format
+        result = await video_generation_service.create_video_from_elai_request(body)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "videoId": result["videoId"],
+                "_id": result.get("_id"),
+                "message": "Video created successfully"
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error creating video from request: {str(e)}")
         return {"success": False, "error": f"Failed to create video: {str(e)}"}
 
 @app.post("/api/custom/video/render/{video_id}")
@@ -36456,15 +38760,23 @@ async def create_presentation(request: Request):
         voice_id = body.get("voiceId")
         voice_provider = body.get("voiceProvider")
         
+        # NEW: Extract transitions for multi-slide presentations
+        transitions = body.get("transitions", [])  # Optional - transitions between slides
+        
+        # NEW: Extract slide-only flag for debug rendering
+        slide_only = body.get("slideOnly", False)  # Optional - render slides only without avatar
+        
         # Add detailed logging for debugging
         logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
         logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
         logger.info(f"  - slide_url: {slide_url}")
         logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
         logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"  - transitions_count: {len(transitions) if transitions else 0}")
         logger.info(f"  - theme: {theme}")
         logger.info(f"  - avatar_code: {avatar_code}")
         logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
+        logger.info(f"  - slide_only: {slide_only}")
         logger.info(f"  - duration: {duration}")
         logger.info(f"  - layout: {layout}")
         logger.info(f"  - quality: {quality}")
@@ -36476,6 +38788,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - voice_id: {voice_id}")
         logger.info(f"  - voice_provider: {voice_provider}")
         logger.info("🎤 [MAIN_ENDPOINT] ========== VOICE PARAMETERS LOGGED ==========")
+        
+        # NEW: Log transitions
+        if transitions and len(transitions) > 0:
+            logger.info("🎞️ [MAIN_ENDPOINT] Transitions received:")
+            for i, trans in enumerate(transitions):
+                logger.info(f"  - Transition {i}: type={trans.get('type')}, duration={trans.get('duration')}s")
         
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
@@ -36512,6 +38830,7 @@ async def create_presentation(request: Request):
             slides_data=slides_data,  # NEW: Pass actual slide data
             theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
+            slide_only=slide_only,  # NEW: Pass slide-only flag for debug rendering
             use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
             duration=duration,
             layout=layout,
@@ -36519,10 +38838,13 @@ async def create_presentation(request: Request):
             resolution=tuple(resolution),
             project_name=project_name,
             voice_id=voice_id,  # NEW: Pass voice ID
-            voice_provider=voice_provider  # NEW: Pass voice provider
+            voice_provider=voice_provider,  # NEW: Pass voice provider
+            transitions=transitions  # NEW: Pass transitions array
         )
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
         logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
+        logger.info(f"🎞️ [MAIN_ENDPOINT] PresentationRequest created with {len(transitions) if transitions else 0} transitions")
+        logger.info(f"🐛 [MAIN_ENDPOINT] PresentationRequest created with slide_only: {presentation_request.slide_only}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)
@@ -36765,12 +39087,12 @@ async def preview_slide_html(request: Request):
         slides_data = body.get("slides", [])
         theme = body.get("theme", "dark-purple")
         
-        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML preview")
-        logger.info(f"🔍 [HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
-        logger.info(f"🔍 [HTML_PREVIEW] Theme: {theme}")
+        logger.info(f"[HTML_PREVIEW] Generating HTML preview")
+        logger.info(f"[HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"[HTML_PREVIEW] Theme: {theme}")
         
         if not slides_data or len(slides_data) == 0:
-            logger.error("🔍 [HTML_PREVIEW] No slides data provided")
+            logger.error("[HTML_PREVIEW] No slides data provided")
             return {"success": False, "error": "No slides data provided"}
         
         # Get the first slide
@@ -36779,29 +39101,29 @@ async def preview_slide_html(request: Request):
         slide_id = slide_props.get("slideId")
         metadata = slide_props.get("metadata", {})
         
-        logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
-        logger.info(f"🔍 [HTML_PREVIEW] Slide ID: {slide_id}")
-        logger.info(f"🔍 [HTML_PREVIEW] Metadata: {metadata}")
-        logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
+        logger.info(f"[HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"[HTML_PREVIEW] Slide ID: {slide_id}")
+        logger.info(f"[HTML_PREVIEW] Metadata: {metadata}")
+        logger.info(f"[HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
         
         if not template_id:
-            logger.error("🔍 [HTML_PREVIEW] Missing templateId in slide data")
+            logger.error("[HTML_PREVIEW] Missing templateId in slide data")
             return {"success": False, "error": "Missing templateId in slide data"}
         
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
-        logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        logger.info(f"[HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
         
         # CRITICAL: Log text element positioning data at endpoint level
-        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
-        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
+        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
+        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
         logger.info(f"  - Slide ID: {slide_id}")
         logger.info(f"  - Metadata: {metadata}")
         logger.info(f"  - Metadata type: {type(metadata)}")
         
         if metadata and isinstance(metadata, dict):
             element_positions = metadata.get('elementPositions', {})
-            logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
+            logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
             logger.info(f"  - Element positions: {element_positions}")
             logger.info(f"  - Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
             
@@ -36809,34 +39131,34 @@ async def preview_slide_html(request: Request):
             if element_positions:
                 for element_id, position in element_positions.items():
                     if 'draggable' in element_id:  # Text elements use draggable IDs
-                        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
+                        logger.info(f"[ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
                         logger.info(f"    - Element ID: {element_id}")
                         logger.info(f"    - Position: {position}")
                         logger.info(f"    - X coordinate: {position.get('x', 'MISSING')}")
                         logger.info(f"    - Y coordinate: {position.get('y', 'MISSING')}")
             else:
-                logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
+                logger.warning(f"[ENDPOINT_POSITIONING_DEBUG] WARNING: NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
         else:
-            logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO METADATA IN SLIDE DATA")
+            logger.warning(f"[ENDPOINT_POSITIONING_DEBUG] WARNING: NO METADATA IN SLIDE DATA")
         
         # Log some key props for debugging
         for key, value in actual_props.items():
             if isinstance(value, str):
-                logger.info(f"🔍 [HTML_PREVIEW] {key}: '{value[:100]}...'")
+                logger.info(f"[HTML_PREVIEW] {key}: '{value[:100]}...'")
             else:
-                logger.info(f"🔍 [HTML_PREVIEW] {key}: {value}")
+                logger.info(f"[HTML_PREVIEW] {key}: {value}")
         
         # Import the HTML template service
         from app.services.html_template_service import html_template_service
         
         # Generate clean HTML with slideId and metadata
-        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
+        logger.info(f"[HTML_PREVIEW] Generating HTML content...")
         html_content = html_template_service.generate_clean_html_for_video(
             template_id, actual_props, theme, metadata=metadata, slide_id=slide_id
         )
         
-        logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
-        logger.info(f"🔍 [HTML_PREVIEW] HTML content length: {len(html_content)} characters")
+        logger.info(f"[HTML_PREVIEW] HTML content generated")
+        logger.info(f"[HTML_PREVIEW] HTML content length: {len(html_content)} characters")
         
         # Return the HTML content
         return {
@@ -36848,7 +39170,7 @@ async def preview_slide_html(request: Request):
         }
         
     except Exception as e:
-        logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
+        logger.error(f"[HTML_PREVIEW] Error generating HTML preview: {str(e)}")
         return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
 
 @app.post("/api/custom/slide-video/generate")
@@ -37183,14 +39505,8 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
         logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI request with model {model}")
         logger.info(f"[OPENAI_DIRECT] Prompt length: {len(prompt)} chars")
         
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_DIRECT] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        # Read assistant instructions (base + product-specific)
+        system_prompt = get_assistant_instructions()
         
         # Create the chat completion (non-streaming)
         response = await client.chat.completions.create(
@@ -43113,18 +45429,18 @@ async def log_static_file_requests(request: Request, call_next):
         if content_length:
             logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Length: {content_length} bytes")
         else:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Length header")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] No Content-Length header")
         
         # Log content type
         content_type = response.headers.get("content-type")
         if content_type:
             logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Type: {content_type}")
         else:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Type header")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] No Content-Type header")
         
         # Check if response is suspiciously small
         if content_length and int(content_length) < 1000:
-            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
+            logger.warning(f"WARNING: [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
     
     return response
     

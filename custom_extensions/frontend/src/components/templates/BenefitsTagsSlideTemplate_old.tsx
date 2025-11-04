@@ -5,13 +5,14 @@ import { BenefitsTagsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import SimpleRichTextEditor from '../SimpleRichTextEditor';
+import AvatarImageDisplay from '../AvatarImageDisplay';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 type TagType = { text: string; isHighlighted?: boolean };
 
 export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Benefits',
@@ -34,7 +35,8 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTags, setEditingTags] = useState<number | null>(null);
@@ -46,6 +48,12 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const tagEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const pageNumberEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const logoTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -194,9 +202,13 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
               }} />
             </div>
             {isEditable && editingYourLogoText ? (
-              <ImprovedInlineEditor
+              <ControlledWysiwygEditor
+                ref={logoTextEditorRef}
                 initialValue={currentYourLogoText}
-                onSave={handleYourLogoTextSave}
+                onSave={(value) => {
+                  handleYourLogoTextSave(value);
+                  setEditingYourLogoText(false);
+                }}
                 onCancel={() => setEditingYourLogoText(false)}
                 className="your-logo-text-editor"
                 style={{
@@ -205,9 +217,11 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none'
+                }}
+                onEditorReady={(editor, computedStyles) => {
+                  if (onEditorActive) {
+                    onEditorActive(editor, 'logo-text', computedStyles);
+                  }
                 }}
               />
             ) : (
@@ -220,9 +234,8 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
                 }}
-              >
-                {currentYourLogoText}
-              </div>
+                dangerouslySetInnerHTML={{ __html: currentYourLogoText }}
+              />
             )}
           </div>
         )}
@@ -230,7 +243,7 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
 
       {/* Tags Block - contains everything except logo */}
       <div style={tagsBlockStyles}>
-        {/* Profile image with orange background */}
+        {/* Profile image with circular mask */}
         <div style={{
           width: '165px',
           height: '165px',
@@ -239,19 +252,18 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
           position: 'absolute',
           left: '50px',
           top: '100px',
-          background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
+          background: '#FFFFFF',
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
-              height: '147%',
+              width: '88%',
+              height: '135%',
               borderRadius: '50%',
-              objectFit: 'cover',
+              position: 'relative',
+              bottom: '0px',
+              objectFit: 'cover'
             }}
           />
         </div>
@@ -266,9 +278,13 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
           left: '300px',
         }}>
           {isEditable && editingTitle ? (
-            <SimpleRichTextEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
-              onSave={handleTitleSave}
+              onSave={(value) => {
+                handleTitleSave(value);
+                setEditingTitle(false);
+              }}
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
@@ -278,7 +294,11 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                 width: '100%',
                 height: 'auto',
               }}
-              allowFormatting={true}
+              onEditorReady={(editor, computedStyles) => {
+                if (onEditorActive) {
+                  onEditorActive(editor, 'title', computedStyles);
+                }
+              }}
             />
           ) : (
             <div
@@ -287,9 +307,8 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}
-            >
-              {currentTitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
         </div>
 
@@ -327,9 +346,15 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index)}
               >
                 {isEditable && editingTags === index ? (
-                  <SimpleRichTextEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (el) tagEditorRefs.current[index] = el;
+                    }}
                     initialValue={tag.text}
-                    onSave={(value) => handleTagSave(index, value)}
+                    onSave={(value) => {
+                      handleTagSave(index, value);
+                      setEditingTags(null);
+                    }}
                     onCancel={handleTagCancel}
                     className="tag-editor"
                     style={{
@@ -340,10 +365,14 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
-                    allowFormatting={true}
+                    onEditorReady={(editor, computedStyles) => {
+                      if (onEditorActive) {
+                        onEditorActive(editor, `tag-${index}`, computedStyles);
+                      }
+                    }}
                   />
                 ) : (
-                  tag.text
+                  <div dangerouslySetInnerHTML={{ __html: tag.text }} />
                 )}
               </div>
             ))}
@@ -373,9 +402,15 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index + 3)}
               >
                 {isEditable && editingTags === index + 3 ? (
-                  <SimpleRichTextEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (el) tagEditorRefs.current[index + 3] = el;
+                    }}
                     initialValue={tag.text}
-                    onSave={(value) => handleTagSave(index + 3, value)}
+                    onSave={(value) => {
+                      handleTagSave(index + 3, value);
+                      setEditingTags(null);
+                    }}
                     onCancel={handleTagCancel}
                     className="tag-editor"
                     style={{
@@ -386,10 +421,14 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
-                    allowFormatting={true}
+                    onEditorReady={(editor, computedStyles) => {
+                      if (onEditorActive) {
+                        onEditorActive(editor, `tag-${index + 3}`, computedStyles);
+                      }
+                    }}
                   />
                 ) : (
-                  tag.text
+                  <div dangerouslySetInnerHTML={{ __html: tag.text }} />
                 )}
               </div>
             ))}
@@ -420,9 +459,15 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index + 5)}
               >
                 {isEditable && editingTags === index + 5 ? (
-                  <SimpleRichTextEditor
+                  <ControlledWysiwygEditor
+                    ref={(el) => {
+                      if (el) tagEditorRefs.current[index + 5] = el;
+                    }}
                     initialValue={tag.text}
-                    onSave={(value) => handleTagSave(index + 5, value)}
+                    onSave={(value) => {
+                      handleTagSave(index + 5, value);
+                      setEditingTags(null);
+                    }}
                     onCancel={handleTagCancel}
                     className="tag-editor"
                     style={{
@@ -433,10 +478,14 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
-                    allowFormatting={true}
+                    onEditorReady={(editor, computedStyles) => {
+                      if (onEditorActive) {
+                        onEditorActive(editor, `tag-${index + 5}`, computedStyles);
+                      }
+                    }}
                   />
                 ) : (
-                  tag.text
+                  <div dangerouslySetInnerHTML={{ __html: tag.text }} />
                 )}
               </div>
             ))}
@@ -462,9 +511,13 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
         }} />
         {/* Page number */}
         {isEditable && editingPageNumber ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={pageNumberEditorRef}
             initialValue={currentPageNumber}
-            onSave={handlePageNumberSave}
+            onSave={(value) => {
+              handlePageNumberSave(value);
+              setEditingPageNumber(false);
+            }}
             onCancel={() => setEditingPageNumber(false)}
             className="page-number-editor"
             style={{
@@ -473,9 +526,11 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
               fontWeight: '300',
               width: '30px',
               height: 'auto',
-              background: 'transparent',
-              border: 'none',
-              outline: 'none'
+            }}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'page-number', computedStyles);
+              }
             }}
           />
         ) : (
@@ -488,9 +543,8 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}
-          >
-            {currentPageNumber}
-          </div>
+            dangerouslySetInnerHTML={{ __html: currentPageNumber }}
+          />
         )}
       </div>
 

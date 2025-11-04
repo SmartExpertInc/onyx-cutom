@@ -1,15 +1,18 @@
 // custom_extensions/frontend/src/components/templates/PhishingRiseSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PhishingRiseSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import SimpleRichTextEditor from '../SimpleRichTextEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
 export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Phishing rise',
@@ -26,7 +29,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   actorImageAlt = 'Actor image',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -37,6 +41,12 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const [currentBars, setCurrentBars] = useState(bars);
   const [editingBar, setEditingBar] = useState<{ index: number; field: 'valueLabel' | 'year' } | null>(null);
   const [editingYLabel, setEditingYLabel] = useState<number | null>(null);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const descriptionEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const barYearEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const barValueLabelEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentPageNumber, setCurrentPageNumber] = useState('07');
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
@@ -112,6 +122,31 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     textAlign: 'center'
   };
 
+  // Calculate bar width to fit within grid lines with 4px padding on each side
+  const getBarWidth = () => {
+    const totalAvailableSpace = 442; // Space within grid lines minus 8px (4px padding each side)
+    const numBars = currentBars.length;
+    const gap = numBars === 6 ? 16 : 20; // Smaller gap for 6 bars
+    
+    // Calculate bars to spread evenly within the fixed total space
+    const totalGapSpace = (6 - 1) * (numBars === 6 ? 16 : 20); // Space taken by gaps when 6 bars
+    const availableForBars = totalAvailableSpace - totalGapSpace;
+    
+    // Special case: single bar, centered
+    if (numBars === 1) {
+      return Math.floor(availableForBars / 3); // centered
+    }
+    
+    // Distribute bar space + saved gap space evenly
+    const savedGaps = (6 - numBars) * gap;
+    const barWidth = (availableForBars + savedGaps) / numBars;
+    
+    return Math.floor(barWidth);
+  };
+
+  const barWidth = getBarWidth();
+  const chartGap = currentBars.length === 6 ? 16 : 20;
+
   const chart: React.CSSProperties = {
     position: 'absolute',
     right: '48px',
@@ -120,7 +155,10 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     top: '72px',
     display: 'flex',
     alignItems: 'flex-end',
-    gap: '44px',
+    justifyContent: currentBars.length === 1 ? 'center' : 'flex-start',
+    gap: `${chartGap}px`,
+    paddingLeft: '4px',
+    paddingRight: '4px',
     // no gridlines in the reference; keep background clean
   };
 
@@ -319,14 +357,17 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
         {/* Avatar */}
         <div style={avatarHolder}>
-          <ClickableImagePlaceholder
-            imagePath={actorImagePath}
-            onImageUploaded={(p: string) => onUpdate && onUpdate({ actorImagePath: p })}
-            size="LARGE"
+          <AvatarImageDisplay
+            size="MEDIUM"
             position="CENTER"
-            description="Actor"
-            isEditable={isEditable}
-            style={{ height: '126%', borderRadius: '50%', objectFit: 'cover' }}
+            style={{
+              width: '88%',
+              height: '135%',
+              borderRadius: '50%',
+              position: 'relative',
+              bottom: '0px',
+              objectFit: 'cover'
+            }}
           />
         </div>
       </div>
@@ -408,7 +449,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
               <div
                 style={{
-                  width: '96px',
+                  width: `${barWidth}px`,
                   height: `${b.height}px`,
                   background: 'linear-gradient(to bottom, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 117% )',
                   position: 'relative',
@@ -448,7 +489,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               {isEditable && (
                 <button
                   onClick={() => removeBar(idx)}
-                  style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                  style={{ position: 'absolute', top: '-25px', right: '-8px', background: '#fff', border: '1px solid #999', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff4444', fontSize: '16px', lineHeight: 1, padding: 0 }}
                   aria-label="Delete bar"
                 >
                   ×
@@ -457,7 +498,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             </div>
           ))}
 
-          {isEditable && (
+          {isEditable && currentBars.length < 6 && (
             <button onClick={addBar} style={{ position: 'absolute', right: '12px', top: '12px', background: '#0d0d0d', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}>Add bar</button>
           )}
         </div>

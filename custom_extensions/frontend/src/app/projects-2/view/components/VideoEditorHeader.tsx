@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
+import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
@@ -24,6 +24,7 @@ interface VideoEditorHeaderProps {
   videoLessonData?: any;
   componentBasedSlideDeck?: any;
   currentSlideId?: string;
+  showReady?: boolean;
 }
 
 export default function VideoEditorHeader({ 
@@ -31,7 +32,8 @@ export default function VideoEditorHeader({
   onAspectRatioChange,
   videoLessonData,
   componentBasedSlideDeck,
-  currentSlideId
+  currentSlideId,
+  showReady
 }: VideoEditorHeaderProps) {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
@@ -188,7 +190,7 @@ export default function VideoEditorHeader({
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   // Function to extract actual slide data from current project - updated to use props
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[], transitions: any[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
     console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
     console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
@@ -227,10 +229,15 @@ export default function VideoEditorHeader({
         // Attach avatar positions from template registry
         const slidesWithAvatarPositions = attachAvatarPositionsToSlides(componentBasedSlideDeck.slides);
         
+        // Extract transitions from deck (new feature)
+        const transitions = componentBasedSlideDeck.transitions || [];
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted transitions from componentBasedSlideDeck:', transitions);
+        
         return {
           slides: slidesWithAvatarPositions,
           theme: componentBasedSlideDeck.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts
+          voiceoverTexts: voiceoverTexts,
+          transitions: transitions
         };
       }
       
@@ -248,10 +255,15 @@ export default function VideoEditorHeader({
         // Attach avatar positions from template registry
         const slidesWithAvatarPositions = attachAvatarPositionsToSlides(videoLessonData.slides);
         
+        // Extract transitions from video lesson data
+        const transitions = videoLessonData.transitions || [];
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted transitions from videoLessonData:', transitions);
+        
         return {
           slides: slidesWithAvatarPositions,
           theme: videoLessonData.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts
+          voiceoverTexts: voiceoverTexts,
+          transitions: transitions
         };
       }
 
@@ -276,17 +288,18 @@ export default function VideoEditorHeader({
           return {
             slides: [currentSlide],
             theme: 'dark-purple',
-            voiceoverTexts: [voiceoverText]
+            voiceoverTexts: [voiceoverText],
+            transitions: []
           };
         }
       }
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data - no slides found');
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
         
     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
     }
   };
 
@@ -458,45 +471,51 @@ export default function VideoEditorHeader({
   };
 
   // Main video generation function - transferred from VideoDownloadButton
-  const handleVideoGeneration = async () => {
+  const handleVideoGeneration = async (debugMode: boolean = false) => {
     console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
+    console.log('🎬 [VIDEO_GENERATION] Debug mode:', debugMode);
     console.log('🎬 [VIDEO_GENERATION] Global defaultAvatar:', defaultAvatar);
     
     // Use the global avatar context instead of local state
     let avatarToUse = defaultAvatar?.avatar;
     let variantToUse = defaultAvatar?.selectedVariant;
     
-    if (!avatarToUse) {
-      console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
-      // Use a real avatar that exists in the backend as fallback
-      avatarToUse = {
-        id: 'max-avatar',
-        code: 'max',
-        name: 'Max',
-        type: null,
-        status: 1,
-        accountId: 'default',
-        gender: 'male' as const,
-        thumbnail: '',
-        canvas: '',
-        variants: [{
+    // In debug mode, we skip avatar validation
+    if (!debugMode) {
+      if (!avatarToUse) {
+        console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
+        // Use a real avatar that exists in the backend as fallback
+        avatarToUse = {
+          id: 'max-avatar',
+          code: 'max',
+          name: 'Max',
+          type: null,
+          status: 1,
+          accountId: 'default',
+          gender: 'male' as const,
+          thumbnail: '',
+          canvas: '',
+          variants: [{
+            id: 'business-variant',
+            code: 'business',
+            name: 'Business',
+            thumbnail: '',
+            canvas: ''
+          }]
+        };
+        variantToUse = {
           id: 'business-variant',
           code: 'business',
           name: 'Business',
           thumbnail: '',
           canvas: ''
-        }]
-      };
-      variantToUse = {
-        id: 'business-variant',
-        code: 'business',
-        name: 'Business',
-        thumbnail: '',
-        canvas: ''
-      };
-      console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
+        };
+        console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
+      } else {
+        console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
+      }
     } else {
-      console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
+      console.log('🎬 [VIDEO_GENERATION] Debug mode: Skipping avatar (slide-only render)');
     }
 
           try {
@@ -557,20 +576,23 @@ export default function VideoEditorHeader({
         ],  // Use actual voiceover texts or fallback
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
-        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code,
-        voiceId: selectedVoice?.voice || null,  // Add selected voice ID
-        voiceProvider: selectedVoice?.voiceProvider || null,  // Add voice provider
+        transitions: componentBasedSlideDeck?.transitions || [],  // Add transitions for multi-slide concatenation
+        avatarCode: debugMode ? undefined : (variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code),
+        voiceId: debugMode ? undefined : (selectedVoice?.voice || null),  // Add selected voice ID
+        voiceProvider: debugMode ? undefined : (selectedVoice?.voiceProvider || null),  // Add voice provider
         useAvatarMask: true,
         layout: 'picture_in_picture',
-        duration: 30.0,
+        duration: debugMode ? 10.0 : 30.0,  // Use 10s for debug mode, 30s for standard
         quality: 'high',
-        resolution: [1920, 1080]
+        resolution: [1920, 1080],
+        slideOnly: debugMode  // NEW: Enable slide-only mode for debug rendering
       };
       
       console.log('🎤 [VIDEO_GENERATION] Final request payload:', {
         projectName: requestPayload.projectName,
         voiceoverTextsCount: requestPayload.voiceoverTexts.length,
         slidesDataCount: requestPayload.slidesData.length,
+        transitionsCount: requestPayload.transitions.length,
         theme: requestPayload.theme,
         avatarCode: requestPayload.avatarCode,
         voiceId: requestPayload.voiceId,
@@ -579,7 +601,9 @@ export default function VideoEditorHeader({
         layout: requestPayload.layout,
         duration: requestPayload.duration,
         quality: requestPayload.quality,
-        resolution: requestPayload.resolution
+        resolution: requestPayload.resolution,
+        slideOnly: requestPayload.slideOnly,
+        debugMode: debugMode
       });
       console.log('🎤 [VIDEO_GENERATION] ========== PAYLOAD CONSTRUCTION COMPLETED ==========');
       
@@ -863,42 +887,34 @@ export default function VideoEditorHeader({
 
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3">
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
+            <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
               <Undo2 className="w-4 h-4 text-gray-700" />
             </button>
-
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
+            <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
               <Redo2 className="w-4 h-4 text-gray-700" />
             </button>
-
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
-
-            {/* New button with document SVG - hidden on smaller screens */}
             <div className="hidden lg:flex items-center">
-              <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
+              <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 28 28" className="w-4 h-4 text-gray-700">
                   <path fill="currentColor" d="M6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v15.5A1.75 1.75 0 0 0 6 23.482V16.25A2.25 2.25 0 0 1 8.25 14h11.5A2.25 2.25 0 0 1 22 16.25v7.232a1.75 1.75 0 0 0 1.5-1.732V8.786c0-.465-.184-.91-.513-1.238l-2.535-2.535a1.75 1.75 0 0 0-1.238-.513H19v4.25A2.25 2.25 0 0 1 16.75 11h-6.5A2.25 2.25 0 0 1 8 8.75V4.5H6.25Zm3.25 0v4.25c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75V4.5h-8Zm11 19v-7.25a.75.75 0 0 0-.75-.75H8.25a.75.75 0 0 0-.75.75v7.25h13ZM3 6.25A3.25 3.25 0 0 1 6.25 3h12.965a3.25 3.25 0 0 1 2.298.952l2.535 2.535c.61.61.952 1.437.952 2.299V21.75A3.25 3.25 0 0 1 21.75 25H6.25A3.25 3.25 0 0 1 3 21.75V6.25Z"/>
                 </svg>
               </button>
             </div>
-
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
-
-            {/* Resize tool - visible on all screens for testing */}
             <div className="flex items-center relative">
               <button
                 ref={resizeButtonRef}
-                onClick={handleResizeClick}
-                className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                onClick={() => { if (!showReady) handleResizeClick(); }}
+                className={`flex items-center gap-2 p-1 rounded transition-colors ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`}
+                title={showReady ? 'Soon' : undefined}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
                   <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
                 </svg>
                 <span className="text-black text-sm font-normal">Resize</span>
               </button>
-
-              {/* Resize popup */}
-              {isResizePopupOpen && (
+              {!showReady && isResizePopupOpen && (
                 <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80" data-resize-popup>
                   <div className="py-2">
                     {resizeOptions.map((option, index) => (
@@ -920,8 +936,6 @@ export default function VideoEditorHeader({
                       </button>
                     ))}
                   </div>
-                  
-                  {/* Warning text - extends to side borders with bottom spacing */}
                   <div className="pb-3">
                     <div className="bg-amber-50 text-amber-800 text-sm p-3 mx-0">
                       Existing content on the scene will not be reorganised automatically.
@@ -930,14 +944,12 @@ export default function VideoEditorHeader({
                 </div>
               )}
             </div>
-
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
-
-            {/* Grid tool - hidden on smaller screens */}
             <div className="hidden lg:flex items-center">
               <button 
-                onClick={handleEyeToggle}
-                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer gap-2"
+                onClick={() => { if (!showReady) handleEyeToggle(); }}
+                className={`p-1 rounded transition-colors flex items-center justify-center gap-2 ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`}
+                title={showReady ? 'Soon' : undefined}
               >
                 {isEyeVisible ? (
                   <Eye className="w-4 h-4 text-gray-700" />
@@ -947,13 +959,11 @@ export default function VideoEditorHeader({
                 <span className="text-black text-sm font-normal">Grid</span>
               </button>
             </div>
-
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
-
-            {/* Upgrade button */}
             <button
-              onClick={handleUpgradeClick}
-              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 cursor-pointer"
+              onClick={() => { if (!showReady) handleUpgradeClick(); }}
+              className={`rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-purple-100' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer'}`}
+              title={showReady ? 'Soon' : undefined}
             >
               <Gem className="w-4 h-4 text-purple-700" />
               <span className="text-sm font-normal">Upgrade</span>
@@ -999,8 +1009,9 @@ export default function VideoEditorHeader({
         <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
             <button 
-              onClick={handlePlayClick}
-              className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+              onClick={() => { if (!showReady) handlePlayClick(); }}
+              className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
+              title={showReady ? 'Soon' : undefined}
             >
               <Play className="w-4 h-4 text-gray-700" />
             </button>
@@ -1011,14 +1022,15 @@ export default function VideoEditorHeader({
             <div className="relative">
               <button
                 ref={shareButtonRef}
-                onClick={handleShareClick}
-                className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+                onClick={() => { if (!showReady) handleShareClick(); }}
+                className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
+                title={showReady ? 'Soon' : undefined}
               >
                 <span className="text-sm font-normal">Share</span>
               </button>
 
               {/* Share popup */}
-              {isSharePopupOpen && (
+              {!showReady && isSharePopupOpen && (
                 <div 
                   ref={sharePopupRef}
                   className="fixed top-[76px] right-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
@@ -1129,10 +1141,26 @@ export default function VideoEditorHeader({
             {/* Generate button */}
             <button
               onClick={handleGenerateClick}
-              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
+              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border bg-black text-white hover:bg-gray-800 cursor-pointer`}
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
+
+            {/* Debug Render button (No Avatar) - Hidden */}
+            {false && (
+              <button
+                onClick={() => {
+                  if (showReady) return;
+                  setIsGenerateModalOpen(false);
+                  handleVideoGeneration(true);
+                }}
+                className={`rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'}`}
+                title={showReady ? 'Soon' : 'Render slides with transitions only (no avatar) - for testing and debugging'}
+              >
+                <Video className="w-4 h-4 text-gray-700" />
+                <span className="text-sm font-normal">Debug</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1152,6 +1180,7 @@ export default function VideoEditorHeader({
         onGenerationStart={handleVideoGeneration}
         generationStatus={generationStatus}
         generationError={generationError}
+        showReady={showReady}
       />
 
       {/* Generation Completed Modal */}

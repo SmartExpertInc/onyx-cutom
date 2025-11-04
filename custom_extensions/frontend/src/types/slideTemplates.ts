@@ -84,9 +84,40 @@ export interface ComponentBasedSlide {
   };
 }
 
+export interface SlideTransition {
+  type: 
+    // Basic
+    | 'none' | 'fade' | 'dissolve'
+    // Wipes
+    | 'wipeleft' | 'wiperight' | 'wipeup' | 'wipedown'
+    | 'wipetl' | 'wipetr' | 'wipebl' | 'wipebr'
+    // Slides
+    | 'slideleft' | 'slideright' | 'slideup' | 'slidedown'
+    // Smooth transitions
+    | 'smoothleft' | 'smoothright' | 'smoothup' | 'smoothdown'
+    // Circle effects
+    | 'circlecrop' | 'circleopen' | 'circleclose'
+    // Diagonal
+    | 'diagtl' | 'diagtr' | 'diagbl' | 'diagbr'
+    // Radial & Distance
+    | 'radial' | 'distance'
+    // Slices
+    | 'hlslice' | 'hrslice' | 'vuslice' | 'vdslice'
+    // Squeeze & Zoom
+    | 'squeezeh' | 'squeezev' | 'zoomin'
+    // Blur & Pixelize
+    | 'hblur' | 'pixelize'
+    // Fade variations
+    | 'fadeblack' | 'fadewhite' | 'fadefast' | 'fadeslow';
+  duration: number; // Duration in seconds (0.5 - 3.0)
+  variant?: 'circle' | 'horizontal-chevrons' | 'vertical-chevrons'; // Variant for transition effect
+  applyToAll?: boolean; // If true, this transition applies to all slides
+}
+
 export interface ComponentBasedSlideDeck {
   lessonTitle: string;
   slides: ComponentBasedSlide[];
+  transitions?: SlideTransition[]; // Array of transitions (length = slides.length - 1)
   currentSlideId?: string | null;
   lessonNumber?: number | null;
   detectedLanguage?: string | null;
@@ -708,6 +739,7 @@ export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
   profileImageAlt?: string;
   rightImagePath?: string;
   rightImageAlt?: string;
+  rightImagePrompt?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -815,7 +847,6 @@ export type TemplateId =
   | 'process-steps'
   | 'challenges-solutions'
   | 'hero-title-slide'
-  | 'four-box-grid'
   | 'timeline'
   | 'big-numbers'
   | 'pyramid'
@@ -862,6 +893,10 @@ export type TemplateId =
   | 'ai-pharma-market-growth-slide'
   | 'kpi-update-slide'
   | 'interest-growth-slide'
+  | 'culture-values-three-columns'
+  | 'percent-circles'
+  | 'dei-methods'
+  | 'problems-grid'
 ;
 
 export interface TemplatePreview {
@@ -1270,4 +1305,31 @@ export interface InterestGrowthSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   rightPanelColor?: string;
+}
+
+export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
+  logoText?: string;
+  logoPath?: string;
+  title: string;
+  leftTitle: string;
+  leftText: string;
+  middleTitle: string;
+  middleText: string;
+  rightTitle: string;
+  rightText: string;
+  middlePanelColor?: string;
+  avatarPath?: string;
+  voiceoverText?: string;
+}
+
+export interface PercentCirclesProps extends BaseTemplateProps {
+  title: string;
+  percent: string; // e.g., '10%'
+  bottomCards: Array<{ value: string; text: string; hasArrow?: boolean }>;
+  avatarPath?: string;
+  logoPath?: string;
+  logoText?: string;
+  pageNumber?: string;
+  slideIndex?: number;
+  voiceoverText?: string;
 }

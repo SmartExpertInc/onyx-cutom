@@ -459,12 +459,12 @@ export default function AvatarPopup({
       )}
 
       {/* Right main area */}
-      <div className={`flex flex-col p-4 ${previewMode ? 'w-full' : 'flex-1'}`}>
+      <div className={`flex flex-col ${previewMode ? 'w-full' : 'flex-1'} min-h-0`}>
         {previewMode ? (
           // Preview mode content
           <>
             {/* Header with back button and avatar name */}
-            <div className="flex items-center gap-3 mb-6 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-6 flex-shrink-0 px-4 pt-4">
               <button 
                 onClick={handleBackClick}
                 className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 transition-colors"
@@ -477,7 +477,7 @@ export default function AvatarPopup({
             </div>
 
             {/* Main preview area */}
-            <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0">
               {/* Big rectangle with avatar thumbnail */}
               <div className="relative w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
                 {selectedAvatar?.thumbnail ? (
@@ -490,7 +490,7 @@ export default function AvatarPopup({
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
                     <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+                    </svg>
                   </div>
                 )}
               </div>
@@ -504,7 +504,7 @@ export default function AvatarPopup({
             </div>
 
             {/* Footer with Add to Scene button */}
-            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 -mx-4">
+            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 pb-4 px-4">
               <button 
                 onClick={handleAddToScene}
                 className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors"
@@ -613,8 +613,8 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px' }}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 ${className}`}
+          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px', height: previewMode ? 'auto' : '420px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -628,13 +628,17 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 ${className}`} 
         style={{ 
           borderRadius: '12px',
           left: position?.x || 0,
           top: position?.y || 0,
           width: previewMode ? '500px' : '800px',
-          height: '420px'
+          height: previewMode ? 'auto' : '420px',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
         }}
       >
         {/* Main content area with sidebar */}

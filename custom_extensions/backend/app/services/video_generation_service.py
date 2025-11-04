@@ -77,6 +77,43 @@ class ElaiVideoGenerationService:
         finally:
             await client.aclose()
     
+    async def get_voices(self) -> Dict[str, Any]:
+        """
+        Fetch available voices from Elai API.
+        
+        Returns:
+            Dict containing voices list or error
+        """
+        client = self._get_client()
+        if not client:
+            return {
+                "success": False,
+                "error": "HTTP client not available - httpx may not be installed"
+            }
+        
+        try:
+            response = await client.get(
+                f"{self.api_base}/voices",
+                headers=self.headers
+            )
+            
+            if response.is_success:
+                voices = response.json()
+                logger.info(f"Successfully fetched voices")
+                return {"success": True, "voices": voices}
+            else:
+                logger.error(f"Failed to fetch voices: {response.status_code} - {response.text}")
+                return {
+                    "success": False,
+                    "error": f"Failed to fetch voices: {response.status_code}"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error fetching voices: {str(e)}")
+            return {"success": False, "error": str(e)}
+        finally:
+            await client.aclose()
+    
     async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
@@ -597,6 +634,64 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Error creating video: {str(e)}")
             raise
+        finally:
+            await client.aclose()
+    
+    async def create_video_from_elai_request(self, elai_video_request: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create a video directly from an Elai video request format (used by frontend).
+        
+        Args:
+            elai_video_request: Complete Elai API video request payload with slides, canvas objects, etc.
+            
+        Returns:
+            Dict containing video creation response with video ID
+        """
+        client = self._get_client()
+        if not client:
+            return {
+                "success": False,
+                "error": "HTTP client not available - httpx may not be installed"
+            }
+        
+        try:
+            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Creating video from frontend request")
+            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Video name: {elai_video_request.get('name', 'Unknown')}")
+            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Slides count: {len(elai_video_request.get('slides', []))}")
+            
+            # Make API call to Elai
+            response = await client.post(
+                f"{self.api_base}/videos",
+                headers=self.headers,
+                json=elai_video_request
+            )
+            
+            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] API response status: {response.status_code}")
+            
+            if response.is_success:
+                result = response.json()
+                video_id = result.get("_id")
+                
+                logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Video created successfully: {video_id}")
+                return {
+                    "success": True,
+                    "videoId": video_id,
+                    "_id": video_id
+                }
+            else:
+                error_text = response.text
+                logger.error(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Video creation failed: {response.status_code} - {error_text}")
+                return {
+                    "success": False,
+                    "error": f"Video creation failed: {response.status_code} - {error_text}"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error creating video from request: {str(e)}")
+            return {
+                "success": False,
+                "error": f"Failed to create video: {str(e)}"
+            }
         finally:
             await client.aclose()
     

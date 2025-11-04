@@ -1,10 +1,10 @@
 // custom_extensions/frontend/src/components/templates/ProblemsGridSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 
 export interface ProblemsGridSlideProps extends BaseTemplateProps {
@@ -18,7 +18,10 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   logoText?: string;
 }
 
-export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { theme?: SlideTheme | string }> = ({
+export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { 
+  theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+}> = ({
   slideId,
   tag = 'The problem',
   title = 'Problem Name',
@@ -28,14 +31,15 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
     { number: '3', title: 'Problem Name', body: "In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success." },
     { number: '4', title: 'Problem Name', body: "In today's fast-paced market, businesses face a variety of challenges that can hinder growth and success." },
   ],
-  rightText = "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and bigges\niatoerostornsuestroner\nproductivitytounhappycustomers.Butdon'tworry – we're here to help.",
+  rightText = "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and biggest\niatoe rostornsue stroner\nproductivity toun happy\n customers.But don't worry –\n we're here to help.",
   avatarPath = '',
   pageNumber = '12',
   logoPath = '',
   logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  onEditorActive
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -45,6 +49,14 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const [editRight, setEditRight] = useState(false);
   const [editPageNumber, setEditPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+
+  // Editor refs
+  const tagEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const cardTitleEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const cardBodyEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
+  const rightTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const pageNumberEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#09090B', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'7px 18px', fontSize:'16px', borderRadius:'50px', border:'1px solid black', display:'flex', gap:'10px' };
@@ -56,7 +68,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#09090B' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#34353C', lineHeight:1.4, maxWidth:'740px' };
 
-  const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'400px', width:'266px', fontSize:'18px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
+  const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'400px', width:'266px', fontSize:'16px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'45px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'0px', color:'#5F616D', fontSize:'16px', fontWeight:600 };
 
@@ -101,16 +113,46 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
       <div style={tagStyle}>
         <div style={{ background:'#0F58F9', width:'7px', height:'7px', borderRadius:'50%', marginTop:'8px' }} />
         {isEditable && editTag ? (
-          <ImprovedInlineEditor className="tag-editor" initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEditTag(false); }} onCancel={()=>setEditTag(false)} style={inlineEditor(tagStyle)} />
+          <ControlledWysiwygEditor
+            ref={tagEditorRef}
+            className="tag-editor"
+            initialValue={tag}
+            onSave={(v) => {
+              onUpdate && onUpdate({ tag: v });
+              setEditTag(false);
+            }}
+            onCancel={() => setEditTag(false)}
+            style={inlineEditor(tagStyle)}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'tag', computedStyles);
+              }
+            }}
+          />
         ) : (
-          <div className="tag-editor" onClick={()=> isEditable && setEditTag(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
+          <div className="tag-editor" onClick={() => isEditable && setEditTag(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: tag }} />
         )}
       </div>
       <div style={titleStyle}>
         {isEditable && editTitle ? (
-          <ImprovedInlineEditor className="title-element" initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inlineEditor(titleStyle)} />
+          <ControlledWysiwygEditor
+            ref={titleEditorRef}
+            className="title-element"
+            initialValue={title}
+            onSave={(v) => {
+              onUpdate && onUpdate({ title: v });
+              setEditTitle(false);
+            }}
+            onCancel={() => setEditTitle(false)}
+            style={inlineEditor(titleStyle)}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'title', computedStyles);
+              }
+            }}
+          />
         ) : (
-          <div className="title-element" onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div className="title-element" onClick={() => isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: title }} />
         )}
       </div>
 
@@ -119,33 +161,53 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
           <div key={i} style={card}>
             <div style={numBox}>{c.number}</div>
             <div className="title-element" style={cardTitle}>
-              {isEditable && editCard && editCard.idx===i && editCard.field==='title' ? (
-                <ImprovedInlineEditor initialValue={c.title} onSave={(v)=>{ const next=[...cards]; next[i]={ ...next[i], title:v }; onUpdate&&onUpdate({ cards: next }); setEditCard(null); }} onCancel={()=>setEditCard(null)} style={inline(cardTitle)} />
+              {isEditable && editCard && editCard.idx === i && editCard.field === 'title' ? (
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (el) cardTitleEditorRefs.current[i] = el;
+                  }}
+                  initialValue={c.title}
+                  onSave={(v) => {
+                    const next = [...cards];
+                    next[i] = { ...next[i], title: v };
+                    onUpdate && onUpdate({ cards: next });
+                    setEditCard(null);
+                  }}
+                  onCancel={() => setEditCard(null)}
+                  style={inline(cardTitle)}
+                  onEditorReady={(editor, computedStyles) => {
+                    if (onEditorActive) {
+                      onEditorActive(editor, `card-${i}-title`, computedStyles);
+                    }
+                  }}
+                />
               ) : (
-                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer':'default' }}>
-                  {i === 0 ? (
-                    (() => {
-                      const parts = (c.title || '').trim().split(/\s+/);
-                      const first = parts.shift() || '';
-                      const rest = parts.join(' ');
-                      return (
-                        <>
-                          <span style={{ color: 'black' }}>{first}</span>
-                          {rest ? ' ' + rest : ''}
-                        </>
-                      );
-                    })()
-                  ) : (
-                    c.title
-                  )}
-                </div>
+                <div onClick={() => isEditable && setEditCard({ idx: i, field: 'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: c.title }} />
               )}
             </div>
             <div style={cardBody}>
-              {isEditable && editCard && editCard.idx===i && editCard.field==='body' ? (
-                <ImprovedInlineEditor initialValue={c.body} multiline={true} onSave={(v)=>{ const next=[...cards]; next[i]={ ...next[i], body:v }; onUpdate&&onUpdate({ cards: next }); setEditCard(null); }} onCancel={()=>setEditCard(null)} style={inline(cardBody)} />
+              {isEditable && editCard && editCard.idx === i && editCard.field === 'body' ? (
+                <ControlledWysiwygEditor
+                  ref={(el) => {
+                    if (el) cardBodyEditorRefs.current[i] = el;
+                  }}
+                  initialValue={c.body}
+                  onSave={(v) => {
+                    const next = [...cards];
+                    next[i] = { ...next[i], body: v };
+                    onUpdate && onUpdate({ cards: next });
+                    setEditCard(null);
+                  }}
+                  onCancel={() => setEditCard(null)}
+                  style={inline(cardBody)}
+                  onEditorReady={(editor, computedStyles) => {
+                    if (onEditorActive) {
+                      onEditorActive(editor, `card-${i}-body`, computedStyles);
+                    }
+                  }}
+                />
               ) : (
-                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'body' })} style={{ ...cardBody, cursor: isEditable ? 'pointer':'default' }}>{c.body}</div>
+                <div onClick={() => isEditable && setEditCard({ idx: i, field: 'body' })} style={{ ...cardBody, cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: c.body }} />
               )}
             </div>
           </div>
@@ -154,20 +216,39 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
 
       <div style={rightTextStyle}>
         {isEditable && editRight ? (
-          <ImprovedInlineEditor 
-            initialValue={rightText} 
-            multiline={true} 
-            onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} 
-            onCancel={()=> setEditRight(false)} 
-            style={inlineEditor(rightTextStyle)} 
+          <ControlledWysiwygEditor
+            ref={rightTextEditorRef}
+            initialValue={rightText}
+            onSave={(v) => {
+              onUpdate && onUpdate({ rightText: v });
+              setEditRight(false);
+            }}
+            onCancel={() => setEditRight(false)}
+            style={inlineEditor(rightTextStyle)}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'right-text', computedStyles);
+              }
+            }}
           />
         ) : (
-          <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightText}</div>
+          <div onClick={() => isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: rightText }} />
         )}
       </div>
 
       <div style={avatar}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <AvatarImageDisplay
+          size="MEDIUM"
+          position="CENTER"
+          style={{
+            width: '88%',
+            height: '135%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '0px',
+            objectFit: 'cover'
+          }}
+        />
       </div>
 
       {/* Page number */}
@@ -178,7 +259,8 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
           backgroundColor: '#5F616D'
         }}></div>
         {isEditable && editPageNumber ? (
-          <ImprovedInlineEditor
+          <ControlledWysiwygEditor
+            ref={pageNumberEditorRef}
             initialValue={currentPageNumber}
             onSave={(v) => {
               setCurrentPageNumber(v);
@@ -187,11 +269,14 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
             }}
             onCancel={() => setEditPageNumber(false)}
             style={inlineEditor(pageNumberStyle)}
+            onEditorReady={(editor, computedStyles) => {
+              if (onEditorActive) {
+                onEditorActive(editor, 'page-number', computedStyles);
+              }
+            }}
           />
         ) : (
-          <div onClick={() => isEditable && setEditPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
-            {currentPageNumber}
-          </div>
+          <div onClick={() => isEditable && setEditPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: currentPageNumber }} />
         )}
       </div>
       </div>
