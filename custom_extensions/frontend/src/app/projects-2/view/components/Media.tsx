@@ -778,7 +778,7 @@ export default function Media({
               {/* Center content */}
               <div className="flex-1 flex flex-col items-center justify-center">
                 {/* Title */}
-                <h3 className="mb-5" style={{ fontSize: '14px', color: '#171718' }}>
+                <h3 className="mb-5 font-semibold" style={{ fontSize: '16px', color: '#171718' }}>
                   Get started with a prompt
                 </h3>
                 
@@ -824,10 +824,9 @@ export default function Media({
                 <div className="relative border rounded-md" style={{ borderColor: '#D60AFF' }}>
                   {/* Textarea */}
                   <textarea
-                    className="w-full px-3 pt-3 pb-12 focus:outline-none resize-none"
+                    className="w-full px-3 pt-3 pb-12 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
                     placeholder="Describe your image..."
-                    rows={3}
-                    style={{ fontSize: '12px', color: '#171718' }}
+                    style={{ fontSize: '12px', color: '#171718', height: '80px' }}
                   />
                   <style jsx>{`
                     textarea::placeholder {
