@@ -1665,10 +1665,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       // ✅ ARCH AVATAR - Based on measured arch background container logs
       // Arch background positioned on right side of slide
       // CSS: border-radius: 50% 0 0 50% (rounded left side, sharp right side)
+      // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
       x: 1075,      // ✅ Measured: 1075px (left edge of arch container)
       y: 235,       // ✅ Measured: 235px (top edge of arch container)
       width: 799,   // ✅ Measured: 799px (arch container width)
-      height: 891,  // ✅ Measured: 891px (arch container height)
+      height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
       shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded left side)
       backgroundColor: '#ffffff'  // White background for avatar area
     }
@@ -2505,10 +2506,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       // Doctor image positioned on right side of slide
       // CSS UPDATED: position: absolute, right: 40px (was 144px), top: 48px, bottom: 155px
       // Width: 864px, height: 96%
+      // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
       x: 1016,      // ✅ Measured: 1016px (calculated: 1920 - 40 right - 864 width = 1016) ✓
       y: 48,        // ✅ Measured: 48px (matches CSS top)
       width: 864,   // ✅ Measured: 864px (right-side doctor image area)
-      height: 1037, // ✅ Measured: 1037px (96% of 1080 = 1036.8 ≈ 1037px)
+      height: 1032, // ✅ CORRECTED: 1080 - 48 = 1032px (was 1037px, exceeded boundary by 5px)
       backgroundColor: '#0F58F9' // Blue background for avatar area
     }
   },
