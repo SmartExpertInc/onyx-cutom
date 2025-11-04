@@ -1627,8 +1627,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       x: 864,       // ✅ Measured: 864px (left edge of right panel)
       y: 0,         // ✅ Measured: 0px (starts at top of slide)
       width: 1056,  // ✅ Measured: 1056px (right panel width: 1920 - 864 = 1056)
-      height: 1080, // ✅ Measured: 1080px (full slide height)
-      backgroundColor: '#ffffff'  // White background for avatar area
+      height: 1080  // ✅ Measured: 1080px (full slide height)
     },
     elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -1672,8 +1671,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 235,       // ✅ Measured: 235px (top edge of arch container)
       width: 799,   // ✅ Measured: 799px (arch container width)
       height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
-      shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
-      backgroundColor: '#0F58F9'  // Blue gradient color (matches slide background: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
+      shape: 'arch'  // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
     },
     elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide gradient: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
   },
@@ -1771,8 +1769,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
       width: 272,   // ✅ Measured: 272px (perfect square for circle)
       height: 272,  // ✅ Measured: 272px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#0f58f9' // Blue background (same as company-tools-resources-slide)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#ffffff'  // Elai API video background color (same as company-tools-resources-slide)
   },
@@ -1844,8 +1841,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 712,       // ✅ Measured: 712px (calculated: 1080 - 96 bottom - 272 height = 712px) ✓
       width: 272,   // ✅ Measured: 272px (perfect square for circle)
       height: 272,  // ✅ Measured: 272px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#e0e7ff' // Blue background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -1896,8 +1892,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 160,       // ✅ Measured: 160px (matches CSS top)
       width: 264,   // ✅ Measured: 264px (perfect square for circle)
       height: 264,  // ✅ Measured: 264px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#e0e7ff' // Blue gradient background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -1983,8 +1978,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 55,        // ✅ Measured: 55px (actual rendered position includes padding)
       width: 240,   // ✅ Measured: 240px (container width including wrapper/padding)
       height: 240,  // ✅ Measured: 240px (container height including wrapper/padding)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#ffffff' // White background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -2073,8 +2067,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 675,       // ✅ Measured: 675px (calculated: 1080 - 149 bottom - 256 height = 675px) ✓
       width: 256,   // ✅ Measured: 256px (perfect square for circle)
       height: 256,  // ✅ Measured: 256px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#0F58F9' // Blue background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0F58F9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -2110,8 +2103,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       x: 80,        // ✅ Measured: 80px (matches CSS padding-left)
       y: 521,       // ✅ CORRECTED: Measured from logs (was 551px, now 521px - 30px difference)
       width: 749,   // ✅ Measured: 749px (matches container width)
-      height: 471,  // ✅ Measured: 471px (matches container height)
-      backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
+      height: 471   // ✅ Measured: 471px (matches container height)
     },
     elaiBackgroundColor: '#0F58F9'  // Elai API video background color (from linear-gradient(rgb(15, 88, 249) 0%, rgb(16, 35, 161) 100%))
   },
@@ -2179,8 +2171,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 181,       // ✅ Measured: 181px (content-block top 128px + profile top 52.8px)
       width: 248,   // ✅ Measured: 248px (perfect square for circle)
       height: 248,  // ✅ Measured: 248px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#e0e7ff' // Blue background (matches template style)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -2246,8 +2237,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 35,        // ✅ Measured: 35px (matches CSS top exactly)
       width: 230,   // ✅ Measured: 230px (perfect square for circle)
       height: 230,  // ✅ Measured: 230px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#e0e7ff' // Blue background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -2491,8 +2481,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 760,       // ✅ Measured: 760px (calculated from bottom: 1080 - 100 - 220)
       width: 220,   // ✅ Measured: 220px (perfect square for circle)
       height: 220,  // ✅ Measured: 220px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#e0e7ff' // Blue background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -2533,8 +2522,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       x: 1016,      // ✅ Measured: 1016px (calculated: 1920 - 40 right - 864 width = 1016) ✓
       y: 48,        // ✅ Measured: 48px (matches CSS top)
       width: 864,   // ✅ Measured: 864px (right-side doctor image area)
-      height: 1032, // ✅ CORRECTED: 1080 - 48 = 1032px (was 1037px, exceeded boundary by 5px)
-      backgroundColor: '#0F58F9' // Blue background for avatar area
+      height: 1032  // ✅ CORRECTED: 1080 - 48 = 1032px (was 1037px, exceeded boundary by 5px)
     },
     elaiBackgroundColor: '#e0e7ff'  // Elai API video background color (light background for contrast)
   },
@@ -2579,8 +2567,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 645,       // ✅ Measured: 645px (footer area at bottom of slide)
       width: 220,   // ✅ Measured: 220px (rendered width for circle)
       height: 220,  // ✅ Measured: 220px (rendered height for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#e0e7ff' // White background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
@@ -2732,8 +2719,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
       width: 272,   // ✅ Measured: 272px (perfect square for circle)
       height: 272,  // ✅ Measured: 272px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
-      backgroundColor: '#0f58f9' // White background
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
     elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   }
@@ -2810,8 +2796,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 65,        // ✅ Measured: 65px (matches CSS top: 65px)
       width: 240,   // ✅ Measured: 240px (perfect square for circle)
       height: 240,  // ✅ Measured: 240px (perfect square for circle)
-      shape: 'circle', // ✅ MANDATORY: Circular crop required
-      backgroundColor: '#e0e7ff' // White background (matches template style)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required
     },
     elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   }
