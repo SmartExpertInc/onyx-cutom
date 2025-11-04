@@ -24992,6 +24992,49 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 if chat_id:
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for {'video lesson' if is_video_lesson else 'lesson'} presentation:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+
+                # For lesson presentations, parse JSON and validate slide count
+                if is_video_lesson or payload.productType == "lesson_presentation":
+                    try:
+                        import re
+                        json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+                        if json_match:
+                            json_text = json_match.group()
+                            parsed_json = json.loads(json_text)
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                            if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                                slides = parsed_json['slides']
+                                actual_count = len(slides)
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
+                                
+                                # Validate slide count matches request
+                                requested_count = wizard_dict.get('slidesCount', 5)
+                                if actual_count != requested_count:
+                                    logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
+                                else:
+                                    logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
+                                
+                                # Log slide details for video lessons
+                                if is_video_lesson:
+                                    for i, slide in enumerate(slides):
+                                        if isinstance(slide, dict):
+                                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                                            if 'voiceoverText' in slide:
+                                                voiceover = slide['voiceoverText']
+                                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                            else:
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+                        else:
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+                    except Exception as e:
+                        logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
                 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
@@ -25032,6 +25075,49 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 if chat_id:
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for {'video lesson' if is_video_lesson else 'lesson'} presentation:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+
+                # For lesson presentations, parse JSON and validate slide count
+                if is_video_lesson or payload.productType == "lesson_presentation":
+                    try:
+                        import re
+                        json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+                        if json_match:
+                            json_text = json_match.group()
+                            parsed_json = json.loads(json_text)
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                            if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                                slides = parsed_json['slides']
+                                actual_count = len(slides)
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
+                                
+                                # Validate slide count matches request
+                                requested_count = wizard_dict.get('slidesCount', 5)
+                                if actual_count != requested_count:
+                                    logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
+                                else:
+                                    logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
+                                
+                                # Log slide details for video lessons
+                                if is_video_lesson:
+                                    for i, slide in enumerate(slides):
+                                        if isinstance(slide, dict):
+                                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                                            if 'voiceoverText' in slide:
+                                                voiceover = slide['voiceoverText']
+                                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                            else:
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+                        else:
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+                    except Exception as e:
+                        logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
                 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
@@ -25040,60 +25126,6 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-
-        # Cache full raw outline for later finalize step
-        if chat_id:
-            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
-            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
-
-        modules_preview = _parse_outline_markdown(assistant_reply)
-        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
-        # Send completion packet with the parsed outline.
-        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-
-        # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for video lesson presentation:")
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
-        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
-        
-        # Try to extract and log JSON structure if present
-        try:
-            import re
-            json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
-            if json_match:
-                json_text = json_match.group()
-                parsed_json = json.loads(json_text)
-                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
-                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
-                if isinstance(parsed_json, dict) and 'slides' in parsed_json:
-                    slides = parsed_json['slides']
-                    actual_count = len(slides)
-                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
-                    
-                    # Validate slide count matches request
-                    requested_count = wizard_dict.get('slidesCount', 5)
-                    if actual_count != requested_count:
-                        logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
-                    else:
-                        logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
-                    
-                    for i, slide in enumerate(slides):
-                        if isinstance(slide, dict):
-                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
-                            slide_title = slide.get('slideTitle', 'NO_TITLE')
-                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
-                            if 'voiceoverText' in slide:
-                                voiceover = slide['voiceoverText']
-                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
-                else:
-                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
-            else:
-                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
-        except Exception as e:
-            logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
-
-        yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="text/plain")
 
