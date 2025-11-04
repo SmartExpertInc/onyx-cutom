@@ -783,10 +783,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			});
 			onFilesSelected(filesOnly);
 		}
-		// Note: items is intentionally NOT in deps to avoid constant re-renders
-		// The filter happens with the current items when selected changes
+		// Note: items and onFilesSelected are intentionally NOT in deps to avoid re-render loops
+		// - items changes on every fetch but we only need current value when selected changes
+		// - onFilesSelected may not be memoized by parent, causing infinite loops if included
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [mode, selected, onFilesSelected]);
+	}, [mode, selected]);
 
 	return (
 		<div className={`space-y-3 text-gray-900 ${className}`}>
