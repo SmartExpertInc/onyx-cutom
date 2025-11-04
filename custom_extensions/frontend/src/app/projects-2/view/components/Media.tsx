@@ -63,7 +63,7 @@ export default function Media({
         <div className="mb-6 flex-1">
           <h4 className="font-medium text-[#878787] mb-2" style={{ fontSize: '10px' }}>{t('panels.media.stockAssets', 'Stock assets')}</h4>
           
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {/* Image option */}
             <div 
               onClick={() => setSelectedOption('image')}
@@ -145,25 +145,36 @@ export default function Media({
       {/* Main content area */}
       <div className="flex-1 flex flex-col p-4">
         {/* Search bar and upload button */}
-        <div className="flex items-center gap-4 pb-4">
+        <div className="flex items-center gap-6 pb-4">
           {/* Search bar */}
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               {/* Magnifying glass icon */}
-              <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <input
               type="text"
               placeholder={t('panels.media.searchPlaceholder', 'Search media library')}
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-400 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-[30px] pr-4 py-1.5 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{ 
+                borderColor: '#E0E0E0',
+                boxShadow: '0px 1px 2px 0px #0000000D',
+                color: '#171718'
+              }}
             />
+            <style jsx>{`
+              input::placeholder {
+                color: #878787;
+                font-size: 12px;
+              }
+            `}</style>
           </div>
           
           {/* Upload to Library button - only show when Library is selected */}
           {selectedOption === 'library' && (
-            <button className="flex items-center px-4 py-1.5 bg-white rounded-lg hover:bg-gray-50 transition-colors border" style={{ borderColor: '#171718' }}>
+            <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border" style={{ borderColor: '#171718' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
                 <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -178,7 +189,7 @@ export default function Media({
             /* Library view - Simple grid of 18 rectangles */
             <div className="grid grid-cols-3 gap-3 pb-4">
               {Array.from({ length: 18 }).map((_, index) => (
-                <div key={index} className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
+                <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
               ))}
             </div>
           ) : selectedOption === 'image' ? (
@@ -189,20 +200,20 @@ export default function Media({
                 <h3 className="text-xs font-medium text-[#171718] mb-2.5">{t('panels.media.locations', 'Locations')}</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {/* First 2 rectangles */}
-                  <div className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
-                  <div className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
+                  <div className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                  <div className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
                   
                   {/* Last rectangle - clickable with "+ 6" or more rectangles when expanded */}
                   {!isLocationsExpanded ? (
                     <div 
                       onClick={() => setIsLocationsExpanded(true)}
-                      className="bg-gray-200 rounded-lg w-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors" 
+                      className="bg-gray-200 rounded-md w-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors" 
                       style={{ aspectRatio: '16/9' }}
                     >
                       <span className="text-base font-semibold text-[#171718]">+ 6</span>
                     </div>
                   ) : (
-                    <div className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
+                    <div className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
                   )}
                 </div>
                 
@@ -210,7 +221,7 @@ export default function Media({
                 {isLocationsExpanded && (
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     {Array.from({ length: 6 }).map((_, index) => (
-                      <div key={index} className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
+                      <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
                     ))}
                   </div>
                 )}
@@ -222,7 +233,7 @@ export default function Media({
                 <div className="grid grid-cols-3 gap-3">
                   {/* 4 rows of 3 rectangles = 12 rectangles */}
                   {Array.from({ length: 12 }).map((_, index) => (
-                    <div key={index} className="bg-gray-200 rounded-lg w-full" style={{ aspectRatio: '16/9' }}></div>
+                    <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
                   ))}
                 </div>
               </div>
