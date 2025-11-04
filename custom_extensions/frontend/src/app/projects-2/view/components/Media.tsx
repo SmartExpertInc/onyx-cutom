@@ -188,7 +188,7 @@ export default function Media({
         </div>
         
         {/* Tab content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
           {selectedOption === 'library' ? (
             /* Library view - Simple grid of 18 rectangles */
             <div className="grid grid-cols-3 gap-3 pb-4">
@@ -293,10 +293,10 @@ export default function Media({
             </div>
           ) : selectedOption === 'icon' ? (
             /* Icon view - Three categories with placeholders */
-            <div className="flex flex-col gap-6 pb-4 pt-1">
+            <div className="flex flex-col gap-4 pb-4">
               {/* Outlined Category */}
               <div>
-                <h3 className="text-xs font-medium text-[#171718] mb-4">Outlined</h3>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">Outlined</h3>
                 <div className="grid grid-cols-7 gap-3">
                   {/* First 6 squares */}
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -307,17 +307,19 @@ export default function Media({
                     ></div>
                   ))}
                   
-                  {/* Last square - See more button */}
-                  <div 
-                    onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
-                    className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
-                    style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span className="text-[10px] text-[#09090B] mt-1">See more</span>
-                  </div>
+                  {/* See more button - only show in first row when not expanded */}
+                  {!isOutlinedExpanded && (
+                    <div 
+                      onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1">See more</span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Additional rows when expanded */}
@@ -330,13 +332,25 @@ export default function Media({
                         style={{ aspectRatio: '1/1' }}
                       ></div>
                     ))}
+                    
+                    {/* See less button at the end */}
+                    <div 
+                      onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1">See less</span>
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* Filled Category */}
               <div>
-                <h3 className="text-xs font-medium text-[#171718] mb-4">Filled</h3>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">Filled</h3>
                 <div className="grid grid-cols-7 gap-3">
                   {/* First 6 squares */}
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -347,17 +361,19 @@ export default function Media({
                     ></div>
                   ))}
                   
-                  {/* Last square - See more button */}
-                  <div 
-                    onClick={() => setIsFilledExpanded(!isFilledExpanded)}
-                    className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
-                    style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span className="text-[10px] text-[#09090B] mt-1">See more</span>
-                  </div>
+                  {/* See more button - only show in first row when not expanded */}
+                  {!isFilledExpanded && (
+                    <div 
+                      onClick={() => setIsFilledExpanded(!isFilledExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1">See more</span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Additional rows when expanded */}
@@ -370,13 +386,25 @@ export default function Media({
                         style={{ aspectRatio: '1/1' }}
                       ></div>
                     ))}
+                    
+                    {/* See less button at the end */}
+                    <div 
+                      onClick={() => setIsFilledExpanded(!isFilledExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1">See less</span>
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* Colored Category */}
               <div>
-                <h3 className="text-xs font-medium text-[#171718] mb-4">Colored</h3>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">Colored</h3>
                 <div className="grid grid-cols-7 gap-3">
                   {/* First 6 squares */}
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -387,17 +415,19 @@ export default function Media({
                     ></div>
                   ))}
                   
-                  {/* Last square - See more button */}
-                  <div 
-                    onClick={() => setIsColoredExpanded(!isColoredExpanded)}
-                    className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
-                    style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span className="text-[10px] text-[#09090B] mt-1">See more</span>
-                  </div>
+                  {/* See more button - only show in first row when not expanded */}
+                  {!isColoredExpanded && (
+                    <div 
+                      onClick={() => setIsColoredExpanded(!isColoredExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1">See more</span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Additional rows when expanded */}
@@ -410,6 +440,18 @@ export default function Media({
                         style={{ aspectRatio: '1/1' }}
                       ></div>
                     ))}
+                    
+                    {/* See less button at the end */}
+                    <div 
+                      onClick={() => setIsColoredExpanded(!isColoredExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1">See less</span>
+                    </div>
                   </div>
                 )}
               </div>
