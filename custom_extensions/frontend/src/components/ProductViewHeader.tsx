@@ -271,7 +271,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             <button
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
-                const popupWidth = 800;
+                const popupWidth = 880;
                 const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
                 onAvatarButtonClick?.({ x: centerX, y: 70 });
               }}

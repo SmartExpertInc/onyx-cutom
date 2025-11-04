@@ -652,8 +652,8 @@ function Projects2ViewPageContent() {
       // Special handling for media button - open media popup centered under the button
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
-      const modalWidth = 800;
-      const modalHeight = 400;
+      const modalWidth = 900;
+      const modalHeight = 500;
       const gap = 10;
       
       // Calculate position centered under the button (like Avatar, Shape, and Text popups)
@@ -682,6 +682,11 @@ function Projects2ViewPageContent() {
       
       setMediaPopupPosition({ x, y });
       setIsMediaPopupOpen(true);
+      // Close other popups if open
+      setIsTextPopupOpen(false);
+      setIsShapesPopupOpen(false);
+      setIsAvatarPopupOpen(false);
+      setIsAiPopupOpen(false);
     } else {
       setActiveSettingsPanel(settingsType);
     }
@@ -1103,8 +1108,8 @@ function Projects2ViewPageContent() {
             position: 'fixed',
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
-            width: '800px',
-            height: '400px',
+            width: '900px',
+            height: '500px',
             zIndex: 9999
           }}
         >
