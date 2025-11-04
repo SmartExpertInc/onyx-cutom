@@ -219,14 +219,15 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
   });
 
   const getIconPath = (iconType: string) => {
-    // Icons are in public root
+    // Icons are in public root, need to include basePath
+    const basePath = '/custom-projects-ui';
     switch(iconType) {
       case 'document':
-        return '/documentPainPoints.png';
+        return `${basePath}/documentPainPoints.png`;
       case 'message':
-        return '/messagePainPoints.png';
+        return `${basePath}/messagePainPoints.png`;
       case 'arrow':
-        return '/topArrowPainPoints.png';
+        return `${basePath}/topArrowPainPoints.png`;
       default:
         return '';
     }
@@ -285,18 +286,11 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
           {painPoints.map((point, index) => (
             <div key={index} style={painPointItem}>
               <div style={iconContainer}>
-                <img 
-                  src={getIconPath(point.iconType)} 
+                <img
+                  src={getIconPath(point.iconType)}
                   alt={point.iconType}
                   style={iconImageStyle}
-                  onError={(e) => {
-                    console.error(`Failed to load icon: ${getIconPath(point.iconType)}`);
-                    const img = e.target as HTMLImageElement;
-                    img.style.display = 'none';
-                  }}
-                  onLoad={() => {
-                    console.log(`Successfully loaded icon: ${getIconPath(point.iconType)}`);
-                  }}
+                  loading="lazy"
                 />
               </div>
               <div style={painPointTextStyle} onClick={() => isEditable && setEditKey(`text-${index}`)}>
