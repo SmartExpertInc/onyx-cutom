@@ -824,9 +824,9 @@ export default function Media({
                 <div className="relative border rounded-md" style={{ borderColor: '#D60AFF' }}>
                   {/* Textarea */}
                   <textarea
-                    className="w-full px-3 pt-3 pb-12 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
+                    className="w-full px-3 pt-3 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
                     placeholder="Describe your image..."
-                    style={{ fontSize: '12px', color: '#171718', height: '80px' }}
+                    style={{ fontSize: '12px', color: '#171718', height: '70px', paddingBottom: '20px' }}
                   />
                   <style jsx>{`
                     textarea::placeholder {
