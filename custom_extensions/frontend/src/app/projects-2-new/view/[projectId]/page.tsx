@@ -33,6 +33,7 @@ import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes'
 import AvatarDataProvider, { useAvatarData } from '../../../projects-2/view/components/AvatarDataService';
 import { VoiceProvider } from '@/contexts/VoiceContext';
 import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
+import AvatarRightPanel from '../components/AvatarRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -1073,33 +1074,63 @@ function Projects2ViewPageContent() {
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
         <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
-          <VideoPresentationRightPanel
-            isMusicEnabled={isMusicEnabled}
-            setIsMusicEnabled={setIsMusicEnabled}
-            showMusicDropdown={showMusicDropdown}
-            setShowMusicDropdown={setShowMusicDropdown}
-            selectedMusic={selectedMusic}
-            setSelectedMusic={setSelectedMusic}
-            musicVolume={musicVolume}
-            setMusicVolume={setMusicVolume}
-            isBackgroundEnabled={isBackgroundEnabled}
-            setIsBackgroundEnabled={setIsBackgroundEnabled}
-            backgroundColor={backgroundColor}
-            setMediaPopupPosition={setMediaPopupPosition}
-            setIsMediaPopupOpen={setIsMediaPopupOpen}
-            setColorPalettePosition={setColorPalettePosition}
-            setIsColorPaletteOpen={setIsColorPaletteOpen}
-            isTransitionEnabled={isTransitionEnabled}
-            setIsTransitionEnabled={setIsTransitionEnabled}
-            showTransitionDropdown={showTransitionDropdown}
-            setShowTransitionDropdown={setShowTransitionDropdown}
-            selectedTransition={selectedTransition}
-            setSelectedTransition={setSelectedTransition}
-            activeSettingsPanel={activeSettingsPanel}
-            setActiveSettingsPanel={setActiveSettingsPanel}
-            componentBasedSlideDeck={componentBasedSlideDeck}
-            setActiveTransitionIndex={setActiveTransitionIndex}
-          />
+          {isAvatarPopupOpen ? (
+            <AvatarRightPanel
+              isMusicEnabled={isMusicEnabled}
+              setIsMusicEnabled={setIsMusicEnabled}
+              showMusicDropdown={showMusicDropdown}
+              setShowMusicDropdown={setShowMusicDropdown}
+              selectedMusic={selectedMusic}
+              setSelectedMusic={setSelectedMusic}
+              musicVolume={musicVolume}
+              setMusicVolume={setMusicVolume}
+              isBackgroundEnabled={isBackgroundEnabled}
+              setIsBackgroundEnabled={setIsBackgroundEnabled}
+              backgroundColor={backgroundColor}
+              setMediaPopupPosition={setMediaPopupPosition}
+              setIsMediaPopupOpen={setIsMediaPopupOpen}
+              setColorPalettePosition={setColorPalettePosition}
+              setIsColorPaletteOpen={setIsColorPaletteOpen}
+              isTransitionEnabled={isTransitionEnabled}
+              setIsTransitionEnabled={setIsTransitionEnabled}
+              showTransitionDropdown={showTransitionDropdown}
+              setShowTransitionDropdown={setShowTransitionDropdown}
+              selectedTransition={selectedTransition}
+              setSelectedTransition={setSelectedTransition}
+              activeSettingsPanel={activeSettingsPanel}
+              setActiveSettingsPanel={setActiveSettingsPanel}
+              componentBasedSlideDeck={componentBasedSlideDeck}
+              setActiveTransitionIndex={setActiveTransitionIndex}
+            />
+          ) : (
+            <VideoPresentationRightPanel
+              isMusicEnabled={isMusicEnabled}
+              setIsMusicEnabled={setIsMusicEnabled}
+              showMusicDropdown={showMusicDropdown}
+              setShowMusicDropdown={setShowMusicDropdown}
+              selectedMusic={selectedMusic}
+              setSelectedMusic={setSelectedMusic}
+              musicVolume={musicVolume}
+              setMusicVolume={setMusicVolume}
+              isBackgroundEnabled={isBackgroundEnabled}
+              setIsBackgroundEnabled={setIsBackgroundEnabled}
+              backgroundColor={backgroundColor}
+              setMediaPopupPosition={setMediaPopupPosition}
+              setIsMediaPopupOpen={setIsMediaPopupOpen}
+              setColorPalettePosition={setColorPalettePosition}
+              setIsColorPaletteOpen={setIsColorPaletteOpen}
+              isTransitionEnabled={isTransitionEnabled}
+              setIsTransitionEnabled={setIsTransitionEnabled}
+              showTransitionDropdown={showTransitionDropdown}
+              setShowTransitionDropdown={setShowTransitionDropdown}
+              selectedTransition={selectedTransition}
+              setSelectedTransition={setSelectedTransition}
+              activeSettingsPanel={activeSettingsPanel}
+              setActiveSettingsPanel={setActiveSettingsPanel}
+              componentBasedSlideDeck={componentBasedSlideDeck}
+              setActiveTransitionIndex={setActiveTransitionIndex}
+            />
+          )}
         </div>
       </div>
 
