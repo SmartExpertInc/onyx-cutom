@@ -145,13 +145,15 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
     objectFit: 'contain'
   };
 
-  // Image style for top middle
+  // Image style for top middle - full width of block
   const topMiddleImageStyle: React.CSSProperties = {
-    width: '100%',
+    width: 'calc(100% + 80px)',
     height: '200px',
     objectFit: 'cover',
     borderRadius: '8px',
-    marginBottom: '20px'
+    marginBottom: '20px',
+    marginLeft: '-40px',
+    marginRight: '-40px'
   };
 
   // Bottom right image style
@@ -223,11 +225,15 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
     margin: 0
   };
 
-  // Page number with line - bottom-left (in bottomLeft section)
+  // Page number with line - bottom-left (absolute positioned on entire slide)
   const pageNumberContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    left: '0',
     display: 'flex',
     alignItems: 'center',
-    gap: '13px'
+    gap: '13px',
+    zIndex: 10
   };
 
   const pageNumberLineStyle: React.CSSProperties = {
@@ -296,7 +302,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
 
       {/* Top Middle */}
       <div style={topMiddleStyle}>
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '20px', width: 'calc(100% + 80px)', marginLeft: '-40px', marginRight: '-40px', overflow: 'hidden' }}>
           <ClickableImagePlaceholder
             imagePath={topMiddle.imagePath}
             onImageUploaded={(path) => onUpdate && onUpdate({ topMiddle: { ...topMiddle, imagePath: path } })}
@@ -407,24 +413,6 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
             )}
           </div>
         </div>
-        <div style={pageNumberContainerStyle}>
-          <div style={pageNumberLineStyle} />
-          <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('bottomLeft-page')}>
-            {isEditable && editKey === 'bottomLeft-page' ? (
-              <ImprovedInlineEditor 
-                initialValue={bottomLeft.pageNumber || ''} 
-                onSave={(value) => { 
-                  onUpdate && onUpdate({ bottomLeft: { ...bottomLeft, pageNumber: value } }); 
-                  setEditKey(null); 
-                }} 
-                onCancel={() => setEditKey(null)} 
-                style={inline(pageNumberStyle)} 
-              />
-            ) : (
-              bottomLeft.pageNumber
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Bottom Middle */}
@@ -471,6 +459,26 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
           isEditable={isEditable} 
           style={bottomRightImageStyle} 
         />
+      </div>
+
+      {/* Page number with line - bottom-left (absolute positioned on entire slide) */}
+      <div style={pageNumberContainerStyle}>
+        <div style={pageNumberLineStyle} />
+        <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('bottomLeft-page')}>
+          {isEditable && editKey === 'bottomLeft-page' ? (
+            <ImprovedInlineEditor 
+              initialValue={bottomLeft.pageNumber || ''} 
+              onSave={(value) => { 
+                onUpdate && onUpdate({ bottomLeft: { ...bottomLeft, pageNumber: value } }); 
+                setEditKey(null); 
+              }} 
+              onCancel={() => setEditKey(null)} 
+              style={inline(pageNumberStyle)} 
+            />
+          ) : (
+            bottomLeft.pageNumber
+          )}
+        </div>
       </div>
     </div>
   );
