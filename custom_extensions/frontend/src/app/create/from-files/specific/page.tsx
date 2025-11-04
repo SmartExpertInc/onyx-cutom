@@ -413,7 +413,7 @@ export default function CreateFromSpecificFilesPage() {
       console.error('[CreateFromSpecificFiles] Failed to store in sessionStorage:', e);
     }
 
-    const finalUrl = `/custom-projects-ui/create/generate?${searchParams.toString()}`;
+    const finalUrl = `/create/generate?${searchParams.toString()}`;
     console.log('[CreateFromSpecificFiles] Redirecting to:', finalUrl);
     console.log('[CreateFromSpecificFiles] === END handleCreateContent ===');
 
