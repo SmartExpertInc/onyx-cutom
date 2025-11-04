@@ -202,67 +202,6 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -3771,67 +3710,6 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -4948,67 +4826,6 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -6097,67 +5914,6 @@ def get_openai_client():
             raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
-
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -11482,16 +11238,17 @@ def validate_edit_preservation(original_content: str, edited_content: str, edit_
 
 # --- OpenAI Streaming Functions ---
 
-async def stream_openai_response(message: str, temperature: float = 0.7):
+async def stream_openai_response(message: str, temperature: float = 0.7, max_tokens: int = None):
     """
     Stream response from OpenAI directly without file context.
     
     Args:
         message: The message to send to OpenAI
         temperature: Temperature for response generation
+        max_tokens: Maximum tokens to generate (if None, uses OpenAI default)
         
     Yields:
-        Dict with type 'delta' (text chunk) or 'error'
+        Dict with type 'delta' (text chunk), 'done' (completion), 'error', or 'truncated' (if hit token limit)
     """
     try:
         openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -11503,6 +11260,8 @@ async def stream_openai_response(message: str, temperature: float = 0.7):
         client = AsyncOpenAI(api_key=openai_api_key)
         
         logger.info(f"[OPENAI_STREAM] Starting streaming with message length: {len(message)}")
+        if max_tokens:
+            logger.info(f"[OPENAI_STREAM] Using max_tokens: {max_tokens}")
         
         # Check for preservation mode instructions
         enhanced_message = add_preservation_mode_if_needed(message, {"prompt": message})
@@ -11551,22 +11310,51 @@ Each bullet point MUST contain 60-100 words structured as:
         
         enhanced_message += educational_enhancement
         
-        stream = await client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=[{
+        # Build API call parameters
+        api_params = {
+            "model": "gpt-4-turbo-preview",
+            "messages": [{
                 "role": "system", 
                 "content": """You are an EDUCATIONAL CONTENT CREATOR specializing in corporate training materials. Generate deep, comprehensive educational content that teaches concepts through multiple cognitive levels. Focus on practical application, real-world scenarios, and actionable insights that learners can immediately implement."""
             }, {
                 "role": "user", 
                 "content": enhanced_message
             }],
-            temperature=temperature,
-            stream=True
-        )
+            "temperature": temperature,
+            "stream": True
+        }
         
+        # Add max_tokens if provided
+        if max_tokens:
+            api_params["max_tokens"] = max_tokens
+        
+        stream = await client.chat.completions.create(**api_params)
+        
+        finish_reason = None
         async for chunk in stream:
-            if chunk.choices and chunk.choices[0].delta.content:
-                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+            if chunk.choices and len(chunk.choices) > 0:
+                choice = chunk.choices[0]
+                
+                if choice.delta and choice.delta.content:
+                    content = choice.delta.content
+                    full_response += content
+                    yield {"type": "delta", "text": content}
+                
+                # Check for finish reason
+                if choice.finish_reason:
+                    finish_reason = choice.finish_reason
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Response length: {len(full_response)} chars")
+                    
+                    # CRITICAL: Detect truncation due to token limit
+                    if finish_reason == "length":
+                        logger.error(f"⚠️ [OPENAI_STREAM] Response truncated due to max_tokens limit! Response length: {len(full_response)} chars")
+                        logger.error(f"⚠️ [OPENAI_STREAM] This indicates max_tokens ({max_tokens if max_tokens else 'default'}) was insufficient")
+                        yield {"type": "truncated", "text": "Response was truncated due to token limit. Consider increasing max_tokens.", "finish_reason": finish_reason}
+                    else:
+                        logger.info(f"[OPENAI_STREAM] Stream completed successfully with finish_reason: {finish_reason}")
+                        yield {"type": "done", "finish_reason": finish_reason}
+                    break
                 
     except Exception as e:
         logger.error(f"[OPENAI_STREAM] Error: {e}", exc_info=True)
@@ -24767,6 +24555,12 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
         logger.warning(f"[PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
 
     async def streamer():
+        estimated_tokens_per_slide = 800 if is_video_lesson else 500
+        requested_slides = wizard_dict.get('slidesCount', 5)
+        calculated_max_tokens = (estimated_tokens_per_slide * requested_slides) + 2000  # +2000 for JSON structure/metadata
+        # Cap at reasonable maximum (e.g., 32k for gpt-4-turbo)
+        max_tokens_for_stream = min(calculated_max_tokens, 32000)
+
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
@@ -25052,7 +24846,7 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 chunks_received = 0
-                async for chunk_data in stream_openai_response(wizard_message):
+                async for chunk_data in stream_openai_response(wizard_message, max_tokens=max_tokens_for_stream):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
