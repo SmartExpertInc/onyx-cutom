@@ -652,7 +652,7 @@ function Projects2ViewPageContent() {
       // Special handling for media button - open media popup centered under the button
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
-      const modalWidth = 900;
+      const modalWidth = 1100;
       const modalHeight = 470;
       const gap = 10;
       
@@ -1108,7 +1108,7 @@ function Projects2ViewPageContent() {
             position: 'fixed',
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
-            width: '900px',
+            width: '1100px',
             height: '470px',
             zIndex: 9999
           }}
