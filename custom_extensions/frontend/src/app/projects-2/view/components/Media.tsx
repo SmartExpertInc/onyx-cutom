@@ -22,6 +22,9 @@ export default function Media({
   const [selectedOption, setSelectedOption] = useState<string>('image');
   const [isLocationsExpanded, setIsLocationsExpanded] = useState<boolean>(false);
   const [selectedMusicIndex, setSelectedMusicIndex] = useState<number | null>(null);
+  const [isOutlinedExpanded, setIsOutlinedExpanded] = useState<boolean>(false);
+  const [isFilledExpanded, setIsFilledExpanded] = useState<boolean>(false);
+  const [isColoredExpanded, setIsColoredExpanded] = useState<boolean>(false);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -157,7 +160,7 @@ export default function Media({
             </div>
             <input
               type="text"
-              placeholder={t('panels.media.searchPlaceholder', 'Search media library')}
+              placeholder="Search..."
               className="w-full pl-[30px] pr-4 py-1.5 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               style={{ 
                 borderColor: '#E0E0E0',
@@ -282,14 +285,137 @@ export default function Media({
                   
                   {/* Text content */}
                   <div className="flex flex-col justify-between">
-                    <span style={{ color: '#171718', fontSize: '14px' }}>Epic New Wrold</span>
-                    <span style={{ color: '#878787', fontSize: '10px' }}>2:14</span>
+                    <span style={{ color: '#171718', fontSize: '14px', lineHeight: '1' }}>Epic New World</span>
+                    <span style={{ color: '#878787', fontSize: '10px', lineHeight: '1' }}>2:14</span>
                   </div>
                 </div>
               ))}
             </div>
+          ) : selectedOption === 'icon' ? (
+            /* Icon view - Three categories with placeholders */
+            <div className="flex flex-col gap-6 pb-4 pt-1">
+              {/* Outlined Category */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-4">Outlined</h3>
+                <div className="grid grid-cols-7 gap-3">
+                  {/* First 6 squares */}
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-200 rounded-md w-full" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  ))}
+                  
+                  {/* Last square - See more button */}
+                  <div 
+                    onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
+                    className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                    style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-[10px] text-[#09090B] mt-1">See more</span>
+                  </div>
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isOutlinedExpanded && (
+                  <div className="grid grid-cols-7 gap-3 mt-3">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-gray-200 rounded-md w-full" 
+                        style={{ aspectRatio: '1/1' }}
+                      ></div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Filled Category */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-4">Filled</h3>
+                <div className="grid grid-cols-7 gap-3">
+                  {/* First 6 squares */}
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-200 rounded-md w-full" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  ))}
+                  
+                  {/* Last square - See more button */}
+                  <div 
+                    onClick={() => setIsFilledExpanded(!isFilledExpanded)}
+                    className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                    style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-[10px] text-[#09090B] mt-1">See more</span>
+                  </div>
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isFilledExpanded && (
+                  <div className="grid grid-cols-7 gap-3 mt-3">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-gray-200 rounded-md w-full" 
+                        style={{ aspectRatio: '1/1' }}
+                      ></div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Colored Category */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-4">Colored</h3>
+                <div className="grid grid-cols-7 gap-3">
+                  {/* First 6 squares */}
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-200 rounded-md w-full" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  ))}
+                  
+                  {/* Last square - See more button */}
+                  <div 
+                    onClick={() => setIsColoredExpanded(!isColoredExpanded)}
+                    className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                    style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-[10px] text-[#09090B] mt-1">See more</span>
+                  </div>
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isColoredExpanded && (
+                  <div className="grid grid-cols-7 gap-3 mt-3">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-gray-200 rounded-md w-full" 
+                        style={{ aspectRatio: '1/1' }}
+                      ></div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           ) : (
-            /* Empty view for other options (Icon, AI image) */
+            /* Empty view for other options (AI image) */
             <div className="flex items-center justify-center h-full">
               {/* Empty for now */}
           </div>
