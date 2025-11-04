@@ -42,6 +42,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FolderSelectionModal } from '@/components/ui/folder-selection-modal';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { EmptySmartDrive } from '../../EmptySmartDrive';
 
 // Utility function to format file sizes
 const formatSize = (bytes: number | null | undefined): string => {
@@ -89,6 +90,8 @@ interface SmartDriveBrowserProps {
 	searchQuery?: string;
 	sortBy?: string;
 	sortOrder?: 'asc' | 'desc';
+	onFilesLoaded?: (hasFiles: boolean) => void;
+	emptyStateVariant?: 'smartdrive' | 'knowledgebase';
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -112,6 +115,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	searchQuery = '',
 	sortBy = 'name',
 	sortOrder = 'asc',
+	onFilesLoaded,
+	emptyStateVariant = 'knowledgebase',
 }) => {
 	const { t } = useLanguage();
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
@@ -177,13 +182,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				}
 			}
 			setFolderItemCounts(folderCounts);
+			
+			// Notify parent if there are any files (not just folders)
+			const hasFiles = files.some((item: SmartDriveItem) => item.type === 'file');
+			if (onFilesLoaded) {
+				onFilesLoaded(hasFiles);
+			}
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);
+			if (onFilesLoaded) {
+				onFilesLoaded(false);
+			}
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [onFilesLoaded]);
 
 	const fetchFolderContents = useCallback(async (folderPath: string) => {
 		setLoading(true);
@@ -849,8 +863,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
 						<div className="p-10 text-center text-red-500">{error}</div>
+					) : items.length === 0 || !items.some(item => item.type === 'file') ? (
+						<EmptySmartDrive onUploadClick={onUploadClick} variant={emptyStateVariant} />
 					) : filtered.length === 0 ? (
-						<div className="p-10 text-center text-slate-600">This folder is empty</div>
+						<div className="p-10 text-center text-slate-600">No files match your search</div>
 					) : (
 						<div className="space-y-6">
 							{/* Back Button - Show when a folder is selected or not at root */}
@@ -909,14 +925,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														<div className="flex items-center gap-1 flex-1 min-w-0">
 															<div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
 																<svg width="25" height="25" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
+																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
 																</svg>
 															</div>
 															<div className="flex-1 min-w-0">
 																<h3 className="font-medium text-xs text-gray-900 truncate">
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
-																<p className="text-[11px] text-gray-500">
+																<p className="text-[11px] text-[#878787]">
 																	{folderItemCounts[it.path] !== undefined 
 																		? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'file' : 'files'}`
 																		: 'Folder'
@@ -1130,8 +1146,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
 						<div className="p-10 text-center text-red-500">{error}</div>
+					) : items.length === 0 || !items.some(item => item.type === 'file') ? (
+						<EmptySmartDrive onUploadClick={onUploadClick} variant={emptyStateVariant} />
 					) : filtered.length === 0 ? (
-						<div className="p-10 text-center text-slate-600">This folder is empty</div>
+						<div className="p-10 text-center text-slate-600">No files match your search</div>
 					) : (
 						<div className="flex flex-col min-h-0 flex-1">
 							{/* Back Button - Show when not at root */}
@@ -1559,12 +1577,18 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							{filtered.length > 0 && (
 								<div className="flex items-center justify-end px-4 gap-8 py-3 bg-white border-t border-gray-200">
 									<div className="flex items-center gap-4">
-									<span className="text-sm text-[var(--main-text)]">{t("interface.rowsPerPage", "Rows per page:")}</span>
+									<span className="text-sm text-[#878787]">{t("interface.rowsPerPage", "Rows per page:")}</span>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Button variant="outline" className="flex rounded-md bg-white items-center gap-2">
-													<span className="text-sm">{rowsPerPage}</span>
-													<ChevronDown size={16} />
+													<span className="text-sm text-[#878787]">{rowsPerPage}</span>
+													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<mask id="path-1-inside-1_1814_879" fill="white">
+														<path fill-rule="evenodd" clip-rule="evenodd" d="M0.140592 2.54059C-0.046864 2.72804 -0.046864 3.03196 0.140592 3.21941C0.328048 3.40686 0.631963 3.40686 0.819419 3.21941L2.88001 1.15882L4.94059 3.21941C5.12805 3.40686 5.43196 3.40686 5.61943 3.21941C5.80684 3.03196 5.80684 2.72804 5.61943 2.54059L3.21942 0.140587C3.12939 0.0505708 3.0073 0 2.88001 0C2.7527 0 2.63061 0.0505708 2.54059 0.140587L0.140592 2.54059ZM5.61943 6.95275C5.80684 6.76529 5.80684 6.46138 5.61943 6.27392C5.43196 6.08647 5.12805 6.08647 4.94059 6.27392L2.88001 8.33452L0.819419 6.27392C0.631963 6.08647 0.328048 6.08647 0.140592 6.27392C-0.046864 6.46138 -0.046864 6.76529 0.140592 6.95275L2.54059 9.35276C2.72805 9.54017 3.03196 9.54017 3.21942 9.35276L5.61943 6.95275Z"/>
+														</mask>
+														<path fill-rule="evenodd" clip-rule="evenodd" d="M0.140592 2.54059C-0.046864 2.72804 -0.046864 3.03196 0.140592 3.21941C0.328048 3.40686 0.631963 3.40686 0.819419 3.21941L2.88001 1.15882L4.94059 3.21941C5.12805 3.40686 5.43196 3.40686 5.61943 3.21941C5.80684 3.03196 5.80684 2.72804 5.61943 2.54059L3.21942 0.140587C3.12939 0.0505708 3.0073 0 2.88001 0C2.7527 0 2.63061 0.0505708 2.54059 0.140587L0.140592 2.54059ZM5.61943 6.95275C5.80684 6.76529 5.80684 6.46138 5.61943 6.27392C5.43196 6.08647 5.12805 6.08647 4.94059 6.27392L2.88001 8.33452L0.819419 6.27392C0.631963 6.08647 0.328048 6.08647 0.140592 6.27392C-0.046864 6.46138 -0.046864 6.76529 0.140592 6.95275L2.54059 9.35276C2.72805 9.54017 3.03196 9.54017 3.21942 9.35276L5.61943 6.95275Z" fill="#878787"/>
+														<path d="M0.140592 2.54059L-0.566515 1.83348L0.140592 2.54059ZM0.140592 3.21941L-0.566515 3.92652L-0.566495 3.92654L0.140592 3.21941ZM0.819419 3.21941L1.52651 3.92654L1.52653 3.92652L0.819419 3.21941ZM2.88001 1.15882L3.58711 0.451711L2.88001 -0.255401L2.1729 0.451711L2.88001 1.15882ZM4.94059 3.21941L4.23348 3.92652L4.23351 3.92654L4.94059 3.21941ZM5.61943 3.21941L6.3265 3.92656L6.32662 3.92644L5.61943 3.21941ZM5.61943 2.54059L6.32662 1.83356L6.32653 1.83348L5.61943 2.54059ZM3.21942 0.140587L3.92652 -0.566522L3.92648 -0.566562L3.21942 0.140587ZM2.54059 0.140587L3.2477 0.847694L2.54059 0.140587ZM5.61943 6.95275L6.32654 7.65985L6.32662 7.65977L5.61943 6.95275ZM5.61943 6.27392L6.32662 5.56689L6.3265 5.56677L5.61943 6.27392ZM4.94059 6.27392L4.23351 5.56679L4.23348 5.56682L4.94059 6.27392ZM2.88001 8.33452L2.1729 9.04162L2.88001 9.74873L3.58711 9.04162L2.88001 8.33452ZM0.819419 6.27392L1.52653 5.56682L1.52651 5.56679L0.819419 6.27392ZM0.140592 6.27392L-0.566495 5.56679L-0.566515 5.56681L0.140592 6.27392ZM0.140592 6.95275L0.8477 6.24564L0.847699 6.24564L0.140592 6.95275ZM2.54059 9.35276L1.83348 10.0599L1.83357 10.0599L2.54059 9.35276ZM3.21942 9.35276L3.92645 10.0599L3.92653 10.0599L3.21942 9.35276ZM0.140592 2.54059L-0.566515 1.83348C-1.1445 2.41146 -1.1445 3.34854 -0.566515 3.92652L0.140592 3.21941L0.847699 2.51231C1.05077 2.71537 1.05077 3.04463 0.847699 3.24769L0.140592 2.54059ZM0.140592 3.21941L-0.566495 3.92654C0.011481 4.50448 0.94853 4.50448 1.52651 3.92654L0.819419 3.21941L0.112332 2.51229C0.315396 2.30923 0.644615 2.30923 0.847679 2.51229L0.140592 3.21941ZM0.819419 3.21941L1.52653 3.92652L3.58711 1.86592L2.88001 1.15882L2.1729 0.451711L0.11231 2.51231L0.819419 3.21941ZM2.88001 1.15882L2.1729 1.86592L4.23348 3.92652L4.94059 3.21941L5.6477 2.51231L3.58711 0.451711L2.88001 1.15882ZM4.94059 3.21941L4.23351 3.92654C4.81149 4.50449 5.74853 4.50447 6.3265 3.92656L5.61943 3.21941L4.91236 2.51227C5.1154 2.30925 5.4446 2.30922 5.64768 2.51229L4.94059 3.21941ZM5.61943 3.21941L6.32662 3.92644C6.90445 3.34848 6.90445 2.41152 6.32662 1.83356L5.61943 2.54059L4.91224 3.24761C4.70924 3.04456 4.70924 2.71544 4.91224 2.51239L5.61943 3.21941ZM5.61943 2.54059L6.32653 1.83348L3.92652 -0.566522L3.21942 0.140587L2.51231 0.847695L4.91232 3.24769L5.61943 2.54059ZM3.21942 0.140587L3.92648 -0.566562C3.64895 -0.844065 3.27253 -1 2.88001 -1V0V1C2.74207 1 2.60984 0.945207 2.51235 0.847736L3.21942 0.140587ZM2.88001 0V-1C2.48749 -1 2.11104 -0.844079 1.83349 -0.56652L2.54059 0.140587L3.2477 0.847694C3.15017 0.945221 3.01791 1 2.88001 1V0ZM2.54059 0.140587L1.83349 -0.56652L-0.566515 1.83348L0.140592 2.54059L0.847699 3.24769L3.2477 0.847694L2.54059 0.140587ZM5.61943 6.95275L6.32662 7.65977C6.90445 7.08181 6.90445 6.14486 6.32662 5.56689L5.61943 6.27392L4.91224 6.98095C4.70924 6.7779 4.70924 6.44877 4.91224 6.24572L5.61943 6.95275ZM5.61943 6.27392L6.3265 5.56677C5.74853 4.98887 4.81149 4.98884 4.23351 5.56679L4.94059 6.27392L5.64768 6.98105C5.4446 7.18411 5.1154 7.18408 4.91236 6.98107L5.61943 6.27392ZM4.94059 6.27392L4.23348 5.56682L2.1729 7.62741L2.88001 8.33452L3.58711 9.04162L5.6477 6.98103L4.94059 6.27392ZM2.88001 8.33452L3.58711 7.62741L1.52653 5.56682L0.819419 6.27392L0.11231 6.98103L2.1729 9.04162L2.88001 8.33452ZM0.819419 6.27392L1.52651 5.56679C0.94853 4.98885 0.011481 4.98885 -0.566495 5.56679L0.140592 6.27392L0.847679 6.98105C0.644615 7.1841 0.315396 7.1841 0.112332 6.98105L0.819419 6.27392ZM0.140592 6.27392L-0.566515 5.56681C-1.1445 6.14479 -1.1445 7.08187 -0.566515 7.65985L0.140592 6.95275L0.847699 6.24564C1.05077 6.44871 1.05077 6.77796 0.847699 6.98103L0.140592 6.27392ZM0.140592 6.95275L-0.566516 7.65985L1.83348 10.0599L2.54059 9.35276L3.2477 8.64565L0.8477 6.24564L0.140592 6.95275ZM2.54059 9.35276L1.83357 10.0599C2.41153 10.6378 3.34848 10.6378 3.92645 10.0599L3.21942 9.35276L2.51239 8.64557C2.71544 8.44257 3.04457 8.44257 3.24762 8.64557L2.54059 9.35276ZM3.21942 9.35276L3.92653 10.0599L6.32654 7.65985L5.61943 6.95275L4.91232 6.24564L2.51231 8.64565L3.21942 9.35276Z" fill="#878787" mask="url(#path-1-inside-1_1814_879)"/>
+													</svg>
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent>
@@ -1586,7 +1610,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</div>
-									<span className="text-sm text-gray-700">
+									<span className="text-sm text-[#878787]">
 										Page {currentPage} of {totalPages}
 									</span>
 									

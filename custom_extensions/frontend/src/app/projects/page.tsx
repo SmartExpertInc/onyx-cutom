@@ -646,7 +646,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void;}) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen, onSurveyModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void; onSurveyModalOpen: () => void;}) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -689,29 +689,33 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWor
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-semibold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] flex items-center gap-2 rounded-md font-bold public-sans text-xs" onClick={onTariffModalOpen}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <g clip-path="url(#clip0_308_17348)">
-          <path d="M12.3176 11.7968C11.8825 11.9633 11.6458 12.2012 11.4774 12.6356C11.3107 12.2012 11.0724 11.9649 10.6372 11.7968C11.0724 11.6303 11.3091 11.394 11.4774 10.9579C11.6442 11.3924 11.8825 11.6287 12.3176 11.7968ZM11.5382 4.99568C11.9153 3.5935 12.4306 3.07794 13.8366 2.70096C12.4322 2.3245 11.9158 1.81001 11.5382 0.40625C11.1611 1.80843 10.6458 2.32399 9.23981 2.70096C10.6442 3.07743 11.1606 3.59192 11.5382 4.99568ZM11.9486 7.88981C11.9486 7.7577 11.8798 7.5982 11.6872 7.5445C10.1118 7.10467 9.12471 6.60253 8.38772 5.86735C7.65079 5.13161 7.14678 4.14608 6.70788 2.57315C6.65409 2.38089 6.49433 2.31215 6.36201 2.31215C6.22969 2.31215 6.06993 2.38089 6.01615 2.57315C5.57561 4.14608 5.07266 5.13155 4.33631 5.86735C3.5983 6.60418 2.61227 7.1063 1.03681 7.5445C0.844242 7.5982 0.775391 7.75771 0.775391 7.88981C0.775391 8.02192 0.844242 8.18143 1.03681 8.23513C2.61227 8.67496 3.59932 9.1771 4.33631 9.91227C5.07431 10.6491 5.57725 11.6335 6.01615 13.2065C6.06994 13.3987 6.2297 13.4675 6.36201 13.4675C6.49434 13.4675 6.6541 13.3987 6.70788 13.2065C7.14842 11.6335 7.65137 10.6481 8.38772 9.91227C9.12573 9.17545 10.1118 8.67332 11.6872 8.23513C11.8798 8.18142 11.9486 8.02192 11.9486 7.88981Z" fill="#06A294"/>
-          </g>
-          <defs>
-          <clipPath id="clip0_308_17348">
-          <rect width="14.6939" height="14.6939" fill="white" transform="translate(0.775391 0.407227)"/>
-          </clipPath>
-          </defs>
-        </svg>
-            {t("interface.getUnlimitedAI", "Get Unlimited AI")}</Button>
-        <button 
-          onClick={onAddOnsModalOpen}
-          className="flex items-center gap-2 bg-[#F7E0FC] hover:bg-[#EBD5F0]/90 text-sm font-bold text-[#8808A2] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
+      <button 
+          onClick={onTariffModalOpen}
+          className="flex items-center gap-2 bg-[#F2CCFA] hover:bg-[#EBD5F0]/90 text-xs font-bold text-[#8808A2] px-3 py-3 rounded-full transition-all duration-200 cursor-pointer"
         >
-          <Coins strokeWidth={1.5} size={16} className="font-normal text-[#8808A2]" />
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1699_24379)">
+            <path d="M11.5423 11.39C11.1071 11.5565 10.8704 11.7944 10.702 12.2289C10.5353 11.7944 10.297 11.5581 9.86183 11.39C10.297 11.2236 10.5337 10.9873 10.702 10.5512C10.8688 10.9857 11.1071 11.2219 11.5423 11.39ZM10.7628 4.58894C11.1399 3.18676 11.6552 2.6712 13.0612 2.29423C11.6568 1.91776 11.1404 1.40327 10.7628 -0.000488281C10.3858 1.40169 9.87044 1.91725 8.46442 2.29423C9.86886 2.67069 10.3852 3.18518 10.7628 4.58894ZM11.1732 7.48307C11.1732 7.35096 11.1044 7.19146 10.9118 7.13776C9.33637 6.69793 8.34932 6.19579 7.61233 5.46062C6.8754 4.72487 6.37139 3.73934 5.93249 2.16641C5.8787 1.97415 5.71894 1.90541 5.58662 1.90541C5.4543 1.90541 5.29454 1.97415 5.24076 2.16641C4.80022 3.73934 4.29727 4.72481 3.56092 5.46062C2.82291 6.19744 1.83688 6.69956 0.261415 7.13776C0.0688515 7.19146 0 7.35097 0 7.48307C0 7.61518 0.0688515 7.77469 0.261415 7.82839C1.83688 8.26822 2.82393 8.77036 3.56092 9.50553C4.29892 10.2424 4.80186 11.2268 5.24076 12.7997C5.29455 12.992 5.45431 13.0607 5.58662 13.0607C5.71895 13.0607 5.87871 12.992 5.93249 12.7997C6.37303 11.2268 6.87598 10.2413 7.61233 9.50553C8.35034 8.76871 9.33637 8.26658 10.9118 7.82839C11.1044 7.77468 11.1732 7.61518 11.1732 7.48307Z" fill="#7B0792"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_1699_24379">
+            <rect width="14.6939" height="14.6939" fill="white"/>
+            </clipPath>
+            </defs>
+          </svg>
+          Upgrade Plan
+        </button>
+        <button 
+          // onClick={onAddOnsModalOpen}
+          className="flex items-center gap-2 text-sm font-medium text-[#4D4D4D] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
+        >
+          <Coins strokeWidth={1.5} size={16} className="font-normal text-[#4D4D4D]" />
           {userCredits !== null ? `${userCredits} ${t('interface.courseOutline.credits', 'Credits')}` : t('interface.loading', 'Loading...')}
         </button>
-        {/* <Button variant="outline" onClick={onSurveyModalOpen}>
+        <Button variant="outline" onClick={onSurveyModalOpen}>
           <MessageSquare size={16} className="mr-2" />
-          Survey
-        </Button> */}
+          {t('interface.survey', 'Survey')}
+        </Button>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
         <LanguageDropdown />
         <UserDropdown />
@@ -1212,7 +1216,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
+      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} onSurveyModalOpen={() => setSurveyModalOpen(true)}/>
       <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />

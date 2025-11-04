@@ -3,133 +3,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ContentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-              style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.3'
-        }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export const ContentSlideTemplate: React.FC<ContentSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   onAutoSave?: () => void;
 }> = ({
@@ -143,9 +20,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   theme,
   onAutoSave
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  // Use theme colors instead of props - ensure we always have a valid theme
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
@@ -165,8 +43,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
-    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #0F58F9 0%, #1023A1 100%)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -174,32 +51,34 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start',
-    padding: '80px',
+    padding: '40px',
     position: 'relative',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: alignment,
-    marginBottom: '40px',
-    lineHeight: 1.3,
+    marginBottom: '24px',
+    lineHeight: 1.2,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const contentStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: subtitleColor,
     textAlign: alignment,
-    lineHeight: 1.6,
+    lineHeight: 1.4,
     maxWidth: '800px',
     wordWrap: 'break-word',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
+    opacity: 0.9
     };
 
   const editOverlayStyles: React.CSSProperties = {
@@ -276,28 +155,6 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     }
   };
 
-  // Parse content as simple HTML or markdown-like formatting
-  const parseContent = (text: string) => {
-    // Simple parsing for basic formatting (this could be expanded)
-    const lines = text.split('\n');
-    return lines.map((line, index) => {
-      if (line.trim() === '') {
-        return <br key={index} />;
-      }
-      
-      // Handle bold text **text**
-      let processedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      // Handle italic text *text*
-      processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      
-      return (
-        <p 
-          key={index} 
-          dangerouslySetInnerHTML={{ __html: processedLine }}
-        />
-      );
-    });
-  };
 
   // Debug logging
   console.log('ContentSlideTemplate render:', {
@@ -313,26 +170,22 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       {/* Title - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title || ''}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={true}
             placeholder="Enter slide title..."
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
               display: 'block',
-              lineHeight: '1.3'
+              lineHeight: '1.2'
             }}
           />
         ) : (
@@ -352,31 +205,25 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
+            dangerouslySetInnerHTML={{ __html: title || 'Click to add title' }}
+          />
         )}
       </div>
 
       {/* Content - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
         {isEditable && editingContent ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={content || ''}
             onSave={handleContentSave}
             onCancel={handleContentCancel}
-            multiline={true}
             placeholder="Enter slide content..."
             className="inline-editor-content"
             style={{
               ...contentStyles,
-              // Ensure content behaves exactly like div element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
@@ -401,9 +248,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-          >
-            {content ? parseContent(content) : <p>Click to add content...</p>}
-          </div>
+            dangerouslySetInnerHTML={{ __html: content || 'Click to add content...' }}
+          />
         )}
       </div>
     </div>

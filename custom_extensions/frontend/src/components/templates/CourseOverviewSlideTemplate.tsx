@@ -150,7 +150,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -224,7 +224,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           top: '0',
           width: '2px',
           height: '100%',
-          backgroundColor: themeBg
+          background: themeBg
         }} />
 
         {/* Page number */}
@@ -333,7 +333,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '55%',
         height: '100%',
-        backgroundColor: themeBg,
+        background: themeBg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -13,6 +13,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { AiAgent } from "@/components/ui/ai-agent";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -147,6 +148,15 @@ export default function QuizClient() {
   const [editedTitles, setEditedTitles] = useState<{ [key: number]: string }>({});
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   const [originalTitles, setOriginalTitles] = useState<{ [key: number]: string }>({});
+  
+  // State for editing question content
+  const [editingContentId, setEditingContentId] = useState<number | null>(null);
+  const [editedContents, setEditedContents] = useState<{ [key: number]: string }>({});
+  const [originalContents, setOriginalContents] = useState<{ [key: number]: string }>({});
+  const nextEditingContentIdRef = useRef<number | null>(null);
+
+  // State for additional questions
+  const [additionalQuestions, setAdditionalQuestions] = useState<{ id: string; title: string; content: string }[]>([]);
 
   // NEW: Track user edits like in Course Outline
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -169,6 +179,19 @@ export default function QuizClient() {
       setAdvancedModeClicked(true);
     }
   };
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
+  
+  // Auto-scroll to AI Agent section when it's shown
+  useEffect(() => {
+    if (showAdvanced && advancedSectionRef.current) {
+      advancedSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [showAdvanced]);
 
   const quizExamples: { short: string; detailed: string }[] = [
     {
@@ -282,7 +305,7 @@ export default function QuizClient() {
         questions.push({
           title: questionTitle,
           // content: `Options:\n${options.join('\n')}\n\nCorrect Answer: ${correctAnswer}\n\nExplanation: ${explanation}`
-          content: `Explanation: ${explanation}`
+          content: `Explanation:\n${explanation}`
 
         });
       });
@@ -549,6 +572,157 @@ export default function QuizClient() {
 
   const getTitleForQuestion = (question: any, index: number) => {
     return editedTitles[index] || question.title;
+  };
+
+  // Handle question content editing
+  const handleContentEdit = (questionIndex: number, newContent: string) => {
+    setEditedContents(prev => ({
+      ...prev,
+      [questionIndex]: newContent
+    }));
+
+    // Store original content if not already stored
+    if (!originalContents[questionIndex] && questionIndex < questionList.length) {
+      setOriginalContents(prev => ({
+        ...prev,
+        [questionIndex]: questionList[questionIndex].content
+      }));
+    }
+
+    setHasUserEdits(true);
+  };
+
+  const handleContentSave = (questionIndex: number, finalContent?: string) => {
+    setEditingContentId(null);
+
+    // If we're switching to another content, don't save
+    if (nextEditingContentIdRef.current !== null) {
+      nextEditingContentIdRef.current = null;
+      return;
+    }
+
+    const newContent = (finalContent ?? editedContents[questionIndex]);
+    if (!newContent) {
+      return;
+    }
+
+    // Update the content in the main quiz data string
+    updateQuizContentWithNewContent(questionIndex, newContent);
+  };
+
+  const updateQuizContentWithNewContent = (questionIndex: number, newContent: string) => {
+    if (!newContent && newContent !== '') return;
+
+    const questions = parseQuizIntoQuestions(quizData);
+    if (questionIndex >= questions.length) return;
+
+    const oldContent = questions[questionIndex].content;
+
+    // Find and replace the old content with new content
+    const escapedOldContent = escapeRegExp(oldContent);
+    const pattern = new RegExp(escapedOldContent, 'g');
+
+    let updatedQuizData = quizData;
+    if (pattern.test(updatedQuizData)) {
+      updatedQuizData = updatedQuizData.replace(pattern, newContent);
+    }
+
+    setQuizData(updatedQuizData);
+
+    // Clear the edited content since it's now part of the main quiz data
+    setEditedContents(prev => {
+      const newContents = { ...prev };
+      delete newContents[questionIndex];
+      return newContents;
+    });
+
+    // Mark that content has been updated
+    if (updatedQuizData !== quizData) {
+      setHasUserEdits(true);
+    }
+  };
+
+  const handleContentCancel = (questionIndex: number) => {
+    setEditedContents(prev => {
+      const newContents = { ...prev };
+      delete newContents[questionIndex];
+      return newContents;
+    });
+    setEditingContentId(null);
+  };
+
+  const getContentForQuestion = (question: any, index: number) => {
+    return editedContents[index] !== undefined ? editedContents[index] : question.content;
+  };
+
+  // Handle adding new question
+  const handleAddQuestion = () => {
+    const newQuestion = {
+      id: `question_${Date.now()}`,
+      title: "New Question",
+      content: "Explanation:\nAdd your explanation here..."
+    };
+    setAdditionalQuestions(prev => [...prev, newQuestion]);
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional question title
+  const handleAdditionalQuestionTitleEdit = (questionId: string, newTitle: string) => {
+    setAdditionalQuestions(prev => prev.map(question => 
+      question.id === questionId ? { ...question, title: newTitle } : question
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional question content
+  const handleAdditionalQuestionContentEdit = (questionId: string, newContent: string) => {
+    setAdditionalQuestions(prev => prev.map(question => 
+      question.id === questionId ? { ...question, content: newContent } : question
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle deleting additional question
+  const handleDeleteAdditionalQuestion = (questionId: string) => {
+    setAdditionalQuestions(prev => prev.filter(question => question.id !== questionId));
+    setHasUserEdits(true);
+  };
+
+  // Function to render question content with proper formatting
+  const renderQuestionContent = (content: string) => {
+    if (!content) return content;
+
+    // Split content into lines and process each line
+    const lines = content.split('\n');
+    const processedLines = lines.map((line, lineIndex) => {
+      const trimmedLine = line.trim();
+      
+      // Check if this is an "Explanation:" label line
+      if (trimmedLine === 'Explanation:' || trimmedLine === 'Explicación:' || 
+          trimmedLine === 'Explication:' || trimmedLine === 'Erklärung:' ||
+          trimmedLine === 'Spiegazione:' || trimmedLine === 'Explicação:' ||
+          trimmedLine === 'Пояснення:' || trimmedLine === 'Пояснение:') {
+        return (
+          <div key={lineIndex} className="mb-2">
+            <span className="text-xs font-medium leading-[140%] -ml-2 text-[#4D4D4D]">{trimmedLine}</span>
+          </div>
+        );
+      }
+      
+      // For regular lines, return as is
+      if (trimmedLine) {
+        return (
+          <div key={lineIndex} className="mb-2">
+            <span className="text-sm font-normal leading-[140%] text-[#171718]">{line}</span>
+          </div>
+        );
+      }
+      
+      // For empty lines, return a line break
+      return <br key={lineIndex} />;
+    });
+
+    return processedLines;
   };
 
   const toggleExample = (ex: typeof quizExamples[number]) => {
@@ -955,6 +1129,15 @@ export default function QuizClient() {
         console.log("Sending clean questions for regeneration:", contentToSend);
       }
 
+      // Add additional questions to content
+      if (additionalQuestions.length > 0) {
+        const additionalContent = additionalQuestions.map((q, idx) => {
+          const questionNumber = questionList.length + idx + 1;
+          return `\n\n${questionNumber}. **${q.title}**\n\n${q.content}`;
+        }).join('');
+        contentToSend += additionalContent;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
         headers: {
@@ -1079,6 +1262,15 @@ export default function QuizClient() {
         console.log("Sending clean questions for edit:", contentToSend);
       }
 
+      // Add additional questions to content
+      if (additionalQuestions.length > 0) {
+        const additionalContent = additionalQuestions.map((q, idx) => {
+          const questionNumber = questionList.length + idx + 1;
+          return `\n\n${questionNumber}. **${q.title}**\n\n${q.content}`;
+        }).join('');
+        contentToSend += additionalContent;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
         method: 'POST',
         headers: {
@@ -1188,483 +1380,58 @@ export default function QuizClient() {
 
   return (
     <>
-      <main
-        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
-        style={{
-          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
-        }}
-      >
+    <div className="flex w-full min-h-screen relative">
+      <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
+        marginRight: showAdvanced ? '400px' : '0'
+      }}>
+        {/* Decorative gradient backgrounds */}
+        <div 
+          className="absolute pointer-events-none"
+          style={{
+            width: '1000px',
+            height: '900px',
+            top: '-500px',
+            left: '-150px',
+            borderRadius: '450px',
+            background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+            transform: 'rotate(-300deg)',
+            filter: 'blur(200px)',
+            opacity: '40%',
+          }}
+        />
+        <div 
+          className="absolute pointer-events-none"
+          style={{
+            width: '1060px',
+            height: '1400px',
+            top: '658px',
+            left: '433px',
+            borderRadius: '450px',
+            background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+            transform: 'rotate(-120deg)',
+            filter: 'blur(200px)',
+            opacity: '30%',
+          }}
+        />
+
         {/* Back button */}
         <Link
           href="/create/generate"
-            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-          style={{
-            color: '#0F58F9',
-            fontSize: '14px',
-            fontWeight: '600',
-            lineHeight: '140%',
-            letterSpacing: '0.05em'
+          className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
+          style={{ 
+            color: '#000000',
+            background: '#FFFFFF'
           }}
         >
-          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          {t('interface.generate.back', 'Back')}
+          <span>&lt;</span>
+          <span>{t('interface.generate.back', 'Back')}</span>
         </Link>
 
-        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+        <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
-          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
-
-          {/* Step-by-step process */}
-          <div className="flex flex-col gap-4">
-            {/* Step 1: Choose source */}
-            {useExistingOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setUseExistingOutline(true)}
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
-                  </button>
-                  <button
-                    onClick={() => setUseExistingOutline(false)}
-                    className="px-6 py-2 rounded-full border border-gray-100 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingOutline !== null && (
-              <div className="w-full">
-                {/* Show outline flow if user chose existing outline */}
-                {useExistingOutline === true && (
-                  <>
-                    {/* Course Structure dropdowns - Outline, Module, Lesson */}
-                    {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
-                        <div className="flex items-center">
-                          {/* Outline dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedOutlineId?.toString() ?? ""}
-                              onValueChange={(value: string) => {
-                                const val = value ? Number(value) : null;
-                                setSelectedOutlineId(val);
-                                // clear module & lesson selections when outline changes
-                                setSelectedModuleIndex(null);
-                                setLessonsForModule([]);
-                                setSelectedLesson("");
-                              }}
-                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                {outlines.map((o) => (
-                                  <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-
-                          {/* Module dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedModuleIndex?.toString() ?? ""}
-                              onValueChange={(value: string) => {
-                                const idx = value ? Number(value) : null;
-                                setSelectedModuleIndex(idx);
-                                setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                                setSelectedLesson("");
-                              }}
-                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                              disabled={modulesForOutline.length === 0}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                {modulesForOutline.map((m, idx) => (
-                                  <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-
-                          {/* Lesson dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedLesson}
-                              onValueChange={setSelectedLesson}
-                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                {lessonsForModule.map((l) => (
-                                  <SelectItem key={l} value={l}>{l}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Initial Outline dropdown - shows when no outline is selected yet */}
-                    {!selectedOutlineId && (
-                      <Select
-                        value={selectedOutlineId?.toString() ?? ""}
-                        onValueChange={(value: string) => {
-                          const val = value ? Number(value) : null;
-                          setSelectedOutlineId(val);
-                          // clear module & lesson selections when outline changes
-                          setSelectedModuleIndex(null);
-                          setLessonsForModule([]);
-                          setSelectedLesson("");
-                        }}
-                        onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                          <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300">
-                          {outlines.map((o) => (
-                            <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {/* Show final dropdowns when lesson is selected */}
-                    {selectedLesson && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-center">
-                          {/* Language dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedLanguage}
-                              onValueChange={setSelectedLanguage}
-                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                                  <span className="text-[#09090B]">{selectedLanguage === 'en' ? `${t('interface.english', 'English')}` : selectedLanguage === 'uk' ? `${t('interface.ukrainian', 'Ukrainian')}` : selectedLanguage === 'es' ? `${t('interface.spanish', 'Spanish')}` : `${t('interface.russian', 'Russian')}`}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          
-                          {/* Question Types dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <DropdownMenu open={showQuestionTypesDropdown} onOpenChange={setShowQuestionTypesDropdown}>
-                              <DropdownMenuTrigger asChild>
-                                <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                  <div className="flex items-center gap-2">
-                                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
-                                    </svg>
-                                    <span className="text-[#09090B] opacity-50 text-sm">{t('interface.generate.questionTypesSelected', 'Types selected')}:</span>
-                                    <span className="text-[#09090B]">
-                                      {selectedQuestionTypes.length === 0
-                                        ? '0'
-                                        : selectedQuestionTypes.length > 9
-                                          ? '9'
-                                          : selectedQuestionTypes.length.toString()}
-                                    </span>
-                                    <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9.5 1L5.5 5L1.5 1" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  </div>
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent 
-                                className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white" 
-                                align="center"
-                                sideOffset={25}
-                                style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
-                              >
-                                {[
-                                  { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                                  { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                                  { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                                  { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                                  { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                                ].map((type) => (
-                                  <label key={type.value} className="flex items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                    <div className="flex items-center gap-2 flex-1">
-                                      <input
-                                        type="checkbox"
-                                        checked={selectedQuestionTypes.includes(type.value)}
-                                        onChange={(e) => {
-                                          if (e.target.checked) {
-                                            setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                          } else {
-                                            setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                          }
-                                        }}
-                                        className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                      />
-                                      <span className="text-sm text-[#09090B]">{type.label}</span>
-                                    </div>
-                                  </label>
-                                ))}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                          
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          
-                          {/* Question Count dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedQuestionCount.toString()}
-                              onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
-                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.questions', 'Questions')}:</span>
-                                  <span className="text-[#09090B]">{selectedQuestionCount}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
-                                {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                                  <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Show standalone quiz dropdowns if user chose standalone */}
-                {useExistingOutline === false && (
-                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                    <div className="flex items-center">
-                      {/* Language dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <Select
-                          value={selectedLanguage}
-                          onValueChange={setSelectedLanguage}
-                          onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                        >
-                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                            <div className="flex items-center gap-2">
-                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                              <span className="text-[#09090B]">{selectedLanguage === 'en' ? 'English' : selectedLanguage === 'uk' ? 'Ukrainian' : selectedLanguage === 'es' ? 'Spanish' : 'Russian'}</span>
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent className="border-white" sideOffset={15}>
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      {/* Divider */}
-                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                      
-                      {/* Question Types dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <DropdownMenu open={showQuestionTypesDropdown} onOpenChange={setShowQuestionTypesDropdown}>
-                          <DropdownMenuTrigger asChild>
-                            <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                              <div className="flex items-center gap-2">
-                                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fillRule="evenodd" clipRule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
-                                </svg>
-                                <span className="text-[#09090B] opacity-50 text-sm">{t('interface.generate.questionTypesSelected', 'Types selected')}:</span>
-                                <span className="text-[#09090B]">
-                                  {selectedQuestionTypes.length === 0
-                                    ? '0'
-                                    : selectedQuestionTypes.length > 9
-                                      ? '9'
-                                      : selectedQuestionTypes.length.toString()}
-                                </span>
-                                <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M9.5 1L5.5 5L1.5 1" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </div>
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent 
-                            className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto" 
-                            align="center"
-                            sideOffset={25}
-                            style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
-                          >
-                            {[
-                              { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                              { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                              { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                              { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                              { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                            ].map((type) => (
-                              <label key={type.value} className="flex justify-between flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                <div className="flex items-center gap-[10px]">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedQuestionTypes.includes(type.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                      } else {
-                                        setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                      }
-                                    }}
-                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  <span className="text-sm text-[#09090B]">{type.label}</span>
-                                </div>
-                              </label>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      
-                      {/* Divider */}
-                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                      
-                      {/* Question Count dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <Select
-                          value={selectedQuestionCount.toString()}
-                          onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
-                          onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                        >
-                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                            <div className="flex items-center gap-2">
-                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                              </svg>
-                              <span className="text-[#09090B] opacity-50">{t('interface.generate.questions', 'Questions')}:</span>
-                              <span className="text-[#09090B]">{selectedQuestionCount}</span>
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
-                            {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                              <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            )}
-          </div>
-
-          {/* Prompt input for standalone quizzes */}
-          {useExistingOutline === false && (
-            <div className="relative group">
-              <Textarea
-                value={currentPrompt || ""}
-                onChange={(e) => {
-                  const newPrompt = e.target.value;
-                  setCurrentPrompt(newPrompt);
-                  
-                  // Handle prompt storage for long prompts
-                  const sp = new URLSearchParams(searchParams?.toString() || "");
-                  if (newPrompt.length > 500) {
-                    const promptId = generatePromptId();
-                    sessionStorage.setItem(promptId, newPrompt);
-                    sp.set("prompt", promptId);
-                  } else {
-                    sp.set("prompt", newPrompt);
-                  }
-                  router.replace(`?${sp.toString()}`, { scroll: false });
-                }}
-                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-                rows={1}
-                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                style={{ background: "rgba(255,255,255,0.95)" }}
-              />
-              <Edit 
-                size={16} 
-                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
-              />
-            </div>
-          )}
+          <h1 className="text-center text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.quizOutlinePreview', 'Quiz outline preview')}</h1>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.quiz', 'Quiz')} {t('interface.generate.content', 'Content')}</h2>
-            {loading && (
-              <LoadingAnimation message={thoughts[thoughtIdx]} />
-            )}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
                 <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
@@ -1688,268 +1455,310 @@ export default function QuizClient() {
             )}
 
             {/* Main content display - Cards or Textarea */}
-            {textareaVisible && (
+            {(textareaVisible || loading) && (
               <div
-                className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
-                style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+                className="rounded-[8px] flex flex-col relative"
+                style={{ 
+                  animation: 'fadeInDown 0.25s ease-out both',
+                  background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
+                  border: '1px solid #E0E0E0'
+                }}
               >
-                {loadingEdit && (
-                  <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
-                    <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
-                  </div>
-                )}
+                {/* Header with quiz title */}
+                <div 
+                  className="rounded-t-[8px] text-white text-lg font-medium"
+                  style={{ backgroundColor: '#0F58F999' }}
+                >
+                  {useExistingOutline === false && (
+                    <div className="flex gap-2 items-start">
+                      <div className="relative group flex-1">
+                        <Textarea
+                          value={currentPrompt || ""}
+                          onChange={(e) => {
+                            const newPrompt = e.target.value;
+                            setCurrentPrompt(newPrompt);
+                            
+                            // Handle prompt storage for long prompts
+                            const sp = new URLSearchParams(searchParams?.toString() || "");
+                            if (newPrompt.length > 500) {
+                              const promptId = generatePromptId();
+                              sessionStorage.setItem(promptId, newPrompt);
+                              sp.set("prompt", promptId);
+                            } else {
+                              sp.set("prompt", newPrompt);
+                            }
+                            router.replace(`?${sp.toString()}`, { scroll: false });
+                          }}
+                          placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                          rows={1}
+                          className="w-full px-7 !border-none py-5 rounded-lg text-lg text-white text-xl resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer !shadow-none"
+                          style={{ background: "#6E9BFB"}}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Questions container */}
+                <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
+                  {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+                  
+                  {loadingEdit && (
+                    <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                      <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
+                    </div>
+                  )}
 
-                {/* Display content in card format if questions are available, otherwise show textarea */}
-                {questionList.length > 0 && (
-                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
-                    {questionList.map((question, idx: number) => (
-                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
-                        {/* Left blue square with number */}
-                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
-                          {idx + 1}
-                        </div>
-
-                        {/* Main content section */}
-                        <div className="flex-1 flex-shrink-0">
-                          <div className="mb-4">
-                            {editingQuestionId === idx ? (
-                              <div className="relative group">
-                                <Input
-                                  type="text"
-                                  value={editedTitles[idx] || question.title}
-                                  onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] pr-9"
-                                  autoFocus
-                                  onBlur={(e) => handleTitleSave(idx, e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
-                                    if (e.key === 'Escape') handleTitleCancel(idx);
-                                  }}
-                                  disabled={!streamDone || loadingEdit}
-                                />
-                                {(editedTitles[idx] || question.title) && (
-                                  <Edit 
-                                    size={16} 
-                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <div className="relative group">
-                                <h4
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] w-full h-9 px-3 py-1 pr-9"
-                                  onMouseDown={() => {
-                                    // Set the next editing ID before the blur event fires
-                                    nextEditingIdRef.current = idx;
-                                  }}
-                                  onClick={() => {
-                                    if (streamDone) setEditingQuestionId(idx);
-                                  }}
-                                >
-                                  {getTitleForQuestion(question, idx)}
-                                </h4>
-                                {getTitleForQuestion(question, idx) && (
-                                  <Edit 
-                                    size={16} 
-                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                                  />
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {question.content && (
-                            <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
-                              {question.content.substring(0, 100)}
-                              {question.content.length > 100 && '...'}
+                  {/* Display content in card format if questions are available */}
+                  {questionList.length > 0 && questionList.map((question, idx: number) => (
+                    <div key={idx} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
+                      {/* Question header with number and title */}
+                      <div className="flex items-center gap-1 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                        <span className="text-[#0D001B] font-bold text-base">{idx + 1}.</span>
+                        <div className="flex-1">
+                          {editingQuestionId === idx ? (
+                            <div className="relative group">
+                              <Input
+                                type="text"
+                                value={editedTitles[idx] || question.title}
+                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                                className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                                autoFocus
+                                onBlur={(e) => handleTitleSave(idx, e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                  if (e.key === 'Escape') handleTitleCancel(idx);
+                                }}
+                                disabled={!streamDone || loadingEdit}
+                              />
+                            </div>
+                          ) : (
+                            <div className="relative group">
+                              <Input
+                                type="text"
+                                value={getTitleForQuestion(question, idx)}
+                                onMouseDown={() => {
+                                  nextEditingIdRef.current = idx;
+                                }}
+                                onClick={() => {
+                                  if (streamDone) setEditingQuestionId(idx);
+                                }}
+                                readOnly
+                                className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                                disabled={!streamDone}
+                              />
                             </div>
                           )}
                         </div>
                       </div>
-                    ))}
+
+                      {/* Content preview */}
+                      {question.content && (
+                        <div className="px-5 pb-4">
+                          {editingContentId === idx ? (
+                            <Textarea
+                              value={getContentForQuestion(question, idx)}
+                              onChange={(e) => handleContentEdit(idx, e.target.value)}
+                              className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                              autoFocus
+                              onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Escape') handleContentCancel(idx);
+                              }}
+                              disabled={!streamDone}
+                            />
+                          ) : (
+                            <div 
+                              className={`cursor-pointer rounded !text-sm p-2 pl-6 pt-4 -m-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                              onMouseDown={() => {
+                                nextEditingContentIdRef.current = idx;
+                              }}
+                              onClick={() => {
+                                if (streamDone) setEditingContentId(idx);
+                              }}
+                            >
+                              {renderQuestionContent(getContentForQuestion(question, idx))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                     </div>
+                   ))}
+
+                   {/* Additional questions */}
+                   {additionalQuestions.map((question, idx: number) => (
+                     <div key={question.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
+                       {/* Question header with title */}
+                       <div className="flex items-center gap-1 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                         <span className="text-[#0D001B] font-semibold text-base">{questionList.length + idx + 1}.</span>
+                         <div className="flex-1">
+                           <Input
+                             type="text"
+                             value={question.title}
+                             onChange={(e) => handleAdditionalQuestionTitleEdit(question.id, e.target.value)}
+                             className="text-[#0D001B] font-bold !text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                             placeholder={t('interface.generate.questionTitlePlaceholder', 'Question title...')}
+                           />
                   </div>
-                )
-                  //  : (
-                  //   <textarea
-                  //     ref={textareaRef}
-                  //     value={quizData}
-                  //     onChange={(e) => setQuizData(e.target.value)}
-                  //     placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
-                  //     className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                  //     disabled={loadingEdit}
-                  //   />
-                  // )
-                }
+                  <button
+                    type="button"
+                           onClick={() => handleDeleteAdditionalQuestion(question.id)}
+                           className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                           {t('actions.delete', 'Delete')}
+                  </button>
+                </div>
+
+                       {/* Question content */}
+                       <div className="px-5 pb-4 pt-4">
+                         <Textarea
+                           value={question.content}
+                           onChange={(e) => handleAdditionalQuestionContentEdit(question.id, e.target.value)}
+                           className="w-full !text-sm font-light leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                           placeholder={t('interface.generate.addContentPlaceholder', 'Add your content here...')}
+                         />
+                       </div>
+                     </div>
+                   ))}
+
+                   {/* Add Question Button */}
+                      <button
+                        type="button"
+                     onClick={handleAddQuestion}
+                     className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#719AF5] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                   >
+                     <span className="text-lg">+</span>
+                     <span>{t('interface.generate.addQuestion', 'Add Question')}</span>
+                   </button>
+                   
+                  <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-2 rounded-b-[8px]">
+                   <span className="select-none">{questionList.length + additionalQuestions.length} {t('interface.generate.questionTotal', 'question total')}</span>
+                   <span className="flex items-center gap-1">
+                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                       <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
+                       <circle cx="8" cy="8" r="7" stroke="#0F58F9" strokeWidth="2" fill="none"
+                         strokeDasharray={`${2 * Math.PI * 7}`}
+                         strokeDashoffset={`${2 * Math.PI * 7 * (1 - Math.min(quizData.length / 50000, 1))}`}
+                         transform="rotate(-90 8 8)"
+                         strokeLinecap="round"
+                       />
+                     </svg>
+                     {quizData.length}/50000
+                   </span>
+                 </div>
+                 </div>
+
+                 {/* Question count and character count footer */}
+                 
               </div>
             )}
           </section>
 
-          {/* Inline Advanced section & button */}
-          {streamDone && quizData && (
-            <>
-              {showAdvanced && (
-                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <Textarea
-                    value={editPrompt}
-                    onChange={(e) => setEditPrompt(e.target.value)}
-                    placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                    style={{ background: "rgba(255,255,255,0.95)" }}
-                  />
+        </div> {/* end inner wrapper */}
 
-                  {/* Example prompts */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                    {quizExamples.map((ex) => (
-                      <button
-                        key={ex.short}
-                        type="button"
-                        onClick={() => toggleExample(ex)}
-                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
-                          }`}
-                      >
-                        {ex.short}
-                        <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={() => {
-                        handleApplyQuizEdit();
-                        setAdvancedModeState("Used");
-                      }}
-                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                      style={{
-                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                        fontWeight: 500
-                      }}
-                    >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div className="w-full flex justify-center mt-2 mb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAdvanced((prev) => !prev);
-                    handleAdvancedModeClick();
-                  }}
-                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
-                  style={{
-                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                    fontWeight: 500
-                  }}
-                >
-                  <Sparkles size={16} />
-                  Smart Edit
-                </button>
-              </div>
-            </>
-          )}
+      {/* Full-width generate footer bar */}
+      {!loading && streamDone && quizData && (
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
+          {/* Credits required */}
+          <div className="absolute left-6 flex items-center gap-2 text-sm font-semibold text-[#A5A5A5] select-none">
+            {/* custom credits svg */}
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_476_6531)">
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#A5A5A5" strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_476_6531">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+            <span>5 {t('interface.generate.credits', 'credits')}</span>
+          </div>
 
-          {streamDone && quizData && (
-            <section className="flex flex-col gap-3" style={{ display: 'none' }}>
-              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                    <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-                    <span>{t('interface.generate.viewMore', 'View more')}</span>
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-5">
-                  {/* Themes grid */}
-                  <div className="grid grid-cols-3 gap-5 justify-items-center">
-                    {themeOptions.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => setSelectedTheme(t.id)}
-                        className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : 'hover:shadow-lg'}`}
-                      >
-                        <div className="w-[214px] h-[116px] flex items-center justify-center">
-                          {(() => {
-                            const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                            return <Svg />;
-                          })()}
-                        </div>
-                        <div className="flex items-center gap-1 px-2">
-                          <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>
-                            ✔
-                          </span>
-                          <span className="text-sm text-[#20355D] font-medium select-none">
-                            {t.label}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {streamDone && quizData && (
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-                {/* Quiz creation costs 5 credits */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                <span>5 {t('interface.credits', 'credits')}</span>
-
-                {/* NEW: Show user edits indicator - HIDDEN */}
-                {false && hasUserEdits && (
-                  <div className="flex items-center gap-1 text-sm text-orange-600">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                    <span>{t('interface.generate.userEdits', 'User edits detected')}</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-[7.5rem]">
-                <span className="text-lg text-gray-700 font-medium select-none">
-                  {/* Show question count with proper pluralization */}
-                  {questionList.length} {getQuestionPluralForm(questionList.length)}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleCreateFinal}
-                  disabled={isCreatingFinal}
-                  className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCreatingFinal ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      {t('interface.generate.creatingQuiz', 'Creating Quiz...')}
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={18} />
-                      <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
+          {/* AI Agent + generate */}
+          <div className="flex items-center gap-[10px]">
+            {!showAdvanced && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdvanced(!showAdvanced);
+                  handleAdvancedModeClick();
+                }}
+                className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>AI Improve</span>
+              </button>
+            )}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleCreateFinal}
+                className="px-6 py-2 rounded-md bg-[#0F58F9] text-white text-sm font-bold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || isCreatingFinal}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+                </svg>
+                <span className="select-none font-semibold">{t('interface.generate.generateQuiz', 'Generate Quiz')}</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
-      </main>
-      <style jsx global>{`
+      )}
+    </main>
+
+    {/* AI Agent Side Panel - slides from right */}
+    <div 
+      className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
+      style={{
+        width: '400px',
+        backgroundColor: '#F9F9F9',
+        transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
+        borderLeft: '1px solid #CCCCCC'
+      }}
+    >
+      {streamDone && quizData && (
+        <AiAgent
+          editPrompt={editPrompt}
+          setEditPrompt={setEditPrompt}
+          examples={quizExamples}
+          selectedExamples={selectedExamples}
+          toggleExample={toggleExample}
+          loadingEdit={loadingEdit}
+          onApplyEdit={() => {
+            handleApplyQuizEdit();
+            setAdvancedModeState("Used");
+          }}
+          onClose={() => setShowAdvanced(false)}
+          advancedSectionRef={advancedSectionRef}
+          placeholder={t('interface.generate.describeImprovements', "Describe what you'd like to improve...")}
+          buttonText={t('interface.edit', 'Edit')}
+          hasStartedChat={aiAgentChatStarted}
+          setHasStartedChat={setAiAgentChatStarted}
+          lastUserMessage={aiAgentLastMessage}
+          setLastUserMessage={setAiAgentLastMessage}
+        />
+      )}
+    </div>
+    </div>
+    <style jsx global>{`
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-8px); }
         to { opacity: 1; transform: translateY(0); }
       }
-      button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
+    `}</style>
+    {/* Make cursor a pointer (hand) over all obvious clickable elements */}
+    <style jsx global>{`
+      button,
+      select,
+      input[type="checkbox"],
+      label[role="button"],
+      label[for] {
+        cursor: pointer;
+      }
     `}</style>
       {isCreatingFinal && (
         <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">

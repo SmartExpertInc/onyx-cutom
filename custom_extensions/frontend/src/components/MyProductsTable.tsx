@@ -4418,19 +4418,19 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 flex items-center justify-center">
                                   {p.designMicroproductType === "Slide Deck" && (
-                                    <LayoutTemplate size={20} strokeWidth={1} className="font-light text-[#EFB4FB]" />
+                                    <LayoutTemplate size={20} strokeWidth={1} className="font-light text-[#E16DF8]" />
                                   )}
                                   {p.designMicroproductType === "Training Plan" && (
                                     <BookOpen size={20} strokeWidth={1} className="font-light text-[#719AF5]" />
                                   )}
                                   {(p.designMicroproductType === "Video" || p.designMicroproductType === "Video Lesson Presentation") && (
-                                    <MonitorPlay size={20} strokeWidth={1} className="font-light text-[#06A294]" />
+                                    <MonitorPlay size={20} strokeWidth={1} className="font-light text-[#6CF9ED]" />
                                   )}
                                   {p.designMicroproductType === "Text Presentation" && (
                                     <FileText size={20} strokeWidth={1} className="font-light text-purple-300" />
                                   )}
                                   {p.designMicroproductType === "Quiz" && (
-                                    <FileQuestion size={20} strokeWidth={1} className="font-light text-[#FBEC9E]" />
+                                    <FileQuestion size={20} strokeWidth={1} className="font-light text-[#FBBC6A]" />
                                   )}
                                 </div>
                                 <span className="text-sm text-gray-500 font-normal">

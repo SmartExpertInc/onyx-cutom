@@ -99,6 +99,20 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return; // allow inline editing
         }
 
+        // Check if target is text content that should be editable
+        const isTextElement = targetElement.tagName === 'P' || 
+                             targetElement.tagName === 'H1' || 
+                             targetElement.tagName === 'H2' || 
+                             targetElement.tagName === 'H3' || 
+                             targetElement.tagName === 'H4' || 
+                             targetElement.tagName === 'SPAN' ||
+                             targetElement.classList.contains('editable-text') ||
+                             targetElement.closest('.editable-text');
+        
+        if (isTextElement) {
+          return; // allow text editing
+        }
+
         // If a child draggable exists under the cursor, ignore this (parent) draggable
         const closestDraggable = targetElement.closest('[data-draggable="true"]');
         if (closestDraggable && closestDraggable !== htmlElement) {
@@ -182,6 +196,24 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           // Create a more targeted click suppression that only affects draggable elements
           const suppressNextClick = (ev: MouseEvent) => {
             const target = ev.target as HTMLElement;
+            // Don't suppress clicks on text elements or elements inside wysiwyg editors
+            const isTextElement = target.tagName === 'P' || 
+                                 target.tagName === 'H1' || 
+                                 target.tagName === 'H2' || 
+                                 target.tagName === 'H3' || 
+                                 target.tagName === 'H4' || 
+                                 target.tagName === 'SPAN' ||
+                                 target.tagName === 'DIV' ||
+                                 target.closest('.wysiwyg-editor') ||
+                                 target.classList.contains('editable-text') ||
+                                 target.closest('.editable-text') ||
+                                 target.classList.contains('editable-text') ||
+                                 target.closest('.editable-text');
+            
+            if (isTextElement) {
+              return; // Allow text editing
+            }
+            
             // Only suppress clicks on draggable elements or their children
             const isDraggableElement = target.closest('[data-draggable="true"]');
             if (isDraggableElement && Date.now() < suppressClicksUntilRef.current) {

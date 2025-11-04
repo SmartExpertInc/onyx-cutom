@@ -100,6 +100,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [entitlements, setEntitlements] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [hasFiles, setHasFiles] = useState(false);
 
   // Notify parent when tab changes
   useEffect(() => {
@@ -119,6 +120,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       onFileSelect(fileObjects);
     }
   }, [onFileSelect]);
+  
+  // Handle files loaded callback from SmartDriveBrowser
+  const handleFilesLoaded = useCallback((filesExist: boolean) => {
+    setHasFiles(filesExist);
+  }, []);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     if (typeof window === 'undefined') return 'grid';
     const saved = localStorage.getItem('smartDriveViewMode');
@@ -808,6 +814,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             sortBy={sortBy} 
             sortOrder={sortOrder}
             onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+            onFilesLoaded={handleFilesLoaded}
           />
         )}
       </div>
@@ -852,12 +859,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             
               <div className="flex items-center gap-2">
                 {activeTab === 'smart-drive' && !isSelectMode && (
-                  <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#0D001B] bg-white border border-[#0D001B] hover:border-gray-900 cursor-pointer hover:bg-gray-50 h-9">
+                  <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#878787] bg-white border border-[#878787] cursor-pointer hover:bg-gray-50 h-9">
                     <Upload className="w-4 h-4 mr-2"/>Upload
-                  </Button>)}
+                  </Button>
+                )}
                   <input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
                 {activeTab === 'smart-drive' && !isSelectMode && ( 
-                  <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border text-[#0D001B] border-[#0D001B] cursor-pointer hover:border-gray-900 hover:bg-gray-50 h-9">
+                  <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border text-[#878787] border-[#878787] cursor-pointer hover:bg-gray-50 h-9">
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
@@ -868,7 +876,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               </div>
             
             {activeTab === 'smart-drive' && (<div 
-              className="flex items-center px-3 bg-white border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer h-9"
+              className="flex items-center mt-1 px-3 bg-white border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer h-9"
               onClick={() => {
                 setSortBy('created');
                 // Toggle between newest first (desc) and oldest first (asc)
@@ -981,8 +989,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         <div className="flex flex-col">
                           {/* Top labels */}
                           <div className="flex justify-between items-center mb-1">
-                            <span className="text-[#434343] font-medium text-[11px]">Storage used</span>
-                            <span className="text-[#434343] text-[11px]">
+                            <span className="text-[#4D4D4D] font-medium text-[11px]">Storage used</span>
+                            <span className="text-[#4D4D4D] text-[11px]">
                               {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
                             </span>
                           </div>
@@ -1002,10 +1010,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           
                           {/* Bottom labels */}
                           <div className="flex justify-between items-center mt-1">
-                            <span className="text-gray-500 text-[11px]">
+                            <span className="text-[#878787] text-[11px]">
                               {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
                             </span>
-                            <span className="text-gray-500 text-[11px]">
+                            <span className="text-[#878787] text-[11px]">
                               {entitlements.storage_gb - entitlements.storage_used_gb} GB free
                             </span>
                           </div>
@@ -1058,6 +1066,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 sortBy={sortBy} 
                 sortOrder={sortOrder}
                 onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+                onFilesLoaded={handleFilesLoaded}
               />
             )}
           </div>
@@ -1312,7 +1321,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                     e.stopPropagation();
                                     handleConnectClick(connector.id, connector.name);
                                   }}
-                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-gray-200 text-[#878787] hover:bg-gray-50"
                                 >
                                   View Integration
                                 </button>

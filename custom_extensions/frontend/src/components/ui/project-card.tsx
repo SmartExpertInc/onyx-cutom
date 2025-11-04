@@ -507,7 +507,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
                 {project.designMicroproductType === "Slide Deck" && (
-                  <LayoutTemplate size={20} strokeWidth={1} className="font-light text-[#EFB4FB]" />
+                  <LayoutTemplate size={20} strokeWidth={1} className="font-light text-[#E16DF8]" />
                 )}
                 {project.designMicroproductType === "Training Plan" && (
                   <BookOpen size={20} strokeWidth={1} className="font-light text-[#719AF5]" />
@@ -519,7 +519,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   <FileText size={20} strokeWidth={1} className="font-light text-purple-300" />
                 )}
                 {project.designMicroproductType === "Quiz" && (
-                  <FileQuestion size={20} strokeWidth={1} className="font-light text-[#FBEC9E]" />
+                  <FileQuestion size={20} strokeWidth={1} className="font-light text-[#FBBC6A]" />
                 )}
               </div>
               <span className="text-sm text-gray-500 font-normal">

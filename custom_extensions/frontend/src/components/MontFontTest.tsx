@@ -20,7 +20,7 @@ export const MontFontTest: React.FC<MontFontTestProps> = ({
       const status = {
         regular: isFontLoaded(MONT_FONTS.regular),
         bold: isFontLoaded(MONT_FONTS.bold),
-        thin: isFontLoaded(MONT_FONTS.thin),
+        // thin: isFontLoaded(MONT_FONTS.thin), // Removed - not used
       };
       setFontStatus(status);
     };
@@ -83,6 +83,7 @@ export const MontFontTest: React.FC<MontFontTestProps> = ({
         Mont Bold: The quick brown fox
       </div>
       
+      {/* Removed Mont Thin - not used in application
       <div style={{ 
         fontFamily: MONT_FONTS.thin, 
         marginTop: '4px',
@@ -91,6 +92,7 @@ export const MontFontTest: React.FC<MontFontTestProps> = ({
       }}>
         Mont Thin: The quick brown fox
       </div>
+      */}
     </div>
   );
 };

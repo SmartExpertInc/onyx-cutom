@@ -1,0 +1,1218 @@
+🎨 Font styles applied to Chudo and Forta themes
+3221-2f8b6d491863f4ac.js:1 Mixpanel token is missing! Check your .env file.
+s @ 3221-2f8b6d491863f4ac.js:1Understand this warning
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+page-3c7462663b0aff0f.js:1 📥 [FETCH DATA] Received from backend: Object
+page-3c7462663b0aff0f.js:1 🎨 Theme system initialized: Object
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+2233-b55497e3d6797b68.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+2233-b55497e3d6797b68.js:1 📄 Slide 1 (hero-title-slide): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 2 (bullet-points): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 3 (table-dark): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 4 (event-list): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 5 (comparison-slide): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 6 (hero-title-slide): Object
+2233-b55497e3d6797b68.js:1 ✅ Component-based slides loaded with theme: Object
+2233-b55497e3d6797b68.js:1 🎬 Exposed slide data to window for video generation: Object
+page-3c7462663b0aff0f.js:1 🎨 Theme system initialized: Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_fallback Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_fallback Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | notRendering Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | portalContainerSet Object
+1846-b0ac4dda5bfdb617.js:1 🔍 [ComponentLifecycle] MOUNTED Object
+1846-b0ac4dda5bfdb617.js:1 🔍 [SpinnerState] isGenerating changed Object
+1846-b0ac4dda5bfdb617.js:1 🔍 [ImageSync] Syncing displayed image with prop Object
+1846-b0ac4dda5bfdb617.js:1 🔍 [ImageSync] Set displayed image Object
+12Failed to decode downloaded font: <URL>Understand this warning
+12OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | notRendering Object
+1684-614c13b884d04a5e.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+(anonymous) @ 1684-614c13b884d04a5e.js:1Understand this error
+1684-614c13b884d04a5e.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont thin font
+    at n.onerror (layout-6f1f28f143605625.js:1:4590)
+(anonymous) @ 1684-614c13b884d04a5e.js:1Understand this error
+layout-6f1f28f143605625.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Avatar data received: Object
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Loaded saved avatar from localStorage: Object
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Saved variant not found, using first available variant
+layout-6f1f28f143605625.js:1 🎭 [AVATAR_MANAGER] Saved avatar to localStorage: Object
+1684-614c13b884d04a5e.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+(anonymous) @ 1684-614c13b884d04a5e.js:1Understand this error
+1684-614c13b884d04a5e.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+(anonymous) @ 1684-614c13b884d04a5e.js:1Understand this error
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: false
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: Object
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Editor initialized, setting focus and selecting all text
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: Object
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Selection is empty, hiding toolbar
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: Object
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: Object
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: Object
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: Object
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: Object
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Focus and selection commands executed
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: Object
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: true
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: Object
+1846-b0ac4dda5bfdb617.js:1 ⌨️ [WysiwygEditor] Key pressed: F12
+1846-b0ac4dda5bfdb617.js:1 👋 [WysiwygEditor] Editor blur event triggered
+1846-b0ac4dda5bfdb617.js:1 💾 [WysiwygEditor] Saving content on blur: Object
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Received updated deck: Object
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Step to analyze the market",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Step to Analyze the Market",
+        "templateId": "hero-title-slide",
+        "props": {
+          "date": "2024",
+          "title": "asdf",
+          "author": "Market Research Institute",
+          "subtitle": "</p><p><strong><em>A comprehensive </em>guide to<em> </em></strong>understanding market<strong><em> dynamics</em></strong>",
+          "titleColor": "#ffffff",
+          "subtitleColor": "#d1d5db",
+          "backgroundColor": "#5b21b6"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T13:21:01.396Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 46,
+              "y": 5
+            },
+            "draggable-slide_1_intro-1": {
+              "x": 5,
+              "y": 24
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_market_analysis_steps",
+        "slideNumber": 2,
+        "slideTitle": "Key Steps in Market Analysis",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "Essential Steps for Effective Market Analysis",
+          "bullets": [
+            "Define the market: Clearly outline the market boundaries, including geographic and demographic factors to ensure focused research.",
+            "Identify target audience: Segment the market based on characteristics such as age, income, and preferences to tailor insights effectively.",
+            "Data collection methods: Utilize surveys, interviews, and secondary research to gather comprehensive data for analysis.",
+            "Competitor analysis: Evaluate competitors' strengths, weaknesses, and strategies to identify opportunities and threats in the market."
+          ],
+          "imageAlt": "Market research team analyzing data in a modern office",
+          "imagePath": "/static_design_images/ai_generated_08048dec-7121-410b-b2c0-de53d7a59f6b.png",
+          "objectFit": "cover",
+          "imagePrompt": "Realistic scene of a market research team conducting surveys and analyzing data in a modern office environment. The team is diverse, engaged in discussions, and using laptops and charts to visualize data. The workspace is bright and collaborative, with whiteboards filled with notes and diagrams. Natural lighting enhances the atmosphere, creating a professional yet inviting setting. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T05:58:40.245Z"
+        }
+      },
+      {
+        "slideId": "slide-1759152999066-dfal9m898",
+        "slideNumber": 3,
+        "slideTitle": "This is a table",
+        "templateId": "table-dark",
+        "props": {
+          "title": "This is a table",
+          "content": "Add your content here...",
+          "tableData": {
+            "rows": [
+              [
+                "Task 4",
+                "✗",
+                "✓",
+                "✗"
+              ],
+              [
+                "Task 4",
+                "✓",
+                "✗",
+                "✓"
+              ],
+              [
+                "Task 5",
+                "✓",
+                "✗",
+                "✓"
+              ]
+            ],
+            "headers": [
+              "Mars",
+              "Venus",
+              "Jupiter"
+            ]
+          },
+          "textColor": "#ffffff",
+          "crossColor": "#ef4444",
+          "titleColor": "#ffffff",
+          "borderColor": "#4a4a4a",
+          "headerColor": "#ffffff",
+          "checkmarkColor": "#10b981",
+          "showCheckmarks": true,
+          "backgroundColor": "#1a1a1a",
+          "tableBackgroundColor": "#2a2a2a",
+          "headerBackgroundColor": "#3a3a3a"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:36:39.066Z",
+          "updatedAt": "2025-09-30T08:06:33.389Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153044459-otl0cja85",
+        "slideNumber": 4,
+        "slideTitle": "Slide 4",
+        "templateId": "event-list",
+        "props": {
+          "title": "Slide 4",
+          "events": [
+            {
+              "date": "April 14",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "June 6",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "July 12",
+              "description": "You can insert here the title of the event or a small description"
+            }
+          ],
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:24.459Z",
+          "updatedAt": "2025-09-30T08:05:59.076Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153049569-dwqxe92g2",
+        "slideNumber": 5,
+        "slideTitle": "Comparison",
+        "templateId": "comparison-slide",
+        "props": {
+          "title": "Comparison",
+          "content": "Add your content here...",
+          "subtitle": "",
+          "tableData": {
+            "rows": [
+              [
+                "Characteristic 1",
+                "Value A1",
+                "Value B1"
+              ],
+              [
+                "Characteristic 2",
+                "Value A2",
+                "Value B2"
+              ],
+              [
+                "Characteristic 3",
+                "Value A3",
+                "Value B3"
+              ]
+            ],
+            "headers": [
+              "Feature",
+              "Option A",
+              "Option B"
+            ]
+          }
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:29.569Z",
+          "updatedAt": "2025-09-29T13:37:40.857Z"
+        }
+      },
+      {
+        "slideId": "slide-1759158838776-05098obne",
+        "slideNumber": 6,
+        "slideTitle": "Add title",
+        "templateId": "hero-title-slide",
+        "props": {
+          "title": "Add title",
+          "content": "Add your content here...",
+          "subtitle": "Add subtitle",
+          "textAlign": "center",
+          "titleSize": "xlarge",
+          "showAccent": true,
+          "titleColor": "#1a1a1a",
+          "accentColor": "#3b82f6",
+          "companyName": "Company name",
+          "subtitleSize": "medium",
+          "subtitleColor": "#6b7280",
+          "accentPosition": "left",
+          "backgroundColor": "#ffffff"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T15:13:58.776Z",
+          "updatedAt": "2025-09-29T15:14:26.285Z",
+          "elementPositions": {
+            "draggable-slide-1759158838776-05098obne-0": {
+              "x": -172,
+              "y": -3
+            },
+            "draggable-slide-1759158838776-05098obne-1": {
+              "x": -19,
+              "y": 36
+            }
+          }
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+1846-b0ac4dda5bfdb617.js:1 👁️ [WysiwygEditor] Hiding toolbar due to blur
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | notRendering Object
+2233-b55497e3d6797b68.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+2233-b55497e3d6797b68.js:1 📄 Slide 1 (hero-title-slide): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 2 (bullet-points): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 3 (table-dark): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 4 (event-list): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 5 (comparison-slide): Object
+2233-b55497e3d6797b68.js:1 📄 Slide 6 (hero-title-slide): Object
+2233-b55497e3d6797b68.js:1 ✅ Component-based slides loaded with theme: Object
+2233-b55497e3d6797b68.js:1 🎬 Exposed slide data to window for video generation: Object
+page-3c7462663b0aff0f.js:1 🎨 Theme system initialized: Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual Object
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | notRendering Object
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 168,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Step to analyze the market",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Step to analyze the market",
+  "microproduct_content": {
+    "lessonTitle": "Step to analyze the market",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Step to Analyze the Market",
+        "templateId": "hero-title-slide",
+        "props": {
+          "date": "2024",
+          "title": "asdf",
+          "author": "Market Research Institute",
+          "subtitle": "</p><p><strong><em>A comprehensive </em>guide to<em> </em></strong>understanding market<strong><em> dynamics</em></strong>",
+          "titleColor": "#ffffff",
+          "subtitleColor": "#d1d5db",
+          "backgroundColor": "#5b21b6"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T13:21:01.396Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 46,
+              "y": 5
+            },
+            "draggable-slide_1_intro-1": {
+              "x": 5,
+              "y": 24
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_market_analysis_steps",
+        "slideNumber": 2,
+        "slideTitle": "Key Steps in Market Analysis",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "Essential Steps for Effective Market Analysis",
+          "bullets": [
+            "Define the market: Clearly outline the market boundaries, including geographic and demographic factors to ensure focused research.",
+            "Identify target audience: Segment the market based on characteristics such as age, income, and preferences to tailor insights effectively.",
+            "Data collection methods: Utilize surveys, interviews, and secondary research to gather comprehensive data for analysis.",
+            "Competitor analysis: Evaluate competitors' strengths, weaknesses, and strategies to identify opportunities and threats in the market."
+          ],
+          "imageAlt": "Market research team analyzing data in a modern office",
+          "imagePath": "/static_design_images/ai_generated_08048dec-7121-410b-b2c0-de53d7a59f6b.png",
+          "objectFit": "cover",
+          "imagePrompt": "Realistic scene of a market research team conducting surveys and analyzing data in a modern office environment. The team is diverse, engaged in discussions, and using laptops and charts to visualize data. The workspace is bright and collaborative, with whiteboards filled with notes and diagrams. Natural lighting enhances the atmosphere, creating a professional yet inviting setting. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T05:58:40.245Z"
+        }
+      },
+      {
+        "slideId": "slide-1759152999066-dfal9m898",
+        "slideNumber": 3,
+        "slideTitle": "This is a table",
+        "templateId": "table-dark",
+        "props": {
+          "title": "This is a table",
+          "content": "Add your content here...",
+          "tableData": {
+            "rows": [
+              [
+                "Task 4",
+                "✗",
+                "✓",
+                "✗"
+              ],
+              [
+                "Task 4",
+                "✓",
+                "✗",
+                "✓"
+              ],
+              [
+                "Task 5",
+                "✓",
+                "✗",
+                "✓"
+              ]
+            ],
+            "headers": [
+              "Mars",
+              "Venus",
+              "Jupiter"
+            ]
+          },
+          "textColor": "#ffffff",
+          "crossColor": "#ef4444",
+          "titleColor": "#ffffff",
+          "borderColor": "#4a4a4a",
+          "headerColor": "#ffffff",
+          "checkmarkColor": "#10b981",
+          "showCheckmarks": true,
+          "backgroundColor": "#1a1a1a",
+          "tableBackgroundColor": "#2a2a2a",
+          "headerBackgroundColor": "#3a3a3a"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:36:39.066Z",
+          "updatedAt": "2025-09-30T08:06:33.389Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153044459-otl0cja85",
+        "slideNumber": 4,
+        "slideTitle": "Slide 4",
+        "templateId": "event-list",
+        "props": {
+          "title": "Slide 4",
+          "events": [
+            {
+              "date": "April 14",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "June 6",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "July 12",
+              "description": "You can insert here the title of the event or a small description"
+            }
+          ],
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:24.459Z",
+          "updatedAt": "2025-09-30T08:05:59.076Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153049569-dwqxe92g2",
+        "slideNumber": 5,
+        "slideTitle": "Comparison",
+        "templateId": "comparison-slide",
+        "props": {
+          "title": "Comparison",
+          "content": "Add your content here...",
+          "subtitle": "",
+          "tableData": {
+            "rows": [
+              [
+                "Characteristic 1",
+                "Value A1",
+                "Value B1"
+              ],
+              [
+                "Characteristic 2",
+                "Value A2",
+                "Value B2"
+              ],
+              [
+                "Characteristic 3",
+                "Value A3",
+                "Value B3"
+              ]
+            ],
+            "headers": [
+              "Feature",
+              "Option A",
+              "Option B"
+            ]
+          }
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:29.569Z",
+          "updatedAt": "2025-09-29T13:37:40.857Z"
+        }
+      },
+      {
+        "slideId": "slide-1759158838776-05098obne",
+        "slideNumber": 6,
+        "slideTitle": "Add title",
+        "templateId": "hero-title-slide",
+        "props": {
+          "title": "Add title",
+          "content": "Add your content here...",
+          "subtitle": "Add subtitle",
+          "textAlign": "center",
+          "titleSize": "xlarge",
+          "showAccent": true,
+          "titleColor": "#1a1a1a",
+          "accentColor": "#3b82f6",
+          "companyName": "Company name",
+          "subtitleSize": "medium",
+          "subtitleColor": "#6b7280",
+          "accentPosition": "left",
+          "backgroundColor": "#ffffff"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T15:13:58.776Z",
+          "updatedAt": "2025-09-29T15:14:26.285Z",
+          "elementPositions": {
+            "draggable-slide-1759158838776-05098obne-0": {
+              "x": -172,
+              "y": -3
+            },
+            "draggable-slide-1759158838776-05098obne-1": {
+              "x": -19,
+              "y": 36
+            }
+          }
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-09-29T13:36:14.850051Z",
+  "custom_rate": null,
+  "quality_tier": null,
+  "is_advanced": null,
+  "advanced_rates": null,
+  "completion_times": null
+}
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: false
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 0, y: 0}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Editor initialized, setting focus and selecting all text
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 57, to: 57, empty: true, selectionText: ''}
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Selection is empty, hiding toolbar
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 0, to: 58, empty: false, selectionText: ' A comprehensive guide to understanding market dynamics'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(177.8000030517578 + 177.8000030517578) / 2 = 177.8000030517578', topYCalculation: 'Math.min(235, 340.60001373291016) = 235', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 177.8000030517578, y: 235}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 177.8000030517578, y: 235}
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Focus and selection commands executed
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 177.8000030517578, finalTop: 175, finalCSSLeft: '177.8000030517578px', …}
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: true
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 177.8000030517578, y: 235}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 51, to: 51, empty: true, selectionText: ''}
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Selection is empty, hiding toolbar
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: false
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 49, empty: true, selectionText: ''}
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Selection is empty, hiding toolbar
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 50, empty: false, selectionText: 'd'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 407.01251220703125) / 2 = 399.86875915527344', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 399.86875915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 399.86875915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 399.86875915527344, finalTop: 242.20001220703125, finalCSSLeft: '399.86875915527344px', …}
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: true
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 399.86875915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 51, empty: false, selectionText: 'dy'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 419.95001220703125) / 2 = 406.33750915527344', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 406.33750915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 406.33750915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 406.33750915527344, finalTop: 242.20001220703125, finalCSSLeft: '406.33750915527344px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 406.33750915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 52, empty: false, selectionText: 'dyn'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 434.1750183105469) / 2 = 413.45001220703125', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 413.45001220703125, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 413.45001220703125, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 413.45001220703125, finalTop: 242.20001220703125, finalCSSLeft: '413.45001220703125px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 413.45001220703125, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 53, empty: false, selectionText: 'dyna'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 447.07501220703125) / 2 = 419.90000915527344', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 419.90000915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 419.90000915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 419.90000915527344, finalTop: 242.20001220703125, finalCSSLeft: '419.90000915527344px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 419.90000915527344, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 54, empty: false, selectionText: 'dynam'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 468.625) / 2 = 430.6750030517578', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 430.6750030517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 430.6750030517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 430.6750030517578, finalTop: 242.20001220703125, finalCSSLeft: '430.6750030517578px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 430.6750030517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 55, empty: false, selectionText: 'dynami'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 475.5) / 2 = 434.1125030517578', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 434.1125030517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 434.1125030517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 434.1125030517578, finalTop: 242.20001220703125, finalCSSLeft: '434.1125030517578px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 434.1125030517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 56, empty: false, selectionText: 'dynamic'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 487.3125) / 2 = 440.0187530517578', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 440.0187530517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 440.0187530517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 440.0187530517578, finalTop: 242.20001220703125, finalCSSLeft: '440.0187530517578px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 440.0187530517578, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 49, to: 57, empty: false, selectionText: 'dynamics'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(392.7250061035156 + 498.7375183105469) / 2 = 445.73126220703125', topYCalculation: 'Math.min(302.20001220703125, 302.20001220703125) = 302.20001220703125', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 445.73126220703125, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 445.73126220703125, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 445.73126220703125, finalTop: 242.20001220703125, finalCSSLeft: '445.73126220703125px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 445.73126220703125, y: 302.20001220703125}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 27, empty: true, selectionText: ''}
+1846-b0ac4dda5bfdb617.js:1 📝 [WysiwygEditor] Selection is empty, hiding toolbar
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: false
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 28, empty: false, selectionText: ' '}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 475.32501220703125) / 2 = 472.57501220703125', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 472.57501220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 472.57501220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 472.57501220703125, finalTop: 207, finalCSSLeft: '472.57501220703125px', …}
+1846-b0ac4dda5bfdb617.js:1 🔄 [WysiwygEditor] Toolbar visibility changed: true
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 472.57501220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 29, empty: false, selectionText: ' u'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 488.70001220703125) / 2 = 479.26251220703125', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 479.26251220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 479.26251220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 479.26251220703125, finalTop: 207, finalCSSLeft: '479.26251220703125px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 479.26251220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 30, empty: false, selectionText: ' un'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 502.07501220703125) / 2 = 485.95001220703125', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 485.95001220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 485.95001220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 485.95001220703125, finalTop: 207, finalCSSLeft: '485.95001220703125px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 485.95001220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 31, empty: false, selectionText: ' und'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 515.3375244140625) / 2 = 492.5812683105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 492.5812683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 492.5812683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 492.5812683105469, finalTop: 207, finalCSSLeft: '492.5812683105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 492.5812683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 32, empty: false, selectionText: ' unde'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 527.5625) / 2 = 498.6937561035156', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 498.6937561035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 498.6937561035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 498.6937561035156, finalTop: 207, finalCSSLeft: '498.6937561035156px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 498.6937561035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 33, empty: false, selectionText: ' under'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 536.3875122070312) / 2 = 503.10626220703125', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 503.10626220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 503.10626220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 503.10626220703125, finalTop: 207, finalCSSLeft: '503.10626220703125px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 503.10626220703125, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 34, empty: false, selectionText: ' unders'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 547.125) / 2 = 508.4750061035156', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 508.4750061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 508.4750061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 508.4750061035156, finalTop: 207, finalCSSLeft: '508.4750061035156px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 508.4750061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 35, empty: false, selectionText: ' underst'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 556.5375366210938) / 2 = 513.1812744140625', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 513.1812744140625, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 513.1812744140625, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 513.1812744140625, finalTop: 207, finalCSSLeft: '513.1812744140625px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 513.1812744140625, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 36, empty: false, selectionText: ' understa'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 568.75) / 2 = 519.2875061035156', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 519.2875061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 519.2875061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 519.2875061035156, finalTop: 207, finalCSSLeft: '519.2875061035156px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 519.2875061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 37, empty: false, selectionText: ' understan'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 582.125) / 2 = 525.9750061035156', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 525.9750061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 525.9750061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 525.9750061035156, finalTop: 207, finalCSSLeft: '525.9750061035156px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 525.9750061035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 38, empty: false, selectionText: ' understand'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 595.4000244140625) / 2 = 532.6125183105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 532.6125183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 532.6125183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 532.6125183105469, finalTop: 207, finalCSSLeft: '532.6125183105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 532.6125183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 39, empty: false, selectionText: ' understandi'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 601.7750244140625) / 2 = 535.8000183105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 535.8000183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 535.8000183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 535.8000183105469, finalTop: 207, finalCSSLeft: '535.8000183105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 535.8000183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 40, empty: false, selectionText: ' understandin'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 615.1500244140625) / 2 = 542.4875183105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 542.4875183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 542.4875183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 542.4875183105469, finalTop: 207, finalCSSLeft: '542.4875183105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 542.4875183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 41, empty: false, selectionText: ' understanding'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 627.4625244140625) / 2 = 548.6437683105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 548.6437683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 548.6437683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 548.6437683105469, finalTop: 207, finalCSSLeft: '548.6437683105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 548.6437683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 42, empty: false, selectionText: ' understanding '}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 312.0625) / 2 = 390.9437561035156', topYCalculation: 'Math.min(267, 302.20001220703125) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 390.9437561035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 390.9437561035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 390.9437561035156, finalTop: 207, finalCSSLeft: '390.9437561035156px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 390.9437561035156, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 41, empty: false, selectionText: ' understanding'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 627.4625244140625) / 2 = 548.6437683105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 548.6437683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 548.6437683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 548.6437683105469, finalTop: 207, finalCSSLeft: '548.6437683105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 548.6437683105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 40, empty: false, selectionText: ' understandin'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 615.1500244140625) / 2 = 542.4875183105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 542.4875183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 542.4875183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 542.4875183105469, finalTop: 207, finalCSSLeft: '542.4875183105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 542.4875183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🔍 [WysiwygEditor] Selection Update Triggered: {from: 27, to: 39, empty: false, selectionText: ' understandi'}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Raw Coordinates from coordsAtPos: {start: {…}, end: {…}}
+1846-b0ac4dda5bfdb617.js:1 🧮 [WysiwygEditor] Position Calculations: {centerXCalculation: '(469.82501220703125 + 601.7750244140625) / 2 = 535.8000183105469', topYCalculation: 'Math.min(267, 267) = 267', finalPosition: {…}}
+1846-b0ac4dda5bfdb617.js:1 🎯 [WysiwygEditor] Setting toolbar position: {x: 535.8000183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 ✅ [WysiwygEditor] Toolbar should now be visible at position: {x: 535.8000183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 🎨 [WysiwygEditor] Toolbar Rendering Calculations: {basePosition: {…}, offsetY: 60, finalLeft: 535.8000183105469, finalTop: 207, finalCSSLeft: '535.8000183105469px', …}
+1846-b0ac4dda5bfdb617.js:1 📍 [WysiwygEditor] Toolbar position changed: {x: 535.8000183105469, y: 267}
+1846-b0ac4dda5bfdb617.js:1 👋 [WysiwygEditor] Editor blur event triggered
+1846-b0ac4dda5bfdb617.js:1 💾 [WysiwygEditor] Saving content on blur: {originalHTML: '<p></p><p><strong><em>A comprehensive </em>guide t…ing market<strong><em> dynamics</em></strong></p>', cleanedHTML: '</p><p><strong><em>A comprehensive </em>guide to<e…tanding market<strong><em> dynamics</em></strong>'}
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Received updated deck: {lessonTitle: 'Step to analyze the market', slides: Array(6), currentSlideId: 'slide_1_intro', lessonNumber: null, detectedLanguage: 'en', …}
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Step to analyze the market",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Step to Analyze the Market",
+        "templateId": "hero-title-slide",
+        "props": {
+          "date": "2024",
+          "title": "asdf",
+          "author": "Market Research Institute",
+          "subtitle": "</p><p><strong><em>A comprehensive </em>guide to<em> </em></strong>understanding market<strong><em> dynamics</em></strong>",
+          "titleColor": "#ffffff",
+          "subtitleColor": "#d1d5db",
+          "backgroundColor": "#5b21b6"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T13:21:33.540Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 46,
+              "y": 5
+            },
+            "draggable-slide_1_intro-1": {
+              "x": 5,
+              "y": 24
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_market_analysis_steps",
+        "slideNumber": 2,
+        "slideTitle": "Key Steps in Market Analysis",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "Essential Steps for Effective Market Analysis",
+          "bullets": [
+            "Define the market: Clearly outline the market boundaries, including geographic and demographic factors to ensure focused research.",
+            "Identify target audience: Segment the market based on characteristics such as age, income, and preferences to tailor insights effectively.",
+            "Data collection methods: Utilize surveys, interviews, and secondary research to gather comprehensive data for analysis.",
+            "Competitor analysis: Evaluate competitors' strengths, weaknesses, and strategies to identify opportunities and threats in the market."
+          ],
+          "imageAlt": "Market research team analyzing data in a modern office",
+          "imagePath": "/static_design_images/ai_generated_08048dec-7121-410b-b2c0-de53d7a59f6b.png",
+          "objectFit": "cover",
+          "imagePrompt": "Realistic scene of a market research team conducting surveys and analyzing data in a modern office environment. The team is diverse, engaged in discussions, and using laptops and charts to visualize data. The workspace is bright and collaborative, with whiteboards filled with notes and diagrams. Natural lighting enhances the atmosphere, creating a professional yet inviting setting. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T05:58:40.245Z"
+        }
+      },
+      {
+        "slideId": "slide-1759152999066-dfal9m898",
+        "slideNumber": 3,
+        "slideTitle": "This is a table",
+        "templateId": "table-dark",
+        "props": {
+          "title": "This is a table",
+          "content": "Add your content here...",
+          "tableData": {
+            "rows": [
+              [
+                "Task 4",
+                "✗",
+                "✓",
+                "✗"
+              ],
+              [
+                "Task 4",
+                "✓",
+                "✗",
+                "✓"
+              ],
+              [
+                "Task 5",
+                "✓",
+                "✗",
+                "✓"
+              ]
+            ],
+            "headers": [
+              "Mars",
+              "Venus",
+              "Jupiter"
+            ]
+          },
+          "textColor": "#ffffff",
+          "crossColor": "#ef4444",
+          "titleColor": "#ffffff",
+          "borderColor": "#4a4a4a",
+          "headerColor": "#ffffff",
+          "checkmarkColor": "#10b981",
+          "showCheckmarks": true,
+          "backgroundColor": "#1a1a1a",
+          "tableBackgroundColor": "#2a2a2a",
+          "headerBackgroundColor": "#3a3a3a"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:36:39.066Z",
+          "updatedAt": "2025-09-30T08:06:33.389Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153044459-otl0cja85",
+        "slideNumber": 4,
+        "slideTitle": "Slide 4",
+        "templateId": "event-list",
+        "props": {
+          "title": "Slide 4",
+          "events": [
+            {
+              "date": "April 14",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "June 6",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "July 12",
+              "description": "You can insert here the title of the event or a small description"
+            }
+          ],
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:24.459Z",
+          "updatedAt": "2025-09-30T08:05:59.076Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153049569-dwqxe92g2",
+        "slideNumber": 5,
+        "slideTitle": "Comparison",
+        "templateId": "comparison-slide",
+        "props": {
+          "title": "Comparison",
+          "content": "Add your content here...",
+          "subtitle": "",
+          "tableData": {
+            "rows": [
+              [
+                "Characteristic 1",
+                "Value A1",
+                "Value B1"
+              ],
+              [
+                "Characteristic 2",
+                "Value A2",
+                "Value B2"
+              ],
+              [
+                "Characteristic 3",
+                "Value A3",
+                "Value B3"
+              ]
+            ],
+            "headers": [
+              "Feature",
+              "Option A",
+              "Option B"
+            ]
+          }
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:29.569Z",
+          "updatedAt": "2025-09-29T13:37:40.857Z"
+        }
+      },
+      {
+        "slideId": "slide-1759158838776-05098obne",
+        "slideNumber": 6,
+        "slideTitle": "Add title",
+        "templateId": "hero-title-slide",
+        "props": {
+          "title": "Add title",
+          "content": "Add your content here...",
+          "subtitle": "Add subtitle",
+          "textAlign": "center",
+          "titleSize": "xlarge",
+          "showAccent": true,
+          "titleColor": "#1a1a1a",
+          "accentColor": "#3b82f6",
+          "companyName": "Company name",
+          "subtitleSize": "medium",
+          "subtitleColor": "#6b7280",
+          "accentPosition": "left",
+          "backgroundColor": "#ffffff"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T15:13:58.776Z",
+          "updatedAt": "2025-09-29T15:14:26.285Z",
+          "elementPositions": {
+            "draggable-slide-1759158838776-05098obne-0": {
+              "x": -172,
+              "y": -3
+            },
+            "draggable-slide-1759158838776-05098obne-1": {
+              "x": -19,
+              "y": 36
+            }
+          }
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+1846-b0ac4dda5bfdb617.js:1 👁️ [WysiwygEditor] Hiding toolbar due to blur
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1759238493547, elementId: 'slide_2_market_analysis_steps-image', instanceId: 'slide_2_market_analysis_steps-image-kskkuo65v', containerRef: true, rect: DOMRect, …}
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1759238493547, elementId: 'slide_2_market_analysis_steps-image', instanceId: 'slide_2_market_analysis_steps-image-kskkuo65v', containerRef: true, rect: DOMRect, …}
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1759238493548, isOpen: false, portalContainerExists: true}
+2233-b55497e3d6797b68.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+2233-b55497e3d6797b68.js:1 📄 Slide 1 (hero-title-slide): {slideId: 'slide_1_intro', templateId: 'hero-title-slide', props: {…}, metadata: {…}}
+2233-b55497e3d6797b68.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_market_analysis_steps', templateId: 'bullet-points', props: {…}, metadata: {…}}
+2233-b55497e3d6797b68.js:1 📄 Slide 3 (table-dark): {slideId: 'slide-1759152999066-dfal9m898', templateId: 'table-dark', props: {…}, metadata: {…}}
+2233-b55497e3d6797b68.js:1 📄 Slide 4 (event-list): {slideId: 'slide-1759153044459-otl0cja85', templateId: 'event-list', props: {…}, metadata: {…}}
+2233-b55497e3d6797b68.js:1 📄 Slide 5 (comparison-slide): {slideId: 'slide-1759153049569-dwqxe92g2', templateId: 'comparison-slide', props: {…}, metadata: {…}}
+2233-b55497e3d6797b68.js:1 📄 Slide 6 (hero-title-slide): {slideId: 'slide-1759158838776-05098obne', templateId: 'hero-title-slide', props: {…}, metadata: {…}}
+2233-b55497e3d6797b68.js:1 ✅ Component-based slides loaded with theme: {slideCount: 6, theme: 'dark-purple', themeColors: {…}, templates: Array(6)}
+2233-b55497e3d6797b68.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
+page-3c7462663b0aff0f.js:1 🎨 Theme system initialized: {projectId: '168', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1759238493567, elementId: 'slide_2_market_analysis_steps-image', instanceId: 'slide_2_market_analysis_steps-image-kskkuo65v', containerRef: true, rect: DOMRect, …}
+1846-b0ac4dda5bfdb617.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1759238493567, elementId: 'slide_2_market_analysis_steps-image', instanceId: 'slide_2_market_analysis_steps-image-kskkuo65v', containerRef: true, rect: DOMRect, …}
+1846-b0ac4dda5bfdb617.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1759238493567, isOpen: false, portalContainerExists: true}
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-3c7462663b0aff0f.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 168,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Step to analyze the market",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Step to analyze the market",
+  "microproduct_content": {
+    "lessonTitle": "Step to analyze the market",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Step to Analyze the Market",
+        "templateId": "hero-title-slide",
+        "props": {
+          "date": "2024",
+          "title": "asdf",
+          "author": "Market Research Institute",
+          "subtitle": "</p><p><strong><em>A comprehensive </em>guide to<em> </em></strong>understanding market<strong><em> dynamics</em></strong>",
+          "titleColor": "#ffffff",
+          "subtitleColor": "#d1d5db",
+          "backgroundColor": "#5b21b6"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T13:21:33.540Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 46,
+              "y": 5
+            },
+            "draggable-slide_1_intro-1": {
+              "x": 5,
+              "y": 24
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_market_analysis_steps",
+        "slideNumber": 2,
+        "slideTitle": "Key Steps in Market Analysis",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "Essential Steps for Effective Market Analysis",
+          "bullets": [
+            "Define the market: Clearly outline the market boundaries, including geographic and demographic factors to ensure focused research.",
+            "Identify target audience: Segment the market based on characteristics such as age, income, and preferences to tailor insights effectively.",
+            "Data collection methods: Utilize surveys, interviews, and secondary research to gather comprehensive data for analysis.",
+            "Competitor analysis: Evaluate competitors' strengths, weaknesses, and strategies to identify opportunities and threats in the market."
+          ],
+          "imageAlt": "Market research team analyzing data in a modern office",
+          "imagePath": "/static_design_images/ai_generated_08048dec-7121-410b-b2c0-de53d7a59f6b.png",
+          "objectFit": "cover",
+          "imagePrompt": "Realistic scene of a market research team conducting surveys and analyzing data in a modern office environment. The team is diverse, engaged in discussions, and using laptops and charts to visualize data. The workspace is bright and collaborative, with whiteboards filled with notes and diagrams. Natural lighting enhances the atmosphere, creating a professional yet inviting setting. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "updatedAt": "2025-09-30T05:58:40.245Z"
+        }
+      },
+      {
+        "slideId": "slide-1759152999066-dfal9m898",
+        "slideNumber": 3,
+        "slideTitle": "This is a table",
+        "templateId": "table-dark",
+        "props": {
+          "title": "This is a table",
+          "content": "Add your content here...",
+          "tableData": {
+            "rows": [
+              [
+                "Task 4",
+                "✗",
+                "✓",
+                "✗"
+              ],
+              [
+                "Task 4",
+                "✓",
+                "✗",
+                "✓"
+              ],
+              [
+                "Task 5",
+                "✓",
+                "✗",
+                "✓"
+              ]
+            ],
+            "headers": [
+              "Mars",
+              "Venus",
+              "Jupiter"
+            ]
+          },
+          "textColor": "#ffffff",
+          "crossColor": "#ef4444",
+          "titleColor": "#ffffff",
+          "borderColor": "#4a4a4a",
+          "headerColor": "#ffffff",
+          "checkmarkColor": "#10b981",
+          "showCheckmarks": true,
+          "backgroundColor": "#1a1a1a",
+          "tableBackgroundColor": "#2a2a2a",
+          "headerBackgroundColor": "#3a3a3a"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:36:39.066Z",
+          "updatedAt": "2025-09-30T08:06:33.389Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153044459-otl0cja85",
+        "slideNumber": 4,
+        "slideTitle": "Slide 4",
+        "templateId": "event-list",
+        "props": {
+          "title": "Slide 4",
+          "events": [
+            {
+              "date": "April 14",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "June 6",
+              "description": "You can insert here the title of the event or a small description"
+            },
+            {
+              "date": "July 12",
+              "description": "You can insert here the title of the event or a small description"
+            }
+          ],
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:24.459Z",
+          "updatedAt": "2025-09-30T08:05:59.076Z"
+        }
+      },
+      {
+        "slideId": "slide-1759153049569-dwqxe92g2",
+        "slideNumber": 5,
+        "slideTitle": "Comparison",
+        "templateId": "comparison-slide",
+        "props": {
+          "title": "Comparison",
+          "content": "Add your content here...",
+          "subtitle": "",
+          "tableData": {
+            "rows": [
+              [
+                "Characteristic 1",
+                "Value A1",
+                "Value B1"
+              ],
+              [
+                "Characteristic 2",
+                "Value A2",
+                "Value B2"
+              ],
+              [
+                "Characteristic 3",
+                "Value A3",
+                "Value B3"
+              ]
+            ],
+            "headers": [
+              "Feature",
+              "Option A",
+              "Option B"
+            ]
+          }
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T13:37:29.569Z",
+          "updatedAt": "2025-09-29T13:37:40.857Z"
+        }
+      },
+      {
+        "slideId": "slide-1759158838776-05098obne",
+        "slideNumber": 6,
+        "slideTitle": "Add title",
+        "templateId": "hero-title-slide",
+        "props": {
+          "title": "Add title",
+          "content": "Add your content here...",
+          "subtitle": "Add subtitle",
+          "textAlign": "center",
+          "titleSize": "xlarge",
+          "showAccent": true,
+          "titleColor": "#1a1a1a",
+          "accentColor": "#3b82f6",
+          "companyName": "Company name",
+          "subtitleSize": "medium",
+          "subtitleColor": "#6b7280",
+          "accentPosition": "left",
+          "backgroundColor": "#ffffff"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-09-29T15:13:58.776Z",
+          "updatedAt": "2025-09-29T15:14:26.285Z",
+          "elementPositions": {
+            "draggable-slide-1759158838776-05098obne-0": {
+              "x": -172,
+              "y": -3
+            },
+            "draggable-slide-1759158838776-05098obne-1": {
+              "x": -19,
+              "y": 36
+            }
+          }
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-09-29T13:36:14.850051Z",
+  "custom_rate": null,
+  "quality_tier": null,
+  "is_advanced": null,
+  "advanced_rates": null,
+  "completion_times": null
+}

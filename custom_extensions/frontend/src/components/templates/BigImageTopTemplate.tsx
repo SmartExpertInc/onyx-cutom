@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -13,130 +14,6 @@ const log = (source: string, event: string, data: any) => {
 
 export interface BigImageTopProps extends BigImageLeftProps {
   // Можна додати додаткові пропси, якщо потрібно
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
 }
 
 export const BigImageTopTemplate: React.FC<BigImageTopProps & { 
@@ -200,14 +77,14 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
-    backgroundColor: backgroundColor,
+    height: '600px', // Фиксированная высота
+    background: '#ffffff', // Белый фон как на фото
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column', // Вертикальный макет
     alignItems: 'stretch',
-    justifyContent: 'space-between',
-    paddingBottom: '50px',
+    justifyContent: 'flex-start',
+    padding: '0',
     position: 'relative'
   };
 
@@ -223,49 +100,58 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const imageDimensions = getImageDimensions();
 
   const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: '100%', // Полная ширина
+    height: '50%', // Точная высота 50% от 600px
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: backgroundColor,
+    background: '#ffffff',
     minWidth: 0,
-    marginBottom: '32px'
+    marginBottom: '0',
+    flexShrink: 0 // Предотвращаем сжатие
   };
 
   const placeholderStyles: React.CSSProperties = {
     // FIXED: Always maintain full width consistency between display and saved dimensions
     width: '100%',
     // Only apply default height if no saved height exists, but keep full width
-    ...(heightPx ? { height: `${heightPx}px` } : { height: '240px' }),
-    margin: '0 auto'
+    ...(heightPx ? { height: `${heightPx}px` } : { height: '100%' }),
+    margin: '0',
+    borderRadius: '0' // Убираем скругления для полной ширины
   };
 
   const contentContainerStyles: React.CSSProperties = {
-    width: '100%',
-    padding: '60px 60px 60px 60px',
+    width: '100%', // Полная ширина
+    height: '50%', // Точная высота 50% от 600px
+    padding: '40px 40px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'flex-start',
     minWidth: 0,
+    flexShrink: 0, // Предотвращаем сжатие
+    overflow: 'hidden' // Скрываем переполнение
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3rem', // Крупный шрифт как на фото
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: '#000000', // Черный цвет как на фото
     marginBottom: '24px',
     lineHeight: '1.2',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    textAlign: 'left'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
+    fontSize: '1.1rem', // Чуть больше для читаемости
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: '#333333', // Темно-серый цвет как на фото
     lineHeight: '1.6',
+    width: '75%',
     whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    textAlign: 'left'
   };
 
   // Handle title editing
@@ -396,26 +282,22 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           style={{ display: 'inline-block' }}
         >
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={title || ''}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
               placeholder="Enter slide title..."
               className="inline-editor-title"
               style={{
                 ...titleStyles,
-                // Ensure title behaves exactly like h1 element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.2'
               }}
             />
           ) : (
@@ -433,9 +315,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {title || 'Click to add title'}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: title || 'Click to add title' }}
+            />
           )}
         </div>
 
@@ -447,26 +328,22 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           style={{ display: 'inline-block' }}
         >
           {isEditable && editingSubtitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={subtitle || ''}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
-              multiline={true}
               placeholder="Enter slide content..."
               className="inline-editor-subtitle"
               style={{
                 ...subtitleStyles,
-                // Ensure subtitle behaves exactly like div element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.6'
               }}
             />
           ) : (
@@ -484,9 +361,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {subtitle || 'Click to add content'}
-            </div>
+              dangerouslySetInnerHTML={{ __html: subtitle || 'Click to add content' }}
+            />
           )}
         </div>
       </div>

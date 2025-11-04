@@ -162,7 +162,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'end',
@@ -303,7 +303,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               key={index}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
+                  background: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
                 fontSize: '34px',
@@ -349,7 +349,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               key={index + 2}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
+                  background: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
                 fontSize: '34px',
@@ -395,7 +395,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               key={index + 5}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
+                  background: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
                 fontSize: '30px',

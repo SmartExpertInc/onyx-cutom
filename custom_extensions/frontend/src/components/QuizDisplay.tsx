@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   QuizData, AnyQuizQuestion, MultipleChoiceQuestion, MultiSelectQuestion,
   MatchingQuestion, SortingQuestion, OpenAnswerQuestion, SortableItem
 } from '@/types/quizTypes';
-import { CheckCircle, XCircle, Info, ArrowRight } from 'lucide-react';
+import { CheckCircle, XCircle, Info, ArrowRight, Check } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -40,8 +40,28 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'answer' | 'prompt' | 'match-option', questionIndex: number, optionIndex?: number, answerIndex?: number, promptIndex?: number} | null>(null);
+  const [showQuestionTypeMenu, setShowQuestionTypeMenu] = useState(false);
+  const questionTypeMenuRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (questionTypeMenuRef.current && !questionTypeMenuRef.current.contains(event.target as Node)) {
+        setShowQuestionTypeMenu(false);
+      }
+    };
+
+    if (showQuestionTypeMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showQuestionTypeMenu]);
 
   if (!dataToDisplay || !dataToDisplay.questions) {
     return null;
@@ -93,35 +113,127 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     }
   };
 
+  const handleAddQuestion = (questionType: 'multiple-choice' | 'multi-select' | 'matching' | 'sorting' | 'open-answer') => {
+    if (!onTextChange) return;
+
+    let newQuestion: AnyQuizQuestion;
+
+    switch (questionType) {
+      case 'multiple-choice':
+        newQuestion = {
+          question_type: 'multiple-choice',
+          question_text: 'New Multiple Choice Question',
+          options: [
+            { id: 'A', text: 'Option A' },
+            { id: 'B', text: 'Option B' },
+            { id: 'C', text: 'Option C' },
+            { id: 'D', text: 'Option D' }
+          ],
+          correct_option_id: 'A',
+          explanation: ''
+        } as MultipleChoiceQuestion;
+        break;
+
+      case 'multi-select':
+        newQuestion = {
+          question_type: 'multi-select',
+          question_text: 'New Multi-Select Question',
+          options: [
+            { id: 'A', text: 'Option A' },
+            { id: 'B', text: 'Option B' },
+            { id: 'C', text: 'Option C' },
+            { id: 'D', text: 'Option D' }
+          ],
+          correct_option_ids: ['A', 'B'],
+          explanation: ''
+        } as MultiSelectQuestion;
+        break;
+
+      case 'matching':
+        newQuestion = {
+          question_type: 'matching',
+          question_text: 'New Matching Question',
+          prompts: [
+            { id: 'A', text: 'Item A' },
+            { id: 'B', text: 'Item B' },
+            { id: 'C', text: 'Item C' }
+          ],
+          options: [
+            { id: '1', text: 'Match 1' },
+            { id: '2', text: 'Match 2' },
+            { id: '3', text: 'Match 3' }
+          ],
+          correct_matches: { 'A': '1', 'B': '2', 'C': '3' },
+          explanation: ''
+        } as MatchingQuestion;
+        break;
+
+      case 'sorting':
+        newQuestion = {
+          question_type: 'sorting',
+          question_text: 'New Sorting Question',
+          items_to_sort: [
+            { id: 'item1', text: 'First item' },
+            { id: 'item2', text: 'Second item' },
+            { id: 'item3', text: 'Third item' }
+          ],
+          correct_order: ['item1', 'item2', 'item3'],
+          explanation: ''
+        } as SortingQuestion;
+        break;
+
+      case 'open-answer':
+        newQuestion = {
+          question_type: 'open-answer',
+          question_text: 'New Open Answer Question',
+          acceptable_answers: ['Answer 1', 'Answer 2'],
+          explanation: ''
+        } as OpenAnswerQuestion;
+        break;
+    }
+
+    // Add the new question to the questions array
+    const updatedQuestions = [...questions, newQuestion];
+    handleTextChange(['questions'], updatedQuestions);
+    setShowQuestionTypeMenu(false);
+  };
+
   const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
     const isCorrect = userAnswers[index] === question.correct_option_id;
     const showResult = isSubmitted && showAnswers;
 
     return (
-      <div className="mt-4">
-        <div className="space-y-2">
+      <div>
+        <div>
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
-              <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
+              <div className={`flex items-center mt-1 h-5 ${onTextChange ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${option.id === question.correct_option_id ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
-                  onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${option.id === question.correct_option_id ? 'border-blue-600 bg-blue-600' : 'border-[#E0E0E0]'}`}
+                  onClick={() => onTextChange && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
-                    <div className="w-2 h-2 rounded-full bg-white" />
+                    <Check strokeWidth={2} width={9} height={9} className='text-white' />
                   )}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
-                {isEditing ? (
+              <div className="ml-1 flex-1">
+                {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    className="w-full p-2 border rounded text-black"
+                    onBlur={() => setEditingField(null)}
+                    autoFocus
+                    className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900"
                   />
                 ) : (
-                  <span className="text-black">{option.text}</span>
+                  <span 
+                    className="text-[#171718] font-light text-base cursor-pointer hover:bg-blue-50 rounded px-2 py-1 inline-block transition-colors"
+                    onClick={() => onTextChange && setEditingField({type: 'option', questionIndex: index, optionIndex: question.options.findIndex(o => o.id === option.id)})}
+                  >
+                    {option.text}
+                  </span>
                 )}
               </div>
             </div>
@@ -139,14 +251,29 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_904_128436)">
+                <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#434343"/>
+                <path d="M14.1918 4.74281C13.8563 3.90976 13.2856 3.20082 12.5415 2.69261C11.7787 2.17172 10.8847 1.89984 9.95821 1.90636C9.74247 1.90789 9.5688 2.08402 9.57032 2.29976C9.57185 2.51457 9.74646 2.68761 9.96087 2.68761C9.96181 2.68761 9.96278 2.68761 9.96368 2.68761C9.97286 2.68758 9.98181 2.68754 9.99095 2.68754C11.5292 2.68754 12.8918 3.60648 13.4672 5.03472C13.5285 5.18699 13.675 5.27949 13.8296 5.27949C13.8782 5.27949 13.9277 5.27039 13.9755 5.25109C14.1756 5.17047 14.2725 4.94289 14.1918 4.74281Z" fill="#434343"/>
+                <path d="M14.4021 6.15352C14.3295 6.08086 14.2287 6.03906 14.126 6.03906C14.0232 6.03906 13.9225 6.08086 13.8498 6.15352C13.7768 6.22617 13.7354 6.32695 13.7354 6.42969C13.7354 6.53281 13.7768 6.6332 13.8498 6.70586C13.9225 6.77891 14.0229 6.82031 14.126 6.82031C14.2287 6.82031 14.3295 6.77891 14.4021 6.70586C14.4748 6.6332 14.5166 6.53281 14.5166 6.42969C14.5166 6.32695 14.4748 6.22617 14.4021 6.15352Z" fill="#434343"/>
+                <path d="M18.1437 1.94644C17.9911 1.7939 17.7438 1.7939 17.5912 1.94644L16.8634 2.67421C16.7109 2.82675 16.7109 3.07409 16.8634 3.22667C16.9397 3.30296 17.0397 3.34108 17.1397 3.34108C17.2397 3.34108 17.3396 3.30296 17.4159 3.22667L18.1437 2.4989C18.2962 2.34636 18.2962 2.09901 18.1437 1.94644Z" fill="#434343"/>
+                <path d="M18.1436 10.3656L17.4159 9.63784C17.2633 9.4853 17.0161 9.4853 16.8634 9.63784C16.7109 9.79038 16.7109 10.0377 16.8634 10.1903L17.5912 10.918C17.6675 10.9943 17.7675 11.0325 17.8674 11.0325C17.9674 11.0325 18.0673 10.9943 18.1436 10.918C18.2962 10.7655 18.2962 10.5182 18.1436 10.3656Z" fill="#434343"/>
+                <path d="M19.6084 6.03906H18.5791C18.3634 6.03906 18.1885 6.21395 18.1885 6.42969C18.1885 6.64543 18.3634 6.82031 18.5791 6.82031H19.6084C19.8241 6.82031 19.999 6.64543 19.999 6.42969C19.999 6.21395 19.8241 6.03906 19.6084 6.03906Z" fill="#434343"/>
+                <path d="M3.13776 2.67421L2.41003 1.94644C2.25745 1.7939 2.01019 1.7939 1.85757 1.94644C1.70503 2.09897 1.70503 2.34632 1.85757 2.4989L2.58534 3.22667C2.66163 3.30296 2.76159 3.34108 2.86155 3.34108C2.96151 3.34108 3.06147 3.30296 3.13776 3.22667C3.2903 3.07409 3.2903 2.82679 3.13776 2.67421Z" fill="#434343"/>
+                <path d="M3.13776 9.63787C2.98522 9.48529 2.73792 9.48529 2.58534 9.63787L1.85757 10.3657C1.70503 10.5182 1.70503 10.7656 1.85757 10.9181C1.93386 10.9944 2.03382 11.0325 2.13378 11.0325C2.23374 11.0325 2.3337 10.9944 2.40999 10.9181L3.13776 10.1903C3.2903 10.0378 3.2903 9.79045 3.13776 9.63787Z" fill="#434343"/>
+                <path d="M1.41988 6.03906H0.390625C0.174922 6.03906 0 6.21395 0 6.42969C0 6.64543 0.174922 6.82031 0.390625 6.82031H1.41988C1.63559 6.82031 1.81051 6.64543 1.81051 6.42969C1.81051 6.21395 1.63559 6.03906 1.41988 6.03906Z" fill="#434343"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_904_128436">
+                <rect width="20" height="20" fill="white"/>
+                </clipPath>
+                </defs>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -169,30 +296,37 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const showResult = isSubmitted && showAnswers;
 
     return (
-      <div className="mt-4">
-        <div className="space-y-2">
+      <div>
+        <div>
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
-              <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
+              <div className={`flex items-center mt-1 h-5 ${onTextChange ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded border flex items-center justify-center ${correctIds.includes(option.id) ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
-                  onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${correctIds.includes(option.id) ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}
+                  onClick={() => onTextChange && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
-                    <div className="w-2 h-2 bg-white" />
+                    <Check strokeWidth={2} width={9} height={9} className='text-white' />
                   )}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
-                {isEditing ? (
+              <div className="ml-1 flex-1">
+                {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    className="w-full p-2 border rounded text-black"
+                    onBlur={() => setEditingField(null)}
+                    autoFocus
+                    className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
                   />
                 ) : (
-                  <span className="text-black">{option.text}</span>
+                  <span 
+                    className="text-[#171718] font-light cursor-pointer hover:bg-blue-50 rounded px-2 py-1 inline-block transition-colors"
+                    onClick={() => onTextChange && setEditingField({type: 'option', questionIndex: index, optionIndex: question.options.findIndex(o => o.id === option.id)})}
+                  >
+                    {option.text}
+                  </span>
                 )}
               </div>
             </div>
@@ -210,14 +344,29 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_904_128436)">
+                <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#434343"/>
+                <path d="M14.1918 4.74281C13.8563 3.90976 13.2856 3.20082 12.5415 2.69261C11.7787 2.17172 10.8847 1.89984 9.95821 1.90636C9.74247 1.90789 9.5688 2.08402 9.57032 2.29976C9.57185 2.51457 9.74646 2.68761 9.96087 2.68761C9.96181 2.68761 9.96278 2.68761 9.96368 2.68761C9.97286 2.68758 9.98181 2.68754 9.99095 2.68754C11.5292 2.68754 12.8918 3.60648 13.4672 5.03472C13.5285 5.18699 13.675 5.27949 13.8296 5.27949C13.8782 5.27949 13.9277 5.27039 13.9755 5.25109C14.1756 5.17047 14.2725 4.94289 14.1918 4.74281Z" fill="#434343"/>
+                <path d="M14.4021 6.15352C14.3295 6.08086 14.2287 6.03906 14.126 6.03906C14.0232 6.03906 13.9225 6.08086 13.8498 6.15352C13.7768 6.22617 13.7354 6.32695 13.7354 6.42969C13.7354 6.53281 13.7768 6.6332 13.8498 6.70586C13.9225 6.77891 14.0229 6.82031 14.126 6.82031C14.2287 6.82031 14.3295 6.77891 14.4021 6.70586C14.4748 6.6332 14.5166 6.53281 14.5166 6.42969C14.5166 6.32695 14.4748 6.22617 14.4021 6.15352Z" fill="#434343"/>
+                <path d="M18.1437 1.94644C17.9911 1.7939 17.7438 1.7939 17.5912 1.94644L16.8634 2.67421C16.7109 2.82675 16.7109 3.07409 16.8634 3.22667C16.9397 3.30296 17.0397 3.34108 17.1397 3.34108C17.2397 3.34108 17.3396 3.30296 17.4159 3.22667L18.1437 2.4989C18.2962 2.34636 18.2962 2.09901 18.1437 1.94644Z" fill="#434343"/>
+                <path d="M18.1436 10.3656L17.4159 9.63784C17.2633 9.4853 17.0161 9.4853 16.8634 9.63784C16.7109 9.79038 16.7109 10.0377 16.8634 10.1903L17.5912 10.918C17.6675 10.9943 17.7675 11.0325 17.8674 11.0325C17.9674 11.0325 18.0673 10.9943 18.1436 10.918C18.2962 10.7655 18.2962 10.5182 18.1436 10.3656Z" fill="#434343"/>
+                <path d="M19.6084 6.03906H18.5791C18.3634 6.03906 18.1885 6.21395 18.1885 6.42969C18.1885 6.64543 18.3634 6.82031 18.5791 6.82031H19.6084C19.8241 6.82031 19.999 6.64543 19.999 6.42969C19.999 6.21395 19.8241 6.03906 19.6084 6.03906Z" fill="#434343"/>
+                <path d="M3.13776 2.67421L2.41003 1.94644C2.25745 1.7939 2.01019 1.7939 1.85757 1.94644C1.70503 2.09897 1.70503 2.34632 1.85757 2.4989L2.58534 3.22667C2.66163 3.30296 2.76159 3.34108 2.86155 3.34108C2.96151 3.34108 3.06147 3.30296 3.13776 3.22667C3.2903 3.07409 3.2903 2.82679 3.13776 2.67421Z" fill="#434343"/>
+                <path d="M3.13776 9.63787C2.98522 9.48529 2.73792 9.48529 2.58534 9.63787L1.85757 10.3657C1.70503 10.5182 1.70503 10.7656 1.85757 10.9181C1.93386 10.9944 2.03382 11.0325 2.13378 11.0325C2.23374 11.0325 2.3337 10.9944 2.40999 10.9181L3.13776 10.1903C3.2903 10.0378 3.2903 9.79045 3.13776 9.63787Z" fill="#434343"/>
+                <path d="M1.41988 6.03906H0.390625C0.174922 6.03906 0 6.21395 0 6.42969C0 6.64543 0.174922 6.82031 0.390625 6.82031H1.41988C1.63559 6.82031 1.81051 6.64543 1.81051 6.42969C1.81051 6.21395 1.63559 6.03906 1.41988 6.03906Z" fill="#434343"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_904_128436">
+                <rect width="20" height="20" fill="white"/>
+                </clipPath>
+                </defs>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -241,7 +390,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     };
 
     return (
-      <div className="mt-4">
+      <div>
         {isEditing ? (
           <div className="space-y-6">
             {/* Items/Prompts Section */}
@@ -289,7 +438,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             {/* Correct Matches Section */}
             <div>
               <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.correctMatches', 'Correct Matches')}</h4>
-              <div className="space-y-3">
+              <div>
                 {question.prompts.map((prompt) => {
                   const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
                   return (
@@ -312,7 +461,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                             </option>
                           ))}
                         </select>
-                        <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold ml-3">
+                        <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold ml-1">
                           {matchedOption?.id || '?'}
                         </span>
                       </div>
@@ -324,25 +473,58 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           </div>
         ) : (
           <div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <h4 className="font-semibold text-black">{t('quiz.prompts', 'Items')}:</h4>
-              <h4 className="font-semibold text-black">{t('quiz.correctMatches', 'Matches')}:</h4>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              <h4 className="font-light ml-2 text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
+              <h4 className="font-light text-sm text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
             </div>
             {question.prompts.map((prompt, promptIndex) => {
               const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
+              const matchedOptionIndex = question.options.findIndex(opt => opt.id === question.correct_matches[prompt.id]);
               return (
-                <div key={prompt.id} className="grid grid-cols-2 gap-4 mb-3 p-2 border-b border-gray-100 last:border-b-0">
+                <div key={prompt.id} className="grid grid-cols-2 gap-4">
                   <div className="flex items-center">
-                    <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold mr-3 text-sm">
+                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
                       {prompt.id}
                     </span>
-                    <span className="text-black">{prompt.text}</span>
+                    {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
+                      <input
+                        type="text"
+                        value={prompt.text}
+                        onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                        onBlur={() => setEditingField(null)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
+                      />
+                    ) : (
+                      <span 
+                        className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                        onClick={() => onTextChange && setEditingField({type: 'prompt', questionIndex: index, promptIndex})}
+                      >
+                        {prompt.text}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center">
-                    <span className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold mr-3 text-sm">
+                    <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
                       {matchedOption?.id}
                     </span>
-                    <span className="text-black">{matchedOption?.text}</span>
+                    {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
+                      <input
+                        type="text"
+                        value={matchedOption?.text || ''}
+                        onChange={(e) => handleTextChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
+                        onBlur={() => setEditingField(null)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
+                      />
+                    ) : (
+                      <span 
+                        className="text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                        onClick={() => onTextChange && matchedOption && setEditingField({type: 'match-option', questionIndex: index, optionIndex: matchedOptionIndex})}
+                      >
+                        {matchedOption?.text}
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -361,14 +543,29 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+<div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_904_128436)">
+                <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#434343"/>
+                <path d="M14.1918 4.74281C13.8563 3.90976 13.2856 3.20082 12.5415 2.69261C11.7787 2.17172 10.8847 1.89984 9.95821 1.90636C9.74247 1.90789 9.5688 2.08402 9.57032 2.29976C9.57185 2.51457 9.74646 2.68761 9.96087 2.68761C9.96181 2.68761 9.96278 2.68761 9.96368 2.68761C9.97286 2.68758 9.98181 2.68754 9.99095 2.68754C11.5292 2.68754 12.8918 3.60648 13.4672 5.03472C13.5285 5.18699 13.675 5.27949 13.8296 5.27949C13.8782 5.27949 13.9277 5.27039 13.9755 5.25109C14.1756 5.17047 14.2725 4.94289 14.1918 4.74281Z" fill="#434343"/>
+                <path d="M14.4021 6.15352C14.3295 6.08086 14.2287 6.03906 14.126 6.03906C14.0232 6.03906 13.9225 6.08086 13.8498 6.15352C13.7768 6.22617 13.7354 6.32695 13.7354 6.42969C13.7354 6.53281 13.7768 6.6332 13.8498 6.70586C13.9225 6.77891 14.0229 6.82031 14.126 6.82031C14.2287 6.82031 14.3295 6.77891 14.4021 6.70586C14.4748 6.6332 14.5166 6.53281 14.5166 6.42969C14.5166 6.32695 14.4748 6.22617 14.4021 6.15352Z" fill="#434343"/>
+                <path d="M18.1437 1.94644C17.9911 1.7939 17.7438 1.7939 17.5912 1.94644L16.8634 2.67421C16.7109 2.82675 16.7109 3.07409 16.8634 3.22667C16.9397 3.30296 17.0397 3.34108 17.1397 3.34108C17.2397 3.34108 17.3396 3.30296 17.4159 3.22667L18.1437 2.4989C18.2962 2.34636 18.2962 2.09901 18.1437 1.94644Z" fill="#434343"/>
+                <path d="M18.1436 10.3656L17.4159 9.63784C17.2633 9.4853 17.0161 9.4853 16.8634 9.63784C16.7109 9.79038 16.7109 10.0377 16.8634 10.1903L17.5912 10.918C17.6675 10.9943 17.7675 11.0325 17.8674 11.0325C17.9674 11.0325 18.0673 10.9943 18.1436 10.918C18.2962 10.7655 18.2962 10.5182 18.1436 10.3656Z" fill="#434343"/>
+                <path d="M19.6084 6.03906H18.5791C18.3634 6.03906 18.1885 6.21395 18.1885 6.42969C18.1885 6.64543 18.3634 6.82031 18.5791 6.82031H19.6084C19.8241 6.82031 19.999 6.64543 19.999 6.42969C19.999 6.21395 19.8241 6.03906 19.6084 6.03906Z" fill="#434343"/>
+                <path d="M3.13776 2.67421L2.41003 1.94644C2.25745 1.7939 2.01019 1.7939 1.85757 1.94644C1.70503 2.09897 1.70503 2.34632 1.85757 2.4989L2.58534 3.22667C2.66163 3.30296 2.76159 3.34108 2.86155 3.34108C2.96151 3.34108 3.06147 3.30296 3.13776 3.22667C3.2903 3.07409 3.2903 2.82679 3.13776 2.67421Z" fill="#434343"/>
+                <path d="M3.13776 9.63787C2.98522 9.48529 2.73792 9.48529 2.58534 9.63787L1.85757 10.3657C1.70503 10.5182 1.70503 10.7656 1.85757 10.9181C1.93386 10.9944 2.03382 11.0325 2.13378 11.0325C2.23374 11.0325 2.3337 10.9944 2.40999 10.9181L3.13776 10.1903C3.2903 10.0378 3.2903 9.79045 3.13776 9.63787Z" fill="#434343"/>
+                <path d="M1.41988 6.03906H0.390625C0.174922 6.03906 0 6.21395 0 6.42969C0 6.64543 0.174922 6.82031 0.390625 6.82031H1.41988C1.63559 6.82031 1.81051 6.64543 1.81051 6.42969C1.81051 6.21395 1.63559 6.03906 1.41988 6.03906Z" fill="#434343"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_904_128436">
+                <rect width="20" height="20" fill="white"/>
+                </clipPath>
+                </defs>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -463,7 +660,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     onDrop={(e) => handleEditDrop(e, itemId)}
                   >
                     <span 
-                        className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3 cursor-grab"
+                        className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab"
                         draggable
                         onDragStart={(e) => handleDragStart(e, itemId)}
                     >
@@ -503,23 +700,38 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             const item = question.items_to_sort.find(i => i.id === itemId);
             return (
               <div key={itemId} className="flex items-center">
-                <span className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
+                <span className="w-4 h-4 text-xs flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
                   {orderIndex + 1}
                 </span>
-                <span className="text-black">{item?.text}</span>
+                <span className="text-[#171718]">{item?.text}</span>
               </div>
             );
           })}
         </div>
         {question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_904_128436)">
+                <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#434343"/>
+                <path d="M14.1918 4.74281C13.8563 3.90976 13.2856 3.20082 12.5415 2.69261C11.7787 2.17172 10.8847 1.89984 9.95821 1.90636C9.74247 1.90789 9.5688 2.08402 9.57032 2.29976C9.57185 2.51457 9.74646 2.68761 9.96087 2.68761C9.96181 2.68761 9.96278 2.68761 9.96368 2.68761C9.97286 2.68758 9.98181 2.68754 9.99095 2.68754C11.5292 2.68754 12.8918 3.60648 13.4672 5.03472C13.5285 5.18699 13.675 5.27949 13.8296 5.27949C13.8782 5.27949 13.9277 5.27039 13.9755 5.25109C14.1756 5.17047 14.2725 4.94289 14.1918 4.74281Z" fill="#434343"/>
+                <path d="M14.4021 6.15352C14.3295 6.08086 14.2287 6.03906 14.126 6.03906C14.0232 6.03906 13.9225 6.08086 13.8498 6.15352C13.7768 6.22617 13.7354 6.32695 13.7354 6.42969C13.7354 6.53281 13.7768 6.6332 13.8498 6.70586C13.9225 6.77891 14.0229 6.82031 14.126 6.82031C14.2287 6.82031 14.3295 6.77891 14.4021 6.70586C14.4748 6.6332 14.5166 6.53281 14.5166 6.42969C14.5166 6.32695 14.4748 6.22617 14.4021 6.15352Z" fill="#434343"/>
+                <path d="M18.1437 1.94644C17.9911 1.7939 17.7438 1.7939 17.5912 1.94644L16.8634 2.67421C16.7109 2.82675 16.7109 3.07409 16.8634 3.22667C16.9397 3.30296 17.0397 3.34108 17.1397 3.34108C17.2397 3.34108 17.3396 3.30296 17.4159 3.22667L18.1437 2.4989C18.2962 2.34636 18.2962 2.09901 18.1437 1.94644Z" fill="#434343"/>
+                <path d="M18.1436 10.3656L17.4159 9.63784C17.2633 9.4853 17.0161 9.4853 16.8634 9.63784C16.7109 9.79038 16.7109 10.0377 16.8634 10.1903L17.5912 10.918C17.6675 10.9943 17.7675 11.0325 17.8674 11.0325C17.9674 11.0325 18.0673 10.9943 18.1436 10.918C18.2962 10.7655 18.2962 10.5182 18.1436 10.3656Z" fill="#434343"/>
+                <path d="M19.6084 6.03906H18.5791C18.3634 6.03906 18.1885 6.21395 18.1885 6.42969C18.1885 6.64543 18.3634 6.82031 18.5791 6.82031H19.6084C19.8241 6.82031 19.999 6.64543 19.999 6.42969C19.999 6.21395 19.8241 6.03906 19.6084 6.03906Z" fill="#434343"/>
+                <path d="M3.13776 2.67421L2.41003 1.94644C2.25745 1.7939 2.01019 1.7939 1.85757 1.94644C1.70503 2.09897 1.70503 2.34632 1.85757 2.4989L2.58534 3.22667C2.66163 3.30296 2.76159 3.34108 2.86155 3.34108C2.96151 3.34108 3.06147 3.30296 3.13776 3.22667C3.2903 3.07409 3.2903 2.82679 3.13776 2.67421Z" fill="#434343"/>
+                <path d="M3.13776 9.63787C2.98522 9.48529 2.73792 9.48529 2.58534 9.63787L1.85757 10.3657C1.70503 10.5182 1.70503 10.7656 1.85757 10.9181C1.93386 10.9944 2.03382 11.0325 2.13378 11.0325C2.23374 11.0325 2.3337 10.9944 2.40999 10.9181L3.13776 10.1903C3.2903 10.0378 3.2903 9.79045 3.13776 9.63787Z" fill="#434343"/>
+                <path d="M1.41988 6.03906H0.390625C0.174922 6.03906 0 6.21395 0 6.42969C0 6.64543 0.174922 6.82031 0.390625 6.82031H1.41988C1.63559 6.82031 1.81051 6.64543 1.81051 6.42969C1.81051 6.21395 1.63559 6.03906 1.41988 6.03906Z" fill="#434343"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_904_128436">
+                <rect width="20" height="20" fill="white"/>
+                </clipPath>
+                </defs>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -540,15 +752,22 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           <h4 className="italic text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
           {question.acceptable_answers.map((answer, answerIndex) => (
             <div key={answerIndex}>
-              {isEditing ? (
+              {(isEditing || (editingField?.type === 'answer' && editingField.questionIndex === index && editingField.answerIndex === answerIndex)) ? (
                 <input
                   type="text"
                   value={answer}
                   onChange={(e) => handleTextChange(['questions', index, 'acceptable_answers', answerIndex], e.target.value)}
-                  className="w-full p-2 border rounded text-black"
+                  onBlur={() => setEditingField(null)}
+                  autoFocus
+                  className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-black"
                 />
               ) : (
-                <p className="text-black">{answer}</p>
+                <p 
+                  className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                  onClick={() => onTextChange && setEditingField({type: 'answer', questionIndex: index, answerIndex})}
+                >
+                  {answer}
+                </p>
               )}
             </div>
           ))}
@@ -565,14 +784,29 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_904_128436)">
+                <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#434343"/>
+                <path d="M14.1918 4.74281C13.8563 3.90976 13.2856 3.20082 12.5415 2.69261C11.7787 2.17172 10.8847 1.89984 9.95821 1.90636C9.74247 1.90789 9.5688 2.08402 9.57032 2.29976C9.57185 2.51457 9.74646 2.68761 9.96087 2.68761C9.96181 2.68761 9.96278 2.68761 9.96368 2.68761C9.97286 2.68758 9.98181 2.68754 9.99095 2.68754C11.5292 2.68754 12.8918 3.60648 13.4672 5.03472C13.5285 5.18699 13.675 5.27949 13.8296 5.27949C13.8782 5.27949 13.9277 5.27039 13.9755 5.25109C14.1756 5.17047 14.2725 4.94289 14.1918 4.74281Z" fill="#434343"/>
+                <path d="M14.4021 6.15352C14.3295 6.08086 14.2287 6.03906 14.126 6.03906C14.0232 6.03906 13.9225 6.08086 13.8498 6.15352C13.7768 6.22617 13.7354 6.32695 13.7354 6.42969C13.7354 6.53281 13.7768 6.6332 13.8498 6.70586C13.9225 6.77891 14.0229 6.82031 14.126 6.82031C14.2287 6.82031 14.3295 6.77891 14.4021 6.70586C14.4748 6.6332 14.5166 6.53281 14.5166 6.42969C14.5166 6.32695 14.4748 6.22617 14.4021 6.15352Z" fill="#434343"/>
+                <path d="M18.1437 1.94644C17.9911 1.7939 17.7438 1.7939 17.5912 1.94644L16.8634 2.67421C16.7109 2.82675 16.7109 3.07409 16.8634 3.22667C16.9397 3.30296 17.0397 3.34108 17.1397 3.34108C17.2397 3.34108 17.3396 3.30296 17.4159 3.22667L18.1437 2.4989C18.2962 2.34636 18.2962 2.09901 18.1437 1.94644Z" fill="#434343"/>
+                <path d="M18.1436 10.3656L17.4159 9.63784C17.2633 9.4853 17.0161 9.4853 16.8634 9.63784C16.7109 9.79038 16.7109 10.0377 16.8634 10.1903L17.5912 10.918C17.6675 10.9943 17.7675 11.0325 17.8674 11.0325C17.9674 11.0325 18.0673 10.9943 18.1436 10.918C18.2962 10.7655 18.2962 10.5182 18.1436 10.3656Z" fill="#434343"/>
+                <path d="M19.6084 6.03906H18.5791C18.3634 6.03906 18.1885 6.21395 18.1885 6.42969C18.1885 6.64543 18.3634 6.82031 18.5791 6.82031H19.6084C19.8241 6.82031 19.999 6.64543 19.999 6.42969C19.999 6.21395 19.8241 6.03906 19.6084 6.03906Z" fill="#434343"/>
+                <path d="M3.13776 2.67421L2.41003 1.94644C2.25745 1.7939 2.01019 1.7939 1.85757 1.94644C1.70503 2.09897 1.70503 2.34632 1.85757 2.4989L2.58534 3.22667C2.66163 3.30296 2.76159 3.34108 2.86155 3.34108C2.96151 3.34108 3.06147 3.30296 3.13776 3.22667C3.2903 3.07409 3.2903 2.82679 3.13776 2.67421Z" fill="#434343"/>
+                <path d="M3.13776 9.63787C2.98522 9.48529 2.73792 9.48529 2.58534 9.63787L1.85757 10.3657C1.70503 10.5182 1.70503 10.7656 1.85757 10.9181C1.93386 10.9944 2.03382 11.0325 2.13378 11.0325C2.23374 11.0325 2.3337 10.9944 2.40999 10.9181L3.13776 10.1903C3.2903 10.0378 3.2903 9.79045 3.13776 9.63787Z" fill="#434343"/>
+                <path d="M1.41988 6.03906H0.390625C0.174922 6.03906 0 6.21395 0 6.42969C0 6.64543 0.174922 6.82031 0.390625 6.82031H1.41988C1.63559 6.82031 1.81051 6.64543 1.81051 6.42969C1.81051 6.21395 1.63559 6.03906 1.41988 6.03906Z" fill="#434343"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_904_128436">
+                <rect width="20" height="20" fill="white"/>
+                </clipPath>
+                </defs>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -585,61 +819,154 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const questionType = question.question_type;
 
     return (
-      <div key={index} className="mb-8 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-start mb-4">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2563eb] text-white font-semibold mr-3">
-            {questionNumber}
-          </span>
+      <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {/* Question Header Bar */}
+        <div className="bg-[#CCDBFC] pr-6 pl-3 py-4 rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex gap-1">
+              {/* <svg width="12" height="19" viewBox="0 0 12 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="1.57349" cy="1.57349" r="1.57349" fill="white"/>
+              <circle cx="1.57349" cy="8.65552" r="1.57349" fill="white"/>
+              <circle cx="1.57349" cy="16.5227" r="1.57349" fill="white"/>
+              <circle cx="9.44068" cy="1.57349" r="1.57349" fill="white"/>
+              <circle cx="9.44068" cy="8.65552" r="1.57349" fill="white"/>
+              <circle cx="9.44068" cy="16.5227" r="1.57349" fill="white"/>
+              </svg> */}
+              </div>
           <div className="flex-1">
-            {isEditing ? (
+                {(isEditing || (editingField?.type === 'question' && editingField.questionIndex === index)) ? (
               <input
                 type="text"
                 value={question.question_text}
                 onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
-                className="w-full p-2 border rounded text-lg font-semibold text-black"
+                    onBlur={() => setEditingField(null)}
+                    autoFocus
+                    className="w-[400px] text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
+                    placeholder={`${questionNumber}. Enter your question...`}
               />
             ) : (
-              <h3 className="text-lg font-semibold text-black">{question.question_text}</h3>
-            )}
+                  <h3 
+                    className="text-xl font-bold text-[#0F58F9] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                    onClick={() => onTextChange && setEditingField({type: 'question', questionIndex: index})}
+                  >
+                    {questionNumber}. {question.question_text}
+                  </h3>
+                )}
+              </div>
+            </div>
+            <button className="p-2 hover:bg-blue-100 rounded">
+              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.44573 2.60853H2.48794C1.96071 2.60853 1.45507 2.81797 1.08225 3.19078C0.709443 3.5636 0.5 4.06924 0.5 4.59647V18.5121C0.5 19.0393 0.709443 19.5449 1.08225 19.9177C1.45507 20.2906 1.96071 20.5 2.48794 20.5H16.4035C16.9308 20.5 17.4364 20.2906 17.8092 19.9177C18.182 19.5449 18.3915 19.0393 18.3915 18.5121V11.5543M16.9005 1.11757C17.2959 0.722148 17.8323 0.5 18.3915 0.5C18.9507 0.5 19.487 0.722148 19.8824 1.11757C20.2779 1.513 20.5 2.04931 20.5 2.60853C20.5 3.16775 20.2779 3.70406 19.8824 4.09949L10.4397 13.5422L6.46382 14.5362L7.45779 10.5603L16.9005 1.11757Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
         </div>
+
+        {/* Question Content */}
+        <div className="p-6">
         {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
         {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
         {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
         {questionType === 'sorting' && renderSorting(question as SortingQuestion, index)}
         {questionType === 'open-answer' && renderOpenAnswer(question as OpenAnswerQuestion, index)}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {parentProjectName && (
-        <div style={{ borderLeft: '3px solid #FF1414', paddingLeft: '10px', marginBottom: '8px' }}>
-          <h2 style={{ textTransform: 'uppercase', fontSize: '1.125rem', fontWeight: 500, color: 'black', margin: 0 }}>
-            <span style={{ color: '#FF1414' }}>{t('common.course', 'COURSE')}:</span> {parentProjectName}
-          </h2>
-        </div>
-      )}
-      <div className="mb-8">
-        {isEditing ? (
-          <input
-            type="text"
-            value={dataToDisplay.quizTitle}
-            onChange={(e) => handleTextChange(['quizTitle'], e.target.value)}
-            className="w-full p-2 border rounded text-2xl font-bold mb-2 text-black"
-            placeholder={t('quiz.quizTitle', 'Quiz Title')}
-          />
-        ) : (
-          <h1 className="font-bold text-black mb-2" style={{ fontSize: '1.875rem', lineHeight: '2.25rem' }}>
-            {lessonNumber && <span style={{ color: '#FF1414' }}>{t('common.lesson', 'LESSON')} №{lessonNumber}: </span>}
-            {dataToDisplay.quizTitle || t('quiz.quizTitle', 'Quiz Title')}
-          </h1>
-        )}
+    <div className="min-h-screen bg-[#F2F2F4]">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 pb-8">
+        <div className="text-sm text-[#797979] mb-6">
+          {questions.length} questions total
       </div>
 
       <div className="space-y-6">
         {questions.map((question, index) => renderQuestion(question, index))}
+          
+          {/* Add Question Button with Dropdown */}
+          <div className="flex justify-center mt-8 relative" ref={questionTypeMenuRef}>
+            <button
+              onClick={() => setShowQuestionTypeMenu(!showQuestionTypeMenu)}
+              className="flex text-sm w-full font-medium items-center justify-center gap-2 px-6 py-4 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
+            >
+              <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Add Question
+            </button>
+
+            {/* Question Type Dropdown Menu */}
+            {showQuestionTypeMenu && (
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="p-2">
+                  <button
+                    onClick={() => handleAddQuestion('multiple-choice')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <div className="w-4 h-4 rounded-full border-2 border-blue-600 mt-0.5"></div>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Multiple Choice</div>
+                      <div className="text-xs text-gray-500">Single correct answer</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('multi-select')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <div className="w-4 h-4 rounded-full border-2 border-blue-600 mt-0.5"></div>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Multi-Select</div>
+                      <div className="text-xs text-gray-500">Multiple correct answers</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('matching')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5">
+                      <path d="M3 3H7M3 8H7M9 3H13M9 8H13" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Matching</div>
+                      <div className="text-xs text-gray-500">Match items to options</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('sorting')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5">
+                      <path d="M2 4H14M2 8H14M2 12H14" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Sorting</div>
+                      <div className="text-xs text-gray-500">Put items in order</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('open-answer')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5">
+                      <path d="M2 4H14M2 8H10M2 12H12" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Open Answer</div>
+                      <div className="text-xs text-gray-500">Text-based answer</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

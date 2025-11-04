@@ -4,18 +4,25 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
-  BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock,
+  BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock, ColumnContainerBlock,
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon, Text as TextIcon
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon, Text as TextIcon, Columns
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
 import { uploadOnePagerImage } from '@/lib/designTemplateApi';
 import WordStyleImageEditor from './WordStyleImageEditor';
 import ImageBasicActions from './ImageBasicActions';
+import { PURPLE_BOX_CONTENT } from '../constants/purpleBoxContent';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -32,19 +39,54 @@ type MajorSection = {
 };
 type RenderableItem = MajorSection | MiniSection | StandaloneBlock;
 
-const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] => {
+const parseAndStyleText = (text: string | undefined | null, isInRecommendationSection: boolean = false, applyBlueColon: boolean = false): React.ReactNode[] => {
   if (!text) return [];
+  
+  // Check if text contains a colon
+  const colonIndex = text.indexOf(':');
+  
+  if (colonIndex !== -1 && applyBlueColon) {
+    // Split into before and after the first colon
+    const beforeColon = text.substring(0, colonIndex);
+    const afterColon = text.substring(colonIndex);
+    
+    // Process both parts for bold markers
+    const processSegment = (segment: string, keyPrefix: string) => {
+      const segments = segment.split(/\*\*(.*?)\*\*/g);
+      return segments.map((seg, index) => {
+        if (index % 2 === 1) { 
+          return <span key={`${keyPrefix}-${index}`} className="font-semibold text-blue-600">{seg}</span>;
+        }
+        return seg; 
+      }).filter(seg => seg !== "");
+    };
+    
+    // If in recommendation section, apply blue styling to the "Recommendation:" part
+    if (isInRecommendationSection && beforeColon.toLowerCase().includes('recommendation')) {
+      return [
+        <span key="before-colon" className="font-semibold text-blue-600">{processSegment(beforeColon, 'before')}</span>,
+        ...processSegment(afterColon, 'after')
+      ];
+    }
+    
+    return [
+      <span key="before-colon" className="font-semibold text-blue-600">{processSegment(beforeColon, 'before')}</span>,
+      ...processSegment(afterColon, 'after')
+    ];
+  }
+  
+  // Original behavior if no colon or applyBlueColon is false
   const segments = text.split(/\*\*(.*?)\*\*/g); 
   return segments.map((segment, index) => {
     if (index % 2 === 1) { 
-      return <span key={index} className="font-medium text-black">{segment}</span>;
+      return <span key={index} className="font-medium text-blue-600">{segment}</span>;
     }
     return segment; 
   }).filter(segment => segment !== ""); 
 };
 
 const NewBulletIcon = () => (
-  <div className="w-0.75 h-0.75 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
+  <div className="w-1.5 h-1.5 rounded-full bg-[#0F58F9] mr-1.5 mt-[5px] shrink-0" />
 );
 
 // Helper function to detect if text starts with an emoji
@@ -116,11 +158,11 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 const THEME_COLORS = {
-  primaryText: 'text-black',        
-  headingText: 'text-black',        
-  subHeadingText: 'text-black',     
-  accentRed: 'text-[#FF1414]', 
-  accentRedBg: 'bg-[#FF1414]',      
+  primaryText: 'text-[#171718]',        
+  headingText: 'text-[#171718]',        
+  subHeadingText: 'text-[#0F58F9]',     
+  accentRed: 'text-[#171718]', 
+  accentRedBg: 'bg-white',      
   veryLightAccentBg: 'bg-[#FAFAFA]',
   lightBorder: 'border-gray-200',   
   mutedText: 'text-black',          
@@ -140,7 +182,7 @@ const THEME_COLORS = {
   alertDangerBg: 'bg-red-50', alertDangerBorder: 'border-red-400',
 };
 
-const editingInputClass = "w-full p-1 bg-yellow-50 border border-yellow-300 rounded text-black outline-none focus:ring-1 focus:ring-yellow-500";
+const editingInputClass = "w-full p-1 text-black border border-blue-300 rounded outline-none focus:ring-1 focus:ring-blue-400";
 const editingTextareaClass = `${editingInputClass} min-h-[50px] resize-y`;
 
 const getAlertColors = (alertType: AlertBlock['alertType']) => {
@@ -176,7 +218,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
         borderColor: 'border-blue-500',
         textColor: 'text-black',
         iconColorClass: 'text-blue-500',
-        Icon: InfoIconLucide
+        Icon: () => null
       };
   }
 };
@@ -249,7 +291,7 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.importantSection')}</label>
+          <label className="block text-sm font-medium text-gray-900 mb-0">{t('interface.blockSettings.importantSection')}</label>
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -269,16 +311,16 @@ const BlockSettingsModal = ({
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
-            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
-            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
-            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
-            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
-            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
-            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
-            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
-            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
-            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
-            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
+            <option value="info">{t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">{t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">{t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">{t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">{t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">{t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">{t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">{t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">{t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">{t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
@@ -319,7 +361,7 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.recommendation')}</label>
+          <label className="block text-sm font-medium text-gray-900 mb-0">{t('interface.blockSettings.recommendation')}</label>
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -362,16 +404,16 @@ const BlockSettingsModal = ({
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
             <option value="none">{t('interface.blockSettings.noIcon')}</option>
-            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
-            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
-            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
-            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
-            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
-            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
-            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
-            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
-            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
-            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
+            <option value="info">{t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">{t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">{t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">{t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">{t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">{t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">{t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">{t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">{t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">{t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
@@ -771,25 +813,58 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       const IconComponent = iconName ? iconMap[iconName] : null;
       
-      let textStyleClass = 'uppercase '; 
-      if (level === 1) { textStyleClass += `text-lg lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 4) { textStyleClass += `text-sm lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
-      else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      // Check if headline starts with "Recommendation:" and apply blue color
+      const isRecommendationHeadline = text?.toLowerCase().startsWith('recommendation:');
+      
+      let textStyleClass = ''; 
+      if (isRecommendationHeadline) {
+        // Apply blue color for recommendation headlines regardless of level
+        if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold !text-[#0F58F9]`; } 
+        else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold !text-[#0F58F9]`; }  
+        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9] !mt-0 !mb-0`; } 
+        else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
+        else { textStyleClass += `text-base font-bold !text-[#0F58F9]`; }
+      } else {
+        // Original color logic for non-recommendation headlines
+        if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
+        else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold ${THEME_COLORS.headingText}`; }  
+        else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9] !mt-0 !mb-0`; } 
+        else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
+        else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      }
 
       if (depth > 0) {
-        textStyleClass = 'uppercase '; 
-        if (level === 3) textStyleClass += `text-sm font-bold ${THEME_COLORS.accentRed}`; 
-        else if (level === 4) textStyleClass += `text-xs font-bold ${THEME_COLORS.subHeadingText}`;
+        if (isRecommendationHeadline) {
+          // Preserve blue color for recommendation headlines even when nested
+          textStyleClass = ''; 
+          if (level === 3) textStyleClass += `text-base font-bold !text-[#0F58F9]`; 
+          else if (level === 4) textStyleClass += `text-base font-bold !text-[#0F58F9]`;
+        } else {
+          textStyleClass = ''; 
+          if (level === 3) textStyleClass += `text-base font-bold ${THEME_COLORS.accentRed}`; 
+          else if (level === 4) textStyleClass += `text-base font-bold text-black`;
+        }
       }
       if (isMiniSectionHeadline) {
-          textStyleClass = 'uppercase '; 
-          textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-sm font-bold ${THEME_COLORS.accentRed}`; 
-          if (depth > 0) { 
-            textStyleClass = 'uppercase '; 
-            textStyleClass += level === 3 ? `text-sm font-bold ${THEME_COLORS.accentRed}` : `text-xs font-bold ${THEME_COLORS.accentRed}`;
+          if (isRecommendationHeadline) {
+            // Preserve blue color for recommendation headlines in mini sections
+            textStyleClass = ''; 
+            textStyleClass += level === 3 ? `text-base font-bold !text-[#0F58F9]` : `text-base font-bold !text-[#0F58F9]`; 
+            if (depth > 0) { 
+              textStyleClass = ''; 
+              textStyleClass += level === 3 ? `text-base font-bold !text-[#0F58F9]` : `text-base font-bold !text-[#0F58F9]`;
+            }
+          } else {
+            textStyleClass = ''; 
+            textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`; 
+            if (depth > 0) { 
+              textStyleClass = ''; 
+              textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`;
+            }
           }
+      }
+      if (isListItemContent) {
+        textStyleClass = 'text-base font-bold !text-[#0F58F9]';
       }
 
       let calculatedMt = ''; let calculatedMb = ''; let calculatedPt = '';
@@ -861,6 +936,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </button>
             </div>
           )}
+
+          {/* Bullet style picker for headlines */}
+          {isEditing && onTextChange && (
+            <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
+            style={{ left: '-25px' }}>
+              <div className="relative">
+                <button 
+                  className="p-1 rounded hover:bg-gray-200" 
+                  onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
+                  title="Choose bullet icon"
+                >
+                  <StarIcon className="w-4 h-4" />
+                </button>
+                {isBulletPickerOpen && (
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
+                    onClick={(e) => e.stopPropagation()}>
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                      <span className="text-xs font-medium">No Icon</span>
+                    </button>
+                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           <Tag
             className={finalClassName}
@@ -878,8 +982,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 type="text" 
                 value={text}
                 onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
-                style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
+                className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '')} m-0 p-0`} 
+                style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1 }}
               />
             ) : ( styledText )}
           </Tag>
@@ -891,16 +995,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'paragraph': { 
       const { text, isRecommendation, fontSize } = block as ParagraphBlock;
       const isTopLevelParagraph = depth === 0;
-      let paragraphClasses = `text-black leading-normal text-left`; 
-      if (isTopLevelParagraph) paragraphClasses += ` w-full`; 
+      let paragraphClasses = `text-black text-base leading-normal text-left`; 
+      if (isTopLevelParagraph) paragraphClasses += `w-full font-light`; 
       const defaultMb = depth > 0 ? 'mb-1' : 'mb-2';
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
       
       let recommendationClasses = "";
       if (isRecommendation && !suppressRecommendationStripe) {
-        recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+        recommendationClasses = `pl-4 border-l-4 border-[#0F58F9] py-2 bg-gray-50/30`;
       }
-      const styledText = parseAndStyleText(text);
+      const styledText = parseAndStyleText(text, isRecommendation, true);
 
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
@@ -964,21 +1068,24 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} leading-normal text-black text-left`} 
-              style={{ fontSize: fontSize || '10px' }}
+              style={{ fontSize: fontSize || '16px' }}
             />
             
             {/* No settings button for paragraphs */}
           </div>
         );
       }
-      return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '10px' }}>{styledText}</p> );
+      return ( <p className={`${paragraphClasses} font-light ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '16px' }}>{styledText}</p> );
     }
     case 'bullet_list': 
     case 'numbered_list': {
       const currentBlockIconName = block.type === 'bullet_list' ? (block as BulletListBlock).iconName : undefined;
       const { items, fontSize } = block; 
       const isNumbered = block.type === 'numbered_list';
-      const hasRecommendation = !isNumbered && items.some(item => typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation);
+      const hasRecommendation = !isNumbered && items.some(item => 
+        (typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation) ||
+        (typeof item === 'string' && item.toLowerCase().includes('recommendation'))
+      );
       
       let BulletIconToRender: React.ElementType | null = NewBulletIcon; 
       if (block.type === 'bullet_list') {
@@ -999,7 +1106,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let containerClasses = `flex flex-col ${finalMb} `;
       if (hasRecommendation) {
-        containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+        containerClasses += `border-l-4 border-[#0F58F9] py-2 pl-4 bg-gray-50/30`;
       }
 
       // Helpers for list item manipulation
@@ -1075,22 +1182,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           {/* List icon picker for bullet lists */}
           {isEditing && !!onTextChange && !isNumbered && (
             <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
-            style={{ left: isNumbered ? '-10px' : '5px' }}>
+            style={{ left: isNumbered ? '-10px' : '-25px' }}>
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
-                  onClick={() => setIsBulletPickerOpen(v => !v)} 
+                  onClick={(e) => { e.stopPropagation(); setIsBulletPickerOpen(v => !v); }} 
                   title="Choose bullet icon"
                 >
                   <StarIcon className="w-4 h-4" />
                 </button>
                 {isBulletPickerOpen && (
-                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
-                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800"
+                    onClick={(e) => e.stopPropagation()}>
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
                       <span className="text-xs font-medium">No Icon</span>
                     </button>
                     {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
                         {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
                       </button>
                     ))}
@@ -1105,16 +1213,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
               const isRecommendationPara = !itemIsString && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation;
+              const isRecommendationString = itemIsString && (
+                item.toLowerCase().includes('recommendation') || 
+                item.toLowerCase().startsWith('recommendation:') ||
+                item.toLowerCase().startsWith('**recommendation') ||
+                item.toLowerCase().includes('recommendation:')
+              );
+              const isRecommendation = isRecommendationPara || isRecommendationString;
               
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
               const textSource = itemIsString ? ((isNumbered && isPlainStringNoBold) ? `**${item}**` : item) : "";
-              let styledItemText = itemIsString ? parseAndStyleText(textSource) : null;
+              let styledItemText = itemIsString ? parseAndStyleText(textSource, isRecommendation, true) : null;
 
               if (isNumbered) {
                 return (
-                  <li key={index} className="flex items-start gap-3 group/listitem relative">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center font-semibold text-xs">{index + 1}</div>
+                  <li key={index} className="flex items-start gap-1 group/listitem relative">
+                    {/* <div className="flex-shrink-0 w-5 h-5 rounded-full bg-white text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div> */}
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
@@ -1123,7 +1238,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               type="text"
                               value={item}
                               onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                              className={`${editingInputClass} w-full text-xs`}
+                              className={`${editingInputClass} w-full text-base`}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
@@ -1131,17 +1246,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                 }
                               }}
                             />
-                            <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
-                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
-                                <Plus className="w-3.5 h-3.5 text-gray-900" />
+                            <div className="absolute -left-5 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                              <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
+                                <Plus className="w-3 h-3 text-gray-900" />
                               </button>
-                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
-                                <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                              <button className="p-1 rounded hover:bg-gray-100/50" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
+                                <Trash2 className="w-3 h-3 text-red-600" />
                               </button>
                             </div>
                           </div>
                         ) : (
-                          <span className="text-black text-xs leading-snug">{styledItemText}</span>
+                          <span className="text-black text-base leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
                           <div className="flex flex-col">
@@ -1182,9 +1297,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               // Bullet list items - consistent with numbered list structure
               return (
-                <li key={index} className="flex items-start group/listitem relative">
-                  {BulletIconToRender && !isNumbered && (
-                    <div className="flex-shrink-0 mr-1.5 flex items-center text-[#FF1414]">
+                <li key={index} className={`flex items-start group/listitem relative`}>
+                  {BulletIconToRender && !isNumbered && !isRecommendation && (
+                    <div className="flex-shrink-0 mr-1.5 flex items-center text-[#0F58F9]">
                       <BulletIconToRender />
                     </div>
                   )}
@@ -1196,7 +1311,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             type="text"
                             value={item}
                             onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                            className={`${editingInputClass} w-full text-xs`}
+                            className={`${editingInputClass} w-full text-base`}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();
@@ -1204,20 +1319,20 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }
                             }}
                           />
-                          <div className="absolute -left-8 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
-                              <Plus className="w-3.5 h-3.5 text-gray-900" />
+                          <div className="absolute -left-5 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                            <button className="p-1 rounded hover:bg-gray-100/50" title="Add item after" onClick={(e) => { e.stopPropagation(); addItemAt(index + 1); }}>
+                              <Plus className="w-3 h-3 text-gray-900" />
                             </button>
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
-                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            <button className="p-1 rounded hover:bg-gray-100/50" title="Remove item" onClick={(e) => { e.stopPropagation(); removeItemAt(index); }}>
+                              <Trash2 className="w-3 h-3 text-red-600" />
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <span className="text-black text-xs leading-snug">{styledItemText}</span>
+                        <span className="text-black text-base leading-snug">{styledItemText}</span>
                       )
                     ) : Array.isArray(item) ? (
-                        <div className="flex flex-col">
+                        <div className={`flex flex-col ${isRecommendationPara ? 'pl-4 border-l-3 border-[#0F58F9] py-2' : ''}`}>
                             {(item as AnyContentBlock[]).map((block, blockIndex) => (
                                 <RenderBlock
                                     key={blockIndex}
@@ -1228,23 +1343,25 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                     isEditing={isEditing}
                                     onTextChange={onTextChange}
                                     basePath={listItemPath(index, String(blockIndex))}
-                                    suppressRecommendationStripe={hasRecommendation}
+                                    suppressRecommendationStripe={false}
                                     documentContent={documentContent}
                                 />
                             ))}
                         </div>
                     ) : (
-                        <RenderBlock 
-                            block={item as AnyContentBlock}
-                            depth={(depth || 0) + 1}
-                            isListItemContent={true}
-                            isLastInBox={isLastItem}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                            basePath={listItemPath(index)}
-                            suppressRecommendationStripe={hasRecommendation}
-                            documentContent={documentContent}
-                        />
+                        <div>
+                            <RenderBlock 
+                                block={item as AnyContentBlock}
+                                depth={(depth || 0) + 1}
+                                isListItemContent={true}
+                                isLastInBox={isLastItem}
+                                isEditing={isEditing}
+                                onTextChange={onTextChange}
+                                basePath={listItemPath(index)}
+                                suppressRecommendationStripe={false}
+                                documentContent={documentContent}
+                            />
+                        </div>
                     )}
                   </div>
                 </li>
@@ -1293,7 +1410,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               onDragEnd();
             }
           }}
-          className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+          className={`p-2 border-l-3 ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-1'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
           role="alert"
         >
           {/* Arrow buttons for reordering */}
@@ -1344,13 +1461,13 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     onChange={e => handleInputChangeEvent(fieldPath('text'), e)}
                     className={`${editingTextareaClass} mb-2`}
                     placeholder="Alert text"
-                    style={{ fontSize: fontSize || '10px' }}
+                    style={{ fontSize: fontSize || '16px' }}
                   />
                 </>
               ) : (
                 <>
-                  {title && <p className={`font-bold`} style={{ color: effectiveTextColor, fontSize: fontSize || '10px' }}>{title}</p>}
-                  <p style={{ color: effectiveTextColor, fontSize: fontSize || '10px' }}>{text}</p>
+                  {title && <p className={`font-medium`} style={{ color: effectiveTextColor, fontSize: fontSize || '16px' }}>{title}</p>}
+                  <p style={{ color: effectiveTextColor, fontSize: fontSize || '16px' }}>{text}</p>
                 </>
               )}
             </div>
@@ -1532,7 +1649,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         const marginDirection = layoutMode === 'inline-left' ? 'right' : 'left';
         
         return (
-          <div className={`my-4 group relative`}>
+          <div className={`my-0 group relative`}>
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
               <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
@@ -1987,17 +2104,112 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         </div>
       );
     }
+    
+    case 'column_container': {
+      const { columnCount, columns } = block as ColumnContainerBlock;
+      const columnClass = columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
+      
+      return (
+        <div 
+          className="my-4 group relative"
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+        >
+          {/* Arrow buttons for reordering */}
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+              <button
+                onClick={() => onMoveBlockUp(contentBlockIndex)}
+                disabled={isFirstBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveBlockDown(contentBlockIndex)}
+                disabled={isLastBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {/* Column count toggle */}
+              <button
+                onClick={() => {
+                  const newCount = columnCount === 2 ? 3 : 2;
+                  onTextChange?.(fieldPath('columnCount'), newCount);
+                }}
+                className="p-1 hover:bg-gray-200 rounded ml-1"
+                title={`Switch to ${columnCount === 2 ? '3' : '2'} columns`}
+              >
+                {columnCount === 2 ? '2' : '3'} cols
+              </button>
+            </div>
+          )}
+          
+          <div className={`grid grid-cols-1 ${columnClass} gap-6`}>
+            {columns.map((column, columnIndex) => (
+              <div key={columnIndex} className="flex flex-col space-y-2">
+                {column.map((columnBlock, blockIndex) => (
+                  <RenderBlock
+                    key={blockIndex}
+                    block={columnBlock}
+                    depth={(depth || 0) + 1}
+                    isEditing={isEditing}
+                    onTextChange={onTextChange}
+                    basePath={[...basePath, 'columns', columnIndex, blockIndex]}
+                    documentContent={documentContent}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
     default:
       return null;
   }
 };
 
 export interface TextPresentationDisplayProps {
-  dataToDisplay: TextPresentationData | null;
-  isEditing?: boolean;
-  onTextChange?: (path: (string | number)[], newValue: any) => void;
-  parentProjectName?: string;
-}
+    dataToDisplay: TextPresentationData | null;
+    isEditing?: boolean;
+    onTextChange?: (path: (string | number)[], newValue: any) => void;
+    parentProjectName?: string;
+    onToggleEditMode?: () => void;
+  }
 
 // Image Upload Component
 const ImageUploadModal: React.FC<{
@@ -2125,7 +2337,12 @@ const ImageUploadModal: React.FC<{
   );
 };
 
-const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName }: TextPresentationDisplayProps): React.JSX.Element | null => {
+const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, onToggleEditMode }: TextPresentationDisplayProps): React.JSX.Element | null => {
+  // Default purpleBoxSection to true if not specified
+  const purpleBoxSection = (dataToDisplay as any)?.purpleBoxSection !== undefined 
+    ? (dataToDisplay as any)?.purpleBoxSection 
+    : true;
+
   // Extract text content from the document for preview
   const extractDocumentText = (data: TextPresentationData | null): string => {
     if (!data?.contentBlocks) return '';
@@ -2408,6 +2625,41 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
 
+  const addRecommendation = useCallback(() => {
+    if (!dataToDisplay || !onTextChange) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const newRecommendation: ParagraphBlock = { 
+      type: 'paragraph', 
+      text: 'Recommendation: ',
+      isRecommendation: true
+    };
+    const updated = [...contentBlocks, newRecommendation];
+    onTextChange(['contentBlocks'], updated);
+    setFabOpen(false);
+  }, [dataToDisplay, onTextChange]);
+  
+  const addColumnContainer = useCallback(() => {
+    if (!dataToDisplay || !onTextChange) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const newColumnContainer: ColumnContainerBlock = {
+      type: 'column_container',
+      columnCount: 2,
+      columns: [
+        [
+          { type: 'headline', level: 3, text: 'Column 1 Title' },
+          { type: 'bullet_list', items: ['Item 1', 'Item 2', 'Item 3'] }
+        ],
+        [
+          { type: 'headline', level: 3, text: 'Column 2 Title' },
+          { type: 'bullet_list', items: ['Item 1', 'Item 2', 'Item 3'] }
+        ]
+      ]
+    };
+    const updated = [...contentBlocks, newColumnContainer];
+    onTextChange(['contentBlocks'], updated);
+    setFabOpen(false);
+  }, [dataToDisplay, onTextChange]);
+
   const findMajorSectionBounds = (headlineIndex: number) => {
     const blocks = dataToDisplay?.contentBlocks || [];
     let end = blocks.length;
@@ -2469,11 +2721,116 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+  const [addSectionDropdownOpen, setAddSectionDropdownOpen] = useState(false);
+  const [editingBlockIndex, setEditingBlockIndex] = useState<number | null>(null);
+  const [purpleBoxContent, setPurpleBoxContent] = useState(PURPLE_BOX_CONTENT);
+  const [editingPurpleBox, setEditingPurpleBox] = useState<{
+    type: 'title' | 'description' | 'card' | null;
+    cardIndex?: number;
+    field?: 'title' | 'description';
+  }>({ type: null });
+  
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
     onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
     setIconPickerHeadlineIndex(null);
   }, [onTextChange]);
+
+  const handleBlockClick = useCallback((index: number, e: React.MouseEvent) => {
+    // Don't interfere with existing edit mode interactions
+    if (isEditing) return;
+    
+    // Don't trigger on button clicks or other interactive elements
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      return;
+    }
+    
+    // Toggle editing for this block
+    setEditingBlockIndex(prev => prev === index ? null : index);
+  }, [isEditing]);
+
+  const handlePurpleBoxClick = useCallback((type: 'title' | 'description' | 'card', cardIndex?: number, field?: 'title' | 'description') => {
+    if (isEditing) return;
+    setEditingPurpleBox({ type, cardIndex, field });
+  }, [isEditing]);
+
+  const handlePurpleBoxChange = useCallback((value: string) => {
+    setPurpleBoxContent(prev => {
+      if (editingPurpleBox.type === 'title') {
+        return { ...prev, title: value };
+      } else if (editingPurpleBox.type === 'description') {
+        return { ...prev, description: value };
+      } else if (editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex !== undefined && editingPurpleBox.field) {
+        const newCards = [...prev.cards];
+        newCards[editingPurpleBox.cardIndex] = {
+          ...newCards[editingPurpleBox.cardIndex],
+          [editingPurpleBox.field]: value
+        };
+        return { ...prev, cards: newCards };
+      }
+      return prev;
+    });
+  }, [editingPurpleBox]);
+
+  const closePurpleBoxEdit = useCallback(() => {
+    setEditingPurpleBox({ type: null });
+  }, []);
+
+  const addPurpleBoxCard = useCallback(() => {
+    setPurpleBoxContent(prev => ({
+      ...prev,
+      cards: [
+        ...prev.cards,
+        {
+          title: 'New Card',
+          description: 'Card description',
+          icon: 'drilling'
+        }
+      ]
+    }));
+  }, []);
+
+  const removePurpleBoxCard = useCallback((index: number) => {
+    setPurpleBoxContent(prev => ({
+      ...prev,
+      cards: prev.cards.filter((_, i) => i !== index)
+    }));
+  }, []);
+
+  const [draggedCardIndex, setDraggedCardIndex] = useState<number | null>(null);
+  const [dragOverCardIndex, setDragOverCardIndex] = useState<number | null>(null);
+
+  const handleCardDragStart = useCallback((e: React.DragEvent, index: number) => {
+    setDraggedCardIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleCardDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverCardIndex(index);
+  }, []);
+
+  const handleCardDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedCardIndex === null || draggedCardIndex === dropIndex) return;
+    
+    setPurpleBoxContent(prev => {
+      const newCards = [...prev.cards];
+      const [draggedCard] = newCards.splice(draggedCardIndex, 1);
+      newCards.splice(dropIndex, 0, draggedCard);
+      return { ...prev, cards: newCards };
+    });
+    
+    setDraggedCardIndex(null);
+    setDragOverCardIndex(null);
+  }, [draggedCardIndex]);
+
+  const handleCardDragEnd = useCallback(() => {
+    setDraggedCardIndex(null);
+    setDragOverCardIndex(null);
+  }, []);
 
   const removeBlockAtIndex = useCallback((index: number) => {
     if (!dataToDisplay || !onTextChange) return;
@@ -2483,29 +2840,149 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
 
-  return (
-    <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-      <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
-          {dataToDisplay.textTitle && (
-            <header className="mb-4 text-left">
-              {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
-              
-              {isEditing && onTextChange ? (
-                  <input 
-                      type="text" 
-                      value={dataToDisplay.textTitle} 
-                      onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
-                      className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
-                  />
-              ) : (
-                  <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
-              )}
-
-              <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} />
-            </header>
+  return (<>
+    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
+      {dataToDisplay.textTitle && (
+        <header className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC]">
+          {/* {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>} */}
+          
+          {isEditing && onTextChange ? (
+              <input 
+                  type="text" 
+                  value={dataToDisplay.textTitle} 
+                  onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
+                  className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold text-[#0F58F9] text-left`}
+              />
+          ) : (
+              <h1 className={`text-2xl py-4 px-10 font-bold text-[#0F58F9] mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
           )}
 
+          {/* <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} /> */}
+        </header>
+      )}
+      <div className="bg-[#FFFFFF] rounded-[10px] px-4 sm:px-6 md:px-8 py-4">
           <main className="text-left">
+
+            {/* Purple Boxes Section - Essential tools for beginners */}
+            {purpleBoxSection && (
+              <section className="mb-6">
+                <div className="relative">
+                  <div 
+                    className={`grid grid-cols-1 gap-4 mb-6 ${
+                      purpleBoxContent.cards.length === 1 ? 'md:grid-cols-1' :
+                      purpleBoxContent.cards.length === 2 ? 'md:grid-cols-2' :
+                      purpleBoxContent.cards.length === 3 ? 'md:grid-cols-3' :
+                      'md:grid-cols-4'
+                    }`}
+                  >
+                  {purpleBoxContent.cards.map((card, index) => {
+                    const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
+                    const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
+                    
+                    return (
+                    <div 
+                      key={index} 
+                      className={`bg-[#CCDBFCCC] border rounded-lg p-5 space-y-2 text-left relative group/card transition-all ${dragOverCardIndex === index ? 'border-blue-500 border-2 scale-105' : 'border-[#CCCCCC]'}`}
+                      draggable={!isEditing}
+                      onDragStart={(e) => !isEditing && handleCardDragStart(e, index)}
+                      onDragOver={(e) => !isEditing && handleCardDragOver(e, index)}
+                      onDrop={(e) => !isEditing && handleCardDrop(e, index)}
+                      onDragEnd={handleCardDragEnd}
+                    >
+                      {!isEditing && (
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removePurpleBoxCard(index); }}
+                            className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full p-1 z-10"
+                            title="Remove card"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                      {card.icon === 'drilling' && (
+                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="white"/>
+                          <path d="M18.9988 29.1841C19.1531 29.1841 19.3016 29.1247 19.4203 29.0059L21.825 26.6013C21.9378 26.4944 21.9972 26.34 21.9972 26.1856V25.7344L17.3125 27.7413L18.5772 29.0059C18.6959 29.1247 18.8444 29.1841 18.9988 29.1841Z" fill="white"/>
+                          <path d="M16.002 8.11719V11.8756L15.5091 12.0834C15.2063 12.2141 15.0698 12.5644 15.1945 12.8672C15.3319 13.1743 15.7048 13.3135 16.002 13.1641L22.0048 10.605L22.4916 10.3972C23.2186 10.068 22.7236 8.98124 22.0047 9.31659C22.0048 9.31657 22.0048 8.11719 22.0048 8.11719H16.002Z" fill="white"/>
+                          <path d="M22.8052 14.2319C22.6785 13.921 22.3068 13.7779 22.0037 13.9291V11.8984C19.7415 12.818 16.5389 14.3141 16.0009 14.3863C16.0009 14.3863 16.0009 16.4763 16.0009 16.4763L15.5021 16.69C14.7774 17.0265 15.2782 18.1042 16.0009 17.7706C16.0009 17.7706 22.0037 15.2175 22.0037 15.2175L22.4906 15.0097C22.7934 14.885 22.9359 14.5347 22.8052 14.2319Z" fill="white"/>
+                          <path d="M22.806 18.8472C22.6771 18.5317 22.3056 18.3965 21.9985 18.5444L22.0044 16.5078L16.4647 18.865C16.3163 18.9303 16.1619 18.9778 16.0016 18.9956V21.0915L15.5029 21.3053C15.206 21.43 15.0635 21.7803 15.1941 22.0831C15.3265 22.4012 15.7007 22.5293 16.0016 22.3859C16.0016 22.386 21.9985 19.8328 21.9985 19.8328L22.4913 19.625C22.7941 19.4944 22.9366 19.15 22.806 18.8472Z" fill="white"/>
+                          <path d="M22.4895 24.2383C23.2167 23.907 22.7339 22.8259 21.9966 23.1517L21.9966 21.1211C19.8318 22.0204 16.391 23.5734 15.9998 23.6149L15.9998 25.7108L15.5545 25.9008C14.9618 26.1419 15.1566 27.052 15.7861 27.0408C15.9377 27.0576 16.2607 26.8825 16.4035 26.833L21.9966 24.4461L22.4895 24.2383Z" fill="white"/>
+                          <path d="M13.6543 14.8438C13.6543 14.5172 13.3871 14.25 13.0605 14.25H2.9668C2.64024 14.25 2.37305 14.5172 2.37305 14.8438V17.8125H13.6543V14.8438Z" fill="white"/>
+                          <path d="M4.19587 23.7916C4.55413 24.0002 5.42014 24.0001 5.77522 23.7915C6.04836 23.6847 6.3868 23.5481 7.01024 23.5481C8.08021 23.5346 8.11102 23.9306 9.02899 23.9519C9.93919 23.9296 9.97634 23.5341 11.0418 23.5482C12.1217 23.5345 12.1395 23.9308 13.0605 23.9519C13.0606 23.9519 13.6543 23.9519 13.6543 23.9519V19H2.37305V23.5481C2.99299 23.5137 3.83458 23.5907 4.19587 23.7916Z" fill="white"/>
+                          <path d="M15.2218 29.3063C14.1062 28.2068 13.5778 26.6901 13.6543 25.1382C13.0357 25.1726 12.1918 25.0955 11.8315 24.8947C11.4779 24.6871 10.6149 24.6851 10.2581 24.8948C9.98493 25.0016 9.64648 25.1382 9.029 25.1382C7.95384 25.1527 7.92784 24.7575 7.01024 24.7344C6.08863 24.7563 6.06338 25.1521 4.98555 25.1381C3.91648 25.1517 3.88407 24.7557 2.96681 24.7344C2.9668 24.7344 2.37305 24.7344 2.37305 24.7344V29.6863H15.6433C15.4949 29.5676 15.3584 29.4428 15.2218 29.3063ZM5.68023 27.6022C4.9003 27.5914 4.8996 26.4294 5.68026 26.4147C6.46099 26.4295 6.46006 27.5915 5.68023 27.6022ZM8.79148 28.196C8.01031 28.1883 8.00958 27.02 8.7915 27.0085C9.57223 27.0232 9.5713 28.1853 8.79148 28.196Z" fill="white"/>
+                          <path d="M35.0293 14.25H24.9355C24.609 14.25 24.3418 14.5172 24.3418 14.8438V17.8125H35.623V14.8438C35.623 14.5172 35.3559 14.25 35.0293 14.25Z" fill="white"/>
+                          <path d="M24.3418 23.5481H24.9355C26.0032 23.5346 26.0406 23.9309 26.9543 23.9519C27.8748 23.9299 27.902 23.5342 28.979 23.5481C29.5965 23.5481 29.9349 23.6847 30.208 23.7916C30.5617 23.9991 31.4245 24.0011 31.7815 23.7915C32.0546 23.6847 32.393 23.5481 33.0105 23.5481C33.634 23.5481 33.9724 23.6847 34.2396 23.7916C34.5375 23.9715 35.2111 23.9602 35.6231 23.9518L35.623 19H24.3418V23.5481Z" fill="white"/>
+                          <path d="M33.8012 24.8947C33.4476 24.6871 32.5846 24.6851 32.2277 24.8948C31.9546 25.0016 31.6162 25.1382 30.9987 25.1382C29.9233 25.1526 29.8977 24.7575 28.9799 24.7344C28.0586 24.7563 28.0328 25.1521 26.9552 25.1381C25.8859 25.1517 25.8539 24.7557 24.9365 24.7344C24.9365 24.7344 24.3427 24.7344 24.3427 24.7344C24.4898 26.6531 23.8234 28.5456 22.3477 29.6863C22.3477 29.6863 35.624 29.6863 35.624 29.6863V25.1382C35.0034 25.1725 34.1629 25.0957 33.8012 24.8947ZM27.5371 28.196C26.7572 28.1852 26.7565 27.0231 27.5371 27.0085C28.3178 27.0232 28.3169 28.1853 27.5371 28.196ZM30.874 27.6022C30.094 27.5914 30.0933 26.4294 30.874 26.4147C31.6547 26.4295 31.6538 27.5915 30.874 27.6022Z" fill="white"/>
+                          <path d="M2.37305 35.0312C2.37305 35.3578 2.64024 35.625 2.9668 35.625H35.0293C35.3559 35.625 35.6231 35.3578 35.6231 35.0312V30.875H2.37305V35.0312Z" fill="white"/>
+                        </svg>
+                      )}
+                      {card.icon === 'sawing' && (
+                        <svg width="34" height="30" viewBox="0 0 34 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8.98869 0.936214C7.7403 -0.312104 5.70909 -0.312039 4.46077 0.936214L0.939119 4.45793C-0.309133 5.70625 -0.309133 7.73747 0.939119 8.98585L5.7164 13.7631L13.766 5.7135L8.98869 0.936214ZM5.46704 7.97958L3.95773 6.47027L6.47318 3.95483L7.98248 5.46413L5.46704 7.97958Z" fill="white"/>
+                          <path d="M33.4429 25.6133H0.00292969V29.8822H33.4429V25.6133Z" fill="white"/>
+                          <path d="M15.2743 7.42188L9.1875 13.5087L10.0213 17.3441L13.8784 18.1828L14.7169 22.0398L18.6397 22.8926L18.8239 23.4762H29.9987L15.2743 7.42188Z" fill="white"/>
+                        </svg>
+                      )}
+                      {card.icon === 'finishing' && (
+                        <svg width="34" height="27" viewBox="0 0 34 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M33.4411 21.6254V17.6914H26.5567V18.6749C26.5567 21.3864 24.3507 22.6089 21.6392 22.6089H19.6722C17.5031 22.6089 15.7383 24.3736 15.7383 26.5428H33.4411V23.5924H27.5402V21.6254H33.4411Z" fill="white"/>
+                          <path d="M21.6378 20.6419C23.2647 20.6419 24.5882 20.3019 24.5882 18.6749V17.6914H0.000976562V20.6419H8.85239V22.6089H0.000976562V26.5428H13.7698C13.7698 23.289 16.417 20.6419 19.6708 20.6419H21.6378ZM12.7864 22.6089H10.8194V20.6419H12.7864V22.6089Z" fill="white"/>
+                          <path d="M27.5394 1.95454C27.4427 -0.652497 23.7013 -0.65053 23.6055 1.95454V5.8885H27.5394V1.95454Z" fill="white"/>
+                          <path d="M26.5556 15.7234C28.7283 15.7234 30.4896 13.9621 30.4896 11.7894V7.85547H20.6547V11.7894C20.6547 13.9621 18.8934 15.7234 16.7207 15.7234H26.5556Z" fill="white"/>
+                        </svg>
+                      )}
+                      
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={() => handlePurpleBoxClick('card', index, 'title')}
+                      >
+                        {isCardTitleEditing ? (
+                          <textarea
+                            value={card.title}
+                            onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                            onBlur={closePurpleBoxEdit}
+                            className="w-full font-semibold text-gray-900 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                          />
+                        ) : (
+                          <h3 className="font-semibold text-gray-900">{card.title}</h3>
+                        )}
+                      </div>
+                      
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={() => handlePurpleBoxClick('card', index, 'description')}
+                      >
+                        {isCardDescEditing ? (
+                          <textarea
+                            value={card.description}
+                            onChange={(e) => handlePurpleBoxChange(e.target.value)}
+                            onBlur={closePurpleBoxEdit}
+                            className="w-full text-sm text-gray-600 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px]"
+                            autoFocus
+                          />
+                        ) : (
+                          <p className="text-sm text-gray-600">{card.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    );
+                  })}
+                  </div>
+                  
+                  {/* Subtle add button on the right side */}
+                  <button
+                    onClick={addPurpleBoxCard}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 -mr-12 w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 rounded-full flex items-center justify-center transition-colors opacity-60 hover:opacity-100"
+                    title="Add new card"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </section>
+            )}
+
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
               
@@ -2517,16 +2994,20 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
+                const isHeadlineEditing = editingBlockIndex === originalHeadlineIndex;
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <section className={`mb-4 p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
-                      {!item._skipRenderHeadline && (
-                        <div className="relative group/section">
+                    <section className={`p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
+                      {(!item._skipRenderHeadline || isEditing) && (
+                        <div 
+                          className={`relative group/section ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                          onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
+                        >
                            <RenderBlock
                              block={item.headline}
                              basePath={['contentBlocks', originalHeadlineIndex]}
-                             isEditing={isEditing}
+                             isEditing={isEditing || editingBlockIndex === originalHeadlineIndex}
                              onTextChange={onTextChange}
                              contentBlockIndex={originalHeadlineIndex}
                              onMoveBlockUp={handleMoveBlockUp}
@@ -2602,8 +3083,10 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           if (subItem.type === 'mini_section') {
                             const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                             const originalMiniListIndex = findOriginalIndex(subItem.list);
+                            const isMiniHeadlineEditing = editingBlockIndex === originalMiniHeadlineIndex;
+                            const isMiniListEditing = editingBlockIndex === originalMiniListIndex;
                             return (
-                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#FF1414]'} text-left shadow-sm rounded-sm relative group/minisection`}>
+                              <div key={subIndex} className={`px-3 py-1 my-1 ${isEditing ? '!bg-[#F7FAFF] border-l-3 border-blue-400' : '!bg-white border-l-3 border-[#0F58F9]'} text-left relative group/minisection`}>
                                 {isEditing && (
                                   <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
                                     <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
@@ -2620,56 +3103,71 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     </button>
                                   </div>
                                 )}
-                                <RenderBlock
-                                  block={subItem.headline}
-                                  isMiniSectionHeadline={true}
-                                  isFirstInBox={subIndex === 0}
-                                  basePath={['contentBlocks', originalMiniHeadlineIndex]}
-                                  isEditing={isEditing}
-                                  onTextChange={onTextChange}
-                                  contentBlockIndex={originalMiniHeadlineIndex}
-                                  onMoveBlockUp={handleMoveBlockUp}
-                                  onMoveBlockDown={handleMoveBlockDown}
-                                  isFirstBlock={originalMiniHeadlineIndex === 0}
-                                  isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                                  onDragStart={handleDragStart}
-                                  onDragOver={handleDragOver}
-                                  onDragLeave={handleDragLeave}
-                                  onDrop={handleDrop}
-                                  onDragEnd={handleDragEnd}
-                                  isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
-                                  documentContent={documentContent}
-                                />
-                                <RenderBlock
-                                  block={subItem.list}
-                                  isLastInBox={isLastSubItem}
-                                  basePath={['contentBlocks', originalMiniListIndex]}
-                                  isEditing={isEditing}
-                                  onTextChange={onTextChange}
-                                  contentBlockIndex={originalMiniListIndex}
-                                  onMoveBlockUp={handleMoveBlockUp}
-                                  onMoveBlockDown={handleMoveBlockDown}
-                                  isFirstBlock={originalMiniListIndex === 0}
-                                  isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                                  onDragStart={handleDragStart}
-                                  onDragOver={handleDragOver}
-                                  onDragLeave={handleDragLeave}
-                                  onDrop={handleDrop}
-                                  onDragEnd={handleDragEnd}
-                                  isDraggedOver={dragOverIndex === originalMiniListIndex}
-                                  documentContent={documentContent}
-                                />
+                                <div 
+                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isMiniHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  onClick={(e) => !isEditing && handleBlockClick(originalMiniHeadlineIndex, e)}
+                                >
+                                  <RenderBlock
+                                    block={subItem.headline}
+                                    isMiniSectionHeadline={true}
+                                    isFirstInBox={subIndex === 0}
+                                    basePath={['contentBlocks', originalMiniHeadlineIndex]}
+                                    isEditing={isEditing || editingBlockIndex === originalMiniHeadlineIndex}
+                                    onTextChange={onTextChange}
+                                    contentBlockIndex={originalMiniHeadlineIndex}
+                                    onMoveBlockUp={handleMoveBlockUp}
+                                    onMoveBlockDown={handleMoveBlockDown}
+                                    isFirstBlock={originalMiniHeadlineIndex === 0}
+                                    isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                    onDragStart={handleDragStart}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                    onDragEnd={handleDragEnd}
+                                    isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
+                                    documentContent={documentContent}
+                                  />
+                                </div>
+                                <div 
+                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isMiniListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  onClick={(e) => !isEditing && handleBlockClick(originalMiniListIndex, e)}
+                                >
+                                  <RenderBlock
+                                    block={subItem.list}
+                                    isLastInBox={isLastSubItem}
+                                    basePath={['contentBlocks', originalMiniListIndex]}
+                                    isEditing={isEditing || editingBlockIndex === originalMiniListIndex}
+                                    onTextChange={onTextChange}
+                                    contentBlockIndex={originalMiniListIndex}
+                                    onMoveBlockUp={handleMoveBlockUp}
+                                    onMoveBlockDown={handleMoveBlockDown}
+                                    isFirstBlock={originalMiniListIndex === 0}
+                                    isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                    onDragStart={handleDragStart}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                    onDragEnd={handleDragEnd}
+                                    isDraggedOver={dragOverIndex === originalMiniListIndex}
+                                    documentContent={documentContent}
+                                  />
+                                </div>
                               </div>
                             );
                           } else { // It's an AnyContentBlock
                             const originalSubIndex = findOriginalIndex(subItem);
+                            const isSubBlockEditing = editingBlockIndex === originalSubIndex;
                             return (
-                              <div key={subIndex} className="relative group/block">
+                              <div 
+                                key={subIndex} 
+                                className={`relative group/block ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isSubBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                onClick={(e) => !isEditing && handleBlockClick(originalSubIndex, e)}
+                              >
                                 <RenderBlock
                                   block={subItem}
                                   isLastInBox={isLastSubItem}
                                   basePath={['contentBlocks', originalSubIndex]}
-                                  isEditing={isEditing}
+                                  isEditing={isEditing || editingBlockIndex === originalSubIndex}
                                   onTextChange={onTextChange}
                                   contentBlockIndex={originalSubIndex}
                                   onMoveBlockUp={handleMoveBlockUp}
@@ -2704,43 +3202,55 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'mini_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
+                const isHeadlineEditing = editingBlockIndex === originalHeadlineIndex;
+                const isListEditing = editingBlockIndex === originalListIndex;
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
-                      <RenderBlock
-                        block={item.headline}
-                        isMiniSectionHeadline={true}
-                        isFirstInBox={index === 0}
-                        basePath={['contentBlocks', originalHeadlineIndex]}
-                        isEditing={isEditing}
-                        onTextChange={onTextChange}
-                        contentBlockIndex={originalHeadlineIndex}
-                        onMoveBlockUp={handleMoveBlockUp}
-                        onMoveBlockDown={handleMoveBlockDown}
-                        isFirstBlock={originalHeadlineIndex === 0}
-                        isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                        documentContent={documentContent}
-                      />
-                      <RenderBlock
-                        block={item.list}
-                        isLastInBox={isLastItem}
-                        basePath={['contentBlocks', originalListIndex]}
-                        isEditing={isEditing}
-                        onTextChange={onTextChange}
-                        contentBlockIndex={originalListIndex}
-                        onMoveBlockUp={handleMoveBlockUp}
-                        onMoveBlockDown={handleMoveBlockDown}
-                        isFirstBlock={originalListIndex === 0}
-                        isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                        onDragStart={handleDragStart}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        onDragEnd={handleDragEnd}
-                        isDraggedOver={dragOverIndex === originalListIndex}
-                        documentContent={documentContent}
-                      />
+                    <div className="p-3 !bg-white border-l-3 border-[#0F58F9] text-left">
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
+                      >
+                        <RenderBlock
+                          block={item.headline}
+                          isMiniSectionHeadline={true}
+                          isFirstInBox={index === 0}
+                          basePath={['contentBlocks', originalHeadlineIndex]}
+                          isEditing={isEditing || editingBlockIndex === originalHeadlineIndex}
+                          onTextChange={onTextChange}
+                          contentBlockIndex={originalHeadlineIndex}
+                          onMoveBlockUp={handleMoveBlockUp}
+                          onMoveBlockDown={handleMoveBlockDown}
+                          isFirstBlock={originalHeadlineIndex === 0}
+                          isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                          documentContent={documentContent}
+                        />
+                      </div>
+                      <div 
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        onClick={(e) => !isEditing && handleBlockClick(originalListIndex, e)}
+                      >
+                        <RenderBlock
+                          block={item.list}
+                          isLastInBox={isLastItem}
+                          basePath={['contentBlocks', originalListIndex]}
+                          isEditing={isEditing || editingBlockIndex === originalListIndex}
+                          onTextChange={onTextChange}
+                          contentBlockIndex={originalListIndex}
+                          onMoveBlockUp={handleMoveBlockUp}
+                          onMoveBlockDown={handleMoveBlockDown}
+                          isFirstBlock={originalListIndex === 0}
+                          isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                          onDragStart={handleDragStart}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                          onDragEnd={handleDragEnd}
+                          isDraggedOver={dragOverIndex === originalListIndex}
+                          documentContent={documentContent}
+                        />
+                      </div>
                     </div>
                   </div>
                 );
@@ -2748,28 +3258,33 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'standalone_block') {
                 const originalIndex = findOriginalIndex(item.content);
+                const isBlockEditing = editingBlockIndex === originalIndex;
                 return (
                   <div key={index} className={reorderClasses}>
-
-                    <RenderBlock
-                      block={item.content}
-                      isLastInBox={isLastItem}
-                      basePath={['contentBlocks', originalIndex]}
-                      isEditing={isEditing}
-                      onTextChange={onTextChange}
-                      contentBlockIndex={originalIndex}
-                      onMoveBlockUp={handleMoveBlockUp}
-                      onMoveBlockDown={handleMoveBlockDown}
-                      isFirstBlock={originalIndex === 0}
-                      isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                      documentContent={documentContent}
-                      onDragStart={handleDragStart}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onDragEnd={handleDragEnd}
-                      isDraggedOver={dragOverIndex === originalIndex}
-                    />
+                    <div 
+                      className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''} ${isBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                      onClick={(e) => !isEditing && handleBlockClick(originalIndex, e)}
+                    >
+                      <RenderBlock
+                        block={item.content}
+                        isLastInBox={isLastItem}
+                        basePath={['contentBlocks', originalIndex]}
+                        isEditing={isEditing || editingBlockIndex === originalIndex}
+                        onTextChange={onTextChange}
+                        contentBlockIndex={originalIndex}
+                        onMoveBlockUp={handleMoveBlockUp}
+                        onMoveBlockDown={handleMoveBlockDown}
+                        isFirstBlock={originalIndex === 0}
+                        isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                        documentContent={documentContent}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onDragEnd={handleDragEnd}
+                        isDraggedOver={dragOverIndex === originalIndex}
+                      />
+                    </div>
                   </div>
                 );
               }
@@ -2778,7 +3293,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             })}
           </main>
         </div>
-      
       {/* Floating add menu: one big plus -> expands into image and section buttons */}
       {isEditing && !!onTextChange && (
         <>
@@ -2798,11 +3312,28 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             <ImageIcon className="w-5 h-5" />
           </button>
           <button
-            onClick={() => { setFabOpen(false); addMajorSection(); }}
+            onClick={() => { setFabOpen(false); addRecommendation(); }}
             className={`fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-75' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Recommendation"
+          >
+            <AlertCircle className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { setFabOpen(false); addMajorSection(); }}
+            className={`fixed bottom-56 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-100' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
             title="Add Section"
           >
             <TextIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { setFabOpen(false); addColumnContainer(); }}
+            className={`fixed bottom-72 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-150' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Columns"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="4" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
+              <rect x="14" y="4" width="6" height="16" strokeWidth="2" rx="1"/>
+            </svg>
           </button>
         </>
       )}
@@ -2814,6 +3345,40 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         onImageUploaded={handleImageUploaded}
       />
     </div>
+    <div className="mt-6 mb-8 flex justify-center">
+    <DropdownMenu open={addSectionDropdownOpen} onOpenChange={setAddSectionDropdownOpen}>
+      <DropdownMenuTrigger asChild>
+        <button className="w-full max-w-5xl flex items-center justify-center bg-white gap-2 px-6 py-4 text-sm text-[#719AF5] hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-[#CCCCCC]">
+          <Plus className="w-5 h-5" />
+          <span className="font-medium">Add Section</span>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="center" className="w-56">
+        <DropdownMenuItem onClick={() => {
+          addMajorSection();
+          setAddSectionDropdownOpen(false);
+        }}>
+          <TextIcon className="w-4 h-4 mr-2" />
+          <span>Major Section</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {
+          addRecommendation();
+          setAddSectionDropdownOpen(false);
+        }}>
+          <AlertCircle className="w-4 h-4 mr-2" />
+          <span>Recommendation</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {
+          addColumnContainer();
+          setAddSectionDropdownOpen(false);
+        }}>
+          <Columns className="w-4 h-4 mr-2" />
+          <span>Columns Layout</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
+  </>
   );
 };
 

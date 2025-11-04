@@ -14,6 +14,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { AiAgent } from "@/components/ui/ai-agent";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -202,10 +203,25 @@ export default function TextPresentationClient() {
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
+  
+  // Auto-scroll to AI Agent section when it's shown
+  useEffect(() => {
+    if (showAdvanced && advancedSectionRef.current) {
+      advancedSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [showAdvanced]);
+
   const [selectedTheme, setSelectedTheme] = useState<string>("wine");
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
+  const [selectedImageSource, setSelectedImageSource] = useState("ai");
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
@@ -219,6 +235,15 @@ export default function TextPresentationClient() {
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   const [originalTitles, setOriginalTitles] = useState<{ [key: number]: string }>({});
   const nextEditingIdRef = useRef<number | null>(null);
+  
+  // State for editing lesson content
+  const [editingContentId, setEditingContentId] = useState<number | null>(null);
+  const [editedContents, setEditedContents] = useState<{ [key: number]: string }>({});
+  const [originalContents, setOriginalContents] = useState<{ [key: number]: string }>({});
+  const nextEditingContentIdRef = useRef<number | null>(null);
+
+  // State for additional sections
+  const [additionalSections, setAdditionalSections] = useState<{ id: string; title: string; content: string }[]>([]);
 
   // Smart change handling states (similar to QuizClient)
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -390,6 +415,20 @@ export default function TextPresentationClient() {
 
   // Use useMemo to recalculate lessonList when content changes
   const lessonList = React.useMemo(() => parseContentIntoLessons(content), [content]);
+
+  // Calculate word count from content
+  const wordCount = React.useMemo(() => {
+    if (!content) return 0;
+    // Remove markdown formatting and count words
+    const plainText = content
+      .replace(/#{1,6}\s+/g, '') // Remove markdown headers
+      .replace(/\*\*/g, '') // Remove bold markers
+      .replace(/\*/g, '') // Remove italic markers
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Remove links but keep text
+      .trim();
+    const words = plainText.split(/\s+/).filter(word => word.length > 0);
+    return words.length;
+  }, [content]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
@@ -575,6 +614,11 @@ export default function TextPresentationClient() {
       }
     });
 
+    // Add additional sections
+    additionalSections.forEach((section) => {
+      cleanContent += `## ${section.title}\n\n${section.content}\n\n`;
+    });
+
     console.log("DEBUG: Final clean content length:", cleanContent.length);
     return cleanContent.trim();
   };
@@ -582,10 +626,9 @@ export default function TextPresentationClient() {
   // NEW: Create clean content for finalization - similar to QuizClient logic
   const createCleanFinalizationContent = (content: string) => {
     const lessons = parseContentIntoLessons(content);
-    if (lessons.length === 0) return content;
-
     let cleanContent = "";
 
+    // Add original lessons
     lessons.forEach((lesson, index) => {
       // Check if this title was edited by the user (by name, not by index)
       if (editedTitleNames.has(lesson.title)) {
@@ -597,6 +640,11 @@ export default function TextPresentationClient() {
         // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
+    });
+
+    // Add additional sections
+    additionalSections.forEach((section) => {
+      cleanContent += `## ${section.title}\n\n${section.content}\n\n`;
     });
 
     return cleanContent.trim();
@@ -619,6 +667,156 @@ export default function TextPresentationClient() {
 
   const getTitleForLesson = (lesson: any, index: number) => {
     return editedTitles[index] || lesson.title;
+  };
+
+  // Handle lesson content editing
+  const handleContentEdit = (lessonIndex: number, newContent: string) => {
+    setEditedContents(prev => ({
+      ...prev,
+      [lessonIndex]: newContent
+    }));
+
+    // Store original content if not already stored
+    if (!originalContents[lessonIndex] && lessonIndex < lessonList.length) {
+      setOriginalContents(prev => ({
+        ...prev,
+        [lessonIndex]: lessonList[lessonIndex].content
+      }));
+    }
+
+    setHasUserEdits(true);
+  };
+
+  const handleContentSave = (lessonIndex: number, finalContent?: string) => {
+    setEditingContentId(null);
+
+    // If we're switching to another content, don't save
+    if (nextEditingContentIdRef.current !== null) {
+      nextEditingContentIdRef.current = null;
+      return;
+    }
+
+    const newContent = (finalContent ?? editedContents[lessonIndex]);
+    if (!newContent) {
+      return;
+    }
+
+    // Update the content in the main content string
+    updateContentWithNewContent(lessonIndex, newContent);
+  };
+
+  const updateContentWithNewContent = (lessonIndex: number, newContent: string) => {
+    if (!newContent && newContent !== '') return;
+
+    const lessons = parseContentIntoLessons(content);
+    if (lessonIndex >= lessons.length) return;
+
+    const oldContent = lessons[lessonIndex].content;
+
+    // Find and replace the old content with new content
+    const escapedOldContent = escapeRegExp(oldContent);
+    const pattern = new RegExp(escapedOldContent, 'g');
+
+    let updatedContent = content;
+    if (pattern.test(updatedContent)) {
+      updatedContent = updatedContent.replace(pattern, newContent);
+    }
+
+    setContent(updatedContent);
+
+    // Clear the edited content since it's now part of the main content
+    setEditedContents(prev => {
+      const newContents = { ...prev };
+      delete newContents[lessonIndex];
+      return newContents;
+    });
+
+    // Mark that content has been updated
+    if (updatedContent !== content) {
+      setHasUserEdits(true);
+    }
+  };
+
+  const handleContentCancel = (lessonIndex: number) => {
+    setEditedContents(prev => {
+      const newContents = { ...prev };
+      delete newContents[lessonIndex];
+      return newContents;
+    });
+    setEditingContentId(null);
+  };
+
+  const getContentForLesson = (lesson: any, index: number) => {
+    return editedContents[index] !== undefined ? editedContents[index] : lesson.content;
+  };
+
+  // Handle adding new section
+  const handleAddSection = () => {
+    const newSection = {
+      id: `section_${Date.now()}`,
+      title: t('interface.generate.newSection', 'New Section'),
+      content: t('interface.generate.addContentPlaceholder', 'Add your content here...')
+    };
+    setAdditionalSections(prev => [...prev, newSection]);
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional section title
+  const handleAdditionalSectionTitleEdit = (sectionId: string, newTitle: string) => {
+    setAdditionalSections(prev => prev.map(section => 
+      section.id === sectionId ? { ...section, title: newTitle } : section
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional section content
+  const handleAdditionalSectionContentEdit = (sectionId: string, newContent: string) => {
+    setAdditionalSections(prev => prev.map(section => 
+      section.id === sectionId ? { ...section, content: newContent } : section
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle deleting additional section
+  const handleDeleteAdditionalSection = (sectionId: string) => {
+    setAdditionalSections(prev => prev.filter(section => section.id !== sectionId));
+    setHasUserEdits(true);
+  };
+
+  // Function to render content with colored circles for bullet points
+  const renderContentWithCircles = (content: string) => {
+    if (!content) return content;
+
+    // Split content into lines and process each line
+    const lines = content.split('\n');
+    const processedLines = lines.map((line, lineIndex) => {
+      const trimmedLine = line.trim();
+      
+      // Check if line starts with a hyphen (bullet point)
+      if (trimmedLine.startsWith('-')) {
+        const contentAfterDash = trimmedLine.substring(1).trim();
+        return (
+          <div key={lineIndex} className="flex items-start gap-2">
+            <div className="w-1 h-1 bg-[#6091F9] rounded-full mt-2 flex-shrink-0"></div>
+            <span className="text-sm font-normal leading-[140%] text-[#171718]">{contentAfterDash}</span>
+          </div>
+        );
+      }
+      
+      // For regular lines (non-bullet points), return as is
+      if (trimmedLine) {
+        return (
+          <div key={lineIndex} className="mb-2">
+            <span className="text-sm font-normal leading-[140%] text-[#171718]">{line}</span>
+          </div>
+        );
+      }
+      
+      // For empty lines, return a line break
+      return <br key={lineIndex} />;
+    });
+
+    return processedLines;
   };
 
   // Example prompts for advanced mode
@@ -1298,6 +1496,12 @@ export default function TextPresentationClient() {
     { id: "lunaria", label: t('interface.generate.lunaria', 'Lunaria') },
     { id: "zephyr", label: t('interface.generate.zephyr', 'Zephyr') },
   ];
+
+  // Helper function to get theme SVG component
+  const getThemeSvg = (themeId: string) => {
+    const ThemeSvgComponent = ThemeSvgs[themeId as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+    return ThemeSvgComponent;
+  };
   const styleOptions = [
     { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
     { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
@@ -1379,634 +1583,352 @@ export default function TextPresentationClient() {
 
   return (
     <>
-      <main
-        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
+    <div className="flex w-full min-h-screen relative">
+    <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
+      marginRight: showAdvanced ? '400px' : '0'
+    }}>
+      {/* Decorative gradient backgrounds */}
+      <div 
+        className="absolute pointer-events-none"
         style={{
-          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
+          width: '1200px',
+          height: '1600px',
+          top: '-500px',
+          left: '-350px',
+          borderRadius: '450px',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+          transform: 'rotate(-300deg)',
+          filter: 'blur(200px)',
+          opacity: '30%',
+        }}
+      />
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1960px',
+          height: '2400px',
+          top: '1258px',
+          left: '433px',
+          borderRadius: '450px',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+          transform: 'rotate(-120deg)',
+          filter: 'blur(200px)',
+          opacity: '40%',
+        }}
+      />
+
+      {/* Back button */}
+      <Link
+        href="/create/generate"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
+        style={{ 
+          color: '#000000',
+          background: '#FFFFFF'
         }}
       >
-        {/* Back button */}
-        <Link
-          href="/create/generate"
-            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-          style={{
-            color: '#0F58F9',
-            fontSize: '14px',
-            fontWeight: '600',
-            lineHeight: '140%',
-            letterSpacing: '0.05em'
-          }}
-        >
-          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          {t('interface.generate.back', 'Back')}
-        </Link>
+        <span>&lt;</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
+      </Link>
 
-        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+      <div className="w-full max-w-4xl flex flex-col gap-0 text-gray-900 relative z-10">
 
-          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
+          {/* Page title */}
+          <h1 className="text-center pb-6 text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.onePagerOutlinePreview', 'One-Pager outline preview')}</h1>
 
-          {/* Step-by-step process */}
-          <div className="flex flex-col gap-4">
-            {/* Step 1: Choose source */}
-            {useExistingOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setUseExistingOutline(true)}
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForPresentation', 'Yes, content for the presentation from the outline')}
-                  </button>
-                  <button
-                    onClick={() => setUseExistingOutline(false)}
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandalonePresentation', 'No, I want standalone presentation')}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingOutline !== null && (
-              <div className="w-full">
-                {/* Show outline flow if user chose existing outline */}
-                {useExistingOutline === true && (
-                  <>
-                    {/* Course Structure dropdowns - Outline, Module, Lesson */}
-                    {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
-                        <div className="flex items-center">
-                          {/* Outline dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedOutlineId?.toString() ?? ""}
-                              onValueChange={(value: string) => {
-                                const val = value ? Number(value) : null;
-                                setSelectedOutlineId(val);
-                                setSelectedModuleIndex(null);
-                                setLessonsForModule([]);
-                                setSelectedLesson("");
-                              }}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                {outlines.map((o) => (
-                                  <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-
-                          {/* Module dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedModuleIndex?.toString() ?? ""}
-                              onValueChange={(value: string) => {
-                                const idx = value ? Number(value) : null;
-                                setSelectedModuleIndex(idx);
-                                setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                                setSelectedLesson("");
-                              }}
-                              disabled={modulesForOutline.length === 0}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                {modulesForOutline.map((m, idx) => (
-                                  <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-
-                          {/* Lesson dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={selectedLesson}
-                              onValueChange={setSelectedLesson}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                {lessonsForModule.map((l) => (
-                                  <SelectItem key={l} value={l}>{l}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Initial Outline dropdown - shows when no outline is selected yet */}
-                    {!selectedOutlineId && (
-                      <Select
-                        value={selectedOutlineId?.toString() ?? ""}
-                        onValueChange={(value: string) => {
-                          const val = value ? Number(value) : null;
-                          setSelectedOutlineId(val);
-                          setSelectedModuleIndex(null);
-                          setLessonsForModule([]);
-                          setSelectedLesson("");
-                        }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                          <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300">
-                          {outlines.map((o) => (
-                            <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {/* Show final dropdowns when lesson is selected */}
-                    {selectedLesson && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-center">
-                          {/* Language dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                        <Select
-                          value={language}
-                          onValueChange={setLanguage}
-                        >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                                  <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
-                                </div>
-                          </SelectTrigger>
-                          <SelectContent className="border-white shadow-lg" sideOffset={15}>
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                          </div>
-                          
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          
-                          {/* Length dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                        <Select
-                          value={length}
-                          onValueChange={setLength}
-                        >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.length', 'Length')}:</span>
-                                  <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
-                                </div>
-                          </SelectTrigger>
-                          <SelectContent className="border-white shadow-lg" sideOffset={15} align="center">
-                            {lengthOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                          </div>
-                          
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          
-                          {/* Styles dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                        <DropdownMenu open={showStylesDropdown} onOpenChange={() => {
-                          setShowStylesDropdown(!showStylesDropdown);
-                          handleStylesClick();}}>
-                          <DropdownMenuTrigger asChild>
-                                <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                  <div className="flex items-center gap-2">
-                                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
-                                    </svg>
-                                    <span className="text-[#09090B] opacity-50 text-sm">{t('interface.generate.stylesSelected', 'Styles selected')}:</span>
-                                    <span className="text-[#09090B]">
-                                {selectedStyles.length === 0
-                                        ? '0'
-                                        : selectedStyles.length > 9
-                                          ? '9'
-                                          : selectedStyles.length.toString()}
-                              </span>
-                                    <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9.5 1L5.5 5L1.5 1" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  </div>
-                                </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent 
-                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white" 
-                            align="center"
-                            sideOffset={25}
-                            style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
-                          >
-                            {styleOptions.map((option) => (
-                              <label key={option.value} className="flex items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                <div className="flex items-center gap-2 flex-1">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedStyles.includes(option.value)}
-                                    onChange={(e) => {
-                                      setStylesState("Used");
-                                      if (e.target.checked) {
-                                        setSelectedStyles([...selectedStyles, option.value]);
-                                      } else {
-                                        setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                      }
-                                    }}
-                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  <span className="text-sm text-[#09090B]">{option.label}</span>
-                                </div>
-                                <div className="ml-6">
-                                  <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
-                                    <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
-                                  </CustomTooltip>
-                                </div>
-                              </label>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Show standalone one-pager dropdowns if user chose standalone */}
-                {useExistingOutline === false && (
-                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                    <div className="flex items-center">
-                      {/* Language dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                    <Select
-                      value={language}
-                      onValueChange={setLanguage}
-                    >
-                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                            <div className="flex items-center gap-2">
-                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M2.47229 11.625H16.5279" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M2.47229 6.375H16.5279" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                              <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
-                            </div>
-                      </SelectTrigger>
-                      <SelectContent className="border-white shadow-lg">
-                        <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                      </div>
-                      
-                      {/* Divider */}
-                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                      
-                      {/* Length dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                    <Select
-                      value={length}
-                      onValueChange={setLength}
-                    >
-                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                            <div className="flex items-center gap-2">
-                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                              </svg>
-                              <span className="text-[#09090B] opacity-50">{t('interface.generate.length', 'Length')}:</span>
-                              <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
-                            </div>
-                      </SelectTrigger>
-                      <SelectContent className="border-white shadow-lg">
-                        {lengthOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                      </div>
-                      
-                      {/* Divider */}
-                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                      
-                      {/* Styles dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                    <DropdownMenu open={showStylesDropdown} onOpenChange={() => {
-                      setShowStylesDropdown(!showStylesDropdown);
-                      handleStylesClick();}}>
-                      <DropdownMenuTrigger asChild>
-                            <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                              <div className="flex items-center gap-2">
-                                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fillRule="evenodd" clipRule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
-                                </svg>
-                                <span className="text-[#09090B] opacity-50 text-sm">{t('interface.generate.stylesSelected', 'Styles selected')}:</span>
-                                <span className="text-[#09090B]">
-                            {selectedStyles.length === 0
-                                    ? '0'
-                                    : selectedStyles.length > 9
-                                      ? '9'
-                                      : selectedStyles.length.toString()}
-                          </span>
-                                <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M9.5 1L5.5 5L1.5 1" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </div>
-                            </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent 
-                            className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto" 
-                        align="center"
-                        sideOffset={25}
-                        style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
-                      >
-                        {styleOptions.map((option) => (
-                          <label key={option.value} className="flex justify-between flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <div className="flex items-center gap-[10px]">
-                              <input
-                                type="checkbox"
-                                checked={selectedStyles.includes(option.value)}
-                                onChange={(e) => {
-                                  setStylesState("Used");
-                                  if (e.target.checked) {
-                                    setSelectedStyles([...selectedStyles, option.value]);
-                                  } else {
-                                    setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                  }
-                                }}
-                                className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-[#09090B]">{option.label}</span>
-                            </div>
-                            <div className="ml-6">
-                              <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
-                                <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
-                              </CustomTooltip>
-                            </div>
-                          </label>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            )}
-          </div>
-
+          {/* Main content container - removed this div wrapper */}
           {/* Prompt input for standalone presentation */}
           {useExistingOutline === false && (
-            <div className="relative group">
-              <Textarea
-                value={currentPrompt}
-                onChange={(e) => {
-                  const newPrompt = e.target.value;
-                  setCurrentPrompt(newPrompt);
-                  
-                  // Handle prompt storage for long prompts by updating URL
-                  const sp = new URLSearchParams(params?.toString() || "");
-                  if (newPrompt.length > 500) {
-                    const promptId = generatePromptId();
-                    sessionStorage.setItem(promptId, newPrompt);
-                    sp.set("prompt", promptId);
-                  } else {
-                    sp.set("prompt", newPrompt);
-                  }
-                  router.replace(`?${sp.toString()}`, { scroll: false });
-                }}
-                placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
-                rows={1}
-                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                style={{ background: "rgba(255,255,255,0.95)" }}
-              />
-              <Edit 
-                size={16} 
-                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
-              />
+            <div className="flex gap-2 items-start bg-[#6E9BFB] rounded-t-lg">
+              <div className="relative group flex-1">
+                <Textarea
+                  value={currentPrompt}
+                  onChange={(e) => {
+                    const newPrompt = e.target.value;
+                    setCurrentPrompt(newPrompt);
+                    
+                    // Handle prompt storage for long prompts by updating URL
+                    const sp = new URLSearchParams(params?.toString() || "");
+                    if (newPrompt.length > 500) {
+                      const promptId = generatePromptId();
+                      sessionStorage.setItem(promptId, newPrompt);
+                      sp.set("prompt", promptId);
+                    } else {
+                      sp.set("prompt", newPrompt);
+                    }
+                    router.replace(`?${sp.toString()}`, { scroll: false });
+                  }}
+                  placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
+                  rows={1}
+                  className="w-full px-7 py-5 !rounded-t-lg bg-white text-lg text-[#FFFFFF] resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                  style={{ background: "#6E9BFB", border: "#CCCCCC" }}
+                />
+              </div>
             </div>
           )}
 
-          <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
-              {false && hasUserEdits && (
-                <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                  User edits detected
-                </span>
-              )}
-            </div>
-            {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
-            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+        <section className="flex flex-col gap-3 pb-8 rounded-b-lg">
+          {error && <p className="text-red-600">{error}</p>}
 
-            {/* Main content display - Custom slide titles display matching course outline format */}
-            {textareaVisible && (
-              <div
-                className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
-                style={{ animation: 'fadeInDown 0.25s ease-out both' }}
-              >
+          {/* Main content display - Custom slide titles display matching course outline format */}
+          {(textareaVisible || loading) && (
+            <div
+              className="rounded-b-lg flex flex-col relative"
+              style={{ 
+                animation: 'fadeInDown 0.25s ease-out both',
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
+                border: '1px solid #E0E0E0'
+              }}
+            >
+              
+              {/* Lesson cards container */}
+              <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
+                {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+                
                 {loadingEdit && (
                   <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
                     <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                   </div>
                 )}
 
-                {/* Display content in card format if lessons are available, otherwise show textarea */}
-                {lessonList.length > 0 && (
-                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
-                    {lessonList.map((lesson, idx: number) => (
-                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
-                        {/* Left blue square with number */}
-                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
-                          {idx + 1}
-                        </div>
-
-                        {/* Main content section */}
-                        <div className="flex-1">
-                          <div className="mb-2">
-                            {editingLessonId === idx ? (
-                              <div className="relative group">
-                                <Input
-                                  type="text"
-                                  value={editedTitles[idx] || lesson.title}
-                                  onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
-                                  autoFocus
-                                  onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
-                                    if (e.key === 'Escape') handleTitleCancel(idx);
-                                  }}
-                                  disabled={!streamDone}
-                                />
-                                {(editedTitles[idx] || lesson.title) && (
-                                  <Edit 
-                                    size={16} 
-                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <div className="relative group">
-                                <h4
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] w-full h-9 px-3 py-1 pr-8"
-                                  onMouseDown={() => {
-                                    // Set the next editing ID before the blur event fires
-                                    nextEditingIdRef.current = idx;
-                                  }}
-                                  onClick={() => {
-                                    if (streamDone) setEditingLessonId(idx);
-                                  }}
-                                >
-                                  {getTitleForLesson(lesson, idx)}
-                                </h4>
-                                {getTitleForLesson(lesson, idx) && (
-                                  <Edit 
-                                    size={16} 
-                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                                  />
-                                )}
-                              </div>
-                            )}
+                {/* Display content in card format if lessons are available */}
+                {lessonList.length > 0 && lessonList.map((lesson, idx: number) => (
+                  <div key={idx} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
+                    {/* Lesson header with number and title */}
+                    <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                      {/* <span className="text-[#0D001B] font-semibold text-lg">{idx + 1}.</span> */}
+                      <div className="flex-1">
+                        {editingLessonId === idx ? (
+                          <div className="relative group">
+                            <Input
+                              type="text"
+                              value={editedTitles[idx] || lesson.title}
+                              onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                              className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                              autoFocus
+                              onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                if (e.key === 'Escape') handleTitleCancel(idx);
+                              }}
+                              disabled={!streamDone}
+                            />
                           </div>
-                          {lesson.content && (
-                            <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
-                              {lesson.content.substring(0, 100)}
-                              {lesson.content.length > 100 && '...'}
-                            </div>
-                          )}
-                        </div>
+                        ) : (
+                          <div className="relative group">
+                            <Input
+                              type="text"
+                              value={getTitleForLesson(lesson, idx)}
+                              onMouseDown={() => {
+                                nextEditingIdRef.current = idx;
+                              }}
+                              onClick={() => {
+                                if (streamDone) setEditingLessonId(idx);
+                              }}
+                              readOnly
+                              className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                              disabled={!streamDone}
+                            />
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Content preview/edit */}
+                    {lesson.content && (
+                      <div className="px-5 pb-4">
+                        {editingContentId === idx ? (
+                          <Textarea
+                            value={getContentForLesson(lesson, idx)}
+                            onChange={(e) => handleContentEdit(idx, e.target.value)}
+                            className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                            autoFocus
+                            onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') handleContentCancel(idx);
+                            }}
+                            disabled={!streamDone}
+                          />
+                        ) : (
+                          <div 
+                            className={`cursor-pointer !text-sm rounded p-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                            onMouseDown={() => {
+                              nextEditingContentIdRef.current = idx;
+                            }}
+                            onClick={() => {
+                              if (streamDone) setEditingContentId(idx);
+                            }}
+                          >
+                            {(() => {
+                              const fullContent = getContentForLesson(lesson, idx);
+                              const truncatedContent = fullContent.length > 100 ? fullContent.substring(0, 100) + '...' : fullContent;
+                              return renderContentWithCircles(truncatedContent);
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )}
-          </section>
+                ))}
 
-          {/* Inline Advanced section & button */}
-          {streamDone && content && (
-            <>
-              {showAdvanced && (
-                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <Textarea
-                    value={editPrompt}
-                    onChange={(e) => setEditPrompt(e.target.value)}
-                    placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                    style={{ background: "rgba(255,255,255,0.95)" }}
-                  />
-
-                  {/* Example prompts */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                    {onePagerExamples.map((ex) => (
+                {/* Additional sections */}
+                {additionalSections.map((section, idx: number) => (
+                  <div key={section.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
+                    {/* Section header with title */}
+                    <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          value={section.title}
+                          onChange={(e) => handleAdditionalSectionTitleEdit(section.id, e.target.value)}
+                          className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                          placeholder={t('interface.generate.sectionTitlePlaceholder', 'Section title...')}
+                        />
+                      </div>
                       <button
-                        key={ex.short}
                         type="button"
-                        onClick={() => toggleExample(ex)}
-                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
-                          }`}
+                        onClick={() => handleDeleteAdditionalSection(section.id)}
+                        className="text-red-500 hover:text-red-700 text-sm"
                       >
-                        {ex.short}
-                        <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                        {t('actions.delete', 'Delete')}
                       </button>
-                    ))}
+                    </div>
+
+                    {/* Section content */}
+                    <div className="px-5 pb-4">
+                      <Textarea
+                        value={section.content}
+                        onChange={(e) => handleAdditionalSectionContentEdit(section.id, e.target.value)}
+                        className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                        placeholder={t('interface.generate.addContentPlaceholder', 'Add your content here...')}
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={() => {
-                        handleApplyEdit();
-                        setAdvancedModeState("Used");
-                      }}
-                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                      style={{
-                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                        fontWeight: 500
-                      }}
-                    >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div className="w-full flex justify-center mt-2 mb-6">
+                ))}
+
+                {/* Add Section Button */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowAdvanced((prev) => !prev);
-                    handleAdvancedModeClick();
-                  }}
-                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
-                  style={{
-                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                    fontWeight: 500
-                  }}
+                  onClick={handleAddSection}
+                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
-                  <Sparkles size={16} />
-                  Smart Edit
+                  <span className="text-lg">+</span>
+                  <span>{t('interface.generate.addSection', 'Add Section')}</span>
                 </button>
+                <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-2 rounded-b-[8px]">
+                  <span className="select-none">{wordCount} {t('interface.generate.words', 'words')}</span>
+                  <span className="flex items-center gap-1">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
+                      <circle cx="8" cy="8" r="7" stroke="#0F58F9" strokeWidth="2" fill="none"
+                        strokeDasharray={`${2 * Math.PI * 7}`}
+                        strokeDashoffset={`${2 * Math.PI * 7 * (1 - Math.min(content.length / 50000, 1))}`}
+                        transform="rotate(-90 8 8)"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    {content.length}/50000
+                  </span>
+                </div>
+            </div>
+
+            </div>
+          )}
+          </section>
+
+          {/* Theme section */}
+          {streamDone && content && (
+            <section className="flex flex-col gap-3 mb-8">
+              <div className="rounded-lg border border-[#CCCCCC] px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
+                    <div className="flex flex-col">
+                      <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.themes', 'Themes')}</h2>
+                      <p className="text-[#A5A5A5] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 text-sm text-[#CCCCCC] hover:opacity-80 transition-opacity border border-[#CCCCCC] rounded-lg px-3 py-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCCCCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
+                      <span>{t('interface.generate.viewMore', 'View more')}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-5 px-6">
+                    {/* Themes grid */}
+                    <div className="grid grid-cols-3 gap-5 justify-items-center">
+                      {themeOptions.map((theme) => {
+                        const ThemeSvgComponent = getThemeSvg(theme.id);
+                        const isSelected = selectedTheme === theme.id;
+
+                        return (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            onClick={() => setSelectedTheme(theme.id)}
+                            className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
+                              ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
+                              : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
+                              }`}
+                          >
+                            {/* Status indicator circle - top right */}
+                            <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
+                              ? 'bg-[#0F58F9]'
+                              : 'bg-white border border-[#E0E0E0]'
+                              }`}>
+                              {isSelected && (
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </div>
+                            
+                            <div className="w-[214px] h-[116px] flex items-center justify-center">
+                              <ThemeSvgComponent />
+                            </div>
+                            <div className="flex items-center justify-left px-3">
+                              <span className={`text-lg ${isSelected ? 'text-[#171718]' : 'text-[#4D4D4D]'} font-medium select-none`}>
+                                {theme.label}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content section */}
+                <div className="bg-white border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <div className="flex flex-col py-4 border-b border-[#E0E0E0] px-6">
+                    <h2 className="text-base font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
+                    <p className="text-[#A5A5A5] font-light text-xs">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
+                  </div>
+
+                  <div className="flex flex-col gap-4 px-6">
+                    {/* Image source dropdown */}
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-[#171718] select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                      <Select value={selectedImageSource} onValueChange={setSelectedImageSource}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white text-sm text-[#171718] font-semibold cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-[#E0E0E0]" side="top">
+                          <SelectItem value="ai">{t('interface.generate.aiImages', 'Ai images')}</SelectItem>
+                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </>
+            </section>
           )}
 
+
           {streamDone && content && (
-            <section className="flex flex-col gap-3" style={{ display: 'none' }}>
+            <section className="flex flex-col gap-3 rounded-b-lg" style={{ display: 'none' }}>
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
               <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between">
@@ -2109,39 +2031,111 @@ export default function TextPresentationClient() {
             </section>
           )}
 
-          {streamDone && content && (
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-                {/* Credits calculated based on slide count */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                <span>5 {t('interface.generate.credits', 'credits')}</span>
-              </div>
-              <div className="flex items-center gap-[7.5rem]">
-                <span className="text-lg text-gray-700 font-medium select-none">
-                  {/* This can be word count or removed */}
-                  {content.split(/\s+/).length} {t('interface.generate.words', 'words')}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleFinalize}
-                  className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
-                  disabled={loading || isGenerating || isCreatingFinal}
-                >
-                  <Sparkles size={18} />
-                  <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
-                </button>
-              </div>
-              <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
+        </div> {/* end inner wrapper */}
+
+      {/* Full-width generate footer bar */}
+      {!loading && streamDone && content && (
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
+          {/* Credits required */}
+          <div className="absolute left-6 flex items-center gap-2 text-sm font-semibold text-[#A5A5A5] select-none">
+            {/* custom credits svg */}
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_476_6531)">
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#A5A5A5" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_476_6531">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+            <span>5 {t('interface.generate.credits', 'Credits')}</span>
+          </div>
+
+          {/* AI Agent + generate */}
+          <div className="flex items-center gap-[10px]">
+            {!showAdvanced && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdvanced(!showAdvanced);
+                  handleAdvancedModeClick();
+                }}
+                className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>AI Improve</span>
+              </button>
+            )}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleFinalize}
+                className="px-6 py-2 rounded-md bg-[#0F58F9] text-white text-sm font-bold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || isGenerating || isCreatingFinal}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+                </svg>
+                <span className="select-none font-semibold">Generate One-Pager</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
-      </main>
-      <style jsx global>{`
+      )}
+    </main>
+
+    {/* AI Agent Side Panel - slides from right */}
+    <div 
+      className="fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-30 flex flex-col"
+      style={{
+        width: '400px',
+        backgroundColor: '#F9F9F9',
+        transform: showAdvanced ? 'translateX(0)' : 'translateX(100%)',
+        borderLeft: '1px solid #CCCCCC'
+      }}
+    >
+      {streamDone && content && (
+        <AiAgent
+          editPrompt={editPrompt}
+          setEditPrompt={setEditPrompt}
+          examples={onePagerExamples}
+          selectedExamples={selectedExamples}
+          toggleExample={toggleExample}
+          loadingEdit={loadingEdit}
+          onApplyEdit={() => {
+            handleApplyEdit();
+            setAdvancedModeState("Used");
+          }}
+          onClose={() => setShowAdvanced(false)}
+          advancedSectionRef={advancedSectionRef}
+          placeholder={t('interface.generate.describeImprovements', "Describe what you'd like to improve...")}
+          buttonText={t('interface.edit', 'Edit')}
+          hasStartedChat={aiAgentChatStarted}
+          setHasStartedChat={setAiAgentChatStarted}
+          lastUserMessage={aiAgentLastMessage}
+          setLastUserMessage={setAiAgentLastMessage}
+        />
+      )}
+    </div>
+    </div>
+    <style jsx global>{`
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-8px); }
         to { opacity: 1; transform: translateY(0); }
       }
-      button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
+    `}</style>
+    {/* Make cursor a pointer (hand) over all obvious clickable elements */}
+    <style jsx global>{`
+      button,
+      select,
+      input[type="checkbox"],
+      label[role="button"],
+      label[for] {
+        cursor: pointer;
+      }
     `}</style>
       {isGenerating && (
         <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">

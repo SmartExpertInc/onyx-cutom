@@ -1,113 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SixIdeasListTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%'
-      }}
-    />
-  );
-}
 
 const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
   title = 'SIX DIFFERENT IDEAS',
@@ -136,6 +31,9 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
   const txtColor = textColor || currentTheme.colors.contentColor;
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
+  // Filter out null/undefined ideas to prevent errors
+  const validIdeas = ideas.filter(idea => idea !== null && idea !== undefined);
+
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingIdeas, setEditingIdeas] = useState<{ [key: number]: { number: boolean; text: boolean } }>({});
@@ -153,8 +51,13 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
 
   const handleIdeaSave = (index: number, field: 'number' | 'text', value: string) => {
     if (onUpdate) {
-      const updatedIdeas = [...ideas];
-      updatedIdeas[index] = { ...updatedIdeas[index], [field]: value };
+      const updatedIdeas = [...validIdeas];
+      // Add null check to prevent errors
+      if (updatedIdeas[index]) {
+        updatedIdeas[index] = { ...updatedIdeas[index], [field]: value };
+      } else {
+        updatedIdeas[index] = { number: field === 'number' ? value : '01', text: field === 'text' ? value : '' };
+      }
       onUpdate({ ideas: updatedIdeas });
     }
     setEditingIdeas(prev => ({ 
@@ -207,19 +110,27 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={title}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={false}
               placeholder="Enter title..."
+              className="inline-editor-title"
               style={{
                 fontWeight: 700,
                 fontSize: currentTheme.fonts.titleSize,
                 color: tColor,
                 textAlign: 'center',
                 width: '100%',
-                fontFamily: currentTheme.fonts.titleFont
+                fontFamily: currentTheme.fonts.titleFont,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.2'
               }}
             />
           ) : (
@@ -234,9 +145,8 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
               }}
               onClick={() => isEditable && setEditingTitle(true)}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {title || (isEditable ? 'Click to add title' : '')}
-            </div>
+              dangerouslySetInnerHTML={{ __html: title || (isEditable ? 'Click to add title' : '') }}
+            />
           )}
         </div>
 
@@ -246,7 +156,8 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
           gridTemplateColumns: '1fr 1fr', 
           gap: '30px'
         }}>
-          {ideas.map((idea, index) => (
+          {validIdeas.map((idea, index) => {
+            return (
             <div key={index} style={{ 
               display: 'flex', 
               flexDirection: 'column',
@@ -260,12 +171,12 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
                 width: '100%'
               }}>
                 {isEditable && editingIdeas[index]?.number ? (
-                  <InlineEditor
+                  <WysiwygEditor
                     initialValue={idea.number}
                     onSave={(value) => handleIdeaSave(index, 'number', value)}
                     onCancel={() => handleIdeaCancel(index, 'number')}
-                    multiline={false}
                     placeholder="01"
+                    className="inline-editor-idea-number"
                     style={{
                       fontSize: '24px',
                       fontWeight: 700,
@@ -273,7 +184,15 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
                       marginRight: '12px',
                       fontFamily: currentTheme.fonts.titleFont,
                       width: 'auto',
-                      minWidth: '40px'
+                      minWidth: '40px',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      lineHeight: '1.2'
                     }}
                   />
                 ) : (
@@ -288,9 +207,8 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
                     }}
                     onClick={() => handleIdeaEdit(index, 'number')}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {idea.number || (isEditable ? '01' : '')}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: idea.number || (isEditable ? '01' : '') }}
+                  />
                 )}
                 <div style={{
                   flex: 1,
@@ -301,18 +219,25 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
               
               {/* Text */}
               {isEditable && editingIdeas[index]?.text ? (
-                <InlineEditor
+                <WysiwygEditor
                   initialValue={idea.text}
                   onSave={(value) => handleIdeaSave(index, 'text', value)}
                   onCancel={() => handleIdeaCancel(index, 'text')}
-                  multiline={true}
                   placeholder="Click to add text"
+                  className="inline-editor-idea-text"
                   style={{
                     fontSize: currentTheme.fonts.contentSize,
                     color: txtColor,
                     lineHeight: '1.4',
                     fontFamily: currentTheme.fonts.contentFont,
-                    width: '100%'
+                    width: '100%',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
                   }}
                 />
               ) : (
@@ -327,12 +252,12 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
                   }}
                   onClick={() => handleIdeaEdit(index, 'text')}
                   className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {idea.text || (isEditable ? 'Click to add text' : '')}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: idea.text || (isEditable ? 'Click to add text' : '') }}
+                />
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

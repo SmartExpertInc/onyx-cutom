@@ -76,6 +76,7 @@ export type AnyContentBlock =
   | NumberedListBlock
   | TableBlock
   | ImageBlock
+  | ColumnContainerBlock
   | MiniSection
   | StandaloneBlock;
 
@@ -95,6 +96,13 @@ export interface NumberedListBlock {
   // NumberedListBlock does not have its own iconName in the Pydantic model.
 }
 
+// Container block for column layouts
+export interface ColumnContainerBlock {
+  type: 'column_container';
+  columnCount: 2 | 3; // Number of columns
+  columns: AnyContentBlock[][]; // Array of columns, each containing blocks
+}
+
 // --- Composite Types for Rendering ---
 export interface MiniSection {
   type: "mini_section";
@@ -112,4 +120,5 @@ export interface TextPresentationData {
   textTitle: string;
   contentBlocks: AnyContentBlock[];
   detectedLanguage?: string | null;
+  purpleBoxSection?: boolean;
 } 

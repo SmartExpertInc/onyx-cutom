@@ -1112,6 +1112,15 @@ export const en = {
       words: "words",
       questionSingular: "question",
       questionTypesSelected: "Types selected",
+      questionTotal: "question total",
+      addQuestion: "Add Question",
+      questionTitlePlaceholder: "Question title...",
+      addContentPlaceholder: "Add your content here...",
+      quizOutlinePreview: "Quiz outline preview",
+      onePagerOutlinePreview: "One-Pager outline preview",
+      addSection: "Add Section",
+      sectionTitlePlaceholder: "Section title...",
+      newSection: "New Section",
       // Additional keys for course outline
       courseOutline: "Course",
       videoLesson: "Video Lesson",
@@ -1608,6 +1617,15 @@ export const en = {
         title: "Your Smart Drive is empty",
         noMaterials: "You haven't added any materials yet.",
         goToKnowledgeBase: "Go to your Knowledge Base to upload files and manage your content.",
+        connect: "Connect",
+      },
+    },
+
+    // Knowledge Base Page
+    knowledgeBasePage: {
+      empty: {
+        title: "No files yet",
+        description: "Drag and drop files here or click \"Create\" to add them.",
         uploadFiles: "Upload files",
       },
     },
@@ -1801,7 +1819,7 @@ export const en = {
     processingPayment: "Processing Payment...",
     contactSales: "Contact Sales",
     subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
-    chooseYourPlan: "Choose the plan that's right for you",
+    customizeYourSubscription: "Customize your subscription",
     billMonthly: "Monthly",
     billYearly: "Yearly",
     mostPopular: "Most Popular",

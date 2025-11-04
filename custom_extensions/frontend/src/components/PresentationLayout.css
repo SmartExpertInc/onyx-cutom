@@ -2,7 +2,39 @@
 
 .presentation-layout {
   height: 100vh;
-  background: #f8f9fa;
+  background: #F2F2F4;
+}
+
+/* Custom Scrollbar for Left Sidebar - Enhanced gradient style */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+  transition: background 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+/* Firefox custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
 }
 
 .slide-thumbnail-card {
@@ -10,17 +42,12 @@
   transform-origin: center;
 }
 
-.slide-thumbnail-card:hover {
-  transform: translateY(-2px) scale(1.02);
-}
-
-.slide-thumbnail-card.active {
-  transform: translateY(-4px) scale(1.05);
+/* .slide-thumbnail-card.active {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
+} */
 
 .slide-number-badge {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FCF9F5 100%);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -28,10 +55,11 @@
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 2px solid transparent;
   background-clip: padding-box;
+  overflow: hidden;
 }
 
 .slide-preview-card.active {
-  border-color: #3b82f6;
+  border-color: #7cadfd;
   background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
 }
 
@@ -39,15 +67,19 @@
   border-color: #93c5fd;
 }
 
-.gradient-header {
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+.slide-mini-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: #F2F2F4;
 }
 
 .main-slide-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
+  aspect-ratio: 16/9;
 }
 
 .navigation-button {
@@ -118,4 +150,173 @@
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Horizontal Scrollable Slide Strip */
+.slide-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 16px 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.slide-scroll-content {
+  display: flex;
+  gap: 16px;
+  padding: 0 24px;
+  min-width: min-content;
+}
+
+.slide-scroll-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  min-width: 280px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.slide-scroll-item:hover {
+  border-color: #93c5fd;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.slide-scroll-item.active {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+  transform: translateY(-3px);
+}
+
+.slide-scroll-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FCF9F5 100%);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #71717A;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.slide-scroll-item.active .slide-scroll-number {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.slide-scroll-preview {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.slide-scroll-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.slide-scroll-subtitle {
+  font-size: 12px;
+  color: #71717A;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slide-scroll-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 0 0 10px 10px;
+}
+
+/* Custom scrollbar for horizontal scroll */
+.slide-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.slide-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.slide-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.slide-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Vertical Scrollable Slides Viewer */
+.slides-vertical-scroll {
+  scroll-behavior: smooth;
+}
+
+.slides-vertical-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.slides-vertical-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.slides-vertical-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 5px;
+  border: 2px solid #f1f5f9;
+}
+
+.slides-vertical-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* Custom scrollbar for template popover */
+.template-popover-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.template-popover-scroll::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.template-popover-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+}
+
+.template-popover-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+}
+
+.template-popover-scroll::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
 }
