@@ -53,7 +53,7 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
   const leftSidebar: React.CSSProperties = {
     width: '35%',
     height: '100%',
-    backgroundColor: '#2563EB',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
@@ -82,22 +82,24 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
   // Title style - white text on blue
   const titleStyle: React.CSSProperties = {
     fontSize: '64px',
-    fontWeight: 700,
+    fontWeight: 500,
     color: '#FFFFFF',
     lineHeight: 1.1,
     margin: 0,
     fontFamily: "'Lora', serif",
-    marginTop: '40px'
+    marginTop: '-155px',
+    marginLeft: '40px'
   };
 
   // Avatar container - bottom left
   const avatarContainer: React.CSSProperties = {
-    width: '120px',
-    height: '120px',
+    width: '140px',
+    height: '140px',
     borderRadius: '50%',
-    border: '2px solid #FFFFFF',
     overflow: 'hidden',
-    flexShrink: 0
+    flexShrink: 0,
+    marginbottom: '35px',
+    marginLeft: '40px'
   };
 
   const avatarImageStyle: React.CSSProperties = {
@@ -136,7 +138,7 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    backgroundColor: '#F3F4F6',
+    border: '1px solid #09090B',
     padding: '6px 12px',
     borderRadius: '20px',
     width: 'fit-content',
@@ -162,7 +164,7 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
     display: 'flex',
     gap: '24px',
     flex: 1,
-    alignItems: 'flex-start'
+    alignItems: 'flex-end'
   };
 
   // Stat card style
