@@ -376,7 +376,7 @@ export default function CreateFromSpecificFilesPage() {
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-      searchParams.set('selectedFiles', mergedSelectedFiles.map(f => encodeURIComponent(f)).join(','));
+      searchParams.set('selectedFiles', mergedSelectedFiles.join(','));
     } else if (hasConnectors) {
       // Only connectors selected
       console.log('[CreateFromSpecificFiles] Mode: Connectors only');
@@ -396,7 +396,7 @@ export default function CreateFromSpecificFilesPage() {
       combinedContext.connectorSources = [];
       
       searchParams.set('fromConnectors', 'true');
-      searchParams.set('selectedFiles', mergedSelectedFiles.map(f => encodeURIComponent(f)).join(','));
+      searchParams.set('selectedFiles', mergedSelectedFiles.join(','));
     } else {
       console.error('[CreateFromSpecificFiles] ERROR: No valid selection after processing!');
       return;
@@ -413,7 +413,7 @@ export default function CreateFromSpecificFilesPage() {
       console.error('[CreateFromSpecificFiles] Failed to store in sessionStorage:', e);
     }
 
-    const finalUrl = `/create/generate?${searchParams.toString()}`;
+    const finalUrl = `/custom-projects-ui/create/generate?${searchParams.toString()}`;
     console.log('[CreateFromSpecificFiles] Redirecting to:', finalUrl);
     console.log('[CreateFromSpecificFiles] === END handleCreateContent ===');
 
@@ -421,7 +421,7 @@ export default function CreateFromSpecificFilesPage() {
       await Promise.resolve(router.push(finalUrl));
       // Fallback in case client routing is blocked for any reason
       setTimeout(() => {
-        if (typeof window !== 'undefined' && window.location.pathname !== 'custom-projects-ui/create/generate') {
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/create/generate')) {
           window.location.assign(finalUrl);
         }
       }, 50);
