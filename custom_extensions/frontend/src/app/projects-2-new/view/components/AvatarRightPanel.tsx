@@ -35,6 +35,9 @@ interface AvatarRightPanelProps {
   setActiveSettingsPanel: (panel: string | null) => void;
   componentBasedSlideDeck: ComponentBasedSlideDeck | undefined;
   setActiveTransitionIndex: (index: number | null) => void;
+  
+  // Close handler
+  onClose: () => void;
 }
 
 export default function AvatarRightPanel({
@@ -63,11 +66,15 @@ export default function AvatarRightPanel({
   setActiveSettingsPanel,
   componentBasedSlideDeck,
   setActiveTransitionIndex,
+  onClose,
 }: AvatarRightPanelProps) {
   const { t } = useLanguage();
   const musicDropdownRef = useRef<HTMLDivElement>(null);
   const transitionDropdownRef = useRef<HTMLDivElement>(null);
   const [selectedAlignment, setSelectedAlignment] = useState<'left' | 'center' | 'right'>('center');
+  const [selectedLayer, setSelectedLayer] = useState<'toBack' | 'backward' | 'forward' | 'toFront'>('backward');
+  const [positionX, setPositionX] = useState<string>('150');
+  const [positionY, setPositionY] = useState<string>('150');
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -186,7 +193,7 @@ export default function AvatarRightPanel({
             {/* Left Alignment */}
             <button
               onClick={() => setSelectedAlignment('left')}
-              className="flex-1 p-2 rounded-md transition-all"
+              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center"
               style={{
                 backgroundColor: selectedAlignment === 'left' ? 'white' : 'transparent',
                 boxShadow: selectedAlignment === 'left' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -207,7 +214,7 @@ export default function AvatarRightPanel({
             {/* Center Alignment */}
             <button
               onClick={() => setSelectedAlignment('center')}
-              className="flex-1 p-2 rounded-md transition-all"
+              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center"
               style={{
                 backgroundColor: selectedAlignment === 'center' ? 'white' : 'transparent',
                 boxShadow: selectedAlignment === 'center' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -228,7 +235,7 @@ export default function AvatarRightPanel({
             {/* Right Alignment */}
             <button
               onClick={() => setSelectedAlignment('right')}
-              className="flex-1 p-2 rounded-md transition-all"
+              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center"
               style={{
                 backgroundColor: selectedAlignment === 'right' ? 'white' : 'transparent',
                 boxShadow: selectedAlignment === 'right' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -247,7 +254,146 @@ export default function AvatarRightPanel({
             </button>
           </div>
         </div>
+
+        {/* Layer Section */}
+        <div className="space-y-3 flex-shrink-0">
+          {/* Layer Title */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.layer', 'Layer')}</h3>
+          </div>
+
+          {/* Layer Buttons */}
+          <div className="flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5' }}>
+            {/* To Back */}
+            <button
+              onClick={() => setSelectedLayer('toBack')}
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              style={{
+                backgroundColor: selectedLayer === 'toBack' ? 'white' : 'transparent',
+                boxShadow: selectedLayer === 'toBack' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.33301 12.6654L1.33301 7.9987L7.33301 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14.6663 12.6654L8.66634 7.9987L14.6663 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px]" style={{ color: selectedLayer === 'toBack' ? '#171718' : '#878787' }}>
+                {t('avatarRightPanel.toBack', 'To back')}
+              </span>
+            </button>
+
+            {/* Backward */}
+            <button
+              onClick={() => setSelectedLayer('backward')}
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              style={{
+                backgroundColor: selectedLayer === 'backward' ? 'white' : 'transparent',
+                boxShadow: selectedLayer === 'backward' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.33301 12.668V3.33464M12.6663 13.3346L5.99967 8.0013L12.6663 2.66797V13.3346Z" stroke={selectedLayer === 'backward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px]" style={{ color: selectedLayer === 'backward' ? '#171718' : '#878787' }}>
+                {t('avatarRightPanel.backward', 'Backward')}
+              </span>
+            </button>
+
+            {/* Forward */}
+            <button
+              onClick={() => setSelectedLayer('forward')}
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              style={{
+                backgroundColor: selectedLayer === 'forward' ? 'white' : 'transparent',
+                boxShadow: selectedLayer === 'forward' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.6663 3.33464V12.668M3.33301 2.66797L9.99967 8.0013L3.33301 13.3346V2.66797Z" stroke={selectedLayer === 'forward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px]" style={{ color: selectedLayer === 'forward' ? '#171718' : '#878787' }}>
+                {t('avatarRightPanel.forward', 'Forward')}
+              </span>
+            </button>
+
+            {/* To Front */}
+            <button
+              onClick={() => setSelectedLayer('toFront')}
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              style={{
+                backgroundColor: selectedLayer === 'toFront' ? 'white' : 'transparent',
+                boxShadow: selectedLayer === 'toFront' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.66699 12.6654L14.667 7.9987L8.66699 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1.33366 12.6654L7.33366 7.9987L1.33366 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px]" style={{ color: selectedLayer === 'toFront' ? '#171718' : '#878787' }}>
+                {t('avatarRightPanel.toFront', 'To front')}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Position Section */}
+        <div className="space-y-3 flex-shrink-0">
+          {/* Position Title */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.position', 'Position')}</h3>
+          </div>
+
+          {/* Position Inputs */}
+          <div className="flex gap-2">
+            {/* X Input */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#848485' }}>
+                {t('avatarRightPanel.xPosition', 'X')}
+              </label>
+              <input
+                type="text"
+                value={positionX}
+                onChange={(e) => setPositionX(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-md border-none outline-none"
+                style={{ 
+                  backgroundColor: '#E0E0E0',
+                  color: '#171718'
+                }}
+              />
+            </div>
+
+            {/* Y Input */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#848485' }}>
+                {t('avatarRightPanel.yPosition', 'Y')}
+              </label>
+              <input
+                type="text"
+                value={positionY}
+                onChange={(e) => setPositionY(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-md border-none outline-none"
+                style={{ 
+                  backgroundColor: '#E0E0E0',
+                  color: '#171718'
+                }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="w-full mt-4 px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50"
+        style={{ 
+          backgroundColor: 'white',
+          borderColor: '#E0E0E0',
+          color: '#171718'
+        }}
+      >
+        {t('avatarRightPanel.close', 'Close')}
+      </button>
     </>
   );
 }

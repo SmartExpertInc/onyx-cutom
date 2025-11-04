@@ -48,6 +48,7 @@ function Projects2ViewPageContent() {
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
+  const [showAvatarRightPanel, setShowAvatarRightPanel] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState<boolean>(false);
@@ -1101,6 +1102,7 @@ function Projects2ViewPageContent() {
               setActiveSettingsPanel={setActiveSettingsPanel}
               componentBasedSlideDeck={componentBasedSlideDeck}
               setActiveTransitionIndex={setActiveTransitionIndex}
+              onClose={() => setIsAvatarPopupOpen(false)}
             />
           ) : (
             <VideoPresentationRightPanel
