@@ -3,7 +3,10 @@ import httpx
 from urllib.parse import quote
 from fastapi import HTTPException
 import logging
-from typing import Optional
+from typing import Optional, Dict
+from datetime import datetime, timezone
+import time
+import os
 from app.core.database import get_connection
 from app.utils.encryption import decrypt_password
 from app.core.database import get_pool
@@ -15,9 +18,24 @@ async def upload_file_to_smartdrive(
     user_id: str,
     file_content: bytes,
     file_name: str,
-    file_path: str = "/LMS_Exports/"
+    file_path: str = "/LMS_Exports/",
+    session_cookies: Optional[Dict[str, str]] = None,
+    auto_index: bool = True
 ) -> str:
-    """Upload file to user's SmartDrive and return file path"""
+    """
+    Upload file to user's SmartDrive and optionally index to Onyx.
+    
+    Args:
+        user_id: Onyx user ID
+        file_content: File content bytes
+        file_name: Name of the file
+        file_path: Destination path in SmartDrive (should end with /)
+        session_cookies: Optional session cookies for Onyx authentication
+        auto_index: Whether to automatically index the file to Onyx (requires session_cookies)
+    
+    Returns:
+        The full file path in SmartDrive
+    """
 
     logger.info(f"[SmartDrive] Upload start | user={user_id} name={file_name} size={len(file_content)}B path={file_path}")
 
@@ -122,6 +140,7 @@ async def upload_file_to_smartdrive(
 
         result_path = f"{file_path}{file_name}"
         logger.info(f"[SmartDrive] Upload success | path={result_path}")
+        
         # Update storage usage
         try:
             async with (await get_pool()).acquire() as conn2:
@@ -137,4 +156,119 @@ async def upload_file_to_smartdrive(
                 )
         except Exception as e:
             logger.warning(f"[SmartDrive] Failed to update storage usage: {e}")
-        return result_path 
+        
+        # Auto-index to Onyx if enabled and session cookies provided
+        if auto_index and session_cookies:
+            logger.info(f"[SmartDrive] Auto-indexing file to Onyx: {result_path}")
+            try:
+                onyx_file_id = await _index_file_to_onyx(
+                    nextcloud_username,
+                    nextcloud_password,
+                    nextcloud_base_url,
+                    result_path,
+                    file_name,
+                    user_id,
+                    session_cookies,
+                    response.headers.get("content-type", "application/octet-stream")
+                )
+                
+                if onyx_file_id:
+                    logger.info(f"[SmartDrive] Successfully indexed file to Onyx: {onyx_file_id}")
+                    # Create mapping in smartdrive_imports table
+                    async with (await get_pool()).acquire() as conn2:
+                        await conn2.execute(
+                            """
+                            INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                            VALUES ($1, $2, $3, $4, $5, $6)
+                            ON CONFLICT (onyx_user_id, smartdrive_path)
+                            DO UPDATE SET onyx_file_id = EXCLUDED.onyx_file_id, etag = EXCLUDED.etag, checksum = EXCLUDED.checksum, imported_at = EXCLUDED.imported_at
+                            """,
+                            str(user_id),
+                            result_path,
+                            str(onyx_file_id),
+                            response.headers.get("etag", f"etag_{hash(file_name)}"),
+                            f"imported_{int(time.time())}",
+                            datetime.now(timezone.utc),
+                        )
+                    logger.info(f"[SmartDrive] Created database mapping: {result_path} -> {onyx_file_id}")
+                else:
+                    logger.warning(f"[SmartDrive] Failed to get Onyx file ID for {result_path}")
+            except Exception as index_err:
+                logger.error(f"[SmartDrive] Auto-indexing failed for {result_path}: {index_err}", exc_info=True)
+                # Don't fail the entire upload if indexing fails
+        elif auto_index and not session_cookies:
+            logger.info(f"[SmartDrive] Auto-index requested but no session cookies provided, skipping indexing")
+        
+        return result_path
+
+
+async def _index_file_to_onyx(
+    nextcloud_username: str,
+    nextcloud_password: str,
+    nextcloud_base_url: str,
+    file_path: str,
+    file_name: str,
+    onyx_user_id: str,
+    session_cookies: Dict[str, str],
+    mime_type: str = "application/octet-stream"
+) -> Optional[str]:
+    """
+    Download file from Nextcloud and upload to Onyx for indexing.
+    Returns the Onyx file ID if successful.
+    """
+    try:
+        # Get Onyx API server URL from environment
+        onyx_api_url = os.getenv("ONYX_API_SERVER_URL", "http://api_server:8080")
+        
+        # Build download URL
+        download_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # Download from Nextcloud
+            logger.info(f"[SmartDrive] Downloading file from Nextcloud: {download_url}")
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"[SmartDrive] Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            logger.info(f"[SmartDrive] Downloaded {len(file_content)} bytes")
+            
+            # Upload to Onyx
+            onyx_upload_url = f"{onyx_api_url}/user/file/upload"
+            files = {
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
+            
+            logger.info(f"[SmartDrive] Uploading to Onyx: {onyx_upload_url}")
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                data=data,
+                cookies=session_cookies,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                logger.info(f"[SmartDrive] Onyx upload response: {response_data}")
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    onyx_file_id = str(response_data[0].get('id'))
+                    logger.info(f"[SmartDrive] Got Onyx file ID: {onyx_file_id}")
+                    return onyx_file_id
+                else:
+                    logger.warning(f"[SmartDrive] Unexpected response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"[SmartDrive] Onyx upload failed: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"[SmartDrive] Error indexing file to Onyx: {e}", exc_info=True)
+        return None 

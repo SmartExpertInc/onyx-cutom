@@ -772,11 +772,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	}, [pickerPath, currentPath, pickerSelected]);
 
 	// In select mode, notify parent on every selection change to enable downstream buttons immediately
+	// Filter out folders - only allow file selection
 	useEffect(() => {
 		if (mode === 'select' && onFilesSelected) {
-			onFilesSelected(Array.from(selected));
+			const filesOnly = Array.from(selected).filter(path => {
+				const item = items.find(i => i.path === path);
+				return item && item.type === 'file';
+			});
+			onFilesSelected(filesOnly);
 		}
-	}, [mode, selected, onFilesSelected]);
+	}, [mode, selected, onFilesSelected, items]);
 
 	return (
 		<div className={`space-y-3 text-gray-900 ${className}`}>
@@ -940,7 +945,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							data-sd-row
 						>
 							<div className="w-8" data-sd-interactive onMouseDown={(e)=>e.stopPropagation()} onClick={(e)=>e.stopPropagation()}>
-											<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
+											<Checkbox 
+												checked={selected.has(it.path)} 
+												onCheckedChange={() => toggle(it.path)}
+												disabled={mode === 'select' && it.type === 'directory'}
+												title={mode === 'select' && it.type === 'directory' ? 'Folders cannot be selected in file selection mode' : undefined}
+											/>
 										</div>
 										<div className="w-5 h-5">
 											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}

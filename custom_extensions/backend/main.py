@@ -14106,7 +14106,14 @@ async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any]
         logger.info(f"[HYBRID_STREAM] Starting hybrid streaming with enhanced context")
         logger.info(f"[HYBRID_STREAM] Original prompt length: {len(prompt)} chars")
         logger.info(f"[HYBRID_STREAM] Enhanced prompt length: {len(enhanced_prompt)} chars")
-        logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
+        
+        # Handle both dict and string file_context types
+        if isinstance(file_context, dict):
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
+        elif isinstance(file_context, str):
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_context)} chars (string format)")
+        else:
+            logger.warning(f"[HYBRID_STREAM] File context: unexpected type {type(file_context)}")
         
         # Use OpenAI with enhanced prompt
         async for chunk_data in stream_openai_response(enhanced_prompt, model, wizard_payload=wizard_payload):
@@ -45465,6 +45472,10 @@ async def export_to_lms(
             try:
                 start_ts = asyncio.get_event_loop().time()
                 yield (json.dumps({"type": "progress", "message": f"Exporting course {product_id}...", "productId": product_id}) + "\n").encode()
+                # Prepare session cookies for auto-indexing
+                session_cookie_name = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
+                session_cookies = {session_cookie_name: http_request.cookies.get(session_cookie_name)} if http_request.cookies.get(session_cookie_name) else None
+                
                 export_task = asyncio.create_task(
                     export_course_outline_to_lms_format(
                         product_id,
@@ -45472,6 +45483,7 @@ async def export_to_lms(
                         user_email,
                         request.token,
                         smartexpert_base_url,
+                        session_cookies,
                     )
                 )
                 while not export_task.done():
