@@ -25,6 +25,7 @@ export default function Media({
   const [isOutlinedExpanded, setIsOutlinedExpanded] = useState<boolean>(false);
   const [isFilledExpanded, setIsFilledExpanded] = useState<boolean>(false);
   const [isColoredExpanded, setIsColoredExpanded] = useState<boolean>(false);
+  const [isLibraryEmpty, setIsLibraryEmpty] = useState<boolean>(true);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -148,7 +149,31 @@ export default function Media({
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col p-4">
-        {/* Search bar and upload button */}
+        {/* Dev Toggle for Library State */}
+        <div className="flex items-center gap-2 pb-2 text-xs">
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={isLibraryEmpty} 
+              onChange={(e) => setIsLibraryEmpty(e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span style={{ color: '#878787' }}>Library empty</span>
+          </label>
+          <span style={{ color: '#878787' }}>/</span>
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={!isLibraryEmpty} 
+              onChange={(e) => setIsLibraryEmpty(!e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span style={{ color: '#878787' }}>Library full</span>
+          </label>
+        </div>
+        
+        {/* Search bar and upload button - hide when library is empty */}
+        {!(selectedOption === 'library' && isLibraryEmpty) && (
         <div className="flex items-center gap-6 pb-4">
           {/* Search bar */}
           <div className="flex-1 relative">
@@ -161,7 +186,7 @@ export default function Media({
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-[30px] pr-4 py-1.5 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-[30px] pr-4 py-1.5 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-[34px]"
               style={{ 
                 borderColor: '#E0E0E0',
                 boxShadow: '0px 1px 2px 0px #0000000D',
@@ -178,7 +203,7 @@ export default function Media({
           
           {/* Upload to Library button - only show when Library is selected */}
           {selectedOption === 'library' && (
-            <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border" style={{ borderColor: '#171718' }}>
+            <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border h-[34px]" style={{ borderColor: '#171718' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
                 <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -186,16 +211,52 @@ export default function Media({
           </button>
           )}
         </div>
+        )}
         
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
           {selectedOption === 'library' ? (
-            /* Library view - Simple grid of 18 rectangles */
-            <div className="grid grid-cols-3 gap-3 pb-4">
-              {Array.from({ length: 18 }).map((_, index) => (
-                <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
-              ))}
-            </div>
+            isLibraryEmpty ? (
+              /* Library empty state */
+              <div className="flex flex-col items-center justify-center h-full">
+                <svg width="736" height="215" viewBox="0 0 736 215" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6" style={{ maxWidth: '300px', height: 'auto' }}>
+                  <g clipPath="url(#clip0_2045_22237)">
+                    <rect opacity="0.5" x="351.037" y="202.092" width="33.9253" height="33.9056" rx="16.9528" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="328.037" y="179.108" width="79.9253" height="79.8793" rx="39.9397" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="305.037" y="156.123" width="125.925" height="125.853" rx="62.9265" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="282.037" y="133.135" width="171.925" height="171.827" rx="85.9134" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="259.037" y="110.147" width="217.925" height="217.8" rx="108.9" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="236.037" y="87.1584" width="263.925" height="263.774" rx="131.887" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="213.037" y="64.1741" width="309.925" height="309.748" rx="154.874" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="190.037" y="41.1858" width="355.925" height="355.722" rx="177.861" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2045_22237">
+                      <rect width="736" height="214.741" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+                
+                <h3 className="font-semibold mb-2" style={{ color: '#171718', fontSize: '14px' }}>No files yet</h3>
+                <p className="mb-6 text-center" style={{ color: '#878787', fontSize: '12px' }}>
+                  Drag and drop files here or click "Upload" to add them.
+                </p>
+                
+                <button className="flex items-center gap-2 px-4 py-2 rounded-md hover:opacity-90 transition-opacity" style={{ backgroundColor: '#0F58F9' }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.1378 7.57364V9.94975C11.1378 10.2648 11.0126 10.567 10.7898 10.7898C10.567 11.0126 10.2648 11.1378 9.94975 11.1378H1.63337C1.31828 11.1378 1.01609 11.0126 0.793286 10.7898C0.570482 10.567 0.445313 10.2648 0.445312 9.94975V7.57364M8.7617 3.41545L5.79156 0.445312M5.79156 0.445312L2.82142 3.41545M5.79156 0.445312V7.57364" stroke="white" strokeWidth="0.891041" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span style={{ color: 'white', fontSize: '10px', fontWeight: 500 }}>Upload files</span>
+                </button>
+              </div>
+            ) : (
+              /* Library view - Simple grid of 18 rectangles */
+              <div className="grid grid-cols-3 gap-3 pb-4">
+                {Array.from({ length: 18 }).map((_, index) => (
+                  <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+                ))}
+              </div>
+            )
           ) : selectedOption === 'image' ? (
             /* Image view - Categorized groups */
             <div className="flex flex-col gap-6 pb-4 pt-1">
