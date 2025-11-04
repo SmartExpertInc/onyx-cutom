@@ -221,7 +221,7 @@ export default function Media({
             isLibraryEmpty ? (
               /* Library empty state */
               <div className="flex flex-col items-center justify-center h-full">
-                <svg width="736" height="215" viewBox="0 0 736 215" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6" style={{ maxWidth: '300px', height: 'auto' }}>
+                <svg width="736" height="215" viewBox="0 0 736 215" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6" style={{ maxWidth: '700px', height: 'auto' }}>
                   <g clipPath="url(#clip0_2195_13277)">
                     <rect opacity="0.5" x="351.037" y="202.092" width="33.9253" height="33.9056" rx="16.9528" stroke="#C7D2FE" strokeWidth="0.574672"/>
                     <rect opacity="0.5" x="328.037" y="179.108" width="79.9253" height="79.8793" rx="39.9397" stroke="#C7D2FE" strokeWidth="0.574672"/>
@@ -759,7 +759,7 @@ export default function Media({
             <div className="flex flex-col pt-1 h-full">
               {/* Badge */}
               <div 
-                className="inline-flex items-center px-2 py-1 rounded-sm w-fit"
+                className="inline-flex items-center px-2.5 py-0.5 rounded-sm w-fit"
                 style={{ backgroundColor: '#F2CCFA', fontSize: '12px', color: '#D60AFF' }}
               >
                 AI Agent
@@ -778,15 +778,15 @@ export default function Media({
               {/* Center content */}
               <div className="flex-1 flex flex-col items-center justify-center">
                 {/* Title */}
-                <h3 className="mb-4" style={{ fontSize: '14px', color: '#171718' }}>
+                <h3 className="mb-5" style={{ fontSize: '14px', color: '#171718' }}>
                   Get started with a prompt
                 </h3>
                 
                 {/* Prompt buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {/* Button 1 */}
                   <button 
-                    className="flex items-center gap-2 px-3 py-2 rounded-full border transition-colors hover:bg-gray-50"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
                     style={{ borderColor: '#878787' }}
                   >
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -797,7 +797,7 @@ export default function Media({
                   
                   {/* Button 2 */}
                   <button 
-                    className="flex items-center gap-2 px-3 py-2 rounded-full border transition-colors hover:bg-gray-50"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
                     style={{ borderColor: '#878787' }}
                   >
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -808,7 +808,7 @@ export default function Media({
                   
                   {/* Button 3 */}
                   <button 
-                    className="flex items-center gap-2 px-3 py-2 rounded-full border transition-colors hover:bg-gray-50"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50"
                     style={{ borderColor: '#878787' }}
                   >
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -820,20 +820,13 @@ export default function Media({
               </div>
               
               {/* Textarea at the bottom */}
-              <div className="relative w-full mt-4">
-                <div className="flex items-center border rounded-md" style={{ borderColor: '#D60AFF' }}>
-                  {/* Plus icon on the left */}
-                  <div className="pl-3 flex items-center">
-                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M4.42871 0.429688V8.42969M0.428711 4.42969H8.42871" stroke="#D60AFF" strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  
+              <div className="relative w-full mb-5">
+                <div className="relative border rounded-md" style={{ borderColor: '#D60AFF' }}>
                   {/* Textarea */}
                   <textarea
-                    className="flex-1 px-3 py-2 focus:outline-none resize-none"
+                    className="w-full px-3 pt-3 pb-12 focus:outline-none resize-none"
                     placeholder="Describe your image..."
-                    rows={2}
+                    rows={3}
                     style={{ fontSize: '12px', color: '#171718' }}
                   />
                   <style jsx>{`
@@ -842,13 +835,20 @@ export default function Media({
                     }
                   `}</style>
                   
-                  {/* Send button on the right */}
+                  {/* Plus icon at bottom left */}
+                  <button className="absolute bottom-3 left-3 flex items-center cursor-pointer hover:opacity-70 transition-opacity">
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4.42871 0.429688V8.42969M0.428711 4.42969H8.42871" stroke="#D60AFF" strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  
+                  {/* Send button at bottom right */}
                   <button 
-                    className="flex items-center gap-1.5 px-3 py-2 mr-2 border rounded-md transition-colors hover:bg-gray-50"
+                    className="absolute bottom-2 right-2 flex items-center gap-1.5 px-1.5 py-0.5 border rounded-md transition-colors hover:bg-gray-50"
                     style={{ borderColor: '#D60AFF' }}
                   >
-                    <span style={{ fontSize: '12px', color: '#D60AFF' }}>Send</span>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <span style={{ fontSize: '10px', color: '#D60AFF' }}>Send</span>
+                    <svg width="10" height="10" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <g clipPath="url(#clip0_2048_69344)">
                         <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="#D60AFF" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </g>
