@@ -21,7 +21,7 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
       
       {/* Popup */}
       <div 
-        className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[200px]"
+        className="fixed z-50 bg-white border border-gray-200 rounded-md shadow-lg p-2 min-w-[200px]"
         style={{
           left: position.x,
           top: position.y,

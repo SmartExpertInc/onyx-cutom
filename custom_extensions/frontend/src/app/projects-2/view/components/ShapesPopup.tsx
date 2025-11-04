@@ -203,9 +203,9 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
   };
 
   return (
-    <div
+    <div 
       ref={popupRef}
-      className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50"
+      className="fixed bg-white border border-gray-200 rounded-md shadow-xl p-4 z-50"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,

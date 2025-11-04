@@ -203,8 +203,7 @@ export default function Media({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[500px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px' }}
+          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[500px] overflow-hidden rounded-md ${className}`}
         >
           {/* Header */}
           <div className="border-b border-gray-200">
@@ -222,8 +221,7 @@ export default function Media({
     return (
       <div 
         ref={popupRef}
-        className={`absolute z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
-        style={{ borderRadius: '12px' }}
+        className={`absolute z-50 bg-white shadow-xl border border-gray-200 overflow-hidden rounded-md ${className}`}
       >
         {/* Main content area with sidebar */}
         {content}

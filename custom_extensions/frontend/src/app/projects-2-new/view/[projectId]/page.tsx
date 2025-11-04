@@ -649,16 +649,16 @@ function Projects2ViewPageContent() {
   // NEW: Handler for video lesson settings buttons
   const handleSettingsButtonClick = (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => {
     if (settingsType === 'media' && event) {
-      // Special handling for media button - open media popup positioned to the left of the button
+      // Special handling for media button - open media popup centered under the button
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
       const modalWidth = 800;
       const modalHeight = 400;
       const gap = 10;
       
-      // Calculate position to the left of the button
-      let x = rect.left - modalWidth - gap;
-      let y = rect.bottom + gap;
+      // Calculate position centered under the button (like Avatar, Shape, and Text popups)
+      let x = rect.left + (rect.width / 2) - (modalWidth / 2);
+      let y = 70; // Fixed position below the header, matching other popups
       
       // Check if modal would go off the left edge
       if (x < 0) {
@@ -925,6 +925,10 @@ function Projects2ViewPageContent() {
         onAvatarButtonClick={handleAvatarButtonClick}
         onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
         hideAiImproveButton={true}
+        isMediaPopupOpen={isMediaPopupOpen}
+        isTextPopupOpen={isTextPopupOpen}
+        isShapesPopupOpen={isShapesPopupOpen}
+        isAvatarPopupOpen={isAvatarPopupOpen}
         showVideoEditorActions={true}
         onPreviewClick={handlePreviewClick}
         onDebugClick={handleDebugClick}
