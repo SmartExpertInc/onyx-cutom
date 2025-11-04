@@ -1621,17 +1621,14 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
     avatarPosition: {
-      // ✅ UPDATED based on measured right panel position (864px) and CSS calculations
-      // Right panel: X=864px, Width=1056px, Height=1080px (from logs)
-      // Image container: CSS height=91% (983px), bottom=-43px
-      // Calculation: container bottom at 1080+43=1123px, image top = 1123-983 = 140px
-      // But since slide only goes to 1080px, actual rendered Y may be different
-      // NOTE: Final values should be verified with image-container measurement from logs
-      x: 864,       // Right panel left edge (measured: 864px from logs) ✅
-      y: 140,       // Calculated: bottom=-43px extends below, height=983px → top = (1080+43)-983 = 140px
-      width: 1056,  // Right panel full width (measured: 1056px from logs) ✅
-      height: 983,  // CSS: 91% of 1080px = 983px ✅
-      backgroundColor: '#ffffff'  // ✅ White background for avatar video
+      // ✅ RECTANGULAR AVATAR - Based on measured image container logs
+      // Image container positioned on right side of slide (right panel)
+      // Measured values show full-height container spanning entire right panel
+      x: 864,       // ✅ Measured: 864px (left edge of right panel)
+      y: 0,         // ✅ Measured: 0px (starts at top of slide)
+      width: 1056,  // ✅ Measured: 1056px (right panel width: 1920 - 864 = 1056)
+      height: 1080, // ✅ Measured: 1080px (full slide height)
+      backgroundColor: '#ffffff'  // White background for avatar area
     }
   },
 
