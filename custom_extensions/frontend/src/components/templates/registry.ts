@@ -1672,7 +1672,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       width: 799,   // ✅ Measured: 799px (arch container width)
       height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
       shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
-      backgroundColor: '#ffffff'  // White background for avatar area
+      backgroundColor: '#0F58F9'  // Blue gradient color (matches slide background: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
     }
   },
 
