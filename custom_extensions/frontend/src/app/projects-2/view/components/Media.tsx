@@ -149,7 +149,8 @@ export default function Media({
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col p-4">
-        {/* Dev Toggle for Library State */}
+        {/* Dev Toggle for Library State - only show when Library is selected */}
+        {selectedOption === 'library' && (
         <div className="flex items-center gap-2 pb-2 text-xs">
           <label className="flex items-center gap-1 cursor-pointer">
             <input 
@@ -171,6 +172,7 @@ export default function Media({
             <span style={{ color: '#878787' }}>Library full</span>
           </label>
         </div>
+        )}
         
         {/* Search bar and upload button - hide when library is empty */}
         {!(selectedOption === 'library' && isLibraryEmpty) && (
@@ -219,26 +221,26 @@ export default function Media({
             isLibraryEmpty ? (
               /* Library empty state */
               <div className="flex flex-col items-center justify-center h-full">
-                <svg width="736" height="215" viewBox="0 0 736 215" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6" style={{ maxWidth: '300px', height: 'auto' }}>
-                  <g clipPath="url(#clip0_2045_22237)">
-                    <rect opacity="0.5" x="351.037" y="202.092" width="33.9253" height="33.9056" rx="16.9528" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="328.037" y="179.108" width="79.9253" height="79.8793" rx="39.9397" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="305.037" y="156.123" width="125.925" height="125.853" rx="62.9265" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="282.037" y="133.135" width="171.925" height="171.827" rx="85.9134" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="259.037" y="110.147" width="217.925" height="217.8" rx="108.9" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="236.037" y="87.1584" width="263.925" height="263.774" rx="131.887" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="213.037" y="64.1741" width="309.925" height="309.748" rx="154.874" stroke="#C7D2FE" strokeWidth="0.574672"/>
-                    <rect opacity="0.5" x="190.037" y="41.1858" width="355.925" height="355.722" rx="177.861" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                <svg width="826" height="241" viewBox="0 0 826 241" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6" style={{ maxWidth: '300px', height: 'auto' }}>
+                  <g clipPath="url(#clip0_1339_33567)">
+                    <rect opacity="0.5" x="393.963" y="226.807" width="38.0738" height="38.0517" rx="19.0258" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="368.151" y="201.01" width="89.6988" height="89.6472" rx="44.8236" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="342.338" y="175.213" width="141.324" height="141.243" rx="70.6213" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="316.526" y="149.414" width="192.949" height="192.838" rx="96.4191" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="290.713" y="123.617" width="244.574" height="244.434" rx="122.217" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="264.901" y="97.8186" width="296.199" height="296.029" rx="148.015" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="239.088" y="72.0217" width="347.824" height="347.625" rx="173.812" stroke="#719AF5" strokeWidth="0.644944"/>
+                    <rect opacity="0.5" x="213.276" y="46.2229" width="399.449" height="399.22" rx="199.61" stroke="#719AF5" strokeWidth="0.644944"/>
                   </g>
                   <defs>
-                    <clipPath id="clip0_2045_22237">
-                      <rect width="736" height="214.741" fill="white"/>
+                    <clipPath id="clip0_1339_33567">
+                      <rect width="826" height="241" fill="white"/>
                     </clipPath>
                   </defs>
                 </svg>
                 
                 <h3 className="font-semibold mb-2" style={{ color: '#171718', fontSize: '14px' }}>No files yet</h3>
-                <p className="mb-6 text-center" style={{ color: '#878787', fontSize: '12px' }}>
+                <p className="mb-3 text-center" style={{ color: '#878787', fontSize: '12px' }}>
                   Drag and drop files here or click "Upload" to add them.
                 </p>
                 
@@ -246,16 +248,16 @@ export default function Media({
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.1378 7.57364V9.94975C11.1378 10.2648 11.0126 10.567 10.7898 10.7898C10.567 11.0126 10.2648 11.1378 9.94975 11.1378H1.63337C1.31828 11.1378 1.01609 11.0126 0.793286 10.7898C0.570482 10.567 0.445313 10.2648 0.445312 9.94975V7.57364M8.7617 3.41545L5.79156 0.445312M5.79156 0.445312L2.82142 3.41545M5.79156 0.445312V7.57364" stroke="white" strokeWidth="0.891041" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span style={{ color: 'white', fontSize: '10px', fontWeight: 500 }}>Upload files</span>
+                  <span style={{ color: 'white', fontSize: '12px', fontWeight: 600 }}>Upload files</span>
                 </button>
               </div>
             ) : (
-              /* Library view - Simple grid of 18 rectangles */
-              <div className="grid grid-cols-3 gap-3 pb-4">
-                {Array.from({ length: 18 }).map((_, index) => (
-                  <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
-                ))}
-              </div>
+            /* Library view - Simple grid of 18 rectangles */
+            <div className="grid grid-cols-3 gap-3 pb-4">
+              {Array.from({ length: 18 }).map((_, index) => (
+                <div key={index} className="bg-gray-200 rounded-md w-full" style={{ aspectRatio: '16/9' }}></div>
+              ))}
+            </div>
             )
           ) : selectedOption === 'image' ? (
             /* Image view - Categorized groups */
