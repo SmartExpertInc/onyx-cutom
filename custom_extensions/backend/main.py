@@ -18778,8 +18778,13 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
         except Exception as e:
             logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
     
-    logger.info(f"[SMARTDRIVE_MAPPING] Total Onyx file IDs: {len(onyx_file_ids)} (direct: {len(direct_onyx_ids)}, mapped: {len(onyx_file_ids) - len(direct_onyx_ids)})")
-    return onyx_file_ids
+    # Deduplicate file IDs (multiple path variants can map to the same file)
+    unique_file_ids = list(dict.fromkeys(onyx_file_ids))  # Preserves order
+    if len(unique_file_ids) < len(onyx_file_ids):
+        logger.info(f"[SMARTDRIVE_MAPPING] Deduplicated {len(onyx_file_ids)} file IDs to {len(unique_file_ids)} unique IDs")
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Total Onyx file IDs: {len(unique_file_ids)} (direct: {len(direct_onyx_ids)}, mapped: {len(unique_file_ids) - len(direct_onyx_ids)})")
+    return unique_file_ids
 
 async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
     """Return persona id of the default ContentBuilder assistant (cached).
