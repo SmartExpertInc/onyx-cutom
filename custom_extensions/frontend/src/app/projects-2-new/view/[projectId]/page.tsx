@@ -653,7 +653,7 @@ function Projects2ViewPageContent() {
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
       const modalWidth = 900;
-      const modalHeight = 500;
+      const modalHeight = 470;
       const gap = 10;
       
       // Calculate position centered under the button (like Avatar, Shape, and Text popups)
@@ -1109,7 +1109,7 @@ function Projects2ViewPageContent() {
             left: `${mediaPopupPosition.x}px`,
             top: `${mediaPopupPosition.y}px`,
             width: '900px',
-            height: '500px',
+            height: '470px',
             zIndex: 9999
           }}
         >

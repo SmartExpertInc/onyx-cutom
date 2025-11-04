@@ -44,7 +44,7 @@ export default function Media({
       {/* Sidebar */}
       <div className="w-64 bg-white p-4 flex flex-col">
         {/* My assets section */}
-        <div className="mb-3 pt-4">
+        <div className="mb-3">
           <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">{t('panels.media.myAssets', 'My assets')}</h4>
           <div 
             onClick={() => setSelectedOption('library')}
@@ -142,7 +142,7 @@ export default function Media({
       {/* Main content area */}
       <div className="flex-1 flex flex-col p-4">
         {/* Search bar and upload button */}
-        <div className="flex items-center gap-4 px-2 py-4">
+        <div className="flex items-center gap-4 pb-4">
           {/* Search bar */}
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
