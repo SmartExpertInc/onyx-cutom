@@ -2153,7 +2153,7 @@ export default function DynamicAuditLandingPage() {
   
             {/* Third Section */}
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
-              <h2 className="font-medium text-[18px] xl:text-[22px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
+              <h2 className="font-medium text-[22px] xl:text-[30px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
                 {getLocalizedText(landingPageData?.language, {
                   en: 'Open Positions',
                   es: 'Posiciones Abiertas',
@@ -2212,7 +2212,7 @@ export default function DynamicAuditLandingPage() {
                 <div>
                   <div className="gap-2 flex items-center pb-[25px]">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
-                    <p className="font-semibold text-2xl text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
+                    <p className="font-semibold text-[22px] text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
                       en: 'Workforce Market Dynamics',
                       es: 'Dinámica del mercado laboral',
                       ua: 'Динаміка ринку праці',
@@ -2409,7 +2409,7 @@ export default function DynamicAuditLandingPage() {
                 <div className="bg-white rounded-md p-[15px] xl:p-[20px]">
                   <div className="flex flex-col items-start gap-[12px] bg-[#F5F8FF] p-10 rounded-md">
                     <div className="flex flex-row items-center gap-7">
-                      <div className="flex-shrink-0 w-[24px] h-[24px] mt-3 flex items-center justify-center">
+                      <div className="flex-shrink-0 w-[24px] h-[24px] -mt-2 flex items-center justify-center">
                         <svg width="23" height="34" viewBox="0 0 23 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M5.32617 29.1533C5.32617 29.8251 5.75807 30.401 6.38192 30.593L7.48566 30.8809C8.01354 33.0404 9.98108 34.0002 11.4687 34.0002C12.9084 34.0002 14.9239 33.0404 15.4518 30.8809L16.5555 30.593C17.1794 30.401 17.6113 29.8251 17.6113 29.1533V26.5139H5.32617V29.1533Z" fill="#0F58F9"/>
                           <path d="M12.813 0.0775973C9.54975 -0.306312 6.28652 0.74944 3.8391 2.90893C1.39167 5.06842 0 8.18769 0 11.4989C0 14.0903 0.863797 16.5377 2.44742 18.6012C2.9753 19.2251 3.69513 20.5208 4.55893 22.2484C4.70289 22.5363 4.84686 22.8722 4.94284 23.2082H17.9958C18.0917 22.8722 18.2357 22.5843 18.3797 22.2484C19.2435 20.5688 19.9633 19.2731 20.4912 18.6492C22.5067 16.1058 23.3225 12.9386 22.8426 9.67534C22.0268 4.58854 17.8998 0.653462 12.813 0.0775973ZM17.2279 10.3952L11.0854 16.5377C10.7495 16.8736 10.3176 17.0176 9.93366 17.0176C9.54975 17.0176 9.06987 16.8736 8.78193 16.5377L5.71066 13.5144C5.0868 12.8906 5.0868 11.8348 5.71066 11.163C6.33451 10.5391 7.39026 10.5391 8.0621 11.163L9.93366 13.0345L14.9245 8.04372C15.5483 7.41987 16.6041 7.41987 17.2759 8.04372C17.8998 8.71556 17.8998 9.77132 17.2279 10.3952Z" fill="#0F58F9"/>
@@ -2439,7 +2439,7 @@ export default function DynamicAuditLandingPage() {
   
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
-              <h2 className="font-medium text-[32px] xl:w-[670px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
+              <h2 className="font-medium text-[32px] xl:w-[720px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] text-left">
                 {editingField === 'workforceCrisisFullTitle' ? (
                   <InlineEditor
                     initialValue={landingPageData?.workforceCrisis?.fullTitle || 
@@ -5059,7 +5059,7 @@ export default function DynamicAuditLandingPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] mb-[15px] xl:mb-[40px]">
                   <div 
-                    className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
+                    className="xl:w-full rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
                       AI capabilities:
@@ -5208,13 +5208,13 @@ export default function DynamicAuditLandingPage() {
                     />
                   </div>
   
-                  <Image 
+                  {/* <Image 
                     src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
                     alt="Card 1"
                     width={560}
                     height={437}
                     className="hidden xl:block"
-                  />
+                  /> */}
                 </div>
   
                 <div className="flex flex-col gap-[15px] xl:gap-[40px]">
@@ -5374,7 +5374,7 @@ export default function DynamicAuditLandingPage() {
                   </span>
                 </div>
                 
-                <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+                <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                   {getLocalizedText(landingPageData?.language, {
                     en: 'LMS platform',
                     es: 'Plataforma LMS',
@@ -5419,9 +5419,9 @@ export default function DynamicAuditLandingPage() {
                   </h4>
                   
                   {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
-                  <div className="flex flex-col gap-[20px] xl:flex xl:flex-row xl:gap-x-[70px] xl:gap-y-[30px]">
+                  <div className="flex flex-col gap-[20px] xl:flex xl:flex-col xl:gap-x-[70px] xl:gap-y-[30px]">
                     {/* Left Column - Perks 1-4 */}
-                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[810px]">
                       {/* Perk 1 */}
                   <div className="flex gap-[15px]">
                     <div 
@@ -5450,7 +5450,7 @@ export default function DynamicAuditLandingPage() {
                         es: 'de nuevos',
                         ua: 'нових',
                         ru: 'новых'
-                      })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                      })}<br className='xl:hidden'/>{getLocalizedText(landingPageData?.language, {
                         en: 'employees',
                         es: 'empleados',
                         ua: 'співробітників',
@@ -5475,7 +5475,7 @@ export default function DynamicAuditLandingPage() {
                       es: 'Entrenamiento basado en roles',
                       ua: 'Навчання за ролями',
                       ru: 'Обучение по ролям'
-                    })} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                    })} <span className="font-normal text-[#71717A]"><br className='xl:hidden'/>{getLocalizedText(landingPageData?.language, {
                       en: 'and',
                       es: 'y',
                       ua: 'і',
@@ -5515,7 +5515,7 @@ export default function DynamicAuditLandingPage() {
                         es: 'actualización centralizada',
                         ua: 'централізоване',
                         ru: 'централизованное'
-                      })}<br/>{getLocalizedText(landingPageData?.language, {
+                      })}<br className='xl:hidden'/>{getLocalizedText(landingPageData?.language, {
                         en: 'content updates',
                         es: 'de contenido',
                         ua: 'оновлення контенту',
@@ -5545,7 +5545,7 @@ export default function DynamicAuditLandingPage() {
                         es: 'pruebas',
                         ua: 'тестування',
                         ru: 'тестирование'
-                      })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                      })}<br className='xl:hidden'/> {getLocalizedText(landingPageData?.language, {
                         en: 'and assessment',
                         es: 'y evaluación',
                         ua: 'і оцінка',
@@ -5561,7 +5561,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
   
                     {/* Right Column - Perks 5-8 */}
-                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[810px]">
                       {/* Perk 5 */}
                   <div className="flex gap-[15px]">
                     <div 
@@ -5583,7 +5583,7 @@ export default function DynamicAuditLandingPage() {
                         es: 'y',
                         ua: 'і',
                         ru: 'и'
-                      })}<br/>{getLocalizedText(landingPageData?.language, {
+                      })}<br className='xl:hidden'/>{getLocalizedText(landingPageData?.language, {
                         en: 'training analytics',
                         es: 'análisis de entrenamiento',
                         ua: 'аналітика з навчання',
@@ -5930,6 +5930,182 @@ export default function DynamicAuditLandingPage() {
                     })}
                   </span>
                 </div> 
+              </div>
+            </section>
+
+            {/* ROI Section */}
+            <section className="bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
+              <h2 className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[40px]">
+                {getLocalizedText(landingPageData?.language, {
+                  en: 'ROI from implementing recommendations',
+                  es: 'ROI de implementar recomendaciones',
+                  ua: 'ROI від упровадження рекомендацій',
+                  ru: 'ROI от внедрения рекомендаций'
+                })}
+              </h2>
+
+              <div className="flex flex-col gap-[20px]">
+                {/* ROI Card 1 */}
+                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
+                  {/* Circular Progress */}
+                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        fill="#E8F2FF"
+                        stroke="none"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#3B82F6"
+                        strokeWidth="8"
+                        strokeDasharray={`${Math.PI * 2 * 48 * 0.35} ${Math.PI * 2 * 48}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">25-40%</span>
+                    </div>
+                  </div>
+                  {/* Text */}
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                    <span className="font-medium">1. {getLocalizedText(landingPageData?.language, {
+                      en: 'Reduction in staff turnover by',
+                      es: 'Reducción en la rotación de personal en',
+                      ua: 'Зниження плинності персоналу на',
+                      ru: 'Снижение текучести персонала на'
+                    })}</span>{' '}
+                    <span className="text-blue-600 font-semibold">25-40%</span>
+                  </p>
+                </div>
+
+                {/* ROI Card 2 */}
+                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
+                  {/* Circular Progress */}
+                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        fill="#FFF9E6"
+                        stroke="none"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#F59E0B"
+                        strokeWidth="8"
+                        strokeDasharray={`${Math.PI * 2 * 48 * 0.4} ${Math.PI * 2 * 48}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">30-50%</span>
+                    </div>
+                  </div>
+                  {/* Text */}
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                    <span className="font-medium">2. {getLocalizedText(landingPageData?.language, {
+                      en: 'Reduction in onboarding time by',
+                      es: 'Reducción en el tiempo de incorporación en',
+                      ua: 'Скорочення часу онбордингу на',
+                      ru: 'Сокращение времени онбординга на'
+                    })}</span>{' '}
+                    <span className="text-blue-600 font-semibold">30-50%</span>
+                  </p>
+                </div>
+
+                {/* ROI Card 3 */}
+                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
+                  {/* Circular Progress */}
+                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        fill="#E6F7F5"
+                        stroke="none"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#10B981"
+                        strokeWidth="8"
+                        strokeDasharray={`${Math.PI * 2 * 48 * 0.25} ${Math.PI * 2 * 48}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">15-25%</span>
+                    </div>
+                  </div>
+                  {/* Text */}
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                    <span className="font-medium">3. {getLocalizedText(landingPageData?.language, {
+                      en: 'Increase in productivity of new employees by',
+                      es: 'Aumento en la productividad de nuevos empleados en',
+                      ua: 'Зростання продуктивності нових працівників на',
+                      ru: 'Рост продуктивности новых сотрудников на'
+                    })}</span>{' '}
+                    <span className="text-blue-600 font-semibold">15-25%</span>
+                  </p>
+                </div>
+
+                {/* ROI Card 4 */}
+                <div className="flex gap-[20px] items-center bg-white rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.08)] p-[20px] xl:p-[30px]">
+                  {/* Circular Progress */}
+                  <div className="relative flex-shrink-0 w-[80px] h-[80px] xl:w-[120px] xl:h-[120px] bg-[#F5F8FF] p-5">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        fill="#F5E6FF"
+                        stroke="none"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#A855F7"
+                        strokeWidth="8"
+                        strokeDasharray={`${Math.PI * 2 * 48 * 0.2} ${Math.PI * 2 * 48}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[16px] xl:text-[24px] font-bold text-[#171718]">20%</span>
+                    </div>
+                  </div>
+                  {/* Text */}
+                  <p className="font-regular text-[16px] xl:text-[20px] leading-[130%]">
+                    <span className="font-medium">4. {getLocalizedText(landingPageData?.language, {
+                      en: 'Savings of up to',
+                      es: 'Ahorros de hasta',
+                      ua: 'Економію до',
+                      ru: 'Экономию до'
+                    })}</span>{' '}
+                    <span className="text-blue-600 font-semibold">20%</span>{' '}
+                    <span className="font-medium">{getLocalizedText(landingPageData?.language, {
+                      en: 'on training and adaptation costs',
+                      es: 'en costos de capacitación y adaptación',
+                      ua: 'витрат на навчання та адаптацію',
+                      ru: 'затрат на обучение и адаптацию'
+                    })}</span>
+                  </p>
+                </div>
               </div>
             </section>
   
