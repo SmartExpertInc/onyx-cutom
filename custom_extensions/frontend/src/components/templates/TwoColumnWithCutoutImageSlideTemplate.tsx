@@ -93,18 +93,16 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
     zIndex: 1
   };
 
-  // Small image in top-right corner of left image
+  // Small image in the cutout corner of left image
   const leftTopImageContainer: React.CSSProperties = {
     position: 'absolute',
-    top: '20px',
-    right: '20px',
-    width: '120px',
-    height: '120px',
-    borderRadius: '8px',
+    top: '0',
+    right: '0',
+    width: '160px',
+    height: '160px',
+    borderRadius: '0',
     overflow: 'hidden',
-    border: '3px solid #FFFFFF',
-    zIndex: 20,
-    backgroundColor: '#FFFFFF'
+    zIndex: 20
   };
 
   const leftTopImageStyle: React.CSSProperties = {
@@ -192,8 +190,9 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
         />
       </div>
 
-      {/* Left Section - Large Image with small image in top-right corner */}
+      {/* Left Section - Large Image with small image in cutout corner */}
       <div style={leftSection}>
+        {/* Large image with clipPath */}
         <div style={leftSectionContainer}>
           <ClickableImagePlaceholder
             imagePath={leftImagePath}
@@ -202,16 +201,16 @@ export const TwoColumnWithCutoutImageSlideTemplate: React.FC<TwoColumnWithCutout
             isEditable={isEditable} 
             style={leftImageStyle} 
           />
-          {/* Small image in top-right corner */}
-          <div style={leftTopImageContainer}>
-            <ClickableImagePlaceholder
-              imagePath={leftTopImagePath}
-              onImageUploaded={(path) => onUpdate && onUpdate({ leftTopImagePath: path })}
-              description="Top-right image" 
-              isEditable={isEditable} 
-              style={leftTopImageStyle} 
-            />
-          </div>
+        </div>
+        {/* Small image in the cutout corner - outside clipPath container */}
+        <div style={leftTopImageContainer}>
+          <ClickableImagePlaceholder
+            imagePath={leftTopImagePath}
+            onImageUploaded={(path) => onUpdate && onUpdate({ leftTopImagePath: path })}
+            description="Cutout corner image" 
+            isEditable={isEditable} 
+            style={leftTopImageStyle} 
+          />
         </div>
       </div>
 
