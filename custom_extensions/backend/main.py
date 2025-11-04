@@ -18704,6 +18704,10 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                             except:
                                 decoded_filename = filename
                             
+                            # Try both NFC and NFD normalized variants
+                            nfc_filename = unicodedata.normalize('NFC', decoded_filename)
+                            nfd_filename = unicodedata.normalize('NFD', decoded_filename)
+                            
                             logger.info(f"[SMARTDRIVE_MAPPING] Searching for filename: '{decoded_filename[:50]}...'")
                             
                             # Try to find by filename (handles encoding differences)
@@ -18715,7 +18719,15 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                                 AND onyx_file_id IS NOT NULL
                                 LIMIT 1
                             """
-                            filename_rows = await connection.fetch(filename_query, user_id, f'%{decoded_filename}')
+                            
+                            # Try NFC normalized version first
+                            filename_rows = await connection.fetch(filename_query, user_id, f'%{nfc_filename}')
+                            
+                            # If NFC didn't work, try NFD
+                            if not filename_rows and nfc_filename != nfd_filename:
+                                logger.info(f"[SMARTDRIVE_MAPPING] NFC failed, trying NFD normalization...")
+                                filename_rows = await connection.fetch(filename_query, user_id, f'%{nfd_filename}')
+                            
                             if filename_rows:
                                 rows.extend(filename_rows)
                                 logger.info(f"[SMARTDRIVE_MAPPING] ✅ Matched '{unmapped_path[:50]}...' by filename to '{filename_rows[0]['smartdrive_path'][:50]}...'")
@@ -18749,6 +18761,13 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
                         # Extract just the filename for fuzzy matching
                         filename = unmapped.split('/')[-1] if '/' in unmapped else unmapped
                         if filename:
+                            # First check if the path exists WITHOUT the onyx_file_id filter
+                            check_query = "SELECT smartdrive_path, onyx_file_id FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path LIKE $2 LIMIT 5"
+                            check_rows = await connection.fetch(check_query, user_id, f'%{filename[:20]}%')
+                            if check_rows:
+                                for check_row in check_rows:
+                                    logger.info(f"[SMARTDRIVE_MAPPING] Found path '{check_row['smartdrive_path'][:50]}...' with onyx_file_id={check_row['onyx_file_id']}")
+                            
                             fuzzy_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path LIKE $2 LIMIT 5"
                             fuzzy_rows = await connection.fetch(fuzzy_query, user_id, f'%{filename[:20]}%')
                             if fuzzy_rows:
