@@ -1291,7 +1291,7 @@
             height: 256px;
             border-radius: 50%;
             overflow: hidden;
-            background-color: #ffffff;
+            background-color: #0F58F9;
         }
         
         .phishing-definition-slide .profile-img {
@@ -2583,7 +2583,7 @@
             position: absolute;
             left: 102px;
             top: 440px;
-            width: 56%;
+            width: 43%;
             display: flex;
             flex-direction: column;
             gap: 0;
@@ -2638,9 +2638,10 @@
         
         .ai-pharma-market-growth-slide .doctor-image {
             position: absolute;
-            right: 144px;
+            right: 40px;
             top: 48px;
             bottom: 155px;
+            width: 864px;
             height: 96%;
         }
         
@@ -5071,7 +5072,6 @@
                         <!-- Title and Subtitle - Centered vertically -->
                         <div class="title-container">
                             <div class="title">{{ title or 'Course' }}</div>
-                            <div class="subtitle">{{ subtitle or 'Overview' }}</div>
                         </div>
                     </div>
 
@@ -5121,11 +5121,11 @@
                         <div class="arch-background"></div>
 
                         <!-- Image -->
-                        {% if imagePath %}
-                            <div class="image-container">
+                        <div class="image-container" style="background-color: red;">
+                            {% if imagePath %}
                                 <img src="{{ imagePath }}" alt="{{ imageAlt or 'Work-life balance image' }}" class="balance-image">
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 
@@ -5151,11 +5151,11 @@
                         </div>
 
                         <!-- Profile image at bottom left -->
-                        {% if profileImagePath %}
-                            <div class="profile-image">
+                        <div class="profile-image">
+                            {% if profileImagePath %}
                                 <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile photo' }}" class="profile-img">
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
 
                         <!-- Page number with line -->
                         <div class="page-number-container">
@@ -5654,12 +5654,6 @@
                     </div>
                 </div>
                 
-                <!-- 
-                ═══════════════════════════════════════════════════════════════════════════
-                ✅ END IMPACT-STATEMENTS AVATAR POSITIONING DEBUG LOG
-                ═══════════════════════════════════════════════════════════════════════════
-                -->
-                
             {% elif templateId == 'hybrid-work-best-practices-slide' or templateId == 'hybrid-work' %}
                 <div class="hybrid-work-slide">
                     <!-- Logo header -->
@@ -5689,11 +5683,11 @@
                         </div>
 
                         <!-- Profile image at bottom -->
-                        {% if profileImagePath %}
-                            <div class="profile-image">
+                        <div class="profile-image">
+                            {% if profileImagePath %}
                                 <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-img">
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
 
                     <!-- Right column -->
@@ -5992,7 +5986,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         {% endif %}
                     </div>
 
-                    <!-- Right doctor image -->
+                    <!-- Right doctor image / avatar area -->
                     <div class="doctor-image">
                         {% if doctorImagePath %}
                             <img src="{{ doctorImagePath }}" alt="{{ doctorImageAlt or 'Doctor' }}" class="doctor-img">
@@ -6347,7 +6341,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="main-title">{{ title or 'Step-by-step Guide' }}</div>
 
                     <!-- Profile Image -->
-                    <div class="profile-image-container">
+                    <div class="profile-image-container" >
                         {% if profileImagePath %}
                             <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" />
                         {% endif %}

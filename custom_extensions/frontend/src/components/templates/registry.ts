@@ -1621,11 +1621,14 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
     avatarPosition: {
-      x: 925,       // Right side of slide
-      y: 118,       // Vertically centered
-      width: 935,
-      height: 843,
-      backgroundColor: '#ffffff'  // ✅ White background for avatar video
+      // ✅ RECTANGULAR AVATAR - Based on measured image container logs
+      // Image container positioned on right side of slide (right panel)
+      // Measured values show full-height container spanning entire right panel
+      x: 864,       // ✅ Measured: 864px (left edge of right panel)
+      y: 0,         // ✅ Measured: 0px (starts at top of slide)
+      width: 1056,  // ✅ Measured: 1056px (right panel width: 1920 - 864 = 1056)
+      height: 1080, // ✅ Measured: 1080px (full slide height)
+      backgroundColor: '#ffffff'  // White background for avatar area
     }
   },
 
@@ -1659,11 +1662,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
     avatarPosition: {
-      x: 925,       // Right side of slide
-      y: 118,       // Vertically centered
-      width: 935,
-      height: 843,
-      backgroundColor: '#ffffff'  // ✅ White background for avatar video
+      // ✅ ARCH AVATAR - Based on measured arch background container logs
+      // Arch background positioned on right side of slide
+      // Arch shape: Rounded TOP corners (top-left and top-right), sharp bottom corners
+      // CSS equivalent: border-radius: 50% 50% 0 0 (after transform rotation)
+      // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
+      x: 1075,      // ✅ Measured: 1075px (left edge of arch container)
+      y: 235,       // ✅ Measured: 235px (top edge of arch container)
+      width: 799,   // ✅ Measured: 799px (arch container width)
+      height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
+      shape: 'arch', // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
+      backgroundColor: '#0F58F9'  // Blue gradient color (matches slide background: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
     }
   },
 
@@ -1811,6 +1820,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned at bottom-left of slide
+      // CSS: position: absolute, bottom: 96px
+      // Measured absolute position perfectly aligns with calculation
+      x: 96,        // ✅ Measured: 96px (matches CSS left position)
+      y: 712,       // ✅ Measured: 712px (calculated: 1080 - 96 bottom - 272 height = 712px) ✓
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue background
     }
   },
 
@@ -1851,6 +1872,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true },
       companyLogoPath: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned with absolute positioning
+      // CSS: left: 80px, top: 160px
+      x: 80,        // ✅ Measured: 80px (matches CSS left)
+      y: 160,       // ✅ Measured: 160px (matches CSS top)
+      width: 264,   // ✅ Measured: 264px (perfect square for circle)
+      height: 264,  // ✅ Measured: 264px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue gradient background
     }
   },
 
@@ -1927,11 +1959,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
     avatarPosition: {
-      x: 1690,      // ✅ MEASURED: Top-right profile position
-      y: 40,        // ✅ MEASURED: Top padding position
-      width: 170,   // ✅ MEASURED: Circular profile image width
-      height: 170,  // ✅ MEASURED: Circular profile image height
-      backgroundColor: '#ffffff'
+      // ✅ CIRCULAR AVATAR - Updated with measured container logs
+      // Profile image positioned at top-right of slide
+      // CSS: right: 60px, top: 40px (CSS defines 170×170)
+      // Measured container (with padding/wrapper): 240×240px
+      x: 1620,      // ✅ Measured: 1620px (calculated: 1920 - 60 - 240 = 1620)
+      y: 55,        // ✅ Measured: 55px (actual rendered position includes padding)
+      width: 240,   // ✅ Measured: 240px (container width including wrapper/padding)
+      height: 240,  // ✅ Measured: 240px (container height including wrapper/padding)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#ffffff' // White background
     }
   },
 
@@ -2011,11 +2048,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       rightImagePrompt: { type: 'text', label: 'Right Image Prompt', required: false }
     },
     avatarPosition: {
-      x: 925,       // Right side of slide (for large right image)
-      y: 118,       // Vertically centered
-      width: 935,
-      height: 843,
-      backgroundColor: '#ffffff'
+      // ✅ CIRCULAR AVATAR - Based on measured container logs (profile image)
+      // Profile image positioned at bottom-left of slide
+      // CSS: position: absolute, left: 96px, bottom: 149px
+      // Measured absolute position perfectly aligns with calculation
+      x: 96,        // ✅ Measured: 96px (matches CSS left)
+      y: 675,       // ✅ Measured: 675px (calculated: 1080 - 149 bottom - 256 height = 675px) ✓
+      width: 256,   // ✅ Measured: 256px (perfect square for circle)
+      height: 256,  // ✅ Measured: 256px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0F58F9' // Blue background
     }
   },
 
@@ -2047,10 +2089,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       logoNew: { type: 'image', label: 'Company Logo' }
     },
     avatarPosition: {
-      x: 80,        // ✅ Direct CSS padding-left (no scaling - CSS is already in video space 1920×1080)
-      y: 551,       // ✅ MEASURED: Actual rendered position (padding 36px + title + gap 17px)
-      width: 749,   // ✅ MEASURED: Container width (100% of 45% parent = 749px)
-      height: 471,  // ✅ MEASURED: Direct CSS container height - Result: 551+471=1022px < 1080px ✅
+      x: 80,        // ✅ Measured: 80px (matches CSS padding-left)
+      y: 521,       // ✅ CORRECTED: Measured from logs (was 551px, now 521px - 30px difference)
+      width: 749,   // ✅ Measured: 749px (matches container width)
+      height: 471,  // ✅ Measured: 471px (matches container height)
       backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
     }
   },
@@ -2108,6 +2150,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' },
       companyLogoAlt: { type: 'text', label: 'Company Logo Alt Text' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile-image is inside content-block (top: 128px, left: 24px)
+      // CSS relative to content-block: top: 52.8px, left: 112px
+      // Absolute position: X = 24 + 112 = 136px, Y = 128 + 52.8 = 181px
+      x: 136,       // ✅ Measured: 136px (content-block left 24px + profile left 112px)
+      y: 181,       // ✅ Measured: 181px (content-block top 128px + profile top 52.8px)
+      width: 248,   // ✅ Measured: 248px (perfect square for circle)
+      height: 248,  // ✅ Measured: 248px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue background (matches template style)
     }
   },
 
@@ -2162,6 +2216,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       website: { type: 'text', label: 'Website', maxLength: 100 },
       date: { type: 'text', label: 'Date', maxLength: 50 },
       pageNumber: { type: 'text', label: 'Page Number', maxLength: 50 }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned at top-right of slide
+      // CSS: top: 35px, right: 60px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1630,      // ✅ Measured: 1630px (calculated: 1920 - 60 - 230 = 1630) ✓
+      y: 35,        // ✅ Measured: 35px (matches CSS top exactly)
+      width: 230,   // ✅ Measured: 230px (perfect square for circle)
+      height: 230,  // ✅ Measured: 230px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue background
     }
   },
 
@@ -2394,6 +2460,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bars: { type: 'array', label: 'Bars', required: true },
       actorImagePath: { type: 'image', label: 'Actor Image' },
       actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar holder positioned at bottom-left of slide
+      // CSS: left: 100px, bottom: 100px
+      // Measured absolute position: Y = 1080 - 100 (bottom) - 220 (height) = 760px
+      x: 100,       // ✅ Measured: 100px (matches CSS left)
+      y: 760,       // ✅ Measured: 760px (calculated from bottom: 1080 - 100 - 220)
+      width: 220,   // ✅ Measured: 220px (perfect square for circle)
+      height: 220,  // ✅ Measured: 220px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue background
     }
   },
 
@@ -2423,6 +2501,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       doctorImagePath: { type: 'image', label: 'Right Image' },
       doctorImageAlt: { type: 'text', label: 'Right Image Alt Text' },
       panelBackgroundColor: { type: 'color', label: 'Panel Color' }
+    },
+    avatarPosition: {
+      // ✅ RECTANGULAR AVATAR - Based on updated measured container logs (doctor image area)
+      // Doctor image positioned on right side of slide
+      // CSS UPDATED: position: absolute, right: 40px (was 144px), top: 48px, bottom: 155px
+      // Width: 864px, height: 96%
+      // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
+      x: 1016,      // ✅ Measured: 1016px (calculated: 1920 - 40 right - 864 width = 1016) ✓
+      y: 48,        // ✅ Measured: 48px (matches CSS top)
+      width: 864,   // ✅ Measured: 864px (right-side doctor image area)
+      height: 1032, // ✅ CORRECTED: 1080 - 48 = 1032px (was 1037px, exceeded boundary by 5px)
+      backgroundColor: '#0F58F9' // Blue background for avatar area
     }
   },
 
@@ -2456,6 +2546,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       footerLeft: { type: 'text', label: 'Footer Left' },
       footerCenter: { type: 'text', label: 'Footer Center' },
       footerRight: { type: 'text', label: 'Footer Right' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned in footer (absolute positioning within footer)
+      // CSS relative to footer: right: 84px, top: 68px
+      // Measured absolute position in viewport
+      x: 56,        // ✅ Measured: 56px (absolute position in viewport)
+      y: 645,       // ✅ Measured: 645px (footer area at bottom of slide)
+      width: 220,   // ✅ Measured: 220px (rendered width for circle)
+      height: 220,  // ✅ Measured: 220px (rendered height for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // White background
     }
   },
 
@@ -2597,6 +2699,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: top: 64px, right: 96px, width: 272px, height: 272px, border-radius: 50%
+      // Calculated X: 1920 - 96 - 272 = 1552px
+      x: 1552,      // ✅ Measured: 1552px (calculated from right: 96px)
+      y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0f58f9' // White background
     }
   }
   ,
@@ -2663,9 +2776,20 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       middleText: { type: 'text', label: 'Middle Text', required: true },
       rightText: { type: 'text', label: 'Right Text', required: true },
       middlePanelColor: { type: 'color', label: 'Middle Panel' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: right: 48px, top: 65px, width: 240px, height: 240px, border-radius: 50%
+      // Calculated X: 1920 - 48 - 240 = 1632px
+      x: 1632,      // ✅ Measured: 1632px (calculated from right: 48px)
+      y: 65,        // ✅ Measured: 65px (matches CSS top: 65px)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required
+      backgroundColor: '#e0e7ff' // White background (matches template style)
     }
   }
-  ,
+  , 
 
   // New: Key skills list with numbered items and avatar on left
   'key-skills-data-analysis': {
@@ -2836,6 +2960,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       cards: { type: 'array', label: 'Cards', required: true },
       rightText: { type: 'text', label: 'Right Text', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar positioned at top-right of slide
+      // CSS: right: 64px, top: 45px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1616,      // ✅ Measured: 1616px (calculated: 1920 - 64 - 240 = 1616) ✓
+      y: 45,        // ✅ Measured: 45px (matches CSS top exactly)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#e0e7ff' // Blue background
     }
   }
   ,
@@ -2897,6 +3033,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       section2Title: { type: 'text', label: 'Section 2 Title', required: true },
       section2Lines: { type: 'array', label: 'Section 2 Lines', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: right: 60px, top: 75px, width: 230px, height: 230px, border-radius: 50%
+      // Calculated X: 1920 - 60 - 230 = 1630px
+      x: 1630,      // ✅ Measured: 1630px (calculated from right: 60px)
+      y: 75,        // ✅ Measured: 75px (matches CSS top: 75px)
+      width: 230,   // ✅ Measured: 230px (perfect square for circle)
+      height: 230,  // ✅ Measured: 230px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0f58f9' // White background
     }
   }
   ,
@@ -2932,6 +3079,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       percent: { type: 'text', label: 'Percent', required: true },
       bottomCards: { type: 'array', label: 'Bottom Cards', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar positioned at top-right of slide
+      // CSS: right: 70px, top: 60px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1610,      // ✅ Measured: 1610px (calculated: 1920 - 70 - 240 = 1610) ✓
+      y: 60,        // ✅ Measured: 60px (matches CSS top exactly)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#ffffff' // Blue background (#0F58F9 in CSS)
     }
   },
 
