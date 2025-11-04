@@ -30,6 +30,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
 import inspect
+import unicodedata
 # NEW: OpenAI imports for direct usage
 import openai
 from openai import AsyncOpenAI
@@ -19340,9 +19341,13 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                             except:
                                 normalized_path = path
                             
+                            # Add Unicode normalized variants (NFC and NFD)
+                            smartdrive_file_paths.append(normalized_path)
+                            smartdrive_file_paths.append(unicodedata.normalize('NFC', normalized_path))
+                            smartdrive_file_paths.append(unicodedata.normalize('NFD', normalized_path))
+                            
                             # Handle `+` character variations (some systems use `+` in filenames)
                             # Try both with and without `+` to match database records
-                            smartdrive_file_paths.append(normalized_path)
                             if '+' in normalized_path:
                                 smartdrive_file_paths.append(normalized_path.replace('+', ''))
                             
@@ -19414,6 +19419,9 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         try:
                             decoded_path = unquote(path)
                             candidates.append(decoded_path)
+                            # Add Unicode normalized variants (NFC and NFD)
+                            candidates.append(unicodedata.normalize('NFC', decoded_path))
+                            candidates.append(unicodedata.normalize('NFD', decoded_path))
                         except:
                             decoded_path = path
                         try:
@@ -27210,9 +27218,13 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                             except:
                                 normalized_path = path
                             
+                            # Add Unicode normalized variants (NFC and NFD)
+                            smartdrive_file_paths.append(normalized_path)
+                            smartdrive_file_paths.append(unicodedata.normalize('NFC', normalized_path))
+                            smartdrive_file_paths.append(unicodedata.normalize('NFD', normalized_path))
+                            
                             # Handle `+` character variations (some systems use `+` in filenames)
                             # Try both with and without `+` to match database records
-                            smartdrive_file_paths.append(normalized_path)
                             if '+' in normalized_path:
                                 smartdrive_file_paths.append(normalized_path.replace('+', ''))
                             
@@ -27272,6 +27284,9 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         try:
                             decoded_path = unquote(path)
                             candidates.append(decoded_path)
+                            # Add Unicode normalized variants (NFC and NFD)
+                            candidates.append(unicodedata.normalize('NFC', decoded_path))
+                            candidates.append(unicodedata.normalize('NFD', decoded_path))
                         except:
                             decoded_path = path
                         try:
@@ -32675,6 +32690,9 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         try:
                             decoded_path = unquote(path)
                             candidates.append(decoded_path)
+                            # Add Unicode normalized variants (NFC and NFD)
+                            candidates.append(unicodedata.normalize('NFC', decoded_path))
+                            candidates.append(unicodedata.normalize('NFD', decoded_path))
                         except:
                             decoded_path = path
                         try:
@@ -34388,6 +34406,9 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         try:
                             decoded_path = unquote(path)
                             candidates.append(decoded_path)
+                            # Add Unicode normalized variants (NFC and NFD)
+                            candidates.append(unicodedata.normalize('NFC', decoded_path))
+                            candidates.append(unicodedata.normalize('NFD', decoded_path))
                         except:
                             decoded_path = path
                         try:
