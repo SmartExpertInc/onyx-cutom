@@ -170,23 +170,36 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
     position: 'relative'
   };
 
-  // Footer
+  // Footer - Logo
   const footerContainer: React.CSSProperties = {
     position: 'absolute',
     bottom: '30px',
-    left: '0',
-    right: '0',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0 60px',
+    right: '60px',
     zIndex: 10
   };
 
+  // Page number with line - bottom-left
+  const pageNumberContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    left: '0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '13px',
+    zIndex: 10
+  };
+
+  const pageNumberLineStyle: React.CSSProperties = {
+    width: '32px',
+    height: '1.5px',
+    backgroundColor: 'rgba(9, 9, 11, 0.6)'
+  };
+
   const pageNumberStyle: React.CSSProperties = {
-    fontSize: '16px',
-    fontWeight: 400,
-    color: '#9CA3AF',
+    fontSize: '18px',
+    fontWeight: 300,
+    color: 'rgba(9, 9, 11, 0.6)',
+    fontFamily: currentTheme.fonts.contentFont,
     margin: 0
   };
 
@@ -206,13 +219,15 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
   });
 
   const getIconPath = (iconType: string) => {
+    // Try different possible paths
+    const basePath = '/icons';
     switch(iconType) {
       case 'document':
-        return '/icons/documentPainPoints.png';
+        return `${basePath}/documentPainPoints.png`;
       case 'message':
-        return '/icons/messagePainPoints.png';
+        return `${basePath}/messagePainPoints.png`;
       case 'arrow':
-        return '/icons/topArrowPainPoints.png';
+        return `${basePath}/topArrowPainPoints.png`;
       default:
         return '';
     }
@@ -276,7 +291,16 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
                   alt={point.iconType}
                   style={iconImageStyle}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                    console.error(`Failed to load icon: ${getIconPath(point.iconType)}`);
+                    // Try to load from public root if /icons/ doesn't work
+                    const img = e.target as HTMLImageElement;
+                    const altPath = getIconPath(point.iconType).replace('/icons/', '/');
+                    if (altPath !== getIconPath(point.iconType) && !img.dataset.triedAlt) {
+                      img.dataset.triedAlt = 'true';
+                      img.src = altPath;
+                    } else {
+                      img.style.display = 'none';
+                    }
                   }}
                 />
               </div>
@@ -316,8 +340,9 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
         </div>
       </div>
 
-      {/* Footer */}
-      <div style={footerContainer}>
+      {/* Page number with line - bottom-left */}
+      <div style={pageNumberContainerStyle}>
+        <div style={pageNumberLineStyle} />
         <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('pageNumber')}>
           {isEditable && editKey === 'pageNumber' ? (
             <ImprovedInlineEditor 
@@ -333,15 +358,17 @@ export const CommonPainPointsSlideTemplate: React.FC<CommonPainPointsProps & { t
             pageNumber
           )}
         </div>
-        <div style={logoContainerStyle}>
-          <YourLogo
-            logoPath={logoPath}
-            onLogoUploaded={handleLogoUploaded}
-            isEditable={isEditable}
-            color="#09090B"
-            text="Your Logo"
-          />
-        </div>
+      </div>
+
+      {/* Footer - Logo */}
+      <div style={footerContainer}>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={handleLogoUploaded}
+          isEditable={isEditable}
+          color="#09090B"
+          text="Your Logo"
+        />
       </div>
     </div>
   );

@@ -223,11 +223,24 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
     margin: 0
   };
 
-  // Page number style
+  // Page number with line - bottom-left (in bottomLeft section)
+  const pageNumberContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '13px'
+  };
+
+  const pageNumberLineStyle: React.CSSProperties = {
+    width: '32px',
+    height: '1.5px',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)'
+  };
+
   const pageNumberStyle: React.CSSProperties = {
-    fontSize: '14px',
-    fontWeight: 400,
+    fontSize: '18px',
+    fontWeight: 300,
     color: '#FFFFFF',
+    fontFamily: currentTheme.fonts.contentFont,
     margin: 0
   };
 
@@ -394,20 +407,23 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
             )}
           </div>
         </div>
-        <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('bottomLeft-page')}>
-          {isEditable && editKey === 'bottomLeft-page' ? (
-            <ImprovedInlineEditor 
-              initialValue={bottomLeft.pageNumber || ''} 
-              onSave={(value) => { 
-                onUpdate && onUpdate({ bottomLeft: { ...bottomLeft, pageNumber: value } }); 
-                setEditKey(null); 
-              }} 
-              onCancel={() => setEditKey(null)} 
-              style={inline(pageNumberStyle)} 
-            />
-          ) : (
-            bottomLeft.pageNumber
-          )}
+        <div style={pageNumberContainerStyle}>
+          <div style={pageNumberLineStyle} />
+          <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('bottomLeft-page')}>
+            {isEditable && editKey === 'bottomLeft-page' ? (
+              <ImprovedInlineEditor 
+                initialValue={bottomLeft.pageNumber || ''} 
+                onSave={(value) => { 
+                  onUpdate && onUpdate({ bottomLeft: { ...bottomLeft, pageNumber: value } }); 
+                  setEditKey(null); 
+                }} 
+                onCancel={() => setEditKey(null)} 
+                style={inline(pageNumberStyle)} 
+              />
+            ) : (
+              bottomLeft.pageNumber
+            )}
+          </div>
         </div>
       </div>
 

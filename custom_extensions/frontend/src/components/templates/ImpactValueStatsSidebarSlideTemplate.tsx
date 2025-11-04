@@ -106,13 +106,29 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
     objectFit: 'cover'
   };
 
-  // Page number style - white
+  // Page number with line - bottom-left
+  const pageNumberContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    left: '0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '13px',
+    zIndex: 10
+  };
+
+  const pageNumberLineStyle: React.CSSProperties = {
+    width: '32px',
+    height: '1.5px',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)'
+  };
+
   const pageNumberStyle: React.CSSProperties = {
-    fontSize: '14px',
-    fontWeight: 400,
+    fontSize: '18px',
+    fontWeight: 300,
     color: '#FFFFFF',
-    margin: 0,
-    marginTop: '20px'
+    fontFamily: currentTheme.fonts.contentFont,
+    margin: 0
   };
 
   // Tag style - top right content
@@ -240,32 +256,15 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
           )}
         </div>
 
-        {/* Avatar and page number */}
-        <div>
-          <div style={avatarContainer}>
-            <ClickableImagePlaceholder
-              imagePath={avatarPath}
-              onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
-              description="Avatar" 
-              isEditable={isEditable} 
-              style={avatarImageStyle} 
-            />
-          </div>
-          <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('pageNumber')}>
-            {isEditable && editKey === 'pageNumber' ? (
-              <ImprovedInlineEditor 
-                initialValue={pageNumber} 
-                onSave={(value) => { 
-                  onUpdate && onUpdate({ pageNumber: value }); 
-                  setEditKey(null); 
-                }} 
-                onCancel={() => setEditKey(null)} 
-                style={inline(pageNumberStyle)} 
-              />
-            ) : (
-              pageNumber
-            )}
-          </div>
+        {/* Avatar */}
+        <div style={avatarContainer}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
+            description="Avatar" 
+            isEditable={isEditable} 
+            style={avatarImageStyle} 
+          />
         </div>
       </div>
 
@@ -344,6 +343,26 @@ export const ImpactValueStatsSidebarSlideTemplate: React.FC<ImpactValueStatsSide
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Page number with line - bottom-left */}
+      <div style={pageNumberContainerStyle}>
+        <div style={pageNumberLineStyle} />
+        <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('pageNumber')}>
+          {isEditable && editKey === 'pageNumber' ? (
+            <ImprovedInlineEditor 
+              initialValue={pageNumber} 
+              onSave={(value) => { 
+                onUpdate && onUpdate({ pageNumber: value }); 
+                setEditKey(null); 
+              }} 
+              onCancel={() => setEditKey(null)} 
+              style={inline(pageNumberStyle)} 
+            />
+          ) : (
+            pageNumber
+          )}
         </div>
       </div>
     </div>
