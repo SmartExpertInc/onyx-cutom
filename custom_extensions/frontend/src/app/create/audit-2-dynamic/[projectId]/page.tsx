@@ -2051,7 +2051,7 @@ export default function DynamicAuditLandingPage() {
                   ru: 'Как с помощью AI:'
                 })}
               </h2>
-              <p className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em]">
+              <p className="font-regular text-[15px] xl:text-[20px] text-[#71717A] leading-[115%] tracking-[-0.03em]">
                 {getLocalizedText(landingPageData?.language, {
                   en: 'Demonstrate how implementing AI can:',
                   es: 'Demostrar cómo la implementación de la IA puede:',
@@ -2153,7 +2153,7 @@ export default function DynamicAuditLandingPage() {
   
             {/* Third Section */}
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
-              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
+              <h2 className="font-medium text-[18px] xl:text-[22px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
                 {getLocalizedText(landingPageData?.language, {
                   en: 'Open Positions',
                   es: 'Posiciones Abiertas',
@@ -2166,7 +2166,7 @@ export default function DynamicAuditLandingPage() {
                 <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
                   <div className="gap-2 flex items-center">
                     <div className="w-2 h-2 rounded-full bg-[#0F58F9]"></div>
-                    <p className="font-semibold text-2xl text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
+                    <p className="font-semibold text-[22px] text-[#09090B] gap-3">{getLocalizedText(landingPageData?.language, {
                       en: 'Open Positions',
                       es: 'Posiciones Abiertas',
                       ua: 'Відкриті вакансії',
