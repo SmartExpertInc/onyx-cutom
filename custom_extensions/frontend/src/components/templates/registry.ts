@@ -1817,6 +1817,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned at bottom-left of slide
+      // CSS: position: absolute, bottom: 96px
+      // Measured absolute position perfectly aligns with calculation
+      x: 96,        // ✅ Measured: 96px (matches CSS left position)
+      y: 712,       // ✅ Measured: 712px (calculated: 1080 - 96 bottom - 272 height = 712px) ✓
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+      backgroundColor: '#0F58F9' // Blue background
     }
   },
 
