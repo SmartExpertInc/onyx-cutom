@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ApplyAvatarModal from './ApplyAvatarModal';
 
 interface AvatarRightPanelProps {
   // Appearance props
@@ -75,6 +76,7 @@ export default function AvatarRightPanel({
   const [selectedLayer, setSelectedLayer] = useState<'toBack' | 'backward' | 'forward' | 'toFront'>('backward');
   const [positionX, setPositionX] = useState<string>('150');
   const [positionY, setPositionY] = useState<string>('150');
+  const [isApplyAvatarModalOpen, setIsApplyAvatarModalOpen] = useState<boolean>(false);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -103,10 +105,7 @@ export default function AvatarRightPanel({
         <button
           className="w-full px-3 py-2 text-sm text-white rounded-md transition-colors"
           style={{ backgroundColor: '#0F58F9' }}
-          onClick={() => {
-            // TODO: Implement add to all slides functionality
-            console.log('Add to all slides clicked');
-          }}
+          onClick={() => setIsApplyAvatarModalOpen(true)}
         >
           {t('avatarRightPanel.addToAllSlides', 'Add to all slides')}
         </button>
@@ -177,7 +176,7 @@ export default function AvatarRightPanel({
 
           {/* Dropdown menu */}
           {showAppearanceDropdown && (
-            <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 p-1" style={{ borderColor: '#E0E0E0' }}>
+            <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 p-0.5" style={{ borderColor: '#E0E0E0' }}>
               {/* Transparent option */}
               <button
                 onClick={() => {
@@ -453,6 +452,12 @@ export default function AvatarRightPanel({
       >
         {t('avatarRightPanel.close', 'Close')}
       </button>
+
+      {/* Apply Avatar Modal */}
+      <ApplyAvatarModal 
+        isOpen={isApplyAvatarModalOpen}
+        onClose={() => setIsApplyAvatarModalOpen(false)}
+      />
     </>
   );
 }
