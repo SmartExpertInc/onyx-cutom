@@ -18,6 +18,7 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   logoText?: string;
   pageNumber?: string;
   slideIndex?: number;
+  backgroundColor?: string;
 }
 
 export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { 
