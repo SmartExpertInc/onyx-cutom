@@ -21,7 +21,7 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
-export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
+export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string; backgroundColor?: string }> = ({
   slideId,
   logoText = 'Your Logo',
   logoPath = '',
@@ -36,7 +36,8 @@ export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesT
   avatarPath = '',
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  backgroundColor
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editLogo, setEditLogo] = useState(false);
