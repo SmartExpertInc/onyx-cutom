@@ -101,14 +101,14 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     lineHeight: 1.1,
     margin: 0,
     fontFamily: "'Lora', serif",
-    marginTop: '-155px',
+    marginTop: '-120px',
     marginLeft: '40px'
   };
 
   // Avatar container - bottom left
   const avatarContainer: React.CSSProperties = {
-    width: '140px',
-    height: '140px',
+    width: '160px',
+    height: '160px',
     borderRadius: '50%',
     overflow: 'hidden',
     flexShrink: 0,
@@ -160,9 +160,9 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     overflow: 'hidden'
   };
 
-  // Top Left - Very light blue/off-white
+  // Top Left - Light blue
   const topLeftStyle: React.CSSProperties = {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -180,9 +180,9 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     padding: '40px'
   };
 
-  // Top Right - Light gray
+  // Top Right - Gray
   const topRightStyle: React.CSSProperties = {
-    backgroundColor: '#D1D5DB',
+    backgroundColor: '#BBBBBB',
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -200,9 +200,9 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     justifyContent: 'flex-start'
   };
 
-  // Bottom Middle - Very light blue/off-white
+  // Bottom Middle - Light blue
   const bottomMiddleStyle: React.CSSProperties = {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
@@ -230,16 +230,16 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
   // Tag style - Presentation tag in top-left of grid
   const tagStyle: React.CSSProperties = {
     position: 'absolute',
-    top: '20px',
-    left: '20px',
+    top: '33px',
+    left: '40px',
     backgroundColor: '#FFFFFF',
     border: '1px solid #E5E7EB',
-    borderRadius: '6px',
-    padding: '6px 12px',
+    padding: '10px 25px',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: '19px',
+    borderRadius: '50px',
     fontWeight: 400,
     color: '#374151',
     fontFamily: currentTheme.fonts.contentFont,
@@ -255,11 +255,10 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
 
   // Icon style for top sections
   const iconStyle: React.CSSProperties = {
-    width: '60%',
-    height: '60%',
+    width: '62%',
     objectFit: 'contain',
-    maxWidth: '200px',
-    maxHeight: '200px'
+    position: 'absolute',
+    bottom: '50px',
   };
 
   // Title style for bottom sections
@@ -270,7 +269,10 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     lineHeight: 1.3,
     margin: 0,
     marginBottom: '16px',
-    fontFamily: "'Inter', sans-serif"
+    fontFamily: "'Inter', sans-serif",
+    minHeight: '72px', // Фиксированная высота для выравнивания описаний
+    display: 'flex',
+    alignItems: 'flex-start'
   };
 
   // Description style for bottom sections
@@ -279,7 +281,8 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     fontWeight: 400,
     color: '#09090B',
     lineHeight: 1.5,
-    margin: 0
+    margin: 0,
+    marginTop: '0' // Единый отступ для всех описаний
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
