@@ -140,8 +140,9 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
 
   // Avatar style
   const avatarStyle: React.CSSProperties = {
-    width: '70%',
-    height: '70%',
+    height: '78%',
+    position: 'absolute',
+    bottom: '-28px',
     objectFit: 'contain'
   };
 
@@ -304,7 +305,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
 
       {/* Top Middle */}
       <div style={topMiddleStyle}>
-        <div style={{ marginBottom: '20px', width: 'calc(100% + 80px)', marginLeft: '-40px', marginRight: '-40px', overflow: 'hidden' }}>
+        <div style={{ marginTop: '-40px', marginBottom: '20px', width: 'calc(100% + 80px)', marginLeft: '-40px', marginRight: '-40px', overflow: 'hidden' }}>
           <ClickableImagePlaceholder
             imagePath={topMiddle.imagePath}
             onImageUploaded={(path) => onUpdate && onUpdate({ topMiddle: { ...topMiddle, imagePath: path } })}
