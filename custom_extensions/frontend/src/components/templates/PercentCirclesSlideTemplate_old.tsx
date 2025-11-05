@@ -35,6 +35,7 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & {
   logoText = 'Your Logo',
   pageNumber = '1',
   slideIndex = 1,
+  backgroundColor,
   isEditable = true, // Set to true by default for testing
   onUpdate,
   theme,
@@ -60,7 +61,7 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & {
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#E0E7FF', 
+    background: backgroundColor || '#E0E7FF', 
     color:'#000000', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',

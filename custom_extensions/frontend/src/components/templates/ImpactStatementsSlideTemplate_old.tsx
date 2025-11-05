@@ -48,7 +48,7 @@ export const ImpactStatementsSlideTemplate_old: React.FC<ImpactStatementsSlidePr
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF',
+    backgroundColor: backgroundColor || '#E0E7FF',
     display: 'flex',
     gap: '70px',
     position: 'relative',

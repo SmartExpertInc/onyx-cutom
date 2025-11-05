@@ -1336,4 +1336,5 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   pageNumber?: string;
   slideIndex?: number;
   voiceoverText?: string;
+  backgroundColor?: string;
 }

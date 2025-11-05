@@ -198,7 +198,7 @@ export const BenefitsListSlideTemplate_old: React.FC<BenefitsListSlideProps & {
             alignItems: 'center'
           }}>
             <div style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: backgroundColor || '#ffffff',
               borderRadius: '24px',
               padding: '9px 18px',
               display: 'flex',

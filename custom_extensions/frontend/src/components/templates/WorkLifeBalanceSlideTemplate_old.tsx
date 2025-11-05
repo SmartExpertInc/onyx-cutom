@@ -441,7 +441,7 @@ export const WorkLifeBalanceSlideTemplate_old: React.FC<WorkLifeBalanceSlideProp
           transform: 'rotate(90deg)',
           width: '116%',
           height: '74%',
-          backgroundColor: '#ffffff',
+          backgroundColor: backgroundColor || '#ffffff',
           borderRadius: '50% 0 0 50%',
           zIndex: 1
         }} />

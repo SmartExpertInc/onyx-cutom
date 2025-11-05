@@ -19,6 +19,7 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   rightText: string;
   middlePanelColor?: string;
   avatarPath?: string;
+  backgroundColor?: string;
 }
 
 export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
@@ -34,6 +35,7 @@ export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesT
   rightText = 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data ...',
   middlePanelColor = '#3B46FF',
   avatarPath = '',
+  backgroundColor,
   isEditable = false,
   onUpdate,
   theme
@@ -50,8 +52,8 @@ export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesT
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('40');
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'black', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background: backgroundColor || '#E0E7FF', color:'black', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background: backgroundColor || '#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontWeight:800, color:'#242424' };
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'40px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };

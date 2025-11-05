@@ -241,7 +241,7 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: '#E0E7FF',
+        backgroundColor: backgroundColor || '#E0E7FF',
         padding: '60px',
         paddingTop: '40px',
         display: 'flex',
