@@ -5,15 +5,15 @@ import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AvatarRightPanelProps {
-  // Music props
-  isMusicEnabled: boolean;
-  setIsMusicEnabled: (enabled: boolean) => void;
-  showMusicDropdown: boolean;
-  setShowMusicDropdown: (show: boolean) => void;
-  selectedMusic: string;
-  setSelectedMusic: (music: string) => void;
-  musicVolume: number;
-  setMusicVolume: (volume: number) => void;
+  // Appearance props
+  isAppearanceEnabled: boolean;
+  setIsAppearanceEnabled: (enabled: boolean) => void;
+  showAppearanceDropdown: boolean;
+  setShowAppearanceDropdown: (show: boolean) => void;
+  selectedAppearance: string;
+  setSelectedAppearance: (appearance: string) => void;
+  appearanceVolume: number;
+  setAppearanceVolume: (volume: number) => void;
 
   // Background props
   isBackgroundEnabled: boolean;
@@ -41,14 +41,14 @@ interface AvatarRightPanelProps {
 }
 
 export default function AvatarRightPanel({
-  isMusicEnabled,
-  setIsMusicEnabled,
-  showMusicDropdown,
-  setShowMusicDropdown,
-  selectedMusic,
-  setSelectedMusic,
-  musicVolume,
-  setMusicVolume,
+  isAppearanceEnabled,
+  setIsAppearanceEnabled,
+  showAppearanceDropdown,
+  setShowAppearanceDropdown,
+  selectedAppearance,
+  setSelectedAppearance,
+  appearanceVolume,
+  setAppearanceVolume,
   isBackgroundEnabled,
   setIsBackgroundEnabled,
   backgroundColor,
@@ -69,7 +69,7 @@ export default function AvatarRightPanel({
   onClose,
 }: AvatarRightPanelProps) {
   const { t } = useLanguage();
-  const musicDropdownRef = useRef<HTMLDivElement>(null);
+  const appearanceDropdownRef = useRef<HTMLDivElement>(null);
   const transitionDropdownRef = useRef<HTMLDivElement>(null);
   const [selectedAlignment, setSelectedAlignment] = useState<'left' | 'center' | 'right'>('center');
   const [selectedLayer, setSelectedLayer] = useState<'toBack' | 'backward' | 'forward' | 'toFront'>('backward');
@@ -79,21 +79,21 @@ export default function AvatarRightPanel({
   // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (musicDropdownRef.current && !musicDropdownRef.current.contains(event.target as Node)) {
-        setShowMusicDropdown(false);
+      if (appearanceDropdownRef.current && !appearanceDropdownRef.current.contains(event.target as Node)) {
+        setShowAppearanceDropdown(false);
       }
       if (transitionDropdownRef.current && !transitionDropdownRef.current.contains(event.target as Node)) {
         setShowTransitionDropdown(false);
       }
     }
 
-    if (showMusicDropdown || showTransitionDropdown) {
+    if (showAppearanceDropdown || showTransitionDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [showMusicDropdown, showTransitionDropdown, setShowMusicDropdown, setShowTransitionDropdown]);
+  }, [showAppearanceDropdown, showTransitionDropdown, setShowAppearanceDropdown, setShowTransitionDropdown]);
 
   return (
     <>
@@ -101,7 +101,7 @@ export default function AvatarRightPanel({
       <div className="space-y-2 flex-shrink-0 mb-4">
         {/* Add to all slides button */}
         <button
-          className="w-full px-3 py-2 text-sm font-medium text-white rounded-md transition-colors"
+          className="w-full px-3 py-2 text-sm text-white rounded-md transition-colors"
           style={{ backgroundColor: '#0F58F9' }}
           onClick={() => {
             // TODO: Implement add to all slides functionality
@@ -113,7 +113,7 @@ export default function AvatarRightPanel({
 
         {/* Replace avatar button */}
         <button
-          className="w-full px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50"
+          className="w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50"
           style={{ 
             backgroundColor: 'white',
             borderColor: '#E0E0E0',
@@ -136,20 +136,37 @@ export default function AvatarRightPanel({
         </div>
 
         {/* Appearance Dropdown */}
-        <div ref={musicDropdownRef} className="relative">
+        <div ref={appearanceDropdownRef} className="relative">
           <button
-            onClick={() => setShowMusicDropdown(!showMusicDropdown)}
-            className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+            onClick={() => setShowAppearanceDropdown(!showAppearanceDropdown)}
+            className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors"
             style={{ borderColor: '#E0E0E0' }}
           >
             <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.00033 8.66667C9.84128 8.66667 11.3337 7.17428 11.3337 5.33333C11.3337 3.49238 9.84128 2 8.00033 2C6.15938 2 4.66699 3.49238 4.66699 5.33333C4.66699 7.17428 6.15938 8.66667 8.00033 8.66667ZM8.00033 8.66667C9.41481 8.66667 10.7714 9.22857 11.7716 10.2288C12.7718 11.229 13.3337 12.5855 13.3337 14M8.00033 8.66667C6.58584 8.66667 5.22928 9.22857 4.22909 10.2288C3.2289 11.229 2.66699 12.5855 2.66699 14" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span style={{ color: '#848485' }}>{t('avatarRightPanel.transparent', 'Transparent')}</span>
+              {selectedAppearance === 'Transparent' ? (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.00033 8.66667C9.84128 8.66667 11.3337 7.17428 11.3337 5.33333C11.3337 3.49238 9.84128 2 8.00033 2C6.15938 2 4.66699 3.49238 4.66699 5.33333C4.66699 7.17428 6.15938 8.66667 8.00033 8.66667ZM8.00033 8.66667C9.41481 8.66667 10.7714 9.22857 11.7716 10.2288C12.7718 11.229 13.3337 12.5855 13.3337 14M8.00033 8.66667C6.58584 8.66667 5.22928 9.22857 4.22909 10.2288C3.2289 11.229 2.66699 12.5855 2.66699 14" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_2094_26857)">
+                    <path d="M11.9997 13.332C11.9997 12.2712 11.5782 11.2537 10.8281 10.5036C10.078 9.75346 9.06054 9.33203 7.99967 9.33203M7.99967 9.33203C6.93881 9.33203 5.92139 9.75346 5.17125 10.5036C4.4211 11.2537 3.99967 12.2712 3.99967 13.332M7.99967 9.33203C9.47243 9.33203 10.6663 8.13812 10.6663 6.66536C10.6663 5.1926 9.47243 3.9987 7.99967 3.9987C6.52691 3.9987 5.33301 5.1926 5.33301 6.66536C5.33301 8.13812 6.52691 9.33203 7.99967 9.33203ZM14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2094_26857">
+                      <rect width="16" height="16" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+              )}
+              <span style={{ color: '#848485' }}>
+                {selectedAppearance === 'Transparent' 
+                  ? t('avatarRightPanel.transparent', 'Transparent')
+                  : t('avatarRightPanel.inCircle', 'In circle')}
+              </span>
             </div>
             <svg 
-              className={`w-4 h-4 transition-transform ${showMusicDropdown ? 'rotate-180' : ''}`} 
+              className={`w-4 h-4 transition-transform ${showAppearanceDropdown ? 'rotate-180' : ''}`} 
               fill="none" 
               stroke="#848485" 
               viewBox="0 0 24 24"
@@ -159,13 +176,15 @@ export default function AvatarRightPanel({
           </button>
 
           {/* Dropdown menu */}
-          {showMusicDropdown && (
+          {showAppearanceDropdown && (
             <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10" style={{ borderColor: '#E0E0E0' }}>
+              {/* Transparent option */}
               <button
                 onClick={() => {
-                  setShowMusicDropdown(false);
+                  setSelectedAppearance('Transparent');
+                  setShowAppearanceDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-2 py-2 text-xs hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -173,9 +192,39 @@ export default function AvatarRightPanel({
                   </svg>
                   <span style={{ color: '#848485' }}>{t('avatarRightPanel.transparent', 'Transparent')}</span>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                {selectedAppearance === 'Transparent' && (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </button>
+
+              {/* In circle option */}
+              <button
+                onClick={() => {
+                  setSelectedAppearance('In circle');
+                  setShowAppearanceDropdown(false);
+                }}
+                className="w-full flex items-center justify-between px-2 py-2 text-xs hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_2094_26857_item)">
+                      <path d="M11.9997 13.332C11.9997 12.2712 11.5782 11.2537 10.8281 10.5036C10.078 9.75346 9.06054 9.33203 7.99967 9.33203M7.99967 9.33203C6.93881 9.33203 5.92139 9.75346 5.17125 10.5036C4.4211 11.2537 3.99967 12.2712 3.99967 13.332M7.99967 9.33203C9.47243 9.33203 10.6663 8.13812 10.6663 6.66536C10.6663 5.1926 9.47243 3.9987 7.99967 3.9987C6.52691 3.9987 5.33301 5.1926 5.33301 6.66536C5.33301 8.13812 6.52691 9.33203 7.99967 9.33203ZM14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_2094_26857_item">
+                        <rect width="16" height="16" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <span style={{ color: '#848485' }}>{t('avatarRightPanel.inCircle', 'In circle')}</span>
+                </div>
+                {selectedAppearance === 'In circle' && (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
               </button>
             </div>
           )}

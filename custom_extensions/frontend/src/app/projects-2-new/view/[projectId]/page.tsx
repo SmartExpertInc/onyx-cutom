@@ -107,6 +107,12 @@ function Projects2ViewPageContent() {
   const [selectedMusic, setSelectedMusic] = useState<string>('East London');
   const [musicVolume, setMusicVolume] = useState<number>(50);
 
+  // Avatar appearance state (separate from music)
+  const [isAppearanceEnabled, setIsAppearanceEnabled] = useState<boolean>(true);
+  const [showAppearanceDropdown, setShowAppearanceDropdown] = useState<boolean>(false);
+  const [selectedAppearance, setSelectedAppearance] = useState<string>('Transparent');
+  const [appearanceVolume, setAppearanceVolume] = useState<number>(50);
+
   // Background panel state
   const [isBackgroundEnabled, setIsBackgroundEnabled] = useState<boolean>(true);
   const [isColorPaletteOpen, setIsColorPaletteOpen] = useState<boolean>(false);
@@ -1078,14 +1084,14 @@ function Projects2ViewPageContent() {
         <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
           {showAvatarRightPanel ? (
             <AvatarRightPanel
-              isMusicEnabled={isMusicEnabled}
-              setIsMusicEnabled={setIsMusicEnabled}
-              showMusicDropdown={showMusicDropdown}
-              setShowMusicDropdown={setShowMusicDropdown}
-              selectedMusic={selectedMusic}
-              setSelectedMusic={setSelectedMusic}
-              musicVolume={musicVolume}
-              setMusicVolume={setMusicVolume}
+              isAppearanceEnabled={isAppearanceEnabled}
+              setIsAppearanceEnabled={setIsAppearanceEnabled}
+              showAppearanceDropdown={showAppearanceDropdown}
+              setShowAppearanceDropdown={setShowAppearanceDropdown}
+              selectedAppearance={selectedAppearance}
+              setSelectedAppearance={setSelectedAppearance}
+              appearanceVolume={appearanceVolume}
+              setAppearanceVolume={setAppearanceVolume}
               isBackgroundEnabled={isBackgroundEnabled}
               setIsBackgroundEnabled={setIsBackgroundEnabled}
               backgroundColor={backgroundColor}
