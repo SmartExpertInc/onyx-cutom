@@ -2036,6 +2036,21 @@ export const uk = {
       yPosition: "Y",
       close: "Закрити"
     },
+    shapeRightPanel: {
+      appearance: "Зовнішній вигляд",
+      transparent: "Прозорий",
+      inCircle: "В колі",
+      alignment: "Вирівнювання",
+      layer: "Шар",
+      toBack: "Назад",
+      backward: "На крок назад",
+      forward: "Вперед",
+      toFront: "На передній план",
+      position: "Позиція",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрити"
+    },
     applyAvatarModal: {
       title: "Застосувати аватар до всіх сцен",
       addToAllScenes: "Додати до всіх сцен",

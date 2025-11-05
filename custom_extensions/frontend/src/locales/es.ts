@@ -2056,6 +2056,21 @@ export const es = {
       yPosition: "Y",
       close: "Cerrar"
     },
+    shapeRightPanel: {
+      appearance: "Apariencia",
+      transparent: "Transparente",
+      inCircle: "En círculo",
+      alignment: "Alineación",
+      layer: "Capa",
+      toBack: "Atrás",
+      backward: "Un paso atrás",
+      forward: "Adelante",
+      toFront: "Al frente",
+      position: "Posición",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Cerrar"
+    },
     applyAvatarModal: {
       title: "Aplicar avatar a todas las escenas",
       addToAllScenes: "Añadir a todas las escenas",

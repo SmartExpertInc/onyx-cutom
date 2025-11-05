@@ -34,6 +34,7 @@ import AvatarDataProvider, { useAvatarData } from '../../../projects-2/view/comp
 import { VoiceProvider } from '@/contexts/VoiceContext';
 import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
 import AvatarRightPanel from '../components/AvatarRightPanel';
+import ShapeRightPanel from '../components/ShapeRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -49,6 +50,7 @@ function Projects2ViewPageContent() {
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
   const [showAvatarRightPanel, setShowAvatarRightPanel] = useState<boolean>(false);
+  const [showShapeRightPanel, setShowShapeRightPanel] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState<boolean>(false);
@@ -119,6 +121,11 @@ function Projects2ViewPageContent() {
   const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF');
   const [colorPalettePosition, setColorPalettePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [mediaPopupPosition, setMediaPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [colorPaletteContext, setColorPaletteContext] = useState<'background' | 'shape' | 'stroke'>('background');
+  
+  // Shape color state
+  const [shapeColor, setShapeColor] = useState<string>('#ffffff');
+  const [strokeColor, setStrokeColor] = useState<string>('');
 
   // Scene transition panel state
   const [isTransitionEnabled, setIsTransitionEnabled] = useState<boolean>(true);
@@ -708,6 +715,7 @@ function Projects2ViewPageContent() {
   const handleShapesButtonClick = (position: { x: number; y: number }) => {
     setShapesPopupPosition(position);
     setIsShapesPopupOpen(true);
+    setShowShapeRightPanel(true);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -1082,7 +1090,44 @@ function Projects2ViewPageContent() {
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
         <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
-          {showAvatarRightPanel ? (
+          {showShapeRightPanel ? (
+            <ShapeRightPanel
+              isAppearanceEnabled={isAppearanceEnabled}
+              setIsAppearanceEnabled={setIsAppearanceEnabled}
+              showAppearanceDropdown={showAppearanceDropdown}
+              setShowAppearanceDropdown={setShowAppearanceDropdown}
+              selectedAppearance={selectedAppearance}
+              setSelectedAppearance={setSelectedAppearance}
+              appearanceVolume={appearanceVolume}
+              setAppearanceVolume={setAppearanceVolume}
+              isBackgroundEnabled={isBackgroundEnabled}
+              setIsBackgroundEnabled={setIsBackgroundEnabled}
+              backgroundColor={backgroundColor}
+              setMediaPopupPosition={setMediaPopupPosition}
+              setIsMediaPopupOpen={setIsMediaPopupOpen}
+              setColorPalettePosition={(pos) => {
+                setColorPalettePosition(pos);
+                setColorPaletteContext('shape');
+              }}
+              setIsColorPaletteOpen={setIsColorPaletteOpen}
+              isTransitionEnabled={isTransitionEnabled}
+              setIsTransitionEnabled={setIsTransitionEnabled}
+              showTransitionDropdown={showTransitionDropdown}
+              setShowTransitionDropdown={setShowTransitionDropdown}
+              selectedTransition={selectedTransition}
+              setSelectedTransition={setSelectedTransition}
+              activeSettingsPanel={activeSettingsPanel}
+              setActiveSettingsPanel={setActiveSettingsPanel}
+              componentBasedSlideDeck={componentBasedSlideDeck}
+              setActiveTransitionIndex={setActiveTransitionIndex}
+              shapeColor={shapeColor}
+              onShapeColorChange={setShapeColor}
+              strokeColor={strokeColor}
+              onStrokeColorChange={setStrokeColor}
+              onColorPaletteContextChange={setColorPaletteContext}
+              onClose={() => setShowShapeRightPanel(false)}
+            />
+          ) : showAvatarRightPanel ? (
             <AvatarRightPanel
               isAppearanceEnabled={isAppearanceEnabled}
               setIsAppearanceEnabled={setIsAppearanceEnabled}
@@ -1097,7 +1142,10 @@ function Projects2ViewPageContent() {
               backgroundColor={backgroundColor}
               setMediaPopupPosition={setMediaPopupPosition}
               setIsMediaPopupOpen={setIsMediaPopupOpen}
-              setColorPalettePosition={setColorPalettePosition}
+              setColorPalettePosition={(pos) => {
+                setColorPalettePosition(pos);
+                setColorPaletteContext('background');
+              }}
               setIsColorPaletteOpen={setIsColorPaletteOpen}
               isTransitionEnabled={isTransitionEnabled}
               setIsTransitionEnabled={setIsTransitionEnabled}
@@ -1126,7 +1174,10 @@ function Projects2ViewPageContent() {
               backgroundColor={backgroundColor}
               setMediaPopupPosition={setMediaPopupPosition}
               setIsMediaPopupOpen={setIsMediaPopupOpen}
-              setColorPalettePosition={setColorPalettePosition}
+              setColorPalettePosition={(pos) => {
+                setColorPalettePosition(pos);
+                setColorPaletteContext('background');
+              }}
               setIsColorPaletteOpen={setIsColorPaletteOpen}
               isTransitionEnabled={isTransitionEnabled}
               setIsTransitionEnabled={setIsTransitionEnabled}
@@ -1308,10 +1359,20 @@ function Projects2ViewPageContent() {
         isOpen={isColorPaletteOpen}
         onClose={() => setIsColorPaletteOpen(false)}
         onColorChange={(color) => {
-          setBackgroundColor(color);
+          if (colorPaletteContext === 'shape') {
+            setShapeColor(color);
+          } else if (colorPaletteContext === 'stroke') {
+            setStrokeColor(color);
+          } else {
+            setBackgroundColor(color);
+          }
           setIsColorPaletteOpen(false);
         }}
-        selectedColor={backgroundColor}
+        selectedColor={
+          colorPaletteContext === 'shape' ? shapeColor : 
+          colorPaletteContext === 'stroke' ? strokeColor : 
+          backgroundColor
+        }
         position={colorPalettePosition}
       />
 

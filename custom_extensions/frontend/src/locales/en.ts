@@ -1941,6 +1941,21 @@ export const en = {
       yPosition: "Y",
       close: "Close"
     },
+    shapeRightPanel: {
+      appearance: "Appearance",
+      transparent: "Transparent",
+      inCircle: "In circle",
+      alignment: "Alignment",
+      layer: "Layer",
+      toBack: "To back",
+      backward: "Backward",
+      forward: "Forward",
+      toFront: "To front",
+      position: "Position",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Close"
+    },
     applyAvatarModal: {
       title: "Apply avatar to all scenes",
       addToAllScenes: "Add to all scenes",
