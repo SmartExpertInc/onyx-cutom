@@ -107,7 +107,7 @@ export default function ProductViewNewPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
-  const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
+  const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('col_video_presentation');
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
