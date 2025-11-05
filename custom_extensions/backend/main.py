@@ -26513,7 +26513,6 @@ MANDATORY PREVIEW UI REQUIREMENT:
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - **MANDATORY SLIDE COUNT (GENERAL CASE)**: You SHOULD generate EXACTLY the requested number of slides. Count your slides before finishing to ensure you meet the target.
-- **OVERRIDE WHEN fromFiles=true**: SOURCE FIDELITY comes first. If any slide cannot be populated with source-backed content, DO NOT create that slide. It is acceptable to output fewer slides than requested. NEVER output placeholders like "No content", "N/A", or empty/whitespace-only bullets just to meet the count. Remove such slides and RENUMBER the remaining slides.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
