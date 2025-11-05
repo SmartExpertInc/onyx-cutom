@@ -1809,8 +1809,8 @@ function GenerateProductPicker() {
               </div>
         )}
 
-        {/* Video Lesson Configuration */}
-        {activeProduct === "Video Lesson" && (
+        {/* Video Lesson Configuration - only show in standalone mode (not when using existing outline) */}
+        {activeProduct === "Video Lesson" && useExistingOutline === false && (
           <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={slidesCount.toString()}
@@ -1836,7 +1836,7 @@ function GenerateProductPicker() {
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course") || 
-          (activeProduct === "Video Lesson") ||
+          (activeProduct === "Video Lesson" && useExistingOutline === false) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
