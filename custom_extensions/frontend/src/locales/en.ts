@@ -1941,7 +1941,16 @@ export const en = {
       yPosition: "Y",
       close: "Close"
     },
+    textRightPanel: {
+      typography: "Typography",
+      textColor: "Text color"
+    },
     shapeRightPanel: {
+      addColor: "Add color",
+      addStroke: "Add Stroke",
+      stroke: "Stroke",
+      color: "Color",
+      rotation: "Rotation",
       appearance: "Appearance",
       transparent: "Transparent",
       inCircle: "In circle",

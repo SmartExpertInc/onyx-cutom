@@ -2031,7 +2031,16 @@ export const ru = {
       yPosition: "Y",
       close: "Закрыть"
     },
+    textRightPanel: {
+      typography: "Типографика",
+      textColor: "Цвет текста"
+    },
     shapeRightPanel: {
+      addColor: "Добавить цвет",
+      addStroke: "Добавить обводку",
+      stroke: "Обводка",
+      color: "Цвет",
+      rotation: "Поворот",
       appearance: "Внешний вид",
       transparent: "Прозрачный",
       inCircle: "В круге",

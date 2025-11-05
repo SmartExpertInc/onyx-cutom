@@ -2036,7 +2036,16 @@ export const uk = {
       yPosition: "Y",
       close: "Закрити"
     },
+    textRightPanel: {
+      typography: "Типографіка",
+      textColor: "Колір тексту"
+    },
     shapeRightPanel: {
+      addColor: "Додати колір",
+      addStroke: "Додати обведення",
+      stroke: "Обведення",
+      color: "Колір",
+      rotation: "Поворот",
       appearance: "Зовнішній вигляд",
       transparent: "Прозорий",
       inCircle: "В колі",

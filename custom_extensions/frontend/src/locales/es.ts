@@ -2056,7 +2056,16 @@ export const es = {
       yPosition: "Y",
       close: "Cerrar"
     },
+    textRightPanel: {
+      typography: "Tipografía",
+      textColor: "Color del texto"
+    },
     shapeRightPanel: {
+      addColor: "Añadir color",
+      addStroke: "Añadir trazo",
+      stroke: "Trazo",
+      color: "Color",
+      rotation: "Rotación",
       appearance: "Apariencia",
       transparent: "Transparente",
       inCircle: "En círculo",
