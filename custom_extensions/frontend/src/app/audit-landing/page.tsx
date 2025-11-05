@@ -24,7 +24,7 @@ const GenerateCard = ({ svg, label, active, onClick }: any) => {
           </div>
         )}
         <span 
-          className="leading-tight text-black text-center font-bold"
+          className="leading-tight text-black text-center font-bold text-[16px]"
         >
           {label}
         </span>
@@ -86,47 +86,48 @@ export default function AuditLandingPage() {
       </div>
 
       {/* Bottom-Right Gradient Background */}
-      <div className="absolute bottom-0 right-0 pointer-events-none" style={{ zIndex: 0 }}>
+      <div className="absolute top-0 right-0 pointer-events-none" style={{ zIndex: 0 }}>
         <BottomRightGradient />
       </div>
 
       {/* Header */}
       <header className="w-full px-8 py-6 flex items-center justify-between max-w-7xl relative z-10">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-            <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.5052 15.6323L13.6767 13.7977C14.0397 12.7628 13.9578 11.6068 13.4318 10.6258L15.7518 8.55315C17.0263 9.34825 18.7248 9.19306 19.8327 8.08507C21.1224 6.79547 21.1224 4.70442 19.8327 3.41474C18.543 2.12507 16.4518 2.12507 15.1623 3.41474C14.1463 4.43071 13.9314 5.94335 14.5156 7.17045L12.1953 9.24347C11.0846 8.47479 9.66779 8.34042 8.4502 8.84192L5.77453 5.15987C6.73434 3.89973 6.63966 2.09303 5.4884 0.941636C4.23289 -0.313879 2.19727 -0.313879 0.941686 0.941636C-0.313895 2.19722 -0.313895 4.2329 0.941686 5.48842C1.84322 6.38995 3.14657 6.64398 4.27477 6.25115L6.95077 9.93353C5.62932 11.4835 5.69975 13.8135 7.16495 15.2786C7.1931 15.3068 7.22204 15.3332 7.25104 15.3604L4.65848 19.9106C3.58095 19.6558 2.40042 19.9479 1.56006 20.7883C0.270391 22.0781 0.270391 24.1693 1.56006 25.4588C2.84973 26.7485 4.94085 26.7485 6.23045 25.4588C7.50665 24.1827 7.51926 22.1223 6.26963 20.8296L8.86199 16.2799C10.1638 16.6537 11.6194 16.3445 12.6656 15.3528L15.4968 17.1887C15.3161 18.0282 15.5511 18.9394 16.2035 19.5917C17.2255 20.6137 18.8821 20.6137 19.904 19.5917C20.9259 18.5699 20.9259 16.9132 19.904 15.8913C18.9775 14.9651 17.5291 14.8786 16.5052 15.6323ZM2.67889 22.3901C2.61606 22.4613 2.55693 22.5286 2.49892 22.5865C2.42665 22.6587 2.32788 22.7467 2.20533 22.7846C2.05139 22.8321 1.89409 22.7903 1.77352 22.6697C1.45825 22.3545 1.57882 21.7581 2.05404 21.283C2.52938 20.8077 3.12556 20.6871 3.44096 21.0025C3.56146 21.1228 3.60328 21.2803 3.55571 21.4343C3.51792 21.5568 3.42992 21.6559 3.35771 21.7279C3.29971 21.7857 3.23245 21.8449 3.16117 21.9077C3.07892 21.9801 2.99369 22.055 2.90979 22.1387C2.82595 22.2226 2.75123 22.3078 2.67889 22.3901ZM15.6563 3.90911C16.1315 3.4339 16.7278 3.3132 17.043 3.62853C17.1635 3.74897 17.2054 3.90634 17.1578 4.06041C17.12 4.18302 17.0319 4.28199 16.9598 4.35413C16.9019 4.41194 16.8347 4.47107 16.7633 4.53383C16.681 4.60631 16.5959 4.68109 16.5119 4.76493C16.428 4.8489 16.3532 4.93419 16.2807 5.01651C16.2181 5.0876 16.1588 5.15505 16.101 5.21292C16.0288 5.28513 15.9298 5.37313 15.8073 5.41099C15.6532 5.45849 15.496 5.41667 15.3755 5.2961C15.0604 4.98077 15.181 4.38426 15.6563 3.90911ZM2.03098 2.50086C1.96967 2.57023 1.91213 2.63576 1.85604 2.69212C1.78581 2.76234 1.68948 2.8479 1.57004 2.88496C1.42013 2.93108 1.26699 2.89045 1.14959 2.77325C0.842653 2.46624 0.96025 1.88558 1.42298 1.42299C1.88563 0.960267 2.46602 0.842802 2.7731 1.14981C2.89043 1.26714 2.93132 1.42035 2.88488 1.57019C2.84782 1.68957 2.76239 1.78589 2.6921 1.85599C2.63568 1.91241 2.57014 1.97008 2.50077 2.03093C2.42064 2.10136 2.33766 2.17429 2.25607 2.25595C2.17434 2.33767 2.10134 2.42078 2.03098 2.50086ZM7.75525 10.2904C8.32296 9.72264 9.03501 9.57862 9.41172 9.95526C9.55574 10.0994 9.60576 10.2872 9.54901 10.4712C9.50355 10.6178 9.39857 10.7358 9.31229 10.8222C9.24312 10.8913 9.16265 10.9617 9.07756 11.0368C8.97939 11.1234 8.87765 11.2126 8.77736 11.3128C8.67707 11.4132 8.58775 11.5149 8.50133 11.6133C8.42628 11.6983 8.35566 11.7787 8.28655 11.8478C8.20027 11.9343 8.08221 12.0391 7.93568 12.0844C7.75175 12.1412 7.56386 12.0913 7.41964 11.9472C7.04319 11.5702 7.18755 10.8582 7.75525 10.2904ZM16.9478 17.3161C16.8905 17.3733 16.812 17.4431 16.715 17.473C16.5931 17.5106 16.4687 17.4775 16.3729 17.3821C16.123 17.1323 16.2185 16.6598 16.5953 16.2832C16.9716 15.9066 17.4441 15.8111 17.6941 16.0611C17.7894 16.1564 17.8226 16.2811 17.785 16.4032C17.755 16.5004 17.6852 16.5787 17.6281 16.6358C17.5822 16.6816 17.529 16.7285 17.4725 16.7782C17.4075 16.8354 17.3398 16.8949 17.2734 16.9613C17.2069 17.0277 17.1474 17.0951 17.0904 17.1605C17.0405 17.217 16.9936 17.2702 16.9478 17.3161Z" fill="white"/>
-            </svg>
-          <span style={{fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important'}} className="text-white text-xl font-semibold">ContentBuilder</span>
+        <div className="flex items-center gap-12">
+            <div className="flex items-center gap-2">
+                <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.5052 15.6323L13.6767 13.7977C14.0397 12.7628 13.9578 11.6068 13.4318 10.6258L15.7518 8.55315C17.0263 9.34825 18.7248 9.19306 19.8327 8.08507C21.1224 6.79547 21.1224 4.70442 19.8327 3.41474C18.543 2.12507 16.4518 2.12507 15.1623 3.41474C14.1463 4.43071 13.9314 5.94335 14.5156 7.17045L12.1953 9.24347C11.0846 8.47479 9.66779 8.34042 8.4502 8.84192L5.77453 5.15987C6.73434 3.89973 6.63966 2.09303 5.4884 0.941636C4.23289 -0.313879 2.19727 -0.313879 0.941686 0.941636C-0.313895 2.19722 -0.313895 4.2329 0.941686 5.48842C1.84322 6.38995 3.14657 6.64398 4.27477 6.25115L6.95077 9.93353C5.62932 11.4835 5.69975 13.8135 7.16495 15.2786C7.1931 15.3068 7.22204 15.3332 7.25104 15.3604L4.65848 19.9106C3.58095 19.6558 2.40042 19.9479 1.56006 20.7883C0.270391 22.0781 0.270391 24.1693 1.56006 25.4588C2.84973 26.7485 4.94085 26.7485 6.23045 25.4588C7.50665 24.1827 7.51926 22.1223 6.26963 20.8296L8.86199 16.2799C10.1638 16.6537 11.6194 16.3445 12.6656 15.3528L15.4968 17.1887C15.3161 18.0282 15.5511 18.9394 16.2035 19.5917C17.2255 20.6137 18.8821 20.6137 19.904 19.5917C20.9259 18.5699 20.9259 16.9132 19.904 15.8913C18.9775 14.9651 17.5291 14.8786 16.5052 15.6323ZM2.67889 22.3901C2.61606 22.4613 2.55693 22.5286 2.49892 22.5865C2.42665 22.6587 2.32788 22.7467 2.20533 22.7846C2.05139 22.8321 1.89409 22.7903 1.77352 22.6697C1.45825 22.3545 1.57882 21.7581 2.05404 21.283C2.52938 20.8077 3.12556 20.6871 3.44096 21.0025C3.56146 21.1228 3.60328 21.2803 3.55571 21.4343C3.51792 21.5568 3.42992 21.6559 3.35771 21.7279C3.29971 21.7857 3.23245 21.8449 3.16117 21.9077C3.07892 21.9801 2.99369 22.055 2.90979 22.1387C2.82595 22.2226 2.75123 22.3078 2.67889 22.3901ZM15.6563 3.90911C16.1315 3.4339 16.7278 3.3132 17.043 3.62853C17.1635 3.74897 17.2054 3.90634 17.1578 4.06041C17.12 4.18302 17.0319 4.28199 16.9598 4.35413C16.9019 4.41194 16.8347 4.47107 16.7633 4.53383C16.681 4.60631 16.5959 4.68109 16.5119 4.76493C16.428 4.8489 16.3532 4.93419 16.2807 5.01651C16.2181 5.0876 16.1588 5.15505 16.101 5.21292C16.0288 5.28513 15.9298 5.37313 15.8073 5.41099C15.6532 5.45849 15.496 5.41667 15.3755 5.2961C15.0604 4.98077 15.181 4.38426 15.6563 3.90911ZM2.03098 2.50086C1.96967 2.57023 1.91213 2.63576 1.85604 2.69212C1.78581 2.76234 1.68948 2.8479 1.57004 2.88496C1.42013 2.93108 1.26699 2.89045 1.14959 2.77325C0.842653 2.46624 0.96025 1.88558 1.42298 1.42299C1.88563 0.960267 2.46602 0.842802 2.7731 1.14981C2.89043 1.26714 2.93132 1.42035 2.88488 1.57019C2.84782 1.68957 2.76239 1.78589 2.6921 1.85599C2.63568 1.91241 2.57014 1.97008 2.50077 2.03093C2.42064 2.10136 2.33766 2.17429 2.25607 2.25595C2.17434 2.33767 2.10134 2.42078 2.03098 2.50086ZM7.75525 10.2904C8.32296 9.72264 9.03501 9.57862 9.41172 9.95526C9.55574 10.0994 9.60576 10.2872 9.54901 10.4712C9.50355 10.6178 9.39857 10.7358 9.31229 10.8222C9.24312 10.8913 9.16265 10.9617 9.07756 11.0368C8.97939 11.1234 8.87765 11.2126 8.77736 11.3128C8.67707 11.4132 8.58775 11.5149 8.50133 11.6133C8.42628 11.6983 8.35566 11.7787 8.28655 11.8478C8.20027 11.9343 8.08221 12.0391 7.93568 12.0844C7.75175 12.1412 7.56386 12.0913 7.41964 11.9472C7.04319 11.5702 7.18755 10.8582 7.75525 10.2904ZM16.9478 17.3161C16.8905 17.3733 16.812 17.4431 16.715 17.473C16.5931 17.5106 16.4687 17.4775 16.3729 17.3821C16.123 17.1323 16.2185 16.6598 16.5953 16.2832C16.9716 15.9066 17.4441 15.8111 17.6941 16.0611C17.7894 16.1564 17.8226 16.2811 17.785 16.4032C17.755 16.5004 17.6852 16.5787 17.6281 16.6358C17.5822 16.6816 17.529 16.7285 17.4725 16.7782C17.4075 16.8354 17.3398 16.8949 17.2734 16.9613C17.2069 17.0277 17.1474 17.0951 17.0904 17.1605C17.0405 17.217 16.9936 17.2702 16.9478 17.3161Z" fill="white"/>
+                </svg>
+                <span style={{fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important'}} className="text-white text-xl font-semibold">ContentBuilder</span>
+            </div>
+          {/* Navigation */}
+            <nav className="hidden md:flex items-center gap-8">
+            <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
+                Solutions
+                <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
+                </svg>
+            </button>
+            <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
+                Product
+                <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
+                </svg>
+            </button>
+            <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
+                Customers
+                <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
+                </svg>
+            </button>
+            <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
+                Enterprise
+            </button>
+            <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
+                Pricing
+            </button>
+            </nav>
         </div>
-
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
-            Solutions
-            <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
-            </svg>
-          </button>
-          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
-            Product
-            <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
-            </svg>
-          </button>
-          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
-            Customers
-            <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
-            </svg>
-          </button>
-          <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
-            Enterprise
-          </button>
-          <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
-            Pricing
-          </button>
-        </nav>
 
         {/* Sign In Button */}
         <button 
@@ -155,7 +156,7 @@ export default function AuditLandingPage() {
 
         {/* Content Type Panel */}
         <div 
-          className="rounded-[24px] mb-8 relative"
+          className="rounded-[10px] mb-8 relative"
           style={{
             background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05))',
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
@@ -163,7 +164,7 @@ export default function AuditLandingPage() {
           }}
         >
           <div 
-            className="rounded-[24px] p-8 backdrop-blur-lg"
+            className="rounded-[10px] p-8 backdrop-blur-lg"
             style={{
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)',
             }}
@@ -245,19 +246,19 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-[46px] md:text-5xl font-semibold text-center mb-4 sora-font">
+          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-4 sora-font">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
             <span className="text-black"> for Learning Content</span>
           </h2>
 
           {/* Sub-heading */}
-          <h2 className="text-[46px] md:text-3xl font-semibold text-center mb-6 sora-font">
+          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-6 sora-font">
             <span className="text-black">Create everything — </span>
             <span style={{ color: '#0F58F9' }}>in one place</span>
           </h2>
 
           {/* Description */}
-          <p className="text-black text-center text-lg mb-8 max-w-2xl px-10 sora-font">
+          <p className="text-black text-center text-lg mb-8 max-w-4xl px-10 sora-font">
             Generate videos, voices, images, text, and avatars with the world's top AI models — GPT-5.5, VEO3, 11Lab, NanBanana, AvatarCore, and SmartDrive.
           </p>
 
@@ -318,7 +319,7 @@ export default function AuditLandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Header */}
           <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-12 sora-font">
-            <span className="text-black">AI-powered SmartDrive — </span>
+            <span className="text-black">AI-powered SmartDrive — </span> <br className="hidden xl:block lg:block" />
             <span style={{ color: '#0F58F9' }}>store everything in one place.</span>
           </h2>
 
@@ -330,7 +331,6 @@ export default function AuditLandingPage() {
               <div className="flex gap-4">
                 <div 
                   className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: '#DEE7FF' }}
                 >
                     <svg width="23" height="30" viewBox="0 0 23 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19.2149 2.68675V0.939941L21.7065 3.43156H19.9597C19.5489 3.43156 19.2149 3.09761 19.2149 2.68675Z" fill="#0F58F9"/>
@@ -346,7 +346,6 @@ export default function AuditLandingPage() {
               <div className="flex gap-4">
                 <div 
                   className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: '#DEE7FF' }}
                 >
                     <svg width="28" height="30" viewBox="0 0 28 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2.87271 18.4515C2.28647 19.0417 1.88723 19.7917 1.72487 20.6077L0.963215 24.4267C0.927743 24.599 0.93564 24.7774 0.986196 24.946C1.03675 25.1145 1.12838 25.2678 1.25286 25.3921C1.45577 25.5922 1.72953 25.7041 2.01451 25.7032C2.08619 25.705 2.15791 25.7014 2.22906 25.6925L6.04805 24.9201C6.86156 24.7597 7.60864 24.36 8.19355 23.7723L22.7615 9.20757L22.7186 9.16466L21.2596 7.68427L18.9747 5.39931L17.4299 3.89746L2.87271 18.4515Z" fill="#0F58F9"/>
@@ -366,16 +365,16 @@ export default function AuditLandingPage() {
                 src="/custom-projects-ui/images/aiPoweredSmartDrive.svg"
                 alt="All-in-One AI Studio Interface"
                 className="w-full h-auto"
-                />
+                style={{ maxWidth: '700px' }}
+              />
             </div>
           </div>
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full font-semibold text-white flex items-center gap-3 transition-all hover:scale-95"
+            className="px-10 py-4 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-95"
             style={{
               backgroundColor: '#0F58F9',
-              boxShadow: '0 8px 24px rgba(15, 88, 249, 0.3)'
             }}
           >
             <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -383,6 +382,27 @@ export default function AuditLandingPage() {
             </svg>
             Try SmartDrive for Free
           </button>
+        </div>
+      </section>
+
+      {/* Connect Tools Section */}
+      <section className="w-full bg-white py-20 px-8 relative z-10">
+        <div className="max-w-6xl mx-auto flex flex-col items-center">
+          {/* Headline */}
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 sora-font">
+            <span style={{ color: '#0F58F9' }}>Connect 42+ tools</span>
+            <span className="text-black"> — and turn everything<br />your team does into learning. Build your<br />own living </span>
+            <span style={{ color: '#0F58F9' }}>knowledge ecosystem</span>
+          </h2>
+
+          {/* Visual Placeholder */}
+          <div className="w-full max-w-5xl">
+            <img 
+                src="/custom-projects-ui/images/connectTools.svg"
+                alt="All-in-One AI Studio Interface"
+                className="w-full h-auto"
+              />
+          </div>
         </div>
       </section>
     </div>
