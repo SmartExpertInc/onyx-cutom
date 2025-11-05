@@ -359,32 +359,33 @@ export default function ShapeRightPanel({
 
         {/* Stroke Width Control - Only visible when stroke is selected */}
         {hasStroke && selectedStrokeColor && (
-          <div className="flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', width: '50%' }}>
-            {/* Left side - Label */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm" style={{ color: '#171718' }}>{t('shapeRightPanel.stroke', 'Stroke')}</span>
-            </div>
+          <div className="flex items-center gap-2" style={{ width: '50%' }}>
+            {/* Stroke Label */}
+            <span className="text-sm font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.stroke', 'Stroke')}</span>
 
-            {/* Right side - Icon, Number, Chevrons */}
-            <div className="flex items-center gap-2">
-              {/* Stroke icon */}
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_2114_22891)">
-                  <path d="M1.3125 4.8125V6.5625H12.6875V4.8125H1.3125ZM13.5625 6.5625C13.5625 7.04575 13.1707 7.4375 12.6875 7.4375H1.3125C0.829251 7.4375 0.4375 7.04575 0.4375 6.5625V4.8125C0.4375 4.32925 0.829251 3.9375 1.3125 3.9375H12.6875C13.1707 3.9375 13.5625 4.32925 13.5625 4.8125V6.5625Z" fill="#171718"/>
-                  <path d="M1.3125 9.1875V11.8125H12.6875V9.1875H1.3125ZM13.5625 11.8125C13.5625 12.2957 13.1707 12.6875 12.6875 12.6875H1.3125C0.829251 12.6875 0.4375 12.2957 0.4375 11.8125V9.1875C0.4375 8.70425 0.829251 8.3125 1.3125 8.3125H12.6875C13.1707 8.3125 13.5625 8.70425 13.5625 9.1875V11.8125Z" fill="#171718"/>
-                  <path d="M1.3125 1.3125V2.1875H12.6875V1.3125H1.3125ZM13.5625 2.1875C13.5625 2.67075 13.1707 3.0625 12.6875 3.0625H1.3125C0.829251 3.0625 0.4375 2.67075 0.4375 2.1875V1.3125C0.4375 0.829251 0.829251 0.4375 1.3125 0.4375H12.6875C13.1707 0.4375 13.5625 0.829251 13.5625 1.3125V2.1875Z" fill="#171718"/>
-                </g>
-                <defs>
-                  <clipPath id="clip0_2114_22891">
-                    <rect width="14" height="14" fill="white"/>
-                  </clipPath>
-                </defs>
-              </svg>
+            {/* Stroke Button */}
+            <div className="flex items-center justify-between px-3 py-2 border rounded-md flex-1" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
+              {/* Left side - Icon and Number */}
+              <div className="flex items-center gap-2">
+                {/* Stroke icon */}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_2114_22891)">
+                    <path d="M1.3125 4.8125V6.5625H12.6875V4.8125H1.3125ZM13.5625 6.5625C13.5625 7.04575 13.1707 7.4375 12.6875 7.4375H1.3125C0.829251 7.4375 0.4375 7.04575 0.4375 6.5625V4.8125C0.4375 4.32925 0.829251 3.9375 1.3125 3.9375H12.6875C13.1707 3.9375 13.5625 4.32925 13.5625 4.8125V6.5625Z" fill="#171718"/>
+                    <path d="M1.3125 9.1875V11.8125H12.6875V9.1875H1.3125ZM13.5625 11.8125C13.5625 12.2957 13.1707 12.6875 12.6875 12.6875H1.3125C0.829251 12.6875 0.4375 12.2957 0.4375 11.8125V9.1875C0.4375 8.70425 0.829251 8.3125 1.3125 8.3125H12.6875C13.1707 8.3125 13.5625 8.70425 13.5625 9.1875V11.8125Z" fill="#171718"/>
+                    <path d="M1.3125 1.3125V2.1875H12.6875V1.3125H1.3125ZM13.5625 2.1875C13.5625 2.67075 13.1707 3.0625 12.6875 3.0625H1.3125C0.829251 3.0625 0.4375 2.67075 0.4375 2.1875V1.3125C0.4375 0.829251 0.829251 0.4375 1.3125 0.4375H12.6875C13.1707 0.4375 13.5625 0.829251 13.5625 1.3125V2.1875Z" fill="#171718"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2114_22891">
+                      <rect width="14" height="14" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
 
-              {/* Number */}
-              <span className="text-sm font-medium" style={{ color: '#171718' }}>{strokeWidth}</span>
+                {/* Number */}
+                <span className="text-sm font-medium" style={{ color: '#171718' }}>{strokeWidth}</span>
+              </div>
 
-              {/* Up and Down Chevrons - clickable button */}
+              {/* Right side - Up and Down Chevrons */}
               <div 
                 className="cursor-pointer flex flex-col"
                 onClick={(e) => {
@@ -728,20 +729,14 @@ export default function ShapeRightPanel({
           </div>
 
           {/* Rotation Control */}
-          <div className="flex gap-2">
-            {/* Rotation Label (left column, matches X position) */}
-            <div className="flex-1">
-              <label className="block text-xs font-medium mb-1" style={{ color: '#171718' }}>
-                {t('shapeRightPanel.rotation', 'Rotation')}
-              </label>
-            </div>
+          <div className="flex items-center gap-2">
+            {/* Rotation Label */}
+            <span className="text-sm font-medium" style={{ color: '#171718' }}>
+              {t('shapeRightPanel.rotation', 'Rotation')}
+            </span>
 
-            {/* Rotation Button (right column, matches Y position) */}
-            <div className="flex-1">
-              <label className="block text-xs font-medium mb-1" style={{ color: 'transparent' }}>
-                &nbsp;
-              </label>
-              <div className="flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: '#E0E0E0' }}>
+            {/* Rotation Button */}
+            <div className="flex items-center justify-between px-3 py-2 border rounded-md flex-1" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
                 {/* Left side - Icon and Number with degree */}
                 <div className="flex items-center gap-2">
                   {/* Rotation icon */}
@@ -781,7 +776,6 @@ export default function ShapeRightPanel({
                   </svg>
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
