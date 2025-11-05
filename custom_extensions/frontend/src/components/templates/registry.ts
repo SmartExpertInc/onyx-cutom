@@ -3136,6 +3136,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '⚠️',
     component: NegativeImpactsGridSlideTemplate,
     defaultProps: {
+      title: 'Pain Points',
       topLeft: {
         iconPath: '/financialLosses.png'
       },
@@ -3157,8 +3158,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         title: 'Loss of trust',
         description: 'Data breaches and cyberattacks can result in severe financial losses, averaging over $8 million per incident.'
       },
+      avatarPath: '',
       tagText: 'Presentation',
-      logoPath: ''
+      logoPath: '',
+      pageNumber: '33'
     },
     propSchema: {
       topLeft: { type: 'object', label: 'Top Left', required: true },

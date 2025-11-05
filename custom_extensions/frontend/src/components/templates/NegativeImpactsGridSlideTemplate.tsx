@@ -8,6 +8,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 
 export interface NegativeImpactsGridProps extends BaseTemplateProps {
+  title?: string;
   topLeft: {
     iconPath?: string;
   };
@@ -29,11 +30,14 @@ export interface NegativeImpactsGridProps extends BaseTemplateProps {
     title: string;
     description: string;
   };
+  avatarPath?: string;
   tagText?: string;
   logoPath?: string;
+  pageNumber?: string;
 }
 
 export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps & { theme?: SlideTheme | string }> = ({
+  title = 'Pain Points',
   topLeft = {
     iconPath: '/financialLosses.png'
   },
@@ -55,8 +59,10 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     title: 'Loss of trust',
     description: 'Data breaches and cyberattacks can result in severe financial losses, averaging over $8 million per incident.'
   },
+  avatarPath = '',
   tagText = 'Presentation',
   logoPath = '',
+  pageNumber = '33',
   isEditable = false,
   onUpdate,
   theme
@@ -75,7 +81,7 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     overflow: 'hidden'
   };
 
-  // Left sidebar - blue background
+  // Left sidebar - blue background with gradient
   const leftSidebar: React.CSSProperties = {
     width: '35%',
     height: '100%',
@@ -85,6 +91,60 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     flexDirection: 'column',
     padding: '40px',
     justifyContent: 'space-between'
+  };
+
+  // Title style - white text on blue
+  const titleStyle: React.CSSProperties = {
+    fontSize: '64px',
+    fontWeight: 500,
+    color: '#FFFFFF',
+    lineHeight: 1.1,
+    margin: 0,
+    fontFamily: "'Lora', serif",
+    marginTop: '-155px',
+    marginLeft: '40px'
+  };
+
+  // Avatar container - bottom left
+  const avatarContainer: React.CSSProperties = {
+    width: '140px',
+    height: '140px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    flexShrink: 0,
+    marginBottom: '35px',
+    marginLeft: '40px'
+  };
+
+  const avatarImageStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  };
+
+  // Page number with line - bottom-left
+  const pageNumberContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    left: '0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '13px',
+    zIndex: 10
+  };
+
+  const pageNumberLineStyle: React.CSSProperties = {
+    width: '32px',
+    height: '1.5px',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)'
+  };
+
+  const pageNumberStyle: React.CSSProperties = {
+    fontSize: '18px',
+    fontWeight: 300,
+    color: '#FFFFFF',
+    fontFamily: currentTheme.fonts.contentFont,
+    margin: 0
   };
 
   // Right content area - grid
@@ -130,9 +190,29 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
     padding: '40px'
   };
 
-  // Bottom sections - All very light blue/off-white
-  const bottomSectionStyle: React.CSSProperties = {
+  // Bottom Left - White
+  const bottomLeftStyle: React.CSSProperties = {
+    backgroundColor: '#FFFFFF',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '40px',
+    justifyContent: 'flex-start'
+  };
+
+  // Bottom Middle - Very light blue/off-white
+  const bottomMiddleStyle: React.CSSProperties = {
     backgroundColor: '#F8FAFC',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '40px',
+    justifyContent: 'flex-start'
+  };
+
+  // Bottom Right - White
+  const bottomRightStyle: React.CSSProperties = {
+    backgroundColor: '#FFFFFF',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
@@ -183,7 +263,7 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
   };
 
   // Title style for bottom sections
-  const titleStyle: React.CSSProperties = {
+  const bottomTitleStyle: React.CSSProperties = {
     fontSize: '28px',
     fontWeight: 700,
     color: '#09090B',
@@ -239,6 +319,40 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
             isEditable={isEditable}
             color="#FFFFFF"
             text="Your Logo"
+          />
+        </div>
+
+        {/* Title */}
+        <div style={titleStyle} onClick={() => isEditable && setEditKey('title')}>
+          {isEditable && editKey === 'title' ? (
+            <ImprovedInlineEditor 
+              initialValue={title} 
+              multiline={true}
+              onSave={(value) => { 
+                onUpdate && onUpdate({ title: value }); 
+                setEditKey(null); 
+              }} 
+              onCancel={() => setEditKey(null)} 
+              style={inline(titleStyle)} 
+            />
+          ) : (
+            title.split(' ').map((word, i) => (
+              <React.Fragment key={i}>
+                {word}
+                {i < title.split(' ').length - 1 && <br />}
+              </React.Fragment>
+            ))
+          )}
+        </div>
+
+        {/* Avatar */}
+        <div style={avatarContainer}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
+            description="Avatar" 
+            isEditable={isEditable} 
+            style={avatarImageStyle} 
           />
         </div>
       </div>
@@ -325,8 +439,8 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
         </div>
 
         {/* Bottom Left */}
-        <div style={bottomSectionStyle}>
-          <div style={titleStyle} onClick={() => isEditable && setEditKey('bottomLeft-title')}>
+        <div style={bottomLeftStyle}>
+          <div style={bottomTitleStyle} onClick={() => isEditable && setEditKey('bottomLeft-title')}>
             {isEditable && editKey === 'bottomLeft-title' ? (
               <ImprovedInlineEditor 
                 initialValue={bottomLeft.title} 
@@ -335,7 +449,7 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
                   setEditKey(null); 
                 }} 
                 onCancel={() => setEditKey(null)} 
-                style={inline(titleStyle)} 
+                style={inline(bottomTitleStyle)} 
               />
             ) : (
               bottomLeft.title
@@ -360,8 +474,8 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
         </div>
 
         {/* Bottom Middle */}
-        <div style={bottomSectionStyle}>
-          <div style={titleStyle} onClick={() => isEditable && setEditKey('bottomMiddle-title')}>
+        <div style={bottomMiddleStyle}>
+          <div style={bottomTitleStyle} onClick={() => isEditable && setEditKey('bottomMiddle-title')}>
             {isEditable && editKey === 'bottomMiddle-title' ? (
               <ImprovedInlineEditor 
                 initialValue={bottomMiddle.title} 
@@ -370,7 +484,7 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
                   setEditKey(null); 
                 }} 
                 onCancel={() => setEditKey(null)} 
-                style={inline(titleStyle)} 
+                style={inline(bottomTitleStyle)} 
               />
             ) : (
               bottomMiddle.title
@@ -395,8 +509,8 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
         </div>
 
         {/* Bottom Right */}
-        <div style={bottomSectionStyle}>
-          <div style={titleStyle} onClick={() => isEditable && setEditKey('bottomRight-title')}>
+        <div style={bottomRightStyle}>
+          <div style={bottomTitleStyle} onClick={() => isEditable && setEditKey('bottomRight-title')}>
             {isEditable && editKey === 'bottomRight-title' ? (
               <ImprovedInlineEditor 
                 initialValue={bottomRight.title} 
@@ -405,7 +519,7 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
                   setEditKey(null); 
                 }} 
                 onCancel={() => setEditKey(null)} 
-                style={inline(titleStyle)} 
+                style={inline(bottomTitleStyle)} 
               />
             ) : (
               bottomRight.title
@@ -427,6 +541,26 @@ export const NegativeImpactsGridSlideTemplate: React.FC<NegativeImpactsGridProps
               bottomRight.description
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Page number with line - bottom-left */}
+      <div style={pageNumberContainerStyle}>
+        <div style={pageNumberLineStyle} />
+        <div style={pageNumberStyle} onClick={() => isEditable && setEditKey('pageNumber')}>
+          {isEditable && editKey === 'pageNumber' ? (
+            <ImprovedInlineEditor 
+              initialValue={pageNumber || ''} 
+              onSave={(value) => { 
+                onUpdate && onUpdate({ pageNumber: value }); 
+                setEditKey(null); 
+              }} 
+              onCancel={() => setEditKey(null)} 
+              style={inline(pageNumberStyle)} 
+            />
+          ) : (
+            pageNumber
+          )}
         </div>
       </div>
     </div>
