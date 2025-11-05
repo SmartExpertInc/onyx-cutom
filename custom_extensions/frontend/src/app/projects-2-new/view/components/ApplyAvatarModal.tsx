@@ -33,7 +33,7 @@ export default function ApplyAvatarModal({
       
       {/* Modal content with semi-transparent background */}
       <div 
-        className="relative shadow-xl w-[600px] max-w-[95vw] flex flex-col z-10"
+        className="relative shadow-xl w-[650px] max-w-[95vw] flex flex-col z-10"
         style={{ 
           borderRadius: '12px', 
           background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)'
@@ -49,9 +49,9 @@ export default function ApplyAvatarModal({
         </button>
 
         {/* Header */}
-        <div className="p-6 pb-8">
+        <div className="p-8">
           <div className="flex justify-center items-center">
-            <h2 className="text-lg font-semibold text-[#171718]">
+            <h2 className="text-xl font-medium text-[#171718]">
               {t('applyAvatarModal.title', 'Apply avatar to all scenes')}
             </h2>
           </div>
@@ -63,7 +63,7 @@ export default function ApplyAvatarModal({
           <div className="flex gap-1 px-1 py-1.5 rounded-lg mb-6 mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
             <button
               onClick={() => setSelectedAction('add')}
-              className="flex-1 px-4 py-1.5 text-sm rounded-lg transition-all"
+              className="flex-1 px-4 py-1.5 text-md rounded-lg transition-all"
               style={{
                 backgroundColor: selectedAction === 'add' ? 'white' : 'transparent',
                 boxShadow: selectedAction === 'add' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -74,7 +74,7 @@ export default function ApplyAvatarModal({
             </button>
             <button
               onClick={() => setSelectedAction('replace')}
-              className="flex-1 px-4 py-1.5 text-sm rounded-lg transition-all"
+              className="flex-1 px-4 py-1.5 text-md rounded-lg transition-all"
               style={{
                 backgroundColor: selectedAction === 'replace' ? 'white' : 'transparent',
                 boxShadow: selectedAction === 'replace' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -109,8 +109,8 @@ export default function ApplyAvatarModal({
                 <div
                   className="rounded-full"
                   style={{
-                    width: '48px',
-                    height: '48px',
+                    width: '40px',
+                    height: '40px',
                     border: '1px solid #E0E0E0',
                     marginLeft: '58px'
                   }}
