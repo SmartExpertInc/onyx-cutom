@@ -63,7 +63,7 @@ export default function ApplyAvatarModal({
           <div className="flex gap-1 px-1 py-1.5 rounded-lg mb-6 mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
             <button
               onClick={() => setSelectedAction('add')}
-              className="flex-1 px-4 py-1.5 text-md rounded-lg transition-all"
+              className="flex-1 px-4 py-1.5 text-sm rounded-lg transition-all"
               style={{
                 backgroundColor: selectedAction === 'add' ? 'white' : 'transparent',
                 boxShadow: selectedAction === 'add' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -74,7 +74,7 @@ export default function ApplyAvatarModal({
             </button>
             <button
               onClick={() => setSelectedAction('replace')}
-              className="flex-1 px-4 py-1.5 text-md rounded-lg transition-all"
+              className="flex-1 px-4 py-1.5 text-sm rounded-lg transition-all"
               style={{
                 backgroundColor: selectedAction === 'replace' ? 'white' : 'transparent',
                 boxShadow: selectedAction === 'replace' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -90,28 +90,29 @@ export default function ApplyAvatarModal({
             <div className="flex items-center justify-center gap-2 relative">
               {/* Left rectangle */}
               <div 
-                className="w-32 h-18 rounded-sm flex items-center justify-center gap-2"
+                className="w-32 h-18 rounded-sm flex items-center justify-end"
                 style={{ 
                   backgroundColor: 'white',
                   border: '1px solid #E0E0E0'
                 }}
               >
-                {/* Avatar SVG - always visible */}
-                <svg width="25" height="29" viewBox="0 0 25 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12.312 13.038C15.9123 13.038 18.831 10.1193 18.831 6.519C18.831 2.91866 15.9123 0 12.312 0C8.71162 0 5.79297 2.91866 5.79297 6.519C5.79297 10.1193 8.71162 13.038 12.312 13.038Z" fill="#E0E0E0"/>
-                  <path fillRule="evenodd" clipRule="evenodd" d="M24.6268 19.5585V27.7776C24.6268 28.1774 24.3023 28.5019 23.9025 28.5019H0.724318C0.324493 28.5019 0 28.1774 0 27.7776V19.5585C0 18.2134 0.534551 16.9242 1.48485 15.9731C2.43589 15.0221 3.72517 14.4883 5.07022 14.4883H19.5566C20.9016 14.4883 22.1909 15.0221 23.1419 15.9731C24.0923 16.9242 24.6268 18.2134 24.6268 19.5585Z" fill="#E0E0E0"/>
-                </svg>
-                
                 {/* Circle for avatar - only visible when replace is selected */}
                 {selectedAction === 'replace' && (
                   <div
-                    className="rounded-full"
+                    className="rounded-full flex items-center justify-center"
                     style={{
                       width: '40px',
                       height: '40px',
-                      border: '1px solid #E0E0E0'
+                      border: '1px solid #E0E0E0',
+                      marginRight: '2px'
                     }}
-                  />
+                  >
+                    {/* Avatar SVG inside circle */}
+                    <svg width="14" height="16" viewBox="0 0 25 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12.312 13.038C15.9123 13.038 18.831 10.1193 18.831 6.519C18.831 2.91866 15.9123 0 12.312 0C8.71162 0 5.79297 2.91866 5.79297 6.519C5.79297 10.1193 8.71162 13.038 12.312 13.038Z" fill="#E0E0E0"/>
+                      <path fillRule="evenodd" clipRule="evenodd" d="M24.6268 19.5585V27.7776C24.6268 28.1774 24.3023 28.5019 23.9025 28.5019H0.724318C0.324493 28.5019 0 28.1774 0 27.7776V19.5585C0 18.2134 0.534551 16.9242 1.48485 15.9731C2.43589 15.0221 3.72517 14.4883 5.07022 14.4883H19.5566C20.9016 14.4883 22.1909 15.0221 23.1419 15.9731C24.0923 16.9242 24.6268 18.2134 24.6268 19.5585Z" fill="#E0E0E0"/>
+                    </svg>
+                  </div>
                 )}
               </div>
               
@@ -158,7 +159,7 @@ export default function ApplyAvatarModal({
             </div>
             
             {/* Description text */}
-            <div className="text-center text-sm mt-4" style={{ color: '#171718' }}>
+            <div className="text-center text-xs mt-4" style={{ color: '#171718' }}>
               {selectedAction === 'add' ? (
                 <>
                   You are going to add <span className="font-semibold">Riley</span> to all your <span className="font-semibold">3 scenes</span>
