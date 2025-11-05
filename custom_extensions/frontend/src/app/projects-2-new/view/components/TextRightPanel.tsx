@@ -55,9 +55,6 @@ interface TextRightPanelProps {
     color?: string;
     textAlign?: string;
   } | null;
-  
-  // Close handler
-  onClose: () => void;
 }
 
 export default function TextRightPanel({
@@ -93,7 +90,6 @@ export default function TextRightPanel({
   onColorPaletteContextChange,
   activeEditor,
   computedStyles,
-  onClose,
 }: TextRightPanelProps) {
   const { t } = useLanguage();
   const appearanceDropdownRef = useRef<HTMLDivElement>(null);
@@ -312,7 +308,7 @@ export default function TextRightPanel({
                 { value: 'Impact, Charcoal, sans-serif', label: 'Impact' },
                 { value: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', label: 'Inter' }
               ].map((option) => (
-                <button
+              <button
                   key={option.value}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
                   onClick={() => {
@@ -352,7 +348,7 @@ export default function TextRightPanel({
                     }
                   }}
                   className="w-full flex items-center justify-between px-2 py-2 rounded-sm transition-colors cursor-pointer"
-                  style={{
+                style={{
                     backgroundColor: selectedFontFamily === option.value ? '#CCDBFC' : 'transparent',
                     fontFamily: option.label,
                     fontSize: '11px'
@@ -370,11 +366,11 @@ export default function TextRightPanel({
                 >
                   <span style={{ color: '#848485', fontSize: '11px' }}>{option.label}</span>
                   {selectedFontFamily === option.value && (
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  )}
-                </button>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </button>
               ))}
             </div>
           )}
@@ -433,15 +429,15 @@ export default function TextRightPanel({
                           }
                           // 'Regular' means no formatting
                           
-                          setSelectedTextStyle(style);
-                          setShowTextStyleDropdown(false);
+                      setSelectedTextStyle(style);
+                      setShowTextStyleDropdown(false);
                         } catch (error) {
                           console.warn('Text style change failed:', error);
                         }
                       }
                     }}
                   className="w-full flex items-center justify-between px-2 py-2 rounded-sm transition-colors cursor-pointer"
-                  style={{
+                    style={{
                     backgroundColor: selectedTextStyle === style ? '#CCDBFC' : 'transparent',
                     fontSize: '10px'
                   }}
@@ -700,21 +696,21 @@ export default function TextRightPanel({
           onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
           onClick={(e) => {
             // Open color palette
-            const button = e.currentTarget;
-            const rect = button.getBoundingClientRect();
-            
-            // Position the color palette to the left of the button
-            const paletteWidth = 270; // Actual width of color palette
-            const gap = 8;
-            
-            setColorPalettePosition({
-              x: rect.left - paletteWidth - gap,
-              y: rect.top
-            });
-            if (onColorPaletteContextChange) {
-              onColorPaletteContextChange('shape');
-            }
-            setIsColorPaletteOpen(true);
+              const button = e.currentTarget;
+              const rect = button.getBoundingClientRect();
+              
+              // Position the color palette to the left of the button
+              const paletteWidth = 270; // Actual width of color palette
+              const gap = 8;
+              
+              setColorPalettePosition({
+                x: rect.left - paletteWidth - gap,
+                y: rect.top
+              });
+              if (onColorPaletteContextChange) {
+                onColorPaletteContextChange('shape');
+              }
+              setIsColorPaletteOpen(true);
           }}
         >
           {hasColor && fontColor ? (
@@ -1233,20 +1229,6 @@ export default function TextRightPanel({
             </div>
           </div>
         </div>
-
-      {/* Close Button */}
-      <button
-        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
-        onClick={onClose}
-        className="w-full mt-4 px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50 cursor-pointer"
-        style={{ 
-          backgroundColor: 'white',
-          borderColor: '#E0E0E0',
-          color: '#171718'
-        }}
-      >
-        {t('shapeRightPanel.close', 'Close')}
-      </button>
     </div>
   );
 }

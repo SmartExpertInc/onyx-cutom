@@ -1203,15 +1203,6 @@ function Projects2ViewPageContent() {
               onColorPaletteContextChange={setColorPaletteContext}
               activeEditor={activeTextEditor}
               computedStyles={computedTextStyles}
-              onClose={() => {
-                // Cleanup editor blur listener
-                if (activeTextEditor && (activeTextEditor as any).__cleanupBlur) {
-                  (activeTextEditor as any).__cleanupBlur();
-                }
-                setShowTextRightPanel(false);
-                setActiveTextEditor(null);
-                setComputedTextStyles(null);
-              }}
             />
           ) : showAvatarRightPanel ? (
             <AvatarRightPanel

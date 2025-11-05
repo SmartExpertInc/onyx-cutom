@@ -172,6 +172,8 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       // Check if we're focusing a formatting button or control
       if (relatedTarget && (
         relatedTarget.closest('[data-textsettings-panel]') ||
+        relatedTarget.closest('[data-text-right-panel]') || // Add TextRightPanel check
+        relatedTarget.closest('[data-color-palette-popup]') || // Add color picker check
         relatedTarget.tagName === 'BUTTON' ||
         relatedTarget.closest('button')
       )) {
@@ -182,6 +184,7 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       if (editor) {
         const html = editor.getHTML();
         const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');
+        console.log('💾 Editor blur - saving content:', cleanHtml.substring(0, 50) + '...');
         onSave(cleanHtml);
       }
     };
