@@ -360,16 +360,14 @@ export default function ShapeRightPanel({
         {/* Stroke Width Control - Only visible when stroke is selected */}
         {hasStroke && selectedStrokeColor && (
           <div className="flex gap-2">
-            {/* Empty left column to match X position */}
-            <div className="flex-1"></div>
+            {/* Left column - Stroke Label */}
+            <div className="flex-1 flex items-center">
+              <span className="text-xs font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.stroke', 'Stroke')}</span>
+            </div>
             
-            {/* Right column - Stroke Label and Button */}
-            <div className="flex-1 flex items-center gap-2">
-              {/* Stroke Label */}
-              <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#171718' }}>{t('shapeRightPanel.stroke', 'Stroke')}</span>
-
-              {/* Stroke Button */}
-              <div className="flex items-center justify-between px-3 py-2 border rounded-md flex-1" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
+            {/* Right column - Stroke Button */}
+            <div className="flex-1">
+              <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
               {/* Left side - Icon and Number */}
               <div className="flex items-center gap-2">
                 {/* Stroke icon */}
@@ -417,7 +415,7 @@ export default function ShapeRightPanel({
                   <path d="M5.26071 5.79449L4.5536 5.08739L5.26071 5.79449ZM5.26071 6.47332L4.5536 7.18043L4.55362 7.18045L5.26071 6.47332ZM5.93954 6.47332L6.64662 7.18045L6.64664 7.18042L5.93954 6.47332ZM8.00012 4.41272L8.70723 3.70562L8.00012 2.99851L7.29301 3.70562L8.00012 4.41272ZM10.0607 6.47332L9.3536 7.18042L9.35362 7.18045L10.0607 6.47332ZM10.7395 6.47332L11.4466 7.18047L11.4467 7.18035L10.7395 6.47332ZM10.7395 5.79449L11.4467 5.08747L11.4467 5.08738L10.7395 5.79449ZM8.33954 3.39449L9.04664 2.68738L9.0466 2.68734L8.33954 3.39449ZM7.66071 3.39449L8.36782 4.1016L7.66071 3.39449ZM10.7395 10.2067L11.4467 10.9138L11.4467 10.9137L10.7395 10.2067ZM10.7395 9.52783L11.4467 8.8208L11.4466 8.82068L10.7395 9.52783ZM10.0607 9.52783L9.35362 8.8207L9.3536 8.82072L10.0607 9.52783ZM8.00012 11.5884L7.29301 12.2955L8.00012 13.0026L8.70723 12.2955L8.00012 11.5884ZM5.93954 9.52783L6.64664 8.82072L6.64662 8.8207L5.93954 9.52783ZM5.26071 9.52783L4.55362 8.8207L4.5536 8.82072L5.26071 9.52783ZM5.26071 10.2067L5.96782 9.49955L5.96782 9.49955L5.26071 10.2067ZM7.66071 12.6067L6.9536 13.3138L6.95368 13.3139L7.66071 12.6067ZM8.33954 12.6067L9.04656 13.3139L9.04664 13.3138L8.33954 12.6067ZM5.26071 5.79449L4.5536 5.08739C3.97562 5.66537 3.97562 6.60245 4.5536 7.18043L5.26071 6.47332L5.96782 5.76621C6.17088 5.96928 6.17088 6.29853 5.96782 6.5016L5.26071 5.79449ZM5.26071 6.47332L4.55362 7.18045C5.1316 7.75839 6.06865 7.75839 6.64662 7.18045L5.93954 6.47332L5.23245 5.76619C5.43551 5.56314 5.76473 5.56314 5.9678 5.76619L5.26071 6.47332ZM5.93954 6.47332L6.64664 7.18042L8.70723 5.11983L8.00012 4.41272L7.29301 3.70562L5.23243 5.76621L5.93954 6.47332ZM8.00012 4.41272L7.29301 5.11983L9.3536 7.18042L10.0607 6.47332L10.7678 5.76621L8.70723 3.70562L8.00012 4.41272ZM10.0607 6.47332L9.35362 7.18045C9.93161 7.7584 10.8686 7.75837 11.4466 7.18047L10.7395 6.47332L10.0325 5.76617C10.2355 5.56316 10.5647 5.56313 10.7678 5.76619L10.0607 6.47332ZM10.7395 6.47332L11.4467 7.18035C12.0246 6.60238 12.0246 5.66543 11.4467 5.08747L10.7395 5.79449L10.0324 6.50152C9.82936 6.29847 9.82936 5.96934 10.0324 5.76629L10.7395 6.47332ZM10.7395 5.79449L11.4467 5.08738L9.04664 2.68738L8.33954 3.39449L7.63243 4.1016L10.0324 6.5016L10.7395 5.79449ZM8.33954 3.39449L9.0466 2.68734C8.76906 2.40984 8.39265 2.25391 8.00012 2.25391V3.25391V4.25391C7.86219 4.25391 7.72995 4.19911 7.63247 4.10164L8.33954 3.39449ZM8.00012 3.25391V2.25391C7.60761 2.25391 7.23116 2.40983 6.9536 2.68739L7.66071 3.39449L8.36782 4.1016C8.27029 4.19913 8.13802 4.25391 8.00012 4.25391V3.25391ZM7.66071 3.39449L6.9536 2.68739L4.5536 5.08739L5.26071 5.79449L5.96782 6.5016L8.36782 4.1016L7.66071 3.39449ZM10.7395 10.2067L11.4467 10.9137C12.0246 10.3357 12.0246 9.39876 11.4467 8.8208L10.7395 9.52783L10.0324 10.2349C9.82936 10.0318 9.82936 9.70268 10.0324 9.49963L10.7395 10.2067ZM10.7395 9.52783L11.4466 8.82068C10.8686 8.24277 9.93161 8.24275 9.35362 8.8207L10.0607 9.52783L10.7678 10.235C10.5647 10.438 10.2355 10.438 10.0325 10.235L10.7395 9.52783ZM10.0607 9.52783L9.3536 8.82072L7.29301 10.8813L8.00012 11.5884L8.70723 12.2955L10.7678 10.2349L10.0607 9.52783ZM8.00012 11.5884L8.70723 10.8813L6.64664 8.82072L5.93954 9.52783L5.23243 10.2349L7.29301 12.2955L8.00012 11.5884ZM5.93954 9.52783L6.64662 8.8207C6.06865 8.24276 5.1316 8.24276 4.55362 8.8207L5.26071 9.52783L5.9678 10.235C5.76473 10.438 5.43551 10.438 5.23245 10.235L5.93954 9.52783ZM5.26071 9.52783L4.5536 8.82072C3.97562 9.3987 3.97562 10.3358 4.5536 10.9138L5.26071 10.2067L5.96782 9.49955C6.17088 9.70261 6.17088 10.0319 5.96782 10.2349L5.26071 9.52783ZM5.26071 10.2067L4.5536 10.9138L6.9536 13.3138L7.66071 12.6067L8.36782 11.8996L5.96782 9.49955L5.26071 10.2067ZM7.66071 12.6067L6.95368 13.3139C7.53164 13.8917 8.4686 13.8917 9.04656 13.3139L8.33954 12.6067L7.63251 11.8995C7.83556 11.6965 8.16469 11.6965 8.36774 11.8995L7.66071 12.6067ZM8.33954 12.6067L9.04664 13.3138L11.4467 10.9138L10.7395 10.2067L10.0324 9.49955L7.63243 11.8996L8.33954 12.6067Z" fill="#878787" mask="url(#path-1-inside-1_2114_22857)"/>
                 </svg>
               </div>
-            </div>
+              </div>
             </div>
           </div>
         )}
@@ -736,18 +734,16 @@ export default function ShapeRightPanel({
 
           {/* Rotation Control */}
           <div className="flex gap-2">
-            {/* Empty left column to match X position */}
-            <div className="flex-1"></div>
-            
-            {/* Right column - Rotation Label and Button */}
-            <div className="flex-1 flex items-center gap-2">
-              {/* Rotation Label */}
-              <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#171718' }}>
+            {/* Left column - Rotation Label */}
+            <div className="flex-1 flex items-center">
+              <span className="text-xs font-medium" style={{ color: '#171718' }}>
                 {t('shapeRightPanel.rotation', 'Rotation')}
               </span>
-
-              {/* Rotation Button */}
-              <div className="flex items-center justify-between px-3 py-2 border rounded-md flex-1" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
+            </div>
+            
+            {/* Right column - Rotation Button */}
+            <div className="flex-1">
+              <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
                 {/* Left side - Icon and Number with degree */}
                 <div className="flex items-center gap-2">
                   {/* Rotation icon */}
