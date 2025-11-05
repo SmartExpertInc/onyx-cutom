@@ -115,7 +115,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     onUpdate: handlePropsUpdate,
     onEditorActive,
     theme: currentTheme,
-    getPlaceholderGenerationState
+    getPlaceholderGenerationState,
+    backgroundColor: slide.backgroundColor // Pass slide-level backgroundColor to template
   };
 
   // Debug theme information for specific templates
@@ -139,6 +140,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
       <div 
         className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} positioning-enabled`}
         data-theme={theme || DEFAULT_SLIDE_THEME}
+        style={{ backgroundColor: slide.backgroundColor || undefined }}
       >
         <HybridTemplateBase
           slideId={slide.slideId}
@@ -168,7 +170,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: slide.backgroundColor || undefined
       }}
     >
       <TemplateComponent {...templateProps} />
@@ -221,7 +224,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             display: selectedSlideId ? (selectedSlideId === slide.slideId ? 'block' : 'none') : 'block',
             width: '100%',
             height: '100%',
-            marginBottom: selectedSlideId ? 0 : '40px'
+            marginBottom: selectedSlideId ? 0 : '40px',
+            backgroundColor: slide.backgroundColor || undefined // Apply slide background color
           }}
         >
           <ComponentBasedSlideRenderer

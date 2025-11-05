@@ -1,9 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Media from './Media';
 
-export default function Background() {
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+interface BackgroundProps {
+  value?: string | null; // Current background color
+  onChange?: (color: string | null) => void; // Callback when color changes
+}
+
+export default function Background({ value, onChange }: BackgroundProps) {
+  const [selectedColor, setSelectedColor] = useState<string | null>(value || null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Sync local state when value prop changes (controlled component pattern)
+  useEffect(() => {
+    setSelectedColor(value || null);
+  }, [value]);
+  
+  // Handle color selection with both local state and parent callback
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    onChange?.(color); // Notify parent component
+  };
+  
+  // Handle color removal with both local state and parent callback
+  const handleColorRemove = () => {
+    setSelectedColor(null);
+    onChange?.(null); // Notify parent component
+  };
 
   // Helper function to darken a hex color
   const darkenColor = (hex: string, amount: number = 0.3) => {
@@ -40,7 +62,7 @@ export default function Background() {
             <span className="font-medium" style={{ color: '#616161' }}>Color</span>
           </div>
           <button 
-            onClick={() => setSelectedColor(null)}
+            onClick={handleColorRemove}
             className="p-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
           >
             <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +120,7 @@ export default function Background() {
                           backgroundColor: rectangleData[rowIndex * 2].color,
                           border: selectedColor === rectangleData[rowIndex * 2].color ? `5px solid ${darkenColor(rectangleData[rowIndex * 2].color)}` : 'none'
                         }}
-                        onClick={() => setSelectedColor(rectangleData[rowIndex * 2].color)}
+                        onClick={() => handleColorSelect(rectangleData[rowIndex * 2].color)}
                       ></div>
                       <span className="text-sm text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2].name}
@@ -130,7 +152,7 @@ export default function Background() {
                           backgroundColor: rectangleData[rowIndex * 2 + 1].color,
                           border: selectedColor === rectangleData[rowIndex * 2 + 1].color ? `5px solid ${darkenColor(rectangleData[rowIndex * 2 + 1].color)}` : 'none'
                         }}
-                        onClick={() => setSelectedColor(rectangleData[rowIndex * 2 + 1].color)}
+                        onClick={() => handleColorSelect(rectangleData[rowIndex * 2 + 1].color)}
                       ></div>
                       <span className="text-sm text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2 + 1].name}

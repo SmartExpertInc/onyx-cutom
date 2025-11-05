@@ -288,6 +288,39 @@ export default function Projects2ViewPage() {
     }
   };
 
+  // NEW: Handle background color change for current slide
+  const handleBackgroundColorChange = (color: string | null) => {
+    if (!currentSlideId) {
+      console.warn('⚠️ No current slide selected');
+      return;
+    }
+    
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // Find the current slide index
+      const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlideId);
+      if (slideIndex === -1) {
+        console.warn('⚠️ Current slide not found in deck');
+        return;
+      }
+      
+      // Update the slide's backgroundColor
+      const updatedDeck = { ...componentBasedSlideDeck };
+      updatedDeck.slides = [...updatedDeck.slides];
+      updatedDeck.slides[slideIndex] = {
+        ...updatedDeck.slides[slideIndex],
+        backgroundColor: color || undefined // Remove property if color is null
+      };
+      
+      console.log('🎨 Background color updated:', { slideId: currentSlideId, color });
+      
+      setComponentBasedSlideDeck(updatedDeck);
+      saveVideoLessonData(updatedDeck);
+    } else if (videoLessonData) {
+      console.warn('⚠️ Background color change not supported for old video lesson structure');
+      // Could add support for old structure if needed
+    }
+  };
+
   // NEW: Handle transition button click
   const handleTransitionClick = (transitionIndex: number) => {
     console.log('🎬 Transition clicked:', transitionIndex);
@@ -766,8 +799,17 @@ export default function Projects2ViewPage() {
           currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
           onAddSlide={handleAddSlide}
         />;
-      case 'background':
-        return <Background />;
+      case 'background': {
+        // Get current slide's backgroundColor
+        const currentSlide = isComponentBasedVideoLesson && componentBasedSlideDeck
+          ? componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId)
+          : undefined;
+        
+        return <Background 
+          value={currentSlide?.backgroundColor || null}
+          onChange={handleBackgroundColorChange}
+        />;
+      }
       case 'music':
         return <Music />;
       case 'comments':
