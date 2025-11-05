@@ -177,14 +177,19 @@ export default function AvatarRightPanel({
 
           {/* Dropdown menu */}
           {showAppearanceDropdown && (
-            <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10" style={{ borderColor: '#E0E0E0' }}>
+            <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 p-1" style={{ borderColor: '#E0E0E0' }}>
               {/* Transparent option */}
               <button
                 onClick={() => {
                   setSelectedAppearance('Transparent');
                   setShowAppearanceDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-2 py-2 text-xs hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors"
+                style={{
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E0E0E0'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <div className="flex items-center gap-2">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -205,7 +210,12 @@ export default function AvatarRightPanel({
                   setSelectedAppearance('In circle');
                   setShowAppearanceDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-2 py-2 text-xs hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors"
+                style={{
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E0E0E0'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <div className="flex items-center gap-2">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
