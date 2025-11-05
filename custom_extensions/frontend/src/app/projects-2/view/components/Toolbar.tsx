@@ -156,7 +156,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     }
   ];
 
-  const disabledToolIdsWhenReady = new Set(['background','shapes','media','text','music','transition','interaction','comments','default']);
+  const disabledToolIdsWhenReady = new Set(['shapes','media','text','music','transition','interaction','comments','default']);
 
   const handleToolClick = (toolId: string, _event?: React.MouseEvent<HTMLDivElement>) => {
     if (showReady && disabledToolIdsWhenReady.has(toolId)) {

@@ -288,34 +288,6 @@ export default function Projects2ViewPage() {
     }
   };
 
-  // NEW: Function to handle background color changes
-  const handleBackgroundColorChange = (color: string) => {
-    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId) return;
-
-    console.log('🎨 [BACKGROUND] Changing background color:', { slideId: currentSlideId, color });
-
-    const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlideId);
-    if (slideIndex === -1) {
-      console.warn('🎨 [BACKGROUND] Slide not found:', currentSlideId);
-      return;
-    }
-
-    const updatedDeck = { ...componentBasedSlideDeck };
-    updatedDeck.slides = [...updatedDeck.slides];
-    updatedDeck.slides[slideIndex] = {
-      ...updatedDeck.slides[slideIndex],
-      props: {
-        ...updatedDeck.slides[slideIndex].props,
-        backgroundColor: color
-      }
-    };
-
-    console.log('🎨 [BACKGROUND] Updated slide:', updatedDeck.slides[slideIndex]);
-
-    setComponentBasedSlideDeck(updatedDeck);
-    saveVideoLessonData(updatedDeck);
-  };
-
   // NEW: Handle transition button click
   const handleTransitionClick = (transitionIndex: number) => {
     console.log('🎬 Transition clicked:', transitionIndex);
@@ -353,6 +325,36 @@ export default function Projects2ViewPage() {
     const updatedDeck: ComponentBasedSlideDeck = {
       ...componentBasedSlideDeck,
       transitions: [...transitions]
+    };
+    
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
+  };
+
+  // NEW: Handle background color change
+  const handleBackgroundColorChange = (color: string | null) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId) return;
+    
+    console.log('🎨 Background color change:', { slideId: currentSlideId, color });
+    
+    // Find and update the current slide
+    const updatedSlides = componentBasedSlideDeck.slides.map(slide => {
+      if (slide.slideId === currentSlideId) {
+        return {
+          ...slide,
+          props: {
+            ...slide.props,
+            backgroundColor: color || undefined
+          }
+        };
+      }
+      return slide;
+    });
+    
+    // Update the deck with new slides
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      slides: updatedSlides
     };
     
     setComponentBasedSlideDeck(updatedDeck);
@@ -795,14 +797,10 @@ export default function Projects2ViewPage() {
           onAddSlide={handleAddSlide}
         />;
       case 'background':
-        // Get current slide for background component
-        const currentSlide = isComponentBasedVideoLesson && componentBasedSlideDeck && currentSlideId
-          ? componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId)
-          : undefined;
-        return <Background 
-          currentSlide={currentSlide}
-          onBackgroundChange={handleBackgroundColorChange}
-        />;
+        // Get current slide's background color
+        const currentSlide = componentBasedSlideDeck?.slides.find(s => s.slideId === currentSlideId);
+        const currentBgColor = currentSlide?.props?.backgroundColor as string | undefined;
+        return <Background currentBackgroundColor={currentBgColor} onColorSelect={handleBackgroundColorChange} />;
       case 'music':
         return <Music />;
       case 'comments':
