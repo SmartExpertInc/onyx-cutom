@@ -252,7 +252,11 @@ export default function TextRightPanel({
   }, [showAppearanceDropdown, showTransitionDropdown, showFontFamilyDropdown, showTextStyleDropdown, setShowAppearanceDropdown, setShowTransitionDropdown, setIsColorPaletteOpen]);
 
   return (
-    <div data-text-right-panel>
+    <div 
+      data-text-right-panel 
+      onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor when clicking anywhere on panel
+      onClick={(e) => e.stopPropagation()} // Prevent click propagation
+    >
       {/* Typography Section */}
       <div className="space-y-3 flex-shrink-0 mb-4">
         {/* Typography Title */}
@@ -265,10 +269,10 @@ export default function TextRightPanel({
           <button
             onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
             onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
             style={{ borderColor: '#E0E0E0', height: '32px' }}
           >
-            <span style={{ color: '#848485', fontFamily: selectedFontFamily }}>
+            <span style={{ color: '#848485', fontFamily: selectedFontFamily, fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
               {[
                 { value: 'Arial, sans-serif', label: 'Arial' },
                 { value: 'Helvetica, Arial, sans-serif', label: 'Helvetica' },
@@ -314,18 +318,44 @@ export default function TextRightPanel({
                   onClick={() => {
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
-                        activeEditor.chain().focus().setMark('textStyle', { fontFamily: option.value }).run();
+                        console.log('🔤 Applying font family:', option.value);
+                        
+                        // Get selection to check if text is selected
+                        const { from, to } = activeEditor.state.selection;
+                        console.log('📝 Selection:', { from, to, hasSelection: from !== to });
+                        
+                        // If no selection, select all text first
+                        if (from === to) {
+                          console.log('📝 No selection - selecting all text');
+                          activeEditor.commands.selectAll();
+                        }
+                        
+                        // Apply font family using updateAttributes on textStyle mark
+                        const result = activeEditor.chain()
+                          .focus()
+                          .setMark('textStyle', { fontFamily: option.value })
+                          .run();
+                        
+                        console.log('✅ Font family applied:', { success: result, fontFamily: option.value });
+                        
+                        // Verify it was applied
+                        const appliedFont = activeEditor.getAttributes('textStyle').fontFamily;
+                        console.log('🔍 Verification - Font in editor:', appliedFont);
+                        
                         setSelectedFontFamily(option.value);
                         setShowFontFamilyDropdown(false);
                       } catch (error) {
-                        console.warn('Font family change failed:', error);
+                        console.error('❌ Font family change failed:', error);
                       }
+                    } else {
+                      console.error('❌ No active editor available');
                     }
                   }}
-                  className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between px-2 py-2 rounded-sm transition-colors cursor-pointer"
                   style={{
                     backgroundColor: selectedFontFamily === option.value ? '#CCDBFC' : 'transparent',
-                    fontFamily: option.label
+                    fontFamily: option.label,
+                    fontSize: '11px'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedFontFamily !== option.value) {
@@ -338,7 +368,7 @@ export default function TextRightPanel({
                     }
                   }}
                 >
-                  <span style={{ color: '#848485' }}>{option.label}</span>
+                  <span style={{ color: '#848485', fontSize: '11px' }}>{option.label}</span>
                   {selectedFontFamily === option.value && (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -357,10 +387,10 @@ export default function TextRightPanel({
             <button
               onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
               onClick={() => setShowTextStyleDropdown(!showTextStyleDropdown)}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
-              style={{ borderColor: '#E0E0E0', height: '32px' }}
+              className="w-full flex items-center justify-between px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+              style={{ borderColor: '#E0E0E0', height: '32px', minWidth: '0' }}
             >
-              <span style={{ color: '#848485' }}>
+              <span style={{ color: '#848485', fontSize: '10px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {selectedTextStyle}
               </span>
               <svg 
@@ -410,10 +440,11 @@ export default function TextRightPanel({
                         }
                       }
                     }}
-                    className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: selectedTextStyle === style ? '#CCDBFC' : 'transparent'
-                    }}
+                  className="w-full flex items-center justify-between px-2 py-2 rounded-sm transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: selectedTextStyle === style ? '#CCDBFC' : 'transparent',
+                    fontSize: '10px'
+                  }}
                     onMouseEnter={(e) => {
                       if (selectedTextStyle !== style) {
                         e.currentTarget.style.backgroundColor = '#E0E0E0';
@@ -425,7 +456,7 @@ export default function TextRightPanel({
                       }
                     }}
                   >
-                    <span style={{ color: '#848485' }}>{style}</span>
+                    <span style={{ color: '#848485', fontSize: '10px' }}>{style}</span>
                     {selectedTextStyle === style && (
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
