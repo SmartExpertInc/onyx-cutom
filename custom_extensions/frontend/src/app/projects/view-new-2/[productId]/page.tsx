@@ -449,8 +449,13 @@ export default function ProductViewNewPage() {
   }, [router]);
 
   // Function to handle icon clicks for navigation
-  const handleIconClick = useCallback((productId: number) => {
-    router.push(`/projects/view/${productId}`);
+  const handleIconClick = useCallback((productId: number, contentType?: string) => {
+    // Video lessons should navigate to view-new-2, all other products use view
+    if (contentType === 'video-lesson') {
+      router.push(`/projects/view-new-2/${productId}`);
+    } else {
+      router.push(`/projects/view/${productId}`);
+    }
   }, [router]);
 
   // Function to check existing content for lessons
@@ -1372,7 +1377,7 @@ export default function ProductViewNewPage() {
                                         className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
                                         onClick={() => {
                                           if (status?.videoLesson?.productId) {
-                                            handleIconClick(status.videoLesson.productId);
+                                            handleIconClick(status.videoLesson.productId, 'video-lesson');
                                           }
                                         }}
                                       >
