@@ -1871,15 +1871,13 @@ export default function AuditPage() {
                 ContentBuilder.ai — AI-<br className="xl:hidden"/>платформа для <br/> автоматизації створення<br className="xl:hidden"/> та оновлення курсів
               </h3>
 
-              <div 
-                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] mb-[15px] xl:mb-[40px] xl:bg-center"
-                style={{ 
-                  backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-en-new.png)',
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
-                  boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                }}
-              ></div>
+              <div className="border border-[#E0E0E0] rounded-[2px] p-7 xl:mb-[40px] overflow-hidden" 
+                     style={{boxShadow: 'rgba(42, 51, 70, 0.03) 0px 6.43px 6.43px -2.14px, rgba(42, 51, 70, 0.03) 0px 2.68px 2.68px -1.34px, rgba(42, 51, 70, 0.03) 0px 1.34px 1.34px -0.67px'}}>
+                    <img 
+                    src={`/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-en-new.png`}
+                    alt="Service Image"
+                    className="w-full h-auto block rounded-[2px]" />
+              </div>
               
               {isShowing && (<div 
                 className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
@@ -1938,7 +1936,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                  Навчання за ролями <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>та<br className="xl:hidden"/> департаментами</span>
+                  Навчання за ролями <span className="font-normal text-[#71717A]"><br className="hidden xl:hidden"/>та<br className="xl:hidden"/> департаментами</span>
                   </span>
                 </div>
 
@@ -2048,7 +2046,8 @@ export default function AuditPage() {
                 <span className="font-medium text-[16.8px] xl:text-[24px] text-white leading-[120%]">
                   Рішення 4:
                 </span>
-                <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+              </div>
+              <h3 className="font-medium text-[22px] xl:text-[35px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                 LMS-платформа<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> автоматизація<br /> корпоративного<br className="xl:hidden"/> навчання та онбордингу
               </h3>
 
@@ -2238,7 +2237,6 @@ export default function AuditPage() {
                       <span className="text-[#71717A] font-regular"> — впроваджуйте систему в різних локаціях без втрат якості</span>
                     </span>
                   </div>
-                </div>
               </div>
               
  
