@@ -452,7 +452,7 @@ export default function ProductViewNewPage() {
   const handleIconClick = useCallback((productId: number, contentType?: string) => {
     // Video lessons should navigate to view-new-2, all other products use view
     if (contentType === 'video-lesson') {
-      router.push(`/projects/view-new-2/${productId}`);
+      router.push(`/projects-2/view/${productId}`);
     } else {
       router.push(`/projects/view/${productId}`);
     }
