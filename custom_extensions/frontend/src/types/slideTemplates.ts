@@ -1053,6 +1053,33 @@ export interface FinancialImpactMosaicSlideProps extends BaseTemplateProps {
   footerPage?: string;
 }
 
+// Negative Impacts Grid - 3x2 grid with icons and descriptions
+export interface NegativeImpactsGridSlideProps extends BaseTemplateProps {
+  topLeft: {
+    iconPath?: string;
+  };
+  topMiddle: {
+    iconPath?: string;
+  };
+  topRight: {
+    iconPath?: string;
+  };
+  bottomLeft: {
+    title: string;
+    description: string;
+  };
+  bottomMiddle: {
+    title: string;
+    description: string;
+  };
+  bottomRight: {
+    title: string;
+    description: string;
+  };
+  tagText?: string;
+  logoPath?: string;
+}
+
 export interface KpiBestPracticesSlideProps extends BaseTemplateProps {
   leftImagePath?: string;
   leftImageAlt?: string;

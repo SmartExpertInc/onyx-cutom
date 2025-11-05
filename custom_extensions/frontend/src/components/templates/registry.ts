@@ -85,6 +85,7 @@ import PersonalAccountabilitySlideTemplate from './PersonalAccountabilitySlideTe
 import ImpactValueStatsSidebarSlideTemplate from './ImpactValueStatsSidebarSlideTemplate';
 import CommonPainPointsSlideTemplate from './CommonPainPointsSlideTemplate';
 import FinancialImpactGridSlideTemplate from './FinancialImpactGridSlideTemplate';
+import NegativeImpactsGridSlideTemplate from './NegativeImpactsGridSlideTemplate';
 import TwoColumnWithCutoutImageSlideTemplate from './TwoColumnWithCutoutImageSlideTemplate';
 
 
@@ -3124,6 +3125,49 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bottomLeft: { type: 'object', label: 'Bottom Left', required: true },
       bottomMiddle: { type: 'object', label: 'Bottom Middle', required: true },
       bottomRight: { type: 'object', label: 'Bottom Right', required: true },
+      logoPath: { type: 'image', label: 'Logo' }
+    }
+  },
+  'negative-impacts-grid': {
+    id: 'negative-impacts-grid',
+    name: 'Negative Impacts Grid',
+    description: '3x2 grid layout with icons in top row and titles with descriptions in bottom row',
+    category: 'content',
+    icon: '⚠️',
+    component: NegativeImpactsGridSlideTemplate,
+    defaultProps: {
+      topLeft: {
+        iconPath: '/financialLosses.png'
+      },
+      topMiddle: {
+        iconPath: '/fines.png'
+      },
+      topRight: {
+        iconPath: '/lossOfTrust.png'
+      },
+      bottomLeft: {
+        title: 'Financial losses',
+        description: 'Data breaches and cyberattacks can result in severe financial losses, averaging over $8 million per incident.'
+      },
+      bottomMiddle: {
+        title: 'Fines',
+        description: 'Data breaches and cyberattacks can result in severe financial losses, averaging over $8 million per incident.'
+      },
+      bottomRight: {
+        title: 'Loss of trust',
+        description: 'Data breaches and cyberattacks can result in severe financial losses, averaging over $8 million per incident.'
+      },
+      tagText: 'Presentation',
+      logoPath: ''
+    },
+    propSchema: {
+      topLeft: { type: 'object', label: 'Top Left', required: true },
+      topMiddle: { type: 'object', label: 'Top Middle', required: true },
+      topRight: { type: 'object', label: 'Top Right', required: true },
+      bottomLeft: { type: 'object', label: 'Bottom Left', required: true },
+      bottomMiddle: { type: 'object', label: 'Bottom Middle', required: true },
+      bottomRight: { type: 'object', label: 'Bottom Right', required: true },
+      tagText: { type: 'text', label: 'Tag Text' },
       logoPath: { type: 'image', label: 'Logo' }
     }
   }
