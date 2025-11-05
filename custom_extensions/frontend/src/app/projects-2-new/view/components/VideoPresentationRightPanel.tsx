@@ -67,25 +67,35 @@ export default function VideoPresentationRightPanel({
   const { t } = useLanguage();
   const musicDropdownRef = useRef<HTMLDivElement>(null);
   const transitionDropdownRef = useRef<HTMLDivElement>(null);
+  const colorButtonRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns when clicking outside
+  // Close dropdowns and color palette when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (musicDropdownRef.current && !musicDropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      
+      if (musicDropdownRef.current && !musicDropdownRef.current.contains(target)) {
         setShowMusicDropdown(false);
       }
-      if (transitionDropdownRef.current && !transitionDropdownRef.current.contains(event.target as Node)) {
+      if (transitionDropdownRef.current && !transitionDropdownRef.current.contains(target)) {
         setShowTransitionDropdown(false);
+      }
+      
+      // Close color palette when clicking outside
+      if (colorButtonRef.current && !colorButtonRef.current.contains(target)) {
+        // Check if the click is also outside the ColorPalettePopup component
+        const colorPalettePopup = document.querySelector('[data-color-palette-popup]');
+        if (!colorPalettePopup || !colorPalettePopup.contains(target)) {
+          setIsColorPaletteOpen(false);
+        }
       }
     }
 
-    if (showMusicDropdown || showTransitionDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [showMusicDropdown, showTransitionDropdown, setShowMusicDropdown, setShowTransitionDropdown]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMusicDropdown, showTransitionDropdown, setShowMusicDropdown, setShowTransitionDropdown, setIsColorPaletteOpen]);
 
   return (
     <>
@@ -239,7 +249,7 @@ export default function VideoPresentationRightPanel({
           </div>
 
           {/* Background Buttons */}
-          <div className={`space-y-2 ${!isBackgroundEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div ref={colorButtonRef} className={`space-y-2 ${!isBackgroundEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
             {/* Image Button */}
             <button
               onClick={(e) => {
@@ -296,9 +306,14 @@ export default function VideoPresentationRightPanel({
               onClick={(e) => {
                 const button = e.currentTarget;
                 const rect = button.getBoundingClientRect();
+                
+                // Position the color palette to the left of the button
+                const paletteWidth = 270; // Actual width of color palette
+                const gap = 8;
+                
                 setColorPalettePosition({
-                  x: rect.left,
-                  y: rect.bottom + 5
+                  x: rect.left - paletteWidth - gap,
+                  y: rect.top
                 });
                 setIsColorPaletteOpen(true);
               }}

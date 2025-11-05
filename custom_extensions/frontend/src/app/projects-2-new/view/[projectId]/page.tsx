@@ -716,6 +716,7 @@ function Projects2ViewPageContent() {
     setShapesPopupPosition(position);
     setIsShapesPopupOpen(true);
     setShowShapeRightPanel(true);
+    setShowAvatarRightPanel(false); // Close avatar panel when opening shape panel
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -737,6 +738,7 @@ function Projects2ViewPageContent() {
     setAvatarPopupPosition(position);
     setIsAvatarPopupOpen(true);
     setShowAvatarRightPanel(true);
+    setShowShapeRightPanel(false); // Close shape panel when opening avatar panel
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);

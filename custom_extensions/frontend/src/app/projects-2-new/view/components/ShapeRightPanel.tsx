@@ -168,8 +168,8 @@ export default function ShapeRightPanel({
               const rect = button.getBoundingClientRect();
               
               // Position the color palette to the left of the button
-              const paletteWidth = 320; // Approximate width of color palette
-              const gap = 10;
+              const paletteWidth = 270; // Actual width of color palette
+              const gap = 8;
               
               setColorPalettePosition({
                 x: rect.left - paletteWidth - gap,
@@ -195,8 +195,8 @@ export default function ShapeRightPanel({
                   const button = e.currentTarget.closest('button');
                   if (button) {
                     const rect = button.getBoundingClientRect();
-                    const paletteWidth = 320;
-                    const gap = 10;
+                    const paletteWidth = 270;
+                    const gap = 8;
                     
                     setColorPalettePosition({
                       x: rect.left - paletteWidth - gap,
@@ -269,8 +269,8 @@ export default function ShapeRightPanel({
               const rect = button.getBoundingClientRect();
               
               // Position the color palette to the left of the button
-              const paletteWidth = 320; // Approximate width of color palette
-              const gap = 10;
+              const paletteWidth = 270; // Actual width of color palette
+              const gap = 8;
               
               setColorPalettePosition({
                 x: rect.left - paletteWidth - gap,
@@ -296,8 +296,8 @@ export default function ShapeRightPanel({
                   const button = e.currentTarget.closest('button');
                   if (button) {
                     const rect = button.getBoundingClientRect();
-                    const paletteWidth = 320;
-                    const gap = 10;
+                    const paletteWidth = 270;
+                    const gap = 8;
                     
                     setColorPalettePosition({
                       x: rect.left - paletteWidth - gap,
