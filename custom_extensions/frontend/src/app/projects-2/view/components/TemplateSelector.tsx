@@ -28,11 +28,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'course-overview-slide',
     'work-life-balance-slide',
     'phishing-definition-slide',
-    'culture-values-three-columns-slide',
-    'percent-circles-slide',
+    'culture-values-three-columns',  // ✅ Fixed: removed -slide suffix (registry ID)
+    'percent-circles',               // ✅ Fixed: removed -slide suffix (registry ID)
     'benefits-list-slide',
     'impact-statements-slide',
-    'dei-methods-slide',
+    'dei-methods',                   // ✅ Fixed: removed -slide suffix (registry ID)
     'company-tools-resources-slide',
     'ai-pharma-market-growth-slide',
     'critical-thinking-slide',
@@ -40,7 +40,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'kpi-update-slide',
     'phishing-rise-slide',
     'soft-skills-assessment-slide',
-    'problems-grid-slide',
+    'problems-grid',                 // ✅ Fixed: removed -slide suffix (registry ID)
     'solution-steps-slide',
     'hybrid-work-best-practices-slide'
   ];
@@ -50,11 +50,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'course-overview-slide': 'Title + Bullets',
     'work-life-balance-slide': 'Text + Big Avatar',
     'phishing-definition-slide': 'Definition + Accent Badge',
-    'culture-values-three-columns-slide': 'Three Columns + Icons',
-    'percent-circles-slide': 'Percent Circles + Labels',
+    'culture-values-three-columns': 'Three Columns + Icons',  // ✅ Fixed: corrected ID
+    'percent-circles': 'Percent Circles + Labels',            // ✅ Fixed: corrected ID
     'benefits-list-slide': 'Bulleted List + Checkmarks',
     'impact-statements-slide': 'Impact Statements + Callouts',
-    'dei-methods-slide': 'Methods Grid + Icons',
+    'dei-methods': 'Methods Grid + Icons',                    // ✅ Fixed: corrected ID
     'company-tools-resources-slide': 'Resources List + Icon Left',
     'ai-pharma-market-growth-slide': 'Bar Chart + Photo',
     'critical-thinking-slide': 'Question + Supporting Points',
@@ -62,7 +62,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'kpi-update-slide': 'KPI Cards + Trend Arrows',
     'phishing-rise-slide': 'Bar Chart + Narrative',
     'soft-skills-assessment-slide': 'Assessment Scale + Notes',
-    'problems-grid-slide': 'Problems Grid',
+    'problems-grid': 'Problems Grid',                         // ✅ Fixed: corrected ID
     'solution-steps-slide': 'Numbered Steps + Icons',
     'hybrid-work-best-practices-slide': 'Tips List + Illustration'
   };
@@ -77,11 +77,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'course-overview-slide': <ListChecks className="text-gray-700" />, // Title + bullets
     'work-life-balance-slide': <UserRound className="text-gray-700" />, // Big avatar + text
     'phishing-definition-slide': <BookOpenText className="text-gray-700" />, // Definition
-    'culture-values-three-columns-slide': <Grid3X3 className="text-gray-700" />, // 3 columns
-    'percent-circles-slide': <PanelsTopLeft className="text-gray-700" />, // Multi-cards
+    'culture-values-three-columns': <Grid3X3 className="text-gray-700" />, // 3 columns ✅ Fixed
+    'percent-circles': <PanelsTopLeft className="text-gray-700" />, // Multi-cards ✅ Fixed
     'benefits-list-slide': <ListChecks className="text-gray-700" />, // Bullet list
     'impact-statements-slide': <Type className="text-gray-700" />, // Text callouts
-    'dei-methods-slide': <LayoutGrid className="text-gray-700" />, // Grid + icons
+    'dei-methods': <LayoutGrid className="text-gray-700" />, // Grid + icons ✅ Fixed
     'company-tools-resources-slide': <FileText className="text-gray-700" />, // List + icon
     'ai-pharma-market-growth-slide': <BarChart3 className="text-gray-700" />, // Bar chart + photo
     'critical-thinking-slide': <Type className="text-gray-700" />, // Question + points
@@ -89,7 +89,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'kpi-update-slide': <BarChart3 className="text-gray-700" />, // KPI cards
     'phishing-rise-slide': <BarChart3 className="text-gray-700" />, // Bar chart narrative
     'soft-skills-assessment-slide': <Type className="text-gray-700" />, // Scale + notes
-    'problems-grid-slide': <LayoutGrid className="text-gray-700" />, // Grid of problems
+    'problems-grid': <LayoutGrid className="text-gray-700" />, // Grid of problems ✅ Fixed
     'solution-steps-slide': <ListChecks className="text-gray-700" />, // Numbered steps
     'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" /> // Tips list
   };
