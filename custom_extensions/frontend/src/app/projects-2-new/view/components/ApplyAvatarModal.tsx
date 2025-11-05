@@ -63,7 +63,7 @@ export default function ApplyAvatarModal({
           <div className="flex gap-1 px-1 py-1.5 rounded-lg mb-6 mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
             <button
               onClick={() => setSelectedAction('add')}
-              className="flex-1 px-4 py-1.5 text-sm rounded-lg transition-all"
+              className="flex-1 px-4 py-1 text-sm rounded-lg transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedAction === 'add' ? 'white' : 'transparent',
                 boxShadow: selectedAction === 'add' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -74,7 +74,7 @@ export default function ApplyAvatarModal({
             </button>
             <button
               onClick={() => setSelectedAction('replace')}
-              className="flex-1 px-4 py-1.5 text-sm rounded-lg transition-all"
+              className="flex-1 px-4 py-1 text-sm rounded-lg transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedAction === 'replace' ? 'white' : 'transparent',
                 boxShadow: selectedAction === 'replace' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -86,7 +86,7 @@ export default function ApplyAvatarModal({
           </div>
 
           {/* Visual representation */}
-          <div className="rounded-lg p-6 mb-6 relative mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
+          <div className="rounded-lg p-6 mb-7 relative mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
             <div className="flex items-center justify-center gap-2 relative">
               {/* Left rectangle */}
               <div 

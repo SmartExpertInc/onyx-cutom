@@ -2014,6 +2014,30 @@ export const ru = {
       sendToFront: "Отправить аватар на передний план",
       chooseAvatar: "Выберите аватар"
     },
+    avatarRightPanel: {
+      addToAllSlides: "Добавить на все слайды",
+      replaceAvatar: "Заменить аватар",
+      appearance: "Внешний вид",
+      transparent: "Прозрачный",
+      inCircle: "В круге",
+      alignment: "Выравнивание",
+      layer: "Слой",
+      toBack: "Назад",
+      backward: "На шаг назад",
+      forward: "Вперед",
+      toFront: "На передний план",
+      position: "Позиция",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрыть"
+    },
+    applyAvatarModal: {
+      title: "Применить аватар ко всем сценам",
+      addToAllScenes: "Добавить ко всем сценам",
+      replaceOnAllScenes: "Заменить во всех сценах",
+      cancel: "Отмена",
+      apply: "Применить"
+    },
     shape: {
       shapeName: "Название фигуры",
       remove: "Удалить",

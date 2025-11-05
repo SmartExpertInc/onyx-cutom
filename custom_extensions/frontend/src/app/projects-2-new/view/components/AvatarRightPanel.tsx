@@ -103,7 +103,7 @@ export default function AvatarRightPanel({
       <div className="space-y-2 flex-shrink-0 mb-4">
         {/* Add to all slides button */}
         <button
-          className="w-full px-3 py-2 text-sm text-white rounded-md transition-colors"
+          className="w-full px-3 py-2 text-sm text-white rounded-md transition-colors cursor-pointer"
           style={{ backgroundColor: '#0F58F9' }}
           onClick={() => setIsApplyAvatarModalOpen(true)}
         >
@@ -112,7 +112,7 @@ export default function AvatarRightPanel({
 
         {/* Replace avatar button */}
         <button
-          className="w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50"
+          className="w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer"
           style={{ 
             backgroundColor: 'white',
             borderColor: '#E0E0E0',
@@ -138,7 +138,7 @@ export default function AvatarRightPanel({
         <div ref={appearanceDropdownRef} className="relative">
           <button
             onClick={() => setShowAppearanceDropdown(!showAppearanceDropdown)}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
             style={{ borderColor: '#E0E0E0' }}
           >
             <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ export default function AvatarRightPanel({
                   setSelectedAppearance('Transparent');
                   setShowAppearanceDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors"
+                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
                 style={{
                   backgroundColor: 'transparent'
                 }}
@@ -209,7 +209,7 @@ export default function AvatarRightPanel({
                   setSelectedAppearance('In circle');
                   setShowAppearanceDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors"
+                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
                 style={{
                   backgroundColor: 'transparent'
                 }}
@@ -251,7 +251,7 @@ export default function AvatarRightPanel({
             {/* Left Alignment */}
             <button
               onClick={() => setSelectedAlignment('left')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center"
+              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedAlignment === 'left' ? 'white' : 'transparent',
                 boxShadow: selectedAlignment === 'left' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -272,7 +272,7 @@ export default function AvatarRightPanel({
             {/* Center Alignment */}
             <button
               onClick={() => setSelectedAlignment('center')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center"
+              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedAlignment === 'center' ? 'white' : 'transparent',
                 boxShadow: selectedAlignment === 'center' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -293,7 +293,7 @@ export default function AvatarRightPanel({
             {/* Right Alignment */}
             <button
               onClick={() => setSelectedAlignment('right')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center"
+              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedAlignment === 'right' ? 'white' : 'transparent',
                 boxShadow: selectedAlignment === 'right' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -325,7 +325,7 @@ export default function AvatarRightPanel({
             {/* To Back */}
             <button
               onClick={() => setSelectedLayer('toBack')}
-              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedLayer === 'toBack' ? 'white' : 'transparent',
                 boxShadow: selectedLayer === 'toBack' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -343,7 +343,7 @@ export default function AvatarRightPanel({
             {/* Backward */}
             <button
               onClick={() => setSelectedLayer('backward')}
-              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedLayer === 'backward' ? 'white' : 'transparent',
                 boxShadow: selectedLayer === 'backward' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -360,7 +360,7 @@ export default function AvatarRightPanel({
             {/* Forward */}
             <button
               onClick={() => setSelectedLayer('forward')}
-              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedLayer === 'forward' ? 'white' : 'transparent',
                 boxShadow: selectedLayer === 'forward' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -377,7 +377,7 @@ export default function AvatarRightPanel({
             {/* To Front */}
             <button
               onClick={() => setSelectedLayer('toFront')}
-              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all"
+              className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedLayer === 'toFront' ? 'white' : 'transparent',
                 boxShadow: selectedLayer === 'toFront' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
@@ -443,7 +443,7 @@ export default function AvatarRightPanel({
       {/* Close Button */}
       <button
         onClick={onClose}
-        className="w-full mt-4 px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50"
+        className="w-full mt-4 px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50 cursor-pointer"
         style={{ 
           backgroundColor: 'white',
           borderColor: '#E0E0E0',

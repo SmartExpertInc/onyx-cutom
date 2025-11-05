@@ -2039,6 +2039,30 @@ export const es = {
       sendToFront: "Enviar avatar al frente",
       chooseAvatar: "Elegir Avatar"
     },
+    avatarRightPanel: {
+      addToAllSlides: "Añadir a todas las diapositivas",
+      replaceAvatar: "Reemplazar avatar",
+      appearance: "Apariencia",
+      transparent: "Transparente",
+      inCircle: "En círculo",
+      alignment: "Alineación",
+      layer: "Capa",
+      toBack: "Atrás",
+      backward: "Un paso atrás",
+      forward: "Adelante",
+      toFront: "Al frente",
+      position: "Posición",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Cerrar"
+    },
+    applyAvatarModal: {
+      title: "Aplicar avatar a todas las escenas",
+      addToAllScenes: "Añadir a todas las escenas",
+      replaceOnAllScenes: "Reemplazar en todas las escenas",
+      cancel: "Cancelar",
+      apply: "Aplicar"
+    },
     shape: {
       shapeName: "Nombre de la forma",
       remove: "Eliminar",

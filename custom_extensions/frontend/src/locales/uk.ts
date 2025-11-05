@@ -2019,6 +2019,30 @@ export const uk = {
       sendToFront: "Відправити аватар на передній план",
       chooseAvatar: "Виберіть аватар"
     },
+    avatarRightPanel: {
+      addToAllSlides: "Додати до всіх слайдів",
+      replaceAvatar: "Замінити аватар",
+      appearance: "Зовнішній вигляд",
+      transparent: "Прозорий",
+      inCircle: "В колі",
+      alignment: "Вирівнювання",
+      layer: "Шар",
+      toBack: "Назад",
+      backward: "На крок назад",
+      forward: "Вперед",
+      toFront: "На передній план",
+      position: "Позиція",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрити"
+    },
+    applyAvatarModal: {
+      title: "Застосувати аватар до всіх сцен",
+      addToAllScenes: "Додати до всіх сцен",
+      replaceOnAllScenes: "Замінити в усіх сценах",
+      cancel: "Скасувати",
+      apply: "Застосувати"
+    },
     shape: {
       shapeName: "Назва фігури",
       remove: "Видалити",
