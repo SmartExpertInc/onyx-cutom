@@ -103,17 +103,17 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
 
   // Top Right - Blue
   const topRightStyle: React.CSSProperties = {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#0F58F9',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     padding: '40px',
-    justifyContent: 'center'
+    justifyContent: 'start'
   };
 
   // Bottom Left - Blue
   const bottomLeftStyle: React.CSSProperties = {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#0F58F9',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
@@ -128,7 +128,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
     display: 'flex',
     flexDirection: 'column',
     padding: '40px',
-    justifyContent: 'center'
+    justifyContent: 'start'
   };
 
   // Bottom Right - Image
@@ -149,6 +149,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
   const topMiddleImageStyle: React.CSSProperties = {
     width: 'calc(100% + 80px)',
     height: '200px',
+    marginTop: '-40px',
     objectFit: 'cover',
     borderRadius: '8px',
     marginBottom: '20px',
@@ -180,6 +181,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
     fontWeight: 400,
     color: '#FFFFFF',
     opacity: 0.9,
+    width: '55%',
     lineHeight: 1.4,
     margin: 0
   };
@@ -191,7 +193,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
     color: '#09090B',
     lineHeight: 1.2,
     margin: 0,
-    marginBottom: '12px',
+    marginBottom: '20px',
     fontFamily: "'Lora', serif"
   };
 
@@ -206,7 +208,7 @@ export const FinancialImpactGridSlideTemplate: React.FC<FinancialImpactGridProps
 
   // Title style - white on blue
   const titleWhiteStyle: React.CSSProperties = {
-    fontSize: '32px',
+    fontSize: '33px',
     fontWeight: 700,
     color: '#FFFFFF',
     lineHeight: 1.2,
