@@ -43,7 +43,7 @@ export default function ApplyAvatarModal({
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors z-20 cursor-pointer"
+          className="absolute top-5 right-5 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors z-20 cursor-pointer"
         >
           <X className="w-4 h-4 text-gray-500" />
         </button>
@@ -60,7 +60,7 @@ export default function ApplyAvatarModal({
         {/* Content */}
         <div className="px-6 pb-6">
           {/* Toggle buttons */}
-          <div className="flex gap-1 px-1 py-1.5 rounded-md mb-6" style={{ backgroundColor: '#F4F4F5' }}>
+          <div className="flex gap-1 px-1 py-1.5 rounded-md mb-6 mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
             <button
               onClick={() => setSelectedAction('add')}
               className="flex-1 px-4 py-2 text-sm rounded-md transition-all"
@@ -86,11 +86,11 @@ export default function ApplyAvatarModal({
           </div>
 
           {/* Visual representation */}
-          <div className="rounded-md p-8 mb-6 relative" style={{ backgroundColor: '#F4F4F5' }}>
-            <div className="flex items-center justify-center gap-8 relative">
+          <div className="rounded-md p-8 mb-6 relative mx-auto" style={{ backgroundColor: '#F4F4F5', maxWidth: '400px' }}>
+            <div className="flex items-center justify-center gap-2 relative">
               {/* Left rectangle */}
               <div 
-                className="w-24 h-32 rounded-md"
+                className="w-32 h-24 rounded-sm"
                 style={{ 
                   backgroundColor: 'white',
                   border: '1px solid #E0E0E0'
@@ -99,7 +99,7 @@ export default function ApplyAvatarModal({
               
               {/* Right rectangle */}
               <div 
-                className="w-24 h-32 rounded-md flex items-center justify-center"
+                className="w-32 h-24 rounded-sm flex items-center justify-center"
                 style={{ 
                   backgroundColor: 'white',
                   border: '1px solid #E0E0E0'
@@ -121,8 +121,8 @@ export default function ApplyAvatarModal({
               <div 
                 className="absolute flex items-center justify-center"
                 style={{
-                  width: '48px',
-                  height: '48px',
+                  width: '32px',
+                  height: '32px',
                   borderRadius: '50%',
                   backgroundColor: 'white',
                   backdropFilter: 'blur(20px)',
@@ -133,7 +133,7 @@ export default function ApplyAvatarModal({
                   transform: 'translate(-50%, -50%)'
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.09082 3.70898L13.3574 7.97559C13.3703 7.98854 13.3702 8.00942 13.3574 8.02246L9.09082 12.2891C9.0778 12.3021 9.05697 12.3021 9.04395 12.2891C9.03094 12.276 9.0309 12.2552 9.04395 12.2422L12.3994 8.88574L13.2529 8.03223H2.66699C2.64865 8.03216 2.63379 8.01739 2.63379 7.99902C2.6339 7.98075 2.64871 7.96589 2.66699 7.96582H13.2529L12.3994 7.1123L9.04395 3.75586C9.0374 3.74932 9.03415 3.74099 9.03418 3.73242L9.04395 3.70898C9.05049 3.70254 9.05885 3.69915 9.06738 3.69922L9.09082 3.70898Z" fill="#0F58F9" stroke="#0F58F9"/>
                 </svg>
               </div>
