@@ -180,7 +180,7 @@ export default function TextRightPanel({
           <button
             onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
             className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
-            style={{ borderColor: '#E0E0E0' }}
+            style={{ borderColor: '#E0E0E0', height: '32px' }}
           >
             <span style={{ color: '#848485', fontFamily: selectedFontFamily }}>
               {selectedFontFamily}
@@ -230,7 +230,7 @@ export default function TextRightPanel({
             <button
               onClick={() => setShowTextStyleDropdown(!showTextStyleDropdown)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
-              style={{ borderColor: '#E0E0E0' }}
+              style={{ borderColor: '#E0E0E0', height: '32px' }}
             >
               <span style={{ color: '#848485' }}>
                 {selectedTextStyle}
@@ -276,9 +276,29 @@ export default function TextRightPanel({
 
           {/* Font Size Control */}
           <div className="flex-1">
-            <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
-              {/* Left side - Number */}
-              <span className="text-sm font-medium" style={{ color: '#171718' }}>{fontSize}</span>
+            <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white', height: '32px' }}>
+              {/* Left side - Input for manual entry */}
+              <input
+                type="text"
+                value={fontSize}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Allow empty string for editing
+                  if (value === '') {
+                    setFontSize(8);
+                    return;
+                  }
+                  // Parse the value and ensure it's a number
+                  const numValue = parseInt(value, 10);
+                  if (!isNaN(numValue)) {
+                    // Clamp the value between 8 and 200
+                    const clampedValue = Math.min(Math.max(numValue, 8), 200);
+                    setFontSize(clampedValue);
+                  }
+                }}
+                className="text-sm font-medium border-none outline-none bg-transparent"
+                style={{ color: '#171718', width: '40px' }}
+              />
 
               {/* Right side - Up and Down Chevrons */}
               <div 
@@ -314,17 +334,17 @@ export default function TextRightPanel({
         {/* Text Alignment and List Type Row */}
         <div className="flex gap-2">
           {/* Text Alignment Buttons */}
-          <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5' }}>
+          <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5', height: '32px' }}>
             {/* Left Align */}
             <button
               onClick={() => setSelectedTextAlignment('left')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+              className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedTextAlignment === 'left' ? 'white' : 'transparent',
                 boxShadow: selectedTextAlignment === 'left' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
               }}
             >
-              <svg width="13" height="15" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="11" height="13" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0.658961 1.12109C0.293787 1.12109 0 1.421 0 1.79378C0 2.16656 0.293787 2.46647 0.658961 2.46647H7.24857C7.61374 2.46647 7.90753 2.16656 7.90753 1.79378C7.90753 1.421 7.61374 1.12109 7.24857 1.12109H0.658961ZM0.658961 4.70877C0.293787 4.70877 0 5.00868 0 5.38146C0 5.75424 0.293787 6.05415 0.658961 6.05415H11.6416C12.0068 6.05415 12.3006 5.75424 12.3006 5.38146C12.3006 5.00868 12.0068 4.70877 11.6416 4.70877H0.658961ZM0 8.96913C0 9.34192 0.293787 9.64182 0.658961 9.64182H7.24857C7.61374 9.64182 7.90753 9.34192 7.90753 8.96913C7.90753 8.59635 7.61374 8.29644 7.24857 8.29644H0.658961C0.293787 8.29644 0 8.59635 0 8.96913ZM0.658961 11.8841C0.293787 11.8841 0 12.184 0 12.5568C0 12.9296 0.293787 13.2295 0.658961 13.2295H11.6416C12.0068 13.2295 12.3006 12.9296 12.3006 12.5568C12.3006 12.184 12.0068 11.8841 11.6416 11.8841H0.658961Z" fill={selectedTextAlignment === 'left' ? '#171718' : '#878787'}/>
               </svg>
             </button>
@@ -332,13 +352,13 @@ export default function TextRightPanel({
             {/* Center Align */}
             <button
               onClick={() => setSelectedTextAlignment('center')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+              className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedTextAlignment === 'center' ? 'white' : 'transparent',
                 boxShadow: selectedTextAlignment === 'center' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
               }}
             >
-              <svg width="13" height="15" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="11" height="13" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3.2948 1.12109C2.92963 1.12109 2.63584 1.421 2.63584 1.79378C2.63584 2.16656 2.92963 2.46647 3.2948 2.46647H9.0058C9.37097 2.46647 9.66476 2.16656 9.66476 1.79378C9.66476 1.421 9.37097 1.12109 9.0058 1.12109H3.2948ZM0.658961 4.70877C0.293787 4.70877 0 5.00868 0 5.38146C0 5.75424 0.293787 6.05415 0.658961 6.05415H11.6416C12.0068 6.05415 12.3006 5.75424 12.3006 5.38146C12.3006 5.00868 12.0068 4.70877 11.6416 4.70877H0.658961ZM2.63584 8.96913C2.63584 9.34192 2.92963 9.64182 3.2948 9.64182H9.0058C9.37097 9.64182 9.66476 9.34192 9.66476 8.96913C9.66476 8.59635 9.37097 8.29644 9.0058 8.29644H3.2948C2.92963 8.29644 2.63584 8.59635 2.63584 8.96913ZM0.658961 11.8841C0.293787 11.8841 0 12.184 0 12.5568C0 12.9296 0.293787 13.2295 0.658961 13.2295H11.6416C12.0068 13.2295 12.3006 12.9296 12.3006 12.5568C12.3006 12.184 12.0068 11.8841 11.6416 11.8841H0.658961Z" fill={selectedTextAlignment === 'center' ? '#171718' : '#878787'}/>
               </svg>
             </button>
@@ -346,30 +366,30 @@ export default function TextRightPanel({
             {/* Right Align */}
             <button
               onClick={() => setSelectedTextAlignment('right')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+              className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedTextAlignment === 'right' ? 'white' : 'transparent',
                 boxShadow: selectedTextAlignment === 'right' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
               }}
             >
-              <svg width="13" height="15" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="11" height="13" viewBox="0 0 13 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M11.6426 1.12109C12.0078 1.12109 12.3016 1.421 12.3016 1.79378C12.3016 2.16656 12.0078 2.46647 11.6426 2.46647H5.05301C4.68784 2.46647 4.39405 2.16656 4.39405 1.79378C4.39405 1.421 4.68784 1.12109 5.05301 1.12109H11.6426ZM11.6426 4.70877C12.0078 4.70877 12.3016 5.00868 12.3016 5.38146C12.3016 5.75424 12.0078 6.05415 11.6426 6.05415H0.659937C0.294763 6.05415 0.000976562 5.75424 0.000976562 5.38146C0.000976562 5.00868 0.294763 4.70877 0.659937 4.70877H11.6426ZM12.3016 8.96913C12.3016 9.34192 12.0078 9.64182 11.6426 9.64182H5.05301C4.68784 9.64182 4.39405 9.34192 4.39405 8.96913C4.39405 8.59635 4.68784 8.29644 5.05301 8.29644H11.6426C12.0078 8.29644 12.3016 8.59635 12.3016 8.96913ZM11.6426 11.8841C12.0078 11.8841 12.3016 12.184 12.3016 12.5568C12.3016 12.9296 12.0078 13.2295 11.6426 13.2295H0.659937C0.294763 13.2295 0.000976562 12.9296 0.000976562 12.5568C0.000976562 12.184 0.294763 11.8841 0.659937 11.8841H11.6426Z" fill={selectedTextAlignment === 'right' ? '#171718' : '#878787'}/>
               </svg>
             </button>
           </div>
 
           {/* List Type Buttons */}
-          <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5' }}>
+          <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5', height: '32px' }}>
             {/* Numbered List */}
             <button
               onClick={() => setSelectedListType('numbered')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+              className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedListType === 'numbered' ? 'white' : 'transparent',
                 boxShadow: selectedListType === 'numbered' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6.66699 4H14.0003M6.66699 8H14.0003M6.66699 12H14.0003M2.66699 4H3.33366V6.66667M2.66699 6.66667H4.00033M4.00033 12H2.66699C2.66699 11.3333 4.00033 10.6667 4.00033 10C4.00033 9.33333 3.33366 9 2.66699 9.33333" stroke={selectedListType === 'numbered' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
@@ -377,13 +397,13 @@ export default function TextRightPanel({
             {/* No List */}
             <button
               onClick={() => setSelectedListType('none')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+              className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedListType === 'none' ? 'white' : 'transparent',
                 boxShadow: selectedListType === 'none' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.66699 8H13.3337M2.66699 4H13.3337M2.66699 12H13.3337" stroke={selectedListType === 'none' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
@@ -391,13 +411,13 @@ export default function TextRightPanel({
             {/* Bulleted List */}
             <button
               onClick={() => setSelectedListType('bulleted')}
-              className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+              className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedListType === 'bulleted' ? 'white' : 'transparent',
                 boxShadow: selectedListType === 'bulleted' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5.33333 4H14M5.33333 8H14M5.33333 12H14M2 4H2.00667M2 8H2.00667M2 12H2.00667" stroke={selectedListType === 'bulleted' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
@@ -889,15 +909,38 @@ export default function TextRightPanel({
             {/* Right column - Rotation Button */}
             <div className="flex-1">
               <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
-                {/* Left side - Icon and Number with degree */}
+                {/* Left side - Icon and Input with degree */}
                 <div className="flex items-center gap-2">
                   {/* Rotation icon */}
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.19238 2.74414C9.20734 2.75487 9.21087 2.77607 9.2002 2.79102L2.23242 12.5068L1.66504 13.2979H14.3994C14.4178 13.2979 14.4326 13.3137 14.4326 13.332C14.4324 13.3503 14.4177 13.3652 14.3994 13.3652H1.59961C1.58706 13.3652 1.57595 13.3577 1.57031 13.3467C1.56474 13.3357 1.56522 13.3227 1.57227 13.3125L9.14551 2.75195C9.15616 2.73709 9.17744 2.73365 9.19238 2.74414ZM14.293 11.165C14.3114 11.165 14.3261 11.1798 14.3262 11.1982C14.3262 11.2167 14.3114 11.2314 14.293 11.2314C14.2747 11.2314 14.2598 11.2166 14.2598 11.1982C14.2598 11.1799 14.2747 11.1651 14.293 11.165ZM13.4395 9.03125C13.4578 9.03125 13.4727 9.04705 13.4727 9.06543C13.4724 9.0836 13.4577 9.09863 13.4395 9.09863C13.4213 9.09848 13.4065 9.08358 13.4062 9.06543C13.4062 9.04708 13.4212 9.0314 13.4395 9.03125ZM12.373 6.89844C12.3914 6.89844 12.4062 6.91326 12.4062 6.93164C12.4062 6.95002 12.3914 6.96484 12.373 6.96484C12.3546 6.96483 12.3398 6.95008 12.3398 6.93164C12.3398 6.91321 12.3546 6.89845 12.373 6.89844ZM11.0928 4.76465C11.111 4.76465 11.1257 4.77962 11.126 4.79785C11.126 4.8163 11.1112 4.83203 11.0928 4.83203C11.0746 4.83187 11.0596 4.81617 11.0596 4.79785C11.0598 4.77974 11.0747 4.76481 11.0928 4.76465Z" fill="#09090B" stroke="#09090B"/>
                   </svg>
 
-                  {/* Number and degree symbol */}
-                  <span className="text-sm font-medium" style={{ color: '#171718' }}>{rotation}°</span>
+                  {/* Input for manual entry and degree symbol */}
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={rotation}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow empty string for editing
+                        if (value === '') {
+                          setRotation(0);
+                          return;
+                        }
+                        // Parse the value and ensure it's a number
+                        const numValue = parseInt(value, 10);
+                        if (!isNaN(numValue)) {
+                          // Wrap around 0-359 degrees
+                          const wrappedValue = ((numValue % 360) + 360) % 360;
+                          setRotation(wrappedValue);
+                        }
+                      }}
+                      className="text-sm font-medium border-none outline-none bg-transparent text-right"
+                      style={{ color: '#171718', width: '30px' }}
+                    />
+                    <span className="text-sm font-medium" style={{ color: '#171718' }}>°</span>
+                  </div>
                 </div>
 
                 {/* Right side - Up and Down Chevrons */}

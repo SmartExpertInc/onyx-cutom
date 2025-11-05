@@ -744,15 +744,38 @@ export default function ShapeRightPanel({
             {/* Right column - Rotation Button */}
             <div className="flex-1">
               <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
-                {/* Left side - Icon and Number with degree */}
+                {/* Left side - Icon and Input with degree */}
                 <div className="flex items-center gap-2">
                   {/* Rotation icon */}
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.19238 2.74414C9.20734 2.75487 9.21087 2.77607 9.2002 2.79102L2.23242 12.5068L1.66504 13.2979H14.3994C14.4178 13.2979 14.4326 13.3137 14.4326 13.332C14.4324 13.3503 14.4177 13.3652 14.3994 13.3652H1.59961C1.58706 13.3652 1.57595 13.3577 1.57031 13.3467C1.56474 13.3357 1.56522 13.3227 1.57227 13.3125L9.14551 2.75195C9.15616 2.73709 9.17744 2.73365 9.19238 2.74414ZM14.293 11.165C14.3114 11.165 14.3261 11.1798 14.3262 11.1982C14.3262 11.2167 14.3114 11.2314 14.293 11.2314C14.2747 11.2314 14.2598 11.2166 14.2598 11.1982C14.2598 11.1799 14.2747 11.1651 14.293 11.165ZM13.4395 9.03125C13.4578 9.03125 13.4727 9.04705 13.4727 9.06543C13.4724 9.0836 13.4577 9.09863 13.4395 9.09863C13.4213 9.09848 13.4065 9.08358 13.4062 9.06543C13.4062 9.04708 13.4212 9.0314 13.4395 9.03125ZM12.373 6.89844C12.3914 6.89844 12.4062 6.91326 12.4062 6.93164C12.4062 6.95002 12.3914 6.96484 12.373 6.96484C12.3546 6.96483 12.3398 6.95008 12.3398 6.93164C12.3398 6.91321 12.3546 6.89845 12.373 6.89844ZM11.0928 4.76465C11.111 4.76465 11.1257 4.77962 11.126 4.79785C11.126 4.8163 11.1112 4.83203 11.0928 4.83203C11.0746 4.83187 11.0596 4.81617 11.0596 4.79785C11.0598 4.77974 11.0747 4.76481 11.0928 4.76465Z" fill="#09090B" stroke="#09090B"/>
                   </svg>
 
-                  {/* Number and degree symbol */}
-                  <span className="text-sm font-medium" style={{ color: '#171718' }}>{rotation}°</span>
+                  {/* Input for manual entry and degree symbol */}
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={rotation}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow empty string for editing
+                        if (value === '') {
+                          setRotation(0);
+                          return;
+                        }
+                        // Parse the value and ensure it's a number
+                        const numValue = parseInt(value, 10);
+                        if (!isNaN(numValue)) {
+                          // Wrap around 0-359 degrees
+                          const wrappedValue = ((numValue % 360) + 360) % 360;
+                          setRotation(wrappedValue);
+                        }
+                      }}
+                      className="text-sm font-medium border-none outline-none bg-transparent text-right"
+                      style={{ color: '#171718', width: '30px' }}
+                    />
+                    <span className="text-sm font-medium" style={{ color: '#171718' }}>°</span>
+                  </div>
                 </div>
 
                 {/* Right side - Up and Down Chevrons */}
