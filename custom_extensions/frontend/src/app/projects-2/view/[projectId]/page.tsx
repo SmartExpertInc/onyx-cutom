@@ -288,37 +288,32 @@ export default function Projects2ViewPage() {
     }
   };
 
-  // NEW: Handle background color change for current slide
-  const handleBackgroundColorChange = (color: string | null) => {
-    if (!currentSlideId) {
-      console.warn('⚠️ No current slide selected');
+  // NEW: Function to handle background color changes
+  const handleBackgroundColorChange = (color: string) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId) return;
+
+    console.log('🎨 [BACKGROUND] Changing background color:', { slideId: currentSlideId, color });
+
+    const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlideId);
+    if (slideIndex === -1) {
+      console.warn('🎨 [BACKGROUND] Slide not found:', currentSlideId);
       return;
     }
-    
-    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
-      // Find the current slide index
-      const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlideId);
-      if (slideIndex === -1) {
-        console.warn('⚠️ Current slide not found in deck');
-        return;
+
+    const updatedDeck = { ...componentBasedSlideDeck };
+    updatedDeck.slides = [...updatedDeck.slides];
+    updatedDeck.slides[slideIndex] = {
+      ...updatedDeck.slides[slideIndex],
+      props: {
+        ...updatedDeck.slides[slideIndex].props,
+        backgroundColor: color
       }
-      
-      // Update the slide's backgroundColor
-      const updatedDeck = { ...componentBasedSlideDeck };
-      updatedDeck.slides = [...updatedDeck.slides];
-      updatedDeck.slides[slideIndex] = {
-        ...updatedDeck.slides[slideIndex],
-        backgroundColor: color || undefined // Remove property if color is null
-      };
-      
-      console.log('🎨 Background color updated:', { slideId: currentSlideId, color });
-      
-      setComponentBasedSlideDeck(updatedDeck);
-      saveVideoLessonData(updatedDeck);
-    } else if (videoLessonData) {
-      console.warn('⚠️ Background color change not supported for old video lesson structure');
-      // Could add support for old structure if needed
-    }
+    };
+
+    console.log('🎨 [BACKGROUND] Updated slide:', updatedDeck.slides[slideIndex]);
+
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
   };
 
   // NEW: Handle transition button click
@@ -799,17 +794,15 @@ export default function Projects2ViewPage() {
           currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
           onAddSlide={handleAddSlide}
         />;
-      case 'background': {
-        // Get current slide's backgroundColor
-        const currentSlide = isComponentBasedVideoLesson && componentBasedSlideDeck
+      case 'background':
+        // Get current slide for background component
+        const currentSlide = isComponentBasedVideoLesson && componentBasedSlideDeck && currentSlideId
           ? componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId)
           : undefined;
-        
         return <Background 
-          value={currentSlide?.backgroundColor || null}
-          onChange={handleBackgroundColorChange}
+          currentSlide={currentSlide}
+          onBackgroundChange={handleBackgroundColorChange}
         />;
-      }
       case 'music':
         return <Music />;
       case 'comments':

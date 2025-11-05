@@ -155,7 +155,7 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: backgroundColor || '#ffffff', // Use prop with fallback to white
+    backgroundColor: backgroundColor || '#ffffff', // Use prop backgroundColor, fallback to white
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -363,11 +363,11 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
         </div>
       </div>
 
-      {/* Right Panel - Transparent background with image */}
+      {/* Right Panel - Theme background with image */}
       <div style={{
         width: '55%',
         height: '100%',
-        backgroundColor: 'transparent', // Transparent so parent background shows through
+        backgroundColor: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

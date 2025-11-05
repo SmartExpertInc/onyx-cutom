@@ -66,7 +66,6 @@ export interface ComponentBasedSlide {
   templateId: string;
   props: Record<string, unknown>;
   voiceoverText?: string; // Optional voiceover text for video lessons
-  backgroundColor?: string; // Optional background color for the entire slide (hex format, e.g., '#F5F5F5')
   
   // NEW: Positioning support
   items?: PositionableItem[]; // Dynamic positioning data

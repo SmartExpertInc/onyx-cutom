@@ -1,31 +1,23 @@
 import { useState, useEffect } from 'react';
-import Media from './Media';
+import { ComponentBasedSlide } from '@/types/slideTemplates';
 
 interface BackgroundProps {
-  value?: string | null; // Current background color
-  onChange?: (color: string | null) => void; // Callback when color changes
+  currentSlide?: ComponentBasedSlide;
+  onBackgroundChange?: (color: string) => void;
 }
 
-export default function Background({ value, onChange }: BackgroundProps) {
-  const [selectedColor, setSelectedColor] = useState<string | null>(value || null);
+export default function Background({ currentSlide, onBackgroundChange }: BackgroundProps) {
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Sync local state when value prop changes (controlled component pattern)
+
+  // Update selected color when current slide changes
   useEffect(() => {
-    setSelectedColor(value || null);
-  }, [value]);
-  
-  // Handle color selection with both local state and parent callback
-  const handleColorSelect = (color: string) => {
-    setSelectedColor(color);
-    onChange?.(color); // Notify parent component
-  };
-  
-  // Handle color removal with both local state and parent callback
-  const handleColorRemove = () => {
-    setSelectedColor(null);
-    onChange?.(null); // Notify parent component
-  };
+    if (currentSlide?.props?.backgroundColor && typeof currentSlide.props.backgroundColor === 'string') {
+      setSelectedColor(currentSlide.props.backgroundColor);
+    } else {
+      setSelectedColor(null);
+    }
+  }, [currentSlide]);
 
   // Helper function to darken a hex color
   const darkenColor = (hex: string, amount: number = 0.3) => {
@@ -62,7 +54,7 @@ export default function Background({ value, onChange }: BackgroundProps) {
             <span className="font-medium" style={{ color: '#616161' }}>Color</span>
           </div>
           <button 
-            onClick={handleColorRemove}
+            onClick={() => setSelectedColor(null)}
             className="p-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
           >
             <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,15 +65,15 @@ export default function Background({ value, onChange }: BackgroundProps) {
       )}
       
       <div className={`relative z-10 flex flex-col items-start justify-start w-full px-2 ${selectedColor ? 'pt-20' : 'py-4'}`}>
-        {/* Media upload section */}
+        {/* Media upload section - DISABLED */}
         <div 
-          className="w-full border border-gray-300 rounded-lg p-6 mb-6 flex flex-row items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-          onClick={() => setIsModalOpen(true)}
+          className="w-full border border-gray-300 rounded-lg p-6 mb-6 flex flex-row items-center justify-center bg-gray-50 transition-colors cursor-not-allowed opacity-50"
+          title="Soon"
         >
-          <svg className="w-5 h-5 text-black mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          <span className="font-medium text-black">Choose media</span>
+          <span className="font-medium text-gray-400">Choose media</span>
         </div>
 
         {/* OR divider */}
@@ -102,9 +94,9 @@ export default function Background({ value, onChange }: BackgroundProps) {
               {rectangleData[rowIndex * 2] && (
                 <div className="flex-1 flex flex-col items-center">
                   {rectangleData[rowIndex * 2].isCustomButton ? (
-                    // Custom button
+                    // Custom button - DISABLED
                     <>
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2" title="Soon">
                         <span className="text-4xl text-gray-400 font-light">+</span>
                       </div>
                       <span className="text-sm text-center" style={{ color: '#616161' }}>
@@ -120,7 +112,13 @@ export default function Background({ value, onChange }: BackgroundProps) {
                           backgroundColor: rectangleData[rowIndex * 2].color,
                           border: selectedColor === rectangleData[rowIndex * 2].color ? `5px solid ${darkenColor(rectangleData[rowIndex * 2].color)}` : 'none'
                         }}
-                        onClick={() => handleColorSelect(rectangleData[rowIndex * 2].color)}
+                        onClick={() => {
+                          const color = rectangleData[rowIndex * 2].color;
+                          setSelectedColor(color);
+                          if (onBackgroundChange) {
+                            onBackgroundChange(color);
+                          }
+                        }}
                       ></div>
                       <span className="text-sm text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2].name}
@@ -134,9 +132,9 @@ export default function Background({ value, onChange }: BackgroundProps) {
               {rectangleData[rowIndex * 2 + 1] && (
                 <div className="flex-1 flex flex-col items-center">
                   {rectangleData[rowIndex * 2 + 1].isCustomButton ? (
-                    // Custom button
+                    // Custom button - DISABLED
                     <>
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2" title="Soon">
                         <span className="text-4xl text-gray-400 font-light">+</span>
                       </div>
                       <span className="text-sm text-center" style={{ color: '#616161' }}>
@@ -152,7 +150,13 @@ export default function Background({ value, onChange }: BackgroundProps) {
                           backgroundColor: rectangleData[rowIndex * 2 + 1].color,
                           border: selectedColor === rectangleData[rowIndex * 2 + 1].color ? `5px solid ${darkenColor(rectangleData[rowIndex * 2 + 1].color)}` : 'none'
                         }}
-                        onClick={() => handleColorSelect(rectangleData[rowIndex * 2 + 1].color)}
+                        onClick={() => {
+                          const color = rectangleData[rowIndex * 2 + 1].color;
+                          setSelectedColor(color);
+                          if (onBackgroundChange) {
+                            onBackgroundChange(color);
+                          }
+                        }}
                       ></div>
                       <span className="text-sm text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2 + 1].name}
@@ -171,13 +175,7 @@ export default function Background({ value, onChange }: BackgroundProps) {
         </div>
       </div>
       
-      {/* Media component for modal selection */}
-      <Media 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Choose Media"
-        displayMode="modal"
-      />
+      {/* Media component removed - Choose media feature disabled */}
     </div>
   );
 }
