@@ -35,6 +35,7 @@ import { VoiceProvider } from '@/contexts/VoiceContext';
 import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
 import AvatarRightPanel from '../components/AvatarRightPanel';
 import ShapeRightPanel from '../components/ShapeRightPanel';
+import TextRightPanel from '../components/TextRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -51,6 +52,7 @@ function Projects2ViewPageContent() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
   const [showAvatarRightPanel, setShowAvatarRightPanel] = useState<boolean>(false);
   const [showShapeRightPanel, setShowShapeRightPanel] = useState<boolean>(false);
+  const [showTextRightPanel, setShowTextRightPanel] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState<boolean>(false);
@@ -717,6 +719,7 @@ function Projects2ViewPageContent() {
     setIsShapesPopupOpen(true);
     setShowShapeRightPanel(true);
     setShowAvatarRightPanel(false); // Close avatar panel when opening shape panel
+    setShowTextRightPanel(false); // Close text panel when opening shape panel
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -727,6 +730,9 @@ function Projects2ViewPageContent() {
   const handleTextButtonClick = (position: { x: number; y: number }) => {
     setTextPopupPosition(position);
     setIsTextPopupOpen(true);
+    setShowTextRightPanel(true);
+    setShowShapeRightPanel(false); // Close shape panel when opening text panel
+    setShowAvatarRightPanel(false); // Close avatar panel when opening text panel
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
@@ -739,6 +745,7 @@ function Projects2ViewPageContent() {
     setIsAvatarPopupOpen(true);
     setShowAvatarRightPanel(true);
     setShowShapeRightPanel(false); // Close shape panel when opening avatar panel
+    setShowTextRightPanel(false); // Close text panel when opening avatar panel
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -1128,6 +1135,43 @@ function Projects2ViewPageContent() {
               onStrokeColorChange={setStrokeColor}
               onColorPaletteContextChange={setColorPaletteContext}
               onClose={() => setShowShapeRightPanel(false)}
+            />
+          ) : showTextRightPanel ? (
+            <TextRightPanel
+              isAppearanceEnabled={isAppearanceEnabled}
+              setIsAppearanceEnabled={setIsAppearanceEnabled}
+              showAppearanceDropdown={showAppearanceDropdown}
+              setShowAppearanceDropdown={setShowAppearanceDropdown}
+              selectedAppearance={selectedAppearance}
+              setSelectedAppearance={setSelectedAppearance}
+              appearanceVolume={appearanceVolume}
+              setAppearanceVolume={setAppearanceVolume}
+              isBackgroundEnabled={isBackgroundEnabled}
+              setIsBackgroundEnabled={setIsBackgroundEnabled}
+              backgroundColor={backgroundColor}
+              setMediaPopupPosition={setMediaPopupPosition}
+              setIsMediaPopupOpen={setIsMediaPopupOpen}
+              setColorPalettePosition={(pos) => {
+                setColorPalettePosition(pos);
+                setColorPaletteContext('shape');
+              }}
+              setIsColorPaletteOpen={setIsColorPaletteOpen}
+              isTransitionEnabled={isTransitionEnabled}
+              setIsTransitionEnabled={setIsTransitionEnabled}
+              showTransitionDropdown={showTransitionDropdown}
+              setShowTransitionDropdown={setShowTransitionDropdown}
+              selectedTransition={selectedTransition}
+              setSelectedTransition={setSelectedTransition}
+              activeSettingsPanel={activeSettingsPanel}
+              setActiveSettingsPanel={setActiveSettingsPanel}
+              componentBasedSlideDeck={componentBasedSlideDeck}
+              setActiveTransitionIndex={setActiveTransitionIndex}
+              shapeColor={shapeColor}
+              onShapeColorChange={setShapeColor}
+              strokeColor={strokeColor}
+              onStrokeColorChange={setStrokeColor}
+              onColorPaletteContextChange={setColorPaletteContext}
+              onClose={() => setShowTextRightPanel(false)}
             />
           ) : showAvatarRightPanel ? (
             <AvatarRightPanel
