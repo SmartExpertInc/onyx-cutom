@@ -312,8 +312,8 @@ function CreatePageHandler() {
     const lessonNumber = searchParams?.get('lessonNumber');
     const folderId = searchParams?.get('folderId');
 
-    if ((product === 'lesson' || product === 'quiz' || product === 'text-presentation') && lessonType && lessonTitle && moduleName && lessonNumber) {
-      // Store lesson/quiz/text-presentation context in sessionStorage for use across all creation paths
+    if ((product === 'lesson' || product === 'quiz' || product === 'text-presentation' || product === 'video-lesson') && lessonType && lessonTitle && moduleName && lessonNumber) {
+      // Store lesson/quiz/text-presentation/video-lesson context in sessionStorage for use across all creation paths
       const lessonContext = {
         product: product,
         lessonType: lessonType,
@@ -324,7 +324,7 @@ function CreatePageHandler() {
       };
       sessionStorage.setItem('lessonContext', JSON.stringify(lessonContext));
     } else {
-      // If no lesson/quiz/text-presentation parameters are present, clear any existing context
+      // If no lesson/quiz/text-presentation/video-lesson parameters are present, clear any existing context
       // This ensures that if user navigates directly to /create, they don't carry over old context
       try {
         sessionStorage.removeItem('lessonContext');

@@ -318,6 +318,8 @@ function GenerateProductPicker() {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+    } else if (product === 'video-lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
+      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else {
       // Try to get from sessionStorage
       try {
@@ -347,6 +349,16 @@ function GenerateProductPicker() {
       } else if (lessonContext.product === 'text-presentation') {
         setActiveProduct("One-Pager");
         setUseExistingTextOutline(true);
+        sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
+      } else if (lessonContext.product === 'video-lesson') {
+        setActiveProduct("Video Lesson");
+        
+        // Video Lesson uses the same outline selection as Presentation
+        // Since we have video lesson context from the modal, automatically set useExistingOutline to true
+        // This bypasses the "Do you want to create a lesson from an existing Course Outline?" question
+        setUseExistingOutline(true);
+        
+        // Store video lesson context for pre-selecting dropdowns after outlines are loaded
         sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
       } else {
         setActiveProduct("Presentation");
@@ -379,8 +391,8 @@ function GenerateProductPicker() {
         // Continue with clearing if there's an error
       }
 
-          // Clear lesson context when switching away from Presentation
-    if (activeProduct !== "Presentation") {
+          // Clear lesson context when switching away from Presentation or Video Lesson
+    if (activeProduct !== "Presentation" && activeProduct !== "Video Lesson") {
         setUseExistingOutline(false);  // Default to standalone mode instead of null
         setSelectedOutlineId(null);
         setSelectedModuleIndex(null);
@@ -485,9 +497,9 @@ function GenerateProductPicker() {
     };
   }, [showQuestionTypesDropdown]);
 
-  // Fetch outlines when switching to Presentation tab and user chooses to use existing outline
+  // Fetch outlines when switching to Presentation or Video Lesson tab and user chooses to use existing outline
   useEffect(() => {
-    if (activeProduct !== "Presentation" || useExistingOutline !== true) return;
+    if ((activeProduct !== "Presentation" && activeProduct !== "Video Lesson") || useExistingOutline !== true) return;
     const fetchOutlines = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
@@ -552,7 +564,7 @@ function GenerateProductPicker() {
 
   // Fetch lessons when outline changes
   useEffect(() => {
-    if (activeProduct !== "Presentation" || selectedOutlineId == null || useExistingOutline !== true) return;
+    if ((activeProduct !== "Presentation" && activeProduct !== "Video Lesson") || selectedOutlineId == null || useExistingOutline !== true) return;
     
     // Skip if we already have modules loaded (from pre-selection)
     if (modulesForOutline.length > 0) return;
@@ -1082,14 +1094,27 @@ function GenerateProductPicker() {
   };
 
   const handleVideoLessonStart = () => {
-    // Check if prompt entered or coming from files/text/knowledge base
-    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+    // Check if using existing outline or standalone mode
+    if (useExistingOutline === true) {
+      if (!selectedOutlineId || !selectedLesson) return;
+    } else {
+      // If standalone video lesson, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+    }
 
     const params = new URLSearchParams();
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
     params.set("lang", language);
+    
+    // Add outline and lesson parameters if using existing outline
+    if (useExistingOutline === true && selectedOutlineId) {
+      params.set("outlineId", String(selectedOutlineId));
+    }
+    if (useExistingOutline === true && selectedLesson) {
+      params.set("lesson", selectedLesson);
+    }
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -1339,7 +1364,7 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {activeProduct === "Presentation" && useExistingOutline !== null && (
+        {(activeProduct === "Presentation" || activeProduct === "Video Lesson") && useExistingOutline !== null && (
           <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
@@ -1881,7 +1906,9 @@ function GenerateProductPicker() {
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+          (activeProduct === "Video Lesson" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
+          (activeProduct === "Video Lesson" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
           <div className="flex justify-center mt-3 mb-4">
             <Button
               onClick={() => {
