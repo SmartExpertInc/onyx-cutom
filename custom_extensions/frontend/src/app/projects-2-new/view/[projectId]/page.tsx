@@ -1024,7 +1024,11 @@ function Projects2ViewPageContent() {
                     console.log('✏️ EDITOR ACTIVE:', { field, hasEditor: !!editor, computedStyles });
                     setActiveTextEditor(editor);
                     setComputedTextStyles(computedStyles || null);
-                    // setActiveSettingsPanel('text'); // Disabled - only show toolbar
+                    
+                    // Open TextRightPanel instead of floating toolbar
+                    setShowTextRightPanel(true);
+                    setShowShapeRightPanel(false);
+                    setShowAvatarRightPanel(false);
                     
                     // Update current text color
                     const inlineColor = editor?.getAttributes?.('textStyle')?.color;
@@ -1041,30 +1045,6 @@ function Projects2ViewPageContent() {
                       }
                     }
                     setCurrentTextColor(hexColor);
-                    
-                    // Calculate toolbar position above the text element
-                    if (editor && editor.view && editor.view.dom) {
-                      const editorElement = editor.view.dom as HTMLElement;
-                      const rect = editorElement.getBoundingClientRect();
-                      const toolbarHeight = 50; // Approximate toolbar height
-                      const toolbarWidth = 500; // Approximate toolbar width
-                      
-                      // Position above the text element, centered
-                      let x = rect.left + (rect.width / 2) - (toolbarWidth / 2);
-                      let y = rect.top - toolbarHeight - 10; // 10px gap
-                      
-                      // Keep within viewport
-                      if (x < 10) x = 10;
-                      if (x + toolbarWidth > window.innerWidth - 10) {
-                        x = window.innerWidth - toolbarWidth - 10;
-                      }
-                      if (y < 10) {
-                        y = rect.bottom + 10; // Position below if not enough space above
-                      }
-                      
-                      setTextToolbarPosition({ x, y });
-                      setIsTextToolbarVisible(true);
-                    }
                   }}
                   theme="default"
                   isVideoMode={true}
@@ -1171,6 +1151,8 @@ function Projects2ViewPageContent() {
               strokeColor={strokeColor}
               onStrokeColorChange={setStrokeColor}
               onColorPaletteContextChange={setColorPaletteContext}
+              activeEditor={activeTextEditor}
+              computedStyles={computedTextStyles}
               onClose={() => setShowTextRightPanel(false)}
             />
           ) : showAvatarRightPanel ? (
@@ -1405,7 +1387,15 @@ function Projects2ViewPageContent() {
         isOpen={isColorPaletteOpen}
         onClose={() => setIsColorPaletteOpen(false)}
         onColorChange={(color) => {
-          if (colorPaletteContext === 'shape') {
+          // If TextRightPanel is open and we're changing color, it's text color
+          if (showTextRightPanel && activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
+            try {
+              activeTextEditor.chain().focus().setColor(color).run();
+              setCurrentTextColor(color);
+            } catch (error) {
+              console.warn('Text color change failed:', error);
+            }
+          } else if (colorPaletteContext === 'shape') {
             setShapeColor(color);
           } else if (colorPaletteContext === 'stroke') {
             setStrokeColor(color);
@@ -1415,6 +1405,7 @@ function Projects2ViewPageContent() {
           setIsColorPaletteOpen(false);
         }}
         selectedColor={
+          showTextRightPanel ? currentTextColor :
           colorPaletteContext === 'shape' ? shapeColor : 
           colorPaletteContext === 'stroke' ? strokeColor : 
           backgroundColor
@@ -1422,7 +1413,8 @@ function Projects2ViewPageContent() {
         position={colorPalettePosition}
       />
 
-      {/* Text Editing Toolbar */}
+      {/* Text Editing Toolbar - Hidden since we're using TextRightPanel instead */}
+      {/* 
       <TextEditingToolbar
         activeEditor={activeTextEditor}
         computedStyles={computedTextStyles}
@@ -1435,8 +1427,10 @@ function Projects2ViewPageContent() {
         }}
         onColorPickerClose={() => setIsTextColorPickerOpen(false)}
       />
+      */}
 
-      {/* Text Color Picker - Rendered at page level */}
+      {/* Text Color Picker - No longer needed, using ColorPalettePopup from TextRightPanel instead */}
+      {/* 
       <ColorPalettePopup
         isOpen={isTextColorPickerOpen}
         onClose={() => {
@@ -1444,45 +1438,15 @@ function Projects2ViewPageContent() {
           setIsTextColorPickerOpen(false);
         }}
         onColorChange={(color) => {
-          console.log('🎨 TEXT COLOR CHANGE TRIGGERED:', color);
-          console.log('🎨 ACTIVE EDITOR STATUS:', {
-            exists: !!activeTextEditor,
-            isDestroyed: activeTextEditor?.isDestroyed,
-            hasView: !!activeTextEditor?.view
-          });
-          
-          // Update current color immediately
           setCurrentTextColor(color);
           
           if (activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
             try {
-              // Check if Color extension is available
-              console.log('🎨 EDITOR CAPABILITIES:', {
-                hasChain: !!activeTextEditor.chain,
-                hasFocus: !!activeTextEditor.chain().focus,
-                hasSetColor: !!activeTextEditor.chain().focus().setColor,
-                canSetColor: activeTextEditor.can?.().setColor?.(color)
-              });
-              
-              // Apply color using TipTap's color command
-              const result = activeTextEditor.chain().focus().setColor(color).run();
-              console.log('✅ COLOR COMMAND EXECUTED:', { color, result });
-              
-              // Verify the color was applied
-              const appliedColor = activeTextEditor.getAttributes('textStyle').color;
-              console.log('🔍 VERIFICATION - COLOR IN EDITOR AFTER APPLY:', appliedColor);
-              
-              // Close color picker immediately after applying color
+              activeTextEditor.chain().focus().setColor(color).run();
               setIsTextColorPickerOpen(false);
-              console.log('✅ COLOR PICKER CLOSED');
             } catch (error) {
-              console.error('❌ COLOR CHANGE FAILED:', error, error instanceof Error ? error.message : '');
+              console.error('❌ COLOR CHANGE FAILED:', error);
             }
-          } else {
-            console.error('❌ NO ACTIVE EDITOR AVAILABLE', {
-              activeTextEditor,
-              isDestroyed: activeTextEditor?.isDestroyed
-            });
           }
         }}
         selectedColor={currentTextColor}
@@ -1490,6 +1454,7 @@ function Projects2ViewPageContent() {
         recentColors={textRecentColors}
         onRecentColorChange={setTextRecentColors}
       />
+      */}
       </div>
       
         </div>

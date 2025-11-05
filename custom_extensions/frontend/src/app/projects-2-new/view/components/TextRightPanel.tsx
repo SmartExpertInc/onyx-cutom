@@ -47,6 +47,15 @@ interface TextRightPanelProps {
   // Color palette context
   onColorPaletteContextChange?: (context: 'shape' | 'stroke') => void;
   
+  // Text editor props (from TextEditingToolbar)
+  activeEditor?: any | null;
+  computedStyles?: {
+    fontSize?: string;
+    fontFamily?: string;
+    color?: string;
+    textAlign?: string;
+  } | null;
+  
   // Close handler
   onClose: () => void;
 }
@@ -82,6 +91,8 @@ export default function TextRightPanel({
   strokeColor,
   onStrokeColorChange,
   onColorPaletteContextChange,
+  activeEditor,
+  computedStyles,
   onClose,
 }: TextRightPanelProps) {
   const { t } = useLanguage();
@@ -107,6 +118,80 @@ export default function TextRightPanel({
   const [selectedTextAlignment, setSelectedTextAlignment] = useState<'left' | 'center' | 'right'>('left');
   const [selectedListType, setSelectedListType] = useState<'numbered' | 'none' | 'bulleted'>('none');
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [fontColor, setFontColor] = useState<string>('#000000');
+
+  // Helper function to convert RGB color to hex (from TextEditingToolbar)
+  const rgbToHex = (color: string): string => {
+    if (!color) return '#000000';
+    
+    // If already hex, return it
+    if (color.startsWith('#')) return color;
+    
+    // Parse rgb() or rgba()
+    const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+      const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+      const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
+    }
+    
+    return '#000000';
+  };
+
+  // Sync formatting state with active editor (from TextEditingToolbar)
+  useEffect(() => {
+    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+      try {
+        // Get current text color
+        const inlineColor = activeEditor.getAttributes('textStyle').color;
+        const rawColor = inlineColor || computedStyles?.color || '#000000';
+        const hexColor = rgbToHex(rawColor);
+        setFontColor(hexColor);
+        setSelectedColor(hexColor);
+        setHasColor(true);
+        
+        // Get current font family - prefer inline, fallback to computed
+        const inlineFontFamily = activeEditor.getAttributes('textStyle').fontFamily;
+        const currentFontFamily = inlineFontFamily || computedStyles?.fontFamily || 'Inter, sans-serif';
+        setSelectedFontFamily(currentFontFamily);
+        
+        // Get current font size - prefer inline, fallback to computed
+        const inlineFontSize = activeEditor.getAttributes('textStyle').fontSize;
+        const currentFontSize = inlineFontSize || computedStyles?.fontSize || '16px';
+        setFontSize(parseInt(currentFontSize));
+        
+        // Get current text alignment
+        if (activeEditor.isActive({ textAlign: 'left' })) {
+          setSelectedTextAlignment('left');
+        } else if (activeEditor.isActive({ textAlign: 'center' })) {
+          setSelectedTextAlignment('center');
+        } else if (activeEditor.isActive({ textAlign: 'right' })) {
+          setSelectedTextAlignment('right');
+        } else {
+          const computedAlign = computedStyles?.textAlign || 'left';
+          setSelectedTextAlignment(computedAlign as 'left' | 'center' | 'right');
+        }
+
+        // Get current text style (bold, italic, etc.)
+        if (activeEditor.isActive('bold') && activeEditor.isActive('italic')) {
+          setSelectedTextStyle('Bold Italic');
+        } else if (activeEditor.isActive('bold')) {
+          setSelectedTextStyle('Bold');
+        } else if (activeEditor.isActive('italic')) {
+          setSelectedTextStyle('Italic');
+        } else if (activeEditor.isActive('underline')) {
+          setSelectedTextStyle('Underline');
+        } else if (activeEditor.isActive('strike')) {
+          setSelectedTextStyle('Strikethrough');
+        } else {
+          setSelectedTextStyle('Regular');
+        }
+      } catch (error) {
+        console.warn('Editor sync failed:', error);
+      }
+    }
+  }, [activeEditor, computedStyles]);
 
   // Update selectedColor when shapeColor prop changes
   useEffect(() => {
@@ -197,28 +282,57 @@ export default function TextRightPanel({
 
           {/* Dropdown menu */}
           {showFontFamilyDropdown && (
-            <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 p-0.5" style={{ borderColor: '#E0E0E0' }}>
-              {/* Inter option */}
-              <button
-                onClick={() => {
-                  setSelectedFontFamily('Inter');
-                  setShowFontFamilyDropdown(false);
-                }}
-                className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
-                style={{
-                  backgroundColor: 'transparent',
-                  fontFamily: 'Inter'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E0E0E0'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <span style={{ color: '#848485' }}>Inter</span>
-                {selectedFontFamily === 'Inter' && (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-              </button>
+            <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 p-0.5 max-h-64 overflow-y-auto" style={{ borderColor: '#E0E0E0' }}>
+              {/* Font Family Options (from TextEditingToolbar) */}
+              {[
+                { value: 'Arial, sans-serif', label: 'Arial' },
+                { value: 'Helvetica, Arial, sans-serif', label: 'Helvetica' },
+                { value: '"Times New Roman", Times, serif', label: 'Times New Roman' },
+                { value: 'Georgia, serif', label: 'Georgia' },
+                { value: '"Courier New", Courier, monospace', label: 'Courier New' },
+                { value: 'Verdana, Geneva, sans-serif', label: 'Verdana' },
+                { value: 'Tahoma, Geneva, sans-serif', label: 'Tahoma' },
+                { value: '"Trebuchet MS", Helvetica, sans-serif', label: 'Trebuchet MS' },
+                { value: 'Impact, Charcoal, sans-serif', label: 'Impact' },
+                { value: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', label: 'Inter' }
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().setMark('textStyle', { fontFamily: option.value }).run();
+                        setSelectedFontFamily(option.value);
+                        setShowFontFamilyDropdown(false);
+                      } catch (error) {
+                        console.warn('Font family change failed:', error);
+                      }
+                    }
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: selectedFontFamily === option.value ? '#CCDBFC' : 'transparent',
+                    fontFamily: option.label
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedFontFamily !== option.value) {
+                      e.currentTarget.style.backgroundColor = '#E0E0E0';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedFontFamily !== option.value) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <span style={{ color: '#848485' }}>{option.label}</span>
+                  {selectedFontFamily === option.value && (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -252,15 +366,49 @@ export default function TextRightPanel({
                   <button
                     key={style}
                     onClick={() => {
-                      setSelectedTextStyle(style);
-                      setShowTextStyleDropdown(false);
+                      if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                        try {
+                          // Clear all formatting first
+                          activeEditor.chain().focus()
+                            .unsetBold()
+                            .unsetItalic()
+                            .unsetUnderline()
+                            .unsetStrike()
+                            .run();
+                          
+                          // Apply the selected style
+                          if (style === 'Bold') {
+                            activeEditor.chain().focus().toggleBold().run();
+                          } else if (style === 'Italic') {
+                            activeEditor.chain().focus().toggleItalic().run();
+                          } else if (style === 'Underline') {
+                            activeEditor.chain().focus().toggleUnderline().run();
+                          } else if (style === 'Strikethrough') {
+                            activeEditor.chain().focus().toggleStrike().run();
+                          }
+                          // 'Regular' means no formatting
+                          
+                          setSelectedTextStyle(style);
+                          setShowTextStyleDropdown(false);
+                        } catch (error) {
+                          console.warn('Text style change failed:', error);
+                        }
+                      }
                     }}
                     className="w-full flex items-center justify-between px-2 py-2 text-xs rounded-sm transition-colors cursor-pointer"
                     style={{
-                      backgroundColor: 'transparent'
+                      backgroundColor: selectedTextStyle === style ? '#CCDBFC' : 'transparent'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E0E0E0'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onMouseEnter={(e) => {
+                      if (selectedTextStyle !== style) {
+                        e.currentTarget.style.backgroundColor = '#E0E0E0';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedTextStyle !== style) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
                   >
                     <span style={{ color: '#848485' }}>{style}</span>
                     {selectedTextStyle === style && (
@@ -294,6 +442,15 @@ export default function TextRightPanel({
                     // Clamp the value between 8 and 200
                     const clampedValue = Math.min(Math.max(numValue, 8), 200);
                     setFontSize(clampedValue);
+                    
+                    // Apply to editor
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().setMark('textStyle', { fontSize: `${clampedValue}px` }).run();
+                      } catch (error) {
+                        console.warn('Font size change failed:', error);
+                      }
+                    }
                   }
                 }}
                 className="text-sm font-medium border-none outline-none bg-transparent"
@@ -309,12 +466,24 @@ export default function TextRightPanel({
                   const clickY = e.clientY - rect.top;
                   const halfHeight = rect.height / 2;
                   
+                  let newSize: number;
                   if (clickY < halfHeight) {
                     // Clicked upper half - increment
-                    setFontSize(prev => Math.min(prev + 1, 200));
+                    newSize = Math.min(fontSize + 1, 200);
                   } else {
                     // Clicked lower half - decrement
-                    setFontSize(prev => Math.max(prev - 1, 8));
+                    newSize = Math.max(fontSize - 1, 8);
+                  }
+                  
+                  setFontSize(newSize);
+                  
+                  // Apply to editor
+                  if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                    try {
+                      activeEditor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
+                    } catch (error) {
+                      console.warn('Font size change failed:', error);
+                    }
                   }
                 }}
                 style={{ padding: '2px' }}
@@ -337,7 +506,16 @@ export default function TextRightPanel({
           <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5', height: '32px' }}>
             {/* Left Align */}
             <button
-              onClick={() => setSelectedTextAlignment('left')}
+              onClick={() => {
+                setSelectedTextAlignment('left');
+                if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                  try {
+                    activeEditor.chain().focus().setTextAlign('left').run();
+                  } catch (error) {
+                    console.warn('Text align left failed:', error);
+                  }
+                }
+              }}
               className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedTextAlignment === 'left' ? 'white' : 'transparent',
@@ -351,7 +529,16 @@ export default function TextRightPanel({
 
             {/* Center Align */}
             <button
-              onClick={() => setSelectedTextAlignment('center')}
+              onClick={() => {
+                setSelectedTextAlignment('center');
+                if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                  try {
+                    activeEditor.chain().focus().setTextAlign('center').run();
+                  } catch (error) {
+                    console.warn('Text align center failed:', error);
+                  }
+                }
+              }}
               className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedTextAlignment === 'center' ? 'white' : 'transparent',
@@ -365,7 +552,16 @@ export default function TextRightPanel({
 
             {/* Right Align */}
             <button
-              onClick={() => setSelectedTextAlignment('right')}
+              onClick={() => {
+                setSelectedTextAlignment('right');
+                if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                  try {
+                    activeEditor.chain().focus().setTextAlign('right').run();
+                  } catch (error) {
+                    console.warn('Text align right failed:', error);
+                  }
+                }
+              }}
               className="flex-1 rounded-md transition-all flex items-center justify-center cursor-pointer"
               style={{
                 backgroundColor: selectedTextAlignment === 'right' ? 'white' : 'transparent',
@@ -432,38 +628,34 @@ export default function TextRightPanel({
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.color', 'Color')}</h3>
         </div>
 
-        {/* Color picker button */}
+        {/* Color picker button - Now controls TEXT color */}
         <button
-          className={`w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${hasColor && selectedColor ? 'justify-between' : 'justify-center'}`}
+          className={`w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${hasColor && fontColor ? 'justify-between' : 'justify-center'}`}
           style={{ 
             backgroundColor: 'white',
             borderColor: '#E0E0E0',
             color: '#848485'
           }}
           onClick={(e) => {
-            if (!hasColor) {
-              // If no color, open color palette
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
-              
-              // Position the color palette to the left of the button
-              const paletteWidth = 270; // Actual width of color palette
-              const gap = 8;
-              
-              setColorPalettePosition({
-                x: rect.left - paletteWidth - gap,
-                y: rect.top
-              });
-              if (onColorPaletteContextChange) {
-                onColorPaletteContextChange('shape');
-              }
-              setIsColorPaletteOpen(true);
+            // Open color palette
+            const button = e.currentTarget;
+            const rect = button.getBoundingClientRect();
+            
+            // Position the color palette to the left of the button
+            const paletteWidth = 270; // Actual width of color palette
+            const gap = 8;
+            
+            setColorPalettePosition({
+              x: rect.left - paletteWidth - gap,
+              y: rect.top
+            });
+            if (onColorPaletteContextChange) {
+              onColorPaletteContextChange('shape');
             }
-            // If color exists, clicking on the square/text area should also open palette
-            // The delete icon has its own click handler below
+            setIsColorPaletteOpen(true);
           }}
         >
-          {hasColor && selectedColor ? (
+          {hasColor && fontColor ? (
             <>
               {/* Show color square and code when color is selected */}
               <div 
@@ -492,14 +684,14 @@ export default function TextRightPanel({
                 <div 
                   className="w-5 h-5 rounded border"
                   style={{ 
-                    backgroundColor: selectedColor,
+                    backgroundColor: fontColor,
                     borderColor: '#E0E0E0'
                   }}
                 />
                 {/* Color code */}
-                <span style={{ color: '#848485' }}>{selectedColor}</span>
+                <span style={{ color: '#848485' }}>{fontColor}</span>
               </div>
-              {/* Delete icon */}
+              {/* Delete icon - Reset to black */}
               <svg 
                 width="20" 
                 height="20" 
@@ -508,11 +700,16 @@ export default function TextRightPanel({
                 xmlns="http://www.w3.org/2000/svg"
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Remove the color
-                  setSelectedColor(null);
-                  setHasColor(false);
-                  if (onShapeColorChange) {
-                    onShapeColorChange('');
+                  // Reset to black
+                  const defaultColor = '#000000';
+                  setFontColor(defaultColor);
+                  setSelectedColor(defaultColor);
+                  if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                    try {
+                      activeEditor.chain().focus().setColor(defaultColor).run();
+                    } catch (error) {
+                      console.warn('Color reset failed:', error);
+                    }
                   }
                 }}
                 style={{ cursor: 'pointer' }}
@@ -528,7 +725,7 @@ export default function TextRightPanel({
                 <path d="M6.99414 4V10" stroke="#878787" strokeLinecap="round"/>
                 <path d="M10 6.99609L4 6.99609" stroke="#878787" strokeLinecap="round"/>
               </svg>
-              {t('shapeRightPanel.addColor', 'Add color')}
+              {t('textRightPanel.textColor', 'Text color')}
             </>
           )}
         </button>
@@ -910,14 +1107,14 @@ export default function TextRightPanel({
             <div className="flex-1">
               <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
                 {/* Left side - Icon and Input with degree */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {/* Rotation icon */}
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.19238 2.74414C9.20734 2.75487 9.21087 2.77607 9.2002 2.79102L2.23242 12.5068L1.66504 13.2979H14.3994C14.4178 13.2979 14.4326 13.3137 14.4326 13.332C14.4324 13.3503 14.4177 13.3652 14.3994 13.3652H1.59961C1.58706 13.3652 1.57595 13.3577 1.57031 13.3467C1.56474 13.3357 1.56522 13.3227 1.57227 13.3125L9.14551 2.75195C9.15616 2.73709 9.17744 2.73365 9.19238 2.74414ZM14.293 11.165C14.3114 11.165 14.3261 11.1798 14.3262 11.1982C14.3262 11.2167 14.3114 11.2314 14.293 11.2314C14.2747 11.2314 14.2598 11.2166 14.2598 11.1982C14.2598 11.1799 14.2747 11.1651 14.293 11.165ZM13.4395 9.03125C13.4578 9.03125 13.4727 9.04705 13.4727 9.06543C13.4724 9.0836 13.4577 9.09863 13.4395 9.09863C13.4213 9.09848 13.4065 9.08358 13.4062 9.06543C13.4062 9.04708 13.4212 9.0314 13.4395 9.03125ZM12.373 6.89844C12.3914 6.89844 12.4062 6.91326 12.4062 6.93164C12.4062 6.95002 12.3914 6.96484 12.373 6.96484C12.3546 6.96483 12.3398 6.95008 12.3398 6.93164C12.3398 6.91321 12.3546 6.89845 12.373 6.89844ZM11.0928 4.76465C11.111 4.76465 11.1257 4.77962 11.126 4.79785C11.126 4.8163 11.1112 4.83203 11.0928 4.83203C11.0746 4.83187 11.0596 4.81617 11.0596 4.79785C11.0598 4.77974 11.0747 4.76481 11.0928 4.76465Z" fill="#09090B" stroke="#09090B"/>
                   </svg>
 
                   {/* Input for manual entry and degree symbol */}
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1">
                     <input
                       type="text"
                       value={rotation}
@@ -936,10 +1133,10 @@ export default function TextRightPanel({
                           setRotation(wrappedValue);
                         }
                       }}
-                      className="text-sm font-medium border-none outline-none bg-transparent text-right"
-                      style={{ color: '#171718', width: '30px' }}
+                      className="text-sm font-medium border-none outline-none bg-transparent text-right w-full"
+                      style={{ color: '#171718' }}
                     />
-                    <span className="text-sm font-medium" style={{ color: '#171718' }}>°</span>
+                    <span className="text-sm font-medium ml-0.5" style={{ color: '#171718' }}>°</span>
                   </div>
                 </div>
 
