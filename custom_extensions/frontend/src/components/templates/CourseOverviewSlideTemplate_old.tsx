@@ -155,7 +155,7 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: backgroundColor || '#ffffff', // Use prop backgroundColor, fallback to white
+    backgroundColor: '#ffffff',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',

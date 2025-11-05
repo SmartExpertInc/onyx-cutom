@@ -288,34 +288,6 @@ export default function Projects2ViewPage() {
     }
   };
 
-  // NEW: Function to handle background color changes
-  const handleBackgroundColorChange = (color: string) => {
-    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId) return;
-
-    console.log('🎨 [BACKGROUND] Changing background color:', { slideId: currentSlideId, color });
-
-    const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlideId);
-    if (slideIndex === -1) {
-      console.warn('🎨 [BACKGROUND] Slide not found:', currentSlideId);
-      return;
-    }
-
-    const updatedDeck = { ...componentBasedSlideDeck };
-    updatedDeck.slides = [...updatedDeck.slides];
-    updatedDeck.slides[slideIndex] = {
-      ...updatedDeck.slides[slideIndex],
-      props: {
-        ...updatedDeck.slides[slideIndex].props,
-        backgroundColor: color
-      }
-    };
-
-    console.log('🎨 [BACKGROUND] Updated slide:', updatedDeck.slides[slideIndex]);
-
-    setComponentBasedSlideDeck(updatedDeck);
-    saveVideoLessonData(updatedDeck);
-  };
-
   // NEW: Handle transition button click
   const handleTransitionClick = (transitionIndex: number) => {
     console.log('🎬 Transition clicked:', transitionIndex);
@@ -795,14 +767,7 @@ export default function Projects2ViewPage() {
           onAddSlide={handleAddSlide}
         />;
       case 'background':
-        // Get current slide for background component
-        const currentSlide = isComponentBasedVideoLesson && componentBasedSlideDeck && currentSlideId
-          ? componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId)
-          : undefined;
-        return <Background 
-          currentSlide={currentSlide}
-          onBackgroundChange={handleBackgroundColorChange}
-        />;
+        return <Background />;
       case 'music':
         return <Music />;
       case 'comments':
