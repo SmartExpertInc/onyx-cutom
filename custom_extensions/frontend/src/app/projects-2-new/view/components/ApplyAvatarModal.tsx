@@ -99,16 +99,27 @@ export default function ApplyAvatarModal({
                 {/* Circle for avatar - only visible when replace is selected */}
                 {selectedAction === 'replace' && (
                   <div
-                    className="rounded-full flex items-center justify-center"
+                    className="rounded-full flex items-center justify-center relative"
                     style={{
                       width: '40px',
                       height: '40px',
                       border: '1px solid #E0E0E0',
-                      marginRight: '2px'
+                      marginRight: '2px',
+                      overflow: 'hidden'
                     }}
                   >
                     {/* Avatar SVG inside circle */}
-                    <svg width="14" height="16" viewBox="0 0 25 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg 
+                      width="32" 
+                      height="34" 
+                      viewBox="0 0 25 29" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{
+                        position: 'relative',
+                        top: '4px'
+                      }}
+                    >
                       <path d="M12.312 13.038C15.9123 13.038 18.831 10.1193 18.831 6.519C18.831 2.91866 15.9123 0 12.312 0C8.71162 0 5.79297 2.91866 5.79297 6.519C5.79297 10.1193 8.71162 13.038 12.312 13.038Z" fill="#E0E0E0"/>
                       <path fillRule="evenodd" clipRule="evenodd" d="M24.6268 19.5585V27.7776C24.6268 28.1774 24.3023 28.5019 23.9025 28.5019H0.724318C0.324493 28.5019 0 28.1774 0 27.7776V19.5585C0 18.2134 0.534551 16.9242 1.48485 15.9731C2.43589 15.0221 3.72517 14.4883 5.07022 14.4883H19.5566C20.9016 14.4883 22.1909 15.0221 23.1419 15.9731C24.0923 16.9242 24.6268 18.2134 24.6268 19.5585Z" fill="#E0E0E0"/>
                     </svg>
