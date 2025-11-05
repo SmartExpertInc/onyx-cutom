@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "../styles/positioning.css";
 
+/* Public Sans and Sora fonts are loaded via link tags in layout.tsx for better performance */
+
 /* Lora Font Family - Used in Dark Purple Theme */
 @font-face {
   font-family: 'Lora';
@@ -87,7 +89,7 @@
 
 body {
   color: var(--foreground);
-  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 400;
   font-size: 18px;
 }
@@ -467,40 +469,62 @@ body:has([aria-modal="true"]) [draggable="true"] {
 
 /* Sora Font Classes */
 .sora-font {
-  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 .sora-font-bold {
-  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 700;
 }
 
 .sora-font-semibold {
-  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 600;
 }
 
 .sora-font-medium {
-  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 500;
 }
 
 /* Public Sans Font Classes */
 .public-sans-font {
-  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 .public-sans-font-bold {
-  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 700;
 }
 
 .public-sans-font-semibold {
-  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 600;
 }
 
 .public-sans-font-medium {
-  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-weight: 500;
+}
+
+/* Override Inter font classes to use Public Sans */
+.inter-theme,
+.chudo-theme-title,
+.chudo-theme-content,
+.chudo-theme-subtitle,
+.theme-chudo-theme,
+.theme-chudo-2,
+.theme-chudo-theme h1,
+.theme-chudo-theme h2,
+.theme-chudo-theme h3,
+.theme-chudo-2 h1,
+.theme-chudo-2 h2,
+.theme-chudo-2 h3 {
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Ensure sora-font works properly and overrides Public Sans */
+.sora-font,
+.sora-font * {
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }

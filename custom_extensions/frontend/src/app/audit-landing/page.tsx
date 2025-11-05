@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const GenerateCard = ({ svg, label, active, onClick }: any) => {
   return (
     <Card
-      className="group relative rounded-sm overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105 w-[140px] h-[140px]"
+      className="group relative rounded-sm overflow-hidden transition-all duration-200 cursor-pointer border border-[#E0E0E0] hover:scale-95 w-[140px] h-[120px]"
       style={{
         backgroundColor: '#FFFFFF',
         border: 'none',
@@ -24,10 +24,7 @@ const GenerateCard = ({ svg, label, active, onClick }: any) => {
           </div>
         )}
         <span 
-          className="text-sm leading-tight text-center font-medium"
-          style={{
-            color: active ? '#0D001B' : '#797979'
-          }}
+          className="leading-tight text-black text-center font-bold"
         >
           {label}
         </span>
@@ -105,19 +102,19 @@ export default function AuditLandingPage() {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <button className="text-white text-sm flex items-center gap-1 hover:opacity-80 transition-opacity sora-font">
+          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
             Solutions
             <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
             </svg>
           </button>
-          <button className="text-white text-sm flex items-center gap-1 hover:opacity-80 transition-opacity sora-font">
+          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
             Product
             <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
             </svg>
           </button>
-          <button className="text-white text-sm flex items-center gap-1 hover:opacity-80 transition-opacity sora-font">
+          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
             Customers
             <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
@@ -147,7 +144,7 @@ export default function AuditLandingPage() {
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center px-8 py-12 relative z-10">
         {/* Headline */}
-        <h1 className="text-white text-4xl md:text-5xl lg:text-64px font-bold text-center mb-6 max-w-4xl sora-font">
+        <h1 className="text-white text-4xl md:text-5xl lg:text-[64px] font-bold text-center mb-6 max-w-4xl sora-font">
           From idea to live course — all in one place
         </h1>
 
@@ -158,20 +155,20 @@ export default function AuditLandingPage() {
 
         {/* Content Type Panel */}
         <div 
-          className="rounded-[10px] mb-8 backdrop-blur-sm relative"
+          className="rounded-[24px] mb-8 relative"
           style={{
-            background: 'linear-gradient(to bottom, #FFFFFF, #FFFFFF1A)',
+            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05))',
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
             padding: '1px',
           }}
         >
           <div 
-            className="rounded-[10px] p-8"
+            className="rounded-[24px] p-8 backdrop-blur-lg"
             style={{
-              background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)',
             }}
           >
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-5">
             <GenerateCard
               label="Course"
               svg={
@@ -232,7 +229,7 @@ export default function AuditLandingPage() {
 
         {/* Try for Free Button */}
         <button 
-          className="px-8 py-4 rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center gap-2 transition-all hover:scale-105"
+          className="px-10 py-4 rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center gap-4 transition-all hover:scale-95"
           style={{
             backgroundColor: '#0F58F9',
           }}
@@ -248,64 +245,61 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 sora-font">
+          <h2 className="text-[46px] md:text-5xl font-semibold text-center mb-4 sora-font">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
             <span className="text-black"> for Learning Content</span>
           </h2>
 
           {/* Sub-heading */}
-          <h3 className="text-2xl md:text-3xl font-bold text-center mb-6 sora-font">
+          <h2 className="text-[46px] md:text-3xl font-semibold text-center mb-6 sora-font">
             <span className="text-black">Create everything — </span>
             <span style={{ color: '#0F58F9' }}>in one place</span>
-          </h3>
+          </h2>
 
           {/* Description */}
-          <p className="text-black text-center mb-8 max-w-3xl text-base sora-font">
+          <p className="text-black text-center text-lg mb-8 max-w-2xl px-10 sora-font">
             Generate videos, voices, images, text, and avatars with the world's top AI models — GPT-5.5, VEO3, 11Lab, NanBanana, AvatarCore, and SmartDrive.
           </p>
 
           {/* Feature Pills */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             {/* Video Pill */}
-            <button className="flex items-center gap-2 px-6 py-3 rounded-full border border-[#E0E0E0] bg-white hover:bg-gray-50 transition-colors">
+            <button className="flex items-center gap-2 px-5 py-2 rounded-full border border-[#E0E0E0] bg-white transition-colors">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5.48367e-05 7.97699C-0.0143451 3.53427 3.71843 -0.115505 8.22079 0.00279726C12.3808 0.114705 16.0175 3.54706 15.9999 8.03614C15.9921 10.1561 15.1417 12.1861 13.6359 13.6797C12.13 15.1732 10.0921 16.0078 7.9704 15.9999C5.84868 15.9921 3.81698 15.1424 2.32225 13.6378C0.827524 12.1332 -0.00779551 10.097 5.48367e-05 7.97699ZM11.8208 8.11767C11.7167 7.97334 11.5946 7.8428 11.4576 7.7292C9.85758 6.78065 8.25226 5.83956 6.64161 4.90594C6.24001 4.67093 5.92001 4.83559 5.92001 5.29441C5.90401 7.18511 5.90401 9.07581 5.92001 10.9665C5.92001 11.4285 6.24001 11.606 6.64001 11.371C8.26346 10.4331 9.88052 9.48454 11.4912 8.52534C11.6096 8.4502 11.68 8.28713 11.8224 8.11767H11.8208Z" fill="#020617"/>
                 </svg>
-              <span className="font-medium text-black">Video</span>
+              <span className="text-black">Video</span>
             </button>
 
             {/* Voice Pill */}
-            <button className="flex items-center gap-2 px-6 py-3 rounded-full border border-[#E0E0E0] bg-white hover:bg-gray-50 transition-colors">
+            <button className="flex items-center gap-2 px-5 py-2 rounded-full border border-[#E0E0E0] bg-white transition-colors">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M8 16C12.418 16 16 12.418 16 8C16 3.582 12.418 0 8 0C3.582 0 0 3.582 0 8C0 12.418 3.582 16 8 16ZM3.5 8.25C3.5 8.52578 3.72422 8.75 4 8.75C4.27578 8.75 4.5 8.52578 4.5 8.25V7.75C4.5 7.47422 4.27578 7.25 4 7.25C3.72422 7.25 3.5 7.47422 3.5 7.75V8.25ZM6 5.5C6.27578 5.5 6.5 5.72422 6.5 6V10C6.5 10.2758 6.27578 10.5 6 10.5C5.72422 10.5 5.5 10.2758 5.5 10V6C5.5 5.72422 5.72422 5.5 6 5.5ZM7.5 11.5C7.5 11.7758 7.72422 12 8 12C8.27578 12 8.5 11.7758 8.5 11.5V4.5C8.5 4.22422 8.27578 4 8 4C7.72422 4 7.5 4.22422 7.5 4.5V11.5ZM10 5.5C10.2758 5.5 10.5 5.72422 10.5 6V10C10.5 10.2758 10.2758 10.5 10 10.5C9.72422 10.5 9.5 10.2758 9.5 10V6C9.5 5.72422 9.72422 5.5 10 5.5ZM12.5 7.75C12.5 7.47422 12.2758 7.25 12 7.25C11.7242 7.25 11.5 7.47422 11.5 7.75V8.25C11.5 8.52578 11.7242 8.75 12 8.75C12.2758 8.75 12.5 8.52578 12.5 8.25V7.75Z" fill="#020617"/>
                 </svg>
-              <span className="font-medium text-black">Voice</span>
+              <span className="text-black">Voice</span>
             </button>
 
             {/* Knowledge Pill */}
-            <button className="flex items-center gap-2 px-6 py-3 rounded-full border border-[#E0E0E0] bg-white hover:bg-gray-50 transition-colors">
+            <button className="flex items-center gap-2 px-5 py-2 rounded-full border border-[#E0E0E0] bg-white transition-colors">
                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M9.56877 3.56076H11.8319L13.4983 1.89434C13.4182 1.72495 13.3731 1.53552 13.3731 1.33525C13.3731 0.610946 13.9623 0.0218194 14.6866 0.0218194C15.4109 0.0218194 16 0.610946 16 1.33525C16 2.05956 15.4109 2.64868 14.6866 2.64868C14.4863 2.64868 14.2969 2.60362 14.1275 2.52352L12.3317 4.32095C12.2474 4.40356 12.1348 4.45029 12.0163 4.45029H9.56883L9.56877 3.56076ZM9.56877 6.89861H11.0733L11.6182 5.80879C11.6933 5.65859 11.8477 5.56347 12.0163 5.56347H13.4499C13.6326 5.05695 14.1174 4.6948 14.6865 4.6948C15.4108 4.6948 16 5.28392 16 6.00823C16 6.73254 15.4108 7.32166 14.6865 7.32166C14.1174 7.32166 13.6326 6.95951 13.4499 6.45299H12.2916L11.7467 7.5428C11.6716 7.69301 11.5172 7.78813 11.3487 7.78813H9.56877V6.89861ZM9.56877 9.56888H13.4499C13.6326 9.06236 14.1174 8.70021 14.6865 8.70021C15.4108 8.70021 16 9.28933 16 10.0136C16 10.7379 15.4108 11.3271 14.6865 11.3271C14.1174 11.3271 13.6326 10.9649 13.4499 10.4584H9.56877V9.56888ZM9.56877 11.5716H12.0162C12.1347 11.5716 12.2474 11.6183 12.3317 11.7009L14.1274 13.4984C14.2968 13.4183 14.4862 13.3732 14.6865 13.3732C15.4108 13.3732 15.9999 13.9623 15.9999 14.6866C15.9999 15.4109 15.4108 16.0001 14.6865 16.0001C13.9622 16.0001 13.3731 15.4109 13.3731 14.6866C13.3731 14.4864 13.4181 14.2969 13.4982 14.1275L11.8318 12.4611H9.56872L9.56877 11.5716ZM8.6784 4.72906L8.64335 4.72739C8.08509 4.72739 7.55856 4.86341 7.09543 5.10456C6.90767 5.20386 6.83506 5.43502 6.93437 5.6211C7.03367 5.80802 7.26732 5.87894 7.45508 5.78132C7.81056 5.59607 8.21444 5.49092 8.64335 5.49092L8.6784 5.48925V10.5536L8.64335 10.5519C8.21444 10.5519 7.81056 10.4484 7.45508 10.2632C7.26732 10.1639 7.03366 10.2365 6.93437 10.4226C6.83507 10.6095 6.90767 10.8406 7.09543 10.9383C7.55856 11.1794 8.08509 11.3163 8.64335 11.3163L8.6784 11.3146V13.4391C8.6784 15.1648 7.62197 16.0434 6.39115 16.0434C5.75112 16.0434 5.17617 15.8198 4.75645 15.3692C4.60041 15.1998 4.46272 14.997 4.35591 14.7575C5.1186 14.6782 5.65768 14.3878 5.96976 14.1767C6.04987 14.1116 6.09993 14.0173 6.10661 13.9155C6.11495 13.8137 6.07991 13.7127 6.01148 13.636C6.00314 13.6268 5.99396 13.6168 5.98144 13.6093C5.85377 13.4691 5.63931 13.4457 5.48494 13.555C5.09942 13.8179 4.63881 13.9814 4.14229 14.0081C4.09472 14.0106 4.04632 14.0115 3.99709 14.0115C3.60321 14.0115 3.22854 13.9255 2.89309 13.7712C2.71952 13.691 2.55514 13.5934 2.40409 13.4799C1.77408 13.0034 1.36685 12.2524 1.36685 11.4071V11.3963C1.93344 11.6742 2.53258 11.8169 3.05579 11.8344C3.16677 11.8335 3.27274 11.7851 3.34618 11.7C3.41878 11.6166 3.453 11.5064 3.43714 11.3963L3.43297 11.3971C3.4071 11.206 3.24104 11.065 3.04661 11.0683C2.56513 11.0566 2.00354 10.9056 1.49452 10.6085C1.00971 10.324 0.573276 9.90845 0.298729 9.35352C0.110974 8.97468 0 8.53157 0 8.02172C0 7.51187 0.110983 7.06794 0.298729 6.68991C0.573276 6.13415 1.00968 5.7186 1.49452 5.43572C2.00437 5.13782 2.56679 4.98594 3.04911 4.97927C3.24437 4.98344 3.41043 4.84159 3.4363 4.65049C3.43713 4.64715 3.43713 4.64381 3.4338 4.6388C3.44798 4.53366 3.41627 4.42518 3.34618 4.34341C3.27441 4.26246 3.17261 4.21573 3.0633 4.21407C2.53843 4.22491 1.93679 4.36761 1.36684 4.64797V4.63546C1.36684 3.79182 1.77405 3.04081 2.40408 2.56433C2.55512 2.45084 2.71868 2.35154 2.89309 2.27227C3.22854 2.11789 3.60321 2.03111 3.99708 2.03111C4.04632 2.03111 4.09471 2.03278 4.14228 2.03528C4.63878 2.06198 5.09941 2.22637 5.48325 2.49173C5.63929 2.60271 5.85542 2.57935 5.98394 2.43749C5.98644 2.43415 5.98978 2.43081 5.99145 2.42664C6.06321 2.34736 6.09742 2.24055 6.08407 2.13374C6.07155 2.02693 6.01231 1.9318 5.92385 1.87088C5.75946 1.75906 5.55668 1.63389 5.35976 1.54961C5.04768 1.4136 4.70971 1.32264 4.35591 1.28592C4.46272 1.04559 4.6004 0.842824 4.75645 0.675088C5.17618 0.223641 5.75112 0 6.39115 0C7.62198 0 8.6784 0.879524 8.6784 2.60426L8.6784 4.72906ZM5.20704 8.02183C5.20704 7.72893 5.44737 7.49111 5.74276 7.49111C5.95555 7.49111 6.12912 7.31921 6.12912 7.10892C6.12912 6.89863 5.95555 6.72673 5.74276 6.72673C5.1553 6.72673 4.65797 7.11142 4.49357 7.63962H3.00823C2.79461 7.63962 2.62188 7.81068 2.62188 8.02181C2.62188 8.23293 2.79461 8.40317 3.00823 8.40317H4.49357C4.65795 8.93222 5.1553 9.31689 5.74276 9.31689C5.95555 9.31689 6.12912 9.14583 6.12912 8.9347C6.12912 8.72357 5.95555 8.55334 5.74276 8.55334C5.44737 8.55334 5.20704 8.31473 5.20704 8.02183Z" fill="#020617"/>
                 </svg>
-              <span className="font-medium text-black">Knowledge</span>
+              <span className="text-black">Knowledge</span>
             </button>
           </div>
 
           {/* Content Placeholder */}
-          <div className="w-full max-w-4xl mb-8 relative">
-            <Image 
-              src="/images/all-in-one-sudio-img.png"
+          <div className="w-full max-w-6xl mb-8 relative">
+            <img 
+              src="/custom-projects-ui/images/allInOneStudioImg.svg"
               alt="All-in-One AI Studio Interface"
-              width={1200}
-              height={600}
-              className="w-full h-auto rounded-lg"
-              priority
+              className="w-full h-auto"
             />
           </div>
 
           {/* CTA Button */}
           <button 
-            className="px-8 py-4 rounded-full font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-8 py-4 rounded-full font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-95"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -315,6 +309,79 @@ export default function AuditLandingPage() {
                 <path d="M19.8562 4.39352C17.5393 5.15865 16.7671 5.93093 16.0009 8.24878C15.9384 8.43929 15.6691 8.43929 15.6056 8.24878C14.8404 5.93193 14.0682 5.1597 11.7503 4.39352C11.5598 4.33104 11.5598 4.06167 11.7503 3.99816C14.0672 3.23304 14.8394 2.46076 15.6056 0.142909C15.668 -0.0476019 15.9374 -0.0476019 16.0009 0.142909C16.766 2.45976 17.5383 3.23199 19.8562 3.99816C20.0467 4.06064 20.0467 4.33002 19.8562 4.39352Z" fill="white"/>
             </svg>
             Start creating with AI Studio
+          </button>
+        </div>
+      </section>
+
+      {/* SmartDrive Section */}
+      <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+        <div className="max-w-6xl mx-auto flex flex-col items-center">
+          {/* Header */}
+          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-12 sora-font">
+            <span className="text-black">AI-powered SmartDrive — </span>
+            <span style={{ color: '#0F58F9' }}>store everything in one place.</span>
+          </h2>
+
+          {/* Two Column Layout */}
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+            {/* Left Column - Features */}
+            <div className="flex flex-col gap-8">
+              {/* Feature 1 */}
+              <div className="flex gap-4">
+                <div 
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: '#DEE7FF' }}
+                >
+                    <svg width="23" height="30" viewBox="0 0 23 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.2149 2.68675V0.939941L21.7065 3.43156H19.9597C19.5489 3.43156 19.2149 3.09761 19.2149 2.68675Z" fill="#0F58F9"/>
+                    <path d="M19.9598 4.76162C18.8145 4.76162 17.8864 3.83207 17.8849 2.68673V0H0.744851C0.33255 0 0 0.333991 0 0.74485V29.2537C0 29.666 0.332516 30 0.744851 30H21.9016C22.3139 30 22.6465 29.666 22.6465 29.2537V4.76155L19.9598 4.76162ZM11.9915 10.5754H13.83C14.198 10.5754 14.495 10.8724 14.495 11.2404C14.495 11.6084 14.1979 11.9054 13.83 11.9054H11.9915C11.625 11.9054 11.3265 11.6084 11.3265 11.2404C11.3265 10.8724 11.625 10.5754 11.9915 10.5754ZM4.38791 6.81575H9.48511C9.85309 6.81575 10.1501 7.1128 10.1501 7.48077C10.1501 7.84875 9.85308 8.14579 9.48511 8.14579H4.38942C4.02144 8.14579 3.7244 7.84875 3.7244 7.48077C3.7244 7.1128 4.02145 6.81575 4.38942 6.81575H4.38791ZM4.38791 10.5754H8.73413C9.10063 10.5754 9.39915 10.8724 9.39915 11.2404C9.39915 11.6084 9.10063 11.9054 8.73413 11.9054H4.38791C4.02141 11.9054 3.72289 11.6084 3.72289 11.2404C3.72289 10.8724 4.02141 10.5754 4.38791 10.5754ZM18.2574 23.1843H4.38942C4.02144 23.1843 3.7244 22.8872 3.7244 22.5192C3.7244 22.1513 4.02145 21.8542 4.38942 21.8542H18.2589H18.2574C18.6254 21.8542 18.9224 22.1513 18.9224 22.5192C18.9224 22.8872 18.6254 23.1843 18.2574 23.1843ZM18.2574 19.4246H4.38942C4.02144 19.4246 3.7244 19.1276 3.7244 18.7596C3.7244 18.3916 4.02145 18.0946 4.38942 18.0946H18.2589H18.2574C18.6254 18.0946 18.9224 18.3916 18.9224 18.7596C18.9224 19.1276 18.6254 19.4246 18.2574 19.4246ZM18.2574 15.665H4.38942C4.02144 15.665 3.7244 15.368 3.7244 15C3.7244 14.632 4.02145 14.335 4.38942 14.335H18.2589H18.2574C18.6254 14.335 18.9224 14.632 18.9224 15C18.9224 15.368 18.6254 15.665 18.2574 15.665Z" fill="#0F58F9"/>
+                    </svg>
+                </div>
+                <p className="text-lg text-black">
+                  Turn any files into ready-to-use courses, lessons, and presentations with AI.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="flex gap-4">
+                <div 
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: '#DEE7FF' }}
+                >
+                    <svg width="28" height="30" viewBox="0 0 28 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.87271 18.4515C2.28647 19.0417 1.88723 19.7917 1.72487 20.6077L0.963215 24.4267C0.927743 24.599 0.93564 24.7774 0.986196 24.946C1.03675 25.1145 1.12838 25.2678 1.25286 25.3921C1.45577 25.5922 1.72953 25.7041 2.01451 25.7032C2.08619 25.705 2.15791 25.7014 2.22906 25.6925L6.04805 24.9201C6.86156 24.7597 7.60864 24.36 8.19355 23.7723L22.7615 9.20757L22.7186 9.16466L21.2596 7.68427L18.9747 5.39931L17.4299 3.89746L2.87271 18.4515Z" fill="#0F58F9"/>
+                    <path d="M22.7828 6.1581L24.2311 7.64922C24.2418 7.65995 24.2525 7.6814 24.274 7.69213L25.5827 6.38337C25.9321 6.03402 26.2093 5.61926 26.3984 5.16278C26.5875 4.70631 26.6848 4.21705 26.6848 3.72295C26.6848 3.22886 26.5875 2.7396 26.3984 2.28313C26.2093 1.82665 25.9321 1.41189 25.5827 1.06254C24.8649 0.380375 23.9125 0 22.9223 0C21.9321 0 20.9797 0.380375 20.2619 1.06254L18.9531 2.37129L20.4872 3.88387L22.7828 6.1581Z" fill="#0F58F9"/>
+                    <path d="M26.5591 27.8545H1.07275C0.788238 27.8545 0.515381 27.9675 0.314201 28.1687C0.113021 28.3699 0 28.6427 0 28.9272C0 29.2118 0.113021 29.4846 0.314201 29.6858C0.515381 29.887 0.788238 30 1.07275 30H26.5591C26.8436 30 27.1165 29.887 27.3177 29.6858C27.5189 29.4846 27.6319 29.2118 27.6319 28.9272C27.6319 28.6427 27.5189 28.3699 27.3177 28.1687C27.1165 27.9675 26.8436 27.8545 26.5591 27.8545Z" fill="#0F58F9"/>
+                    </svg>
+                </div>
+                <p className="text-lg text-black">
+                  Your files don't just sit — they teach.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column - Visual Placeholder */}
+            <div className="w-full flex items-center justify-center">
+               <img 
+                src="/custom-projects-ui/images/aiPoweredSmartDrive.svg"
+                alt="All-in-One AI Studio Interface"
+                className="w-full h-auto"
+                />
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button 
+            className="px-10 py-4 rounded-full font-semibold text-white flex items-center gap-3 transition-all hover:scale-95"
+            style={{
+              backgroundColor: '#0F58F9',
+              boxShadow: '0 8px 24px rgba(15, 88, 249, 0.3)'
+            }}
+          >
+            <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1431 13.6281V14.6534L17.5147 15.6067C17.8125 15.2781 18.24 15.0716 18.7139 15.0716C19.6092 15.0716 20.3355 15.807 20.3355 16.7123C20.3355 17.6187 19.6092 18.354 18.7139 18.354C17.8197 18.354 17.0934 17.6187 17.0934 16.7123L17.0944 16.6362L14.39 15.5472C14.1809 15.4638 14.0439 15.2594 14.0439 15.0309V13.6281L15.1431 13.6281ZM11.0222 13.6281V16.8125C11.6465 17.0399 12.0936 17.6459 12.0936 18.3572C12.0936 19.2626 11.3673 20 10.4731 20C9.57783 20 8.85049 19.2626 8.85049 18.3572C8.85049 17.6459 9.29761 17.0399 9.92296 16.8125V13.6281H11.0222ZM6.90022 13.6281V15.0195C6.90022 15.2469 6.76423 15.4523 6.55611 15.5358L3.85173 16.632L3.85276 16.7008C3.85276 17.6072 3.12542 18.3426 2.23016 18.3426C1.33489 18.3426 0.609609 17.6072 0.609609 16.7008C0.609609 15.7955 1.33489 15.0602 2.23016 15.0602C2.70715 15.0602 3.13779 15.2688 3.43347 15.6015L5.80301 14.643V13.6281L6.90022 13.6281ZM20.8671 8.89177C20.4725 10.9486 18.6315 12.5152 16.4093 12.5152H4.535C2.0233 12.5152 0 10.5125 0 8.06669C0 5.61973 2.02338 3.61608 4.535 3.61608C4.83479 3.61608 5.12944 3.64528 5.41275 3.70056C6.05973 1.56653 8.07705 0 10.4734 0C12.5617 0 14.3625 1.19217 15.2196 2.911C15.0023 3.22079 14.8343 3.63485 14.8343 4.17203C14.8343 5.69693 16.1829 6.22471 16.1829 6.22471C16.1829 6.22471 16.7846 6.47921 17.2667 6.71808C17.5027 7.20517 17.754 7.81535 17.754 7.81535C17.754 7.81535 18.2784 9.1786 19.7805 9.1786C20.2245 9.1786 20.5831 9.05969 20.8674 8.89177L20.8671 8.89177ZM18.48 2.85482C18.5109 2.80267 18.6108 2.63265 18.6809 2.49184C18.9529 1.94737 19.2733 1.17449 19.2733 1.17449C19.3588 0.969014 19.5587 0.834473 19.7802 0.834473C20.0006 0.834473 20.2005 0.969025 20.2871 1.17449C20.2871 1.17449 20.6064 1.94737 20.8784 2.49184C20.9485 2.63265 21.0505 2.80267 21.0803 2.85482C21.1318 2.88715 21.2998 2.98833 21.4389 3.05925C21.9767 3.3346 22.74 3.66003 22.74 3.66003C22.944 3.74661 23.0769 3.9479 23.0769 4.17217C23.0769 4.39644 22.944 4.59774 22.74 4.6843C22.74 4.6843 21.9767 5.00974 21.4389 5.28509C21.2998 5.35601 21.1318 5.45719 21.0814 5.48952C21.0505 5.54167 20.9495 5.71169 20.8784 5.8525C20.6064 6.39697 20.2871 7.16985 20.2871 7.16985C20.2005 7.37533 20.0007 7.50987 19.7802 7.50987C19.5587 7.50987 19.3588 7.37531 19.2733 7.16985C19.2733 7.16985 18.9529 6.39697 18.6809 5.8525C18.6109 5.71169 18.5109 5.54167 18.48 5.48952C18.4285 5.45719 18.2595 5.35601 18.1205 5.28509C17.5837 5.00974 16.8203 4.6843 16.8203 4.6843C16.6153 4.59773 16.4845 4.39644 16.4845 4.17217C16.4845 3.9479 16.6153 3.7466 16.8203 3.66003C16.8203 3.66003 17.5837 3.3346 18.1205 3.05925C18.2595 2.98833 18.4285 2.88715 18.48 2.85482Z" fill="white"/>
+            </svg>
+            Try SmartDrive for Free
           </button>
         </div>
       </section>
