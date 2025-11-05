@@ -177,10 +177,27 @@ export default function Projects2ViewPage() {
         return;
       }
       
-      console.log('💾 Saving video lesson data:', {
+      // Log slide background colors if component-based
+      let backgroundColorsInfo = {};
+      if ('slides' in data && Array.isArray(data.slides)) {
+        backgroundColorsInfo = data.slides.reduce((acc: any, slide: any) => {
+          if (slide.props?.backgroundColor) {
+            acc[slide.slideId] = {
+              templateId: slide.templateId,
+              backgroundColor: slide.props.backgroundColor
+            };
+          }
+          return acc;
+        }, {});
+      }
+      
+      console.log('💾 [SAVE] Saving video lesson data:', {
         projectId,
         dataType: data.constructor.name,
-        slideCount: 'slides' in data ? data.slides.length : 'N/A'
+        slideCount: 'slides' in data ? data.slides.length : 'N/A',
+        slidesWithBackgroundColors: Object.keys(backgroundColorsInfo).length,
+        backgroundColors: backgroundColorsInfo,
+        timestamp: new Date().toISOString()
       });
 
       // 🔧 CRITICAL FIX: Add dev user header to match old UI's golden reference pattern
@@ -198,17 +215,25 @@ export default function Projects2ViewPage() {
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Failed to save video lesson data:', {
+        console.error('❌ [SAVE] Failed to save video lesson data:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorText
+          error: errorText,
+          timestamp: new Date().toISOString()
         });
         throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
       }
       
-      console.log('✅ Video lesson data saved successfully');
+      console.log('✅ [SAVE] Video lesson data saved successfully to backend', {
+        projectId,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
-      console.error('❌ Error saving video lesson data:', error);
+      console.error('❌ [SAVE] Error saving video lesson data:', {
+        error,
+        projectId,
+        timestamp: new Date().toISOString()
+      });
       // TODO: Show user notification for save errors
     }
   };
@@ -333,20 +358,48 @@ export default function Projects2ViewPage() {
 
   // NEW: Handle background color change
   const handleBackgroundColorChange = (color: string | null) => {
-    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId) return;
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId) {
+      console.warn('🎨 [BACKGROUND] Cannot change color - missing requirements:', {
+        isComponentBasedVideoLesson,
+        hasComponentBasedSlideDeck: !!componentBasedSlideDeck,
+        currentSlideId,
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
     
-    console.log('🎨 Background color change:', { slideId: currentSlideId, color });
+    // Find current slide before update
+    const currentSlide = componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId);
+    const previousColor = currentSlide?.props?.backgroundColor;
+    
+    console.log('🎨 [BACKGROUND] Background color change initiated:', { 
+      slideId: currentSlideId,
+      slideTemplateId: currentSlide?.templateId,
+      slideNumber: currentSlide?.slideNumber,
+      previousColor: previousColor || 'none',
+      newColor: color || 'cleared',
+      timestamp: new Date().toISOString()
+    });
     
     // Find and update the current slide
     const updatedSlides = componentBasedSlideDeck.slides.map(slide => {
       if (slide.slideId === currentSlideId) {
-        return {
+        const updatedSlide = {
           ...slide,
           props: {
             ...slide.props,
             backgroundColor: color || undefined
           }
         };
+        
+        console.log('🎨 [BACKGROUND] Slide props updated:', {
+          slideId: slide.slideId,
+          allProps: Object.keys(updatedSlide.props),
+          backgroundColor: updatedSlide.props.backgroundColor,
+          timestamp: new Date().toISOString()
+        });
+        
+        return updatedSlide;
       }
       return slide;
     });
@@ -356,6 +409,12 @@ export default function Projects2ViewPage() {
       ...componentBasedSlideDeck,
       slides: updatedSlides
     };
+    
+    console.log('🎨 [BACKGROUND] Deck updated, triggering save:', {
+      totalSlides: updatedDeck.slides.length,
+      updatedSlideId: currentSlideId,
+      timestamp: new Date().toISOString()
+    });
     
     setComponentBasedSlideDeck(updatedDeck);
     saveVideoLessonData(updatedDeck);
@@ -800,6 +859,13 @@ export default function Projects2ViewPage() {
         // Get current slide's background color
         const currentSlide = componentBasedSlideDeck?.slides.find(s => s.slideId === currentSlideId);
         const currentBgColor = currentSlide?.props?.backgroundColor as string | undefined;
+        console.log('🎨 [BACKGROUND] Rendering Background component:', {
+          currentSlideId,
+          slideTemplateId: currentSlide?.templateId,
+          currentBackgroundColor: currentBgColor || 'none',
+          hasOnColorSelectCallback: !!handleBackgroundColorChange,
+          timestamp: new Date().toISOString()
+        });
         return <Background currentBackgroundColor={currentBgColor} onColorSelect={handleBackgroundColorChange} />;
       case 'music':
         return <Music />;

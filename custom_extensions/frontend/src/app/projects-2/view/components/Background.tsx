@@ -12,6 +12,11 @@ export default function Background({ currentBackgroundColor, onColorSelect }: Ba
 
   // Sync with external color changes
   useEffect(() => {
+    console.log('🎨 [BACKGROUND] Component received color prop:', {
+      currentBackgroundColor: currentBackgroundColor || 'none',
+      isInitialLoad: selectedColor === null && currentBackgroundColor !== undefined,
+      timestamp: new Date().toISOString()
+    });
     setSelectedColor(currentBackgroundColor || null);
   }, [currentBackgroundColor]);
 
@@ -51,6 +56,10 @@ export default function Background({ currentBackgroundColor, onColorSelect }: Ba
           </div>
           <button 
             onClick={() => {
+              console.log('🎨 [BACKGROUND] Color cleared (delete button clicked)', {
+                previousColor: selectedColor,
+                timestamp: new Date().toISOString()
+              });
               setSelectedColor(null);
               onColorSelect?.(null as any);
             }}
@@ -113,6 +122,12 @@ export default function Background({ currentBackgroundColor, onColorSelect }: Ba
                         }}
                         onClick={() => {
                           const color = rectangleData[rowIndex * 2].color;
+                          const colorName = rectangleData[rowIndex * 2].name;
+                          console.log('🎨 [BACKGROUND] Color selected:', {
+                            color,
+                            colorName,
+                            timestamp: new Date().toISOString()
+                          });
                           setSelectedColor(color);
                           onColorSelect?.(color);
                         }}
@@ -149,6 +164,12 @@ export default function Background({ currentBackgroundColor, onColorSelect }: Ba
                         }}
                         onClick={() => {
                           const color = rectangleData[rowIndex * 2 + 1].color;
+                          const colorName = rectangleData[rowIndex * 2 + 1].name;
+                          console.log('🎨 [BACKGROUND] Color selected:', {
+                            color,
+                            colorName,
+                            timestamp: new Date().toISOString()
+                          });
                           setSelectedColor(color);
                           onColorSelect?.(color);
                         }}
