@@ -252,7 +252,7 @@ export default function TextRightPanel({
   }, [showAppearanceDropdown, showTransitionDropdown, showFontFamilyDropdown, showTextStyleDropdown, setShowAppearanceDropdown, setShowTransitionDropdown, setIsColorPaletteOpen]);
 
   return (
-    <>
+    <div data-text-right-panel>
       {/* Typography Section */}
       <div className="space-y-3 flex-shrink-0 mb-4">
         {/* Typography Title */}
@@ -263,12 +263,24 @@ export default function TextRightPanel({
         {/* Font Family Dropdown */}
         <div ref={fontFamilyDropdownRef} className="relative">
           <button
+            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
             onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
             className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
             style={{ borderColor: '#E0E0E0', height: '32px' }}
           >
             <span style={{ color: '#848485', fontFamily: selectedFontFamily }}>
-              {selectedFontFamily}
+              {[
+                { value: 'Arial, sans-serif', label: 'Arial' },
+                { value: 'Helvetica, Arial, sans-serif', label: 'Helvetica' },
+                { value: '"Times New Roman", Times, serif', label: 'Times New Roman' },
+                { value: 'Georgia, serif', label: 'Georgia' },
+                { value: '"Courier New", Courier, monospace', label: 'Courier New' },
+                { value: 'Verdana, Geneva, sans-serif', label: 'Verdana' },
+                { value: 'Tahoma, Geneva, sans-serif', label: 'Tahoma' },
+                { value: '"Trebuchet MS", Helvetica, sans-serif', label: 'Trebuchet MS' },
+                { value: 'Impact, Charcoal, sans-serif', label: 'Impact' },
+                { value: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', label: 'Inter' }
+              ].find(opt => opt.value === selectedFontFamily)?.label || selectedFontFamily.split(',')[0].replace(/['"]/g, '')}
             </span>
             <svg 
               className={`w-4 h-4 transition-transform ${showFontFamilyDropdown ? 'rotate-180' : ''}`} 
@@ -298,6 +310,7 @@ export default function TextRightPanel({
               ].map((option) => (
                 <button
                   key={option.value}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
                   onClick={() => {
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
@@ -342,6 +355,7 @@ export default function TextRightPanel({
           {/* Text Style Dropdown */}
           <div className="flex-1 relative" ref={textStyleDropdownRef}>
             <button
+              onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
               onClick={() => setShowTextStyleDropdown(!showTextStyleDropdown)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
               style={{ borderColor: '#E0E0E0', height: '32px' }}
@@ -365,6 +379,7 @@ export default function TextRightPanel({
                 {['Regular', 'Bold', 'Italic', 'Underline', 'Strikethrough'].map((style) => (
                   <button
                     key={style}
+                    onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
                     onClick={() => {
                       if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                         try {
@@ -429,6 +444,7 @@ export default function TextRightPanel({
               <input
                 type="text"
                 value={fontSize}
+                onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
                 onChange={(e) => {
                   const value = e.target.value;
                   // Allow empty string for editing
@@ -443,13 +459,23 @@ export default function TextRightPanel({
                     const clampedValue = Math.min(Math.max(numValue, 8), 200);
                     setFontSize(clampedValue);
                     
-                    // Apply to editor
+                    // Apply to editor without losing focus
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
-                        activeEditor.chain().focus().setMark('textStyle', { fontSize: `${clampedValue}px` }).run();
+                        activeEditor.chain().setMark('textStyle', { fontSize: `${clampedValue}px` }).run();
                       } catch (error) {
                         console.warn('Font size change failed:', error);
                       }
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  // Refocus editor when done editing
+                  if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                    try {
+                      activeEditor.commands.focus();
+                    } catch (error) {
+                      console.warn('Editor refocus failed:', error);
                     }
                   }
                 }}
@@ -460,6 +486,7 @@ export default function TextRightPanel({
               {/* Right side - Up and Down Chevrons */}
               <div 
                 className="cursor-pointer flex flex-col"
+                onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
                 onClick={(e) => {
                   // Detect if user clicked on upper or lower half
                   const rect = e.currentTarget.getBoundingClientRect();
@@ -477,7 +504,7 @@ export default function TextRightPanel({
                   
                   setFontSize(newSize);
                   
-                  // Apply to editor
+                  // Apply to editor and keep focus
                   if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                     try {
                       activeEditor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
@@ -506,6 +533,7 @@ export default function TextRightPanel({
           <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5', height: '32px' }}>
             {/* Left Align */}
             <button
+              onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
               onClick={() => {
                 setSelectedTextAlignment('left');
                 if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
@@ -529,6 +557,7 @@ export default function TextRightPanel({
 
             {/* Center Align */}
             <button
+              onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
               onClick={() => {
                 setSelectedTextAlignment('center');
                 if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
@@ -552,6 +581,7 @@ export default function TextRightPanel({
 
             {/* Right Align */}
             <button
+              onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
               onClick={() => {
                 setSelectedTextAlignment('right');
                 if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
@@ -636,6 +666,7 @@ export default function TextRightPanel({
             borderColor: '#E0E0E0',
             color: '#848485'
           }}
+          onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
           onClick={(e) => {
             // Open color palette
             const button = e.currentTarget;
@@ -1174,6 +1205,7 @@ export default function TextRightPanel({
 
       {/* Close Button */}
       <button
+        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
         onClick={onClose}
         className="w-full mt-4 px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50 cursor-pointer"
         style={{ 
@@ -1184,7 +1216,7 @@ export default function TextRightPanel({
       >
         {t('shapeRightPanel.close', 'Close')}
       </button>
-    </>
+    </div>
   );
 }
 

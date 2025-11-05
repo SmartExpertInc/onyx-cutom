@@ -617,6 +617,15 @@ function Projects2ViewPageContent() {
     };
   }, [openMenuSceneId, menuPosition]);
 
+  // Cleanup text editor blur listener on unmount
+  useEffect(() => {
+    return () => {
+      if (activeTextEditor && (activeTextEditor as any).__cleanupBlur) {
+        (activeTextEditor as any).__cleanupBlur();
+      }
+    };
+  }, [activeTextEditor]);
+
   // Calculate responsive slide scale based on container width
   useEffect(() => {
     const calculateScale = () => {
@@ -730,9 +739,10 @@ function Projects2ViewPageContent() {
   const handleTextButtonClick = (position: { x: number; y: number }) => {
     setTextPopupPosition(position);
     setIsTextPopupOpen(true);
-    setShowTextRightPanel(true);
-    setShowShapeRightPanel(false); // Close shape panel when opening text panel
-    setShowAvatarRightPanel(false); // Close avatar panel when opening text panel
+    // Note: TextRightPanel is now only opened when text is actually focused/edited
+    // setShowTextRightPanel(true); // REMOVED - panel opens automatically when text is clicked
+    setShowShapeRightPanel(false); // Close shape panel when opening text popup
+    setShowAvatarRightPanel(false); // Close avatar panel when opening text popup
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
@@ -1022,29 +1032,69 @@ function Projects2ViewPageContent() {
                   }}
                   onEditorActive={(editor, field, computedStyles) => {
                     console.log('✏️ EDITOR ACTIVE:', { field, hasEditor: !!editor, computedStyles });
-                    setActiveTextEditor(editor);
-                    setComputedTextStyles(computedStyles || null);
                     
-                    // Open TextRightPanel instead of floating toolbar
-                    setShowTextRightPanel(true);
-                    setShowShapeRightPanel(false);
-                    setShowAvatarRightPanel(false);
-                    
-                    // Update current text color
-                    const inlineColor = editor?.getAttributes?.('textStyle')?.color;
-                    const rawColor = inlineColor || computedStyles?.color || '#000000';
-                    // Convert RGB to hex if needed
-                    let hexColor = rawColor;
-                    if (rawColor.startsWith('rgb')) {
-                      const match = rawColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-                      if (match) {
-                        const r = parseInt(match[1]).toString(16).padStart(2, '0');
-                        const g = parseInt(match[2]).toString(16).padStart(2, '0');
-                        const b = parseInt(match[3]).toString(16).padStart(2, '0');
-                        hexColor = `#${r}${g}${b}`;
-                      }
+                    // Cleanup previous editor's blur listener if exists
+                    if (activeTextEditor && (activeTextEditor as any).__cleanupBlur) {
+                      (activeTextEditor as any).__cleanupBlur();
                     }
-                    setCurrentTextColor(hexColor);
+                    
+                    if (editor) {
+                      // Editor became active - open TextRightPanel
+                      setActiveTextEditor(editor);
+                      setComputedTextStyles(computedStyles || null);
+                      
+                      // Open TextRightPanel and close others
+                      setShowTextRightPanel(true);
+                      setShowShapeRightPanel(false);
+                      setShowAvatarRightPanel(false);
+                      
+                      // Update current text color
+                      const inlineColor = editor?.getAttributes?.('textStyle')?.color;
+                      const rawColor = inlineColor || computedStyles?.color || '#000000';
+                      // Convert RGB to hex if needed
+                      let hexColor = rawColor;
+                      if (rawColor.startsWith('rgb')) {
+                        const match = rawColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                        if (match) {
+                          const r = parseInt(match[1]).toString(16).padStart(2, '0');
+                          const g = parseInt(match[2]).toString(16).padStart(2, '0');
+                          const b = parseInt(match[3]).toString(16).padStart(2, '0');
+                          hexColor = `#${r}${g}${b}`;
+                        }
+                      }
+                      setCurrentTextColor(hexColor);
+                      
+                      // Listen for editor blur to close the panel
+                      const handleBlur = () => {
+                        console.log('✏️ EDITOR BLUR - Closing TextRightPanel');
+                        // Small delay to allow clicking on panel controls
+                        setTimeout(() => {
+                          // Check if user is interacting with TextRightPanel
+                          const activeElement = document.activeElement;
+                          const isInteractingWithPanel = activeElement?.closest('[data-text-right-panel]');
+                          
+                          if (!isInteractingWithPanel) {
+                            setShowTextRightPanel(false);
+                            setActiveTextEditor(null);
+                            setComputedTextStyles(null);
+                          }
+                        }, 150);
+                      };
+                      
+                      // Add blur listener
+                      editor.on('blur', handleBlur);
+                      
+                      // Cleanup function stored on editor
+                      (editor as any).__cleanupBlur = () => {
+                        editor.off('blur', handleBlur);
+                      };
+                    } else {
+                      // Editor became inactive - close TextRightPanel
+                      console.log('✏️ EDITOR INACTIVE - Closing TextRightPanel');
+                      setShowTextRightPanel(false);
+                      setActiveTextEditor(null);
+                      setComputedTextStyles(null);
+                    }
                   }}
                   theme="default"
                   isVideoMode={true}
@@ -1153,7 +1203,15 @@ function Projects2ViewPageContent() {
               onColorPaletteContextChange={setColorPaletteContext}
               activeEditor={activeTextEditor}
               computedStyles={computedTextStyles}
-              onClose={() => setShowTextRightPanel(false)}
+              onClose={() => {
+                // Cleanup editor blur listener
+                if (activeTextEditor && (activeTextEditor as any).__cleanupBlur) {
+                  (activeTextEditor as any).__cleanupBlur();
+                }
+                setShowTextRightPanel(false);
+                setActiveTextEditor(null);
+                setComputedTextStyles(null);
+              }}
             />
           ) : showAvatarRightPanel ? (
             <AvatarRightPanel

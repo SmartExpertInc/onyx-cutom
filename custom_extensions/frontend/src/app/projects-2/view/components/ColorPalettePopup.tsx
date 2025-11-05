@@ -640,14 +640,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           top: adjustedPosition.y,
         }}
         onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault(); // Prevent focus loss from editor
+        }}
       >
                 {/* Custom Saturation/Brightness Square */}
-        <div className="mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault(); // Prevent focus loss from editor
+        }}>
           <div
             ref={sbRef}
             onMouseDown={(e) => {
               e.stopPropagation();
+              e.preventDefault(); // Prevent focus loss from editor
               handleMouseDown(e);
             }}
             onClick={(e) => e.stopPropagation()}
@@ -756,7 +763,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Color Format Toggle Buttons */}
-        <div className="mt-4 p-1 bg-gray-200 rounded-3xl flex gap-1 relative z-[10001]" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-4 p-1 bg-gray-200 rounded-3xl flex gap-1 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault(); // Prevent focus loss from editor
+        }}>
           {(['HEX', 'RGBA', 'HSLA'] as ColorFormat[]).map((format) => (
             <button
               key={format}
@@ -764,7 +774,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 e.stopPropagation();
                 setColorFormat(format);
               }}
-              onMouseDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault(); // Prevent focus loss from editor
+              }}
               className={`flex-1 px-3 py-1.5 border-none rounded-full text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
                   ? 'bg-white text-black font-normal shadow-sm' 
@@ -777,7 +790,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Conditional Input Fields */}
-        <div className="mt-4 min-h-[56px] relative z-[10002]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="mt-4 min-h-[56px] relative z-[10002]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+          e.stopPropagation();
+          // Note: NOT preventing default here to allow input fields to receive focus
+        }}>
           {colorFormat === 'HEX' && (
             <div>
               <div className="relative w-[234px]">
@@ -920,7 +936,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
         {/* Recent Colors - Hidden */}
         {/* {onRecentColorChange && (
-          <div className="mt-4 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+          <div className="mt-4 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault(); // Prevent focus loss from editor
+          }}>
             <div className="text-gray-500 mb-2 block text-xs">
               Recent Colors
             </div>
@@ -934,7 +953,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       e.stopPropagation();
                       color && handleRecentColorClick(color);
                     }}
-                    onMouseDown={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault(); // Prevent focus loss from editor
+                    }}
                     className={`w-6 h-6 border border-gray-300 rounded bg-gray-100 transition-all duration-200 relative z-[10002] ${
                       color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
                     }`}
