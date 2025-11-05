@@ -1,7 +1,7 @@
 // components/editors/ControlledWysiwygEditor.tsx
 // Wysiwyg editor controlled by external toolbar (TextSettings panel)
 
-import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
@@ -46,6 +46,9 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
     const cleanedStyle = { ...style };
     delete cleanedStyle.fontWeight;
     delete cleanedStyle.fontStyle;
+    
+    const isTypingRef = useRef(false);
+    const lastKeystrokeRef = useRef(Date.now());
 
     const editor = useEditor({
       extensions: [
@@ -112,6 +115,20 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
             })
             .join('; '),
         },
+        handleKeyDown: (view, event) => {
+          // Track that user is actively typing
+          isTypingRef.current = true;
+          lastKeystrokeRef.current = Date.now();
+          
+          // Clear typing flag after 500ms of no keystrokes
+          setTimeout(() => {
+            if (Date.now() - lastKeystrokeRef.current >= 500) {
+              isTypingRef.current = false;
+            }
+          }, 500);
+          
+          return false; // Let TipTap handle the key
+        },
       },
       onSelectionUpdate: ({ editor }) => {
         const { empty } = editor.state.selection;
@@ -121,8 +138,9 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
 
     useEffect(() => {
       if (editor) {
+        // Just focus at the end, don't select all text
         editor.commands.focus('end');
-        editor.commands.selectAll();
+        // REMOVED: editor.commands.selectAll(); - This was causing all text to be selected and replaced on first keystroke
         
         // Read computed styles from the DOM
         try {
@@ -166,21 +184,47 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
     }, [editor, onCancel]);
 
     const handleBlur = (e: React.FocusEvent) => {
-      // Don't save if focus is moving to a button or control element
+      console.log('🔍 BLUR EVENT FIRED', {
+        isTyping: isTypingRef.current,
+        timeSinceLastKeystroke: Date.now() - lastKeystrokeRef.current,
+        relatedTarget: e.relatedTarget
+      });
+      
+      // Check where focus is moving to
       const relatedTarget = e.relatedTarget as HTMLElement;
       
-      // Check if we're focusing a formatting button or control
+      // If focus is moving to TextRightPanel or ColorPicker, prevent blur completely
       if (relatedTarget && (
         relatedTarget.closest('[data-textsettings-panel]') ||
-        relatedTarget.closest('[data-text-right-panel]') || // Add TextRightPanel check
-        relatedTarget.closest('[data-color-palette-popup]') || // Add color picker check
+        relatedTarget.closest('[data-text-right-panel]') || // TextRightPanel controls
+        relatedTarget.closest('[data-color-palette-popup]') // Color picker
+      )) {
+        console.log('⚠️ Blur to control panel - preventing blur, maintaining focus');
+        e.preventDefault();
+        e.stopPropagation();
+        return; // Don't save, keep editor focused
+      }
+      
+      // If clicking buttons, prevent blur
+      if (relatedTarget && (
         relatedTarget.tagName === 'BUTTON' ||
         relatedTarget.closest('button')
       )) {
-        console.log('⚠️ Blur prevented - focusing control element');
-        return; // Don't save, keep editor open
+        console.log('⚠️ Blur to button - preventing blur');
+        e.preventDefault();
+        e.stopPropagation();
+        return;
       }
       
+      // Don't save if user is actively typing
+      if (isTypingRef.current || Date.now() - lastKeystrokeRef.current < 200) {
+        console.log('⚠️ Blur prevented - user is actively typing');
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      
+      // Actually lost focus to something outside - save content
       if (editor) {
         const html = editor.getHTML();
         const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');
@@ -245,3 +289,140 @@ ControlledWysiwygEditor.displayName = 'ControlledWysiwygEditor';
 
 export default ControlledWysiwygEditor;
 
+/* 
+ * ============================================================================
+ * CONTROLLED WYSIWYG EDITOR - IMPLEMENTATION NOTES
+ * ============================================================================
+ * 
+ * This editor is designed to work with TextRightPanel for seamless text editing
+ * in presentation slides. Key features and behaviors:
+ * 
+ * 
+ * 1. FOCUS MANAGEMENT
+ * -------------------
+ * - Editor focuses at cursor END on mount (no text selection)
+ * - REMOVED: editor.commands.selectAll() - was causing all text to be replaced on first keystroke
+ * - Focus is maintained when interacting with TextRightPanel controls
+ * 
+ * 
+ * 2. TYPING DETECTION
+ * -------------------
+ * - isTypingRef tracks active typing state
+ * - lastKeystrokeRef tracks timestamp of last keystroke
+ * - handleKeyDown updates these refs on every keystroke
+ * - 500ms timeout clears typing flag after user stops typing
+ * - 200ms grace period before allowing blur to process
+ * 
+ * 
+ * 3. BLUR EVENT HANDLING (handleBlur)
+ * -----------------------------------
+ * The blur event fires when editor loses focus. Handler prevents blur in these cases:
+ * 
+ * a) Focus moving to TextRightPanel ([data-text-right-panel])
+ *    - e.preventDefault() prevents blur
+ *    - Editor stays focused
+ *    - No save occurs
+ * 
+ * b) Focus moving to ColorPalettePopup ([data-color-palette-popup])
+ *    - e.preventDefault() prevents blur
+ *    - Editor stays focused
+ *    - No save occurs
+ * 
+ * c) Focus moving to any BUTTON element
+ *    - e.preventDefault() prevents blur
+ *    - Allows formatting buttons to work
+ *    - No save occurs
+ * 
+ * d) User is actively typing
+ *    - Checks isTypingRef.current
+ *    - Checks time since last keystroke < 200ms
+ *    - e.preventDefault() prevents blur
+ *    - No save occurs
+ * 
+ * e) Focus moving to actual outside element (slide background, etc)
+ *    - Blur allowed to proceed
+ *    - Content is saved via onSave()
+ *    - Editor closes
+ * 
+ * 
+ * 4. TEXT STYLE SUPPORT
+ * ---------------------
+ * Extended TextStyle extension to support:
+ * - fontFamily: Applied via setMark('textStyle', { fontFamily: value })
+ * - fontSize: Applied via setMark('textStyle', { fontSize: value })
+ * - color: Via Color extension
+ * - textAlign: Via TextAlign extension
+ * 
+ * 
+ * 5. EXTENSIONS LOADED
+ * --------------------
+ * - StarterKit (heading, paragraph, bold, italic, strike, etc.)
+ * - TextStyle (extended with fontFamily and fontSize)
+ * - Color (text color)
+ * - TextAlign (left, center, right, justify)
+ * - Underline (from @tiptap/extension-underline)
+ * 
+ * 
+ * 6. KEY INTERACTIONS WITH TextRightPanel
+ * ----------------------------------------
+ * - onEditorReady: Called when editor initializes, passes editor instance and computed styles
+ * - onSelectionChange: Called when selection changes (for toolbar state updates)
+ * - onSave: Called only when actually losing focus to outside elements
+ * - onCancel: Called when Escape is pressed
+ * 
+ * 
+ * 7. FOCUS PREVENTION STRATEGY
+ * ----------------------------
+ * Two-layer protection:
+ * 
+ * Layer 1 (on controls): onMouseDown={(e) => e.preventDefault()}
+ *   - Prevents browser from changing focus on mouseDown
+ *   - Applied to all TextRightPanel controls
+ *   - Applied to all ColorPalettePopup elements
+ * 
+ * Layer 2 (in editor): blur handler with e.preventDefault()
+ *   - If blur somehow fires, prevent it from processing
+ *   - Check relatedTarget to see where focus is going
+ *   - Prevent blur if going to known control elements
+ * 
+ * 
+ * 8. DEBUGGING
+ * ------------
+ * Console logs help track editor behavior:
+ * - 🔍 BLUR EVENT FIRED - Shows when blur happens and why
+ * - ⚠️ Blur prevented - Shows when blur is blocked
+ * - 💾 Editor blur - saving content - Shows when content is actually saved
+ * - 📏 Computed styles - Shows extracted styles on editor ready
+ * 
+ * 
+ * 9. KNOWN ISSUES FIXED
+ * ---------------------
+ * ✅ FIXED: Text disappeared after typing 1 character
+ *    - Cause: selectAll() was selecting all text, first keystroke replaced it
+ *    - Fix: Removed selectAll(), just focus at end
+ * 
+ * ✅ FIXED: Editor lost focus when clicking TextRightPanel
+ *    - Cause: No blur prevention for [data-text-right-panel]
+ *    - Fix: Added detection and preventDefault in blur handler
+ * 
+ * ✅ FIXED: Content saved mid-typing
+ *    - Cause: Blur fired while user was typing
+ *    - Fix: Added typing detection and 200ms grace period
+ * 
+ * 
+ * 10. USAGE EXAMPLE
+ * -----------------
+ * <ControlledWysiwygEditor
+ *   initialValue={content}
+ *   onSave={(html) => updateSlideContent(html)}
+ *   onCancel={() => setEditingMode(false)}
+ *   onEditorReady={(editor, styles) => {
+ *     setActiveEditor(editor);
+ *     setComputedStyles(styles);
+ *     // Open TextRightPanel
+ *   }}
+ *   style={{ fontSize: '24px', color: '#fff' }}
+ * />
+ * 
+ * ============================================================================
+ */
