@@ -90,12 +90,25 @@ export default function ApplyAvatarModal({
             <div className="flex items-center justify-center gap-2 relative">
               {/* Left rectangle */}
               <div 
-                className="w-32 h-18 rounded-sm"
+                className="w-32 h-18 rounded-sm flex items-center justify-end"
                 style={{ 
                   backgroundColor: 'white',
                   border: '1px solid #E0E0E0'
                 }}
-              />
+              >
+                {/* Circle for avatar - only visible when replace is selected */}
+                {selectedAction === 'replace' && (
+                  <div
+                    className="rounded-full"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      border: '1px solid #E0E0E0',
+                      marginRight: '8px'
+                    }}
+                  />
+                )}
+              </div>
               
               {/* Right rectangle */}
               <div 
@@ -141,7 +154,15 @@ export default function ApplyAvatarModal({
             
             {/* Description text */}
             <div className="text-center text-sm mt-4" style={{ color: '#171718' }}>
-              You are going to add <span className="font-semibold">Riley</span> to all your <span className="font-semibold">3 scenes</span>
+              {selectedAction === 'add' ? (
+                <>
+                  You are going to add <span className="font-semibold">Riley</span> to all your <span className="font-semibold">3 scenes</span>
+                </>
+              ) : (
+                <>
+                  You are going to replace avatars with <span className="font-semibold">Riley</span> on <span className="font-semibold">0 scene</span> overall
+                </>
+              )}
             </div>
           </div>
 
