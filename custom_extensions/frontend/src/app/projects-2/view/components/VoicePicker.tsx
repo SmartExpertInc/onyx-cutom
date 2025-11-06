@@ -362,7 +362,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           {/* Left Panel - Voice List with its own scrolling */}
           <div className="flex-1 overflow-y-auto p-4">
             {/* Create Custom Voice Row */}
-            <div className="mb-2">
+            <div className="mb-3">
               <div 
                 className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer bg-white border"
                 style={{ 
@@ -395,7 +395,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
 
             {/* Mock voice item */}
             {('Sarah - Conversational'.toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') && (
-            <div className="mb-2 group">
+            <div className="mb-3 group">
               <div 
                 className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
                 onMouseEnter={(e) => {
@@ -485,7 +485,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 filteredVoices.map((voice, index) => (
                  <div 
                    key={voice.voice || index} 
-                   className="mb-2 group"
+                   className="mb-3 group"
                    onClick={() => {
                      console.log('🎤 [VOICE_PICKER] Voice item clicked:', {
                        character: voice.character,
