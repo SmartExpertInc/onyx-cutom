@@ -60,7 +60,14 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
   const rightTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
   const pageNumberEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background: backgroundColor || '#E0E7FF', color:'#09090B', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const slide: React.CSSProperties = { 
+    width:'100%', 
+    aspectRatio:'16/9', 
+    backgroundColor: backgroundColor || '#E0E7FF', 
+    color:'#09090B', 
+    fontFamily: currentTheme.fonts.titleFont, 
+    position:'relative' };
+    
   const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'7px 18px', fontSize:'16px', borderRadius:'50px', border:'1px solid black', display:'flex', gap:'10px' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'35px', fontWeight:800, color:'#09090B' };
 
