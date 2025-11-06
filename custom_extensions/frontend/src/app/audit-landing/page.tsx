@@ -342,7 +342,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10 bg-[#FCFDFF]">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 text-left md:text-center lg:text-center xl:text-center sora-font">
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center sora-font">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
             <span className="text-black"> for Learning Content</span>
           </h2>
@@ -387,10 +387,17 @@ export default function AuditLandingPage() {
 
           {/* Content Placeholder */}
           <div className="w-full max-w-6xl mb-8 relative">
+            {/* Mobile Image */}
+            <img 
+              src="/custom-projects-ui/images/allInOneStudioMobile.svg"
+              alt="All-in-One AI Studio Interface"
+              className="w-full h-auto md:hidden"
+            />
+            {/* Desktop Image */}
             <img 
               src="/custom-projects-ui/images/allInOneStudioImg.svg"
               alt="All-in-One AI Studio Interface"
-              className="w-full h-auto"
+              className="w-full h-auto hidden md:block"
             />
           </div>
 
@@ -414,13 +421,13 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Header */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 font-semibold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
             <span className="text-black">AI-powered SmartDrive — </span> <br className="hidden xl:block lg:block" />
             <span style={{ color: '#0F58F9' }}>store everything in one place.</span>
           </h2>
 
           {/* Two Column Layout */}
-          <div className="w-full flex gap-15 mb-12">
+          <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-15 mb-12">
             {/* Left Column - Features */}
             <div className="flex flex-col gap-8">
               {/* Feature 1 */}
@@ -457,10 +464,15 @@ export default function AuditLandingPage() {
 
             {/* Right Column - Visual Placeholder */}
             <div className="w-full flex items-center justify-center">
+              <img 
+                src="/custom-projects-ui/images/aiPoweredSmartDriveMobile.svg"
+                alt="All-in-One AI Studio Interface"
+                className="w-full h-auto md:hidden"
+              />
                <img 
                 src="/custom-projects-ui/images/aiPoweredSmartDrive.svg"
                 alt="All-in-One AI Studio Interface"
-                className="w-full h-auto"
+                className="w-full h-auto md:block"
                 style={{ maxWidth: '800px' }}
               />
             </div>
@@ -485,7 +497,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
             <span style={{ color: '#0F58F9' }}>Connect 42+ tools</span>
             <span className="text-black"> — and turn everything<br />your team does into learning. Build your<br />own living </span>
             <span style={{ color: '#0F58F9' }}>knowledge ecosystem</span>
@@ -517,7 +529,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
             <span className="text-black">Use </span>
             <span style={{ color: '#0F58F9' }}>online resources</span>
             <span className="text-black"> to <br className="hidden xl:block lg:block"/> build smarter courses</span>
@@ -654,7 +666,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="max-w-5xl text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
+          <h2 className="max-w-5xl text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
             <span className="text-black">Keep your content always up to date <br /> Knowledge changes — </span>
             <span style={{ color: '#0F58F9' }}>update in minutes</span>
           </h2>
@@ -693,7 +705,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
             <span className="text-black">Share your knowledge — </span>
             <span style={{ color: '#0066FF' }}>anywhere</span>
           </h2>
@@ -788,7 +800,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="flex flex-row items-center justify-center text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 mb-16 sora-font">
+          <h2 className="flex flex-row items-center justify-center text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal mb-16 sora-font">
             <span className="text-black">Trusted by </span>
             <img 
               src="/custom-projects-ui/images/deloitteIcoBlue.svg"
@@ -1043,7 +1055,7 @@ export default function AuditLandingPage() {
 
         <div className="w-full relative z-10">
           {/* Heading */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 text-left md:text-center lg:text-center xl:text-center mb-16 px-8 sora-font">
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center mb-16 px-8 sora-font">
             <span className="text-black">From </span>
             <span style={{ color: '#0F58F9' }}>minutes</span>
             <span className="text-black"> to measurable impact</span>
@@ -1225,7 +1237,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-4xl mx-auto">
           {/* Heading */}
-          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-6 lg:leading-6 xl:leading-6 text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
+          <h2 className="text-[28px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
             Frequently Asked Questions
           </h2>
 
@@ -1309,7 +1321,7 @@ export default function AuditLandingPage() {
       >
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           {/* Heading */}
-          <h2 className="text-[28px] md:text-[42px] leading-none md:leading-6 lg:leading-6 xl:leading-6 font-bold text-white mb-10 sora-font">
+          <h2 className="text-[28px] md:text-[42px] leading-none md:leading-normal font-bold text-white mb-10 sora-font">
             Start creating with AI today
           </h2>
 
@@ -1332,7 +1344,7 @@ export default function AuditLandingPage() {
       {/* Footer */}
       <footer className="w-full bg-black py-16 px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10 md:mb-16 lg:mb-16 xl:mb-16">
             {/* Company Info */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
@@ -1345,7 +1357,7 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Links Group - Product, Company, Other Resources */}
-            <div className="lg:col-span-2 flex flex-wrap md:flex-nowrap gap-3 md:gap-6">
+            <div className="lg:col-span-2 flex flex-wrap gap-x-10 gap-y-3 md:gap-10">
               {/* Product Links */}
               <div>
                 <ul className="space-y-3">
