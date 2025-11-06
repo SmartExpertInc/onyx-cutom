@@ -73,7 +73,6 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
 
   // Tags block styles
   const tagsBlockStyles: React.CSSProperties = {
-    backgroundColor: '#E0E7FF', // Darker grey for tags block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
