@@ -926,7 +926,7 @@ export default function QuizClient() {
       setLessonsForModule([]);
       setSelectedLesson("");
       return;
-    }
+    };
     const fetchLessons = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedOutlineId}`);
@@ -1661,7 +1661,8 @@ export default function QuizClient() {
     }
   };
 
-  return (<div className="flex w-full min-h-screen relative">
+  return <>
+    <div className="flex w-full min-h-screen relative">
       <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
         marginRight: showAdvanced ? '400px' : '0'
       }}>
@@ -2151,5 +2152,5 @@ export default function QuizClient() {
         isOpen={showAddonsModal} 
         onClose={() => setShowAddonsModal(false)} 
       />
-  </div>);
+    </>;
 } 

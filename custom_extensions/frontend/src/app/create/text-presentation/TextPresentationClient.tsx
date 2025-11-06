@@ -2059,11 +2059,11 @@ export default function TextPresentationClient() {
   const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
 
   return (
-    <React.Fragment>
-      <div className="flex w-full min-h-screen relative">
-        <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
-          marginRight: showAdvanced ? '400px' : '0'
-        }}>
+    <>
+    <div className="flex w-full min-h-screen relative">
+    <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
+      marginRight: showAdvanced ? '400px' : '0'
+    }}>
       {/* Decorative gradient backgrounds */}
       <div 
         className="absolute pointer-events-none"
@@ -2968,6 +2968,6 @@ export default function TextPresentationClient() {
         isOpen={showAddonsModal} 
         onClose={() => setShowAddonsModal(false)} 
       />
-    </React.Fragment>
+    </>
   );
 } 
