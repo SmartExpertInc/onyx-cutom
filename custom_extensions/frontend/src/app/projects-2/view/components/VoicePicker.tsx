@@ -298,7 +298,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[85vh] flex flex-col px-6 py-3 gap-3 z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[85vh] flex flex-col px-7 py-3 gap-3 z-10"
         style={{ borderRadius: '12px' }}
       >
         {/* Close button */}
@@ -351,7 +351,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.filter(voice => 
                   voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                   (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                ).length} ${t('voicePicker.voicesFound', 'voices found')}`}
+                ).length + (('Sarah - Conversational'.toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') ? 1 : 0)} ${t('voicePicker.voicesFound', 'voices found')}`}
                   </span>
                 </div>
                       
@@ -394,6 +394,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
 
             {/* Mock voice item */}
+            {('Sarah - Conversational'.toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') && (
             <div className="mb-2 group">
               <div 
                 className="rounded-lg p-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
@@ -429,12 +430,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     <span className="text-gray-900 text-sm font-medium">Sarah - Conversational</span>
                     <div className="flex gap-2 flex-wrap">
                       {/* 32 languages badge - no SVG */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full leading-none" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full leading-none inline-flex items-center" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
                         32 languages
                       </span>
                       
                       {/* Custom voice badge */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CCDBFC', color: '#171718' }}>
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CCDBFC', color: '#171718' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11.0837 5.83073V6.9974C11.0837 8.08036 10.6535 9.11897 9.88768 9.88475C9.1219 10.6505 8.08329 11.0807 7.00033 11.0807M7.00033 11.0807C5.91736 11.0807 4.87875 10.6505 4.11297 9.88475C3.3472 9.11897 2.91699 8.08036 2.91699 6.9974V5.83073M7.00033 11.0807V12.8307M7.00033 1.16406C6.5362 1.16406 6.09108 1.34844 5.76289 1.67663C5.4347 2.00481 5.25033 2.44993 5.25033 2.91406V6.9974C5.25033 7.46152 5.4347 7.90664 5.76289 8.23483C6.09108 8.56302 6.5362 8.7474 7.00033 8.7474C7.46445 8.7474 7.90957 8.56302 8.23776 8.23483C8.56595 7.90664 8.75033 7.46152 8.75033 6.9974V2.91406C8.75033 2.44993 8.56595 2.00481 8.23776 1.67663C7.90957 1.34844 7.46445 1.16406 7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
@@ -442,25 +443,26 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       </span>
                       
                       {/* Best fit for avatar badge */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CAFCF7', color: '#171718' }}>
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CAFCF7', color: '#171718' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7.00033 1.16406L8.80283 4.81573L12.8337 5.4049L9.91699 8.24573L10.6053 12.2591L7.00033 10.3632L3.39533 12.2591L4.08366 8.24573L1.16699 5.4049L5.19783 4.81573L7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         Best fit for avatar
-                  </span>
+                      </span>
                       
                       {/* Previously used badge */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#FEE7C8', color: '#171718' }}>
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#FEE7C8', color: '#171718' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1.75 7C1.75 5.60761 2.30312 4.27226 3.28769 3.28769C4.27226 2.30312 5.60761 1.75 7 1.75C8.46769 1.75552 9.87643 2.32821 10.9317 3.34833L12.25 4.66667M12.25 4.66667V1.75M12.25 4.66667H9.33333M12.25 7C12.25 8.39239 11.6969 9.72774 10.7123 10.7123C9.72774 11.6969 8.39239 12.25 7 12.25C5.53231 12.2445 4.12357 11.6718 3.06833 10.6517L1.75 9.33333M1.75 9.33333H4.66667M1.75 9.33333V12.25" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         Previously used
-                  </span>
+                      </span>
                 </div>
                       </div>
                     </div>
             </div>
             </div>
+            )}
 
             {/* Dynamically rendered voice items from Elai API */}
             {loading ? (
@@ -472,6 +474,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
               );
+              
+              console.log('🔍 [SEARCH] searchTerm:', searchTerm);
+              console.log('🔍 [SEARCH] Total voices:', voices.length);
+              console.log('🔍 [SEARCH] Filtered voices:', filteredVoices.length);
               
               return filteredVoices.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">{t('voicePicker.noResultsFound', 'No results found')}</div>
@@ -541,8 +547,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                         <span className="text-gray-900 text-sm font-medium">{voice.character}</span>
                           {voice.premium && (
                           <div className="flex gap-2 flex-wrap">
-                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                      <span className="px-2.5 py-0.5 text-yellow-700 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#FCF6E6' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                               <span>{t('voicePicker.premium', 'Premium')}</span>
@@ -563,7 +569,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <div className="w-px bg-[#E0E0E0]"></div>
           
           {/* Right Panel Container */}
-          <div className="flex flex-col gap-2 p-4" style={{ width: '300px' }}>
+          <div className="flex flex-col gap-2 p-4" style={{ width: '260px' }}>
             {/* Voice Details Label */}
             <div>
               <span className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
@@ -595,7 +601,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       {tempSelectedVoice.tags.map((tag, index) => (
                   <span
                           key={index}
-                    className="px-2 py-0.5 bg-white text-[11px] rounded-full leading-none"
+                    className="px-2.5 py-0.5 bg-white text-[11px] rounded-full leading-none"
                     style={{ color: '#878787', borderWidth: '1px', borderStyle: 'solid', borderColor: '#878787' }}
                   >
                           {tag.charAt(0).toUpperCase() + tag.slice(1)}
