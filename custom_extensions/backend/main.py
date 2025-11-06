@@ -13376,7 +13376,12 @@ def is_generic_response(text: str) -> bool:
         "please provide the content",
         "try a different file",
         "proceed based on a general topic",
-        "using my knowledge"
+        "no extractable content is present",
+        "no visible or textual content",
+        "no accessible information",
+        "there is no visible or textual content",
+        "no content to outline",
+        "nothing to extract"
     ]
     
     # Additional check: if response is very short and contains access issue, it's likely generic
