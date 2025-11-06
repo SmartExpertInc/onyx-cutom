@@ -56,7 +56,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & {
   const section2TitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
   const section2LinesEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background: backgroundColor || '#F0F2F7', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', backgroundColor: backgroundColor || '#F0F2F7', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
   const header: React.CSSProperties = { position:'absolute', left:'0', right:'0', top:'0', height:'40%', background:'linear-gradient(to bottom, #0F58F9, #1023A1)', border:'none' };
   const headerText: React.CSSProperties = { position:'absolute', left:'60px', top:'18%', transform:'translateY(-50%)', fontSize:'46px', fontWeight:600, color:'#FFFFFF', fontFamily:'Lora, serif', zIndex:5, maxWidth:'75%' };
