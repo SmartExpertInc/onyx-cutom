@@ -1104,6 +1104,7 @@ export interface ConcentricPhishingRiseSlideProps extends BaseTemplateProps {
   smallLabel: string;
   actorImagePath?: string;
   actorImageAlt?: string;
+  backgroundColor?: string;
 }
 
 // Pixel-perfect: Financial Impact mosaic grid
