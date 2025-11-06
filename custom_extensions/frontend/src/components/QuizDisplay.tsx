@@ -9,6 +9,23 @@ import {
 import { CheckCircle, XCircle, Info, ArrowRight, Check } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const THEME_COLORS = {
   primaryText: 'text-[#4B4B4B]',
@@ -508,7 +525,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                           <option value="" disabled>{t('quiz.selectOption', 'Select option')}</option>
                           {question.options.map((option) => (
                             <option key={option.id} value={option.id}>
-                              {option.id}: {option.text.substring(0, 30)}{option.text.length > 30 ? '...' : ''}
+                              {option.text.substring(0, 30)}{option.text.length > 30 ? '...' : ''}
                             </option>
                           ))}
                         </select>
@@ -574,6 +591,97 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     );
   };
 
+  // Sortable Item Component for drag and drop
+  interface SortableItemProps {
+    itemId: string;
+    item: SortableItem;
+    orderIndex: number;
+    questionIndex: number;
+    question: SortingQuestion;
+    editingField: {type: 'question' | 'option' | 'answer' | 'prompt' | 'match-option' | 'explanation', questionIndex: number, optionIndex?: number, answerIndex?: number, promptIndex?: number} | null;
+    onRemove: (itemId: string) => void;
+    getInputValue: (path: (string | number)[], defaultValue: string) => string;
+    handleInputChange: (path: (string | number)[], value: string) => void;
+    handleBlur: (path: (string | number)[], newValue: any) => void;
+    setEditingField: (field: {type: 'option', questionIndex: number, optionIndex: number} | null) => void;
+    onTextChange?: (path: (string | number)[], newValue: any) => void;
+  }
+
+  const SortableItemComponent: React.FC<SortableItemProps> = React.memo(({
+    itemId,
+    item,
+    orderIndex,
+    questionIndex,
+    question,
+    editingField,
+    onRemove,
+    getInputValue,
+    handleInputChange,
+    handleBlur,
+    setEditingField,
+    onTextChange
+  }) => {
+    const itemIndex = question.items_to_sort.findIndex(i => i.id === itemId);
+    const isEditingItem = editingField?.type === 'option' && editingField.questionIndex === questionIndex && editingField.optionIndex === itemIndex;
+
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: itemId, disabled: isEditingItem });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center p-2 border rounded bg-white"
+      >
+        <span
+          {...attributes}
+          {...listeners}
+          className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab active:cursor-grabbing"
+        >
+          {orderIndex + 1}
+        </span>
+        {isEditingItem ? (
+          <input
+            type="text"
+            value={getInputValue(['questions', questionIndex, 'items_to_sort', itemIndex, 'text'], item?.text || '')}
+            onChange={(e) => handleInputChange(['questions', questionIndex, 'items_to_sort', itemIndex, 'text'], e.target.value)}
+            onBlur={(e) => handleBlur(['questions', questionIndex, 'items_to_sort', itemIndex, 'text'], e.target.value)}
+            autoFocus
+            className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
+          />
+        ) : (
+          <span
+            className="flex-1 text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+            onClick={() => onTextChange && setEditingField({type: 'option', questionIndex, optionIndex: itemIndex})}
+          >
+            {item?.text}
+          </span>
+        )}
+        {onTextChange && (
+          <button
+            type="button"
+            onClick={() => onRemove(itemId)}
+            className="ml-2 text-red-500 font-bold hover:text-red-700"
+          >
+            X
+          </button>
+        )}
+      </div>
+    );
+  });
+
   const renderSorting = (question: SortingQuestion, index: number) => {
     const userAnswer = userAnswers[index] || [];
     const isCorrect = question.items_to_sort.every((item: SortableItem, i: number) => item.id === userAnswer[i]);
@@ -583,51 +691,52 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const [sortedItems, setSortedItems] = useState(question.correct_order);
     
     React.useEffect(() => {
-        setSortedItems(question.correct_order);
+      setSortedItems(question.correct_order);
     }, [question.correct_order]);
 
+    // DnD Kit sensors
+    const sensors = useSensors(
+      useSensor(PointerSensor),
+      useSensor(KeyboardSensor, {
+        coordinateGetter: sortableKeyboardCoordinates,
+      })
+    );
 
-    const handleDragStart = (e: React.DragEvent, itemId: string) => {
-      e.dataTransfer.setData('text/plain', itemId);
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-      e.preventDefault();
-    };
-
-    const handleDrop = (e: React.DragEvent, targetItemId: string) => {
-      e.preventDefault();
-      const sourceItemId = e.dataTransfer.getData('text/plain');
-      if (sourceItemId === targetItemId) return;
-
-      const newSortedItems = [...(userAnswer as string[])]; // Use userAnswer which is the state for sorting
-      const sourceIndex = newSortedItems.indexOf(sourceItemId);
-      const targetIndex = newSortedItems.indexOf(targetItemId);
-
-      newSortedItems.splice(sourceIndex, 1);
-      newSortedItems.splice(targetIndex, 0, sourceItemId);
+    // Handle drag end for editing mode (when onTextChange is available)
+    const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
       
-      handleAnswerChange(index, newSortedItems); // This updates user answers for taking the quiz
+      if (!over || active.id === over.id || !onTextChange) return;
+
+      const oldIndex = sortedItems.indexOf(active.id as string);
+      const newIndex = sortedItems.indexOf(over.id as string);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newSortedItems = arrayMove(sortedItems, oldIndex, newIndex);
+        setSortedItems(newSortedItems);
+        handleTextSubmit(['questions', index, 'correct_order'], newSortedItems);
+      }
     };
-    
-    const handleEditDrop = (e: React.DragEvent, targetItemId: string) => {
-      e.preventDefault();
-      const sourceItemId = e.dataTransfer.getData('text/plain');
-      if (sourceItemId === targetItemId) return;
 
-      const newSortedItems = [...sortedItems];
-      const sourceIndex = newSortedItems.indexOf(sourceItemId);
-      const targetIndex = newSortedItems.indexOf(targetItemId);
-
-      newSortedItems.splice(sourceIndex, 1);
-      newSortedItems.splice(targetIndex, 0, sourceItemId);
+    // Handle drag end for quiz-taking mode (when onTextChange is not available)
+    const handleQuizDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
       
-      setSortedItems(newSortedItems);
-      handleTextSubmit(['questions', index, 'correct_order'], newSortedItems);
-    };
+      if (!over || active.id === over.id) return;
 
+      const currentAnswer = [...(userAnswer as string[])];
+      const oldIndex = currentAnswer.indexOf(active.id as string);
+      const newIndex = currentAnswer.indexOf(over.id as string);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newSortedItems = arrayMove(currentAnswer, oldIndex, newIndex);
+        handleAnswerChange(index, newSortedItems);
+      }
+    };
 
     const handleAddItem = () => {
+      if (!onTextChange) return;
+      
       const newItemId = `item-${Date.now()}`;
       const newItem = { id: newItemId, text: 'New Item' };
       
@@ -639,6 +748,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     };
 
     const handleRemoveItem = (itemId: string) => {
+      if (!onTextChange) return;
+      
       const newItemsToSort = question.items_to_sort.filter(item => item.id !== itemId);
       const newCorrectOrder = question.correct_order.filter(id => id !== itemId);
 
@@ -646,52 +757,65 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       handleTextSubmit(['questions', index, 'correct_order'], newCorrectOrder);
     };
 
+    const itemsToDisplay = onTextChange ? sortedItems : (userAnswer as string[]).length > 0 ? (userAnswer as string[]) : question.correct_order;
+
     return (
       <div className="mt-4">
         <h4 className="font-medium mb-2 text-black">{t('quiz.itemsToSort', 'Items to Sort')}</h4>
-        <div className="space-y-2">
-          {sortedItems.map((itemId, orderIndex) => {
-            const item = question.items_to_sort.find(i => i.id === itemId);
-            if (!item) return null;
-            return (
-              <div 
-                key={itemId} 
-                className="flex items-center p-2 border rounded bg-white"
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleEditDrop(e, itemId)}
-              >
-                <span 
-                    className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab"
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, itemId)}
-                >
-                  {orderIndex + 1}
-                </span>
-                <input
-                  type="text"
-                  value={getInputValue(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], item?.text || '')}
-                  onChange={(e) => handleInputChange(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
-                  onBlur={(e) => handleBlur(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
-                  className="flex-1 p-1 border-none rounded text-black bg-transparent focus:ring-0"
-                />
-                <button type="button" onClick={() => handleRemoveItem(itemId)} className="ml-2 text-red-500 font-bold">X</button>
-              </div>
-            );
-          })}
-        </div>
-        <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#2563eb]">{t('quiz.addItem', 'Add Item')}</button>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onTextChange ? handleDragEnd : handleQuizDragEnd}
+        >
+          <SortableContext items={itemsToDisplay} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {itemsToDisplay.map((itemId, orderIndex) => {
+                const item = question.items_to_sort.find(i => i.id === itemId);
+                if (!item) return null;
+                return (
+                  <SortableItemComponent
+                    key={itemId}
+                    itemId={itemId}
+                    item={item}
+                    orderIndex={orderIndex}
+                    questionIndex={index}
+                    question={question}
+                    editingField={editingField}
+                    onRemove={handleRemoveItem}
+                    getInputValue={getInputValue}
+                    handleInputChange={handleInputChange}
+                    handleBlur={handleBlur}
+                    setEditingField={setEditingField}
+                    onTextChange={onTextChange}
+                  />
+                );
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
+        {onTextChange && (
+          <button
+            type="button"
+            onClick={handleAddItem}
+            className="mt-4 p-2 border rounded text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors"
+          >
+            {t('quiz.addItem', 'Add Item')}
+          </button>
+        )}
 
-          <ExplanationField
+        <ExplanationField
           explanation={question.explanation}
           questionIndex={index}
           isEditing={isEditing || false}
           editingField={editingField}
           onBlur={handleBlur}
+          onInputChange={handleInputChange}
+          getInputValue={getInputValue}
           setEditingField={setEditingField}
           t={t}
         />
       </div>
-    )
+    );
   };
 
   const renderOpenAnswer = (question: OpenAnswerQuestion, index: number) => {
