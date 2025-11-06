@@ -12169,16 +12169,28 @@ async def extract_file_context_from_onyx_with_progress(
             for file_id, file_context in zip(file_ids, file_results):
                 if file_context and (file_context.get("summary") or file_context.get("content")):
                     # Check if this was a successful extraction
-                    content = file_context.get("content", "")
-                    if not any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
+                    summary = (file_context.get("summary") or "").strip()
+                    content = (file_context.get("content") or "").strip()
+                    has_access_issue = any(phrase in content.lower() for phrase in [
+                        "file access issue", "not indexed", "could not access", "file_access_error"
+                    ])
+                    looks_generic = is_generic_response(summary) or is_generic_response(content)
+                    too_short = len(content) < 120 and len(summary) < 120
+
+                    if not has_access_issue and not looks_generic and not too_short:
                         # Success - add to context
-                        extracted_context["file_summaries"].append(file_context["summary"])
-                        extracted_context["file_contents"].append(file_context["content"])
+                        extracted_context["file_summaries"].append(summary)
+                        extracted_context["file_contents"].append(content)
                         extracted_context["key_topics"].extend(file_context.get("topics", []))
                         successful_extractions += 1
                         logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
                     else:
-                        logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues")
+                        reason = (
+                            "access issues" if has_access_issue else
+                            "generic/empty content" if looks_generic else
+                            "insufficient content"
+                        )
+                        logger.warning(f"[FILE_CONTEXT] Skipping file {file_id} due to {reason}")
                 else:
                     logger.error(f"[FILE_CONTEXT] Failed to extract context from file {file_id}")
         
