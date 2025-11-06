@@ -135,6 +135,7 @@ function Projects2ViewPageContent() {
 
   // Slide container scaling state
   const slideContainerRef = useRef<HTMLDivElement>(null);
+  const rightPanelRef = useRef<HTMLDivElement>(null);
   const [slideScale, setSlideScale] = useState<number>(0.45);
   const [showTransitionDropdown, setShowTransitionDropdown] = useState<boolean>(false);
   const [selectedTransition, setSelectedTransition] = useState<string>('None');
@@ -1129,7 +1130,7 @@ function Projects2ViewPageContent() {
         </div>
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
-        <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
+        <div ref={rightPanelRef} className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
           {showShapeRightPanel ? (
             <ShapeRightPanel
               isAppearanceEnabled={isAppearanceEnabled}
@@ -1166,6 +1167,7 @@ function Projects2ViewPageContent() {
               onStrokeColorChange={setStrokeColor}
               onColorPaletteContextChange={setColorPaletteContext}
               onClose={() => setShowShapeRightPanel(false)}
+              rightPanelRef={rightPanelRef}
             />
           ) : showTextRightPanel ? (
             <TextRightPanel
@@ -1204,6 +1206,7 @@ function Projects2ViewPageContent() {
               onColorPaletteContextChange={setColorPaletteContext}
               activeEditor={activeTextEditor}
               computedStyles={computedTextStyles}
+              rightPanelRef={rightPanelRef}
             />
           ) : showAvatarRightPanel ? (
             <AvatarRightPanel
@@ -1267,6 +1270,7 @@ function Projects2ViewPageContent() {
               setActiveSettingsPanel={setActiveSettingsPanel}
               componentBasedSlideDeck={componentBasedSlideDeck}
               setActiveTransitionIndex={setActiveTransitionIndex}
+              rightPanelRef={rightPanelRef}
             />
           )}
         </div>

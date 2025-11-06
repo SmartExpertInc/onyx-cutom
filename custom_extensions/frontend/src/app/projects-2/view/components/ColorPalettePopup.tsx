@@ -753,7 +753,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
-          height: '512px'
+          height: '540px'
         }}
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => {
@@ -957,11 +957,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           </div>
 
           {/* Opacity Display */}
-          <div className="rounded-lg px-3 py-2 flex items-center justify-center w-[68px]" style={{ backgroundColor: '#E0E0E0' }}>
-            <span className="text-sm font-mono">
-              <span style={{ color: '#171718' }}>{Math.round(colorState.opacity * 100)}</span>
-              <span style={{ color: '#969298' }}> %</span>
+          <div className="rounded-lg px-3 py-2 flex items-center justify-between w-[68px]" style={{ backgroundColor: '#E0E0E0' }}>
+            <span className="text-sm font-mono text-right flex-1" style={{ color: '#171718' }}>
+              {Math.round(colorState.opacity * 100)}
             </span>
+            <span className="text-sm font-mono ml-0.5" style={{ color: '#969298' }}>%</span>
           </div>
         </div>
 

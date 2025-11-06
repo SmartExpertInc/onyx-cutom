@@ -35,6 +35,9 @@ interface VideoPresentationRightPanelProps {
   setActiveSettingsPanel: (panel: string | null) => void;
   componentBasedSlideDeck: ComponentBasedSlideDeck | undefined;
   setActiveTransitionIndex: (index: number | null) => void;
+  
+  // Right panel ref for positioning
+  rightPanelRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export default function VideoPresentationRightPanel({
@@ -63,6 +66,7 @@ export default function VideoPresentationRightPanel({
   setActiveSettingsPanel,
   componentBasedSlideDeck,
   setActiveTransitionIndex,
+  rightPanelRef,
 }: VideoPresentationRightPanelProps) {
   const { t } = useLanguage();
   const musicDropdownRef = useRef<HTMLDivElement>(null);
@@ -304,18 +308,18 @@ export default function VideoPresentationRightPanel({
             {/* Color Button */}
             <button
               onClick={(e) => {
-                const button = e.currentTarget;
-                const rect = button.getBoundingClientRect();
-                
-                // Position the color palette to the left of the button
-                const paletteWidth = 336; // Actual width of color palette
-                const gap = 8;
-                
-                setColorPalettePosition({
-                  x: rect.left - paletteWidth - gap,
-                  y: rect.top
-                });
-                setIsColorPaletteOpen(true);
+                // Position the color palette 8px to the left of the right panel
+                if (rightPanelRef?.current) {
+                  const panelRect = rightPanelRef.current.getBoundingClientRect();
+                  const paletteWidth = 336; // Actual width of color palette
+                  const gap = 8;
+                  
+                  setColorPalettePosition({
+                    x: panelRect.left - paletteWidth - gap,
+                    y: panelRect.top
+                  });
+                  setIsColorPaletteOpen(true);
+                }
               }}
               disabled={!isBackgroundEnabled}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"

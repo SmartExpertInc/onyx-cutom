@@ -49,6 +49,9 @@ interface ShapeRightPanelProps {
   
   // Close handler
   onClose: () => void;
+  
+  // Right panel ref for positioning
+  rightPanelRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export default function ShapeRightPanel({
@@ -83,6 +86,7 @@ export default function ShapeRightPanel({
   onStrokeColorChange,
   onColorPaletteContextChange,
   onClose,
+  rightPanelRef,
 }: ShapeRightPanelProps) {
   const { t } = useLanguage();
   const appearanceDropdownRef = useRef<HTMLDivElement>(null);
@@ -166,21 +170,21 @@ export default function ShapeRightPanel({
           onClick={(e) => {
             if (!hasColor) {
               // If no color, open color palette
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
-              
-              // Position the color palette to the left of the button
-              const paletteWidth = 336; // Actual width of color palette
-              const gap = 8;
-              
-              setColorPalettePosition({
-                x: rect.left - paletteWidth - gap,
-                y: rect.top
-              });
-              if (onColorPaletteContextChange) {
-                onColorPaletteContextChange('shape');
+              // Position the color palette 8px to the left of the right panel
+              if (rightPanelRef?.current) {
+                const panelRect = rightPanelRef.current.getBoundingClientRect();
+                const paletteWidth = 336; // Actual width of color palette
+                const gap = 8;
+                
+                setColorPalettePosition({
+                  x: panelRect.left - paletteWidth - gap,
+                  y: panelRect.top
+                });
+                if (onColorPaletteContextChange) {
+                  onColorPaletteContextChange('shape');
+                }
+                setIsColorPaletteOpen(true);
               }
-              setIsColorPaletteOpen(true);
             }
             // If color exists, clicking on the square/text area should also open palette
             // The delete icon has its own click handler below
@@ -194,15 +198,15 @@ export default function ShapeRightPanel({
                 onClick={(e) => {
                   // Open color palette when clicking on color area
                   e.stopPropagation();
-                  const button = e.currentTarget.closest('button');
-                  if (button) {
-                    const rect = button.getBoundingClientRect();
+                  // Position the color palette 8px to the left of the right panel
+                  if (rightPanelRef?.current) {
+                    const panelRect = rightPanelRef.current.getBoundingClientRect();
                     const paletteWidth = 336;
                     const gap = 8;
                     
                     setColorPalettePosition({
-                      x: rect.left - paletteWidth - gap,
-                      y: rect.top
+                      x: panelRect.left - paletteWidth - gap,
+                      y: panelRect.top
                     });
                     if (onColorPaletteContextChange) {
                       onColorPaletteContextChange('shape');
@@ -267,21 +271,21 @@ export default function ShapeRightPanel({
           onClick={(e) => {
             if (!hasStroke) {
               // If no stroke, open color palette
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
-              
-              // Position the color palette to the left of the button
-              const paletteWidth = 336; // Actual width of color palette
-              const gap = 8;
-              
-              setColorPalettePosition({
-                x: rect.left - paletteWidth - gap,
-                y: rect.top
-              });
-              if (onColorPaletteContextChange) {
-                onColorPaletteContextChange('stroke');
+              // Position the color palette 8px to the left of the right panel
+              if (rightPanelRef?.current) {
+                const panelRect = rightPanelRef.current.getBoundingClientRect();
+                const paletteWidth = 336; // Actual width of color palette
+                const gap = 8;
+                
+                setColorPalettePosition({
+                  x: panelRect.left - paletteWidth - gap,
+                  y: panelRect.top
+                });
+                if (onColorPaletteContextChange) {
+                  onColorPaletteContextChange('stroke');
+                }
+                setIsColorPaletteOpen(true);
               }
-              setIsColorPaletteOpen(true);
             }
             // If stroke exists, clicking on the square/text area should also open palette
             // The delete icon has its own click handler below
@@ -295,15 +299,15 @@ export default function ShapeRightPanel({
                 onClick={(e) => {
                   // Open color palette when clicking on stroke color area
                   e.stopPropagation();
-                  const button = e.currentTarget.closest('button');
-                  if (button) {
-                    const rect = button.getBoundingClientRect();
+                  // Position the color palette 8px to the left of the right panel
+                  if (rightPanelRef?.current) {
+                    const panelRect = rightPanelRef.current.getBoundingClientRect();
                     const paletteWidth = 336;
                     const gap = 8;
                     
                     setColorPalettePosition({
-                      x: rect.left - paletteWidth - gap,
-                      y: rect.top
+                      x: panelRect.left - paletteWidth - gap,
+                      y: panelRect.top
                     });
                     if (onColorPaletteContextChange) {
                       onColorPaletteContextChange('stroke');
