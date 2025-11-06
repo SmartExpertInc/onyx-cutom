@@ -169,7 +169,7 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: themeBg,
+    backgroundColor: backgroundColor || themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
