@@ -352,9 +352,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                   (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
                 ).length} ${t('voicePicker.voicesFound', 'voices found')}`}
-            </span>
-            </div>
-            
+                  </span>
+                      </div>
+                      
           {/* Content Container with proper flex structure */}
           <div className="flex-1 flex flex-col min-h-0 border border-[#E0E0E0] rounded-lg">
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
@@ -383,14 +383,14 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#0F58F9"/>
                     <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#0F58F9"/>
                   </svg>
-                  
-                  {/* Text */}
+                      
+                      {/* Text */}
                   <span className="font-medium text-sm" style={{ color: '#0F58F9' }}>{t('voicePicker.createCustomVoice', 'Create a custom voice')}</span>
-                </div>
-                
+                    </div>
+                  
                 {/* Right chevron */}
                 <ChevronRight size={16} style={{ color: '#0F58F9' }} />
-              </div>
+                </div>
             </div>
 
             {/* Mock voice item */}
@@ -423,10 +423,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Premium</span>
-                      </span>
-                    </div>
-                  </div>
+                  </span>
                 </div>
+                      </div>
+                    </div>
                 
                 {/* Action buttons - visible on hover */}
                 <div className="hidden group-hover:flex items-center gap-2">
@@ -435,16 +435,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                    </div>
-                  </button>
+                </div>
+              </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
-                </div>
-              </div>
-            </div>
+          </div>
+        </div>
+        </div>
 
             {/* Dynamically rendered voice items from Elai API */}
             {loading ? (
@@ -557,7 +557,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <div className="w-px bg-[#E0E0E0]"></div>
           
           {/* Right Panel Container */}
-          <div className="w-80 flex flex-col gap-2">
+          <div className="w-80 flex flex-col gap-2 px-4 pt-3">
             {/* Voice Details Label */}
             <div>
               <span className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
