@@ -304,7 +304,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
+          className="absolute top-2.5 right-2.5 w-6 h-6 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
           style={{
             backdropFilter: 'blur(20px)',
             boxShadow: '0px 10px 10px 0px #0000001A, 0px 4px 4px 0px #0000000D, 0px 1px 0px 0px #0000000D'
@@ -364,7 +364,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Create Custom Voice Row */}
             <div className="mb-2">
               <div 
-                className="rounded-lg p-1 flex items-center justify-between cursor-pointer bg-white border"
+                className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer bg-white border"
                 style={{ 
                   borderColor: '#0F58F9' 
                 }}
@@ -397,7 +397,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {('Sarah - Conversational'.toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') && (
             <div className="mb-2 group">
               <div 
-                className="rounded-lg p-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
+                className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
                 }}
@@ -498,7 +498,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                    }}
                  >
                   <div 
-                    className={`rounded-lg p-1 flex items-center justify-between cursor-pointer border transition-all ${
+                    className={`rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer border transition-all ${
                     tempSelectedVoice?.voice === voice.voice 
                         ? 'border-[#E0E0E0] bg-white' 
                         : 'border-[#E0E0E0] bg-white'
@@ -601,7 +601,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       {tempSelectedVoice.tags.map((tag, index) => (
                   <span
                           key={index}
-                    className="px-2.5 py-0.5 bg-white text-[11px] rounded-full leading-none"
+                    className="px-2.5 py-0.5 bg-white text-[11px] rounded-full leading-none inline-flex items-center"
                     style={{ color: '#878787', borderWidth: '1px', borderStyle: 'solid', borderColor: '#878787' }}
                   >
                           {tag.charAt(0).toUpperCase() + tag.slice(1)}
