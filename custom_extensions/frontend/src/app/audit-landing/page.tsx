@@ -230,12 +230,12 @@ export default function AuditLandingPage() {
 
         {/* Try for Free Button */}
         <button 
-          className="px-10 py-4 rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center gap-4 transition-all hover:scale-105"
+          className="px-10 py-3 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center gap-4 transition-all hover:scale-105"
           style={{
             backgroundColor: '#0F58F9',
           }}
         >
-          <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="15" height="19" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12.6963 11.831L10.5205 10.4425C10.7998 9.65925 10.7368 8.78439 10.3321 8.04194L12.1168 6.47327C13.0972 7.07503 14.4037 6.95757 15.256 6.11902C16.248 5.143 16.248 3.56044 15.256 2.58438C14.2639 1.60832 12.6553 1.60832 11.6633 2.58438C10.8818 3.35329 10.7164 4.4981 11.1659 5.42681L9.38103 6.99572C8.52665 6.41397 7.43676 6.31227 6.50015 6.69182L4.44195 3.90514C5.18026 2.95143 5.10743 1.58407 4.22185 0.712658C3.25607 -0.237553 1.69021 -0.237553 0.724374 0.712658C-0.241458 1.66292 -0.241458 3.20358 0.724374 4.15379C1.41786 4.8361 2.42044 5.02835 3.28829 4.73105L5.34675 7.51798C4.33025 8.69104 4.38442 10.4545 5.5115 11.5633C5.53315 11.5846 5.55541 11.6046 5.57772 11.6252L3.58345 15.0689C2.75458 14.8761 1.84648 15.0971 1.20005 15.7332C0.207993 16.7093 0.207993 18.292 1.20005 19.268C2.1921 20.244 3.80065 20.244 4.79266 19.268C5.77434 18.3022 5.78405 16.7428 4.82279 15.7645L6.81691 12.3211C7.81832 12.604 8.93798 12.37 9.74277 11.6194L11.9207 13.0089C11.7816 13.6442 11.9624 14.3339 12.4642 14.8276C13.2504 15.601 14.5247 15.601 15.3107 14.8276C16.0968 14.0542 16.0968 12.8004 15.3107 12.027C14.598 11.326 13.4839 11.2606 12.6963 11.831ZM2.06068 16.9455C2.01235 16.9994 1.96687 17.0503 1.92225 17.0941C1.86665 17.1488 1.79068 17.2154 1.69641 17.244C1.57799 17.28 1.45699 17.2483 1.36425 17.1571C1.12173 16.9185 1.21448 16.4671 1.58003 16.1076C1.94568 15.7479 2.40428 15.6566 2.64689 15.8953C2.73958 15.9864 2.77175 16.1055 2.73516 16.2221C2.70609 16.3148 2.6384 16.3898 2.58286 16.4443C2.53824 16.4881 2.4865 16.5328 2.43167 16.5804C2.3684 16.6352 2.30284 16.6918 2.2383 16.7552C2.17381 16.8187 2.11633 16.8832 2.06068 16.9455ZM12.0433 2.95853C12.4088 2.59888 12.8675 2.50753 13.11 2.74618C13.2027 2.83733 13.235 2.95643 13.1983 3.07303C13.1692 3.16583 13.1015 3.24073 13.046 3.29534C13.0015 3.33909 12.9498 3.38384 12.8949 3.43134C12.8315 3.48619 12.7661 3.54279 12.7015 3.60624C12.6369 3.66979 12.5794 3.73434 12.5236 3.79664C12.4755 3.85044 12.4298 3.90149 12.3854 3.94529C12.3299 3.99994 12.2537 4.06654 12.1595 4.09519C12.0409 4.13114 11.92 4.09949 11.8273 4.00824C11.5849 3.76959 11.6777 3.31814 12.0433 2.95853ZM1.56229 1.89272C1.51513 1.94522 1.47087 1.99482 1.42772 2.03747C1.3737 2.09062 1.2996 2.15537 1.20772 2.18342C1.09241 2.21832 0.974611 2.18757 0.884304 2.09887C0.648195 1.86652 0.738654 1.42707 1.0946 1.07696C1.45049 0.726758 1.89694 0.637857 2.13315 0.870209C2.22341 0.95901 2.25486 1.07496 2.21914 1.18836C2.19063 1.27871 2.12492 1.35161 2.07085 1.40466C2.02745 1.44737 1.97703 1.49102 1.92367 1.53707C1.86203 1.59037 1.7982 1.64557 1.73543 1.70737C1.67257 1.76922 1.61641 1.83212 1.56229 1.89272ZM5.96558 7.78808C6.40227 7.35838 6.95001 7.24938 7.23979 7.53443C7.35057 7.64348 7.38904 7.78563 7.34539 7.92493C7.31042 8.03584 7.22967 8.12519 7.1633 8.19054C7.11009 8.24289 7.04819 8.29614 6.98274 8.35294C6.90722 8.41849 6.82896 8.48604 6.75181 8.56189C6.67467 8.63784 6.60596 8.71479 6.53949 8.78924C6.48176 8.85359 6.42743 8.91449 6.37427 8.96674C6.3079 9.03224 6.21709 9.11155 6.10437 9.14585C5.96289 9.1888 5.81835 9.15105 5.70741 9.042C5.41784 8.75669 5.52888 8.21779 5.96558 7.78808ZM13.0368 13.1053C12.9927 13.1486 12.9323 13.2014 12.8577 13.2241C12.7639 13.2525 12.6682 13.2275 12.5946 13.1552C12.4023 12.9662 12.4758 12.6086 12.7656 12.3236C13.0551 12.0386 13.4186 11.9663 13.6108 12.1555C13.6841 12.2276 13.7097 12.322 13.6807 12.4144C13.6577 12.488 13.604 12.5472 13.56 12.5905C13.5248 12.6251 13.4838 12.6606 13.4404 12.6982C13.3904 12.7415 13.3383 12.7865 13.2872 12.8368C13.2361 12.8871 13.1903 12.9381 13.1464 12.9876C13.1081 13.0303 13.072 13.0706 13.0368 13.1053Z" fill="white"/>
           </svg>
           Try for Free
@@ -300,12 +300,12 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-8 py-4 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-10 py-3 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.4954 12.0048C11.8606 13.536 10.3172 15.0797 8.78594 19.7143C8.65996 20.0953 8.12119 20.0953 7.99523 19.7143C6.46398 15.0795 4.9203 13.5361 0.285762 12.0048C-0.0952539 11.8788 -0.0952539 11.34 0.285762 11.2141C4.92057 9.68284 6.46393 8.13916 7.99523 3.50462C8.12121 3.1236 8.65998 3.1236 8.78594 3.50462C10.3172 8.13942 11.8609 9.68278 16.4954 11.2141C16.8764 11.3401 16.8764 11.8788 16.4954 12.0048Z" fill="white"/>
                 <path d="M19.8562 4.39352C17.5393 5.15865 16.7671 5.93093 16.0009 8.24878C15.9384 8.43929 15.6691 8.43929 15.6056 8.24878C14.8404 5.93193 14.0682 5.1597 11.7503 4.39352C11.5598 4.33104 11.5598 4.06167 11.7503 3.99816C14.0672 3.23304 14.8394 2.46076 15.6056 0.142909C15.668 -0.0476019 15.9374 -0.0476019 16.0009 0.142909C16.766 2.45976 17.5383 3.23199 19.8562 3.99816C20.0467 4.06064 20.0467 4.33002 19.8562 4.39352Z" fill="white"/>
             </svg>
@@ -372,12 +372,12 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full shadow-xl text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-10 py-3 rounded-full shadow-xl text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
           >
-            <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="23" height="19" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1431 13.6281V14.6534L17.5147 15.6067C17.8125 15.2781 18.24 15.0716 18.7139 15.0716C19.6092 15.0716 20.3355 15.807 20.3355 16.7123C20.3355 17.6187 19.6092 18.354 18.7139 18.354C17.8197 18.354 17.0934 17.6187 17.0934 16.7123L17.0944 16.6362L14.39 15.5472C14.1809 15.4638 14.0439 15.2594 14.0439 15.0309V13.6281L15.1431 13.6281ZM11.0222 13.6281V16.8125C11.6465 17.0399 12.0936 17.6459 12.0936 18.3572C12.0936 19.2626 11.3673 20 10.4731 20C9.57783 20 8.85049 19.2626 8.85049 18.3572C8.85049 17.6459 9.29761 17.0399 9.92296 16.8125V13.6281H11.0222ZM6.90022 13.6281V15.0195C6.90022 15.2469 6.76423 15.4523 6.55611 15.5358L3.85173 16.632L3.85276 16.7008C3.85276 17.6072 3.12542 18.3426 2.23016 18.3426C1.33489 18.3426 0.609609 17.6072 0.609609 16.7008C0.609609 15.7955 1.33489 15.0602 2.23016 15.0602C2.70715 15.0602 3.13779 15.2688 3.43347 15.6015L5.80301 14.643V13.6281L6.90022 13.6281ZM20.8671 8.89177C20.4725 10.9486 18.6315 12.5152 16.4093 12.5152H4.535C2.0233 12.5152 0 10.5125 0 8.06669C0 5.61973 2.02338 3.61608 4.535 3.61608C4.83479 3.61608 5.12944 3.64528 5.41275 3.70056C6.05973 1.56653 8.07705 0 10.4734 0C12.5617 0 14.3625 1.19217 15.2196 2.911C15.0023 3.22079 14.8343 3.63485 14.8343 4.17203C14.8343 5.69693 16.1829 6.22471 16.1829 6.22471C16.1829 6.22471 16.7846 6.47921 17.2667 6.71808C17.5027 7.20517 17.754 7.81535 17.754 7.81535C17.754 7.81535 18.2784 9.1786 19.7805 9.1786C20.2245 9.1786 20.5831 9.05969 20.8674 8.89177L20.8671 8.89177ZM18.48 2.85482C18.5109 2.80267 18.6108 2.63265 18.6809 2.49184C18.9529 1.94737 19.2733 1.17449 19.2733 1.17449C19.3588 0.969014 19.5587 0.834473 19.7802 0.834473C20.0006 0.834473 20.2005 0.969025 20.2871 1.17449C20.2871 1.17449 20.6064 1.94737 20.8784 2.49184C20.9485 2.63265 21.0505 2.80267 21.0803 2.85482C21.1318 2.88715 21.2998 2.98833 21.4389 3.05925C21.9767 3.3346 22.74 3.66003 22.74 3.66003C22.944 3.74661 23.0769 3.9479 23.0769 4.17217C23.0769 4.39644 22.944 4.59774 22.74 4.6843C22.74 4.6843 21.9767 5.00974 21.4389 5.28509C21.2998 5.35601 21.1318 5.45719 21.0814 5.48952C21.0505 5.54167 20.9495 5.71169 20.8784 5.8525C20.6064 6.39697 20.2871 7.16985 20.2871 7.16985C20.2005 7.37533 20.0007 7.50987 19.7802 7.50987C19.5587 7.50987 19.3588 7.37531 19.2733 7.16985C19.2733 7.16985 18.9529 6.39697 18.6809 5.8525C18.6109 5.71169 18.5109 5.54167 18.48 5.48952C18.4285 5.45719 18.2595 5.35601 18.1205 5.28509C17.5837 5.00974 16.8203 4.6843 16.8203 4.6843C16.6153 4.59773 16.4845 4.39644 16.4845 4.17217C16.4845 3.9479 16.6153 3.7466 16.8203 3.66003C16.8203 3.66003 17.5837 3.3346 18.1205 3.05925C18.2595 2.98833 18.4285 2.88715 18.48 2.85482Z" fill="white"/>
             </svg>
             Try SmartDrive for Free
@@ -404,12 +404,12 @@ export default function AuditLandingPage() {
               />
           </div>
           <button 
-            className="px-10 py-4 -mt-15 text-[15px] lg:-mt-15 xl:-mt-17 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-10 py-3 -mt-16 text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
           >
-            <svg width="20" height="17" viewBox="0 0 20 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="19" height="16" viewBox="0 0 20 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M20 3.73242C20.0014 4.22276 19.9054 4.7085 19.7177 5.16148C19.53 5.61447 19.2543 6.02571 18.9065 6.37138L12.968 12.3104C12.268 13.0104 11.3186 13.4037 10.3287 13.4037C9.33878 13.4038 8.38939 13.0106 7.68937 12.3106C6.98936 11.6107 6.59607 10.6613 6.59603 9.67137C6.59598 8.68144 6.98919 7.73204 7.68914 7.03203L8.34797 6.37139C8.52302 6.1971 8.76002 6.09931 9.00704 6.09945C9.25406 6.09959 9.49095 6.19765 9.66579 6.37214C9.84064 6.54663 9.93919 6.78331 9.93984 7.03033C9.94049 7.27735 9.84318 7.51455 9.66926 7.68995L9.00955 8.35105C8.83621 8.52433 8.6987 8.73005 8.60487 8.95647C8.51104 9.18289 8.46272 9.42557 8.46268 9.67066C8.46264 9.91575 8.51087 10.1585 8.60463 10.3849C8.69838 10.6114 8.83582 10.8171 9.0091 10.9905C9.18237 11.1638 9.38809 11.3013 9.61451 11.3951C9.84093 11.489 10.0836 11.5373 10.3287 11.5373C10.5738 11.5374 10.8165 11.4891 11.0429 11.3954C11.2694 11.3016 11.4752 11.1642 11.6485 10.9909L17.5871 5.05192C17.848 4.79092 18.0257 4.45842 18.0977 4.09644C18.1697 3.73447 18.1327 3.35927 17.9915 3.0183C17.8503 2.67733 17.6111 2.38588 17.3042 2.18082C16.9974 1.97575 16.6366 1.86627 16.2676 1.86622H16.2666C16.0217 1.86567 15.779 1.91366 15.5527 2.00742C15.3264 2.10119 15.1209 2.23887 14.9481 2.4125L14.2874 3.07315C14.112 3.24648 13.8751 3.34333 13.6285 3.34255C13.3819 3.34176 13.1456 3.24341 12.9713 3.06896C12.7969 2.89452 12.6987 2.65818 12.6981 2.41156C12.6975 2.16495 12.7945 1.92811 12.968 1.7528L13.6286 1.0926C14.1507 0.570783 14.8158 0.215474 15.5398 0.0715951C16.2638 -0.0722834 17.0142 0.00172918 17.6961 0.284276C18.378 0.566823 18.9609 1.04522 19.371 1.65898C19.781 2.27274 19.9999 2.99427 20 3.73242ZM5.71085 12.9692L5.05021 13.6298C4.87695 13.8032 4.67124 13.9407 4.44482 14.0346C4.2184 14.1284 3.97571 14.1768 3.73061 14.1768C3.48551 14.1768 3.24281 14.1286 3.01636 14.0348C2.78991 13.941 2.58415 13.8036 2.41084 13.6303C2.23753 13.457 2.10006 13.2512 2.00628 13.0247C1.9125 12.7983 1.86426 12.5556 1.86429 12.3105C1.86433 12.0654 1.91266 11.8227 2.00651 11.5963C2.10035 11.3699 2.23789 11.1641 2.41125 10.9909L8.3498 5.05144C8.70023 4.70234 9.17474 4.50637 9.66937 4.50646C10.164 4.50655 10.6384 4.70268 10.9888 5.0519C11.3384 5.40196 11.5348 5.87655 11.5346 6.37133C11.5344 6.86611 11.3377 7.34057 10.9878 7.69038L10.3281 8.34967C10.2414 8.43631 10.1727 8.53917 10.1258 8.65238C10.0789 8.76559 10.0547 8.88693 10.0547 9.00947C10.0546 9.25697 10.1529 9.49434 10.3279 9.66937C10.5029 9.84441 10.7402 9.94276 10.9877 9.94281C11.2352 9.94285 11.4726 9.84457 11.6476 9.6696L12.3073 9.01077C12.655 8.66453 12.9311 8.2531 13.1196 7.80005C13.3081 7.347 13.4055 6.86121 13.4061 6.37049C13.4066 5.87977 13.3104 5.39376 13.1229 4.94027C12.9354 4.48678 12.6604 4.07472 12.3134 3.72767C11.9665 3.38062 11.5545 3.10539 11.1011 2.91775C10.6477 2.7301 10.1617 2.63372 9.67098 2.63412C9.18026 2.63452 8.69444 2.7317 8.24132 2.92008C7.7882 3.10847 7.37669 3.38436 7.03032 3.73198L1.09177 9.67143C0.392478 10.3715 -0.000221492 11.3205 9.3724e-08 12.31C0.00022168 13.2995 0.393346 14.2484 1.09295 14.9481C1.79256 15.6479 2.7414 16.0412 3.73088 16.0416C4.72036 16.042 5.66951 15.6494 6.36967 14.9502L7.03031 14.2905C7.20488 14.1154 7.30287 13.8782 7.30276 13.631C7.30266 13.3837 7.20447 13.1466 7.02975 12.9716C6.85503 12.7967 6.61805 12.6981 6.37079 12.6977C6.12353 12.6973 5.8862 12.7949 5.71085 12.9692Z" fill="white"/>
             </svg>
             Connect your tools
@@ -522,7 +522,7 @@ export default function AuditLandingPage() {
 
                 {/* Import Button */}
                 <div className="flex justify-between">
-                <button className="flex items-center gap-2 mb-6" style={{ color: '#0F58F9' }}>
+                <button className="flex items-center gap-2" style={{ color: '#0F58F9' }}>
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12.6 7C12.6 3.90721 10.0928 1.4 7 1.4C3.90721 1.4 1.4 3.90721 1.4 7C1.4 10.0928 3.90721 12.6 7 12.6V14C3.13401 14 0 10.866 0 7C0 3.13401 3.13401 0 7 0C10.866 0 14 3.13401 14 7C14 10.866 10.866 14 7 14V12.6C10.0928 12.6 12.6 10.0928 12.6 7Z" fill="#0F58F9"/>
                     <path d="M6.25182 9.8V4.2H7.63482V9.8H6.25182ZM4.2 7.63482V6.36518H9.68664V7.63482H4.2Z" fill="#0F58F9"/>
@@ -530,7 +530,7 @@ export default function AuditLandingPage() {
                   <span className="text-xs sora-font">Add Another URL</span>
                 </button>
                   <button 
-                    className="px-8 py-3 rounded-lg font-regular text-white sora-font text-sm"
+                    className="px-8 py-3 rounded-sm font-regular text-white sora-font text-sm"
                     style={{ backgroundColor: '#0F58F9' }}
                   >
                     Import
@@ -542,12 +542,12 @@ export default function AuditLandingPage() {
 
           {/* Add from Web Button */}
           <button 
-            className="px-10 py-4 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-10 py-3 rounded-full text-[15px] shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0F58F9',
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M10 0C4.48067 0 0 4.48067 0 10C0 15.5193 4.48067 20 10 20C15.5193 20 20 15.5193 20 10C20 4.48067 15.5193 0 10 0ZM12.936 14C12.6673 15.268 12.2727 16.3627 11.786 17.1953C11.2707 18.0773 10.688 18.6667 10 18.6667C9.312 18.6667 8.72933 18.0773 8.214 17.1953C7.72733 16.3627 7.33267 15.268 7.064 14H12.936ZM17.6893 14H14.292C13.9887 15.5447 13.5173 16.876 12.9373 17.868C12.8627 17.996 12.786 18.118 12.7073 18.2347C14.8667 17.5247 16.652 15.988 17.6893 14ZM5.708 14H2.31067C3.348 15.988 5.13333 17.524 7.29267 18.2347C7.214 18.118 7.13733 17.996 7.06267 17.868C6.48267 16.876 6.01133 15.5447 5.708 14ZM5.49533 7.33333H1.752C1.48 8.17333 1.33333 9.06933 1.33333 10C1.33333 10.9307 1.48 11.8267 1.752 12.6667H5.49533C5.39 11.8193 5.33333 10.9247 5.33333 10C5.33333 9.07533 5.39 8.18067 5.49533 7.33333ZM13.1633 7.33333C13.274 8.176 13.3333 9.07133 13.3333 10C13.3333 10.9287 13.274 11.824 13.1633 12.6667H6.83667C6.726 11.824 6.66667 10.9287 6.66667 10C6.66667 9.07133 6.726 8.176 6.83667 7.33333H13.1633ZM18.248 7.33333H14.5047C14.61 8.18067 14.6667 9.07533 14.6667 10C14.6667 10.9247 14.61 11.8193 14.5047 12.6667H18.248C18.52 11.8267 18.6667 10.9307 18.6667 10C18.6667 9.06933 18.52 8.17333 18.248 7.33333ZM7.29267 1.76534C5.13333 2.47534 3.348 4.012 2.31067 6H5.708C6.01133 4.45533 6.48267 3.124 7.06267 2.132C7.13733 2.00467 7.214 1.88201 7.29267 1.76534ZM10 1.33333C10.688 1.33333 11.2707 1.92267 11.786 2.80467C12.2727 3.63733 12.6673 4.732 12.936 6H7.064C7.33267 4.732 7.72733 3.63733 8.214 2.80467C8.72933 1.92267 9.312 1.33333 10 1.33333ZM12.7073 1.76534C12.786 1.88201 12.8627 2.00467 12.9373 2.132C13.5173 3.124 13.9887 4.45533 14.292 6H17.6893C16.652 4.012 14.8667 2.47601 12.7073 1.76534Z" fill="white"/>
             </svg>
             Add from Web
@@ -580,12 +580,12 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-8 py-4 -mt-15 lg:-mt-20 xl:-mt-25 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-10 py-3 -mt-20 lg:-mt-25 xl:-mt-28 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
           >
-              <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="15" height="19" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12.6963 11.831L10.5205 10.4425C10.7998 9.65925 10.7368 8.78439 10.3321 8.04194L12.1168 6.47327C13.0972 7.07503 14.4037 6.95757 15.256 6.11902C16.248 5.143 16.248 3.56044 15.256 2.58438C14.2639 1.60832 12.6553 1.60832 11.6633 2.58438C10.8818 3.35329 10.7164 4.4981 11.1659 5.42681L9.38103 6.99572C8.52665 6.41397 7.43676 6.31227 6.50015 6.69182L4.44195 3.90514C5.18026 2.95143 5.10743 1.58407 4.22185 0.712658C3.25607 -0.237553 1.69021 -0.237553 0.724374 0.712658C-0.241458 1.66292 -0.241458 3.20358 0.724374 4.15379C1.41786 4.8361 2.42044 5.02835 3.28829 4.73105L5.34675 7.51798C4.33025 8.69104 4.38442 10.4545 5.5115 11.5633C5.53315 11.5846 5.55541 11.6046 5.57772 11.6252L3.58345 15.0689C2.75458 14.8761 1.84648 15.0971 1.20005 15.7332C0.207993 16.7093 0.207993 18.292 1.20005 19.268C2.1921 20.244 3.80065 20.244 4.79266 19.268C5.77434 18.3022 5.78405 16.7428 4.82279 15.7645L6.81691 12.3211C7.81832 12.604 8.93798 12.37 9.74277 11.6194L11.9207 13.0089C11.7816 13.6442 11.9624 14.3339 12.4642 14.8276C13.2504 15.601 14.5247 15.601 15.3107 14.8276C16.0968 14.0542 16.0968 12.8004 15.3107 12.027C14.598 11.326 13.4839 11.2606 12.6963 11.831ZM2.06068 16.9455C2.01235 16.9994 1.96687 17.0503 1.92225 17.0941C1.86665 17.1488 1.79068 17.2154 1.69641 17.244C1.57799 17.28 1.45699 17.2483 1.36425 17.1571C1.12173 16.9185 1.21448 16.4671 1.58003 16.1076C1.94568 15.7479 2.40428 15.6566 2.64689 15.8953C2.73958 15.9864 2.77175 16.1055 2.73516 16.2221C2.70609 16.3148 2.6384 16.3898 2.58286 16.4443C2.53824 16.4881 2.4865 16.5328 2.43167 16.5804C2.3684 16.6352 2.30284 16.6918 2.2383 16.7552C2.17381 16.8187 2.11633 16.8832 2.06068 16.9455ZM12.0433 2.95853C12.4088 2.59888 12.8675 2.50753 13.11 2.74618C13.2027 2.83733 13.235 2.95643 13.1983 3.07303C13.1692 3.16583 13.1015 3.24073 13.046 3.29534C13.0015 3.33909 12.9498 3.38384 12.8949 3.43134C12.8315 3.48619 12.7661 3.54279 12.7015 3.60624C12.6369 3.66979 12.5794 3.73434 12.5236 3.79664C12.4755 3.85044 12.4298 3.90149 12.3854 3.94529C12.3299 3.99994 12.2537 4.06654 12.1595 4.09519C12.0409 4.13114 11.92 4.09949 11.8273 4.00824C11.5849 3.76959 11.6777 3.31814 12.0433 2.95853ZM1.56229 1.89272C1.51513 1.94522 1.47087 1.99482 1.42772 2.03747C1.3737 2.09062 1.2996 2.15537 1.20772 2.18342C1.09241 2.21832 0.974611 2.18757 0.884304 2.09887C0.648195 1.86652 0.738654 1.42707 1.0946 1.07696C1.45049 0.726758 1.89694 0.637857 2.13315 0.870209C2.22341 0.95901 2.25486 1.07496 2.21914 1.18836C2.19063 1.27871 2.12492 1.35161 2.07085 1.40466C2.02745 1.44737 1.97703 1.49102 1.92367 1.53707C1.86203 1.59037 1.7982 1.64557 1.73543 1.70737C1.67257 1.76922 1.61641 1.83212 1.56229 1.89272ZM5.96558 7.78808C6.40227 7.35838 6.95001 7.24938 7.23979 7.53443C7.35057 7.64348 7.38904 7.78563 7.34539 7.92493C7.31042 8.03584 7.22967 8.12519 7.1633 8.19054C7.11009 8.24289 7.04819 8.29614 6.98274 8.35294C6.90722 8.41849 6.82896 8.48604 6.75181 8.56189C6.67467 8.63784 6.60596 8.71479 6.53949 8.78924C6.48176 8.85359 6.42743 8.91449 6.37427 8.96674C6.3079 9.03224 6.21709 9.11155 6.10437 9.14585C5.96289 9.1888 5.81835 9.15105 5.70741 9.042C5.41784 8.75669 5.52888 8.21779 5.96558 7.78808ZM13.0368 13.1053C12.9927 13.1486 12.9323 13.2014 12.8577 13.2241C12.7639 13.2525 12.6682 13.2275 12.5946 13.1552C12.4023 12.9662 12.4758 12.6086 12.7656 12.3236C13.0551 12.0386 13.4186 11.9663 13.6108 12.1555C13.6841 12.2276 13.7097 12.322 13.6807 12.4144C13.6577 12.488 13.604 12.5472 13.56 12.5905C13.5248 12.6251 13.4838 12.6606 13.4404 12.6982C13.3904 12.7415 13.3383 12.7865 13.2872 12.8368C13.2361 12.8871 13.1903 12.9381 13.1464 12.9876C13.1081 13.0303 13.072 13.0706 13.0368 13.1053Z" fill="white"/>
               </svg>
             Try AI for Free
@@ -603,7 +603,7 @@ export default function AuditLandingPage() {
           </h2>
 
           {/* Cards Grid */}
-          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-12">
             {/* Card 1 */}
             <div 
               className="bg-white p-4 rounded-lg border border-[#E0E0E0] overflow-hidden"
@@ -614,7 +614,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="pt-4">
+              <div className="pt-6 pb-3">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Share on social & video platforms
                 </p>
@@ -631,7 +631,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="pt-4">
+              <div className="pt-6 pb-3">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Upload to global marketplaces
                 </p>
@@ -648,7 +648,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="pt-4">
+              <div className="pt-6 pb-3">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Export to any LMS platform
                 </p>
@@ -665,7 +665,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="pt-4">
+              <div className="pt-6 pb-3">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Launch instantly in LMS
                 </p>
@@ -675,7 +675,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-10 py-3 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0066FF',
             }}
@@ -692,15 +692,18 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="text-[28px] md:text-[35px] lg:text-[46px] font-semibold text-center mb-16 sora-font">
+          <h2 className="flex flex-row text-[28px] md:text-[35px] lg:text-[46px] font-semibold text-center mb-16 sora-font">
             <span className="text-black">Trusted by </span>
-            <span className="font-bold" style={{ color: '#0F58F9' }}>Deloitte</span>
-            <span className="font-bold" style={{ color: '#86BC25' }}>.</span>
+            <img 
+              src="/custom-projects-ui/images/deloitteIcoBlue.svg"
+              alt="Deloitte"
+              className="w-full h-auto"
+            />
             <span className="text-black"> and global brands</span>
           </h2>
 
           {/* Statistics Cards */}
-          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Card 1 - Courses Delivered */}
             <div 
               className="bg-white p-4 rounded-lg border border-gray-200 overflow-hidden"
@@ -712,7 +715,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto"
               />
               <div className="pt-5">
-                <p className="text-[32px] md:text-[25px] lg:text-[42px] !font-semibold text-black mb-2 inter-theme">3,000+</p>
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2 inter-theme">3,000+</p>
                 <p className="text-[18px] lg:text-[22px] text-[#020617] sora-font">courses delivered</p>
               </div>
             </div>
@@ -728,7 +731,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto"
               />
               <div className="pt-5">
-                <p className="text-[32px] md:text-[25px] lg:text-[42px] !font-semibold text-black mb-2 inter-theme">170+</p>
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2 inter-theme">170+</p>
                 <p className="text-[18px] lg:text-[22px] text-[#020617] sora-font">universities launched</p>
               </div>
             </div>
@@ -745,12 +748,12 @@ export default function AuditLandingPage() {
             <div 
               className="rounded-md overflow-hidden"
             >
-              <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-16 sora-font">
+              <h2 className="text-4xl md:text-[46px] font-semibold text-left mb-5 sora-font">
                 <span className="text-black">Built for </span>
                 <span style={{ color: '#0F58F9' }}> every team.</span>
                 <span className="text-black">For any workflow</span>
               </h2>
-              <p className="text-black text-left text-lg mb-8 max-w-xl px-10 sora-font">
+              <p className="text-black text-left text-lg sora-font">
                 Turn processes into playbooks to train colleagues, assist customers, and drive software adoption
               </p>
             </div>
@@ -760,7 +763,7 @@ export default function AuditLandingPage() {
               className="rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-68 overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/HRfasterOnboarding.png"
                   alt="HR"
@@ -773,8 +776,8 @@ export default function AuditLandingPage() {
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">HR</h3>
-                  <p className="text-white text-base sora-font">Faster onboarding, lower turnover</p>
+                  <h3 className="text-white text-[22px] font-semibold mb-2 sora-font">HR</h3>
+                  <p className="text-white text-[15px] sora-font">Faster onboarding, lower turnover</p>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -789,7 +792,7 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-68 overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/LDlaunchCourses.png"
                   alt="L&D"
@@ -802,8 +805,8 @@ export default function AuditLandingPage() {
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">L&D</h3>
-                  <p className="text-white text-base sora-font">Launch courses + ROI analytics</p>
+                  <h3 className="text-white text-[22px] font-semibold mb-2 sora-font">L&D</h3>
+                  <p className="text-white text-[15px] sora-font">Launch courses + ROI analytics</p>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -818,7 +821,7 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-68 overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/betterPreBoarding.png"
                   alt="Recruiting"
@@ -831,8 +834,8 @@ export default function AuditLandingPage() {
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">Recruiting</h3>
-                  <p className="text-white text-base sora-font">Better pre-boarding & retention</p>
+                  <h3 className="text-white text-[22px] font-semibold mb-2 sora-font">Recruiting</h3>
+                  <p className="text-white text-[15px] sora-font">Better pre-boarding & retention</p>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -847,7 +850,7 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-68 overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/SMBEntrepreneurs.png"
                   alt="SMB Entrepreneurs"
@@ -860,8 +863,8 @@ export default function AuditLandingPage() {
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">SMB Entrepreneurs</h3>
-                  <p className="text-white text-base sora-font">Train teams, scale faster</p>
+                  <h3 className="text-white text-[22px] font-semibold mb-2 sora-font">SMB Entrepreneurs</h3>
+                  <p className="text-white text-[15px] sora-font">Train teams, scale faster</p>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -876,7 +879,7 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-68 overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/digitalCreators.png"
                   alt="Digital Creators"
@@ -889,8 +892,8 @@ export default function AuditLandingPage() {
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">Digital Creators</h3>
-                  <p className="text-white text-base sora-font">Turn knowledge into revenue</p>
+                  <h3 className="text-white text-[22px] font-semibold mb-2 sora-font">Digital Creators</h3>
+                  <p className="text-white text-[15px] sora-font">Turn knowledge into revenue</p>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -898,6 +901,137 @@ export default function AuditLandingPage() {
                   </svg>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+            {/* Measurable Impact Section */}
+            <section className="w-full bg-white py-20 px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* Heading */}
+          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-16 sora-font">
+            <span className="text-black">From </span>
+            <span style={{ color: '#0F58F9' }}>minutes</span>
+            <span className="text-black"> to measurable impact</span>
+          </h2>
+
+          {/* Testimonial Cards Carousel */}
+          <div className="overflow-x-auto mb-12 pb-4">
+            <div className="flex gap-6 min-w-max">
+              {/* Card 1 - 80% reduction */}
+              <div 
+                className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <p className="text-5xl font-bold text-black mb-2 sora-font">80%</p>
+                <p className="text-lg text-black mb-6 sora-font">reduction in training costs</p>
+                <p className="text-base text-black mb-6 sora-font">
+                  "We replaced expensive course production with automation. The savings reached tens of thousands of dollars."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-full bg-gray-300"
+                    style={{ backgroundColor: '#E5E7EB' }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-black sora-font">HR Director</p>
+                    <p className="text-sm text-gray-600 sora-font">Retail Company</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2 - 40% faster onboarding */}
+              <div 
+                className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <p className="text-5xl font-bold text-black mb-2 sora-font">40%</p>
+                <p className="text-lg text-black mb-6 sora-font">faster onboarding</p>
+                <p className="text-base text-black mb-6 sora-font">
+                  "Training that used to take months is now ready in 3 days. New hires become productive much faster."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-full bg-gray-300"
+                    style={{ backgroundColor: '#E5E7EB' }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-black sora-font">L&D Manager</p>
+                    <p className="text-sm text-gray-600 sora-font">Tech Startup</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 - 30% higher retention */}
+              <div 
+                className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <p className="text-5xl font-bold text-black mb-2 sora-font">30%</p>
+                <p className="text-lg text-black mb-6 sora-font">higher employee retention</p>
+                <p className="text-base text-black mb-6 sora-font">
+                  "Standardized onboarding and training helped us reduce turnover. New hires feel supported and stay longer."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-full bg-gray-300"
+                    style={{ backgroundColor: '#E5E7EB' }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-black sora-font">Head of People</p>
+                    <p className="text-sm text-gray-600 sora-font">Logistics Company</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4 - +70% engagement */}
+              <div 
+                className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <p className="text-5xl font-bold text-black mb-2 sora-font">+70%</p>
+                <p className="text-lg text-black mb-6 sora-font">engagement</p>
+                <p className="text-base text-black mb-6 sora-font">
+                  "With AI, employee training is almost completely automated. Engagement rates went up significantly."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-full bg-gray-300"
+                    style={{ backgroundColor: '#E5E7EB' }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-black sora-font">Director</p>
+                    <p className="text-sm text-gray-600 sora-font">Education</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Smaller Statistics Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            {/* Stat 1 */}
+            <div className="text-center">
+              <p className="text-3xl font-bold text-black mb-2 sora-font">+75%</p>
+              <p className="text-base text-black sora-font">faster creation</p>
+            </div>
+
+            {/* Stat 2 */}
+            <div className="text-center">
+              <p className="text-3xl font-bold text-black mb-2 sora-font">35h</p>
+              <p className="text-base text-black sora-font">saved per user monthly</p>
+            </div>
+
+            {/* Stat 3 */}
+            <div className="text-center">
+              <p className="text-3xl font-bold text-black mb-2 sora-font">93%</p>
+              <p className="text-base text-black sora-font">retention</p>
+            </div>
+
+            {/* Stat 4 */}
+            <div className="text-center">
+              <p className="text-3xl font-bold text-black mb-2 sora-font">98%</p>
+              <p className="text-base text-black sora-font">fewer mistakes</p>
             </div>
           </div>
         </div>
