@@ -7,6 +7,7 @@ import VideoEditorHeader from '../components/VideoEditorHeader';
 import Toolbar from '../components/Toolbar';
 import Script from '../components/Script';
 import Background from '../components/Background';
+import Color from '../components/Color';
 import Music from '../components/Music';
 import Transition from '../components/Transition';
 import Comments from '../components/Comments';
@@ -78,6 +79,9 @@ export default function Projects2ViewPage() {
   
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
+
+  // NEW: Track selected container for container-specific color changes
+  const [selectedContainer, setSelectedContainer] = useState<{ slideId: string; containerId: string } | null>(null);
 
   // Ref for slide editor container to detect clicks outside
   const slideEditorRef = useRef<HTMLDivElement>(null);
@@ -241,6 +245,7 @@ export default function Projects2ViewPage() {
   // NEW: Function to handle slide selection
   const handleSlideSelect = (slideId: string) => {
     setCurrentSlideId(slideId);
+    setSelectedContainer(null); // Clear selected container when changing slides
     if (videoLessonData) {
       const updatedData = { ...videoLessonData, currentSlideId: slideId };
       setVideoLessonData(updatedData);
@@ -413,6 +418,82 @@ export default function Projects2ViewPage() {
     console.log('🎨 [BACKGROUND] Deck updated, triggering save:', {
       totalSlides: updatedDeck.slides.length,
       updatedSlideId: currentSlideId,
+      timestamp: new Date().toISOString()
+    });
+    
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
+  };
+
+  // NEW: Function to handle container-specific color changes
+  const handleContainerColorChange = (color: string | null) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || !currentSlideId || !selectedContainer) {
+      console.warn('🎨 [CONTAINER_COLOR] Cannot change color - missing requirements:', {
+        isComponentBasedVideoLesson,
+        hasComponentBasedSlideDeck: !!componentBasedSlideDeck,
+        currentSlideId,
+        selectedContainer,
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+
+    const currentSlide = componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId);
+    const currentContainerColors = currentSlide?.props?.containerColors as Record<string, string> | undefined;
+    const previousColor = currentContainerColors?.[selectedContainer.containerId];
+    
+    console.log('🎨 [CONTAINER_COLOR] Container color change initiated:', { 
+      slideId: currentSlideId,
+      containerId: selectedContainer.containerId,
+      slideTemplateId: currentSlide?.templateId,
+      slideNumber: currentSlide?.slideNumber,
+      previousColor: previousColor || 'none',
+      newColor: color || 'cleared',
+      timestamp: new Date().toISOString()
+    });
+    
+    // Update slides with new container color
+    const updatedSlides = componentBasedSlideDeck.slides.map(slide => {
+      if (slide.slideId === currentSlideId) {
+        const existingContainerColors = slide.props.containerColors as Record<string, string> | undefined || {};
+        const updatedContainerColors = { ...existingContainerColors };
+        
+        if (color) {
+          updatedContainerColors[selectedContainer.containerId] = color;
+        } else {
+          delete updatedContainerColors[selectedContainer.containerId];
+        }
+        
+        const updatedSlide: ComponentBasedSlide = {
+          ...slide,
+          props: {
+            ...slide.props,
+            containerColors: updatedContainerColors
+          }
+        };
+        
+        console.log('🎨 [CONTAINER_COLOR] Slide props updated:', {
+          slideId: slide.slideId,
+          containerId: selectedContainer.containerId,
+          containerColors: updatedContainerColors,
+          timestamp: new Date().toISOString()
+        });
+        
+        return updatedSlide;
+      }
+      return slide;
+    });
+    
+    // Update the deck with new slides
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      slides: updatedSlides
+    };
+    
+    console.log('🎨 [CONTAINER_COLOR] Deck updated, triggering save:', {
+      totalSlides: updatedDeck.slides.length,
+      updatedSlideId: currentSlideId,
+      containerId: selectedContainer.containerId,
       timestamp: new Date().toISOString()
     });
     
@@ -675,6 +756,30 @@ export default function Projects2ViewPage() {
     }
   }, [activeSettingsPanel]);
 
+  // Listen for container selection events
+  useEffect(() => {
+    const handleContainerSelect = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { containerId } = customEvent.detail;
+      
+      if (currentSlideId) {
+        console.log('🎨 [CONTAINER_SELECT] Container selected:', {
+          slideId: currentSlideId,
+          containerId,
+          timestamp: new Date().toISOString()
+        });
+        
+        setSelectedContainer({ slideId: currentSlideId, containerId });
+        setActiveComponent('color');
+      }
+    };
+
+    document.addEventListener('selectContainer', handleContainerSelect);
+    return () => {
+      document.removeEventListener('selectContainer', handleContainerSelect);
+    };
+  }, [currentSlideId]);
+
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
     
@@ -867,6 +972,50 @@ export default function Projects2ViewPage() {
           timestamp: new Date().toISOString()
         });
         return <Background currentBackgroundColor={currentBgColor} onColorSelect={handleBackgroundColorChange} />;
+      case 'color':
+        // Check if a container is selected, otherwise use slide background color
+        const currentSlideForColor = componentBasedSlideDeck?.slides.find(s => s.slideId === currentSlideId);
+        let currentColorValue: string | undefined;
+        let colorHandler: (color: string | null) => void;
+        let targetLabel: string;
+        
+        if (selectedContainer && selectedContainer.slideId === currentSlideId) {
+          // Container-specific color
+          const containerColors = currentSlideForColor?.props?.containerColors as Record<string, string> | undefined;
+          currentColorValue = containerColors?.[selectedContainer.containerId];
+          colorHandler = handleContainerColorChange;
+          
+          // Convert containerId to friendly name (e.g., "topSection" -> "Top Section")
+          targetLabel = selectedContainer.containerId
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase())
+            .trim();
+          
+          console.log('🎨 [COLOR] Rendering Color component for container:', {
+            currentSlideId,
+            containerId: selectedContainer.containerId,
+            targetLabel,
+            slideTemplateId: currentSlideForColor?.templateId,
+            currentContainerColor: currentColorValue || 'none',
+            hasOnColorSelectCallback: !!handleContainerColorChange,
+            timestamp: new Date().toISOString()
+          });
+        } else {
+          // Slide background color
+          currentColorValue = currentSlideForColor?.props?.backgroundColor as string | undefined;
+          colorHandler = handleBackgroundColorChange;
+          targetLabel = 'Slide Background';
+          
+          console.log('🎨 [COLOR] Rendering Color component for slide background:', {
+            currentSlideId,
+            slideTemplateId: currentSlideForColor?.templateId,
+            currentBackgroundColor: currentColorValue || 'none',
+            hasOnColorSelectCallback: !!handleBackgroundColorChange,
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        return <Color currentBackgroundColor={currentColorValue} onColorSelect={colorHandler} selectedTarget={targetLabel} />;
       case 'music':
         return <Music />;
       case 'comments':

@@ -14,7 +14,8 @@ import {
   ChevronDown,
   LucideIcon,
   FileImage,
-  Plus
+  Plus,
+  Palette
 } from 'lucide-react';
 import AvatarPopup from './AvatarPopup';
 import { useAvatarData } from './AvatarDataService';
@@ -114,6 +115,11 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
       icon: 'custom-background'
     },
     {
+      id: 'color',
+      label: 'Color',
+      icon: Palette
+    },
+    {
       id: 'shapes',
       label: 'Shapes',
       icon: Shapes
@@ -165,7 +171,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     }
     // Always set the active tool ID first
     setActiveToolId(toolId);
-    
+
+
     if (toolId === 'text') {
       if (activeToolId === 'text') {
         setActiveToolId('script');

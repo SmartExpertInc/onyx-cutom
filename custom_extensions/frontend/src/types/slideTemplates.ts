@@ -642,6 +642,7 @@ export interface BenefitsListSlideProps extends BaseTemplateProps {
   benefitsListIcon?: string;
   logoNew?: string;
   backgroundColor?: string;
+  containerColors?: Record<string, string>; // { containerId: color }
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
@@ -1325,7 +1326,6 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   middlePanelColor?: string;
   avatarPath?: string;
   voiceoverText?: string;
-  backgroundColor?: string;
 }
 
 export interface PercentCirclesProps extends BaseTemplateProps {

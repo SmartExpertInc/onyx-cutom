@@ -35,6 +35,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   pageNumber = '15',
   logoNew = '',
   backgroundColor,
+  containerColors,
   titleColor,
   contentColor,
   accentColor,
@@ -44,6 +45,28 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   voiceoverText: _voiceoverText,
   onEditorActive
 }) => {
+  // Get selected container from custom event or global state
+  const [selectedContainerId, setSelectedContainerId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleContainerSelect = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { containerId } = customEvent.detail;
+      setSelectedContainerId(containerId);
+    };
+
+    const handleClearSelection = () => {
+      setSelectedContainerId(null);
+    };
+
+    document.addEventListener('selectContainer', handleContainerSelect);
+    document.addEventListener('clearContainerSelection', handleClearSelection);
+    
+    return () => {
+      document.removeEventListener('selectContainer', handleContainerSelect);
+      document.removeEventListener('clearContainerSelection', handleClearSelection);
+    };
+  }, []);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
@@ -179,16 +202,47 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         }
       `}</style>
       {/* Top section with blue gradient background */}
-      <div style={{
-        flex: '0 0 427px', // Фиксированная высота для верхней секции
-        background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', 
-        position: 'relative',
-        padding: '40px 60px',
-        paddingTop: '44px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-      }}>
+      <div 
+        data-container-id="topSection"
+        data-selectable-container="true"
+        style={{
+          flex: '0 0 427px', // Фиксированная высота для верхней секции
+          background: containerColors?.topSection || 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', 
+          position: 'relative',
+          padding: '40px 60px',
+          paddingTop: '44px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          cursor: isEditable ? 'pointer' : 'default',
+          transition: 'outline 0.2s ease',
+          outline: isEditable && selectedContainerId === 'topSection' 
+            ? '3px solid #0F58F9' 
+            : 'none',
+          outlineOffset: isEditable && selectedContainerId === 'topSection' ? '-3px' : '0'
+        }}
+        onClick={(e) => {
+          if (isEditable) {
+            e.stopPropagation();
+            // Dispatch custom event for container selection
+            const event = new CustomEvent('selectContainer', {
+              detail: { containerId: 'topSection' },
+              bubbles: true
+            });
+            e.currentTarget.dispatchEvent(event);
+          }
+        }}
+        onMouseEnter={(e) => {
+          if (isEditable && selectedContainerId !== 'topSection') {
+            e.currentTarget.style.outline = '2px solid rgba(15, 88, 249, 0.5)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (isEditable && selectedContainerId !== 'topSection') {
+            e.currentTarget.style.outline = 'none';
+          }
+        }}
+      >
         {/* Header and title section */}
         <div>
           {/* Subtitle */}
