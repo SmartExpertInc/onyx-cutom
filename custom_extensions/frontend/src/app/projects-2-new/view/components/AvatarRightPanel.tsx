@@ -107,7 +107,7 @@ export default function AvatarRightPanel({
           style={{ backgroundColor: '#0F58F9' }}
           onClick={() => setIsApplyAvatarModalOpen(true)}
         >
-          {t('avatarRightPanel.addToAllSlides', 'Add to all slides')}
+          {t('panels.avatarRightPanel.addToAllSlides', 'Add to all slides')}
         </button>
 
         {/* Replace avatar button */}
@@ -123,7 +123,7 @@ export default function AvatarRightPanel({
             console.log('Replace avatar clicked');
           }}
         >
-          {t('avatarRightPanel.replaceAvatar', 'Replace avatar')}
+          {t('panels.avatarRightPanel.replaceAvatar', 'Replace avatar')}
         </button>
       </div>
 
@@ -131,7 +131,7 @@ export default function AvatarRightPanel({
       <div className="space-y-3 flex-shrink-0">
         {/* Appearance Title */}
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.appearance', 'Appearance')}</h3>
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.appearance', 'Appearance')}</h3>
         </div>
 
         {/* Appearance Dropdown */}
@@ -160,8 +160,8 @@ export default function AvatarRightPanel({
               )}
               <span style={{ color: '#848485' }}>
                 {selectedAppearance === 'Transparent' 
-                  ? t('avatarRightPanel.transparent', 'Transparent')
-                  : t('avatarRightPanel.inCircle', 'In circle')}
+                  ? t('panels.avatarRightPanel.transparent', 'Transparent')
+                  : t('panels.avatarRightPanel.inCircle', 'In circle')}
               </span>
             </div>
             <svg 
@@ -194,7 +194,7 @@ export default function AvatarRightPanel({
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.00033 8.66667C9.84128 8.66667 11.3337 7.17428 11.3337 5.33333C11.3337 3.49238 9.84128 2 8.00033 2C6.15938 2 4.66699 3.49238 4.66699 5.33333C4.66699 7.17428 6.15938 8.66667 8.00033 8.66667ZM8.00033 8.66667C9.41481 8.66667 10.7714 9.22857 11.7716 10.2288C12.7718 11.229 13.3337 12.5855 13.3337 14M8.00033 8.66667C6.58584 8.66667 5.22928 9.22857 4.22909 10.2288C3.2289 11.229 2.66699 12.5855 2.66699 14" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span style={{ color: '#848485' }}>{t('avatarRightPanel.transparent', 'Transparent')}</span>
+                  <span style={{ color: '#848485' }}>{t('panels.avatarRightPanel.transparent', 'Transparent')}</span>
                 </div>
                 {selectedAppearance === 'Transparent' && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -227,7 +227,7 @@ export default function AvatarRightPanel({
                       </clipPath>
                     </defs>
                   </svg>
-                  <span style={{ color: '#848485' }}>{t('avatarRightPanel.inCircle', 'In circle')}</span>
+                  <span style={{ color: '#848485' }}>{t('panels.avatarRightPanel.inCircle', 'In circle')}</span>
                 </div>
                 {selectedAppearance === 'In circle' && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -243,7 +243,7 @@ export default function AvatarRightPanel({
         <div className="space-y-3 flex-shrink-0">
           {/* Alignment Title */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.alignment', 'Alignment')}</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.alignment', 'Alignment')}</h3>
           </div>
 
           {/* Alignment Buttons */}
@@ -317,7 +317,7 @@ export default function AvatarRightPanel({
         <div className="space-y-3 flex-shrink-0">
           {/* Layer Title */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.layer', 'Layer')}</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.layer', 'Layer')}</h3>
           </div>
 
           {/* Layer Buttons */}
@@ -336,7 +336,7 @@ export default function AvatarRightPanel({
                 <path d="M14.6663 12.6654L8.66634 7.9987L14.6663 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toBack' ? '#171718' : '#878787' }}>
-                {t('avatarRightPanel.toBack', 'To back')}
+                {t('panels.avatarRightPanel.toBack', 'To back')}
               </span>
             </button>
 
@@ -353,7 +353,7 @@ export default function AvatarRightPanel({
                 <path d="M3.33301 12.668V3.33464M12.6663 13.3346L5.99967 8.0013L12.6663 2.66797V13.3346Z" stroke={selectedLayer === 'backward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'backward' ? '#171718' : '#878787' }}>
-                {t('avatarRightPanel.backward', 'Backward')}
+                {t('panels.avatarRightPanel.backward', 'Backward')}
               </span>
             </button>
 
@@ -370,7 +370,7 @@ export default function AvatarRightPanel({
                 <path d="M12.6663 3.33464V12.668M3.33301 2.66797L9.99967 8.0013L3.33301 13.3346V2.66797Z" stroke={selectedLayer === 'forward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'forward' ? '#171718' : '#878787' }}>
-                {t('avatarRightPanel.forward', 'Forward')}
+                {t('panels.avatarRightPanel.forward', 'Forward')}
               </span>
             </button>
 
@@ -388,7 +388,7 @@ export default function AvatarRightPanel({
                 <path d="M1.33366 12.6654L7.33366 7.9987L1.33366 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toFront' ? '#171718' : '#878787' }}>
-                {t('avatarRightPanel.toFront', 'To front')}
+                {t('panels.avatarRightPanel.toFront', 'To front')}
               </span>
             </button>
           </div>
@@ -398,7 +398,7 @@ export default function AvatarRightPanel({
         <div className="space-y-2 flex-shrink-0">
           {/* Position Title */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('avatarRightPanel.position', 'Position')}</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.position', 'Position')}</h3>
           </div>
 
           {/* Position Inputs */}
@@ -406,7 +406,7 @@ export default function AvatarRightPanel({
             {/* X Input */}
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
-                {t('avatarRightPanel.xPosition', 'X')}
+                {t('panels.avatarRightPanel.xPosition', 'X')}
               </label>
               <input
                 type="text"
@@ -423,7 +423,7 @@ export default function AvatarRightPanel({
             {/* Y Input */}
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
-                {t('avatarRightPanel.yPosition', 'Y')}
+                {t('panels.avatarRightPanel.yPosition', 'Y')}
               </label>
               <input
                 type="text"
@@ -450,7 +450,7 @@ export default function AvatarRightPanel({
           color: '#171718'
         }}
       >
-        {t('avatarRightPanel.close', 'Close')}
+        {t('panels.avatarRightPanel.close', 'Close')}
       </button>
 
       {/* Apply Avatar Modal */}

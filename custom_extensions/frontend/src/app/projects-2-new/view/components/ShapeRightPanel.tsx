@@ -308,7 +308,7 @@ export default function ShapeRightPanel({
                 <path d="M6.99414 4V10" stroke="#878787" strokeLinecap="round"/>
                 <path d="M10 6.99609L4 6.99609" stroke="#878787" strokeLinecap="round"/>
               </svg>
-              {t('shapeRightPanel.addColor', 'Add color')}
+              {t('panels.shapeRightPanel.addColor', 'Add color')}
             </>
           )}
         </button>
@@ -461,7 +461,7 @@ export default function ShapeRightPanel({
                 <path d="M6.99414 4V10" stroke="#878787" strokeLinecap="round"/>
                 <path d="M10 6.99609L4 6.99609" stroke="#878787" strokeLinecap="round"/>
               </svg>
-              {t('shapeRightPanel.addStroke', 'Add Stroke')}
+              {t('panels.shapeRightPanel.addStroke', 'Add Stroke')}
             </>
           )}
         </button>
@@ -471,7 +471,7 @@ export default function ShapeRightPanel({
           <div className="flex gap-2">
             {/* Left column - Stroke Label */}
             <div className="flex-1 flex items-center">
-              <span className="text-xs font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.stroke', 'Stroke')}</span>
+              <span className="text-xs font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.stroke', 'Stroke')}</span>
             </div>
             
             {/* Right column - Stroke Button */}
@@ -534,7 +534,7 @@ export default function ShapeRightPanel({
       <div className="space-y-3 flex-shrink-0">
         {/* Appearance Title */}
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.appearance', 'Appearance')}</h3>
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.appearance', 'Appearance')}</h3>
         </div>
 
         {/* Appearance Dropdown */}
@@ -563,8 +563,8 @@ export default function ShapeRightPanel({
               )}
               <span style={{ color: '#848485' }}>
                 {selectedAppearance === 'Transparent' 
-                  ? t('shapeRightPanel.transparent', 'Transparent')
-                  : t('shapeRightPanel.inCircle', 'In circle')}
+                  ? t('panels.shapeRightPanel.transparent', 'Transparent')
+                  : t('panels.shapeRightPanel.inCircle', 'In circle')}
               </span>
             </div>
             <svg 
@@ -597,7 +597,7 @@ export default function ShapeRightPanel({
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.00033 8.66667C9.84128 8.66667 11.3337 7.17428 11.3337 5.33333C11.3337 3.49238 9.84128 2 8.00033 2C6.15938 2 4.66699 3.49238 4.66699 5.33333C4.66699 7.17428 6.15938 8.66667 8.00033 8.66667ZM8.00033 8.66667C9.41481 8.66667 10.7714 9.22857 11.7716 10.2288C12.7718 11.229 13.3337 12.5855 13.3337 14M8.00033 8.66667C6.58584 8.66667 5.22928 9.22857 4.22909 10.2288C3.2289 11.229 2.66699 12.5855 2.66699 14" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span style={{ color: '#848485' }}>{t('shapeRightPanel.transparent', 'Transparent')}</span>
+                  <span style={{ color: '#848485' }}>{t('panels.shapeRightPanel.transparent', 'Transparent')}</span>
                 </div>
                 {selectedAppearance === 'Transparent' && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -630,7 +630,7 @@ export default function ShapeRightPanel({
                       </clipPath>
                     </defs>
                   </svg>
-                  <span style={{ color: '#848485' }}>{t('shapeRightPanel.inCircle', 'In circle')}</span>
+                  <span style={{ color: '#848485' }}>{t('panels.shapeRightPanel.inCircle', 'In circle')}</span>
                 </div>
                 {selectedAppearance === 'In circle' && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -646,7 +646,7 @@ export default function ShapeRightPanel({
         <div className="space-y-3 flex-shrink-0">
           {/* Alignment Title */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.alignment', 'Alignment')}</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.alignment', 'Alignment')}</h3>
           </div>
 
           {/* Alignment Buttons */}
@@ -720,7 +720,7 @@ export default function ShapeRightPanel({
         <div className="space-y-3 flex-shrink-0">
           {/* Layer Title */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.layer', 'Layer')}</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.layer', 'Layer')}</h3>
           </div>
 
           {/* Layer Buttons */}
@@ -739,7 +739,7 @@ export default function ShapeRightPanel({
                 <path d="M14.6663 12.6654L8.66634 7.9987L14.6663 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toBack' ? '#171718' : '#878787' }}>
-                {t('shapeRightPanel.toBack', 'To back')}
+                {t('panels.shapeRightPanel.toBack', 'To back')}
               </span>
             </button>
 
@@ -756,7 +756,7 @@ export default function ShapeRightPanel({
                 <path d="M3.33301 12.668V3.33464M12.6663 13.3346L5.99967 8.0013L12.6663 2.66797V13.3346Z" stroke={selectedLayer === 'backward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'backward' ? '#171718' : '#878787' }}>
-                {t('shapeRightPanel.backward', 'Backward')}
+                {t('panels.shapeRightPanel.backward', 'Backward')}
               </span>
             </button>
 
@@ -773,7 +773,7 @@ export default function ShapeRightPanel({
                 <path d="M12.6663 3.33464V12.668M3.33301 2.66797L9.99967 8.0013L3.33301 13.3346V2.66797Z" stroke={selectedLayer === 'forward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'forward' ? '#171718' : '#878787' }}>
-                {t('shapeRightPanel.forward', 'Forward')}
+                {t('panels.shapeRightPanel.forward', 'Forward')}
               </span>
             </button>
 
@@ -791,7 +791,7 @@ export default function ShapeRightPanel({
                 <path d="M1.33366 12.6654L7.33366 7.9987L1.33366 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toFront' ? '#171718' : '#878787' }}>
-                {t('shapeRightPanel.toFront', 'To front')}
+                {t('panels.shapeRightPanel.toFront', 'To front')}
               </span>
             </button>
           </div>
@@ -801,7 +801,7 @@ export default function ShapeRightPanel({
         <div className="space-y-2 flex-shrink-0">
           {/* Position Title */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('shapeRightPanel.position', 'Position')}</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.position', 'Position')}</h3>
           </div>
 
           {/* Position Inputs */}
@@ -809,7 +809,7 @@ export default function ShapeRightPanel({
             {/* X Input */}
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
-                {t('shapeRightPanel.xPosition', 'X')}
+                {t('panels.shapeRightPanel.xPosition', 'X')}
               </label>
               <input
                 type="text"
@@ -826,7 +826,7 @@ export default function ShapeRightPanel({
             {/* Y Input */}
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
-                {t('shapeRightPanel.yPosition', 'Y')}
+                {t('panels.shapeRightPanel.yPosition', 'Y')}
               </label>
               <input
                 type="text"
@@ -846,7 +846,7 @@ export default function ShapeRightPanel({
             {/* Left column - Rotation Label */}
             <div className="flex-1 flex items-center">
               <span className="text-xs font-medium" style={{ color: '#171718' }}>
-                {t('shapeRightPanel.rotation', 'Rotation')}
+                {t('panels.shapeRightPanel.rotation', 'Rotation')}
               </span>
             </div>
             
@@ -930,7 +930,7 @@ export default function ShapeRightPanel({
           color: '#171718'
         }}
       >
-        {t('shapeRightPanel.close', 'Close')}
+        {t('panels.shapeRightPanel.close', 'Close')}
       </button>
     </>
   );
