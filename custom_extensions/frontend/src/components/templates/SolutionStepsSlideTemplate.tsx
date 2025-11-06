@@ -59,7 +59,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF',
+    backgroundColor: backgroundColor || '#E0E7FF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
