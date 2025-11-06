@@ -265,7 +265,7 @@ export default function AuditLandingPage() {
 
         {/* Try for Free Button */}
         <button 
-          className="px-10 py-3 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center gap-4 transition-all hover:scale-105"
+          className="px-10 py-4 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center gap-4 transition-all hover:scale-105"
           style={{
             backgroundColor: '#0F58F9',
           }}
@@ -335,7 +335,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-3 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-10 py-4 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -407,7 +407,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-3 rounded-full shadow-xl text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-10 py-4 rounded-full shadow-xl text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -439,7 +439,7 @@ export default function AuditLandingPage() {
               />
           </div>
           <button 
-            className="px-10 py-3 -mt-16 text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-10 py-4 -mt-16 text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -577,7 +577,7 @@ export default function AuditLandingPage() {
 
           {/* Add from Web Button */}
           <button 
-            className="px-10 py-3 rounded-full text-[15px] shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-10 py-4 rounded-full text-[15px] shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -615,7 +615,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-3 -mt-20 lg:-mt-25 xl:-mt-28 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 transition-all hover:scale-105"
+            className="px-10 py-4 -mt-20 lg:-mt-25 xl:-mt-28 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -710,7 +710,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-3 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-10 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0066FF',
             }}
@@ -783,7 +783,7 @@ export default function AuditLandingPage() {
             <div 
               className="rounded-md overflow-hidden"
             >
-              <h2 className="text-4xl md:text-[46px] font-semibold text-left mb-5 sora-font">
+              <h2 className="text-4xl md:text-[46px] font-semibold text-left mb-10 sora-font">
                 <span className="text-black">Built for </span>
                 <span style={{ color: '#0F58F9' }}> every team. </span>
                 <span className="text-black">For any workflow</span>
@@ -798,26 +798,28 @@ export default function AuditLandingPage() {
               className="rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-68 overflow-hidden">
+              <div className="relative w-[382px] h-[320px] overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/HRfasterOnboarding.png"
                   alt="HR"
-                  className="w-full h-full object-cover"
+                  className="w-[400px] h-[350px] object-cover"
                 />
                 <div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.9) 100%)'
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <h3 className="text-white text-[22px] font-semibold mb-2 sora-font">HR</h3>
-                  <p className="text-white text-[15px] sora-font">Faster onboarding, lower turnover</p>
-                </div>
-                <div className="absolute bottom-4 right-4">
-                  <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
-                  </svg>
+                  <div className="flex justify-between">
+                    <p className="text-white text-[15px] sora-font">Faster onboarding, lower turnover</p>
+                    <div className="mt-2">
+                      <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -827,16 +829,16 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-68 overflow-hidden">
+              <div className="relative w-[382px] h-[320px] overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/LDlaunchCourses.png"
                   alt="L&D"
-                  className="w-full h-full object-cover"
+                  className="w-[400px] h-[350px] object-cover"
                 />
                 <div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.9) 100%)'
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -856,16 +858,16 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-68 overflow-hidden">
+              <div className="relative w-[382px] h-[320px] overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/betterPreBoarding.png"
                   alt="Recruiting"
-                  className="w-full h-full object-cover"
+                  className="w-[400px] h-[350px] object-cover"
                 />
                 <div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.9) 100%)'
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -885,16 +887,16 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-68 overflow-hidden">
+              <div className="relative w-[382px] h-[320px] overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/SMBEntrepreneurs.png"
                   alt="SMB Entrepreneurs"
-                  className="w-full h-full object-cover"
+                  className="w-[400px] h-[350px] object-cover"
                 />
                 <div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.9) 100%)'
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -914,16 +916,16 @@ export default function AuditLandingPage() {
               className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="relative h-68 overflow-hidden">
+              <div className="relative w-[382px] h-[320px] overflow-hidden">
                 <img 
                   src="/custom-projects-ui/images/digitalCreators.png"
                   alt="Digital Creators"
-                  className="w-full h-full object-cover"
+                  className="w-[400px] h-[350px] object-cover"
                 />
                 <div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.9) 100%)'
                   }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -994,7 +996,10 @@ export default function AuditLandingPage() {
             className="overflow-x-auto mb-12 pb-4 select-none"
             style={{ 
               cursor: 'grab',
-              scrollBehavior: isDragging ? 'auto' : 'smooth'
+              scrollBehavior: isDragging ? 'auto' : 'smooth',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -1010,9 +1015,9 @@ export default function AuditLandingPage() {
                   userSelect: 'none'
                 }}
               >
-                <p className="text-5xl font-bold text-black mb-2 sora-font">80%</p>
-                <p className="text-lg text-black mb-6 sora-font">reduction in training costs</p>
-                <p className="text-base text-black mb-6 sora-font">
+                <p className="text-[46px] font-semibold text-black mb-2 sora-font">80%</p>
+                <p className="text-[20px] text-black mb-6 sora-font">reduction in training costs</p>
+                <p className="text-[20px] text-black mb-6 sora-font">
                   "We replaced expensive course production with automation. The savings reached tens of thousands of dollars."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1022,7 +1027,7 @@ export default function AuditLandingPage() {
                   />
                   <div>
                     <p className="text-sm font-semibold text-black sora-font">HR Director</p>
-                    <p className="text-sm text-gray-600 sora-font">Retail Company</p>
+                    <p className="text-sm text-gray-900 sora-font">Retail Company</p>
                   </div>
                 </div>
               </div>
@@ -1035,9 +1040,9 @@ export default function AuditLandingPage() {
                   userSelect: 'none'
                 }}
               >
-                <p className="text-5xl font-bold text-black mb-2 sora-font">40%</p>
-                <p className="text-lg text-black mb-6 sora-font">faster onboarding</p>
-                <p className="text-base text-black mb-6 sora-font">
+                <p className="text-[46px] font-bold text-black mb-2 sora-font">40%</p>
+                <p className="text-[20px] text-black mb-6 sora-font">faster onboarding</p>
+                <p className="text-[20px] text-black mb-6 sora-font">
                   "Training that used to take months is now ready in 3 days. New hires become productive much faster."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1047,7 +1052,7 @@ export default function AuditLandingPage() {
                   />
                   <div>
                     <p className="text-sm font-semibold text-black sora-font">L&D Manager</p>
-                    <p className="text-sm text-gray-600 sora-font">Tech Startup</p>
+                    <p className="text-sm text-gray-900 sora-font">Tech Startup</p>
                   </div>
                 </div>
               </div>
@@ -1060,9 +1065,9 @@ export default function AuditLandingPage() {
                   userSelect: 'none'
                 }}
               >
-                <p className="text-5xl font-bold text-black mb-2 sora-font">30%</p>
-                <p className="text-lg text-black mb-6 sora-font">higher employee retention</p>
-                <p className="text-base text-black mb-6 sora-font">
+                <p className="text-[46px] font-bold text-black mb-2 sora-font">30%</p>
+                <p className="text-[20px] text-black mb-6 sora-font">higher employee retention</p>
+                <p className="text-[20px] text-black mb-6 sora-font">
                   "Standardized onboarding and training helped us reduce turnover. New hires feel supported and stay longer."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1072,7 +1077,7 @@ export default function AuditLandingPage() {
                   />
                   <div>
                     <p className="text-sm font-semibold text-black sora-font">Head of People</p>
-                    <p className="text-sm text-gray-600 sora-font">Logistics Company</p>
+                    <p className="text-sm text-gray-900 sora-font">Logistics Company</p>
                   </div>
                 </div>
               </div>
@@ -1085,9 +1090,9 @@ export default function AuditLandingPage() {
                   userSelect: 'none'
                 }}
               >
-                <p className="text-5xl font-bold text-black mb-2 sora-font">+70%</p>
-                <p className="text-lg text-black mb-6 sora-font">engagement</p>
-                <p className="text-base text-black mb-6 sora-font">
+                <p className="text-[46px] font-bold text-black mb-2 sora-font">+70%</p>
+                <p className="text-[20px] text-black mb-6 sora-font">engagement</p>
+                <p className="text-[20px] text-black mb-6 sora-font">
                   "With AI-powered courses, employees actually complete training. Completion rates almost doubled."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1097,7 +1102,7 @@ export default function AuditLandingPage() {
                   />
                   <div>
                     <p className="text-sm font-semibold text-black sora-font">Director</p>
-                    <p className="text-sm text-gray-600 sora-font">Education</p>
+                    <p className="text-sm text-gray-900 sora-font">Education</p>
                   </div>
                 </div>
               </div>
@@ -1110,9 +1115,9 @@ export default function AuditLandingPage() {
                   userSelect: 'none'
                 }}
               >
-                <p className="text-5xl font-bold text-black mb-2 sora-font">+70%</p>
-                <p className="text-lg text-black mb-6 sora-font">engagement</p>
-                <p className="text-base text-black mb-6 sora-font">
+                <p className="text-[46px] font-bold text-black mb-2 sora-font">+70%</p>
+                <p className="text-[20px] text-black mb-6 sora-font">engagement</p>
+                <p className="text-[20px] text-black mb-6 sora-font">
                   "With AI-powered courses, employees actually complete training. Completion rates almost doubled."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1122,7 +1127,7 @@ export default function AuditLandingPage() {
                   />
                   <div>
                     <p className="text-sm font-semibold text-black sora-font">Director</p>
-                    <p className="text-sm text-gray-600 sora-font">Education</p>
+                    <p className="text-sm text-gray-900 sora-font">Education</p>
                   </div>
                 </div>
               </div>
@@ -1132,27 +1137,27 @@ export default function AuditLandingPage() {
           {/* Smaller Statistics Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {/* Stat 1 */}
-            <div className="text-center">
-              <p className="text-3xl font-bold text-black mb-2 sora-font">+75%</p>
-              <p className="text-base text-black sora-font">faster creation</p>
+            <div className="text-center border-r border-[#0206171A]">
+              <p className="text-3xl font-semibold text-black mb-2 sora-font">+75%</p>
+              <p className="text-base text-[#020617B2] sora-font">faster creation</p>
             </div>
 
             {/* Stat 2 */}
-            <div className="text-center">
-              <p className="text-3xl font-bold text-black mb-2 sora-font">35h</p>
-              <p className="text-base text-black sora-font">saved per user monthly</p>
+            <div className="text-center border-r border-[#0206171A]">
+              <p className="text-3xl font-semibold text-black mb-2 sora-font">35h</p>
+              <p className="text-base text-[#020617B2] sora-font">saved per user monthly</p>
             </div>
 
             {/* Stat 3 */}
-            <div className="text-center">
-              <p className="text-3xl font-bold text-black mb-2 sora-font">93%</p>
-              <p className="text-base text-black sora-font">retention</p>
+            <div className="text-center border-r border-[#0206171A]">
+              <p className="text-3xl font-semibold text-black mb-2 sora-font">93%</p>
+              <p className="text-base text-[#020617B2] sora-font">retention</p>
             </div>
 
             {/* Stat 4 */}
             <div className="text-center">
-              <p className="text-3xl font-bold text-black mb-2 sora-font">98%</p>
-              <p className="text-base text-black sora-font">fewer mistakes</p>
+              <p className="text-3xl font-semibold text-black mb-2 sora-font">98%</p>
+              <p className="text-base text-[#020617B2] sora-font">fewer mistakes</p>
             </div>
           </div>
         </div>
@@ -1246,7 +1251,7 @@ export default function AuditLandingPage() {
       >
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           {/* Heading */}
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 sora-font">
+          <h2 className="text-4xl md:text-5xl lg:text-[46px] font-bold text-white mb-8 sora-font">
             Start creating with AI today
           </h2>
 
@@ -1284,7 +1289,6 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Product Links */}
-          <div className="flex gap-8">
             <div>
               <h3 className="text-white font-semibold mb-4 sora-font">Product</h3>
               <ul className="space-y-3">
@@ -1305,23 +1309,13 @@ export default function AuditLandingPage() {
               </ul>
             </div>
 
-            {/* Other Resources */}
-            <div>
-              <h3 className="text-white font-semibold mb-4 sora-font">Other resources</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Blog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Changelog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Contact</a></li>
-              </ul>
-            </div>
-          </div>
             {/* Newsletter */}
             <div>
               <h3 className="text-white font-semibold mb-2 sora-font">Join our newsletter</h3>
               <p className="text-gray-400 text-sm mb-4 sora-font">Stay connected with AI based Analytics</p>
               
               {/* Email Input and Button */}
-              <div className="flex mb-6">
+              <div className="flex mb-6 w-full">
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -1329,11 +1323,21 @@ export default function AuditLandingPage() {
                   style={{ backgroundColor: 'white', color: '#333' }}
                 />
                 <button
-                  className="px-6 py-2 rounded-r-md text-white text-sm font-semibold sora-font"
+                  className="px-6 py-2 rounded-r-md text-white text-sm font-semibold sora-font flex-shrink-0"
                   style={{ backgroundColor: '#0F58F9' }}
                 >
                   Subscribe
                 </button>
+              </div>
+
+              {/* Other Resources */}
+              <div className="mb-6">
+                <h3 className="text-white font-semibold mb-4 sora-font">Other resources</h3>
+                <ul className="space-y-3">
+                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Blog</a></li>
+                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Changelog</a></li>
+                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Contact</a></li>
+                </ul>
               </div>
 
               {/* Social Media Icons */}
