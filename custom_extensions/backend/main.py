@@ -2740,6 +2740,7 @@ class TextPresentationDetails(BaseModel):
     textTitle: Optional[str] = None
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
     detectedLanguage: Optional[str] = None
+    purpleBoxContent: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 # --- End: Add New Quiz Models ---
