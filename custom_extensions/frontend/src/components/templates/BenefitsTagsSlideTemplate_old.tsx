@@ -62,7 +62,7 @@ export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF', // Light grey background as per screenshot
+    backgroundColor: backgroundColor || '#E0E7FF', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
