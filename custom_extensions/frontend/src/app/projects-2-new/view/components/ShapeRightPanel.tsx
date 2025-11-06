@@ -102,6 +102,7 @@ export default function ShapeRightPanel({
   const [strokeWidth, setStrokeWidth] = useState<number>(2);
   const [rotation, setRotation] = useState<number>(0);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [currentColorContext, setCurrentColorContext] = useState<'shape' | 'stroke' | null>(null);
 
   // Update selectedColor when shapeColor prop changes
   useEffect(() => {
@@ -172,18 +173,44 @@ export default function ShapeRightPanel({
               // If no color, open color palette
               // Position the color palette 8px to the left of the right panel
               if (rightPanelRef?.current) {
-                const panelRect = rightPanelRef.current.getBoundingClientRect();
-                const paletteWidth = 336; // Actual width of color palette
-                const gap = 8;
+                const targetContext = 'shape';
                 
-                setColorPalettePosition({
-                  x: panelRect.left - paletteWidth - gap,
-                  y: panelRect.top
-                });
-                if (onColorPaletteContextChange) {
-                  onColorPaletteContextChange('shape');
+                // If switching context, close first, wait, then open
+                if (currentColorContext && currentColorContext !== targetContext) {
+                  setIsColorPaletteOpen(false);
+                  setTimeout(() => {
+                    const panelRect = rightPanelRef.current?.getBoundingClientRect();
+                    if (panelRect) {
+                      const paletteWidth = 336;
+                      const gap = 8;
+                      
+                      setColorPalettePosition({
+                        x: panelRect.left - paletteWidth - gap,
+                        y: panelRect.top
+                      });
+                      if (onColorPaletteContextChange) {
+                        onColorPaletteContextChange(targetContext);
+                      }
+                      setCurrentColorContext(targetContext);
+                      setIsColorPaletteOpen(true);
+                    }
+                  }, 150);
+                } else {
+                  // Same context or first open
+                  const panelRect = rightPanelRef.current.getBoundingClientRect();
+                  const paletteWidth = 336;
+                  const gap = 8;
+                  
+                  setColorPalettePosition({
+                    x: panelRect.left - paletteWidth - gap,
+                    y: panelRect.top
+                  });
+                  if (onColorPaletteContextChange) {
+                    onColorPaletteContextChange(targetContext);
+                  }
+                  setCurrentColorContext(targetContext);
+                  setIsColorPaletteOpen(true);
                 }
-                setIsColorPaletteOpen(true);
               }
             }
             // If color exists, clicking on the square/text area should also open palette
@@ -200,18 +227,44 @@ export default function ShapeRightPanel({
                   e.stopPropagation();
                   // Position the color palette 8px to the left of the right panel
                   if (rightPanelRef?.current) {
-                    const panelRect = rightPanelRef.current.getBoundingClientRect();
-                    const paletteWidth = 336;
-                    const gap = 8;
+                    const targetContext = 'shape';
                     
-                    setColorPalettePosition({
-                      x: panelRect.left - paletteWidth - gap,
-                      y: panelRect.top
-                    });
-                    if (onColorPaletteContextChange) {
-                      onColorPaletteContextChange('shape');
+                    // If switching context, close first, wait, then open
+                    if (currentColorContext && currentColorContext !== targetContext) {
+                      setIsColorPaletteOpen(false);
+                      setTimeout(() => {
+                        const panelRect = rightPanelRef.current?.getBoundingClientRect();
+                        if (panelRect) {
+                          const paletteWidth = 336;
+                          const gap = 8;
+                          
+                          setColorPalettePosition({
+                            x: panelRect.left - paletteWidth - gap,
+                            y: panelRect.top
+                          });
+                          if (onColorPaletteContextChange) {
+                            onColorPaletteContextChange(targetContext);
+                          }
+                          setCurrentColorContext(targetContext);
+                          setIsColorPaletteOpen(true);
+                        }
+                      }, 150);
+                    } else {
+                      // Same context or first open
+                      const panelRect = rightPanelRef.current.getBoundingClientRect();
+                      const paletteWidth = 336;
+                      const gap = 8;
+                      
+                      setColorPalettePosition({
+                        x: panelRect.left - paletteWidth - gap,
+                        y: panelRect.top
+                      });
+                      if (onColorPaletteContextChange) {
+                        onColorPaletteContextChange(targetContext);
+                      }
+                      setCurrentColorContext(targetContext);
+                      setIsColorPaletteOpen(true);
                     }
-                    setIsColorPaletteOpen(true);
                   }
                 }}
               >
@@ -273,18 +326,44 @@ export default function ShapeRightPanel({
               // If no stroke, open color palette
               // Position the color palette 8px to the left of the right panel
               if (rightPanelRef?.current) {
-                const panelRect = rightPanelRef.current.getBoundingClientRect();
-                const paletteWidth = 336; // Actual width of color palette
-                const gap = 8;
+                const targetContext = 'stroke';
                 
-                setColorPalettePosition({
-                  x: panelRect.left - paletteWidth - gap,
-                  y: panelRect.top
-                });
-                if (onColorPaletteContextChange) {
-                  onColorPaletteContextChange('stroke');
+                // If switching context, close first, wait, then open
+                if (currentColorContext && currentColorContext !== targetContext) {
+                  setIsColorPaletteOpen(false);
+                  setTimeout(() => {
+                    const panelRect = rightPanelRef.current?.getBoundingClientRect();
+                    if (panelRect) {
+                      const paletteWidth = 336;
+                      const gap = 8;
+                      
+                      setColorPalettePosition({
+                        x: panelRect.left - paletteWidth - gap,
+                        y: panelRect.top
+                      });
+                      if (onColorPaletteContextChange) {
+                        onColorPaletteContextChange(targetContext);
+                      }
+                      setCurrentColorContext(targetContext);
+                      setIsColorPaletteOpen(true);
+                    }
+                  }, 150);
+                } else {
+                  // Same context or first open
+                  const panelRect = rightPanelRef.current.getBoundingClientRect();
+                  const paletteWidth = 336;
+                  const gap = 8;
+                  
+                  setColorPalettePosition({
+                    x: panelRect.left - paletteWidth - gap,
+                    y: panelRect.top
+                  });
+                  if (onColorPaletteContextChange) {
+                    onColorPaletteContextChange(targetContext);
+                  }
+                  setCurrentColorContext(targetContext);
+                  setIsColorPaletteOpen(true);
                 }
-                setIsColorPaletteOpen(true);
               }
             }
             // If stroke exists, clicking on the square/text area should also open palette
@@ -301,18 +380,44 @@ export default function ShapeRightPanel({
                   e.stopPropagation();
                   // Position the color palette 8px to the left of the right panel
                   if (rightPanelRef?.current) {
-                    const panelRect = rightPanelRef.current.getBoundingClientRect();
-                    const paletteWidth = 336;
-                    const gap = 8;
+                    const targetContext = 'stroke';
                     
-                    setColorPalettePosition({
-                      x: panelRect.left - paletteWidth - gap,
-                      y: panelRect.top
-                    });
-                    if (onColorPaletteContextChange) {
-                      onColorPaletteContextChange('stroke');
+                    // If switching context, close first, wait, then open
+                    if (currentColorContext && currentColorContext !== targetContext) {
+                      setIsColorPaletteOpen(false);
+                      setTimeout(() => {
+                        const panelRect = rightPanelRef.current?.getBoundingClientRect();
+                        if (panelRect) {
+                          const paletteWidth = 336;
+                          const gap = 8;
+                          
+                          setColorPalettePosition({
+                            x: panelRect.left - paletteWidth - gap,
+                            y: panelRect.top
+                          });
+                          if (onColorPaletteContextChange) {
+                            onColorPaletteContextChange(targetContext);
+                          }
+                          setCurrentColorContext(targetContext);
+                          setIsColorPaletteOpen(true);
+                        }
+                      }, 150);
+                    } else {
+                      // Same context or first open
+                      const panelRect = rightPanelRef.current.getBoundingClientRect();
+                      const paletteWidth = 336;
+                      const gap = 8;
+                      
+                      setColorPalettePosition({
+                        x: panelRect.left - paletteWidth - gap,
+                        y: panelRect.top
+                      });
+                      if (onColorPaletteContextChange) {
+                        onColorPaletteContextChange(targetContext);
+                      }
+                      setCurrentColorContext(targetContext);
+                      setIsColorPaletteOpen(true);
                     }
-                    setIsColorPaletteOpen(true);
                   }
                 }}
               >

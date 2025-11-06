@@ -941,20 +941,35 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             )}
             {colorFormat === 'RGB' && (
               <span className="text-sm font-mono">
-                <span style={{ color: '#878787' }}>rgb</span>
-                <span style={{ color: '#171718' }}>({Math.round(colorState.rgba.r)}, {Math.round(colorState.rgba.g)}, {Math.round(colorState.rgba.b)})</span>
+                <span style={{ color: '#878787' }}>rgb(</span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.rgba.r)}</span>
+                <span style={{ color: '#878787' }}>, </span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.rgba.g)}</span>
+                <span style={{ color: '#878787' }}>, </span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.rgba.b)}</span>
+                <span style={{ color: '#878787' }}>)</span>
               </span>
             )}
             {colorFormat === 'HSL' && (
               <span className="text-sm font-mono">
-                <span style={{ color: '#878787' }}>hsl</span>
-                <span style={{ color: '#171718' }}>({Math.round(colorState.hsla.h)}, {Math.round(colorState.hsla.s)}%, {Math.round(colorState.hsla.l)}%)</span>
+                <span style={{ color: '#878787' }}>hsl(</span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.hsla.h)}</span>
+                <span style={{ color: '#878787' }}>, </span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.hsla.s)}</span>
+                <span style={{ color: '#878787' }}>%, </span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.hsla.l)}</span>
+                <span style={{ color: '#878787' }}>%)</span>
               </span>
             )}
             {colorFormat === 'HSB' && (
               <span className="text-sm font-mono">
-                <span style={{ color: '#878787' }}>hsb</span>
-                <span style={{ color: '#171718' }}>({Math.round(colorState.hsb.h)}, {Math.round(colorState.hsb.s)}%, {Math.round(colorState.hsb.b)}%)</span>
+                <span style={{ color: '#878787' }}>hsb(</span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.hsb.h)}</span>
+                <span style={{ color: '#878787' }}>, </span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.hsb.s)}</span>
+                <span style={{ color: '#878787' }}>%, </span>
+                <span style={{ color: '#171718' }}>{Math.round(colorState.hsb.b)}</span>
+                <span style={{ color: '#878787' }}>%)</span>
               </span>
             )}
           </div>
