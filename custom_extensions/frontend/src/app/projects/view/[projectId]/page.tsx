@@ -823,8 +823,7 @@ export default function ProjectInstanceViewPage() {
   useEffect(() => {
     if (projectId) {
       const needsFetch = pageState === 'initial_loading' ||
-        (projectInstanceData && projectInstanceData.project_id?.toString() !== projectId) ||
-        (!projectInstanceData && (pageState === 'error' || pageState === 'nodata'));
+        (projectInstanceData && projectInstanceData.project_id?.toString() !== projectId);
 
       if (needsFetch) {
         fetchPageData(projectId);
