@@ -29,7 +29,8 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  onEditorActive
+  onEditorActive,
+  backgroundColor
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -54,7 +55,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF',
+    backgroundColor: backgroundColor || '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont
