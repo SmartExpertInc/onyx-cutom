@@ -373,7 +373,7 @@ const VerticalSlider: React.FC<VerticalSliderProps> = ({
         }}
       >
         {/* Outer white border ring */}
-        <div className="w-3 h-3 rounded-full border-[3px] border-white bg-transparent" />
+        <div className="w-[13px] h-[13px] rounded-full border-[3px] border-white bg-transparent" />
         {/* Inner colored dot */}
         {thumbColor && (
           <div
@@ -635,15 +635,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     ].slice(0, 9); // Keep only 9 colors
     
     onRecentColorChange(updatedRecentColors);
-    
-    // Pass the most recent color (first in the array) to parent as selected color
-    const selectedColor = updatedRecentColors[0];
-    if (selectedColor) {
-      // Convert to RGBA format with current opacity for the parent
-      const rgbaColor = hexToRgba(selectedColor);
-      const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${colorState.opacity})`;
-      onColorChange(colorWithOpacity);
-    }
   };
 
   // Handle recent color click
@@ -837,7 +828,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           >
             {/* Custom cursor indicator */}
             <div
-              className="absolute w-3 h-3 rounded-full border-[3px] border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              className="absolute w-[13px] h-[13px] rounded-full border-[3px] border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
                 left: `${colorState.hsb.s}%`,
                 top: `${100 - colorState.hsb.b}%`,
@@ -941,7 +932,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           </div>
 
           {/* Code Display */}
-          <div className="flex-1 rounded-lg px-3 py-2 flex items-center mr-1.5" style={{ backgroundColor: '#E0E0E0' }}>
+          <div className="flex-1 rounded-lg px-3 py-2 flex items-center mr-2.5" style={{ backgroundColor: '#E0E0E0' }}>
             {colorFormat === 'HEX' && (
               <span className="text-sm font-mono">
                 <span style={{ color: '#969298' }}># </span>
@@ -966,7 +957,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           </div>
 
           {/* Opacity Display */}
-          <div className="rounded-lg px-3 py-2 flex items-center" style={{ backgroundColor: '#E0E0E0' }}>
+          <div className="rounded-lg px-3 py-2 flex items-center justify-center w-[68px]" style={{ backgroundColor: '#E0E0E0' }}>
             <span className="text-sm font-mono">
               <span style={{ color: '#171718' }}>{Math.round(colorState.opacity * 100)}</span>
               <span style={{ color: '#969298' }}> %</span>
@@ -1122,7 +1113,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             e.stopPropagation();
             e.preventDefault(); // Prevent focus loss from editor
           }}>
-          <div className="text-[#171718] mb-2 block text-xs font-medium">
+          <div className="text-[#171718] mb-3 block text-xs font-medium">
             Last Used
             </div>
           <div className="flex gap-2 flex-wrap">
@@ -1139,7 +1130,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       e.stopPropagation();
                       e.preventDefault(); // Prevent focus loss from editor
                     }}
-                  className={`w-6 h-6 border border-gray-300 rounded-lg bg-gray-100 transition-all duration-200 relative z-[10002] ${
+                  className={`w-6 h-6 border border-gray-300 rounded-md bg-gray-100 transition-all duration-200 relative z-[10002] ${
                       color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
                     }`}
                     style={{

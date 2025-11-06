@@ -308,7 +308,7 @@ export default function VideoPresentationRightPanel({
                 const rect = button.getBoundingClientRect();
                 
                 // Position the color palette to the left of the button
-                const paletteWidth = 270; // Actual width of color palette
+                const paletteWidth = 336; // Actual width of color palette
                 const gap = 8;
                 
                 setColorPalettePosition({

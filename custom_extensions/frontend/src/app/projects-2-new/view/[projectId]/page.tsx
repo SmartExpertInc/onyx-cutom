@@ -124,6 +124,7 @@ function Projects2ViewPageContent() {
   const [colorPalettePosition, setColorPalettePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [mediaPopupPosition, setMediaPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [colorPaletteContext, setColorPaletteContext] = useState<'background' | 'shape' | 'stroke'>('background');
+  const [recentColors, setRecentColors] = useState<string[]>([]);
   
   // Shape color state
   const [shapeColor, setShapeColor] = useState<string>('#ffffff');
@@ -1451,7 +1452,7 @@ function Projects2ViewPageContent() {
           } else {
             setBackgroundColor(color);
           }
-          setIsColorPaletteOpen(false);
+          // Don't close the color picker - let user continue adjusting colors
         }}
         selectedColor={
           showTextRightPanel ? currentTextColor :
@@ -1460,6 +1461,8 @@ function Projects2ViewPageContent() {
           backgroundColor
         }
         position={colorPalettePosition}
+        recentColors={recentColors}
+        onRecentColorChange={setRecentColors}
       />
 
       {/* Text Editing Toolbar - Hidden since we're using TextRightPanel instead */}
