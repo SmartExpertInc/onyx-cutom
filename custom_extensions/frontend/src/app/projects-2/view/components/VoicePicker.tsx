@@ -347,7 +347,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         <div className="flex-1 flex flex-col min-h-0 gap-2">
           {/* Voices count text above container */}
         <div>
-            <span className="text-xs text-[#878787]">
+            <span className="text-xs text-[#878787] leading-none block">
                 {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.filter(voice => 
                   voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                   (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
