@@ -758,11 +758,6 @@ export default function TextPresentationClient() {
       content: t('interface.generate.addContentPlaceholder', 'Add your content here...')
     };
     setAdditionalSections(prev => [...prev, newSection]);
-    
-    // Append the new section to content so it's included in lessonList
-    const sectionMarkdown = `\n\n## ${newSection.title}\n\n${newSection.content}\n\n`;
-    setContent(prev => prev + sectionMarkdown);
-    
     setHasUserEdits(true);
   };
 
@@ -1321,6 +1316,20 @@ export default function TextPresentationClient() {
     if (!content.trim()) {
       setError("No content to finalize");
       return;
+    }
+
+    // Append all additional sections to content so they're included in lessonList
+    let updatedContent = content;
+    additionalSections.forEach((section) => {
+      // Check if section is already in content (by title)
+      const sectionPattern = new RegExp(`##\\s*${escapeRegExp(section.title)}`, 'g');
+      if (!sectionPattern.test(updatedContent)) {
+        const sectionMarkdown = `\n\n## ${section.title}\n\n${section.content}\n\n`;
+        updatedContent += sectionMarkdown;
+      }
+    });
+    if (updatedContent !== content) {
+      setContent(updatedContent);
     }
 
     setIsGenerating(true);
