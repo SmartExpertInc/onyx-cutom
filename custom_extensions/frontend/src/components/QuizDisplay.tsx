@@ -32,6 +32,7 @@ interface QuizDisplayProps {
   dataToDisplay: QuizData | null;
   isEditing?: boolean;
   onTextChange?: (path: (string | number)[], newValue: any) => void;
+  onAutoSave?: () => void;
   parentProjectName?: string;
   lessonNumber?: number;
 }
@@ -114,7 +115,7 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   );
 };
 
-const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber }) => {
+const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, onAutoSave, parentProjectName, lessonNumber }) => {
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -171,6 +172,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     }
   };
 
+  const handleBlur = () => {
+    setEditingField(null);
+    console.log('handleBlur');
+    // Trigger auto-save immediately on blur
+    if (onAutoSave) {
+      onAutoSave();
+    }
+  };
+
   const handleCorrectAnswerChange = (questionIndex: number, optionId: string, isCorrect: boolean) => {
     const question = questions[questionIndex];
     if (question.question_type === 'multiple-choice') {
@@ -188,6 +198,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         ? currentCorrectIds.filter(id => id !== optionId)
         : [...currentCorrectIds, optionId];
       handleTextChange(['questions', questionIndex, 'correct_option_ids'], newCorrectIds);
+    }
+    // Trigger auto-save immediately after changing correct answer
+    if (onAutoSave) {
+      onAutoSave();
     }
   };
 
@@ -274,6 +288,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const updatedQuestions = [...questions, newQuestion];
     handleTextChange(['questions'], updatedQuestions);
     setShowQuestionTypeMenu(false);
+    // Trigger auto-save immediately after adding a question
+    if (onAutoSave) {
+      onAutoSave();
+    }
   };
 
   const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
@@ -301,7 +319,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    onBlur={() => setEditingField(null)}
+                    onBlur={handleBlur}
                     autoFocus
                     className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900"
                   />
@@ -323,7 +341,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onTextChange={onTextChange}
-          onBlur={() => setEditingField(null)}
+          onBlur={handleBlur}
           setEditingField={setEditingField}
           t={t}
         />
@@ -366,7 +384,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    onBlur={() => setEditingField(null)}
+                    onBlur={handleBlur}
                     autoFocus
                     className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
                   />
@@ -388,7 +406,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onTextChange={onTextChange}
-          onBlur={() => setEditingField(null)}
+          onBlur={handleBlur}
           setEditingField={setEditingField}
           t={t}
         />
@@ -409,6 +427,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         [promptId]: newOptionId,
       };
       handleTextChange(['questions', index, 'correct_matches'], newCorrectMatches);
+      // Trigger auto-save immediately when match is changed
+      if (onAutoSave) {
+        onAutoSave();
+      }
     };
 
     return (
@@ -428,7 +450,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                       type="text"
                       value={prompt.text}
                       onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                      onBlur={() => setEditingField(null)}
+                      onBlur={handleBlur}
                       className="flex-1 p-2 border rounded text-black bg-white"
                       placeholder={`Item ${prompt.id}`}
                     />
@@ -450,7 +472,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                       type="text"
                       value={option.text}
                       onChange={(e) => handleTextChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
-                      onBlur={() => setEditingField(null)}
+                      onBlur={handleBlur}
                       className="flex-1 p-2 border rounded text-black bg-white"
                       placeholder={`Option ${option.id}`}
                     />
@@ -515,7 +537,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                         type="text"
                         value={prompt.text}
                         onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                        onBlur={() => setEditingField(null)}
+                        onBlur={handleBlur}
                         autoFocus
                         className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
                       />
@@ -537,7 +559,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                         type="text"
                         value={matchedOption?.text || ''}
                         onChange={(e) => handleTextChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
-                        onBlur={() => setEditingField(null)}
+                        onBlur={handleBlur}
                         autoFocus
                         className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
                       />
@@ -561,7 +583,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onTextChange={onTextChange}
-          onBlur={() => setEditingField(null)}
+          onBlur={handleBlur}
           setEditingField={setEditingField}
           t={t}
           className="mt-6 pt-4"
@@ -620,6 +642,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       
       setSortedItems(newSortedItems);
       handleTextChange(['questions', index, 'correct_order'], newSortedItems);
+      // Trigger auto-save immediately after drag-and-drop
+      if (onAutoSave) {
+        onAutoSave();
+      }
     };
 
     if (isEditing) {
@@ -632,6 +658,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           
           handleTextChange(['questions', index, 'items_to_sort'], newItemsToSort);
           handleTextChange(['questions', index, 'correct_order'], newCorrectOrder);
+          // Trigger auto-save immediately after adding an item
+          if (onAutoSave) {
+            onAutoSave();
+          }
         };
 
         const handleRemoveItem = (itemId: string) => {
@@ -640,6 +670,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
           handleTextChange(['questions', index, 'items_to_sort'], newItemsToSort);
           handleTextChange(['questions', index, 'correct_order'], newCorrectOrder);
+          // Trigger auto-save immediately after removing an item
+          if (onAutoSave) {
+            onAutoSave();
+          }
         };
 
         return (
@@ -667,7 +701,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                       type="text"
                       value={item?.text || ''}
                       onChange={(e) => handleTextChange(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
-                      onBlur={() => setEditingField(null)}
+                      onBlur={handleBlur}
                       className="flex-1 p-1 border-none rounded text-black bg-transparent focus:ring-0"
                     />
                     <button type="button" onClick={() => handleRemoveItem(itemId)} className="ml-2 text-red-500 font-bold">X</button>
@@ -683,7 +717,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               isEditing={isEditing || false}
               editingField={editingField}
               onTextChange={onTextChange}
-              onBlur={() => setEditingField(null)}
+              onBlur={handleBlur}
               setEditingField={setEditingField}
               t={t}
             />
@@ -712,7 +746,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onTextChange={onTextChange}
-          onBlur={() => setEditingField(null)}
+          onBlur={handleBlur}
           setEditingField={setEditingField}
           t={t}
         />
@@ -738,7 +772,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                   type="text"
                   value={answer}
                   onChange={(e) => handleTextChange(['questions', index, 'acceptable_answers', answerIndex], e.target.value)}
-                  onBlur={() => setEditingField(null)}
+                  onBlur={handleBlur}
                   autoFocus
                   className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-black"
                 />
@@ -759,7 +793,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onTextChange={onTextChange}
-          onBlur={() => setEditingField(null)}
+          onBlur={handleBlur}
           setEditingField={setEditingField}
           t={t}
         />
@@ -793,7 +827,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 type="text"
                 value={question.question_text}
                 onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
-                    onBlur={() => setEditingField(null)}
+                    onBlur={handleBlur}
                     autoFocus
                     className="w-[400px] text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
                     placeholder={`${questionNumber}. Enter your question...`}

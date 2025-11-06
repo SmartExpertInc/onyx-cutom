@@ -1351,13 +1351,6 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-  useEffect(() => {
-    if (editableData == null) return;
-    console.log('Auto-save: Editable data changed, triggering auto-save');
-    handleAutoSave();
-  }, [editableData]);
-  
-
   const handleToggleEdit = () => {
     if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }
     const editableComponentTypes = [
@@ -1937,6 +1930,7 @@ export default function ProjectInstanceViewPage() {
             dataToDisplay={quizData}
             isEditing={isEditing}
             onTextChange={handleTextChange}
+            onAutoSave={handleAutoSave}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
           />
