@@ -30,7 +30,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  onEditorActive
+  onEditorActive,
+  backgroundColor
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -56,7 +57,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffffff',
+    backgroundColor: backgroundColor || '#ffffff',
     position: 'relative',
     overflow: 'hidden',
     display: 'grid',
