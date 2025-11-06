@@ -1912,6 +1912,7 @@ export default function ProjectInstanceViewPage() {
             dataToDisplay={quizData}
             isEditing={isEditing}
             onTextChange={handleTextChange}
+            onAutoSave={handleAutoSave}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
           />

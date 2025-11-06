@@ -1554,32 +1554,10 @@ export default function QuizClient() {
 
                       {/* Content preview */}
                       {question.content && (
-                        <div className="px-5 pb-4">
-                          {editingContentId === idx ? (
-                            <Textarea
-                              value={getContentForQuestion(question, idx)}
-                              onChange={(e) => handleContentEdit(idx, e.target.value)}
-                              className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
-                              autoFocus
-                              onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Escape') handleContentCancel(idx);
-                              }}
-                              disabled={!streamDone}
-                            />
-                          ) : (
-                            <div 
-                              className={`rounded !text-sm p-2 pl-6 pt-4 -m-2 ${streamDone ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
-                              onMouseDown={() => {
-                                if (streamDone) nextEditingContentIdRef.current = idx;
-                              }}
-                              onClick={() => {
-                                if (streamDone) setEditingContentId(idx);
-                              }}
-                            >
-                              {renderQuestionContent(getContentForQuestion(question, idx))}
-                            </div>
-                          )}
+                        <div 
+                          className={`rounded !text-sm p-2 pl-6 pt-4 -m-2 ${streamDone ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                        >
+                          {renderQuestionContent(getContentForQuestion(question, idx))}
                         </div>
                       )}
                      </div>
