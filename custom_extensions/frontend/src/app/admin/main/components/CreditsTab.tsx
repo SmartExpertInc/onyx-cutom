@@ -10,6 +10,8 @@ interface UserCredits {
   id: number;
   onyx_user_id: string;
   name: string;
+  email?: string;
+  display_identity?: string;
   credits_balance: number;
   total_credits_used: number;
   credits_purchased: number;
@@ -53,6 +55,10 @@ const CreditsTab: React.FC = () => {
   });
   const [transactionLoading, setTransactionLoading] = useState(false);
   const [migrating, setMigrating] = useState(false);
+  const [showPricesModal, setShowPricesModal] = useState(false);
+  const [creditsReference, setCreditsReference] = useState<Array<{content_type: string, credits_amount: number, description: string}>>([]);
+  const [pricesLoading, setPricesLoading] = useState(false);
+  const [pricesSaving, setPricesSaving] = useState(false);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -76,7 +82,12 @@ const CreditsTab: React.FC = () => {
       }
 
       const userData = await usersResponse.json();
-      setUsers(userData);
+      // Safety: compute display_identity if backend not yet deployed
+      const normalized = (Array.isArray(userData) ? userData : []).map((u: any) => ({
+        ...u,
+        display_identity: u.display_identity || u.email || ((u.name && u.name !== 'User') ? u.name : u.onyx_user_id),
+      }));
+      setUsers(normalized);
 
       // Fetch questionnaires (don't fail if this endpoint fails)
       if (questionnairesResponse.ok) {
@@ -101,8 +112,11 @@ const CreditsTab: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = (user.display_identity || '').toLowerCase().includes(term) ||
+      (user.email || '').toLowerCase().includes(term) ||
+      user.name.toLowerCase().includes(term) ||
+      user.onyx_user_id.toLowerCase().includes(term);
     const tier = (user.subscription_tier || 'starter').toLowerCase();
     const matchesTier = tierFilter === 'all' ? true : tier.includes(tierFilter);
     return matchesSearch && matchesTier;
@@ -215,6 +229,74 @@ const CreditsTab: React.FC = () => {
     setShowTransactionModal(true);
   };
 
+  const handleManagePrices = async () => {
+    setPricesLoading(true);
+    try {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/credits/content/reference`, {
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch credits reference: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setCreditsReference(data.credits_reference || []);
+      setShowPricesModal(true);
+    } catch (error) {
+      console.error('Error fetching credits reference:', error);
+      alert('Failed to load credits reference. Please try again.');
+    } finally {
+      setPricesLoading(false);
+    }
+  };
+
+  const handleSavePrices = async () => {
+    setPricesSaving(true);
+    try {
+      const updates = creditsReference.map(ref => ({
+        content_type: ref.content_type,
+        credits_amount: ref.credits_amount,
+      }));
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/credits/content/modify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ updates }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to update credits reference: ${response.status}`);
+      }
+
+      const result = await response.json();
+      alert(result.message || 'Credits reference updated successfully');
+      setShowPricesModal(false);
+    } catch (error) {
+      console.error('Error updating credits reference:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update credits reference');
+    } finally {
+      setPricesSaving(false);
+    }
+  };
+
+  const handlePriceChange = (contentType: string, newValue: string) => {
+    const numValue = parseInt(newValue);
+    if (isNaN(numValue) || numValue < 0) return;
+    
+    setCreditsReference(prev => 
+      prev.map(ref => 
+        ref.content_type === contentType 
+          ? { ...ref, credits_amount: numValue }
+          : ref
+      )
+    );
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -309,6 +391,12 @@ const CreditsTab: React.FC = () => {
           >
             <Plus className="w-4 h-4 mr-2" />
             Add User
+          </button>
+          <button
+            onClick={handleManagePrices}
+            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700"
+          >
+            Manage Prices
           </button>
         </div>
       </div>
@@ -431,6 +519,69 @@ const CreditsTab: React.FC = () => {
                 ) : (
                   `${transaction.action === 'add' ? 'Add' : 'Remove'} Credits`
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Prices Modal */}
+      {showPricesModal && (
+        <div 
+          className="fixed inset-0 backdrop-blur-md bg-white bg-opacity-10 flex items-center justify-center p-4 z-50"
+          onClick={() => !pricesSaving && setShowPricesModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-black">
+                Manage Credits Prices
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Update the credit costs for different content types
+              </p>
+            </div>
+
+            <div className="px-6 py-4 space-y-4">
+              {creditsReference.map((ref) => (
+                <div key={ref.content_type} className="flex items-center justify-between py-2 border-b border-gray-200">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-black mb-1">
+                      {ref.description || ref.content_type}
+                    </label>
+                    <p className="text-xs text-gray-500">{ref.content_type}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={ref.credits_amount}
+                      onChange={(e) => handlePriceChange(ref.content_type, e.target.value)}
+                      className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-400"
+                      placeholder="Credits"
+                    />
+                    <span className="text-sm text-gray-600">credits</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowPricesModal(false)}
+                className="px-4 py-2 text-sm font-medium text-black bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={pricesSaving}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePrices}
+                disabled={pricesSaving}
+                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:bg-purple-400"
+              >
+                {pricesSaving ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

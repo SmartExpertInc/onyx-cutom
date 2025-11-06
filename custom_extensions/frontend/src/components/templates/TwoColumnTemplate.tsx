@@ -123,19 +123,19 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     display: 'flex',
     gap: '0px',
     width: '100%',
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     height: '100%',
     position: 'relative',
     alignItems: 'stretch',
   };
 
   const columnStyles: React.CSSProperties = {
-    flex: 1,
+    flex: 1.2,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: '40px 30px',
+    padding: '40px 30px 20px 30px',
     borderRadius: '8px',
     position: 'relative'
   };
@@ -156,13 +156,13 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const subtitleStyles: React.CSSProperties = {
-    width: '325px',
+    width: '468px',
     fontSize: '1.4rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: currentTheme.colors.subtitleColor,
     textAlign: 'center',
     marginBottom: '60px',
-    marginTop: '10px',
+    marginTop: '0px',
     lineHeight: 1.4,
     maxWidth: '500px',
     wordWrap: 'break-word',
@@ -177,6 +177,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     height: '290px',
     display: 'flex',
     marginTop: 'auto',
+    marginBottom: '8px',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '8px',
@@ -212,7 +213,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         {/* Left Column */}
         <div style={columnStyles}>
           {/* Left Title */}
-          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%', minHeight: '140px', marginBottom: '10px' }}>
             {isEditable && editingLeftTitle ? (
               <WysiwygEditor
                 initialValue={leftTitle || 'Assess risks for the organization.'}
@@ -318,7 +319,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         {/* Right Column */}
         <div style={columnStyles}>
           {/* Right Title */}
-          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%', minHeight: '140px', marginBottom: '10px' }}>
             {isEditable && editingRightTitle ? (
               <WysiwygEditor
                 initialValue={rightTitle || 'Assess risks for the organization.'}

@@ -8,9 +8,20 @@ interface GenerateModalProps {
   onClose: () => void;
   title: string;
   onGenerationStart?: () => void;
+  generationStatus?: 'idle' | 'generating' | 'completed' | 'error';
+  generationError?: string | null;
+  showReady?: boolean;
 }
 
-export default function GenerateModal({ isOpen, onClose, title, onGenerationStart }: GenerateModalProps) {
+export default function GenerateModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  onGenerationStart,
+  generationStatus = 'idle',
+  generationError,
+  showReady = false
+}: GenerateModalProps) {
   const [videoTitle, setVideoTitle] = useState(title);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isSubtitleDropdownOpen, setIsSubtitleDropdownOpen] = useState(false);
@@ -88,8 +99,13 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             <span className="text-sm text-gray-700">Subtitles</span>
             <div className="relative" data-subtitle-dropdown>
               <button 
-                onClick={() => setIsSubtitleDropdownOpen(!isSubtitleDropdownOpen)}
-                className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
+                onClick={() => {
+                  if (showReady) return;
+                  setIsSubtitleDropdownOpen(!isSubtitleDropdownOpen);
+                }}
+                title={showReady ? 'Soon' : undefined}
+                className={`text-sm px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2 ${showReady ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-700 hover:text-gray-800'}`}
+                disabled={showReady}
               >
                 {selectedSubtitleOption}
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +114,7 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               </button>
               
               {/* Dropdown popup */}
-              {isSubtitleDropdownOpen && (
+              {isSubtitleDropdownOpen && !showReady && (
                 <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-80">
                   <div className="py-2">
                     <button
@@ -132,8 +148,13 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             <span className="text-sm text-gray-700">Resolution</span>
             <div className="relative" data-resolution-dropdown>
               <button 
-                onClick={() => setIsResolutionDropdownOpen(!isResolutionDropdownOpen)}
-                className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
+                onClick={() => {
+                  if (showReady) return;
+                  setIsResolutionDropdownOpen(!isResolutionDropdownOpen);
+                }}
+                title={showReady ? 'Soon' : undefined}
+                className={`text-sm px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2 ${showReady ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-700 hover:text-gray-800'}`}
+                disabled={showReady}
               >
                 {selectedResolution}
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +163,7 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               </button>
               
               {/* Dropdown popup */}
-              {isResolutionDropdownOpen && (
+              {isResolutionDropdownOpen && !showReady && (
                 <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-48">
                   <div className="py-2">
                     <button
@@ -224,7 +245,14 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
           {/* Location */}
           <div className="flex justify-between items-center mb-6">
             <span className="text-sm text-gray-700">Location</span>
-            <button className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2">
+            <button 
+              onClick={() => {
+                if (showReady) return;
+              }}
+              title={showReady ? 'Soon' : undefined}
+              className={`text-sm px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2 ${showReady ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-700 hover:text-gray-800'}`}
+              disabled={showReady}
+            >
               Library
               <div className="flex flex-col">
                 <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,6 +264,8 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               </div>
             </button>
           </div>
+
+
           
           {/* Summary section */}
           <div className="mb-6">
@@ -256,7 +286,14 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             {/* Generation with API */}
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-700">Generation with API</span>
-              <button className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-1">
+              <button 
+                onClick={() => {
+                  if (showReady) return;
+                }}
+                title={showReady ? 'Soon' : undefined}
+                className={`text-sm px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-1 ${showReady ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-700 hover:text-gray-800'}`}
+                disabled={showReady}
+              >
                 <span>&lt;/&gt;</span>
                 Export to API
               </button>
@@ -273,12 +310,24 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             </button>
             <button 
               onClick={() => {
-                onClose();
+                console.log('🎬 [GENERATE_MODAL] Start generation button clicked');
+                console.log('🎬 [GENERATE_MODAL] onGenerationStart callback:', onGenerationStart);
+                console.log('🎬 [GENERATE_MODAL] Current generationStatus:', generationStatus);
                 onGenerationStart?.();
               }}
-              className="flex-1 bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors font-medium text-sm"
+              disabled={generationStatus === 'generating'}
+              className={`flex-1 px-4 py-2 rounded-full transition-colors font-medium text-sm ${
+                generationStatus === 'generating'
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-black text-white hover:bg-gray-800'
+              }`}
+              title={
+                generationStatus === 'generating' 
+                  ? 'Generation in progress...' 
+                  : 'Start video generation'
+              }
             >
-              Start generation
+              {generationStatus === 'generating' ? 'Starting generation...' : 'Start generation'}
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video, SlidersHorizontal, ListMinus } from 'lucide-react';
@@ -12,7 +12,7 @@ import ConnectorManagementPage from './connector-management/ConnectorManagementP
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
+import { timeEvent, trackConnectConnector } from '@/lib/mixpanelClient';
 import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
@@ -98,6 +98,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const isLoadingRef = useRef(false);
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
+  const [connectorVisibility, setConnectorVisibility] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [hasFiles, setHasFiles] = useState(false);
@@ -546,6 +547,42 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     ]
   };
 
+  // Feature-gated connector ids (must match ids above)
+  const GATED_CONNECTOR_IDS = useMemo(() => (
+    [
+      's3', 'r2', 'google_cloud_storage', 'oci_storage', 'sharepoint',
+      'teams', 'discourse', 'gong', 'axero', 'mediawiki',
+      'bookstack', 'guru', 'slab', 'linear', 'highspot', 'loopio'
+    ]
+  ), []);
+
+  // Load feature flags for gated connectors
+  useEffect(() => {
+    const abort = new AbortController();
+    const loadFlags = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const entries = await Promise.all(
+          GATED_CONNECTOR_IDS.map(async (id: string) => {
+            try {
+              const res = await fetch(`${base}/features/check/connector_${id}`, { credentials: 'same-origin', signal: abort.signal });
+              if (!res.ok) return [id, false] as const;
+              const json = await res.json();
+              return [id, Boolean(json?.is_enabled)] as const;
+            } catch {
+              return [id, false] as const;
+            }
+          })
+        );
+        setConnectorVisibility(Object.fromEntries(entries));
+      } catch {
+        // ignore
+      }
+    };
+    loadFlags();
+    return () => abort.abort();
+  }, [GATED_CONNECTOR_IDS]);
+
   // Load user's existing connectors
   const loadUserConnectors = useCallback(async () => {
     console.log('[POPUP_DEBUG] loadUserConnectors called, isLoadingRef.current:', isLoadingRef.current);
@@ -726,7 +763,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       console.log("Connector created successfully:", result);
       if (connector) {
         try {
-          await trackConnector("Completed", connector.id, connector.name);
+          await trackConnectConnector("Completed", connector.id, connector.name);
         } catch (trackError) {
           console.warn("Failed to track connector completion:", trackError);
         }
@@ -740,7 +777,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       if (connector) {
         setIsConnectorFailed(true);
         try {
-          await trackConnector("Failed", connector.id, connector.name);
+          await trackConnectConnector("Failed", connector.id, connector.name);
         } catch (trackError) {
           console.warn("Failed to track connector failure:", trackError);
         }
@@ -964,7 +1001,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             <p className="text-sm text-gray-700 mb-6">{showQuotaModal.message}</p>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowQuotaModal(null)}>Close</Button>
-              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }}>Buy More</Button>
+              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }} className="text-gray-900">Buy More</Button>
             </div>
           </div>
         </div>
@@ -1284,7 +1321,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {categoryName}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filteredAvailableConnectors.map((connector) => {
+                    {filteredAvailableConnectors
+                  .filter((connector) => !GATED_CONNECTOR_IDS.includes(connector.id) || connectorVisibility[connector.id])
+                  .map((connector) => {
                       return (
                         <div key={connector.id} className="relative">
                           <Card
@@ -1384,7 +1423,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   onClick={() => {
                     if (!isConnectorFailed) {
                       try {
-                        trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                        trackConnectConnector("Clicked", selectedConnector.id, selectedConnector.name);
                       } catch (error) {
                         console.warn("Failed to track connector click:", error);
                       }
@@ -1406,7 +1445,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 onCancel={() => {
                   if (!isConnectorFailed) {
                     try {
-                      trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                      trackConnectConnector("Clicked", selectedConnector.id, selectedConnector.name);
                     } catch (error) {
                       console.warn("Failed to track connector click:", error);
                     }

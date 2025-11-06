@@ -34,24 +34,21 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
   containerStyle = {}
 }) => {
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   // Get available templates
   const availableTemplates = getAllTemplates();
 
-  // Close dropdown when clicking outside
+  // Set fixed position in left corner when dropdown opens
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowTemplateDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    if (showTemplateDropdown) {
+      setButtonPosition({
+        x: 16, // Fixed left position with small margin
+        y: 150 // Fixed top position below toolbar
+      });
+    }
+  }, [showTemplateDropdown]);
 
   // Add new slide with template selection
   const handleAddSlide = (templateId: string) => {
@@ -91,74 +88,78 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
   }
 
   return (
-    <div 
-      ref={dropdownRef}
-      style={{
-        position,
-        left,
-        top,
-        transform,
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        ...containerStyle
-      }}
-    >
-      {/* Main Add Button */}
-      <button
-        onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+    <>
+      <div 
         style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          backgroundColor: '#3b82f6',
-          color: 'white',
-          border: 'none',
-          cursor: 'pointer',
+          position,
+          left,
+          top,
+          transform,
+          zIndex: 1000,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '24px',
-          fontWeight: 'bold',
-          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-          transition: 'all 0.2s ease',
-          marginBottom: '8px'
+          ...containerStyle
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#2563eb';
-          e.currentTarget.style.transform = 'scale(1.05)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#3b82f6';
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
-        title="Add new slide"
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
-
-      {/* Template Dropdown */}
-      {showTemplateDropdown && (
-        <div
+        {/* Main Add Button */}
+        <button
+          onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
           style={{
-            position: 'absolute',
-            left: '70px',
-            top: '0',
-            backgroundColor: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-            padding: '8px 0',
-            minWidth: '280px',
-            maxHeight: '400px',
-            overflowY: 'auto',
-            zIndex: 1001
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+            transition: 'all 0.2s ease',
+            marginBottom: '8px'
           }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#2563eb';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#3b82f6';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          title="Add new slide"
         >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      {/* Template Dropdown - Rendered at fixed position in left corner */}
+      {showTemplateDropdown && buttonPosition && (
+        <>
+          {/* Background overlay */}
+          <div 
+            className="fixed inset-0 z-40"
+            onClick={() => setShowTemplateDropdown(false)}
+          />
+          
+          <div
+            ref={dropdownRef}
+            className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg"
+            style={{
+              left: `${buttonPosition.x}px`,
+              top: `${buttonPosition.y}px`,
+              minWidth: '320px',
+              maxWidth: '400px',
+              maxHeight: 'calc(100vh - 170px)', // Dynamic height to fit screen
+              overflowY: 'auto'
+            }}
+          >
           {/* Header */}
           <div style={{
             padding: '12px 16px',
@@ -194,57 +195,42 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
           </div>
 
           {/* Template List */}
-          <div style={{ padding: '8px 0' }}>
+          <div style={{ padding: '4px 0' }}>
             {availableTemplates.map((template) => (
               <button
                 key={template.id}
                 onClick={() => handleAddSlide(template.id)}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  textAlign: 'left',
-                  transition: 'background-color 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
+                className="w-full px-4 py-3 border-none bg-transparent cursor-pointer flex items-center gap-3 text-left transition-colors hover:bg-gray-50 rounded-md"
               >
-                <span style={{ fontSize: '20px' }}>{template.icon}</span>
+                <span style={{ fontSize: '18px' }}>{template.icon}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#111827',
-                    marginBottom: '2px'
-                  }}>
+                  <div className="text-sm font-medium text-gray-900 mb-0.5">
                     {template.name}
                   </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#6b7280',
-                    lineHeight: '1.3'
-                  }}>
+                  <div className="text-xs text-gray-600 leading-tight">
                     {template.description}
                   </div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#9ca3af' }}>
-                  <polyline points="6,9 12,15 18,9"></polyline>
+                <svg 
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="text-gray-400 flex-shrink-0"
+                >
+                  <polyline points="9,18 15,12 9,6"></polyline>
                 </svg>
               </button>
             ))}
           </div>
         </div>
+        </>
       )}
-    </div>
+    </>
   );
 };
 

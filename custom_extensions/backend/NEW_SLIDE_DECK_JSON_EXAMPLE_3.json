@@ -1,0 +1,398 @@
+{
+  "lessonTitle": "Cloud Infrastructure and DevOps Best Practices",
+  "slides": [
+    {
+      "slideId": "slide_1_cloud_intro",
+      "slideNumber": 1,
+      "slideTitle": "Section: Modern Cloud Infrastructure Excellence",
+      "templateId": "title-slide",
+      "previewKeyPoints": [
+        "Comprehensive cloud infrastructure strategy for scalable, secure, and cost-effective operations",
+        "DevOps methodologies and automation frameworks for continuous delivery and deployment",
+        "Infrastructure as Code practices for reproducible and maintainable cloud environments",
+        "Monitoring, observability, and incident response strategies for operational excellence"
+      ],
+      "props": {
+        "title": "Modern Cloud Infrastructure Excellence",
+        "subtitle": "DevOps, automation, and operational excellence for scalable cloud environments",
+        "author": "Cloud Engineering Institute"
+      }
+    },
+    {
+      "slideId": "slide_2_architecture_principles",
+      "slideNumber": 2,
+      "slideTitle": "Modern Cloud Infrastructure — Cloud Architecture Design Principles and Patterns",
+      "templateId": "four-box-grid",
+      "previewKeyPoints": [
+        "Fundamental design principles for building resilient cloud-native applications",
+        "Microservices architecture patterns and service mesh implementation strategies",
+        "Scalability patterns including horizontal scaling and load distribution techniques",
+        "Security by design principles integrated throughout the architecture lifecycle"
+      ],
+      "props": {
+        "title": "Cloud-Native Architecture Foundations",
+        "boxes": [
+          {
+            "heading": "Resilience & Fault Tolerance",
+            "text": "Circuit breakers, retry patterns, bulkhead isolation, and graceful degradation to handle failures and maintain system availability during outages."
+          },
+          {
+            "heading": "Scalability & Performance",
+            "text": "Auto-scaling policies, load balancing strategies, caching layers, and database sharding for handling variable traffic loads efficiently."
+          },
+          {
+            "heading": "Security & Compliance",
+            "text": "Zero-trust networking, encryption at rest and in transit, identity management, and compliance automation for regulatory requirements."
+          },
+          {
+            "heading": "Observability & Monitoring",
+            "text": "Distributed tracing, structured logging, metrics collection, and alerting systems for complete system visibility and debugging."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_3_container_orchestration",
+      "slideNumber": 3,
+      "slideTitle": "Container Orchestration with Kubernetes",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "Kubernetes cluster setup and configuration for production workloads",
+        "Container deployment strategies including rolling updates and blue-green deployments",
+        "Service discovery, load balancing, and ingress controller configuration",
+        "Persistent storage management and StatefulSet configurations for databases"
+      ],
+      "props": {
+        "title": "Kubernetes Deployment Pipeline",
+        "steps": [
+          "Set up Kubernetes cluster with proper node configuration, networking, and security policies using tools like kubeadm, kops, or managed services like EKS, GKE, or AKS",
+          "Create container images with multi-stage builds, security scanning, and optimization for size and performance, then push to secure container registries with vulnerability scanning",
+          "Deploy applications using Kubernetes manifests with proper resource limits, health checks, and configuration management through ConfigMaps and Secrets for environment-specific settings",
+          "Configure ingress controllers and service mesh for traffic management, SSL termination, and advanced routing capabilities with monitoring and observability integration",
+          "Implement monitoring and logging with Prometheus, Grafana, and centralized logging solutions while setting up automated backup and disaster recovery procedures"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_infrastructure_code",
+      "slideNumber": 4,
+      "slideTitle": "Infrastructure as Code Implementation",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Terraform vs CloudFormation vs Pulumi for infrastructure provisioning",
+        "Best practices for IaC including state management and modular design",
+        "Version control strategies and collaboration workflows for infrastructure code",
+        "Testing and validation approaches for infrastructure changes"
+      ],
+      "props": {
+        "title": "Infrastructure as Code Tools Comparison",
+        "tableData": {
+          "headers": ["Terraform", "CloudFormation", "Pulumi"],
+          "rows": [
+            ["Multi-Cloud Support", "Excellent", "AWS Only", "Excellent"],
+            ["Learning Curve", "Moderate", "Steep", "Low (familiar languages)"],
+            ["State Management", "Remote backends", "Built-in", "Cloud backends"],
+            ["Community Support", "Large", "AWS-focused", "Growing"],
+            ["Testing Capabilities", "Limited", "Basic", "Full programming support"],
+            ["Cost", "Open source + paid", "Free", "Open source + paid"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_5_cicd_pipeline",
+      "slideNumber": 5,
+      "slideTitle": "CI/CD Pipeline Design and Implementation",
+      "templateId": "timeline",
+      "previewKeyPoints": [
+        "Continuous integration workflows with automated testing and quality gates",
+        "Deployment automation strategies for multiple environments and rollback procedures",
+        "Security integration throughout the CI/CD pipeline with automated scanning",
+        "Performance testing and monitoring integration for deployment validation"
+      ],
+      "props": {
+        "title": "CI/CD Pipeline Stages and Automation",
+        "events": [
+          {
+            "date": "Code Commit",
+            "title": "Source Control",
+            "description": "Git-based workflows with branch protection, code review requirements, and automated triggering of CI pipelines on pull requests."
+          },
+          {
+            "date": "Build & Test",
+            "title": "Continuous Integration",
+            "description": "Automated builds, unit testing, integration testing, code coverage analysis, and static code analysis with quality gates."
+          },
+          {
+            "date": "Security Scan",
+            "title": "Security Validation",
+            "description": "Container vulnerability scanning, dependency checking, secrets detection, and compliance validation before deployment."
+          },
+          {
+            "date": "Deploy",
+            "title": "Continuous Deployment",
+            "description": "Automated deployment to staging and production environments with blue-green or canary deployment strategies and automated rollback."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_6_monitoring_observability",
+      "slideNumber": 6,
+      "slideTitle": "Comprehensive Monitoring and Observability Strategy",
+      "templateId": "metrics-analytics",
+      "previewKeyPoints": [
+        "Three pillars of observability: metrics, logs, and traces for complete system visibility",
+        "SLI/SLO definition and implementation for service reliability measurement",
+        "Alerting strategies that minimize noise while ensuring critical issues are addressed",
+        "Performance monitoring and capacity planning for proactive resource management"
+      ],
+      "props": {
+        "title": "Observability Metrics Dashboard",
+        "metrics": [
+          { "number": "99.9%", "text": "Service uptime SLA maintained through redundant systems, automated failover, health checks, and proactive monitoring with incident response procedures." },
+          { "number": "< 200ms", "text": "Average API response time across all services with P95 under 500ms through performance optimization, caching strategies, and database query optimization." },
+          { "number": "45 sec", "text": "Mean time to detection for critical issues through comprehensive monitoring, intelligent alerting, and automated anomaly detection systems." },
+          { "number": "12 min", "text": "Mean time to recovery for production incidents through automated runbooks, clear escalation procedures, and well-practiced incident response workflows." },
+          { "number": "2.3TB", "text": "Daily log volume processed and analyzed through centralized logging, structured logging practices, and efficient log retention and archival strategies." },
+          { "number": "847", "text": "Active monitoring checks across infrastructure, applications, and business metrics with automated alerting and dashboard visualization for operations teams." }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_7_security_practices",
+      "slideNumber": 7,
+      "slideTitle": "Cloud Security and Compliance Framework",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Common cloud security challenges and proven mitigation strategies",
+        "Identity and access management best practices for cloud environments",
+        "Data protection and encryption strategies for sensitive information",
+        "Compliance automation and audit trail management for regulatory requirements"
+      ],
+      "props": {
+        "title": "Cloud Security Challenges and Solutions",
+        "challengesTitle": "Security Challenges",
+        "solutionsTitle": "Implementation Solutions",
+        "challenges": [
+          "Shared responsibility model creates gaps",
+          "Access management complexity across services",
+          "Data protection in distributed systems"
+        ],
+        "solutions": [
+          "Deploy security matrices and scanning",
+          "Use centralized identity with SSO",
+          "Implement encryption and classification policies"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_cost_optimization",
+      "slideNumber": 8,
+      "slideTitle": "Cloud Cost Optimization and FinOps Practices",
+      "templateId": "pie-chart-infographics",
+      "previewKeyPoints": [
+        "Cost allocation and chargeback strategies for different business units and projects",
+        "Resource optimization techniques including rightsizing and reserved instance management",
+        "Automated cost monitoring and alerting for budget management and anomaly detection",
+        "FinOps culture and practices for collaborative cost management across teams"
+      ],
+      "props": {
+        "title": "Cloud Spending Breakdown by Service Category",
+        "chartData": {
+          "segments": [
+            { "label": "Compute", "value": 45, "color": "#2563eb" },
+            { "label": "Storage", "value": 22, "color": "#059669" },
+            { "label": "Networking", "value": 18, "color": "#dc2626" },
+            { "label": "Database", "value": 15, "color": "#7c3aed" }
+          ]
+        },
+        "monthlyData": [125, 132, 128, 145, 139, 156, 162, 158, 171, 165, 178, 184],
+        "chartSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_9_disaster_recovery",
+      "slideNumber": 9,
+      "slideTitle": "Disaster Recovery and Business Continuity Planning",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Disaster recovery strategies with RPO and RTO requirements for different service tiers",
+        "Backup and restoration procedures with regular testing and validation protocols",
+        "Multi-region deployment strategies for high availability and disaster resilience",
+        "Business continuity planning including communication and escalation procedures"
+      ],
+      "props": {
+        "title": "Disaster Recovery Tiers and Requirements",
+        "tableData": {
+          "headers": ["Service Tier", "RPO Target", "RTO Target", "Recovery Strategy"],
+          "rows": [
+            ["Critical", "< 15 minutes", "< 1 hour", "Hot standby with real-time replication"],
+            ["Important", "< 4 hours", "< 8 hours", "Warm standby with scheduled backups"],
+            ["Standard", "< 24 hours", "< 24 hours", "Cold standby with daily backups"],
+            ["Low Priority", "< 7 days", "< 72 hours", "Archive restore from long-term storage"]
+          ]
+        },
+        "colors": {
+          "headerBg": "#f9fafb",
+          "rowAltBg": "#ffffff"
+        }
+      }
+    },
+    {
+      "slideId": "slide_10_automation_tools",
+      "slideNumber": 10,
+      "slideTitle": "DevOps Automation Tools and Integration",
+      "templateId": "four-box-grid",
+      "previewKeyPoints": [
+        "Comprehensive automation toolchain for infrastructure, deployment, and operations",
+        "Integration strategies between different DevOps tools and platforms",
+        "Automation testing and validation to ensure reliability of automated processes",
+        "Tool selection criteria and evaluation frameworks for DevOps technology decisions"
+      ],
+      "props": {
+        "title": "Essential DevOps Tool Categories",
+        "boxes": [
+          {
+            "heading": "CI/CD Platforms",
+            "text": "Jenkins, GitLab CI, GitHub Actions, and CircleCI automate build, test, and deployment workflows with pipeline-as-code for reproducible releases."
+          },
+          {
+            "heading": "Infrastructure as Code",
+            "text": "Terraform, Ansible, and CloudFormation enable version-controlled infrastructure provisioning with consistent environments across development, staging, and production."
+          },
+          {
+            "heading": "Container Orchestration",
+            "text": "Kubernetes, Docker Swarm, and ECS manage containerized applications at scale with automated scheduling, load balancing, and self-healing capabilities."
+          },
+          {
+            "heading": "Monitoring and Observability",
+            "text": "Prometheus, Grafana, ELK Stack, and Datadog provide real-time visibility into system health, performance metrics, logs, and distributed tracing for rapid issue resolution."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_11_performance_optimization",
+      "slideNumber": 11,
+      "slideTitle": "Application Performance Optimization Strategies",
+      "templateId": "big-numbers",
+      "previewKeyPoints": [
+        "Performance benchmarking and optimization targets for different application components",
+        "Caching strategies and CDN implementation for improved response times",
+        "Database optimization techniques including indexing and query optimization"
+      ],
+      "props": {
+        "title": "Performance Optimization Results",
+        "subtitle": "Performance benchmarking and optimization targets for different application components, including caching strategies, CDN implementation, and database optimization techniques for improved response times and user experience.",
+        "steps": [
+          {
+            "value": "73%",
+            "label": "Page Load Time Reduction",
+            "description": "CDN coverage, modern image formats, and multi-layer caching cut load times. Users see faster pages and higher engagement."
+          },
+          {
+            "value": "5.2x",
+            "label": "Database Query Performance",
+            "description": "Indexing and query redesign removed bottlenecks while sharding scaled throughput. Critical queries now return in <100ms."
+          },
+          {
+            "value": "99.95%",
+            "label": "Application Availability",
+            "description": "Zonal load balancing, autoscaling, and circuit breakers maintain uptime. Proactive monitoring reduces incident impact."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_12_team_collaboration",
+      "slideNumber": 12,
+      "slideTitle": "DevOps Culture and Team Collaboration",
+      "templateId": "two-column",
+      "previewKeyPoints": [
+        "Cultural transformation strategies for adopting DevOps practices across organizations",
+        "Cross-functional team structures and collaboration frameworks",
+        "Knowledge sharing and documentation practices for operational excellence",
+        "Continuous learning and skill development programs for technical teams"
+      ],
+      "props": {
+        "title": "Building High-Performance DevOps Culture",
+        "leftTitle": "Cultural Transformation",
+        "leftContent": "Break down organizational silos through shared goals, cross-training, and automation-first mindset.",
+        "rightTitle": "Team Structure & Practices",
+        "rightContent": "Build cross-functional teams with embedded ops expertise and establish clear on-call rotations."
+      }
+    },
+    {
+      "slideId": "slide_13_scaling_strategies",
+      "slideNumber": 13,
+      "slideTitle": "Horizontal and Vertical Scaling Strategies",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Scaling decision frameworks based on traffic patterns and resource utilization",
+        "Auto-scaling policies and triggers for different types of workloads",
+        "Load testing and capacity planning methodologies for growth preparation",
+        "Cost-effective scaling approaches that balance performance and budget constraints"
+      ],
+      "props": {
+        "title": "Application Scaling Hierarchy",
+        "steps": [
+          { "heading": "Global Distribution", "number": "01" },
+          { "heading": "Horizontal Scaling", "number": "02" },
+          { "heading": "Vertical Scaling", "number": "03" },
+          { "heading": "Caching & CDN", "number": "04" },
+          { "heading": "Code Optimization", "number": "05" }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_14_incident_response",
+      "slideNumber": 14,
+      "slideTitle": "Incident Response and On-Call Management",
+      "templateId": "event-list",
+      "previewKeyPoints": [
+        "Incident classification and escalation procedures for different severity levels",
+        "On-call rotation management and burnout prevention strategies",
+        "Post-incident review processes and continuous improvement methodologies",
+        "Communication protocols during incidents for stakeholder management"
+      ],
+      "props": {
+        "events": [
+          { "date": "0-5 min", "description": "Incident detection through automated monitoring, alerting systems trigger notifications to on-call engineers with initial triage information and severity assessment." },
+          { "date": "5-15 min", "description": "Initial response and assessment by on-call engineer, stakeholder notification for high-severity incidents, and creation of incident communication channels for coordination." },
+          { "date": "15-30 min", "description": "Escalation to additional team members if needed, implementation of immediate mitigation steps, and regular status updates to stakeholders and management." },
+          { "date": "30+ min", "description": "Sustained incident response with war room coordination, external vendor engagement if required, and preparation of customer communication for extended outages." },
+          { "date": "Resolution", "description": "Incident closure with full system restoration verification, stakeholder notification of resolution, and scheduling of post-incident review within 48 hours." }
+        ],
+        "titleColor": "#dc2626",
+        "descriptionColor": "#374151",
+        "backgroundColor": "#fef2f2"
+      }
+    },
+    {
+      "slideId": "slide_15_future_trends",
+      "slideNumber": 15,
+      "slideTitle": "Emerging Cloud and DevOps Technologies",
+      "templateId": "market-share",
+      "previewKeyPoints": [
+        "Serverless computing adoption trends and use case applications",
+        "Edge computing integration with cloud infrastructure strategies",
+        "AI/ML operations (MLOps) integration with traditional DevOps practices",
+        "Sustainability and green computing considerations in cloud architecture"
+      ],
+      "props": {
+        "title": "Technology Adoption Trends in Cloud Infrastructure",
+        "subtitle": "Emerging technologies reshaping DevOps and cloud operations",
+        "chartData": [
+          { "label": "Serverless/FaaS", "description": "Event-driven computing and microservices", "percentage": 34, "color": "#2563eb", "year": 2024 },
+          { "label": "Edge Computing", "description": "Distributed processing and IoT integration", "percentage": 28, "color": "#059669", "year": 2024 },
+          { "label": "AI/ML Ops", "description": "Machine learning pipeline automation", "percentage": 22, "color": "#7c3aed", "year": 2024 },
+          { "label": "Quantum Cloud", "description": "Quantum computing as a service", "percentage": 16, "color": "#dc2626", "year": 2024 }
+        ],
+        "bottomText": "Serverless and edge computing leading adoption with 40%+ growth expected in 2025."
+      }
+    }
+  ],
+  "currentSlideId": "slide_1_cloud_intro",
+  "detectedLanguage": "en"
+} 

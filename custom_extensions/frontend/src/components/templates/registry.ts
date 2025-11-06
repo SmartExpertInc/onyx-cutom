@@ -10,7 +10,7 @@ import { BulletPointsTemplate } from './BulletPointsTemplate';
 import { BulletPointsRightTemplate } from './BulletPointsRightTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
 import { ProcessStepsTemplate } from './ProcessStepsTemplate';
-import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
+import ChallengesSolutionsTemplate from './ChallengesSolutionsTemplate';
 import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
 import { BigImageTopTemplate } from './BigImageTopTemplate';
 import { FourBoxGridTemplate } from './FourBoxGridTemplate';
@@ -46,7 +46,116 @@ import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
 import { BarChartSlideTemplate } from './BarChartSlideTemplate';
 import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
-import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
+import { SolutionStepsSlideTemplate } from './SolutionStepsSlideTemplate';
+import { ProofStatisticsSlideTemplate } from './ProofStatisticsSlideTemplate';
+import { MarketingAgencyThankYouSlideTemplate } from './MarketingAgencyThankYouSlideTemplate';
+import { TableOfContentsSlideTemplate } from './TableOfContentsSlideTemplate';
+import { CompanyToolsResourcesSlideTemplate } from './CompanyToolsResourcesSlideTemplate';
+import { StaySafeTipsSlideTemplate } from './StaySafeTipsSlideTemplate';
+import { ResourcesListSlideTemplate } from './ResourcesListSlideTemplate';
+import { CourseRulesTimelineSlideTemplate } from './CourseRulesTimelineSlideTemplate';
+import { ResilienceBehaviorsSlideTemplate } from './ResilienceBehaviorsSlideTemplate';
+import { SoftSkillsTypesSlideTemplate } from './SoftSkillsTypesSlideTemplate';
+import { PhishingRiseSlideTemplate } from './PhishingRiseSlideTemplate';
+import { AiPharmaMarketGrowthSlideTemplate } from './AiPharmaMarketGrowthSlideTemplate';
+import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
+import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
+import { ConnectionSlideTemplate } from './ConnectionSlideTemplate';
+import HighPerformingTeamsSlideTemplate from './HighPerformingTeamsSlideTemplate';
+import EnterpriseRoadmapSlideTemplate from './EnterpriseRoadmapSlideTemplate';
+import ConcentricPhishingRiseSlideTemplate from './ConcentricPhishingRiseSlideTemplate';
+import ImpactMetricsRightImageSlideTemplate from './ImpactMetricsRightImageSlideTemplate';
+import CultureValuesThreeColumnsSlideTemplate from './CultureValuesThreeColumnsSlideTemplate';
+import KeySkillsDataAnalysisSlideTemplate from './KeySkillsDataAnalysisSlideTemplate';
+import ChangeManagementTabsSlideTemplate from './ChangeManagementTabsSlideTemplate';
+import BenefitsAndPerksColumnsSlideTemplate from './BenefitsAndPerksColumnsSlideTemplate';
+import OralHygieneSignsSlideTemplate from './OralHygieneSignsSlideTemplate';
+import ResourcesSlideTemplate from './ResourcesSlideTemplate';
+import LeftBarAvatarImageSlideTemplate from './LeftBarAvatarImageSlideTemplate';
+import ProblemsGridSlideTemplate from './ProblemsGridSlideTemplate';
+import DataDrivenInsightsSlideTemplate from './DataDrivenInsightsSlideTemplate';
+import DeiMethodsSlideTemplate from './DeiMethodsSlideTemplate';
+import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
+import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
+import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
+import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
+import TopicsSlideTemplate from './TopicsSlideTemplate';
+
+// ========== OLD TEMPLATE IMPORTS ==========
+import AiPharmaMarketGrowthSlideTemplate_old from './AiPharmaMarketGrowthSlideTemplate_old';
+import BarChartInfographicsTemplate_old from './BarChartInfographicsTemplate_old';
+import BarChartSlideTemplate_old from './BarChartSlideTemplate_old';
+import BenefitsAndPerksColumnsSlideTemplate_old from './BenefitsAndPerksColumnsSlideTemplate_old';
+import BenefitsListSlideTemplate_old from './BenefitsListSlideTemplate_old';
+import BenefitsTagsSlideTemplate_old from './BenefitsTagsSlideTemplate_old';
+import BigImageLeftTemplate_old from './BigImageLeftTemplate_old';
+import BigImageTopTemplate_old from './BigImageTopTemplate_old';
+import BigNumbersTemplate_old from './BigNumbersTemplate_old';
+import BulletPointsRightTemplate_old from './BulletPointsRightTemplate_old';
+import BulletPointsTemplate_old from './BulletPointsTemplate_old';
+import ChallengesSolutionsTemplate_old from './ChallengesSolutionsTemplate_old';
+import ChangeManagementTabsSlideTemplate_old from './ChangeManagementTabsSlideTemplate_old';
+import ChartTemplate_old from './ChartTemplate_old';
+import CompanyToolsResourcesSlideTemplate_old from './CompanyToolsResourcesSlideTemplate_old';
+import ComparisonSlideTemplate_old from './ComparisonSlideTemplate_old';
+import ConcentricPhishingRiseSlideTemplate_old from './ConcentricPhishingRiseSlideTemplate_old';
+import ConnectionSlideTemplate_old from './ConnectionSlideTemplate_old';
+import ContentSlideTemplate_old from './ContentSlideTemplate_old';
+import ContraindicationsIndicationsTemplate_old from './ContraindicationsIndicationsTemplate_old';
+import CourseOverviewSlideTemplate_old from './CourseOverviewSlideTemplate_old';
+import CourseRulesTimelineSlideTemplate_old from './CourseRulesTimelineSlideTemplate_old';
+import CriticalThinkingSlideTemplate_old from './CriticalThinkingSlideTemplate_old';
+import CultureValuesThreeColumnsSlideTemplate_old from './CultureValuesThreeColumnsSlideTemplate_old';
+import DataAnalysisSlideTemplate_old from './DataAnalysisSlideTemplate_old';
+import DataDrivenInsightsSlideTemplate_old from './DataDrivenInsightsSlideTemplate_old';
+import DeiMethodsSlideTemplate_old from './DeiMethodsSlideTemplate_old';
+import EnterpriseRoadmapSlideTemplate_old from './EnterpriseRoadmapSlideTemplate_old';
+import EventListTemplate_old from './EventListTemplate_old';
+import FourBoxGridTemplate_old from './FourBoxGridTemplate_old';
+import HeroTitleSlideTemplate_old from './HeroTitleSlideTemplate_old';
+import HighPerformingTeamsSlideTemplate_old from './HighPerformingTeamsSlideTemplate_old';
+import HybridWorkBestPracticesSlideTemplate_old from './HybridWorkBestPracticesSlideTemplate_old';
+import ImpactMetricsRightImageSlideTemplate_old from './ImpactMetricsRightImageSlideTemplate_old';
+import ImpactStatementsSlideTemplate_old from './ImpactStatementsSlideTemplate_old';
+import ImpactValueStatementsSlideTemplate_old from './ImpactValueStatementsSlideTemplate_old';
+import InterestGrowthSlideTemplate_old from './InterestGrowthSlideTemplate_old';
+import IntroductionDataAnalysisSlideTemplate_old from './IntroductionDataAnalysisSlideTemplate_old';
+import KeySkillsDataAnalysisSlideTemplate_old from './KeySkillsDataAnalysisSlideTemplate_old';
+import KpiUpdateSlideTemplate_old from './KpiUpdateSlideTemplate_old';
+import LearningTopicsSlideTemplate_old from './LearningTopicsSlideTemplate_old';
+import MarketingAgencyThankYouSlideTemplate_old from './MarketingAgencyThankYouSlideTemplate_old';
+import MarketShareTemplate_old from './MarketShareTemplate_old';
+import MetricsAnalyticsTemplate_old from './MetricsAnalyticsTemplate_old';
+import OralHygieneSignsSlideTemplate_old from './OralHygieneSignsSlideTemplate_old';
+import OrgChartTemplate_old from './OrgChartTemplate_old';
+import PercentCirclesSlideTemplate_old from './PercentCirclesSlideTemplate_old';
+import PhishingDefinitionSlideTemplate_old from './PhishingDefinitionSlideTemplate_old';
+import PhishingRiseSlideTemplate_old from './PhishingRiseSlideTemplate_old';
+import PieChartInfographicsTemplate_old from './PieChartInfographicsTemplate_old';
+import ProblemsGridSlideTemplate_old from './ProblemsGridSlideTemplate_old';
+import ProcessStepsTemplate_old from './ProcessStepsTemplate_old';
+import ProofStatisticsSlideTemplate_old from './ProofStatisticsSlideTemplate_old';
+import PsychologicalSafetySlideTemplate_old from './PsychologicalSafetySlideTemplate_old';
+import PyramidTemplate_old from './PyramidTemplate_old';
+import ResilienceBehaviorsSlideTemplate_old from './ResilienceBehaviorsSlideTemplate_old';
+import ResourcesListSlideTemplate_old from './ResourcesListSlideTemplate_old';
+import ResourcesSlideTemplate_old from './ResourcesSlideTemplate_old';
+import SixIdeasListTemplate_old from './SixIdeasListTemplate_old';
+import SoftSkillsAssessmentSlideTemplate_old from './SoftSkillsAssessmentSlideTemplate_old';
+import SoftSkillsDevelopSlideTemplate_old from './SoftSkillsDevelopSlideTemplate_old';
+import SoftSkillsTypesSlideTemplate_old from './SoftSkillsTypesSlideTemplate_old';
+import SolutionStepsSlideTemplate_old from './SolutionStepsSlideTemplate_old';
+import StaySafeTipsSlideTemplate_old from './StaySafeTipsSlideTemplate_old';
+import TableDarkTemplate_old from './TableDarkTemplate_old';
+import TableLightTemplate_old from './TableLightTemplate_old';
+import TableOfContentsSlideTemplate_old from './TableOfContentsSlideTemplate_old';
+import ThankYouSlideTemplate_old from './ThankYouSlideTemplate_old';
+import TimelineTemplate_old from './TimelineTemplate_old';
+import TitleSlideTemplate_old from './TitleSlideTemplate_old';
+import TopicsSlideTemplate_old from './TopicsSlideTemplate_old';
+import TwoColumnSlideTemplate_old from './TwoColumnSlideTemplate_old';
+import TwoColumnTemplate_old from './TwoColumnTemplate_old';
+import WorkLifeBalanceSlideTemplate_old from './WorkLifeBalanceSlideTemplate_old';
 
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'title-slide': {
@@ -1306,6 +1415,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: BigNumbersTemplate,
     defaultProps: {
       title: 'Add title',
+      subtitle: 'Add slide description',
       steps: [
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
@@ -1314,8 +1424,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: 'Company name'
     },
     propSchema: {
-      title: { type: 'text', label: 'Title' },
-      steps: { type: 'array', label: 'Big Numbers' },
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: true },
+      steps: { type: 'array', label: 'Big Numbers', required: true },
     },
   },
   'pyramid': {
@@ -1776,41 +1887,40 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  // COMMENTED OUT - Hidden from UI
-  // 'comparison-slide': {
-  //   id: 'comparison-slide',
-  //   name: 'Comparison Slide',
-  //   description: 'Side-by-side comparison table for contrasting concepts',
-  //   category: 'content',
-  //   icon: '⚖️',
-  //   component: ComparisonSlideTemplate,
-  //   defaultProps: {
-  //     title: 'Comparison',
-  //     subtitle: '',
-  //     tableData: {
-  //       headers: ['Feature', 'Option A', 'Option B'],
-  //       rows: [
-  //         ['Characteristic 1', 'Value A1', 'Value B1'],
-  //         ['Characteristic 2', 'Value A2', 'Value B2'],
-  //         ['Characteristic 3', 'Value A3', 'Value B3']
-  //       ]
-  //     }
-  //   },
-  //   propSchema: {
-  //     title: { type: 'text', label: 'Title', required: true },
-  //     subtitle: { type: 'text', label: 'Subtitle', required: false },
-  //     tableData: {
-  //       type: 'object',
-  //       label: 'Table Data',
-  //       required: true
-  //     }
-  //   }
-  // },
+  'comparison-slide': {
+    id: 'comparison-slide',
+    name: 'Comparison Slide',
+    description: 'Side-by-side comparison table for contrasting concepts',
+    category: 'content',
+    icon: '⚖️',
+    component: ComparisonSlideTemplate,
+    defaultProps: {
+      title: 'Comparison',
+      subtitle: '',
+      tableData: {
+        headers: ['Feature', 'Option A', 'Option B'],
+        rows: [
+          ['Characteristic 1', 'Value A1', 'Value B1'],
+          ['Characteristic 2', 'Value A2', 'Value B2'],
+          ['Characteristic 3', 'Value A3', 'Value B3']
+        ]
+      }
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: false },
+      tableData: {
+        type: 'object',
+        label: 'Table Data',
+        required: true
+      }
+    }
+  },
 
   'table-dark': {
     id: 'table-dark',
     name: 'Table Dark',
-    description: 'Comparison table template with features and versions',
+    description: 'Comparison table template with features and options',
     category: 'content',
     icon: `<svg width="95" height="60" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
@@ -1831,11 +1941,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Comparison table template',
       tableData: {
-        headers: ['feature 1', 'feature 2', 'feature 3', 'feature 4'],
+        headers: ['Feature', 'Option 1', 'Option 2', 'Option 3'],
         rows: [
-          ['version 1', '✓', '✓', '✗', '✗'],
-          ['version 2', '✗', '✓', '✓', '✗'],
-          ['version 3', '✗', '✗', '✓', '✓']
+          ['Feature A', '✓', '✓', '✗'],
+          ['Feature B', '✗', '✓', '✓'],
+          ['Feature C', '✗', '✗', '✓']
         ]
       },
       backgroundColor: '#f8fafc',
@@ -1891,11 +2001,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'This is table',
       tableData: {
-        headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
+        headers: ['Planet', 'Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
         rows: [
-          ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+          ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX']
         ]
       },
       backgroundColor: '#f8fafc',
@@ -2193,6 +2303,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
+    avatarPosition: {
+      // ✅ RECTANGULAR AVATAR - Based on measured image container logs
+      // Image container positioned on right side of slide (right panel)
+      // Measured values show full-height container spanning entire right panel
+      x: 864,       // ✅ Measured: 864px (left edge of right panel)
+      y: 0,         // ✅ Measured: 0px (starts at top of slide)
+      width: 1056,  // ✅ Measured: 1056px (right panel width: 1920 - 864 = 1056)
+      height: 1080  // ✅ Measured: 1080px (full slide height)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'work-life-balance-slide': {
@@ -2224,6 +2344,19 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
+    avatarPosition: {
+      // ✅ ARCH AVATAR - Based on measured arch background container logs
+      // Arch background positioned on right side of slide
+      // Arch shape: Rounded TOP corners (top-left and top-right), sharp bottom corners
+      // CSS equivalent: border-radius: 50% 50% 0 0 (after transform rotation)
+      // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
+      x: 1075,      // ✅ Measured: 1075px (left edge of arch container)
+      y: 235,       // ✅ Measured: 235px (top edge of arch container)
+      width: 799,   // ✅ Measured: 799px (arch container width)
+      height: 845,  // ✅ CORRECTED: 1080 - 235 = 845px (was 891px, exceeded boundary by 46px)
+      shape: 'arch'  // ✅ MANDATORY: Arch mask required (rounded top, sharp bottom)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide gradient: linear-gradient(90deg, #0F58F9 0%, #102396 100%))
   },
 
   'thank-you-slide': {
@@ -2240,6 +2373,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       address: '374 Creekside Road Palmetto',
       postalCode: 'F134221',
       companyName: 'Company name',
+      logoNew: '',
       profileImagePath: '',
       profileImageAlt: 'Profile image',
       backgroundColor: '#110c35',
@@ -2254,6 +2388,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       address: { type: 'text', label: 'Address', required: true },
       postalCode: { type: 'text', label: 'Postal Code', required: true },
       companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
@@ -2290,7 +2425,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: '#ffffff',
       contentColor: '#d9e1ff',
       accentColor: '#4CAF50',
-      companyName: 'Company name'
+      companyName: 'Company name',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
@@ -2305,8 +2441,20 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
-      companyName: { type: 'text', label: 'Company Name', required: true }
-    }
+      companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs (same as company-tools-resources-slide)
+      // CSS: top: 64px, right: 96px, width: 272px, height: 272px, border-radius: 50%
+      // Calculated X: 1920 - 96 - 272 = 1552px
+      x: 1552,      // ✅ Measured: 1552px (calculated from right: 96px)
+      y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (same as company-tools-resources-slide)
   },
 
   'hybrid-work-best-practices-slide': {
@@ -2366,7 +2514,19 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
       companyName: { type: 'text', label: 'Company Name', required: true }
-    }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned at bottom-left of slide
+      // CSS: position: absolute, bottom: 96px
+      // Measured absolute position perfectly aligns with calculation
+      x: 96,        // ✅ Measured: 96px (matches CSS left position)
+      y: 712,       // ✅ Measured: 712px (calculated: 1080 - 96 bottom - 272 height = 712px) ✓
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'benefits-tags-slide': {
@@ -2406,7 +2566,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true },
       companyLogoPath: { type: 'image', label: 'Company Logo' }
-    }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned with absolute positioning
+      // CSS: left: 80px, top: 160px
+      x: 80,        // ✅ Measured: 80px (matches CSS left)
+      y: 160,       // ✅ Measured: 160px (matches CSS top)
+      width: 264,   // ✅ Measured: 264px (perfect square for circle)
+      height: 264,  // ✅ Measured: 264px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'learning-topics-slide': {
@@ -2431,7 +2602,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: '#333333',
       contentColor: '#666666',
       accentColor: '#9c27b0',
-      companyName: 'Company name'
+      companyName: 'Company name',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -2443,7 +2615,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#9c27b0' },
-      companyName: { type: 'text', label: 'Company Name', required: true }
+      companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' }
     }
   },
 
@@ -2478,6 +2651,38 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Updated with measured container logs
+      // Profile image positioned at top-right of slide
+      // CSS: right: 60px, top: 40px (CSS defines 170×170)
+      // Measured container (with padding/wrapper): 240×240px
+      x: 1620,      // ✅ Measured: 1620px (calculated: 1920 - 60 - 240 = 1620)
+      y: 55,        // ✅ Measured: 55px (actual rendered position includes padding)
+      width: 240,   // ✅ Measured: 240px (container width including wrapper/padding)
+      height: 240,  // ✅ Measured: 240px (container height including wrapper/padding)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  },
+
+  // New: Connection slide (dark UI with venn and bottom tabs)
+  'connection-slide': {
+    id: 'connection-slide',
+    name: 'Connection Slide',
+    description: 'Dark split layout with venn diagram and bottom navigation',
+    category: 'content',
+    icon: '🕸️',
+    component: ConnectionSlideTemplate,
+    defaultProps: {
+      title: 'Connection',
+      description: 'Connections create trust, encourage open communication, and build a culture of collaboration.',
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 400 },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
     }
   },
 
@@ -2524,7 +2729,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: '',
       profileImageAlt: 'Profile image',
       rightImagePath: '',
-      rightImageAlt: 'Right side image'
+      rightImageAlt: 'Right side image',
+      rightImagePrompt: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -2532,8 +2738,21 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
-      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
-    }
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
+      rightImagePrompt: { type: 'text', label: 'Right Image Prompt', required: false }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs (profile image)
+      // Profile image positioned at bottom-left of slide
+      // CSS: position: absolute, left: 96px, bottom: 149px
+      // Measured absolute position perfectly aligns with calculation
+      x: 96,        // ✅ Measured: 96px (matches CSS left)
+      y: 675,       // ✅ Measured: 675px (calculated: 1080 - 149 bottom - 256 height = 675px) ✓
+      width: 256,   // ✅ Measured: 256px (perfect square for circle)
+      height: 256,  // ✅ Measured: 256px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0F58F9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'impact-statements-slide': {
@@ -2546,21 +2765,30 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Here are some impact value statements backed by numbers:',
       statements: [
-        { number: '50%', description: 'decrease in turnover rates.' },
-        { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
+        { number: '50%', description: 'decrease in turnover\nrates.' },
+        { number: '$2.8B', description: 'the cost of harassment\nto businesses in the United States annually.' },
         { number: '40%', description: 'increase in employee morale and engagement' }
       ],
       profileImagePath: '',
       profileImageAlt: 'Profile image',
-
+      pageNumber: '18',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
       statements: { type: 'array', label: 'Statements', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-
-    }
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 },
+      logoNew: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      x: 80,        // ✅ Measured: 80px (matches CSS padding-left)
+      y: 521,       // ✅ CORRECTED: Measured from logs (was 551px, now 521px - 30px difference)
+      width: 749,   // ✅ Measured: 749px (matches container width)
+      height: 471   // ✅ Measured: 471px (matches container height)
+    },
+    elaiBackgroundColor: '#0F58F9'  // Elai API video background color (from linear-gradient(rgb(15, 88, 249) 0%, rgb(16, 35, 161) 100%))
   },
 
   'bar-chart-slide': {
@@ -2616,7 +2844,19 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' },
       companyLogoAlt: { type: 'text', label: 'Company Logo Alt Text' }
-    }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile-image is inside content-block (top: 128px, left: 24px)
+      // CSS relative to content-block: top: 52.8px, left: 112px
+      // Absolute position: X = 24 + 112 = 136px, Y = 128 + 52.8 = 181px
+      x: 136,       // ✅ Measured: 136px (content-block left 24px + profile left 112px)
+      y: 181,       // ✅ Measured: 181px (content-block top 128px + profile top 52.8px)
+      width: 248,   // ✅ Measured: 248px (perfect square for circle)
+      height: 248,  // ✅ Measured: 248px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
   },
 
   'psychological-safety-slide': {
@@ -2640,34 +2880,1069 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'data-analysis-slide': {
-    id: 'data-analysis-slide',
-    name: 'Data Analysis Slide',
-    description: 'Slide with profile image and Excel icon for data analysis topics',
+  'solution-steps-slide': {
+    id: 'solution-steps-slide',
+    name: 'Solution Steps Slide',
+    description: 'Dark themed slide with step-by-step guide and timeline',
     category: 'content',
-    icon: '📈',
-    component: DataAnalysisSlideTemplate,
+    icon: '📋',
+    component: SolutionStepsSlideTemplate,
     defaultProps: {
-      title: 'Introduction to Data Analysis',
+      subtitle: 'The Solution',
+      title: 'Step-by-step Guide',
+      steps: [
+        { title: 'Step 1', description: 'Know the Regulations' },
+        { title: 'Step 2', description: 'Conduct Risk Assessments' },
+        { title: 'Step 3', description: 'Provide Training and Education' }
+      ],
       profileImagePath: '',
       profileImageAlt: 'Profile image',
-      excelIconPath: '',
-      excelIconAlt: 'Excel icon'
+      website: 'www.company.com',
+      date: 'Date Goes Here',
+      pageNumber: '23'
+    },
+    propSchema: {
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 100 },
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
+      steps: { type: 'array', label: 'Steps', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      website: { type: 'text', label: 'Website', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 50 }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned at top-right of slide
+      // CSS: top: 35px, right: 60px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1630,      // ✅ Measured: 1630px (calculated: 1920 - 60 - 230 = 1630) ✓
+      y: 35,        // ✅ Measured: 35px (matches CSS top exactly)
+      width: 230,   // ✅ Measured: 230px (perfect square for circle)
+      height: 230,  // ✅ Measured: 230px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  },
+
+  'proof-statistics-slide': {
+    id: 'proof-statistics-slide',
+    name: 'Proof Statistics Slide',
+    description: 'Blue themed slide with statistics and bullet points',
+    category: 'content',
+    icon: '📊',
+    component: ProofStatisticsSlideTemplate,
+    defaultProps: {
+      tagText: 'Presentation',
+      title: 'The Proof Is in the Pudding',
+      description: 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
+      statistics: [
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' }
+      ],
+      conclusionText: 'With these impressive results, it\'s clear that [Product Name] is the real deal, Don\'t miss out on the opportunity to take your business to the next level- try [Product Name] today.',
+      bulletPoints: [
+        'With these impressive results, it\'s clear that',
+        'With these impressive results, it\'s clear that',
+        'With these impressive results, it\'s clear that'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      tagText: { type: 'text', label: 'Tag Text', required: true, maxLength: 50 },
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 500 },
+      statistics: { type: 'array', label: 'Statistics', required: true },
+      conclusionText: { type: 'text', label: 'Conclusion Text', required: true, maxLength: 500 },
+      bulletPoints: { type: 'array', label: 'Bullet Points', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'marketing-agency-thank-you-slide': {
+    id: 'marketing-agency-thank-you-slide',
+    name: 'Marketing Agency Thank You Slide',
+    description: 'Light themed slide with orange accent and thank you message',
+    category: 'content',
+    icon: '🙏',
+    component: MarketingAgencyThankYouSlideTemplate,
+    defaultProps: {
+      headerTitle: 'Introduction to Our\nMarketing Agency',
+      logoText: 'Your Logo',
+      mainTitle: 'Thank you!',
+      bodyText: 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      headerTitle: { type: 'text', label: 'Header Title', required: true, maxLength: 100 },
+      logoText: { type: 'text', label: 'Logo Text', maxLength: 50 },
+      mainTitle: { type: 'text', label: 'Main Title', required: true, maxLength: 100 },
+      bodyText: { type: 'text', label: 'Body Text', required: true, maxLength: 500 },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  },
+
+  'stay-safe-tips-slide': {
+    id: 'stay-safe-tips-slide',
+    name: 'Stay Safe Tips Slide',
+    description: 'White left panel with 4 numbered tips and actor on black',
+    category: 'content',
+    icon: '🛡️',
+    component: StaySafeTipsSlideTemplate,
+    defaultProps: {
+      title: '4 tips to staysafe online',
+      tips: [
+        { number: '1', heading: 'Know the scams', description: 'Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them.' },
+        { number: '2', heading: "Don't click", description: 'These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer' },
+        { number: '3', heading: 'Shop safely', description: 'Don\'t shop on a site unless it has the "https". Also, protect yourself and use a credit card instead of a debit card while shopping online' },
+        { number: '4', heading: 'Passwords', description: 'Do away with the "Fitguy1982" password and use an extremely uncrackable one like 9&4yiw2pyqx# Phrases are good too.' },
+      ],
+      actorImagePath: '',
+      actorImageAlt: 'Actor image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 120 },
+      tips: { type: 'array', label: 'Tips', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' },
+      actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    }
+  },
+
+  'resources-list-slide': {
+    id: 'resources-list-slide',
+    name: 'Resources List Slide',
+    description: 'Olive background with three resource bars and title',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesListSlideTemplate,
+    defaultProps: {
+      title: 'Resources',
+      resources: [
+        { text: 'Resource 1: [Website/Book Title] - [Link/Author Name]' },
+        { text: 'Resource 2: [Website/Book Title] - [Link/Author Name]' },
+        { text: 'Resource 3: [Website/Book Title] - [Link/Author Name]' }
+      ],
+      logoPath: '',
+      logoAlt: 'Your Logo',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      resources: { type: 'array', label: 'Resources', required: true },
+      logoPath: { type: 'image', label: 'Logo' },
+      logoAlt: { type: 'text', label: 'Logo Alt Text' },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'course-rules-timeline-slide': {
+    id: 'course-rules-timeline-slide',
+    name: 'Course Rules Timeline Slide',
+    description: 'Purple background, actor left, vertical line with two steps',
+    category: 'content',
+    icon: '🧭',
+    component: CourseRulesTimelineSlideTemplate,
+    defaultProps: {
+      steps: [
+        { number: '01', text: 'Rules of the course' },
+        { number: '02', text: 'Prerequisite courses' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      steps: { type: 'array', label: 'Steps', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'resilience-behaviors-slide': {
+    id: 'resilience-behaviors-slide',
+    name: 'Resilience Behaviors Slide',
+    description: 'Green background with title, subtitle, avatar and 8 bullets',
+    category: 'content',
+    icon: '🌿',
+    component: ResilienceBehaviorsSlideTemplate,
+    defaultProps: {
+      title: 'Research shows that resilient employees engage in three specific behaviors.',
+      subtitle: 'Research shows that resilient employees engage in three specific behaviors. These help them remain focused and optimistic despite setbacks or uncertainty:',
+      bullets: [
+        'Pay attention to your health',
+        'Focus on your physical well-being',
+        'Practice relaxation techniques',
+        'Practice reframing threats as challenges',
+        'Watch your stress levels',
+        'Mind your mindset',
+        'Practice self-awareness',
+        'Get connected'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 140 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 400 },
+      bullets: { type: 'array', label: 'Bullets', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'soft-skills-types-slide': {
+    id: 'soft-skills-types-slide',
+    name: 'Soft Skills Types Slide',
+    description: 'Light background with big title and three image cards',
+    category: 'content',
+    icon: '🧠',
+    component: SoftSkillsTypesSlideTemplate,
+    defaultProps: {
+      title: 'Types of Soft Skills',
+      cards: [
+        { label: 'Time management' },
+        { label: 'Team work' },
+        { label: 'Work ethic' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      cards: { type: 'array', label: 'Cards', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  // Pixel-perfect: Phishing rise
+  'phishing-rise-slide': {
+    id: 'phishing-rise-slide',
+    name: 'Phishing Rise Slide',
+    description: 'Two-column slide with narrative and black bar chart',
+    category: 'content',
+    icon: '📈',
+    component: PhishingRiseSlideTemplate,
+    defaultProps: {
+      title: 'Phishing rise',
+      description: 'This has become a growing threat in the world of today... documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been a noted that 93% of phishing emails are now ransomware.',
+      bars: [
+        { year: '2019', valueLabel: '33M$', height: 160 },
+        { year: '2020', valueLabel: '39M$', height: 200 },
+        { year: '2021', valueLabel: '55M$', height: 330 },
+        { year: '2022', valueLabel: '44M$', height: 270 },
+        { year: '2023', valueLabel: '67M$', height: 420 },
+        { year: '2024', valueLabel: '35M$', height: 210 }
+      ],
+      actorImagePath: '',
+      actorImageAlt: 'Actor image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 600 },
+      bars: { type: 'array', label: 'Bars', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' },
+      actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar holder positioned at bottom-left of slide
+      // CSS: left: 100px, bottom: 100px
+      // Measured absolute position: Y = 1080 - 100 (bottom) - 220 (height) = 760px
+      x: 100,       // ✅ Measured: 100px (matches CSS left)
+      y: 760,       // ✅ Measured: 760px (calculated from bottom: 1080 - 100 - 220)
+      width: 220,   // ✅ Measured: 220px (perfect square for circle)
+      height: 220,  // ✅ Measured: 220px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  },
+
+  // Pixel-perfect: AI Pharma Market Growth
+  'ai-pharma-market-growth-slide': {
+    id: 'ai-pharma-market-growth-slide',
+    name: 'AI Pharma Market Growth Slide',
+    description: 'Rounded light panel with left labels and right doctor photo',
+    category: 'content',
+    icon: '🏥',
+    component: AiPharmaMarketGrowthSlideTemplate,
+    defaultProps: {
+      title: 'AI Pharma\nMarket Growth',
+      bars: [
+        { year: '2012', label: '$10 million', widthPercent: 24 },
+        { year: '2016', label: '$100 million', widthPercent: 72 },
+        { year: '2020', label: '$700 million', widthPercent: 92 },
+        { year: '2030', label: '$9000 billion', widthPercent: 100 }
+      ],
+      doctorImagePath: '',
+      doctorImageAlt: 'Doctor',
+      panelBackgroundColor: '#dfeeff'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      bars: { type: 'array', label: 'Bars', required: true },
+      doctorImagePath: { type: 'image', label: 'Right Image' },
+      doctorImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      panelBackgroundColor: { type: 'color', label: 'Panel Color' }
+    },
+    avatarPosition: {
+      // ✅ RECTANGULAR AVATAR - Based on updated measured container logs (doctor image area)
+      // Doctor image positioned on right side of slide
+      // CSS UPDATED: position: absolute, right: 40px (was 144px), top: 48px, bottom: 155px
+      // Width: 864px, height: 96%
+      // ⚠️ CORRECTED: Height adjusted to fit within 1080px boundary
+      x: 1016,      // ✅ Measured: 1016px (calculated: 1920 - 40 right - 864 width = 1016) ✓
+      y: 48,        // ✅ Measured: 48px (matches CSS top)
+      width: 864,   // ✅ Measured: 864px (right-side doctor image area)
+      height: 1032  // ✅ CORRECTED: 1080 - 48 = 1032px (was 1037px, exceeded boundary by 5px)
+    },
+    elaiBackgroundColor: '#e0e7ff'  // Elai API video background color (light background for contrast)
+  },
+
+  // Pixel-perfect: KPI Update
+  'kpi-update-slide': {
+    id: 'kpi-update-slide',
+    name: 'KPI Update Slide',
+    description: 'Light report slide with big KPI values and footer',
+    category: 'content',
+    icon: '📑',
+    component: KpiUpdateSlideTemplate,
+    defaultProps: {
+      title: 'KPI Update',
+      items: [
+        { value: '10%', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '75', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '86%', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '1M', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile',
+      footerLeft: 'Company name',
+      footerCenter: 'KPI Report',
+      footerRight: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 60 },
+      items: { type: 'array', label: 'Items', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-      excelIconPath: { type: 'image', label: 'Excel Icon' },
-      excelIconAlt: { type: 'text', label: 'Excel Icon Alt Text' }
+      footerLeft: { type: 'text', label: 'Footer Left' },
+      footerCenter: { type: 'text', label: 'Footer Center' },
+      footerRight: { type: 'text', label: 'Footer Right' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Profile image positioned in footer (absolute positioning within footer)
+      // CSS relative to footer: right: 84px, top: 68px
+      // Measured absolute position in viewport
+      x: 56,        // ✅ Measured: 56px (absolute position in viewport)
+      y: 645,       // ✅ Measured: 645px (footer area at bottom of slide)
+      width: 220,   // ✅ Measured: 220px (rendered width for circle)
+      height: 220,  // ✅ Measured: 220px (rendered height for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  },
+
+  // Pixel-perfect: Interest Growth
+  'interest-growth-slide': {
+    id: 'interest-growth-slide',
+    name: 'Interest Growth Slide',
+    description: 'Left 2x2 cards with percentages and right photo panel',
+    category: 'content',
+    icon: '🧭',
+    component: InterestGrowthSlideTemplate,
+    defaultProps: {
+      title: 'Interest',
+      cards: [
+        { label: 'Interest growth', percentage: '50%' },
+        { label: 'Interest growth', percentage: '140%' },
+        { label: 'Interest growth', percentage: '128%' },
+        { label: 'Interest growth', percentage: '100%' }
+      ],
+      rightImagePath: '',
+      rightImageAlt: 'Person',
+      rightPanelColor: '#3a5bf0'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 60 },
+      cards: { type: 'array', label: 'Cards', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' },
+      rightImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      rightPanelColor: { type: 'color', label: 'Right Panel Color' }
+    }
+  },
+
+  // Pixel-perfect: High-Performing Teams
+  'high-performing-teams-slide': {
+    id: 'high-performing-teams-slide',
+    name: 'High-Performing Teams',
+    description: 'Title, paragraph, rounded panel with editable line and avatar',
+    category: 'content',
+    icon: '🟡',
+    component: HighPerformingTeamsSlideTemplate,
+    defaultProps: {
+      title: 'The Power of High-\nPerforming Teams',
+      description: 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.',
+      panelColor: '#E9B84C',
+      lineColor: '#5A4DF6',
+      points: [
+        { x: 6, y: 72 },
+        { x: 22, y: 58 },
+        { x: 40, y: 64 },
+        { x: 58, y: 48 },
+        { x: 72, y: 42 },
+        { x: 84, y: 38 }
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 120 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 400 },
+      panelColor: { type: 'color', label: 'Panel Color' },
+      lineColor: { type: 'color', label: 'Line Color' },
+      points: { type: 'array', label: 'Line Points', required: true },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
+    }
+  },
+
+
+  'table-of-contents-slide': {
+    id: 'table-of-contents-slide',
+    name: 'Table of Contents Slide',
+    description: 'Clean slide with green buttons and profile image',
+    category: 'content',
+    icon: '📋',
+    component: TableOfContentsSlideTemplate,
+    defaultProps: {
+      title: 'Table of Contents',
+      buttons: [
+        { text: 'The Problem', link: '' },
+        { text: 'Benefits', link: '' },
+        { text: 'Best Practices', link: '' },
+        { text: 'Methods', link: '' },
+        { text: 'Achieving Success', link: '' },
+        { text: 'The Future', link: '' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      buttons: { type: 'array', label: 'Buttons', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  },
+
+  'company-tools-resources-slide': {
+    id: 'company-tools-resources-slide',
+    name: 'Company Tools and Resources Slide',
+    description: 'Grid layout with alternating colored sections',
+    category: 'content',
+    icon: '🛠️',
+    component: CompanyToolsResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Company tools and resources',
+      sections: [
+        {
+          title: 'Communication Tools:',
+          content: 'Effective communication is key to success in any workplace. At [Company Name], we use a variety of communication tools to keep our team connected and informed. Here are some of the key tools we use.',
+          backgroundColor: '#E5E7EB',
+          textColor: '#374151'
+        },
+        {
+          title: 'Project Management:',
+          content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
+          backgroundColor: '#3B82F6',
+          textColor: '#FFFFFF'
+        },
+        {
+          title: 'Learning and Development Resources',
+          content: 'We believe in investing in our employees\' growth and development. Here are some of the resources we offer: Online training courses (LinkedIn Learning, Udemy, etc.); In-house training and workshops; Professional development funds.',
+          backgroundColor: '#3B82F6',
+          textColor: '#FFFFFF'
+        },
+        {
+          title: 'Project Management',
+          content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
+          backgroundColor: '#E5E7EB',
+          textColor: '#374151'
+        }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      sections: { type: 'array', label: 'Sections', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: top: 64px, right: 96px, width: 272px, height: 272px, border-radius: 50%
+      // Calculated X: 1920 - 96 - 272 = 1552px
+      x: 1552,      // ✅ Measured: 1552px (calculated from right: 96px)
+      y: 64,        // ✅ Measured: 64px (matches CSS top: 64px)
+      width: 272,   // ✅ Measured: 272px (perfect square for circle)
+      height: 272,  // ✅ Measured: 272px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
+  }
+  ,
+
+  // New: Impact metrics with right image panel (matches screenshots 1 and 3 variants)
+  'impact-metrics-right-image': {
+    id: 'impact-metrics-right-image',
+    name: 'Impact Metrics (Right Image)',
+    description: 'Three big impact metrics on the left and rounded image panel on the right',
+    category: 'content',
+    icon: '📈',
+    component: ImpactMetricsRightImageSlideTemplate,
+    defaultProps: {
+      metrics: [
+        { text: '300% increase in online visibility' },
+        { text: '$5 for every $1 spent average ROI' },
+        { text: '95% increase in customer loyalty' }
+      ],
+      showTitle: false,
+      backgroundColor: '#0f2a2e',
+      textColor: '#E6ECE9',
+      bulletBg: 'rgba(255,255,255,0.2)',
+      bulletColor: '#E6ECE9',
+      rightPanelColor: '#EA6A20'
+    },
+    propSchema: {
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      showTitle: { type: 'boolean', label: 'Show Title' },
+      title: { type: 'text', label: 'Title' },
+      backgroundColor: { type: 'color', label: 'Background' },
+      textColor: { type: 'color', label: 'Text Color' },
+      bulletBg: { type: 'color', label: 'Bullet BG' },
+      bulletColor: { type: 'color', label: 'Bullet Color' },
+      rightPanelColor: { type: 'color', label: 'Right Panel' },
+      rightImagePath: { type: 'image', label: 'Right Image' }
     }
   }
+  ,
+
+  
+
+  
+
+  // New: Culture & Values with three columns and avatar
+  'culture-values-three-columns': {
+    id: 'culture-values-three-columns',
+    name: 'Culture & Values (3 columns)',
+    description: 'Top bar with logo and title, three equal columns with a colored middle panel and avatar',
+    category: 'content',
+    icon: '🏛️',
+    component: CultureValuesThreeColumnsSlideTemplate,
+    defaultProps: {
+      logoText: 'Logo',
+      title: 'Our culture and values',
+      leftText: 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner...',
+      middleText: 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees...',
+      rightText: 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data...',
+      middlePanelColor: '#3B46FF'
+    },
+    propSchema: {
+      logoText: { type: 'text', label: 'Logo' },
+      title: { type: 'text', label: 'Title', required: true },
+      leftText: { type: 'text', label: 'Left Text', required: true },
+      middleText: { type: 'text', label: 'Middle Text', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      middlePanelColor: { type: 'color', label: 'Middle Panel' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: right: 48px, top: 65px, width: 240px, height: 240px, border-radius: 50%
+      // Calculated X: 1920 - 48 - 240 = 1632px
+      x: 1632,      // ✅ Measured: 1632px (calculated from right: 48px)
+      y: 65,        // ✅ Measured: 65px (matches CSS top: 65px)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle' // ✅ MANDATORY: Circular crop required
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  }
+  , 
+
+  // New: Key skills list with numbered items and avatar on left
+  'key-skills-data-analysis': {
+    id: 'key-skills-data-analysis',
+    name: 'Key Skills (Data Analysis)',
+    description: 'Blue gradient left panel with heading and avatar, numbered list on light right panel',
+    category: 'content',
+    icon: '🧠',
+    component: KeySkillsDataAnalysisSlideTemplate,
+    defaultProps: {
+      heading: 'Key skills\nfor data analysis:',
+      items: [ 'Sorting and filtering data.', 'Formulas and functions.', 'Pivot tables.', 'Data validation.', 'Charts and graphs.' ],
+      avatarImagePath: '',
+      logoPath: '',
+      pageNumber: '36'
+    },
+    propSchema: {
+      heading: { type: 'text', label: 'Heading', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      avatarImagePath: { type: 'image', label: 'Avatar Image' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 }
+    }
+  }
+  ,
+
+  // New: Change Management Tabs
+  'change-management-tabs': {
+    id: 'change-management-tabs',
+    name: 'Change Management Tabs',
+    description: 'Four top bars (tabs) + main heading + three capsule pills',
+    category: 'content',
+    icon: '🗂️',
+    component: ChangeManagementTabsSlideTemplate,
+    defaultProps: {
+      topTabs: [
+        'Change management fundamentals',
+        'The need for change',
+        'Building a change-ready culture',
+        'Effective communication and engagement'
+      ],
+      heading: 'Communication is the lifeblood\nof successful change initiatives.',
+      pills: ['Organization', 'Communication', 'Stakeholders'],
+      pageNumber: '39',
+      logoNew: ''
+    },
+    propSchema: {
+      topTabs: { type: 'array', label: 'Top Tabs', required: true },
+      heading: { type: 'text', label: 'Heading', required: true },
+      pills: { type: 'array', label: 'Pills', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' },
+      logoNew: { type: 'image', label: 'Logo' }
+    }
+  }
+  ,
+
+  // New: Benefits and Perks Columns
+  'benefits-and-perks-columns': {
+    id: 'benefits-and-perks-columns',
+    name: 'Benefits and Perks Columns',
+    description: 'Four equal columns; 2nd and 4th are accent blocks with numbers',
+    category: 'content',
+    icon: '🎁',
+    component: BenefitsAndPerksColumnsSlideTemplate,
+    defaultProps: {
+      logoText: 'Your Logo',
+      heading: 'Our culture and values',
+      columns: [
+        { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
+        { title: 'Financial Benefits', body: '401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.', accent: true },
+        { title: 'Time off and work-life balance', body: 'Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.' },
+        { title: 'Professional Development', body: 'Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.', accent: true }
+      ]
+    },
+    propSchema: {
+      logoText: { type: 'text', label: 'Logo' },
+      heading: { type: 'text', label: 'Heading', required: true },
+      columns: { type: 'array', label: 'Columns', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  }
+  ,
+
+  // New: Oral Hygiene Signs
+  'oral-hygiene-signs': {
+    id: 'oral-hygiene-signs',
+    name: 'Oral Hygiene Signs',
+    description: 'Large heading with two 3-item lists with big numbers',
+    category: 'content',
+    icon: '🦷',
+    component: OralHygieneSignsSlideTemplate,
+    defaultProps: {
+      heading: 'What are the signs of\npoor oral hygiene?'
+    },
+    propSchema: {
+      heading: { type: 'text', label: 'Heading', required: true },
+      leftItems: { type: 'array', label: 'Left Items', required: true },
+      rightItems: { type: 'array', label: 'Right Items', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Resources slide (pixel-perfect)
+  'resources-slide': {
+    id: 'resources-slide',
+    name: 'Resources',
+    description: 'Centered heading with 3 resources rows and speaker card',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Resources',
+      items: [
+        'Resource 1 | Website/Book Title - Link/Author Name',
+        'Resource 2 | Website/Book Title - Link/Author Name',
+        'Resource 3 | Website/Book Title - Link/Author Name'
+      ],
+      speakerName: "Speaker's Name",
+      speakerTitle: "Speaker's Title"
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      speakerName: { type: 'text', label: 'Speaker Name', required: true },
+      speakerTitle: { type: 'text', label: 'Speaker Title', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Left bar with avatar and big image
+  'leftbar-avatar-image': {
+    id: 'leftbar-avatar-image',
+    name: 'Left Bar + Avatar + Image',
+    description: 'Black left bar, circular avatar, large framed image. No texts.',
+    category: 'content',
+    icon: '🖼️',
+    component: LeftBarAvatarImageSlideTemplate,
+    defaultProps: {
+      avatarPath: '',
+      mainImagePath: ''
+    },
+    propSchema: {
+      avatarPath: { type: 'image', label: 'Avatar' },
+      mainImagePath: { type: 'image', label: 'Main Image' }
+    }
+  }
+  ,
+
+  // New: Problems Grid (tag, title, 2x2 cards, right paragraph, avatar)
+  'problems-grid': {
+    id: 'problems-grid',
+    name: 'Problems Grid',
+    description: 'Dark layout with tag, large title, 4 cards, right paragraph and avatar',
+    category: 'content',
+    icon: '🧩',
+    component: ProblemsGridSlideTemplate,
+    defaultProps: {
+      tag: 'The problem',
+      title: 'Problem Name'
+    },
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      cards: { type: 'array', label: 'Cards', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar positioned at top-right of slide
+      // CSS: right: 64px, top: 45px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1616,      // ✅ Measured: 1616px (calculated: 1920 - 64 - 240 = 1616) ✓
+      y: 45,        // ✅ Measured: 45px (matches CSS top exactly)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  }
+  ,
+
+  // New: Data-Driven Insights
+  'data-driven-insights': {
+    id: 'data-driven-insights',
+    name: 'Data-Driven Insights',
+    description: 'Two bar charts with right metrics, tag and title',
+    category: 'content',
+    icon: '📊',
+    component: DataDrivenInsightsSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      leftChartTitle: { type: 'text', label: 'Left Chart Title', required: true },
+      rightChartTitle: { type: 'text', label: 'Right Chart Title', required: true },
+      leftBars: { type: 'array', label: 'Left Bars', required: true },
+      rightBars: { type: 'array', label: 'Right Bars', required: true },
+      barLabels: { type: 'array', label: 'Bar Labels', required: true },
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Company Timeline
+
+  // New: DEI Methods
+  'dei-methods': {
+    id: 'dei-methods',
+    name: 'DEI Methods',
+    description: 'Green header card with two sections and avatar rings',
+    category: 'content',
+    icon: '🟩',
+    component: DeiMethodsSlideTemplate,
+    defaultProps: {
+      headerTitle: 'Methods to Meet DEI Standards',
+      section1Title: 'Diverse Recruitment:',
+      section1Lines: [
+        'Source candidates from underrepresented groups.',
+        'Use blind screening processes to focus on skills and qualifications.'
+      ],
+      section2Title: 'Mentorship and Sponsorship Programs:',
+      section2Lines: [
+        'Mentor and sponsor diverse talent.',
+        'Create opportunities for growth & advancement.'
+      ],
+      avatarPath: '',
+      logoPath: '',
+      logoText: 'Your Logo'
+    },
+    propSchema: {
+      headerTitle: { type: 'text', label: 'Header Title', required: true },
+      section1Title: { type: 'text', label: 'Section 1 Title', required: true },
+      section1Lines: { type: 'array', label: 'Section 1 Lines', required: true },
+      section2Title: { type: 'text', label: 'Section 2 Title', required: true },
+      section2Lines: { type: 'array', label: 'Section 2 Lines', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // CSS: right: 60px, top: 75px, width: 230px, height: 230px, border-radius: 50%
+      // Calculated X: 1920 - 60 - 230 = 1630px
+      x: 1630,      // ✅ Measured: 1630px (calculated from right: 60px)
+      y: 75,        // ✅ Measured: 75px (matches CSS top: 75px)
+      width: 230,   // ✅ Measured: 230px (perfect square for circle)
+      height: 230,  // ✅ Measured: 230px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#ffffff'  // Elai API video background color (matches slide backgroundColor)
+  }
+  ,
+
+  // New: Soft Skills Develop
+  'soft-skills-develop': {
+    id: 'soft-skills-develop',
+    name: 'Soft Skills Develop',
+    description: 'Left content grid with right image and purple bar',
+    category: 'content',
+    icon: '🟣',
+    component: SoftSkillsDevelopSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  // New: Percent Circles
+  'percent-circles': {
+    id: 'percent-circles',
+    name: 'Percent Circles',
+    description: 'Title, 11 circles row, two green cards bottom, avatar',
+    category: 'content',
+    icon: '🟢',
+    component: PercentCirclesSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      percent: { type: 'text', label: 'Percent', required: true },
+      bottomCards: { type: 'array', label: 'Bottom Cards', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    },
+    avatarPosition: {
+      // ✅ CIRCULAR AVATAR - Based on measured container logs
+      // Avatar positioned at top-right of slide
+      // CSS: right: 70px, top: 60px
+      // Measured absolute position perfectly aligns with calculation
+      x: 1610,      // ✅ Measured: 1610px (calculated: 1920 - 70 - 240 = 1610) ✓
+      y: 60,        // ✅ Measured: 60px (matches CSS top exactly)
+      width: 240,   // ✅ Measured: 240px (perfect square for circle)
+      height: 240,  // ✅ Measured: 240px (perfect square for circle)
+      shape: 'circle', // ✅ MANDATORY: Circular crop required (border-radius: 50%)
+    },
+    elaiBackgroundColor: '#0f58f9'  // Elai API video background color (matches slide backgroundColor)
+  },
+
+  'introduction-data-analysis': {
+    id: 'introduction-data-analysis',
+    name: 'Introduction to Data Analysis',
+    description: 'Dark green slide with avatar frame, title, and icon placeholder',
+    category: 'content',
+    icon: '📊',
+    component: IntroductionDataAnalysisSlideTemplate,
+    defaultProps: {
+      title: 'Introduction to Data Analysis',
+      avatarPath: '',
+      iconPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      iconPath: { type: 'image', label: 'Icon' }
+    }
+  },
+
+  'impact-value-statements': {
+    id: 'impact-value-statements',
+    name: 'Impact Value Statements',
+    description: 'Light grey slide with percentage statements and blue avatar frame',
+    category: 'content',
+    icon: '📈',
+    component: ImpactValueStatementsSlideTemplate,
+    defaultProps: {
+      title: 'Impact Value Statements',
+      statements: [
+        { percentage: '27%', description: 'increase in profit margins of companies' },
+        { percentage: '10%', description: 'increase in revenue growth led by data-driven decisions' },
+        { percentage: '50%', description: 'less failure when engaging stakeholders in decisions' }
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      statements: { type: 'array', label: 'Statements', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  },
+
+  'topics': {
+    id: 'topics',
+    name: 'Topics',
+    description: 'Split slide with dark green avatar section and black topics list with yellow banner',
+    category: 'content',
+    icon: '📋',
+    component: TopicsSlideTemplate,
+    defaultProps: {
+      title: 'Topics',
+      topics: [
+        'Fixed mindset VS Growth mindset',
+        'Growth mindset - Success & Fulfilment',
+        'How to develop a growth mindset',
+        'Learning from errors'
+      ],
+      avatarPath: '',
+      logoNew: '',
+      pageNumber: '32'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      topics: { type: 'array', label: 'Topics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoNew: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  },
+
+
+  
+
+  // New: Enterprise Roadmap (table)
+  'enterprise-roadmap-slide': {
+    id: 'enterprise-roadmap-slide',
+    name: 'Enterprise Roadmap Slide',
+    description: 'Light report slide with avatar and zebra table',
+    category: 'content',
+    icon: '📋',
+    component: EnterpriseRoadmapSlideTemplate,
+    defaultProps: {
+      title: 'Enterprise Offerings: Roadmap',
+      description: 'These KPIs typically measure performance in a shorter time frame... (CPA)',
+      tableData: [
+        { featureName: 'Mobile optimization', status: 'Testing', dueDate: '14 April', assignee: 'Julius' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+        { featureName: 'Cross-platform sync', status: 'Concept', dueDate: '30 June', assignee: 'Vanessa' }
+      ],
+      companyName: 'Company name',
+      reportType: 'KPI Report',
+      date: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      tableData: { type: 'array', label: 'Rows', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      companyName: { type: 'text', label: 'Company' },
+      reportType: { type: 'text', label: 'Report' },
+      date: { type: 'text', label: 'Date' }
+    }
+  },
+
+  // New: Concentric Phishing Rise
+  'concentric-phishing-rise-slide': {
+    id: 'concentric-phishing-rise-slide',
+    name: 'Phishing Rise (Concentric)',
+    description: 'Big/medium/small circles with labels and avatar',
+    category: 'content',
+    icon: '⭕',
+    component: ConcentricPhishingRiseSlideTemplate,
+    defaultProps: {
+      title: 'Phishing rise',
+      description: 'This has become a growing threat in the world of today...',
+      bigLabel: '564$',
+      mediumLabel: '321$',
+      smallLabel: '128$'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      bigLabel: { type: 'text', label: 'Big Label', required: true },
+      mediumLabel: { type: 'text', label: 'Medium Label', required: true },
+      smallLabel: { type: 'text', label: 'Small Label', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' }
+    }
+  },
+
+  
 };
 
 // Utility functions for working with the registry
 
 export function getTemplate(templateId: string): TemplateComponentInfo | undefined {
   return SLIDE_TEMPLATE_REGISTRY[templateId];
+}
+
+// Version-aware resolution
+// Returns the correct template id based on deck templateVersion.
+// v1 (missing or < 'v2') -> use `${id}_old`; v2+ -> use id as-is.
+export function resolveTemplateIdForVersion(templateId: string, deckTemplateVersion?: string, defaultVersion?: string): string {
+  const effectiveVersion = deckTemplateVersion || defaultVersion || (typeof process !== 'undefined' ? (process.env?.SLIDES_DEFAULT_VERSION || 'v1') : 'v1');
+  
+  // Simple lexical compare for our v1/v2 scheme
+  if (!effectiveVersion || effectiveVersion < 'v2') {
+    const candidate = `${templateId}_old`;
+    return SLIDE_TEMPLATE_REGISTRY[candidate] ? candidate : templateId;
+  }
+  return templateId;
+}
+
+export function getTemplateResolved(templateId: string, deckTemplateVersion?: string, defaultVersion?: string): TemplateComponentInfo | undefined {
+  const resolvedId = resolveTemplateIdForVersion(templateId, deckTemplateVersion, defaultVersion);
+  return getTemplate(resolvedId);
 }
 
 export function getAllTemplates(): TemplateComponentInfo[] {
@@ -2737,3 +4012,107 @@ export function validateTemplateProps(templateId: string, props: any): { valid: 
 }
 
 export default SLIDE_TEMPLATE_REGISTRY; 
+
+// Register `_old` variants with their actual old components
+// Map template IDs to their _old component imports
+const OLD_TEMPLATE_COMPONENTS: Record<string, any> = {
+  'ai-pharma-market-growth': AiPharmaMarketGrowthSlideTemplate_old,
+  'bar-chart-infographics': BarChartInfographicsTemplate_old,
+  'bar-chart': BarChartSlideTemplate_old,
+  'benefits-and-perks-columns': BenefitsAndPerksColumnsSlideTemplate_old,
+  'benefits-list': BenefitsListSlideTemplate_old,
+  'benefits-tags': BenefitsTagsSlideTemplate_old,
+  'big-image-left': BigImageLeftTemplate_old,
+  'big-image-top': BigImageTopTemplate_old,
+  'big-numbers': BigNumbersTemplate_old,
+  'bullet-points-right': BulletPointsRightTemplate_old,
+  'bullet-points': BulletPointsTemplate_old,
+  'challenges-solutions': ChallengesSolutionsTemplate_old,
+  'change-management-tabs': ChangeManagementTabsSlideTemplate_old,
+  'chart': ChartTemplate_old,
+  'company-tools-resources': CompanyToolsResourcesSlideTemplate_old,
+  'comparison-slide': ComparisonSlideTemplate_old,
+  'concentric-phishing-rise': ConcentricPhishingRiseSlideTemplate_old,
+  'connection': ConnectionSlideTemplate_old,
+  'content-slide': ContentSlideTemplate_old,
+  'contraindications-indications': ContraindicationsIndicationsTemplate_old,
+  'course-overview': CourseOverviewSlideTemplate_old,
+  'course-rules-timeline': CourseRulesTimelineSlideTemplate_old,
+  'critical-thinking': CriticalThinkingSlideTemplate_old,
+  'culture-values-three-columns': CultureValuesThreeColumnsSlideTemplate_old,
+  'data-analysis': DataAnalysisSlideTemplate_old,
+  'data-driven-insights': DataDrivenInsightsSlideTemplate_old,
+  'dei-methods': DeiMethodsSlideTemplate_old,
+  'enterprise-roadmap': EnterpriseRoadmapSlideTemplate_old,
+  'event-list': EventListTemplate_old,
+  'four-box-grid': FourBoxGridTemplate_old,
+  'hero-title-slide': HeroTitleSlideTemplate_old,
+  'high-performing-teams': HighPerformingTeamsSlideTemplate_old,
+  'hybrid-work-best-practices': HybridWorkBestPracticesSlideTemplate_old,
+  'impact-metrics-right-image': ImpactMetricsRightImageSlideTemplate_old,
+  'impact-statements': ImpactStatementsSlideTemplate_old,
+  'impact-value-statements': ImpactValueStatementsSlideTemplate_old,
+  'interest-growth': InterestGrowthSlideTemplate_old,
+  'introduction-data-analysis': IntroductionDataAnalysisSlideTemplate_old,
+  'key-skills-data-analysis': KeySkillsDataAnalysisSlideTemplate_old,
+  'kpi-update': KpiUpdateSlideTemplate_old,
+  'learning-topics': LearningTopicsSlideTemplate_old,
+  'marketing-agency-thank-you': MarketingAgencyThankYouSlideTemplate_old,
+  'market-share': MarketShareTemplate_old,
+  'metrics-analytics': MetricsAnalyticsTemplate_old,
+  'oral-hygiene-signs': OralHygieneSignsSlideTemplate_old,
+  'org-chart': OrgChartTemplate_old,
+  'percent-circles': PercentCirclesSlideTemplate,
+  'phishing-definition': PhishingDefinitionSlideTemplate_old,
+  'phishing-rise': PhishingRiseSlideTemplate_old,
+  'pie-chart-infographics': PieChartInfographicsTemplate_old,
+  'problems-grid': ProblemsGridSlideTemplate_old,
+  'process-steps': ProcessStepsTemplate_old,
+  'proof-statistics': ProofStatisticsSlideTemplate_old,
+  'psychological-safety': PsychologicalSafetySlideTemplate_old,
+  'pyramid': PyramidTemplate_old,
+  'resilience-behaviors': ResilienceBehaviorsSlideTemplate_old,
+  'resources-list': ResourcesListSlideTemplate_old,
+  'resources': ResourcesSlideTemplate_old,
+  'six-ideas-list': SixIdeasListTemplate_old,
+  'soft-skills-assessment': SoftSkillsAssessmentSlideTemplate_old,
+  'soft-skills-develop': SoftSkillsDevelopSlideTemplate_old,
+  'soft-skills-types': SoftSkillsTypesSlideTemplate_old,
+  'solution-steps': SolutionStepsSlideTemplate_old,
+  'stay-safe-tips': StaySafeTipsSlideTemplate_old,
+  'table-dark': TableDarkTemplate_old,
+  'table-light': TableLightTemplate_old,
+  'table-of-contents': TableOfContentsSlideTemplate_old,
+  'thank-you': ThankYouSlideTemplate_old,
+  'timeline': TimelineTemplate_old,
+  'title-slide': TitleSlideTemplate_old,
+  'topics': TopicsSlideTemplate_old,
+  'two-column-slide': TwoColumnSlideTemplate_old,
+  'two-column': TwoColumnTemplate_old,
+  'work-life-balance': WorkLifeBalanceSlideTemplate_old,
+};
+
+// Register all _old templates with their actual old components
+(() => {
+  try {
+    const ids = Object.keys(SLIDE_TEMPLATE_REGISTRY);
+    for (const id of ids) {
+      if (id.endsWith('_old')) continue;
+      const t = SLIDE_TEMPLATE_REGISTRY[id];
+      const isAvatar = (t.category || '').toLowerCase() === 'avatar' || id.startsWith('avatar-');
+      if (isAvatar) continue;
+      const oldId = `${id}_old`;
+      if (!(oldId in SLIDE_TEMPLATE_REGISTRY)) {
+        const oldComponent = OLD_TEMPLATE_COMPONENTS[id];
+        if (oldComponent) {
+          SLIDE_TEMPLATE_REGISTRY[oldId] = {
+            ...t,
+            id: oldId,
+            name: `${t.name} (Old)`,
+            component: oldComponent  // ← Use the actual _old component!
+          } as any;
+        }
+      }
+    }
+  } catch {}
+})();

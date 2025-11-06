@@ -127,12 +127,39 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return;
         }
 
+        // 🔧 CRITICAL FIX: Get slide canvas coordinates instead of viewport coordinates
+        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+        const canvasRect = slideCanvas.getBoundingClientRect();
+        
+        // 📐 CANVAS DIMENSION LOGGING
+        console.log('📐 [CANVAS_DIMENSIONS] Drag started on canvas');
+        console.log('  🖼️ Canvas Element:', slideCanvas.tagName, slideCanvas.className);
+        console.log('  📏 Canvas Dimensions:', {
+          width: canvasRect.width,
+          height: canvasRect.height,
+          left: canvasRect.left,
+          top: canvasRect.top
+        });
+        console.log('  📍 Mouse Position (viewport):', {
+          clientX: e.clientX,
+          clientY: e.clientY
+        });
+        
         isMouseDown = true;
         dragDistance = 0;
         startPageX = e.clientX;
         startPageY = e.clientY;
-        startOffsetX = e.clientX - currentX;
-        startOffsetY = e.clientY - currentY;
+        
+        // Calculate coordinates relative to slide canvas, not viewport
+        const canvasX = e.clientX - canvasRect.left;
+        const canvasY = e.clientY - canvasRect.top;
+        startOffsetX = canvasX - currentX;
+        startOffsetY = canvasY - currentY;
+        
+        console.log('  🎯 Canvas-Relative Position:', {
+          canvasX: canvasX.toFixed(2),
+          canvasY: canvasY.toFixed(2)
+        });
 
         // Delay starting drag to give inline editing a chance on quick clicks
         clearDragTimeout();
@@ -149,8 +176,14 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isMouseDown) return;
 
-        const newX = e.clientX - startOffsetX;
-        const newY = e.clientY - startOffsetY;
+        // 🔧 CRITICAL FIX: Calculate coordinates relative to slide canvas
+        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+        const canvasRect = slideCanvas.getBoundingClientRect();
+        const canvasX = e.clientX - canvasRect.left;
+        const canvasY = e.clientY - canvasRect.top;
+        
+        const newX = canvasX - startOffsetX;
+        const newY = canvasY - startOffsetY;
         const dx = Math.abs(e.clientX - startPageX);
         const dy = Math.abs(e.clientY - startPageY);
         dragDistance = Math.sqrt(dx * dx + dy * dy);
@@ -226,6 +259,26 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           setTimeout(() => {
             document.removeEventListener('click', suppressNextClick, true);
           }, 450);
+
+          // 🔍 COMPREHENSIVE DRAG LOGGING
+          const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+          const finalCanvasRect = slideCanvas.getBoundingClientRect();
+          
+          console.log('🎯 [DRAG_COMPLETE] Element drag finished');
+          console.log('  📍 Element ID:', elementId);
+          console.log('  📊 Final Position:', { x: currentX, y: currentY });
+          console.log('  📏 Drag Distance:', dragDistance.toFixed(2), 'px');
+          console.log('  🎨 Element:', htmlElement.tagName, htmlElement.className);
+          console.log('  📐 Canvas Dimensions at completion:', {
+            width: finalCanvasRect.width,
+            height: finalCanvasRect.height,
+            aspectRatio: (finalCanvasRect.width / finalCanvasRect.height).toFixed(3)
+          });
+          console.log('  🔢 Position State:', {
+            transform: htmlElement.style.transform,
+            savedInState: dragStateRef.current.get(elementId)
+          });
+          console.log('  ➡️ Calling onPositionChange callback...');
 
           if (onPositionChange) onPositionChange(elementId, { x: currentX, y: currentY });
           return;

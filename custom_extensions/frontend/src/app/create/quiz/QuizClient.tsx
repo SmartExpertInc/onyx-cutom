@@ -14,6 +14,8 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 import { AiAgent } from "@/components/ui/ai-agent";
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -48,6 +50,17 @@ export default function QuizClient() {
   const [error, setError] = useState<string | null>(null);
   const [isCreatingFinal, setIsCreatingFinal] = useState(false);
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
+
+  // Total lessons & credit cost (stored in sessionStorage)
+  const storedCreditsData = sessionStorage.getItem('creditsReference');
+  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).credits_reference.find(
+    (item: any) => item.content_type === "quiz"
+  )?.credits_amount : 7;
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
   // Get parameters from URL
   const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(searchParams?.get("prompt") || ""));
@@ -161,6 +174,7 @@ export default function QuizClient() {
   // NEW: Track user edits like in Course Outline
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalQuizData, setOriginalQuizData] = useState<string>("");
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string>("");
 
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -192,6 +206,57 @@ export default function QuizClient() {
       });
     }
   }, [showAdvanced]);
+
+  // Helper function to convert quiz JSON to display format
+  // IMPORTANT: Must match the format expected by parseQuizIntoQuestions()
+  const convertQuizJsonToDisplay = (parsed: any): string => {
+    let displayText = `# ${parsed.quizTitle}\n\n`;
+    
+    parsed.questions.forEach((q: any, index: number) => {
+      // Use the format expected by parseQuizIntoQuestions: "1. **Question text**"
+      displayText += `${index + 1}. **${q.question_text}**\n\n`;
+      
+      if (q.question_type === 'multiple-choice' && q.options) {
+        q.options.forEach((opt: any) => {
+          displayText += `${opt.id}) ${opt.text}\n`;
+        });
+        displayText += `\n**Correct:** ${q.correct_option_id}\n`;
+      } else if (q.question_type === 'multi-select' && q.options) {
+        q.options.forEach((opt: any) => {
+          displayText += `${opt.id}) ${opt.text}\n`;
+        });
+        displayText += `\n**Correct:** ${q.correct_option_ids?.join(', ') || 'N/A'}\n`;
+      } else if (q.question_type === 'matching' && q.prompts && q.options) {
+        displayText += `**Match the following:**\n`;
+        q.prompts.forEach((p: any) => {
+          displayText += `${p.id}) ${p.text}\n`;
+        });
+        displayText += `\n**With:**\n`;
+        q.options.forEach((opt: any) => {
+          displayText += `${opt.id}) ${opt.text}\n`;
+        });
+        displayText += `\n**Correct matches:** ${JSON.stringify(q.correct_matches)}\n`;
+      } else if (q.question_type === 'sorting' && q.items_to_sort) {
+        displayText += `**Arrange in order:**\n`;
+        q.items_to_sort.forEach((item: any) => {
+          displayText += `- ${item.text}\n`;
+        });
+        displayText += `\n**Correct order:** ${q.correct_order?.join(' → ') || 'N/A'}\n`;
+      } else if (q.question_type === 'open-answer' && q.acceptable_answers) {
+        displayText += `**Acceptable answers:**\n`;
+        q.acceptable_answers.forEach((ans: string) => {
+          displayText += `- ${ans}\n`;
+        });
+      }
+      
+      if (q.explanation) {
+        displayText += `\n**Explanation:** ${q.explanation}\n`;
+      }
+      displayText += '\n---\n\n';
+    });
+    
+    return displayText;
+  };
 
   const quizExamples: { short: string; detailed: string }[] = [
     {
@@ -936,6 +1001,44 @@ export default function QuizClient() {
         // setLoading(false);
         let gotFirstChunk = false;
 
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < maxRetries) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError("Failed to generate quiz – please try again later.");
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
+
         try {
           const requestBody: any = {
             outlineId: selectedOutlineId,
@@ -982,11 +1085,16 @@ export default function QuizClient() {
           }
 
           const decoder = new TextDecoder();
+
           let buffer = "";
           let accumulatedText = "";
+          let accumulatedJsonText = "";
 
           while (true) {
             const { done, value } = await reader.read();
+
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
 
             if (done) {
               // Process any remaining buffer
@@ -994,15 +1102,37 @@ export default function QuizClient() {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
-                    setQuizData(accumulatedText);
+                    accumulatedJsonText += pkt.text;
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
                   accumulatedText += buffer;
-                  setQuizData(accumulatedText);
+                  accumulatedJsonText += buffer;
                 }
               }
+              
+              console.log('[QUIZ_STREAM_COMPLETE] ========== STREAMING FINISHED ==========');
+              console.log('[QUIZ_STREAM_COMPLETE] Total accumulated JSON length:', accumulatedJsonText.length);
+              console.log('[QUIZ_STREAM_COMPLETE] Full accumulated JSON:');
+              console.log(accumulatedJsonText);
+              console.log('[QUIZ_STREAM_COMPLETE] ========================================');
+              
+              // Try final parse
+              try {
+                const finalParsed = JSON.parse(accumulatedJsonText);
+                console.log('[QUIZ_STREAM_COMPLETE] ✅ Final JSON parse successful');
+                console.log('[QUIZ_STREAM_COMPLETE] Has quizTitle:', !!finalParsed.quizTitle, 'Has questions:', !!finalParsed.questions);
+                console.log('[QUIZ_STREAM_COMPLETE] Question count:', finalParsed.questions?.length);
+              } catch (e) {
+                console.log('[QUIZ_STREAM_COMPLETE] ❌ Final JSON parse FAILED:', e instanceof Error ? e.message : String(e));
+              }
+              
               setStreamDone(true);
               break;
             }
@@ -1021,8 +1151,13 @@ export default function QuizClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
-                  setQuizData(accumulatedText);
+                  accumulatedJsonText += pkt.text;
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
                   break;
@@ -1032,15 +1167,76 @@ export default function QuizClient() {
               } catch (e) {
                 // If not JSON, treat as plain text
                 accumulatedText += line;
-                setQuizData(accumulatedText);
+                accumulatedJsonText += line;
               }
             }
 
-            // Determine if this buffer now contains some real (non-whitespace) text
-            const hasMeaningfulText = /\S/.test(accumulatedText);
-
+            // LIVE PREVIEW: Show content immediately during streaming (like presentations do)
+            if (accumulatedText) {
+              console.log('[QUIZ_PREVIEW] 📺 Showing accumulated text during streaming, length:', accumulatedText.length);
+              
+              // Try to parse as complete JSON first
+              let displayText = "";
+              try {
+                const parsed = JSON.parse(accumulatedText);
+                if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
+                  console.log('[QUIZ_JSON_STREAM] ✅ Complete JSON parsed, questions:', parsed.questions.length);
+                  displayText = convertQuizJsonToDisplay(parsed);
+                  setOriginalJsonResponse(accumulatedText);
+                  setOriginalQuizData(displayText);
+                } else {
+                  throw new Error("Missing required fields");
+                }
+              } catch (e) {
+                // JSON incomplete or invalid - create simple readable preview from raw text
+                console.log('[QUIZ_PREVIEW] 📝 Creating readable preview from raw text');
+                
+                // Extract quiz title if available
+                const titleMatch = accumulatedText.match(/"quizTitle"\s*:\s*"([^"]+)"/);
+                const title = titleMatch ? titleMatch[1] : "Generating Quiz...";
+                
+                // Extract all question_text fields
+                const questionMatches = accumulatedText.match(/"question_text"\s*:\s*"([^"]+)"/g);
+                const questionCount = questionMatches ? questionMatches.length : 0;
+                
+                // Extract all explanation fields
+                const explanationMatches = accumulatedText.match(/"explanation"\s*:\s*"([^"]+)"/g);
+                
+                // Create simple markdown preview
+                displayText = `# ${title}\n\n`;
+                if (questionCount > 0) {
+                  displayText += `**Generating ${questionCount} question${questionCount > 1 ? 's' : ''}...**\n\n`;
+                  
+                  // Show partial questions with explanations if available
+                  questionMatches?.forEach((match, index) => {
+                    const questionText = match.match(/"question_text"\s*:\s*"([^"]+)"/)?.[1];
+                    if (questionText) {
+                      displayText += `${index + 1}. **${questionText}**\n\n`;
+                      
+                      // Add explanation if available for this question
+                      if (explanationMatches && explanationMatches[index]) {
+                        const explanation = explanationMatches[index].match(/"explanation"\s*:\s*"([^"]+)"/)?.[1];
+                        if (explanation) {
+                          displayText += `**Explanation:** ${explanation}\n\n`;
+                        }
+                      }
+                      
+                      displayText += '---\n\n';
+                    }
+                  });
+                } else {
+                  displayText += "**Generating questions...**\n\n";
+                }
+              }
+              
+              setQuizData(displayText);
+              
+              // Make textarea visible as soon as we have content
+              const hasMeaningfulText = /\S/.test(accumulatedText);
             if (hasMeaningfulText && !textareaVisible) {
+                console.log('[QUIZ_PREVIEW] ✅ Making textarea visible');
               setTextareaVisible(true);
+              }
             }
           }
         } catch (error: any) {
@@ -1063,9 +1259,11 @@ export default function QuizClient() {
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
             return startPreview(attempt + 1);
           }
+          // Always cleanup timeouts
+          cleanup();
 
           throw error;
-        } finally {
+        } finally {      
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
@@ -1094,9 +1292,12 @@ export default function QuizClient() {
     }
   }, [quizData, textareaVisible]);
 
-  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  // Fallback: Process plain text content after streaming is done (only if JSON wasn't already parsed)
   useEffect(() => {
-    if (streamDone && !firstLineRemoved) {
+    if (streamDone && !firstLineRemoved && !originalJsonResponse) {
+      console.log('[QUIZ_FALLBACK] Processing plain text content, length:', quizData.length);
+      
+      // Original logic for plain text (only runs if JSON wasn't parsed during streaming)
       const parts = quizData.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
@@ -1104,23 +1305,42 @@ export default function QuizClient() {
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setQuizData(trimmed);
 
-        // NEW: Save original content for change detection
+        // Save original content for change detection
         setOriginalQuizData(trimmed);
       }
       setFirstLineRemoved(true);
     }
-  }, [streamDone, firstLineRemoved, quizData]);
+  }, [streamDone, firstLineRemoved, quizData, originalJsonResponse]);
 
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
 
+    // Lightweight credits pre-check to avoid starting finalization when balance is 0
+    try {
+      const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
+      if (creditsRes.ok) {
+        const credits = await creditsRes.json();
+        if (!credits || typeof credits.credits_balance !== 'number' || credits.credits_balance <= 0) {
+          setShowInsufficientCreditsModal(true);
+          setIsCreatingFinal(false);
+          setIsHandlingInsufficientCredits(true);
+          return;
+        }
+      }
+    } catch (_) {
+      // On pre-check failure, proceed to server-side validation (will still 402 if insufficient)
+    }
+
     setIsCreatingFinal(true);
     const activeProductType = sessionStorage.getItem('activeProductType');
     try {
-      // NEW: Prepare content based on whether user made edits
-      let contentToSend = quizData;
+      // Like presentations: send original JSON as aiResponse if available, otherwise send display text
+      let contentToSend = originalJsonResponse || quizData;
       let isCleanContent = false;
+
+      console.log('[QUIZ_FINALIZE] originalJsonResponse available:', !!originalJsonResponse, 'length:', originalJsonResponse?.length || 0);
+      console.log('[QUIZ_FINALIZE] Sending as aiResponse:', originalJsonResponse ? 'JSON' : 'display text');
 
       if (hasUserEdits && editedTitleIds.size > 0) {
         // User edited question titles - send clean questions for regeneration
@@ -1138,12 +1358,7 @@ export default function QuizClient() {
         contentToSend += additionalContent;
       }
 
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const payloadToSend = {
           aiResponse: contentToSend,
           prompt: currentPrompt,
           outlineId: selectedOutlineId,
@@ -1163,6 +1378,8 @@ export default function QuizClient() {
           originalContent: originalQuizData,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // NEW: Send indices of edited questions for selective regeneration
+          editedQuestionIndices: isCleanContent ? Array.from(editedTitleIds).join(',') : undefined,
           // Add connector context if creating from connectors
           ...(fromConnectors && {
             fromConnectors: true,
@@ -1172,10 +1389,29 @@ export default function QuizClient() {
               selectedFiles: selectedFiles.join(','),
             }),
           }),
-        }),
+      };
+
+      console.log('[QUIZ_FINALIZE] Payload being sent:', {
+        aiResponseIsJSON: originalJsonResponse ? true : false,
+        aiResponseLength: payloadToSend.aiResponse?.length || 0
+      });
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payloadToSend),
       });
 
       if (!response.ok) {
+        // Check for insufficient credits (402)
+        if (response.status === 402) {
+          setIsCreatingFinal(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -1250,6 +1486,37 @@ export default function QuizClient() {
 
     setLoadingEdit(true);
     setError(null);
+    
+    // Heartbeat variables for edit function
+    let lastDataTime = Date.now();
+    let heartbeatInterval: NodeJS.Timeout | null = null;
+    let heartbeatStarted = false;
+    
+    // Timeout settings
+    const STREAM_TIMEOUT = 30000; // 30 seconds without data
+    const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+    // Cleanup function
+    const cleanup = () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+      }
+    };
+
+    // Setup heartbeat to check for stream timeout
+    const setupHeartbeat = () => {
+      heartbeatInterval = setInterval(() => {
+        const timeSinceLastData = Date.now() - lastDataTime;
+        if (timeSinceLastData > STREAM_TIMEOUT) {
+          console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+          cleanup();
+          setError("Failed to generate quiz – please try again later.");
+          setLoadingEdit(false);
+        }
+      }, HEARTBEAT_INTERVAL);
+    };
+    
     try {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = quizData;
@@ -1326,6 +1593,11 @@ export default function QuizClient() {
             try {
               const pkt = JSON.parse(buffer.trim());
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedText += pkt.text;
                 setQuizData(accumulatedText);
               }
@@ -1339,6 +1611,9 @@ export default function QuizClient() {
         }
 
         buffer += decoder.decode(value, { stream: true });
+        
+        // Update last data time on any data received
+        lastDataTime = Date.now();
 
         // Split by newlines and process complete chunks
         const lines = buffer.split('\n');
@@ -1350,6 +1625,11 @@ export default function QuizClient() {
           try {
             const pkt = JSON.parse(line);
             if (pkt.type === "delta") {
+              // Start heartbeat only after receiving first delta package
+              if (!heartbeatStarted) {
+                heartbeatStarted = true;
+                setupHeartbeat();
+              }
               accumulatedText += pkt.text;
               setQuizData(accumulatedText);
             } else if (pkt.type === "done") {
@@ -1374,6 +1654,8 @@ export default function QuizClient() {
       console.error('Edit error:', error);
       setError(error.message || 'An error occurred during editing');
     } finally {
+      // Always cleanup timeouts
+      cleanup();
       setLoadingEdit(false);
     }
   };
@@ -1765,6 +2047,26 @@ export default function QuizClient() {
           <LoadingAnimation message={t('interface.generate.finalizingQuiz', 'Finalizing quiz...')} />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     </>
   );
 } 

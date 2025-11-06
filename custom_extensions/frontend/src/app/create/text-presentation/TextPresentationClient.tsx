@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 import { AiAgent } from "@/components/ui/ai-agent";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
@@ -93,6 +95,12 @@ export default function TextPresentationClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
+
+  // Total lessons & credit cost (stored in sessionStorage)
+  const storedCreditsData = sessionStorage.getItem('creditsReference');
+  const creditsRequired = storedCreditsData ? JSON.parse(storedCreditsData).credits_reference.find(
+    (item: any) => item.content_type === "onepager"
+  )?.credits_amount : 7;
 
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -225,6 +233,11 @@ export default function TextPresentationClient() {
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
   // Display mode state
   const [displayMode, setDisplayMode] = useState<'cards' | 'text'>('cards');
@@ -248,6 +261,7 @@ export default function TextPresentationClient() {
   // Smart change handling states (similar to QuizClient)
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalContent, setOriginalContent] = useState<string>("");
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string>("");
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
@@ -259,28 +273,124 @@ export default function TextPresentationClient() {
     }
   };
 
+  // Helper function to convert text presentation JSON to display format
+  const convertTextJsonToDisplay = (parsed: any): string => {
+    let displayText = `# ${parsed.textTitle}\n\n`;
+    
+    parsed.contentBlocks.forEach((block: any) => {
+      if (block.type === 'headline') {
+        const level = block.level || 2;
+        const prefix = '#'.repeat(level);
+        displayText += `${prefix} ${block.text}\n\n`;
+      } else if (block.type === 'paragraph') {
+        displayText += `${block.text}\n\n`;
+      } else if (block.type === 'bullet_list' && block.items) {
+        block.items.forEach((item: any) => {
+          if (typeof item === 'string') {
+            displayText += `- ${item}\n`;
+          } else if (item.type === 'bullet_list') {
+            item.items.forEach((subItem: any) => {
+              if (typeof subItem === 'string') {
+                displayText += `  - ${subItem}\n`;
+              } else if (subItem.type === 'numbered_list') {
+                subItem.items.forEach((numItem: any, idx: number) => {
+                  displayText += `    ${idx + 1}. ${numItem}\n`;
+                });
+              }
+            });
+          } else if (item.type === 'numbered_list') {
+            item.items.forEach((numItem: any, idx: number) => {
+              displayText += `  ${idx + 1}. ${numItem}\n`;
+            });
+          }
+        });
+        displayText += '\n';
+      } else if (block.type === 'numbered_list' && block.items) {
+        block.items.forEach((item: any, idx: number) => {
+          if (typeof item === 'string') {
+            displayText += `${idx + 1}. ${item}\n`;
+          } else if (item.type === 'bullet_list') {
+            // Handle nested bullet list in numbered item
+            item.items.forEach((subItem: any, subIdx: number) => {
+              if (subItem.type === 'headline') {
+                displayText += `  ${idx + 1}.${subIdx + 1} ${subItem.text}\n`;
+              } else if (subItem.type === 'paragraph') {
+                displayText += `     ${subItem.text}\n`;
+              }
+            });
+          }
+        });
+        displayText += '\n';
+      } else if (block.type === 'table' && block.headers && block.rows) {
+        // Simple table representation
+        displayText += `| ${block.headers.join(' | ')} |\n`;
+        displayText += `| ${block.headers.map(() => '---').join(' | ')} |\n`;
+        block.rows.forEach((row: any) => {
+          displayText += `| ${row.join(' | ')} |\n`;
+        });
+        displayText += '\n';
+      }
+    });
+    
+    return displayText;
+  };
+
   // FIXED: Alternative parsing method for when header-based parsing fails
   const parseContentAlternatively = (content: string) => {
     const lessons = [];
     
+    // Remove any H1 header at the start (document title)
+    let workingContent = content.replace(/^#\s+.+?\n+/m, '').trim();
+    
     // Method 1: Try splitting by double line breaks (paragraph-based sections)
-    const paragraphSections = content.split(/\n\s*\n/).filter(section => section.trim().length > 0);
+    // But group them into reasonable-sized chunks
+    const paragraphSections = workingContent.split(/\n\s*\n/).filter(section => section.trim().length > 0);
+    
+    const MAX_CHUNK_SIZE = 1500;
+    const MIN_CHUNK_SIZE = 300;
     
     if (paragraphSections.length > 1) {
-      for (let i = 0; i < paragraphSections.length && i < 10; i++) { // Limit to 10 sections
+      console.log('[ALTERNATIVE_PARSE] Method 1: Splitting by paragraphs into chunks');
+      let currentChunk = '';
+      let currentTitle = '';
+      let chunkCount = 0;
+      
+      for (let i = 0; i < paragraphSections.length; i++) {
         const section = paragraphSections[i].trim();
-        if (section.length < 20) continue; // Skip very short sections
+        if (section.length < 10) continue; // Skip very short sections
         
-        // Extract title from first line or first sentence
-        const lines = section.split('\n');
-        const firstLine = lines[0].trim();
-        const title = firstLine.length < 100 ? firstLine : firstLine.substring(0, 50) + '...';
-        const content = lines.length > 1 ? lines.slice(1).join('\n').trim() : section;
+        // If this is the first paragraph in a new chunk, use it for the title
+        if (!currentTitle) {
+          const lines = section.split('\n');
+          const firstLine = lines[0].trim().replace(/^[•\-*]\s+/, ''); // Remove bullet points
+          currentTitle = firstLine.length < 80 ? firstLine : firstLine.substring(0, 60) + '...';
+        }
         
+        // Add this paragraph to current chunk
+        const potentialChunk = currentChunk + (currentChunk ? '\n\n' : '') + section;
+        
+        // If adding this would exceed max size and we have enough content, save current chunk
+        if (potentialChunk.length > MAX_CHUNK_SIZE && currentChunk.length >= MIN_CHUNK_SIZE) {
+          lessons.push({
+            title: currentTitle || `Section ${chunkCount + 1}`,
+            content: currentChunk.trim()
+          });
+          console.log(`[ALTERNATIVE_PARSE] Added chunk ${chunkCount + 1}: "${currentTitle}" (${currentChunk.length} chars)`);
+          chunkCount++;
+          currentChunk = section;
+          currentTitle = '';
+        } else {
+          currentChunk = potentialChunk;
+        }
+      }
+      
+      // Add remaining chunk
+      if (currentChunk.trim()) {
         lessons.push({
-          title: title,
-          content: content || section
+          title: currentTitle || `Section ${chunkCount + 1}`,
+          content: currentChunk.trim()
         });
+        console.log(`[ALTERNATIVE_PARSE] Added final chunk: "${currentTitle}" (${currentChunk.length} chars)`);
       }
     }
     
@@ -327,8 +437,12 @@ export default function TextPresentationClient() {
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
-    if (!content.trim()) return [];
+    if (!content.trim()) {
+      console.log('[PARSE_LESSONS] ⚠️ Empty content');
+      return [];
+    }
 
+    console.log('[PARSE_LESSONS] 🔍 Parsing content, length:', content.length);
     const lessons = [];
 
     // Find all headers (H1-H6) with their positions
@@ -338,15 +452,38 @@ export default function TextPresentationClient() {
     while ((match = headerRegex.exec(content)) !== null) {
       headerMatches.push({
         index: match.index,
-        level: match[1],
+        level: match[1].length, // Convert ### to 3
+        levelString: match[1],
         title: match[2].trim(),
         fullMatch: match[0]
       });
     }
+    console.log('[PARSE_LESSONS] 📋 Found', headerMatches.length, 'headers');
+    headerMatches.forEach((h, idx) => {
+      console.log(`[PARSE_LESSONS] Header ${idx + 1}: ${'#'.repeat(h.level)} "${h.title}"`);
+    });
+
+    // SMART FILTERING: Skip H1 if it's the only H1 and there are H2+ headers
+    let filteredHeaders = headerMatches;
+    const h1Count = headerMatches.filter(h => h.level === 1).length;
+    const h2PlusCount = headerMatches.filter(h => h.level >= 2).length;
+    
+    if (h1Count === 1 && h2PlusCount > 0) {
+      console.log('[PARSE_LESSONS] 🎯 Skipping single H1 (document title), using H2+ headers for sections');
+      filteredHeaders = headerMatches.filter(h => h.level >= 2);
+    } else if (h1Count > 1) {
+      // Multiple H1s - use all headers
+      console.log('[PARSE_LESSONS] 📚 Multiple H1s found, using all headers');
+      filteredHeaders = headerMatches;
+    } else if (h1Count === 1 && h2PlusCount === 0) {
+      // Only one H1 and no other headers - need to split content differently
+      console.log('[PARSE_LESSONS] ⚠️ Only one H1, no subsections - will split content intelligently');
+      filteredHeaders = [];
+    }
 
     // Process each header to extract its content
-    for (let i = 0; i < headerMatches.length; i++) {
-      const currentHeader = headerMatches[i];
+    for (let i = 0; i < filteredHeaders.length; i++) {
+      const currentHeader = filteredHeaders[i];
       let title = currentHeader.title;
 
       // FIXED: More gentle title cleaning - preserve meaningful content
@@ -362,12 +499,12 @@ export default function TextPresentationClient() {
       }
 
       // Find the end of this section (start of next header or end of content)
-      const nextHeaderIndex = i < headerMatches.length - 1 ? headerMatches[i + 1].index : content.length;
+      const nextHeaderIndex = i < filteredHeaders.length - 1 ? filteredHeaders[i + 1].index : content.length;
       const sectionStart = currentHeader.index + currentHeader.fullMatch.length;
-      const sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
+      let sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
 
       // FIXED: More comprehensive content cleaning while preserving structure
-      const cleanedContent = sectionContent
+      let cleanedContent = sectionContent
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/^\s*\n+/g, '') // Remove leading newlines
         .replace(/\n+\s*$/g, '') // Remove trailing newlines
@@ -375,24 +512,66 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
 
-      // FIXED: Accept content even if it's shorter, and accept titles without requiring content
-      if (title && (cleanedContent || sectionContent.trim())) {
-        lessons.push({
-          title: title,
-          content: cleanedContent || sectionContent.trim() || title // Use title as content if no content found
-        });
+      // NEW: If content is very large (>2000 chars), split it into smaller chunks
+      const MAX_SECTION_SIZE = 2000;
+      if (cleanedContent.length > MAX_SECTION_SIZE) {
+        console.log(`[PARSE_LESSONS] ⚠️ Section "${title}" is large (${cleanedContent.length} chars), splitting into chunks`);
+        
+        // Split by paragraphs (double newlines)
+        const paragraphs = cleanedContent.split(/\n\s*\n/);
+        let currentChunk = '';
+        let chunkIndex = 1;
+        
+        for (const para of paragraphs) {
+          if (currentChunk.length + para.length > MAX_SECTION_SIZE && currentChunk.length > 0) {
+            // Save current chunk
+            lessons.push({
+              title: chunkIndex === 1 ? title : `${title} (Part ${chunkIndex})`,
+              content: currentChunk.trim()
+            });
+            console.log(`[PARSE_LESSONS] ✅ Added chunk ${chunkIndex}: "${title}" (${currentChunk.length} chars)`);
+            currentChunk = para;
+            chunkIndex++;
+          } else {
+            currentChunk += (currentChunk ? '\n\n' : '') + para;
+          }
+        }
+        
+        // Add remaining chunk
+        if (currentChunk.trim()) {
+          lessons.push({
+            title: chunkIndex === 1 ? title : `${title} (Part ${chunkIndex})`,
+            content: currentChunk.trim()
+          });
+          console.log(`[PARSE_LESSONS] ✅ Added final chunk: "${title}" (${currentChunk.length} chars)`);
+        }
+      } else {
+        // Normal sized section
+        if (title && (cleanedContent || sectionContent.trim())) {
+          lessons.push({
+            title: title,
+            content: cleanedContent || sectionContent.trim() || title
+          });
+          console.log(`[PARSE_LESSONS] ✅ Added lesson ${lessons.length}: "${title}" (${(cleanedContent || sectionContent.trim()).length} chars)`);
+        } else {
+          console.log(`[PARSE_LESSONS] ⏭️ Skipped header: "${title}" (no valid content)`);
+        }
       }
     }
 
+    console.log('[PARSE_LESSONS] 📊 Total lessons parsed:', lessons.length);
+
     // FIXED: If no structured content found, try alternative parsing methods instead of hardcoded fallback
     if (lessons.length === 0) {
+      console.log('[PARSE_LESSONS] ⚠️ No lessons parsed from headers, trying alternative parsing');
       // Try parsing by paragraph breaks or bullet points
       const alternativeParsing = parseContentAlternatively(content);
       if (alternativeParsing.length > 0) {
+        console.log('[PARSE_LESSONS] ✅ Alternative parsing found', alternativeParsing.length, 'sections');
         return alternativeParsing;
       }
       
-      // Last resort: return single section with all content
+      // Last resort: return content, but split if it's very large
       const cleanedContent = content
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/#{1,6}\s*/gm, '') // Remove markdown headers that failed to parse
@@ -400,21 +579,82 @@ export default function TextPresentationClient() {
         .trim();
       
       if (cleanedContent) {
-        return [{
+        const MAX_SINGLE_SECTION = 1500;
+        
+        // If content is reasonable sized, show as one block
+        if (cleanedContent.length <= MAX_SINGLE_SECTION) {
+          console.log('[PARSE_LESSONS] ℹ️ Returning single section (small document)');
+          return [{
+            title: "Document Content",
+            content: cleanedContent
+          }];
+        }
+        
+        // Content is large - split by paragraphs into multiple sections
+        console.log('[PARSE_LESSONS] ⚠️ Large document with no structure, splitting into chunks');
+        const paragraphs = cleanedContent.split(/\n\s*\n/);
+        const sections = [];
+        let currentChunk = '';
+        let chunkIndex = 1;
+        
+        for (const para of paragraphs) {
+          if (para.trim().length < 10) continue;
+          
+          const potentialChunk = currentChunk + (currentChunk ? '\n\n' : '') + para;
+          
+          if (potentialChunk.length > MAX_SINGLE_SECTION && currentChunk.length > 300) {
+            // Extract title from first line of chunk
+            const firstLine = currentChunk.split('\n')[0].trim().substring(0, 60);
+            sections.push({
+              title: firstLine || `Part ${chunkIndex}`,
+              content: currentChunk.trim()
+            });
+            console.log(`[PARSE_LESSONS] ✅ Added fallback chunk ${chunkIndex} (${currentChunk.length} chars)`);
+            currentChunk = para;
+            chunkIndex++;
+          } else {
+            currentChunk = potentialChunk;
+          }
+        }
+        
+        // Add remaining chunk
+        if (currentChunk.trim()) {
+          const firstLine = currentChunk.split('\n')[0].trim().substring(0, 60);
+          sections.push({
+            title: firstLine || `Part ${chunkIndex}`,
+            content: currentChunk.trim()
+          });
+          console.log(`[PARSE_LESSONS] ✅ Added final fallback chunk (${currentChunk.length} chars)`);
+        }
+        
+        return sections.length > 0 ? sections : [{
           title: "Document Content",
           content: cleanedContent
         }];
       }
       
       // If absolutely no content, return empty array
+      console.log('[PARSE_LESSONS] ❌ No content could be parsed at all');
       return [];
     }
 
+    console.log('[PARSE_LESSONS] ✅ Returning', lessons.length, 'lessons');
     return lessons;
   };
 
   // Use useMemo to recalculate lessonList when content changes
-  const lessonList = React.useMemo(() => parseContentIntoLessons(content), [content]);
+  const lessonList = React.useMemo(() => {
+    const lessons = parseContentIntoLessons(content);
+    console.log('[TEXT_PRESENTATION_LESSON_LIST] Content length:', content.length, 'Parsed lessons:', lessons.length);
+    if (lessons.length > 0) {
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] First lesson title:', lessons[0].title);
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] First lesson content preview:', lessons[0].content.substring(0, 100) + '...');
+    } else if (content.length > 0) {
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] ❌ No lessons parsed from content!');
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] Content preview:', content.substring(0, 500) + '...');
+    }
+    return lessons;
+  }, [content]);
 
   // Calculate word count from content
   const wordCount = React.useMemo(() => {
@@ -870,6 +1110,37 @@ export default function TextPresentationClient() {
     if (!editPrompt.trim()) return;
     setLoadingEdit(true);
     setError(null);
+    
+    // Heartbeat variables for edit function
+    let lastDataTime = Date.now();
+    let heartbeatInterval: NodeJS.Timeout | null = null;
+    let heartbeatStarted = false;
+    
+    // Timeout settings
+    const STREAM_TIMEOUT = 30000; // 30 seconds without data
+    const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+    // Cleanup function
+    const cleanup = () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+      }
+    };
+
+    // Setup heartbeat to check for stream timeout
+    const setupHeartbeat = () => {
+      heartbeatInterval = setInterval(() => {
+        const timeSinceLastData = Date.now() - lastDataTime;
+        if (timeSinceLastData > STREAM_TIMEOUT) {
+          console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+          cleanup();
+          setError("Failed to generate presentation – please try again later.");
+          setLoadingEdit(false);
+        }
+      }, HEARTBEAT_INTERVAL);
+    };
+    
     try {
       // NEW: Determine what content to send based on user edits
       let contentToSend = content;
@@ -918,6 +1189,11 @@ export default function TextPresentationClient() {
             try {
               const pkt = JSON.parse(buffer.trim());
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedText += pkt.text;
                 setContent(accumulatedText);
               }
@@ -931,6 +1207,9 @@ export default function TextPresentationClient() {
         }
 
         buffer += decoder.decode(value, { stream: true });
+        
+        // Update last data time on any data received
+        lastDataTime = Date.now();
 
         // Split by newlines and process complete chunks
         const lines = buffer.split('\n');
@@ -942,6 +1221,11 @@ export default function TextPresentationClient() {
           try {
             const pkt = JSON.parse(line);
             if (pkt.type === "delta") {
+              // Start heartbeat only after receiving first delta package
+              if (!heartbeatStarted) {
+                heartbeatStarted = true;
+                setupHeartbeat();
+              }
               accumulatedText += pkt.text;
               setContent(accumulatedText);
             } else if (pkt.type === "done") {
@@ -965,6 +1249,8 @@ export default function TextPresentationClient() {
     } catch (error: any) {
       setError(error.message || "Failed to apply edit");
     } finally {
+      // Always cleanup timeouts
+      cleanup();
       setLoadingEdit(false);
     }
   };
@@ -992,6 +1278,43 @@ export default function TextPresentationClient() {
         setContent(""); // Clear previous content
         setTextareaVisible(true);
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError("Failed to generate presentation – please try again later.");
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = {
@@ -1054,9 +1377,13 @@ export default function TextPresentationClient() {
 
           let buffer = "";
           let accumulatedText = "";
+          let accumulatedJsonText = "";
 
           while (true) {
             const { done, value } = await reader.read();
+
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
 
             if (done) {
               // Process any remaining buffer
@@ -1064,15 +1391,37 @@ export default function TextPresentationClient() {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
-                    setContent(accumulatedText);
+                    accumulatedJsonText += pkt.text;
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
                   accumulatedText += buffer;
-                  setContent(accumulatedText);
+                  accumulatedJsonText += buffer;
                 }
               }
+              
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ========== STREAMING FINISHED ==========');
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Total accumulated JSON length:', accumulatedJsonText.length);
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Full accumulated JSON:');
+              console.log(accumulatedJsonText);
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ========================================');
+              
+              // Try final parse
+              try {
+                const finalParsed = JSON.parse(accumulatedJsonText);
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ✅ Final JSON parse successful');
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Has textTitle:', !!finalParsed.textTitle, 'Has contentBlocks:', !!finalParsed.contentBlocks);
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Block count:', finalParsed.contentBlocks?.length);
+              } catch (e) {
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ❌ Final JSON parse FAILED:', e instanceof Error ? e.message : String(e));
+              }
+              
               setStreamDone(true);
               break;
             }
@@ -1091,8 +1440,13 @@ export default function TextPresentationClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
-                  setContent(accumulatedText);
+                  accumulatedJsonText += pkt.text;
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
                   break;
@@ -1102,21 +1456,129 @@ export default function TextPresentationClient() {
               } catch (e) {
                 // If not JSON, treat as plain text
                 accumulatedText += line + '\n';
-                setContent(accumulatedText);
+                accumulatedJsonText += line + '\n';
               }
             }
 
-            // Determine if this buffer now contains some real (non-whitespace) text
-            const hasMeaningfulText = /\S/.test(accumulatedText);
-
-            if (hasMeaningfulText && !textareaVisible) {
-              setTextareaVisible(true);
-
-            }
-
-            // Force state update to ensure UI reflects content changes
-            if (accumulatedText && accumulatedText !== content) {
-              setContent(accumulatedText);
+            // LIVE PREVIEW: Show content immediately during streaming (like presentations do)
+            if (accumulatedText) {
+              console.log('[TEXT_PRESENTATION_PREVIEW] 📺 Showing accumulated text during streaming, length:', accumulatedText.length);
+              
+              // Try to parse as complete JSON first
+              let displayText = "";
+              try {
+                const parsed = JSON.parse(accumulatedText);
+                if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
+                  console.log('[TEXT_PRESENTATION_JSON_STREAM] ✅ Complete JSON parsed, blocks:', parsed.contentBlocks.length);
+                  displayText = convertTextJsonToDisplay(parsed);
+                  setOriginalJsonResponse(accumulatedText);
+                  setOriginalContent(displayText);
+                } else {
+                  throw new Error("Missing required fields");
+                }
+              } catch (e) {
+                // JSON incomplete or invalid - create simple readable preview from raw text
+                console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Creating readable preview from incomplete JSON');
+                console.log('[TEXT_PRESENTATION_PREVIEW] Accumulated text length:', accumulatedText.length);
+                console.log('[TEXT_PRESENTATION_PREVIEW] First 500 chars:', accumulatedText.substring(0, 500));
+                console.log('[TEXT_PRESENTATION_PREVIEW] Last 200 chars:', accumulatedText.substring(Math.max(0, accumulatedText.length - 200)));
+                
+                // Extract text title if available
+                const titleMatch = accumulatedText.match(/"textTitle"\s*:\s*"([^"]+)"/);
+                const title = titleMatch ? titleMatch[1] : "Generating Content...";
+                console.log('[TEXT_PRESENTATION_PREVIEW] Extracted title:', title);
+                
+                displayText = `# ${title}\n\n`;
+                
+                // Try to extract contentBlocks array even if JSON is incomplete
+                // Look for the start of contentBlocks array and capture everything after it
+                const contentBlocksStartMatch = accumulatedText.match(/"contentBlocks"\s*:\s*\[/);
+                if (contentBlocksStartMatch && typeof contentBlocksStartMatch.index === 'number') {
+                  const startIndex = contentBlocksStartMatch.index + contentBlocksStartMatch[0].length;
+                  const remainingText = accumulatedText.substring(startIndex);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] Found contentBlocks start at index:', startIndex);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] Remaining text length:', remainingText.length);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] Remaining text preview:', remainingText.substring(0, 300));
+                  
+                  // Extract all blocks with type and text
+                  // We need to match complete blocks that have been fully streamed
+                  // Strategy: Find complete block objects by matching braces and ensuring they're closed
+                  // Look for blocks that are properly terminated with }, or }]
+                  
+                  // First, try to extract complete headline blocks (simpler, no nested structures)
+                  const headlinePattern = /\{\s*"type"\s*:\s*"headline"\s*,\s*(?:"level"\s*:\s*\d+\s*,\s*)?"text"\s*:\s*"([^"]+)"\s*(?:,\s*"[^"]+"\s*:\s*[^,}]+)*\}\s*(?:,|\])/g;
+                  
+                  // Extract complete paragraph blocks (also simple, no nested structures)
+                  const paragraphPattern = /\{\s*"type"\s*:\s*"paragraph"\s*,\s*"text"\s*:\s*"([^"]+)"\s*(?:,\s*"[^"]+"\s*:\s*[^,}]+)*\}\s*(?:,|\])/g;
+                  
+                  const blocks = [];
+                  let match;
+                  
+                  // Extract headlines
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 🔍 Searching for headline blocks...');
+                  while ((match = headlinePattern.exec(remainingText)) !== null) {
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Found headline at index', match.index, ':', match[1].substring(0, 50));
+                    blocks.push({ 
+                      type: 'headline', 
+                      text: match[1],
+                      matchIndex: match.index 
+                    });
+                  }
+                  
+                  // Extract paragraphs
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 🔍 Searching for paragraph blocks...');
+                  while ((match = paragraphPattern.exec(remainingText)) !== null) {
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Found paragraph at index', match.index, ':', match[1].substring(0, 50));
+                    blocks.push({ 
+                      type: 'paragraph', 
+                      text: match[1],
+                      matchIndex: match.index 
+                    });
+                  }
+                  
+                  // Sort blocks by their appearance order in the text
+                  blocks.sort((a, b) => a.matchIndex - b.matchIndex);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 📊 Sorted', blocks.length, 'blocks by appearance order');
+                  
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 📊 Extracted', blocks.length, 'complete blocks');
+                  blocks.forEach((block, idx) => {
+                    console.log(`[TEXT_PRESENTATION_PREVIEW] Block ${idx + 1}: ${block.type} - "${block.text.substring(0, 50)}..."`);
+                  });
+                  
+                  if (blocks.length > 0) {
+                    // Generate markdown maintaining block order
+                    blocks.forEach(block => {
+                      if (block.type === 'headline') {
+                        displayText += `## ${block.text}\n\n`;
+                      } else if (block.type === 'paragraph') {
+                        displayText += `${block.text}\n\n`;
+                      }
+                    });
+                    
+                    console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Generated markdown with', blocks.length, 'blocks');
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Markdown length:', displayText.length);
+                  } else {
+                    console.log('[TEXT_PRESENTATION_PREVIEW] ⚠️ No complete blocks extracted yet');
+                    displayText += "**Generating content sections...**\n\n";
+                  }
+                } else {
+                  console.log('[TEXT_PRESENTATION_PREVIEW] ⚠️ contentBlocks array not found in JSON yet');
+                  displayText += "**Generating content sections...**\n\n";
+                }
+              }
+              
+              // Log what we're about to set
+              console.log('[TEXT_PRESENTATION_PREVIEW] Setting content, length:', displayText.length);
+              console.log('[TEXT_PRESENTATION_PREVIEW] Content has', (displayText.match(/^#{1,6}\s/gm) || []).length, 'headers');
+              
+              setContent(displayText);
+              
+              // Make textarea visible as soon as we have content
+              const hasMeaningfulText = /\S/.test(accumulatedText);
+              if (hasMeaningfulText && !textareaVisible) {
+                console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible');
+                setTextareaVisible(true);
+              }
             }
           }
         } catch (e: any) {
@@ -1133,6 +1595,9 @@ export default function TextPresentationClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
@@ -1149,7 +1614,7 @@ export default function TextPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText, retryTrigger]);
 
   // // Auto-scroll textarea as new content streams in
   // useEffect(() => {
@@ -1247,9 +1712,12 @@ export default function TextPresentationClient() {
   }, [loading, length, selectedStyles, currentPrompt, language]);
 
 
-  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  // Fallback: Process plain text content after streaming is done (only if JSON wasn't already parsed)
   useEffect(() => {
-    if (streamDone && !firstLineRemoved) {
+    if (streamDone && !firstLineRemoved && !originalJsonResponse) {
+      console.log('[TEXT_PRESENTATION_FALLBACK] Processing plain text content, length:', content.length);
+      
+      // Original logic for plain text (only runs if JSON wasn't parsed during streaming)
       const parts = content.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
@@ -1259,7 +1727,7 @@ export default function TextPresentationClient() {
       }
       setFirstLineRemoved(true);
     }
-  }, [streamDone, firstLineRemoved, content]);
+  }, [streamDone, firstLineRemoved, content, originalJsonResponse]);
 
   // NEW: Store original content after stream completion
   useEffect(() => {
@@ -1273,6 +1741,22 @@ export default function TextPresentationClient() {
     if (!content.trim()) {
       setError("No content to finalize");
       return;
+    }
+
+    // Lightweight credits pre-check to avoid starting finalization when balance is 0
+    try {
+      const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
+      if (creditsRes.ok) {
+        const credits = await creditsRes.json();
+        if (!credits || typeof credits.credits_balance !== 'number' || credits.credits_balance <= 0) {
+          setShowInsufficientCreditsModal(true);
+          setIsGenerating(false);
+          setIsHandlingInsufficientCredits(true);
+          return;
+        }
+      }
+    } catch (_) {
+      // On pre-check failure, proceed to server-side validation (will still 402 if insufficient)
     }
 
     setIsGenerating(true);
@@ -1300,6 +1784,7 @@ export default function TextPresentationClient() {
 
       if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
         console.log("DEBUG: handleFinalize - using clean content from UI");
+        console.log("DEBUG: handleFinalize - edited section indices:", Array.from(editedTitleIds));
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContentFromUI();
         isCleanContent = true;
@@ -1313,17 +1798,30 @@ export default function TextPresentationClient() {
       console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
       console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
 
+      // Like presentations: send original JSON as aiResponse if available
+      console.log('[TEXT_PRESENTATION_FINALIZE] originalJsonResponse available:', !!originalJsonResponse, 'length:', originalJsonResponse?.length || 0);
+      
+      // Log what we're actually sending
+      const aiResponseToSend = isCleanContent ? contentToSend : (originalJsonResponse || contentToSend);
+      console.log('[TEXT_PRESENTATION_FINALIZE] Sending as aiResponse:', isCleanContent ? 'clean titles' : (originalJsonResponse ? 'original JSON' : 'display text'));
+      console.log('[TEXT_PRESENTATION_FINALIZE] aiResponse length:', aiResponseToSend.length);
+      console.log('[TEXT_PRESENTATION_FINALIZE] aiResponse preview:', aiResponseToSend.substring(0, 200));
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: contentToSend,
+          // CRITICAL: When sections are edited (isCleanContent), send the clean titles (contentToSend)
+          // Otherwise, send original JSON for fast-path parsing
+          aiResponse: aiResponseToSend,
           prompt: currentPrompt,
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
           isCleanContent: isCleanContent,
+          // NEW: Send indices of edited sections for selective regeneration
+          editedSectionIndices: isCleanContent ? Array.from(editedTitleIds).join(',') : undefined,
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
@@ -1348,6 +1846,13 @@ export default function TextPresentationClient() {
 
       if (!response.ok) {
         const errorText = await response.text();
+        // Check for insufficient credits (402)
+        if (response.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
@@ -1666,8 +2171,37 @@ export default function TextPresentationClient() {
             </div>
           )}
 
-        <section className="flex flex-col gap-3 pb-8 rounded-b-lg">
-          {error && <p className="text-red-600">{error}</p>}
+          <section className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+              {false && hasUserEdits && (
+                <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                  User edits detected
+                </span>
+              )}
+            </div>
+            {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                  <XCircle className="h-5 w-5" />
+                  {t('interface.error', 'Error')}
+                </div>
+                <div className="text-sm text-red-700 mb-4">
+                  <p>{error}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setRetryCount(0);
+                    setRetryTrigger(prev => prev + 1);
+                  }}
+                  className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+                >
+                  {t('interface.generate.retryGeneration', 'Retry Generation')}
+                </button>
+              </div>
+            )}
 
           {/* Main content display - Custom slide titles display matching course outline format */}
           {(textareaVisible || loading) && (
@@ -2049,7 +2583,7 @@ export default function TextPresentationClient() {
                 </clipPath>
               </defs>
             </svg>
-            <span>5 {t('interface.generate.credits', 'Credits')}</span>
+            <span>{creditsRequired} {t('interface.generate.credits', 'Credits')}</span>
           </div>
 
           {/* AI Agent + generate */}
@@ -2142,6 +2676,26 @@ export default function TextPresentationClient() {
           <LoadingAnimation message={t('interface.generate.finalizingPresentation', 'Finalizing presentation...')} />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     </>
   );
 } 

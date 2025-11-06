@@ -6,6 +6,13 @@
   background: inherit; /* Ensure background is inherited from template */
 }
 
+/* Video mode specific styles */
+.positioning-enabled-slide.video-mode {
+  width: 80% !important;
+  min-height: auto !important;
+  margin: 0 auto !important;
+}
+
 /* ONLY target elements with explicit data-draggable="true" attribute */
 .positioning-enabled-slide [data-draggable="true"] {
   /* FIXED: Don't set position: relative by default to avoid layout issues */

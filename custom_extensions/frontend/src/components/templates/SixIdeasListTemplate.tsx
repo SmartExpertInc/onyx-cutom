@@ -28,7 +28,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const tColor = titleColor || currentTheme.colors.titleColor;
-  const txtColor = textColor || currentTheme.colors.contentColor;
+  const txtColor = '#FFFFFF'; // Always use white for six-ideas text as per user requirement
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
   // Filter out null/undefined ideas to prevent errors
@@ -156,7 +156,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
           gridTemplateColumns: '1fr 1fr', 
           gap: '30px'
         }}>
-          {validIdeas.map((idea, index) => {
+          {(validIdeas || []).filter(idea => idea !== null && idea !== undefined).map((idea, index) => {
             return (
             <div key={index} style={{ 
               display: 'flex', 

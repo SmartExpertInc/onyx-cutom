@@ -4,14 +4,16 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles, Package } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
 import SmartDriveBrowser from '../../../../components/SmartDrive/SmartDrive/SmartDriveBrowser';
 import { Input } from '@/components/ui/input';
+import { trackImportFiles } from '@/lib/mixpanelClient';
 import { ConnectorCard } from '@/components/ui/connector-card';
 import { Button } from '@/components/ui/button';
 import { HeadTextCustom } from '@/components/ui/head-text-custom';
+import LMSProductCard from '../../../../components/LMSProductCard';
 
 interface Connector {
   id: number;
@@ -99,6 +101,10 @@ export default function CreateFromSpecificFilesPage() {
   const [showFileBrowser, setShowFileBrowser] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [productSearchTerm, setProductSearchTerm] = useState('');
 
   // Load connectors from the backend API
   const loadConnectors = async () => {
@@ -153,10 +159,31 @@ export default function CreateFromSpecificFilesPage() {
     loadConnectors();
   }, []);
 
+  // Load products for selection
+  const loadProducts = async () => {
+    try {
+      setLoadingProducts(true);
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { credentials: 'same-origin', cache: 'no-store' });
+      if (!res.ok) throw new Error(`Failed to fetch products ${res.status}`);
+      const data = await res.json();
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error('Failed to load products', e);
+      setProducts([]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
   // Validate connector and file selection - allow connectors OR files OR both
   useEffect(() => {
-    setConnectorSelectionValid(selectedConnectors.length > 0 || selectedFiles.length > 0);
-  }, [selectedConnectors, selectedFiles]);
+    setConnectorSelectionValid(selectedConnectors.length > 0 || selectedFiles.length > 0 || selectedProducts.length > 0);
+  }, [selectedConnectors, selectedFiles, selectedProducts]);
 
   // Handle file selection from SmartDrive (native or iframe)
   const handleFilesSelected = (files: string[]) => {
@@ -217,26 +244,61 @@ export default function CreateFromSpecificFilesPage() {
   );
 
   const handleCreateContent = async () => {
-    // DEBUG: Log current state
-    console.log('[CreateFromSpecificFiles DEBUG] handleCreateContent called with:', {
+    console.log('[CreateFromSpecificFiles] === START handleCreateContent ===');
+    console.log('[CreateFromSpecificFiles] Initial state:', {
       selectedConnectors,
       selectedFiles,
-      connectorsData: connectors.map(c => ({ id: c.id, name: c.name, source: c.source })),
-      hasConnectors: selectedConnectors.length > 0,
-      hasFiles: selectedFiles.length > 0
+      selectedProducts,
+      connectorsData: connectors.map(c => ({ id: c.id, name: c.name, source: c.source }))
     });
 
-    // Require at least one selection (connectors OR files OR both)
-    if (selectedConnectors.length === 0 && selectedFiles.length === 0) {
-      console.log('[CreateFromSpecificFiles DEBUG] No selection - returning');
+    // Require at least one selection (connectors OR files OR products)
+    if (selectedConnectors.length === 0 && selectedFiles.length === 0 && selectedProducts.length === 0) {
+      console.log('[CreateFromSpecificFiles] ERROR: No selection - returning');
       return;
     }
 
     // Determine the generation mode
     const hasConnectors = selectedConnectors.length > 0;
     const hasFiles = selectedFiles.length > 0;
+    const hasProducts = selectedProducts.length > 0;
 
-    console.log('[CreateFromSpecificFiles DEBUG] Generation mode:', { hasConnectors, hasFiles });
+    console.log('[CreateFromSpecificFiles] Generation mode flags:', { hasConnectors, hasFiles, hasProducts });
+
+    // Track import files event with detailed context
+    if (hasConnectors) {
+      const connectorSourcesForTracking: string[] =  Array.from(new Set(
+        selectedConnectors
+          .map(id => connectors.find(c => c.id === id)?.source)
+          .filter((s): s is string => !!s)
+      ));
+
+      trackImportFiles('Connectors', connectorSourcesForTracking);
+    } else if (hasFiles) {
+      const fileExtensionsForTracking: string[] = Array.from(new Set(
+        selectedFiles
+          .map(f => {
+            try {
+              const name = (f.split('/').pop() || f).split('?')[0];
+              const parts = name.split('.');
+              return parts.length > 1 ? parts.pop()!.toLowerCase() : undefined;
+            } catch {
+              return undefined;
+            }
+          })
+          .filter((ext): ext is string => !!ext)
+        ));
+      
+      trackImportFiles('Files', fileExtensionsForTracking);
+    } else if (hasProducts) {
+      const productTypesForTracking: string[] =  Array.from(new Set(
+        products.filter((p: any) => selectedProducts.includes(p?.id))
+          .map((p: any) => p?.design_microproduct_type)
+          .filter((t: any): t is string => typeof t === 'string' && t.length > 0)
+      ));
+
+      trackImportFiles('Products', productTypesForTracking);
+    }
 
     // Construct flexible context based on what's selected
     const combinedContext: any = {
@@ -245,57 +307,124 @@ export default function CreateFromSpecificFilesPage() {
 
     const searchParams = new URLSearchParams();
 
-    if (hasConnectors && hasFiles) {
-      // Both connectors and files selected
-      console.log('[CreateFromSpecificFiles DEBUG] Processing both connectors and files');
+    // Ensure products have Onyx IDs and merge them into selectedFiles
+    let productOnyxIds: string[] = [];
+    if (hasProducts) {
+      console.log('[CreateFromSpecificFiles] Processing products:', selectedProducts);
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      
+      for (const pid of selectedProducts) {
+        const product = products.find((p: any) => p.id === pid);
+        console.log(`[CreateFromSpecificFiles] Product ${pid}:`, {
+          found: !!product,
+          name: product?.projectName || product?.microproduct_name,
+          existing_onyx_id: product?.product_json_onyx_id
+        });
+        
+        let onyxId: string | undefined = product?.product_json_onyx_id;
+        
+        if (!onyxId) {
+          console.log(`[CreateFromSpecificFiles] Product ${pid} missing Onyx ID, calling ensure-json...`);
+          try {
+            const res = await fetch(`${CUSTOM_BACKEND_URL}/products/${pid}/ensure-json`, { 
+              method: 'POST', 
+              credentials: 'same-origin' 
+            });
+            console.log(`[CreateFromSpecificFiles] ensure-json response for ${pid}:`, res.status, res.statusText);
+            
+            if (res.ok) {
+              const data = await res.json();
+              onyxId = data?.product_json_onyx_id;
+              console.log(`[CreateFromSpecificFiles] ensure-json returned Onyx ID for ${pid}:`, onyxId);
+            } else {
+              const errorText = await res.text();
+              console.error(`[CreateFromSpecificFiles] ensure-json failed for ${pid}:`, errorText);
+            }
+          } catch (e) {
+            console.error(`[CreateFromSpecificFiles] ensure-json exception for ${pid}:`, e);
+          }
+        }
+        
+        if (onyxId) {
+          productOnyxIds.push(String(onyxId));
+          console.log(`[CreateFromSpecificFiles] Added Onyx ID for product ${pid}:`, onyxId);
+        } else {
+          console.warn(`[CreateFromSpecificFiles] WARNING: No Onyx ID available for product ${pid}`);
+        }
+      }
+      
+      console.log('[CreateFromSpecificFiles] Product Onyx IDs collected:', productOnyxIds);
+    }
+
+    // Merge SmartDrive files and product Onyx IDs
+    const mergedSelectedFiles = [...selectedFiles, ...productOnyxIds];
+    console.log('[CreateFromSpecificFiles] Merged selected files:', {
+      smartDriveFiles: selectedFiles,
+      productOnyxIds,
+      merged: mergedSelectedFiles
+    });
+
+    // Build context and URL params based on selections
+    if (hasConnectors && mergedSelectedFiles.length > 0) {
+      // Both connectors and files/products selected
+      console.log('[CreateFromSpecificFiles] Mode: Connectors + Files/Products');
       combinedContext.fromConnectors = true;
       combinedContext.connectorIds = selectedConnectors;
       combinedContext.connectorSources = selectedConnectors.map(id => connectors.find(c => c.id === id)?.source || 'unknown');
-      combinedContext.selectedFiles = selectedFiles;
+      combinedContext.selectedFiles = mergedSelectedFiles;
+      
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-      searchParams.set('selectedFiles', selectedFiles.join(','));
+      searchParams.set('selectedFiles', mergedSelectedFiles.join(','));
     } else if (hasConnectors) {
       // Only connectors selected
-      console.log('[CreateFromSpecificFiles DEBUG] Processing connectors only');
+      console.log('[CreateFromSpecificFiles] Mode: Connectors only');
       combinedContext.fromConnectors = true;
       combinedContext.connectorIds = selectedConnectors;
       combinedContext.connectorSources = selectedConnectors.map(id => connectors.find(c => c.id === id)?.source || 'unknown');
+      
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-    } else if (hasFiles) {
-      // Only files selected (from SmartDrive)
-      combinedContext.fromConnectors = true; // Keep consistent
-      combinedContext.selectedFiles = selectedFiles;
+    } else if (mergedSelectedFiles.length > 0) {
+      // Only files/products selected (from SmartDrive or products)
+      console.log('[CreateFromSpecificFiles] Mode: Files/Products only');
+      combinedContext.fromConnectors = true; // Keep consistent with existing behavior
+      combinedContext.selectedFiles = mergedSelectedFiles;
       combinedContext.connectorIds = [];
       combinedContext.connectorSources = [];
+      
       searchParams.set('fromConnectors', 'true');
-      searchParams.set('selectedFiles', selectedFiles.join(','));
+      searchParams.set('selectedFiles', mergedSelectedFiles.join(','));
+    } else {
+      console.error('[CreateFromSpecificFiles] ERROR: No valid selection after processing!');
+      return;
     }
 
     // Store in sessionStorage for the generate page
-    console.log('[CreateFromSpecificFiles DEBUG] Final combinedContext:', combinedContext);
-    console.log('[CreateFromSpecificFiles DEBUG] Final URL params:', searchParams.toString());
+    console.log('[CreateFromSpecificFiles] Final combinedContext:', JSON.stringify(combinedContext, null, 2));
+    console.log('[CreateFromSpecificFiles] Final URL params:', searchParams.toString());
 
     try {
       sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
-    } catch {}
+      console.log('[CreateFromSpecificFiles] Stored combinedContext in sessionStorage');
+    } catch (e) {
+      console.error('[CreateFromSpecificFiles] Failed to store in sessionStorage:', e);
+    }
 
-    const finalUrl = `/custom-projects-ui/create/generate?${searchParams.toString()}`;
-    console.log('[CreateFromSpecificFiles DEBUG] Redirecting to:', finalUrl);
+    const finalUrl = `/create/generate?${searchParams.toString()}`;
+    console.log('[CreateFromSpecificFiles] Redirecting to:', finalUrl);
+    console.log('[CreateFromSpecificFiles] === END handleCreateContent ===');
 
     try {
-      await Promise.resolve(router.push(finalUrl));
-      // Fallback in case client routing is blocked for any reason
-      setTimeout(() => {
-        if (typeof window !== 'undefined' && window.location.pathname !== 'custom-projects-ui/create/generate') {
-          window.location.assign(finalUrl);
-        }
-      }, 50);
+      router.push(finalUrl);
     } catch (e) {
-      if (typeof window !== 'undefined') window.location.assign(finalUrl);
+      console.error('[CreateFromSpecificFiles] Router.push failed:', e);
+      // Fallback to window.location if router fails
+      if (typeof window !== 'undefined') {
+        window.location.href = finalUrl;
+      }
     }
   };
 
@@ -337,22 +466,9 @@ export default function CreateFromSpecificFilesPage() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans">
+    <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans flex flex-col">
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="absolute left-8 top-1/2 -mt-10  transform -translate-y-1/2 flex items-center gap-4">
-          <Button
-            variant="back"
-          >
-            <Link
-              href="/create"
-              className="group flex items-center gap-3 px-4 py-2.5"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
-              {t('interface.back', 'Back')}
-            </Link>
-          </Button>
-        </div>
         <HeadTextCustom
           text={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
           textSize="text-2xl sm:text-3xl"
@@ -360,8 +476,19 @@ export default function CreateFromSpecificFilesPage() {
         />
       </header>
 
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 overflow-y-auto p-8 pb-32">
         <div className="space-y-8">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link
+              href="/create"
+              className="group inline-flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+              {t('interface.back', 'Back')}
+            </Link>
+          </div>
+
           {/* Smart Drive Browser Section */}
           <div className="mb-8">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
@@ -519,42 +646,123 @@ export default function CreateFromSpecificFilesPage() {
             </div>
           </div>
 
-          {/* Create Content Button */}
+          {/* Products Selection Section */}
           <div className="mb-8">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-6">
-              <button
-                onClick={handleCreateContent}
-                disabled={!connectorSelectionValid}
-                className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
-                  !connectorSelectionValid
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-3">
-                  <Sparkles className="w-5 h-5" />
-                  {connectorSelectionValid 
-                    ? selectedConnectors.length > 0 && selectedFiles.length > 0
-                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
-                          .replace('{count}', selectedConnectors.length.toString())
-                          .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                          .replace('{fileCount}', selectedFiles.length.toString())
-                          .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
-                      : selectedConnectors.length > 0 
-                        ? t('interface.createContentFromConnectorsOnly', 'Create Content from {count} Connector{s}')
-                        .replace('{count}', selectedConnectors.length.toString())
-                        .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                        : t('interface.createContentFromFilesOnly', 'Create Content from {count} File{s}')
-                            .replace('{count}', selectedFiles.length.toString())
-                            .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
-                    : t('interface.selectConnectorsOrFilesToContinue', 'Select Connectors or Files to Continue')
-                  }
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <Package className="w-10 h-10 text-blue-600" />
+                <div>
+                  <h3 className="text-xl font-bold text-blue-600">{t('interface.selectProducts', 'Select Products')}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{t('interface.chooseProductsAsContext', 'Choose previously created products to include as context')}</p>
                 </div>
+              </div>
+              <button
+                onClick={() => {
+                  const filtered = (products || []).filter((p:any)=>{
+                    const name = (p.projectName || p.microproduct_name || '').toLowerCase();
+                    const type = (p.design_microproduct_type || '').toLowerCase();
+                    const term = productSearchTerm.toLowerCase();
+                    return name.includes(term) || type.includes(term);
+                  });
+                  setSelectedProducts(selectedProducts.length === filtered.length ? [] : filtered.map((p:any)=>p.id));
+                }}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+              >
+                {selectedProducts.length === products.length ? t('interface.deselectAll', 'Deselect All') : t('interface.selectAll', 'Select All')}
               </button>
+            </div>
+
+            {/* Search */}
+            <div className="mb-6">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <Input
+                  type="text"
+                  placeholder={t('interface.searchProducts', 'Search products...')}
+                  value={productSearchTerm}
+                  onChange={(e) => setProductSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3"
+                />
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="max-h-[520px] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {(products || []).filter((p:any)=>{
+                const name = (p.projectName || p.microproduct_name || '').toLowerCase();
+                const type = (p.design_microproduct_type || '').toLowerCase();
+                const term = productSearchTerm.toLowerCase();
+                return name.includes(term) || type.includes(term);
+              }).length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">
+                    {productSearchTerm ? t('interface.noProductsFound', 'No products found matching your search.') : t('interface.noProductsAvailable', 'No products available.')}
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    {productSearchTerm ? t('interface.tryAdjustingSearch', 'Try adjusting your search terms.') : t('interface.createFirstProduct', 'Create your first product to get started.')}
+                  </p>
+                </div>
+              ) : (
+                (products || []).filter((p:any)=>{
+                  const name = (p.projectName || p.microproduct_name || '').toLowerCase();
+                  const type = (p.design_microproduct_type || '').toLowerCase();
+                  const term = productSearchTerm.toLowerCase();
+                  return name.includes(term) || type.includes(term);
+                }).map((product:any)=> (
+                  <LMSProductCard
+                    key={product.id}
+                    product={product}
+                    isSelected={selectedProducts.includes(product.id)}
+                    onToggleSelect={(id:number)=> setSelectedProducts(prev=> prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id])}
+                  />
+                ))
+              )}
+              </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Sticky Footer with Create Content Button */}
+      <footer className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-200 shadow-lg">
+        <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-4">
+            <button
+              onClick={handleCreateContent}
+              disabled={!connectorSelectionValid}
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
+                !connectorSelectionValid
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-3">
+                <Sparkles className="w-5 h-5" />
+                {connectorSelectionValid 
+                  ? (selectedConnectors.length > 0 && (selectedFiles.length > 0 || selectedProducts.length > 0))
+                    ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
+                        .replace('{count}', selectedConnectors.length.toString())
+                        .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                        .replace('{fileCount}', (selectedFiles.length + selectedProducts.length).toString())
+                        .replace('{s}', (selectedFiles.length + selectedProducts.length) !== 1 ? 's' : '')
+                    : selectedConnectors.length > 0 
+                      ? t('interface.createContentFromConnectorsOnly', 'Create Content from {count} Connector{s}')
+                      .replace('{count}', selectedConnectors.length.toString())
+                      .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                      : t('interface.createContentFromFilesOnly', 'Create Content from {count} File{s}')
+                          .replace('{count}', (selectedFiles.length + selectedProducts.length).toString())
+                          .replace('{s}', (selectedFiles.length + selectedProducts.length) !== 1 ? 's' : '')
+                  : t('interface.selectConnectorsOrFilesToContinue', 'Select Connectors or Files to Continue')
+                }
+              </div>
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 } 

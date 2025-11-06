@@ -112,7 +112,7 @@ export class TemplateExtractor {
       'big-image-left': this.extractBigImageLeft,
       'big-image-top': this.extractBigImageTop,
       'quote-center': this.extractQuoteCenter,
-      'four-box-grid': this.extractFourBoxGrid,
+      'problems-grid': this.extractProblemsGrid,
       'event-list': this.extractEventList,
       'six-ideas-list': this.extractSixIdeasList,
       'contraindications-indications': this.extractContraindicationsIndications,
@@ -141,7 +141,24 @@ export class TemplateExtractor {
       'bar-chart-slide': this.extractBarChartSlide,
       'critical-thinking-slide': this.extractCriticalThinkingSlide,
       'psychological-safety-slide': this.extractPsychologicalSafetySlide,
-      'data-analysis-slide': this.extractDataAnalysisSlide
+      'data-analysis-slide': this.extractDataAnalysisSlide,
+      'solution-steps-slide': null,
+      'proof-statistics-slide': null,
+      'marketing-agency-thank-you-slide': null,
+      'table-of-contents-slide': null,
+      'company-tools-resources-slide': null,
+      'stay-safe-tips-slide': null,
+      'resources-list-slide': null,
+      'course-rules-timeline-slide': null,
+      'resilience-behaviors-slide': null,
+      'soft-skills-types-slide': null,
+      'phishing-rise-slide': null,
+      'ai-pharma-market-growth-slide': null,
+      'kpi-update-slide': null,
+      'interest-growth-slide': null,
+      'culture-values-three-columns': null,
+      'percent-circles': null,
+      'dei-methods': null
     };
 
     return extractors[templateId] || null;
@@ -1111,50 +1128,81 @@ export class TemplateExtractor {
   }
 
   /**
-   * Extract items from four box grid template
+   * Extract items from problems grid template
    */
-  private static extractFourBoxGrid(props: any): {
+  private static extractProblemsGrid(props: any): {
     items: PositionableItem[];
     canvasConfig: CanvasConfig;
   } {
     const items: PositionableItem[] = [];
+
+    // Tag
+    if (props.tag) {
+      items.push(TemplateExtractor.createTextItem(
+        'tag',
+        props.tag,
+        { x: 40, y: 40, width: 200, height: 30 },
+        'text'
+      ));
+    }
 
     // Title
     if (props.title) {
       items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
-        { x: 60, y: 80, width: 1080, height: 60 },
+        { x: 40, y: 100, width: 1080, height: 60 },
         'heading'
       ));
     }
 
-    // Four boxes in 2x2 grid
-    if (props.boxes && props.boxes.length > 0) {
-      const boxWidth = 500;
-      const boxHeight = 200;
-      const gap = 40;
-      const startX = 60;
-      const startY = 180;
+    // Four cards in 2x2 grid
+    if (props.cards && props.cards.length > 0) {
+      const cardWidth = 355;
+      const cardHeight = 195;
+      const gap = 15;
+      const startX = 40;
+      const startY = 190;
 
-      props.boxes.forEach((box: any, index: number) => {
-        if (index < 4) { // Only handle first 4 boxes
+      props.cards.forEach((card: any, index: number) => {
+        if (index < 4) { // Only handle first 4 cards
           const row = Math.floor(index / 2);
           const col = index % 2;
-          const x = startX + col * (boxWidth + gap);
-          const y = startY + row * (boxHeight + gap);
+          const x = startX + col * (cardWidth + gap);
+          const y = startY + row * (cardHeight + gap);
 
           items.push(TemplateExtractor.createContainerItem(
-            `box-${index + 1}`,
+            `card-${index + 1}`,
             {
-              type: 'four-box-item',
-              heading: box.heading || `Box ${index + 1}`,
-              text: box.text || ''
+              type: 'problems-grid-card',
+              number: card.number || `${index + 1}`,
+              title: card.title || `Challenge ${index + 1}`,
+              body: card.body || ''
             },
-            { x, y, width: boxWidth, height: boxHeight }
+            { x, y, width: cardWidth, height: cardHeight }
           ));
         }
       });
+    }
+
+    // Right text
+    if (props.rightText) {
+      items.push(TemplateExtractor.createTextItem(
+        'rightText',
+        props.rightText,
+        { x: 1400, y: 400, width: 266, height: 200 },
+        'text'
+      ));
+    }
+
+    // Avatar
+    if (props.avatarPath) {
+      items.push(TemplateExtractor.createImageItem(
+        'avatar',
+        props.avatarPath,
+        'Avatar image',
+        { x: 1856, y: 45, width: 160, height: 160 }
+      ));
     }
 
     return {
@@ -1638,7 +1686,7 @@ export class TemplateExtractor {
     const items: PositionableItem[] = [];
 
     // Try to extract basic content
-    if (slide.props.title) {
+    if (slide.props.title && typeof slide.props.title === 'string') {
       items.push(TemplateExtractor.createTextItem(
         'title',
         slide.props.title,
@@ -1647,7 +1695,7 @@ export class TemplateExtractor {
       ));
     }
 
-    if (slide.props.content) {
+    if (slide.props.content && typeof slide.props.content === 'string') {
       items.push(TemplateExtractor.createTextItem(
         'content',
         slide.props.content,

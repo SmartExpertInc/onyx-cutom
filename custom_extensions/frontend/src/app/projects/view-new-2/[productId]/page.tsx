@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, Edit3, Plus, ShieldAlert, ChevronDown, Eye } from 'lucide-react';
+import { FolderOpen, Sparkles, Edit3, Plus, ShieldAlert, ChevronDown, Eye, XCircle, AlertTriangle } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -106,8 +106,7 @@ export default function ProductViewNewPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
-  // const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
-  const columnVideoLessonEnabled = false;
+  const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('col_video_presentation');
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   // Helper function for Slavic pluralization (Russian, Ukrainian)
@@ -141,6 +140,15 @@ export default function ProductViewNewPage() {
     quiz: {exists: boolean, productId?: number}, 
     videoLesson: {exists: boolean, productId?: number}
   }}>({});
+
+  // Course sharing state
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareData, setShareData] = useState<{
+    shareToken: string;
+    publicUrl: string;
+    expiresAt: string;
+  } | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<{[key: number]: boolean}>({});
   const [showAiAgent, setShowAiAgent] = useState(false);
   const [editPrompt, setEditPrompt] = useState('');
@@ -639,8 +647,13 @@ export default function ProductViewNewPage() {
   }, [router]);
 
   // Function to handle icon clicks for navigation
-  const handleIconClick = useCallback((productId: number) => {
-    router.push(`/projects/view/${productId}`);
+  const handleIconClick = useCallback((productId: number, contentType?: string) => {
+    // Video lessons should navigate to view-new-2, all other products use view
+    if (contentType === 'video-lesson') {
+      router.push(`/projects-2/view/${productId}`);
+    } else {
+      router.push(`/projects/view/${productId}`);
+    }
   }, [router]);
 
   // Function to check existing content for lessons
@@ -995,6 +1008,69 @@ export default function ProductViewNewPage() {
       contentType: '',
       existingProductId: null
     });
+  };
+
+  /* --- Course sharing handlers --- */
+  const handleShareCourse = async () => {
+    if (!productId) return;
+    
+    setIsSharing(true);
+    setShareError(null);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/course-outlines/${productId}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expires_in_days: 30 // Default 30 days
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || `Failed to share course: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setShareData({
+        shareToken: data.share_token,
+        publicUrl: data.public_url,
+        expiresAt: data.expires_at
+      });
+      
+      console.log('✅ [COURSE SHARING] Successfully created share link:', data.public_url);
+      
+    } catch (error: any) {
+      console.error('❌ [COURSE SHARING] Error sharing course:', error);
+      setShareError(error.message || 'Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('✅ [COURSE SHARING] Link copied to clipboard');
+    } catch (error) {
+      console.error('❌ [COURSE SHARING] Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      console.log('✅ [COURSE SHARING] Link copied to clipboard (fallback)');
+    }
+  };
+
+  const handleCloseShareModal = () => {
+    setShareData(null);
+    setShareError(null);
   };
 
   // Toggle section collapse
@@ -1643,6 +1719,79 @@ export default function ProductViewNewPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Course Share Modal */}
+      {shareData && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 pb-4">
+              <h2 className="text-xl font-semibold text-gray-900">{t('interface.viewNew.shareCourse', 'Share Course Outline')}</h2>
+              <button
+                onClick={handleCloseShareModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 pb-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('interface.viewNew.shareLink', 'Share Link')}
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={shareData.publicUrl}
+                    readOnly
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-900"
+                  />
+                  <button
+                    onClick={() => copyToClipboard(shareData.publicUrl)}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+                  >
+                    {t('interface.viewNew.copy', 'Copy')}
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-600">
+                <p className="mb-2">
+                  {t('interface.viewNew.shareDescription', 'Anyone with this link can view your course outline and attached products.')}
+                </p>
+                <p>
+                  <strong>{t('interface.viewNew.expires', 'Expires:')}</strong> {new Date(shareData.expiresAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Share Error Modal */}
+      {shareError && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <AlertTriangle className="text-red-500 mr-3" size={24} />
+                <h2 className="text-xl font-semibold text-gray-900">{t('interface.viewNew.shareError', 'Share Error')}</h2>
+              </div>
+              <p className="text-gray-600 mb-4">{shareError}</p>
+              <button
+                onClick={handleCloseShareModal}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                {t('interface.viewNew.close', 'Close')}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* AI Agent Side Panel - slides from right, positioned below header */}

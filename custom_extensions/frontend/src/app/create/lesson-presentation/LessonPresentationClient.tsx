@@ -7,7 +7,7 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { AiAgent } from "@/components/ui/ai-agent";
 import { BackButton } from "../components/BackButton";
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -208,9 +210,31 @@ const lengthRangeForOption = (opt: string) => {
 
 // Function to calculate credits based on slide count (matching backend logic)
 const calculateLessonPresentationCredits = (slideCount: number): number => {
-  if (slideCount <= 5) return 3;
-  if (slideCount <= 10) return 5;
-  return 10;
+  const storedCreditsData = sessionStorage.getItem('creditsReference');
+  if (storedCreditsData) {
+    if (slideCount < 10) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_under_10"
+      )?.credits_amount;
+    } else if (slideCount <= 20) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_10_20"
+      )?.credits_amount;
+    } else if (slideCount <= 30) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_30"
+      )?.credits_amount;
+    } else if (slideCount <= 40) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_40"
+      )?.credits_amount;
+    } else if (slideCount <= 50) {
+      return JSON.parse(storedCreditsData).credits_reference.find(
+        (item: any) => item.content_type === "presentation_50"
+      )?.credits_amount;
+    }
+  }
+  return 7;
 };
 
 export default function LessonPresentationClient() {
@@ -284,6 +308,15 @@ export default function LessonPresentationClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
+  
+  // Retry state for error handling
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
 
 
@@ -607,6 +640,43 @@ export default function LessonPresentationClient() {
         setContent("");
         setTextareaVisible(true);
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError("Failed to generate lesson – please try again later.");
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = {
@@ -678,12 +748,23 @@ export default function LessonPresentationClient() {
           while (true) {
             const { done, value } = await reader.read();
 
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
+
             if (done) {
+              // Update last data time for final buffer processing
+              lastDataTime = Date.now();
+              
               // Process any remaining buffer
               if (buffer.trim()) {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
                     setContent(accumulatedText);
                   }
@@ -711,6 +792,11 @@ export default function LessonPresentationClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
                 } else if (pkt.type === "done") {
@@ -757,6 +843,9 @@ export default function LessonPresentationClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
@@ -776,7 +865,7 @@ export default function LessonPresentationClient() {
       jsonConvertedRef.current = false;
       setOriginalJsonResponse(null);
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount, retryTrigger]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -809,14 +898,73 @@ export default function LessonPresentationClient() {
   };
 
   // Helper: detect if a string is a single JSON object with slides
+  // Handles large JSON, video lesson fields (voiceoverText, hasVoiceover), and various formatting
   const tryParsePresentationJson = (text: string): any | null => {
+    if (!text || !text.trim()) return null;
+    
     try {
-      const trimmed = (text || "").trim();
-      if (!trimmed.startsWith("{")) return null;
-      const obj = JSON.parse(trimmed);
-      if (obj && typeof obj === "object" && Array.isArray(obj.slides)) return obj;
-      return null;
-    } catch (_) {
+      // Step 1: Clean and prepare text for parsing
+      let cleaned = text.trim();
+      
+      // Remove markdown code blocks if present (```json ... ``` or ``` ... ```)
+      cleaned = cleaned.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+      cleaned = cleaned.trim();
+      
+      // Step 2: Try to find JSON object if it doesn't start with {
+      // Sometimes JSON might be embedded in other text
+      let jsonText = cleaned;
+      if (!cleaned.startsWith("{")) {
+        // Try to find JSON object boundaries
+        const firstBrace = cleaned.indexOf('{');
+        if (firstBrace >= 0) {
+          // Find matching closing brace
+          let depth = 0;
+          let lastBrace = -1;
+          for (let i = firstBrace; i < cleaned.length; i++) {
+            if (cleaned[i] === '{') depth++;
+            else if (cleaned[i] === '}') {
+              depth--;
+              if (depth === 0) {
+                lastBrace = i;
+                break;
+              }
+            }
+          }
+          if (lastBrace > firstBrace) {
+            jsonText = cleaned.substring(firstBrace, lastBrace + 1);
+          }
+        } else {
+          return null; // No JSON object found
+        }
+      }
+      
+      // Step 3: Parse JSON with improved error handling
+      const obj = JSON.parse(jsonText);
+      
+      // Step 4: Validate structure - must be object with slides array
+      if (!obj || typeof obj !== "object") return null;
+      if (!Array.isArray(obj.slides)) return null;
+      
+      // Step 5: Additional validation for video lessons
+      // Video lessons should have hasVoiceover field, but don't require it for parsing
+      // Video lesson slides may have voiceoverText field
+      
+      // Log detection for debugging large JSON
+      if (text.length > 10000) {
+        console.log(`[JSON_PARSE] Large JSON detected: ${text.length} chars, ${obj.slides?.length || 0} slides`);
+        console.log(`[JSON_PARSE] Has voiceover flag: ${!!obj.hasVoiceover}`);
+        console.log(`[JSON_PARSE] Slides with voiceover: ${obj.slides?.filter((s: any) => s.voiceoverText).length || 0}`);
+      }
+      
+      return obj;
+    } catch (error) {
+      // Enhanced error logging for debugging
+      if (text.length > 10000) {
+        console.warn(`[JSON_PARSE] Failed to parse large JSON (${text.length} chars):`, 
+          error instanceof Error ? error.message : String(error));
+        console.warn(`[JSON_PARSE] First 200 chars:`, text.substring(0, 200));
+        console.warn(`[JSON_PARSE] Last 200 chars:`, text.substring(Math.max(0, text.length - 200)));
+      }
       return null;
     }
   };
@@ -891,12 +1039,82 @@ export default function LessonPresentationClient() {
   useEffect(() => {
     if (!streamDone) return;
     if (jsonConvertedRef.current) return;
+    
+    // Check if content looks like JSON (starts with {)
+    const looksLikeJson = content.trim().startsWith("{");
+    
+    // CRITICAL: Store original JSON response even if parsing fails (for recovery in backend)
+    // This ensures we can send the raw JSON to backend even if it's truncated
+    if (looksLikeJson && !originalJsonResponse) {
+      console.log(`[ORIGINAL_JSON_STORE] Storing original JSON response (${content.length} chars) for finalization`);
+      setOriginalJsonResponse(content);
+    }
+    
     const json = tryParsePresentationJson(content);
     if (json) {
+      // 🔍 CRITICAL DEBUG: Log the raw AI response from API before conversion
+      console.log("🔍 [AI_API_RESPONSE] Raw AI response received:");
+      console.log("🔍 [AI_API_RESPONSE] Response length:", content.length, "characters");
+      console.log("🔍 [AI_API_RESPONSE] Full JSON response:", content);
+      
+      // 🔍 CRITICAL DEBUG: Log parsed JSON structure
+      try {
+        const parsedJson = JSON.parse(content);
+        console.log("🔍 [AI_API_RESPONSE] Parsed JSON structure:");
+        console.log("🔍 [AI_API_RESPONSE] JSON keys:", Object.keys(parsedJson));
+        console.log("🔍 [AI_API_RESPONSE] lessonTitle:", parsedJson.lessonTitle);
+        console.log("🔍 [AI_API_RESPONSE] hasVoiceover:", parsedJson.hasVoiceover);
+        console.log("🔍 [AI_API_RESPONSE] detectedLanguage:", parsedJson.detectedLanguage);
+        console.log("🔍 [AI_API_RESPONSE] Number of slides:", parsedJson.slides?.length);
+        
+        // 🔍 CRITICAL DEBUG: Log each slide from AI response
+        if (Array.isArray(parsedJson.slides)) {
+          console.log("🔍 [AI_API_RESPONSE] === SLIDES FROM AI API ===");
+          parsedJson.slides.forEach((slide: any, index: number) => {
+            console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1}:`, {
+              slideId: slide.slideId,
+              slideNumber: slide.slideNumber,
+              slideTitle: slide.slideTitle,
+              templateId: slide.templateId,
+              hasVoiceover: !!slide.voiceoverText,
+              propsKeys: Object.keys(slide.props || {}),
+            });
+            
+            // Log specific template props
+            if (slide.templateId === 'course-overview-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [course-overview-slide] props:`, {
+                title: slide.props?.title,
+                subtitle: slide.props?.subtitle,
+                imagePath: slide.props?.imagePath,
+              });
+            } else if (slide.templateId === 'impact-statements-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [impact-statements-slide] statements:`, slide.props?.statements);
+            } else if (slide.templateId === 'phishing-definition-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [phishing-definition-slide] definitions:`, slide.props?.definitions);
+            } else if (slide.templateId === 'soft-skills-assessment-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [soft-skills-assessment-slide] tips:`, slide.props?.tips);
+            } else if (slide.templateId === 'work-life-balance-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [work-life-balance-slide] content:`, slide.props?.content?.substring(0, 100) + '...');
+            }
+            
+            if (slide.voiceoverText) {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} voiceover:`, slide.voiceoverText.substring(0, 100) + '...');
+            }
+          });
+          console.log("🔍 [AI_API_RESPONSE] === END SLIDES FROM AI API ===");
+        }
+      } catch (e) {
+        console.error("🔍 [AI_API_RESPONSE] Failed to parse JSON:", e);
+        console.warn("🔍 [AI_API_RESPONSE] JSON may be truncated, but originalJsonResponse is stored for backend recovery");
+      }
+      
       const md = convertPresentationJsonToMarkdown(json);
       if (md && md.trim()) {
         jsonConvertedRef.current = true;
-        setOriginalJsonResponse(content); // Store original JSON for finalization
+        // Ensure originalJsonResponse is set (may have been set above if looksLikeJson)
+        if (!originalJsonResponse) {
+          setOriginalJsonResponse(content);
+        }
         setContent(md);
         // Initialize editable state from full JSON
         try {
@@ -914,8 +1132,33 @@ export default function LessonPresentationClient() {
           }
         } catch {}
       }
+    } else if (looksLikeJson) {
+      // JSON detected but parsing failed - might be truncated
+      // originalJsonResponse is already set above, so backend can attempt recovery
+      console.warn("[JSON_CONVERSION] JSON detected but parsing failed, storing raw content for backend recovery");
+      
+      // CRITICAL: Even if JSON parsing fails, try to extract preview bullets from partial JSON
+      // This ensures bullets are visible even when JSON is truncated
+      try {
+        // Try to extract slides from partial JSON using the extraction function
+        const partialSlides = extractSlidesFromPartialJson(content);
+        if (Array.isArray(partialSlides) && partialSlides.length > 0) {
+          const titles: Record<number, string> = {};
+          const bullets: Record<number, string[]> = {};
+          partialSlides.forEach((s: any, i: number) => {
+            const num = s?.slideNumber || i + 1;
+            if (typeof s?.slideTitle === 'string') titles[num] = s.slideTitle;
+            if (Array.isArray(s?.previewKeyPoints)) bullets[num] = [...s.previewKeyPoints];
+          });
+          setEditedTitles(titles);
+          setEditedBullets(bullets);
+          console.log(`[JSON_CONVERSION] Extracted ${partialSlides.length} slides with preview bullets from partial JSON`);
+        }
+      } catch (e) {
+        console.warn("[JSON_CONVERSION] Failed to extract preview bullets from partial JSON:", e);
+      }
     }
-  }, [streamDone, content]);
+  }, [streamDone, content, originalJsonResponse]);
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
@@ -951,18 +1194,60 @@ export default function LessonPresentationClient() {
     };
 
     // Replicate slide parsing logic used in the UI to count slides
+    // Enhanced to handle large JSON, video lesson fields, and various formats
     const countParsedSlides = (text: string): number => {
-      if (!text || !text.trim()) return 0;
-
-      // Handle JSON preview directly
-      const json = tryParsePresentationJson(text);
-      if (json && Array.isArray(json.slides)) {
-        return json.slides.length;
+      if (!text || !text.trim()) {
+        console.log(`[SLIDE_COUNT] Empty or whitespace-only text`);
+        return 0;
       }
 
-      // Clean the content first
+      // Step 1: Try JSON parsing first (handles both regular and video lesson presentations)
+      const json = tryParsePresentationJson(text);
+      if (json && Array.isArray(json.slides)) {
+        const slideCount = json.slides.length;
+        const isVideoLesson = json.hasVoiceover === true || 
+                             json.slides.some((s: any) => s.voiceoverText);
+        
+        console.log(`[SLIDE_COUNT] JSON detected: ${slideCount} slides, ` +
+                    `isVideoLesson: ${isVideoLesson}, contentLength: ${text.length}`);
+        
+        // Additional validation for video lessons with many slides
+        if (isVideoLesson && slideCount > 15) {
+          const slidesWithVoiceover = json.slides.filter((s: any) => 
+            s.voiceoverText && s.voiceoverText.trim().length > 0
+          ).length;
+          console.log(`[SLIDE_COUNT] Video lesson validation: ${slidesWithVoiceover}/${slideCount} slides have voiceover`);
+          
+          // Warn if many slides are missing voiceover (but don't fail - might be partial stream)
+          if (slidesWithVoiceover < slideCount * 0.5 && slideCount > 10) {
+            console.warn(`[SLIDE_COUNT] Warning: Only ${slidesWithVoiceover}/${slideCount} slides have voiceover text`);
+          }
+        }
+        
+        return slideCount;
+      }
+
+      // Step 2: Try partial JSON extraction (works during streaming)
+      try {
+        const partialSlides = extractSlidesFromPartialJson(text);
+        if (partialSlides.length > 0) {
+          return partialSlides.length;
+        }
+      } catch {
+        // Fall through to markdown parsing
+      }
+
+      // Step 3: Check if JSON was already converted to markdown (check jsonConvertedRef)
+      if (jsonConvertedRef.current) {
+        console.log(`[SLIDE_COUNT] JSON was already converted to markdown, parsing markdown format`);
+      }
+
+      // Step 4: Fallback to markdown parsing
       const cleanedText = cleanContent(text);
-      if (!cleanedText || !cleanedText.trim()) return 0;
+      if (!cleanedText || !cleanedText.trim()) {
+        console.log(`[SLIDE_COUNT] Cleaned text is empty`);
+        return 0;
+      }
 
       let slides: string[] = [];
       if (cleanedText.includes('---')) {
@@ -971,11 +1256,27 @@ export default function LessonPresentationClient() {
         slides = cleanedText.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
       }
       slides = slides.filter((slideContent) => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
-      return slides.length;
+      
+      const markdownCount = slides.length;
+      if (markdownCount > 0) {
+        console.log(`[SLIDE_COUNT] Markdown format detected: ${markdownCount} slides`);
+      } else {
+        console.warn(`[SLIDE_COUNT] No slides found in markdown format. Content preview: ${text.substring(0, 200)}...`);
+      }
+      
+      return markdownCount;
     };
 
     const slideCount = countParsedSlides(content);
-    console.log(`[RESTART_CHECK] Stream done. Content length: ${content.length}, Slides found: ${slideCount}, Retry counter: ${formatRetryCounter}`);
+    
+    // Check if we have JSON content that hasn't been converted yet
+    const hasJsonButNotConverted = !jsonConvertedRef.current && 
+                                   content.trim().length > 0 && 
+                                   (content.trim().startsWith('{') || content.includes('"slides"'));
+    
+    console.log(`[RESTART_CHECK] Stream done. Content length: ${content.length}, Slides found: ${slideCount}, ` +
+                `Retry counter: ${formatRetryCounter}, JSON converted: ${jsonConvertedRef.current}, ` +
+                `Has JSON but not converted: ${hasJsonButNotConverted}`);
 
     // Update debug info
     setDebugInfo({
@@ -984,6 +1285,45 @@ export default function LessonPresentationClient() {
       contentLength: content.length,
       slidesFound: slideCount
     });
+
+    // Don't trigger regeneration if we're handling insufficient credits
+    if (isHandlingInsufficientCredits) {
+      console.log(`[RESTART_SKIP] Skipping regeneration due to insufficient credits handling`);
+      return;
+    }
+
+    // Don't restart if we have successfully parsed JSON (originalJsonResponse exists)
+    // This means JSON was valid even if slide count is 0 (might be converting to markdown)
+    if (originalJsonResponse && slideCount === 0) {
+      console.log(`[RESTART_SKIP] JSON was successfully parsed (originalJsonResponse exists), ` +
+                  `but slide count is 0. This may be a conversion issue, not a parsing issue.`);
+      // Try to parse the original JSON to get actual slide count
+      try {
+        const parsed = JSON.parse(originalJsonResponse);
+        if (parsed.slides && Array.isArray(parsed.slides)) {
+          console.log(`[RESTART_SKIP] Original JSON has ${parsed.slides.length} slides. ` +
+                      `Markdown conversion may have failed, but JSON is valid.`);
+          return; // Don't restart - JSON is valid
+        }
+      } catch (e) {
+        console.warn(`[RESTART_SKIP] Failed to re-parse originalJsonResponse:`, e);
+      }
+    }
+
+    // Don't restart if we have JSON content that hasn't been converted yet
+    // The JSON conversion useEffect should run and convert it to markdown
+    if (hasJsonButNotConverted && slideCount === 0) {
+      console.log(`[RESTART_SKIP] JSON content detected (${content.length} chars) but not yet converted. ` +
+                  `This may be a timing issue - JSON conversion useEffect should handle this.`);
+      console.log(`[RESTART_SKIP] Content preview: ${content.substring(0, 300)}...`);
+      
+      // If we have substantial JSON content, don't restart immediately
+      // The JSON conversion useEffect will process it on next render
+      if (content.length > 5000) {
+        console.log(`[RESTART_SKIP] Large JSON content detected, skipping restart to allow conversion to complete`);
+        return;
+      }
+    }
 
     if (slideCount === 0) {
       if (formatRetryCounter < 2) {
@@ -1005,13 +1345,29 @@ export default function LessonPresentationClient() {
       // Ensure loading is false when slides are successfully generated
       setLoading(false);
     }
-  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error]);
+  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits, originalJsonResponse]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
     if (isGenerating) return;
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
+    }
+
+    // Lightweight credits pre-check to avoid starting finalization when balance is 0
+    try {
+      const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
+      if (creditsRes.ok) {
+        const credits = await creditsRes.json();
+        if (!credits || typeof credits.credits_balance !== 'number' || credits.credits_balance <= 0) {
+          setShowInsufficientCreditsModal(true);
+          setIsGenerating(false);
+          setIsHandlingInsufficientCredits(true);
+          return;
+        }
+      }
+    } catch (_) {
+      // On pre-check failure, proceed to server-side validation (will still 402 if insufficient)
     }
 
     setIsGenerating(true);
@@ -1083,6 +1439,8 @@ export default function LessonPresentationClient() {
           hasUserEdits: edits.length > 0,
           originalContent: originalJsonResponse || null,
           editedSlides: edits,
+          // Send original JSON response for fast-path parsing (prevents AI parser usage)
+          originalJsonResponse: originalJsonResponse || undefined,
           // Add connector context if creating from connectors
           ...(isFromConnectors && {
             fromConnectors: true,
@@ -1101,6 +1459,15 @@ export default function LessonPresentationClient() {
 
       if (!res.ok) {
         const errorText = await res.text();
+        // Check for insufficient credits (402)
+        if (res.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
+          setShowInsufficientCreditsModal(true);
+          // Clear timeout since we're not proceeding
+          clearTimeout(timeoutId);
+          return;
+        }
         throw new Error(errorText || `HTTP ${res.status}`);
       }
 
@@ -1271,6 +1638,8 @@ export default function LessonPresentationClient() {
     // Keep existing content visible during edit - only reset streaming states
     setFirstLineRemoved(false);
     setStreamDone(false);
+    jsonConvertedRef.current = false; // Reset JSON conversion tracking for new edit
+    setOriginalJsonResponse(null); // Clear previous JSON
     // Don't clear content - keep sections visible
 
     try {
@@ -1890,15 +2259,29 @@ export default function LessonPresentationClient() {
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
                 <LoadingAnimation message={thoughts[thoughtIdx]} showFallback={false} />
-                {formatRetryCounter > 0 && debugInfo && (
-                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
-                    <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
-                    <p>Last attempt: {debugInfo.lastAttemptTime}</p>
-                  </div>
-                )}
               </div>
             )}
-            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                  <XCircle className="h-5 w-5" />
+                  {t('interface.error', 'Error')}
+                </div>
+                <div className="text-sm text-red-700 mb-4">
+                  <p>{error}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setRetryCount(0);
+                    setRetryTrigger(prev => prev + 1);
+                  }}
+                  className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+                >
+                  {t('interface.generate.retryGeneration', 'Retry Generation')}
+                </button>
+              </div>
+            )}
 
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
@@ -2409,6 +2792,26 @@ export default function LessonPresentationClient() {
           <LoadingAnimation message="Finalizing lesson..." />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     
     <FeedbackButton />
     </>
