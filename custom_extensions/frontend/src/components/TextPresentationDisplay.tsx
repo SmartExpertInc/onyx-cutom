@@ -246,6 +246,7 @@ interface RenderBlockProps {
   onDrop?: (e: React.DragEvent, index: number) => void;
   onDragEnd?: () => void;
   isDraggedOver?: boolean;
+  onBlurComplete?: () => void;
 }
 
 // Modern Settings Modal Component
@@ -773,7 +774,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
-    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
+    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver,
+    onBlurComplete
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -3021,7 +3023,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       )}
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={() => handlePurpleBoxClick('card', index, 'title')}
                       >
                         {isCardTitleEditing ? (
@@ -3038,7 +3040,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       </div>
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={() => handlePurpleBoxClick('card', index, 'description')}
                       >
                         {isCardDescEditing ? (
@@ -3088,7 +3090,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                     <section className={`p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {(!item._skipRenderHeadline || isEditing) && (
                         <div 
-                          className={`relative group/section ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                          className={`relative group/section ${!isEditing ? `cursor-pointer border-2 ${isHeadlineEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
                           onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                         >
                            <RenderBlock
@@ -3108,6 +3110,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                              onDragEnd={handleDragEnd}
                              isDraggedOver={dragOverIndex === originalHeadlineIndex}
                              documentContent={documentContent}
+                             onBlurComplete={() => !isEditing && editingBlockIndex === originalHeadlineIndex && setEditingBlockIndex(null)}
                            />
                            {isEditing && (
                              <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
@@ -3191,7 +3194,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   </div>
                                 )}
                                 <div 
-                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isMiniHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  className={`relative ${!isEditing ? `cursor-pointer border-2 ${isMiniHeadlineEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniHeadlineIndex, e)}
                                 >
                                   <RenderBlock
@@ -3213,10 +3216,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     onDragEnd={handleDragEnd}
                                     isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                     documentContent={documentContent}
+                                    onBlurComplete={() => !isEditing && editingBlockIndex === originalMiniHeadlineIndex && setEditingBlockIndex(null)}
                                   />
                                 </div>
                                 <div 
-                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isMiniListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  className={`relative ${!isEditing ? `cursor-pointer border-2 ${isMiniListEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1 mt-2` : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniListIndex, e)}
                                 >
                                   <RenderBlock
@@ -3237,6 +3241,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     onDragEnd={handleDragEnd}
                                     isDraggedOver={dragOverIndex === originalMiniListIndex}
                                     documentContent={documentContent}
+                                    onBlurComplete={() => !isEditing && editingBlockIndex === originalMiniListIndex && setEditingBlockIndex(null)}
                                   />
                                 </div>
                               </div>
@@ -3247,7 +3252,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             return (
                               <div 
                                 key={subIndex} 
-                                className={`relative group/block ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isSubBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                className={`relative group/block ${!isEditing ? `cursor-pointer border-2 ${isSubBlockEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
                                 onClick={(e) => !isEditing && handleBlockClick(originalSubIndex, e)}
                               >
                                 <RenderBlock
@@ -3268,6 +3273,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalSubIndex}
                                   documentContent={documentContent}
+                                  onBlurComplete={() => !isEditing && editingBlockIndex === originalSubIndex && setEditingBlockIndex(null)}
                                 />
                                 {isEditing && (
                                   <div className="absolute -bottom-3 -right-2 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200 z-50">
@@ -3296,7 +3302,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
                     <div className="p-3 !bg-white border-l-3 border-[#0F58F9] text-left">
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? `cursor-pointer border-2 ${isHeadlineEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                       >
                         <RenderBlock
@@ -3312,10 +3318,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           isFirstBlock={originalHeadlineIndex === 0}
                           isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                           documentContent={documentContent}
+                          onBlurComplete={() => !isEditing && editingBlockIndex === originalHeadlineIndex && setEditingBlockIndex(null)}
                         />
                       </div>
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing ? `cursor-pointer border-2 ${isListEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1 mt-2` : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalListIndex, e)}
                       >
                         <RenderBlock
@@ -3336,6 +3343,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onDragEnd={handleDragEnd}
                           isDraggedOver={dragOverIndex === originalListIndex}
                           documentContent={documentContent}
+                          onBlurComplete={() => !isEditing && editingBlockIndex === originalListIndex && setEditingBlockIndex(null)}
                         />
                       </div>
                     </div>
@@ -3349,7 +3357,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
                     <div 
-                      className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''} ${isBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                      className={`relative ${!isEditing ? `cursor-pointer border-2 ${isBlockEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2` : ''}`}
                       onClick={(e) => !isEditing && handleBlockClick(originalIndex, e)}
                     >
                       <RenderBlock
@@ -3370,6 +3378,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDrop={handleDrop}
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalIndex}
+                        onBlurComplete={() => !isEditing && editingBlockIndex === originalIndex && setEditingBlockIndex(null)}
                       />
                     </div>
                   </div>
