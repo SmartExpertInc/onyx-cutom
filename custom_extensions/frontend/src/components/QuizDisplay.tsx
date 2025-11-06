@@ -96,8 +96,9 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
   const handleBlur = () => {
     setEditingField(null);
+    console.log('handleBlur');
     // Trigger auto-save immediately on blur
-    if (onAutoSave && isEditing) {
+    if (onAutoSave) {
       onAutoSave();
     }
   };
