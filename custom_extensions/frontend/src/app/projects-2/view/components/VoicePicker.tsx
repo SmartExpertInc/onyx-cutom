@@ -298,13 +298,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[90vh] flex flex-col px-6 py-4 gap-4 z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[90vh] flex flex-col px-6 py-3 gap-3 z-10"
         style={{ borderRadius: '12px' }}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
+          className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
           style={{
             backdropFilter: 'blur(20px)',
             boxShadow: '0px 10px 10px 0px #0000001A, 0px 4px 4px 0px #0000000D, 0px 1px 0px 0px #0000000D'
@@ -353,9 +353,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
                 ).length} ${t('voicePicker.voicesFound', 'voices found')}`}
                   </span>
-                      </div>
-                      
-          {/* Content Container with proper flex structure */}
+        </div>
+
+        {/* Content Container with proper flex structure */}
           <div className="flex-1 flex flex-col min-h-0 border border-[#E0E0E0] rounded-lg">
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
           <div className="flex flex-1 min-h-0">
@@ -386,7 +386,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       
                       {/* Text */}
                   <span className="font-medium text-sm" style={{ color: '#0F58F9' }}>{t('voicePicker.createCustomVoice', 'Create a custom voice')}</span>
-                    </div>
+                  </div>
                   
                 {/* Right chevron */}
                 <ChevronRight size={16} style={{ color: '#0F58F9' }} />
@@ -395,8 +395,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
 
             {/* Mock voice item */}
             <div className="mb-2 group">
-              <div className="rounded-lg p-3 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-2">
+              <div 
+                className="rounded-lg p-3 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white hover:bg-[#E0E0E0] transition-all"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '';
+                }}
+              >
+                  <div className="flex items-center gap-2">
                   {/* Voice icon */}
                   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#E0E0E0"/>
@@ -415,36 +423,17 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   <div className="flex flex-col gap-1.5">
                     <span className="text-gray-900 text-sm font-medium">Sarah - Conversational</span>
                     <div className="flex gap-2 flex-wrap">
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
-                        English (US)
-                      </span>
                       <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Premium</span>
-                  </span>
+                    </span>
+                  </div>
                 </div>
-                      </div>
-                    </div>
-                
-                {/* Action buttons - visible on hover */}
-                <div className="hidden group-hover:flex items-center gap-2">
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1 items-center justify-center h-4 w-4">
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                 </div>
-              </button>
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-          </div>
-        </div>
-        </div>
+              </div>
+            </div>
 
             {/* Dynamically rendered voice items from Elai API */}
             {loading ? (
@@ -475,11 +464,27 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                      setTempSelectedVoice(voice);
                    }}
                  >
-                   <div className={`rounded-lg p-3 flex items-center justify-between cursor-pointer border transition-colors ${
+                   <div 
+                     className={`rounded-lg p-3 flex items-center justify-between cursor-pointer border transition-all ${
                      tempSelectedVoice?.voice === voice.voice 
-                       ? 'border-blue-500 bg-blue-50' 
-                       : 'border-gray-300 bg-white hover:bg-gray-50'
-                   }`}>
+                         ? 'border-[#E0E0E0] bg-white' 
+                         : 'border-[#E0E0E0] bg-white hover:bg-[#E0E0E0]'
+                     }`}
+                     style={tempSelectedVoice?.voice === voice.voice ? {
+                       backgroundColor: '#E0E0E0',
+                       boxShadow: '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514'
+                     } : undefined}
+                     onMouseEnter={(e) => {
+                       if (tempSelectedVoice?.voice !== voice.voice) {
+                         e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
+                       }
+                     }}
+                     onMouseLeave={(e) => {
+                       if (tempSelectedVoice?.voice !== voice.voice) {
+                         e.currentTarget.style.boxShadow = '';
+                       }
+                     }}
+                   >
                 <div className="flex items-center gap-2">
                   {/* Voice icon / Play button */}
                       <div 
@@ -512,38 +517,17 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   {/* Text and badges */}
                   <div className="flex flex-col gap-1.5">
                         <span className="text-gray-900 text-sm font-medium">{voice.character}</span>
-                        <div className="flex gap-2 flex-wrap">
-                          {voice.name && (
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
-                              {voice.name}
-                      </span>
-                          )}
                           {voice.premium && (
+                          <div className="flex gap-2 flex-wrap">
                       <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                               <span>{t('voicePicker.premium', 'Premium')}</span>
                       </span>
+                          </div>
                           )}
                     </div>
-                  </div>
-                </div>
-                
-                {/* Action buttons - visible on hover */}
-                <div className="hidden group-hover:flex items-center gap-2">
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1 items-center justify-center h-4 w-4">
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                    </div>
-                  </button>
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
@@ -612,7 +596,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             
             {/* Speed */}
             <div className="mb-4">
-              <label className="text-xs mb-1 block" style={{ color: '#4D4D4D' }}>{speed} {t('voicePicker.speed', 'Speed')}</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs" style={{ color: '#4D4D4D' }}>{t('voicePicker.speed', 'Speed')}</label>
+                <span className="text-xs" style={{ color: '#4D4D4D' }}>{speed}</span>
+              </div>
               <input
                 type="range"
                 min="0"
