@@ -353,23 +353,23 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
                 ).length} ${t('voicePicker.voicesFound', 'voices found')}`}
                   </span>
-        </div>
-
+                </div>
+                      
         {/* Content Container with proper flex structure */}
           <div className="flex-1 flex flex-col min-h-0 border border-[#E0E0E0] rounded-lg">
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
           <div className="flex flex-1 min-h-0">
           {/* Left Panel - Voice List with its own scrolling */}
-          <div className="flex-1 overflow-y-auto px-4 pt-3">
+          <div className="flex-1 overflow-y-auto p-4">
             {/* Create Custom Voice Row */}
             <div className="mb-2">
               <div 
-                className="rounded-lg p-3 flex items-center justify-between cursor-pointer bg-white border"
+                className="rounded-lg p-2 flex items-center justify-between cursor-pointer bg-white border"
                 style={{ 
                   borderColor: '#0F58F9' 
                 }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {/* Custom voice icon */}
                   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#0F58F9"/>
@@ -386,7 +386,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       
                       {/* Text */}
                   <span className="font-medium text-sm" style={{ color: '#0F58F9' }}>{t('voicePicker.createCustomVoice', 'Create a custom voice')}</span>
-                  </div>
+                    </div>
                   
                 {/* Right chevron */}
                 <ChevronRight size={16} style={{ color: '#0F58F9' }} />
@@ -396,7 +396,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Mock voice item */}
             <div className="mb-2 group">
               <div 
-                className="rounded-lg p-3 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white hover:bg-[#E0E0E0] transition-all"
+                className="rounded-lg p-2 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
                 }}
@@ -404,9 +404,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   e.currentTarget.style.boxShadow = '';
                 }}
               >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                   {/* Voice icon */}
-                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:hidden">
                     <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#E0E0E0"/>
                     <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 40.5C15.25 40.5 14.5469 39.7969 14.5469 38.8594V25.8125C14.5469 24.9531 15.25 24.25 16.1094 24.25C17.0469 24.25 17.75 24.9531 17.75 25.8125V38.9375C17.75 39.7969 16.9688 40.5 16.1094 40.5Z" fill="#E0E0E0"/>
                     <path fillRule="evenodd" clipRule="evenodd" d="M10.875 34.7188C9.9375 34.7188 9.23438 34.0156 9.23438 33.0781V15.4219C9.23438 14.4844 9.9375 13.7812 10.875 13.7812C11.7344 13.7812 12.4375 14.4844 12.4375 15.4219V33.0781C12.4375 34.0156 11.7344 34.7188 10.875 34.7188Z" fill="#E0E0E0"/>
@@ -418,21 +418,48 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#E0E0E0"/>
                     <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#E0E0E0"/>
                   </svg>
+                  {/* Play button - visible on hover */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden group-hover:block">
+                    <circle cx="24" cy="24" r="19.5" fill="white" stroke="#4D4D4D"/>
+                    <path d="M31.75 23.3612C32.4167 23.7461 32.4167 24.7084 31.75 25.0933L20.5 31.5885C19.8333 31.9734 19 31.4922 19 30.7224L19 17.7321C19 16.9623 19.8333 16.4811 20.5 16.866L31.75 23.3612Z" fill="#4D4D4D"/>
+                  </svg>
                   
                   {/* Text and badges */}
                   <div className="flex flex-col gap-1.5">
                     <span className="text-gray-900 text-sm font-medium">Sarah - Conversational</span>
                     <div className="flex gap-2 flex-wrap">
-                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
-                          <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                      {/* 32 languages badge - no SVG */}
+                      <span className="px-2 py-0.5 text-[11px] rounded-full" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
+                        32 languages
+                      </span>
+                      
+                      {/* Custom voice badge */}
+                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2" style={{ backgroundColor: '#CCDBFC', color: '#171718' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11.0837 5.83073V6.9974C11.0837 8.08036 10.6535 9.11897 9.88768 9.88475C9.1219 10.6505 8.08329 11.0807 7.00033 11.0807M7.00033 11.0807C5.91736 11.0807 4.87875 10.6505 4.11297 9.88475C3.3472 9.11897 2.91699 8.08036 2.91699 6.9974V5.83073M7.00033 11.0807V12.8307M7.00033 1.16406C6.5362 1.16406 6.09108 1.34844 5.76289 1.67663C5.4347 2.00481 5.25033 2.44993 5.25033 2.91406V6.9974C5.25033 7.46152 5.4347 7.90664 5.76289 8.23483C6.09108 8.56302 6.5362 8.7474 7.00033 8.7474C7.46445 8.7474 7.90957 8.56302 8.23776 8.23483C8.56595 7.90664 8.75033 7.46152 8.75033 6.9974V2.91406C8.75033 2.44993 8.56595 2.00481 8.23776 1.67663C7.90957 1.34844 7.46445 1.16406 7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span>Premium</span>
-                    </span>
-                  </div>
+                        Custom voice
+                      </span>
+                      
+                      {/* Best fit for avatar badge */}
+                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2" style={{ backgroundColor: '#CAFCF7', color: '#171718' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.00033 1.16406L8.80283 4.81573L12.8337 5.4049L9.91699 8.24573L10.6053 12.2591L7.00033 10.3632L3.39533 12.2591L4.08366 8.24573L1.16699 5.4049L5.19783 4.81573L7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Best fit for avatar
+                      </span>
+                      
+                      {/* Previously used badge */}
+                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2" style={{ backgroundColor: '#FEE7C8', color: '#171718' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1.75 7C1.75 5.60761 2.30312 4.27226 3.28769 3.28769C4.27226 2.30312 5.60761 1.75 7 1.75C8.46769 1.75552 9.87643 2.32821 10.9317 3.34833L12.25 4.66667M12.25 4.66667V1.75M12.25 4.66667H9.33333M12.25 7C12.25 8.39239 11.6969 9.72774 10.7123 10.7123C9.72774 11.6969 8.39239 12.25 7 12.25C5.53231 12.2445 4.12357 11.6718 3.06833 10.6517L1.75 9.33333M1.75 9.33333H4.66667M1.75 9.33333V12.25" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Previously used
+                      </span>
                 </div>
-                </div>
-              </div>
+                      </div>
+                    </div>
+            </div>
             </div>
 
             {/* Dynamically rendered voice items from Elai API */}
@@ -464,28 +491,28 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                      setTempSelectedVoice(voice);
                    }}
                  >
-                   <div 
-                     className={`rounded-lg p-3 flex items-center justify-between cursor-pointer border transition-all ${
-                     tempSelectedVoice?.voice === voice.voice 
-                         ? 'border-[#E0E0E0] bg-white' 
-                         : 'border-[#E0E0E0] bg-white hover:bg-[#E0E0E0]'
-                     }`}
-                     style={tempSelectedVoice?.voice === voice.voice ? {
-                       backgroundColor: '#E0E0E0',
-                       boxShadow: '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514'
-                     } : undefined}
-                     onMouseEnter={(e) => {
-                       if (tempSelectedVoice?.voice !== voice.voice) {
-                         e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
-                       }
-                     }}
-                     onMouseLeave={(e) => {
-                       if (tempSelectedVoice?.voice !== voice.voice) {
-                         e.currentTarget.style.boxShadow = '';
-                       }
-                     }}
-                   >
-                <div className="flex items-center gap-2">
+                  <div 
+                    className={`rounded-lg p-2 flex items-center justify-between cursor-pointer border transition-all ${
+                    tempSelectedVoice?.voice === voice.voice 
+                        ? 'border-[#E0E0E0] bg-white' 
+                        : 'border-[#E0E0E0] bg-white'
+                    }`}
+                    style={tempSelectedVoice?.voice === voice.voice ? {
+                      backgroundColor: '#E0E0E0',
+                      boxShadow: '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514'
+                    } : undefined}
+                    onMouseEnter={(e) => {
+                      if (tempSelectedVoice?.voice !== voice.voice) {
+                        e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (tempSelectedVoice?.voice !== voice.voice) {
+                        e.currentTarget.style.boxShadow = '';
+                      }
+                    }}
+                  >
+                <div className="flex items-center gap-3">
                   {/* Voice icon / Play button */}
                       <div 
                     className="cursor-pointer"
@@ -541,14 +568,14 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <div className="w-px bg-[#E0E0E0]"></div>
           
           {/* Right Panel Container */}
-          <div className="w-80 flex flex-col gap-2 px-4 pt-3">
+          <div className="w-80 flex flex-col gap-2 p-4">
             {/* Voice Details Label */}
             <div>
               <span className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
             </div>
             
             {/* Right Panel - Voice Details Card with scrolling */}
-            <div className="bg-white border border-[#E0E0E0] rounded-lg px-4 py-3">
+            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
             {tempSelectedVoice ? (
               <>
                 {/* Row 1: Voice name title */}
@@ -573,7 +600,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       {tempSelectedVoice.tags.map((tag, index) => (
                   <span
                           key={index}
-                    className="px-2 py-0.5 bg-gray-50 text-[10px] rounded-full"
+                    className="px-2 py-0.5 bg-white text-[11px] rounded-full"
                     style={{ color: '#878787', borderWidth: '1px', borderStyle: 'solid', borderColor: '#878787' }}
                   >
                           {tag.charAt(0).toUpperCase() + tag.slice(1)}
@@ -590,7 +617,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             )}
             
             {/* Advanced settings */}
-            <div className="mb-2">
+            <div className="my-3">
               <h4 className="text-xs font-medium" style={{ color: '#878787' }}>{t('voicePicker.advancedSettings', 'Advanced settings')}</h4>
             </div>
             
@@ -599,7 +626,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               <div className="flex justify-between items-center mb-1">
                 <label className="text-xs" style={{ color: '#4D4D4D' }}>{t('voicePicker.speed', 'Speed')}</label>
                 <span className="text-xs" style={{ color: '#4D4D4D' }}>{speed}</span>
-              </div>
+            </div>
               <input
                 type="range"
                 min="0"
@@ -617,7 +644,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {tempSelectedVoice && (
               <button 
                 onClick={(e) => handlePlayVoice(e, tempSelectedVoice)}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors"
                 style={{ 
                   border: '1px solid #E6E6E6',
                   boxShadow: '0px 1px 2px 0px #0000000D',
@@ -639,7 +666,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         </div>
 
         {/* Footer */}
-        <div className="bg-white px-4 py-3 flex items-center justify-between rounded-b-xl">
+        <div className="bg-white flex items-center justify-between rounded-b-xl">
           {/* Left side - Apply new voice to */}
           <div className="flex-1">
             <div className="rounded-lg px-1 py-1 flex gap-1 w-full max-w-md" style={{ backgroundColor: '#F4F4F5' }}>
