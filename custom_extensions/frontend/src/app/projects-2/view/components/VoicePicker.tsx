@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
+import { ChevronRight, Volume2 } from 'lucide-react';
 import { useVoice } from '@/contexts/VoiceContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -105,26 +105,14 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
-  const [ageDropdownOpen, setAgeDropdownOpen] = useState(false);
-  const [toneDropdownOpen, setToneDropdownOpen] = useState(false);
-  const [scenarioDropdownOpen, setScenarioDropdownOpen] = useState(false);
   const [speed, setSpeed] = useState(50);
   const [stability, setStability] = useState(50);
   const [applyTo, setApplyTo] = useState<'block' | 'scene' | 'all'>('block');
-  const [selectedAccents, setSelectedAccents] = useState<string[]>([]);
-  const [selectedAges, setSelectedAges] = useState<string[]>([]);
-  const [selectedTones, setSelectedTones] = useState<string[]>([]);
-  const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
   const [voices, setVoices] = useState<ElaiVoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [tempSelectedVoice, setTempSelectedVoice] = useState<ElaiVoice | null>(null);
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   
-  const accentRef = useRef<HTMLDivElement>(null);
-  const ageRef = useRef<HTMLDivElement>(null);
-  const toneRef = useRef<HTMLDivElement>(null);
-  const scenarioRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize temporary selection from global selection when modal opens
@@ -262,130 +250,6 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
     }
   };
 
-  // Accent options with country flags
-  const accentOptions = [
-    { id: 'american', flag: <AmericanFlag />, text: 'American English' },
-    { id: 'british', flag: <BritishFlag />, text: 'British English' },
-    { id: 'australian', flag: <AustralianFlag />, text: 'Australian English' },
-    { id: 'indian', flag: <IndianFlag />, text: 'English (India)' },
-    { id: 'south-african', flag: <SouthAfricanFlag />, text: 'English (South Africa)' }
-  ];
-
-  // Age options
-  const ageOptions = [
-    { id: 'adult', text: 'Adult' },
-    { id: 'middle-aged', text: 'Middle-Aged' },
-    { id: 'senior', text: 'Senior' },
-    { id: 'young', text: 'Young' },
-    { id: 'young-adult', text: 'Young Adult' }
-  ];
-
-  // Tone options
-  const toneOptions = [
-    { id: 'anxious', text: 'Anxious' },
-    { id: 'calm', text: 'Calm' },
-    { id: 'cheerful', text: 'Cheerful' },
-    { id: 'cloned-voice', text: 'Cloned Voice' },
-    { id: 'confident', text: 'Confident' },
-    { id: 'conversational', text: 'Conversational' },
-    { id: 'deep', text: 'Deep' },
-    { id: 'delightful', text: 'Delightful' },
-    { id: 'determined', text: 'Determined' },
-    { id: 'educational', text: 'Educational' },
-    { id: 'engaging', text: 'Engaging' },
-    { id: 'fast', text: 'Fast' },
-    { id: 'friendly', text: 'Friendly' },
-    { id: 'gentle', text: 'Gentle' }
-  ];
-
-  // Scenario options
-  const scenarioOptions = [
-    { id: 'ad', text: 'Ad' },
-    { id: 'any', text: 'Any' },
-    { id: 'assistant', text: 'Assistant' },
-    { id: 'chat', text: 'Chat' },
-    { id: 'conversational', text: 'Conversational' },
-    { id: 'customer-service', text: 'Customer Service' },
-    { id: 'documentary', text: 'Documentary' },
-    { id: 'e-learning', text: 'E-Learning' },
-    { id: 'explainer', text: 'Explainer' },
-    { id: 'how-to', text: 'How-to' }
-  ];
-
-  const toggleAccent = (accentId: string) => {
-    setSelectedAccents(prev => 
-      prev.includes(accentId) 
-        ? prev.filter(id => id !== accentId)
-        : [...prev, accentId]
-    );
-  };
-
-  const toggleAge = (ageId: string) => {
-    setSelectedAges(prev => 
-      prev.includes(ageId) 
-        ? prev.filter(id => id !== ageId)
-        : [...prev, ageId]
-    );
-  };
-
-  const toggleTone = (toneId: string) => {
-    setSelectedTones(prev => 
-      prev.includes(toneId) 
-        ? prev.filter(id => id !== toneId)
-        : [...prev, toneId]
-    );
-  };
-
-  const toggleScenario = (scenarioId: string) => {
-    setSelectedScenarios(prev => 
-      prev.includes(scenarioId) 
-        ? prev.filter(id => id !== scenarioId)
-        : [...prev, scenarioId]
-    );
-  };
-
-  // Reset functions
-  const resetAccents = () => setSelectedAccents([]);
-  const resetAges = () => setSelectedAges([]);
-  const resetTones = () => setSelectedTones([]);
-  const resetScenarios = () => setSelectedScenarios([]);
-  
-  // Reset all selections
-  const resetAllSelections = () => {
-    resetAccents();
-    resetAges();
-    resetTones();
-    resetScenarios();
-  };
-  
-  // Check if any selections exist
-  const hasAnySelections = selectedAccents.length > 0 || selectedAges.length > 0 || selectedTones.length > 0 || selectedScenarios.length > 0;
-
-  // Handle click outside to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (accentRef.current && !accentRef.current.contains(event.target as Node)) {
-        setAccentDropdownOpen(false);
-      }
-      if (ageRef.current && !ageRef.current.contains(event.target as Node)) {
-        setAgeDropdownOpen(false);
-      }
-      if (toneRef.current && !toneRef.current.contains(event.target as Node)) {
-        setToneDropdownOpen(false);
-      }
-      if (scenarioRef.current && !scenarioRef.current.contains(event.target as Node)) {
-        setScenarioDropdownOpen(false);
-      }
-    };
-
-    if (accentDropdownOpen || ageDropdownOpen || toneDropdownOpen || scenarioDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [accentDropdownOpen, ageDropdownOpen, toneDropdownOpen, scenarioDropdownOpen]);
 
   // Cleanup audio when modal closes
   useEffect(() => {
@@ -437,10 +301,14 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         }
       `}</style>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Light background overlay */}
+      {/* Blurry background overlay */}
       <div 
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+        style={{ 
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}
         onClick={onClose}
       ></div>
       
@@ -449,6 +317,20 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[90vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-4 -right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
+          style={{
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0px 10px 10px 0px #0000001A, 0px 4px 4px 0px #0000000D, 0px 1px 0px 0px #0000000D'
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
         
         {/* Row 1: Title */}
         <div className="p-4 pb-3">
@@ -459,265 +341,35 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         <div className="px-4 pb-3">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-gray-400" />
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <input
               type="text"
-              placeholder={t('voicePicker.search', 'Search')}
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-[#878787]"
+              style={{ 
+                boxShadow: '0px 1px 2px 0px #0000000D',
+                color: '#171718'
+              }}
             />
           </div>
         </div>
 
-        {/* Row 3: Dropdown Buttons */}
-        <div className="px-4 pb-3">
-          <div className="flex gap-2 items-center justify-between">
-            <div className="flex gap-2">
-            {/* Accent Dropdown */}
-            <div className="relative" ref={accentRef}>
-              <button
-                onClick={() => setAccentDropdownOpen(!accentDropdownOpen)}
-                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
-                  accentDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Globe size={14} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">
-                    {selectedAccents.length > 0 ? `${selectedAccents.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.accent', 'Accent')}
-                  </span>
-                </div>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {/* Accent dropdown popup */}
-              {accentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  {accentOptions.map((accent) => (
-                    <div
-                      key={accent.id}
-                      onClick={() => toggleAccent(accent.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedAccents.includes(accent.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedAccents.includes(accent.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
-                      
-                      {/* Country flag */}
-                      <div className="flex-shrink-0">{accent.flag}</div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{accent.text}</span>
-                    </div>
-                  ))}
-                  
-
-                </div>
-              )}
-            </div>
-
-            {/* Age Dropdown */}
-            <div className="relative" ref={ageRef}>
-              <button
-                onClick={() => setAgeDropdownOpen(!ageDropdownOpen)}
-                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
-                  ageDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Cake size={14} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">
-                    {selectedAges.length > 0 ? `${selectedAges.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.age', 'Age')}
-                  </span>
-                </div>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {/* Age dropdown popup */}
-              {ageDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  {ageOptions.map((age) => (
-                    <div
-                      key={age.id}
-                      onClick={() => toggleAge(age.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedAges.includes(age.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedAges.includes(age.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{age.text}</span>
-                    </div>
-                  ))}
-                  
-
-                </div>
-              )}
-            </div>
-
-            {/* Tone Dropdown */}
-            <div className="relative" ref={toneRef}>
-              <button
-                onClick={() => setToneDropdownOpen(!toneDropdownOpen)}
-                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
-                  toneDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <RadioWaveIcon size={14} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">
-                    {selectedTones.length > 0 ? `${selectedTones.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.tone', 'Tone')}
-                  </span>
-                </div>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {/* Tone dropdown popup */}
-              {toneDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2 max-h-60 overflow-y-auto">
-                  {toneOptions.map((tone) => (
-                    <div
-                      key={tone.id}
-                      onClick={() => toggleTone(tone.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedTones.includes(tone.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedTones.includes(tone.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{tone.text}</span>
-                    </div>
-                  ))}
-                  
-
-                </div>
-              )}
-            </div>
-
-            {/* Scenario Dropdown */}
-            <div className="relative" ref={scenarioRef}>
-              <button
-                onClick={() => setScenarioDropdownOpen(!scenarioDropdownOpen)}
-                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
-                  scenarioDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Briefcase size={14} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">
-                    {selectedScenarios.length > 0 ? `${selectedScenarios.length} ${t('voicePicker.selected', 'selected')}` : t('voicePicker.scenario', 'Scenario')}
-                  </span>
-                </div>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {/* Scenario dropdown popup */}
-              {scenarioDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  {scenarioOptions.map((scenario) => (
-                    <div
-                      key={scenario.id}
-                      onClick={() => toggleScenario(scenario.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedScenarios.includes(scenario.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedScenarios.includes(scenario.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{scenario.text}</span>
-                    </div>
-                  ))}
-                  
-
-                </div>
-              )}
-            </div>
-            </div>
-            
-            {/* Reset Button */}
-            {hasAnySelections && (
-              <button
-                onClick={resetAllSelections}
-                className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[100px]"
-              >
-                <div className="flex items-center gap-1.5">
-                  <RotateCcw size={14} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">{t('voicePicker.resetAll', 'Reset all')}</span>
-                </div>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Row 4: Horizontal Line */}
-        <div>
-          <hr className="border-gray-200" />
+        {/* Voices count text above container */}
+        <div className="px-4 pb-2">
+          <span className="text-xs text-[#878787]">
+            {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.length} ${t('voicePicker.voicesFound', 'voices found')}`}
+          </span>
         </div>
 
         {/* Content Container with proper flex structure */}
-        <div className="flex-1 flex flex-col min-h-0">
-          {/* Row 5: Main Area Layout Headers - Fixed */}
-          <div className="px-4 py-3 flex justify-between">
-            {/* Left Zone */}
-            <div className="flex-1">
-              <h3 className="text-xs font-medium text-gray-900">
-                {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.length} ${t('voicePicker.voicesFound', 'voices found')}`}
-              </h3>
-            </div>
-            
-            {/* Right Zone */}
-            <div className="w-80">
-              <h3 className="text-xs font-medium text-gray-900">{t('voicePicker.voiceDetails', 'Voice details')}</h3>
-            </div>
-          </div>
-
+        <div className="flex-1 flex flex-col min-h-0 mx-4 mb-4 border border-[#E0E0E0] rounded-lg">
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
-          <div className="px-4 flex gap-4 flex-1 min-h-0">
+          <div className="px-4 py-3 flex gap-4 flex-1 min-h-0">
           {/* Left Panel - Voice List with its own scrolling */}
           <div className="flex-1 overflow-y-auto">
             {/* Create Custom Voice Row */}
@@ -846,6 +498,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             )}
 
           </div>
+          
+          {/* Vertical Divider */}
+          <div className="w-px bg-[#E0E0E0] self-stretch"></div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
           <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0">
