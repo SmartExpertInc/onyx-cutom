@@ -572,7 +572,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <div className="flex flex-col gap-2 p-4" style={{ width: '260px' }}>
             {/* Voice Details Label */}
             <div>
-              <span className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
+              <span className="text-xs leading-none block" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
             </div>
             
             {/* Right Panel - Voice Details Card with scrolling */}
