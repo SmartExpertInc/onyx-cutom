@@ -278,6 +278,7 @@ interface VerticalSliderProps {
   background?: string;
   width?: number;
   height?: number;
+  thumbColor?: string;
 }
 
 const VerticalSlider: React.FC<VerticalSliderProps> = ({
@@ -289,7 +290,8 @@ const VerticalSlider: React.FC<VerticalSliderProps> = ({
   onChangeCommitted,
   background,
   width = 14,
-  height = 100
+  height = 100,
+  thumbColor
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -363,13 +365,28 @@ const VerticalSlider: React.FC<VerticalSliderProps> = ({
       
       {/* Thumb */}
       <div
-        className="absolute w-3.5 h-3.5 bg-white rounded-full shadow-md cursor-pointer z-20"
+        className="absolute pointer-events-none z-20"
         style={{
           top: `${getPercentage()}%`,
           left: '50%',
           transform: 'translate(-50%, -50%)'
         }}
-      />
+      >
+        {/* Outer white border ring */}
+        <div className="w-3 h-3 rounded-full border-2 border-white bg-transparent" />
+        {/* Inner colored dot */}
+        {thumbColor && (
+          <div
+            className="absolute w-2 h-2 rounded-full"
+            style={{
+              backgroundColor: thumbColor,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
@@ -838,74 +855,54 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             />
           </div>
 
-          {/* Vertical Sliders Column */}
-          <div className="flex flex-col gap-3 justify-center">
-            {/* Hue Slider - Vertical */}
-            <div className="relative z-[10001]">
+          {/* Hue Slider - Vertical */}
+          <div className="relative z-[10001]">
+            <VerticalSlider
+              value={colorState.hsb.h}
+              min={0}
+              max={360}
+              onChange={handleHueChange}
+              onChangeCommitted={handleHueChangeCommitted}
+              background="linear-gradient(to bottom, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
+              width={14}
+              height={180}
+              thumbColor={`hsl(${colorState.hsb.h}, 100%, 50%)`}
+            />
+          </div>
+
+          {/* Opacity Slider - Vertical */}
+          <div className="relative z-[10001]">
+            <div className="relative">
+              {/* Squared background for opacity slider */}
+              <div 
+                className="absolute inset-0 rounded-lg"
+                style={{
+                  background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                               linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                               linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                               linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+                  backgroundSize: '8px 8px',
+                  backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                }}
+              />
               <VerticalSlider
-                value={colorState.hsb.h}
+                value={colorState.opacity}
                 min={0}
-                max={360}
-                onChange={handleHueChange}
-                onChangeCommitted={handleHueChangeCommitted}
-                background="linear-gradient(to bottom, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
+                max={1}
+                step={0.01}
+                onChange={handleOpacityChange}
+                onChangeCommitted={handleOpacityChangeCommitted}
+                background={`linear-gradient(to bottom, ${colorState.hex}00, ${colorState.hex}80, ${colorState.hex})`}
                 width={14}
-                height={80}
+                height={180}
+                thumbColor={`rgba(${Math.round(colorState.rgba.r)}, ${Math.round(colorState.rgba.g)}, ${Math.round(colorState.rgba.b)}, ${colorState.opacity})`}
               />
             </div>
-
-            {/* Opacity Slider - Vertical */}
-            <div className="relative z-[10001]">
-              <div className="relative">
-                {/* Squared background for opacity slider */}
-                <div 
-                  className="absolute inset-0 rounded-lg"
-                  style={{
-                    background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                                 linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                                 linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                                 linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-                    backgroundSize: '8px 8px',
-                    backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
-                  }}
-                />
-                <VerticalSlider
-                  value={colorState.opacity}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onChange={handleOpacityChange}
-                  onChangeCommitted={handleOpacityChangeCommitted}
-                  background="linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
-                  width={14}
-                  height={80}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Preview Square */}
-        <div className="flex gap-4 mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-          <div className="w-10 h-10 rounded-lg relative z-[10001] flex-shrink-0"
-            style={{
-              background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                           linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                           linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                           linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-              backgroundSize: '10px 10px',
-              backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
-            }}>
-            <div className="w-full h-full border border-gray-300 rounded-lg"
-              style={{
-                backgroundColor: colorState.hex,
-                opacity: colorState.opacity
-              }} />
           </div>
         </div>
 
         {/* Color Format Toggle Buttons */}
-        <div className="mt-4 p-1 bg-gray-200 rounded-3xl flex gap-1 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+        <div className="mt-4 p-1 bg-gray-200 rounded-lg flex gap-1 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
           e.stopPropagation();
           e.preventDefault(); // Prevent focus loss from editor
         }}>
@@ -932,7 +929,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Color Code and Opacity Display */}
-        <div className="mt-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="mt-4 flex items-center gap-3" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
           {/* SVG Icon */}
           <div className="flex-shrink-0">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -944,7 +941,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           <div className="flex-1 rounded-lg px-3 py-2 flex items-center" style={{ backgroundColor: '#E0E0E0' }}>
             {colorFormat === 'HEX' && (
               <span className="text-sm font-mono">
-                <span style={{ color: '#969298' }}>#</span>
+                <span style={{ color: '#969298' }}># </span>
                 <span style={{ color: '#171718' }}>{colorState.hex.slice(1)}</span>
               </span>
             )}
@@ -969,7 +966,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           <div className="rounded-lg px-3 py-2 flex items-center" style={{ backgroundColor: '#E0E0E0' }}>
             <span className="text-sm font-mono">
               <span style={{ color: '#171718' }}>{Math.round(colorState.opacity * 100)}</span>
-              <span style={{ color: '#969298' }}>%</span>
+              <span style={{ color: '#969298' }}> %</span>
             </span>
           </div>
         </div>
@@ -1118,55 +1115,53 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
 
         {/* Footer - Last Used Colors */}
-        {onRecentColorChange && (
-          <div className="mt-6 pt-4 border-t relative z-[10001]" style={{ borderColor: '#E0E0E0' }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
-            e.stopPropagation();
-            e.preventDefault(); // Prevent focus loss from editor
-          }}>
-            <div className="text-gray-500 mb-2 block text-xs font-medium">
-              Last Used
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {Array.from({ length: 9 }, (_, index) => {
-                const color = recentColors[index];
-                return (
-                  <div
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      color && handleRecentColorClick(color);
-                    }}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault(); // Prevent focus loss from editor
-                    }}
-                    className={`w-6 h-6 border border-gray-300 rounded-lg bg-gray-100 transition-all duration-200 relative z-[10002] ${
-                      color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
-                    }`}
-                    style={{
-                      backgroundColor: color || '#f0f0f0'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (color) {
-                        e.currentTarget.style.border = '2px solid #666';
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.border = '1px solid #ccc';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                    title={color || 'No recent color'}
-                  >
-                    {!color && (
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 bg-gray-400 rounded-full" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+        <div className="mt-6 pt-4 border-t relative z-[10001]" style={{ borderColor: '#E0E0E0' }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault(); // Prevent focus loss from editor
+        }}>
+          <div className="text-gray-500 mb-2 block text-xs font-medium">
+            Last Used
           </div>
-        )}
+          <div className="flex gap-2 flex-wrap">
+            {Array.from({ length: 9 }, (_, index) => {
+              const color = recentColors[index];
+              return (
+                <div
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    color && handleRecentColorClick(color);
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault(); // Prevent focus loss from editor
+                  }}
+                  className={`w-6 h-6 border border-gray-300 rounded-lg bg-gray-100 transition-all duration-200 relative z-[10002] ${
+                    color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
+                  }`}
+                  style={{
+                    backgroundColor: color || '#f0f0f0'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (color) {
+                      e.currentTarget.style.border = '2px solid #666';
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.border = '1px solid #ccc';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  title={color || 'No recent color'}
+                >
+                  {!color && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 bg-gray-400 rounded-full" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </>
   );
