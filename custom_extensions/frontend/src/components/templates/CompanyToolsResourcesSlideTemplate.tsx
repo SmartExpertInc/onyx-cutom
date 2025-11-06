@@ -76,7 +76,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F0F2F7', // Light grey background for content area
+    backgroundColor: backgroundColor || '#F0F2F7', // Light grey background for content area
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
