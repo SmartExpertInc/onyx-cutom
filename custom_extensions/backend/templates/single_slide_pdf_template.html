@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* Mont Font Family - Embedded Base64 Fonts for PDF Rendering */
@@ -32,32 +32,6 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
-        }
-        
-        /* Global font styles to match frontend */
-        * {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        }
-        
-        /* Override for title elements to use Lora serif like frontend */
-        .title, .title-element, h1, h2, h3, h4, h5, h6,
-        .card-title, .section-title, .slide-title,
-        .culture-value-title, .benefits-title, .impact-title,
-        .course-title, .work-life-title, .phishing-title,
-        .benefits-list-title, .impact-statements-title,
-        .company-tools-title, .ai-pharma-title, .critical-thinking-title,
-        .benefits-tags-title, .kpi-update-title, .phishing-rise-title,
-        .soft-skills-title, .hybrid-work-title {
-            font-family: "Lora", serif !important;
-        }
-        
-        /* Specific overrides for card titles in different columns */
-        .card-title-left, .card-title-right {
-            font-family: "Lora", serif !important;
-        }
-        
-        .card-title-middle {
-            font-family: "Lora", serif !important;
         }
         
         /* Dynamic page setup for PDF - HEIGHT IS SET BY PYTHON */
@@ -111,15 +85,15 @@
             position: relative; /* Enable absolute positioning for children */
         }
         
-        /* Theme color definitions - V2 FRONTEND MATCH */
+        /* Theme color definitions - EXACT FRONTEND MATCH */
         .theme-dark-purple {
-            --bg-color: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
+            --bg-color: #110c35;
             --title-color: #ffffff;
-            --subtitle-color: #ffffff;
-            --content-color: #09090B;
+            --subtitle-color: #d9e1ff;
+            --content-color: #d9e1ff;
             --accent-color: #f35657;
-            --title-font: 'Lora', serif;
-            --content-font: 'Lora', serif;
+            --title-font: 'Kanit', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
             --title-size: 45px;
             --content-size: 18px;
         }
@@ -264,66 +238,70 @@
         /* Big Image Top Template - EXACT FRONTEND MATCH */
         .big-image-top {
             width: 100%;
-            height: 600px;
-            background: #ffffff;
+            height: 100%;
+            min-height: 600px;
+            background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            justify-content: flex-start;
-            padding: 0;
+            justify-content: space-between;
+            padding-bottom: 50px;
             position: relative;
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .big-image-top .image-container {
             width: 100%;
-            height: 50%; /* Exactly 50% of 600px = 300px */
-            background: #ffffff;
-            overflow: hidden;
-            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            min-width: 0;
+            margin-bottom: 32px;
         }
         
-        .big-image-top .image-container img {
+        .big-image-top .image-placeholder {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            margin: 0;
-            padding: 0;
+            height: 240px;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
         }
         
         .big-image-top .content-container {
             width: 100%;
-            height: 50%; /* Exactly 50% of 600px = 300px */
-            padding: 40px 40px;
+            padding: 60px 60px 60px 60px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            justify-content: flex-start;
             min-width: 0;
-            flex-shrink: 0;
-            overflow: hidden;
         }
         
         .big-image-top .slide-title {
-            font-size: 3rem;
             font-family: var(--title-font);
-            color: #000000;
+            font-size: 45px;
+            color: var(--title-color);
             margin-bottom: 24px;
             line-height: 1.2;
             word-wrap: break-word;
-            font-weight: bold;
-            text-align: left;
         }
         
         .big-image-top .content-text {
-            font-size: 1.1rem;
             font-family: var(--content-font);
-            color: #333333;
+            font-size: 18px;
+            color: var(--content-color);
             line-height: 1.6;
-            width: 75%;
             white-space: pre-wrap;
             word-wrap: break-word;
-            text-align: left;
         }
         
         /* Hero Title Slide Template - EXACT FRONTEND MATCH */
@@ -411,12 +389,12 @@
         
         /* Pyramid Template - EXACT FRONTEND MATCH - NEW DESIGN */
         .pyramid-template {
-            background: #ffffff;
-            padding: 40px 40px 0px 40px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 50px;
             display: flex;
             flex-direction: column;
             font-family: Georgia, serif;
-            min-height: 550px;
+            min-height: 600px;
             width: 100%;
             height: 100%;
             position: relative;
@@ -427,7 +405,7 @@
             color: #000000;
             font-size: 2.5rem;
             font-family: Georgia, serif;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             text-align: left;
             word-wrap: break-word;
             font-weight: bold;
@@ -437,7 +415,7 @@
             color: var(--content-color);
             font-size: 18px;
             font-family: var(--content-font);
-            margin-bottom: 35px;
+            margin-bottom: 48px;
             max-width: 80%;
             line-height: 1.6;
             text-align: left;
@@ -450,16 +428,7 @@
             justify-content: center;
             flex-grow: 1;
             position: relative;
-            height: 420px;
-        }
-
-        .pyramid-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 500px;
         }
 
         .pyramid-level {
@@ -469,49 +438,58 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%);
         }
 
         .pyramid-level:nth-child(1) { 
-            width: 300px; 
-            height: 75px; 
-            top: 100px; 
-            background: #2A7CFF; 
+            width: 130px; 
+            height: 65px; 
+            top: 0px; 
+            background: #3D8BFF; 
             z-index: 5; 
-            clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
+            justify-content: center;
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
         .pyramid-level:nth-child(2) { 
-            width: 400px; 
-            height: 75px; 
-            top: 180px; 
-            background: #09ACD8; 
+            width: 210px; 
+            height: 65px; 
+            top: 65px; 
+            background: #00BCD4; 
             z-index: 4; 
-            clip-path: polygon(16.67% 0%, 83.33% 0%, 100% 100%, 0% 100%);
+            justify-content: center;
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
         .pyramid-level:nth-child(3) { 
-            width: 500px; 
-            height: 75px; 
-            top: 260px; 
-            background: #1B94E8; 
+            width: 290px; 
+            height: 65px; 
+            top: 130px; 
+            background: #1E88E5; 
             z-index: 3; 
-            clip-path: polygon(12.5% 0%, 87.5% 0%, 100% 100%, 0% 100%);
+            justify-content: center;
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
         .pyramid-level:nth-child(4) { 
-            width: 600px; 
-            height: 75px; 
-            top: 340px; 
-            background: #3A11C3; 
+            width: 370px; 
+            height: 65px; 
+            top: 195px; 
+            background: #5E35B1; 
             z-index: 2; 
-            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+            justify-content: center;
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
         .pyramid-level:nth-child(5) { 
-            width: 700px; 
-            height: 75px; 
-            top: 420px; 
-            background: #01298A; 
+            width: 450px; 
+            height: 65px; 
+            top: 260px; 
+            background: #1A237E; 
             z-index: 1; 
-            clip-path: polygon(8.33% 0%, 91.67% 0%, 100% 100%, 0% 100%);
+            justify-content: center;
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
 
         .pyramid-number-circle {
@@ -530,47 +508,28 @@
 
         .pyramid-text-block {
             position: absolute;
-            width: 260px;
+            width: 25%;
+            max-width: 300px;
             z-index: 10;
         }
 
-        .pyramid-text-block.level-0 {
-            top: 410px;
-            left: -350px;
-            text-align: right;
-        }
-        .pyramid-text-block.level-1 {
-            top: 340px;
-            right: -290px;
-            text-align: left;
-        }
-        .pyramid-text-block.level-2 {
-            top: 250px;
-            left: -250px;
-            text-align: right;
-        }
-        .pyramid-text-block.level-3 {
-            top: 150px;
-            right: -200px;
-            text-align: left;
-        }
-        .pyramid-text-block.level-4 {
-            top: 90px;
-            left: -170px;
-            text-align: right;
-        }
+        .pyramid-text-block.level-0 { top: 25px; right: 7%; text-align: right; }
+        .pyramid-text-block.level-1 { top: 90px; left: 7%; text-align: left; }
+        .pyramid-text-block.level-2 { top: 155px; right: 7%; text-align: right; }
+        .pyramid-text-block.level-3 { top: 220px; left: 7%; text-align: left; }
+        .pyramid-text-block.level-4 { top: 285px; left: 7%; text-align: left; }
 
         .pyramid-text-heading {
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #000000;
             font-family: Georgia, serif;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             word-wrap: break-word;
         }
 
         .pyramid-text-description {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #000000;
             font-family: Georgia, serif;
             line-height: 1.4;
@@ -583,15 +542,15 @@
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            /* border-top: 12px solid #0F58F9; */
+            border-top: 12px solid #0F58F9;
             z-index: 10;
         }
 
-        .pyramid-triangle.level-4 { top: 115px; left: 145px; border-top: 12px solid #2A7CFF; }
-        .pyramid-triangle.level-3 { top: 200px; right: 115px; border-top: 12px solid #09ACD8;  }
-        .pyramid-triangle.level-2 { top: 280px; left: 70px; border-top: 12px solid #1B94E8; }
-        .pyramid-triangle.level-1 { top: 360px; right: 10px; border-top: 12px solid #3A11C3;}
-        .pyramid-triangle.level-0 { top: 450px; left: -40px; border-top: 12px solid #01298A; }
+        .pyramid-triangle.level-0 { top: 55px; right: 19%; }
+        .pyramid-triangle.level-1 { top: 120px; left: 19%; }
+        .pyramid-triangle.level-2 { top: 185px; right: 19%; }
+        .pyramid-triangle.level-3 { top: 250px; left: 19%; }
+        .pyramid-triangle.level-4 { top: 315px; left: 19%; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -843,7 +802,7 @@
         .big-image-left {
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            background: var(--bg-color);
+            background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
             align-items: stretch;
@@ -856,7 +815,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg-color);
+            background-color: var(--bg-color);
             position: relative;
             min-width: 0;
             overflow: visible; /* ALLOW images to move outside container bounds */
@@ -899,76 +858,87 @@
         .big-image-left .content-text {
             font-family: var(--content-font);
             font-size: 18px; /* Exact frontend match */
-            color: #ffffff;
+            color: var(--content-color);
             line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
         
-        /* Bullet Points Template - EXACT FRONTEND MATCH - NEW DESIGN */
-        .bullet-points {
+        /* Bullet Points Template - EXACT FRONTEND MATCH */
+        /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
+         /* Bullet Points Template - EXACT FRONTEND MATCH */
+         .bullet-points {
             width: 100%;
-            height: 600px;
-            min-height: 600px;
-            background: #ffffff; /* White background */
-            display: flex;
-            flex-direction: row;
-            position: relative;
-            font-family: var(--content-font);
-            overflow: hidden;
-        }
-        
-        /* LEFT section with IMAGE (white background) */
-        .bullet-points .left-section {
-            width: 100%;
-            height: 600px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #ffffff;
-            z-index: 1;
-        }
-        
-        /* RIGHT section with TITLE and BULLETS (dark blue background with diagonal cut) */
-        .bullet-points .right-section {
-            width: 65%;
-            height: 600px;
-            position: absolute;
-            right: 0;
-            top: 0;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
             justify-content: flex-start;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
-            padding: 35px;
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 15% 100%);
-            z-index: 2;
+            align-items: stretch;
+            padding: 80px; /* Exact frontend match */
+            position: relative;
+            font-family: var(--content-font);
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .bullet-points .slide-title {
-            font-size: 3.5rem;
-            width: 100%;
-            font-family: serif;
-            color: #ffffff;
-            font-weight: bold;
-            text-align: right;
-            margin-bottom: 40px;
+            font-family: var(--title-font);
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 32px; /* Exact frontend match */
             word-wrap: break-word;
-            line-height: 1.1;
+            line-height: 1.2;
+        }
+        
+        .bullet-points .content-row {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-evenly;
+            flex: 1;
+        }
+        
+        .bullet-points .placeholder-container {
+            flex: 0 0 50%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            width: 50%;
+            height: 100%;
+            overflow: visible; /* ALLOW images to move outside container bounds */
+        }
+        
+        .bullet-points .placeholder {
+            width: 100%;
+            max-width: none;
+            height: auto;
+            max-height: none;
+            aspect-ratio: 1 / 1;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+            margin: 0 auto;
         }
         
         .bullet-points .bullets-container {
-            width: 100%;
-            font-size: 0.9rem;
-            font-family: sans-serif;
-            color: #ffffff;
+            flex: 1 1 50%; /* Exact frontend match */
+            font-size: 18px; /* Exact frontend match */
+            font-family: var(--content-font);
+            color: var(--content-color);
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            min-width: 0;
+            padding-left: 40px; /* Exact frontend match */
         }
         
         /* Bullet-Points-Right Template - EXACT PHOTO MATCH */
@@ -996,7 +966,7 @@
             align-items: flex-start;
             justify-content: flex-start;
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
-            padding: 35px;
+            padding: 80px 60px;
             clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
             z-index: 2;
         }
@@ -1036,12 +1006,12 @@
         
         .bullet-points-right .bullets-container {
             width: 100%;
-            font-size: 0.9rem;
-            font-family: sans-serif;
+            font-size: 18px;
+            font-family: var(--content-font);
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            min-width: 0;
         }
         
         .bullet-points-right .placeholder-container {
@@ -1088,34 +1058,29 @@
         .bullet-item {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 35px;
+            gap: 12px; /* Exact frontend match */
+            margin-bottom: 16px; /* Exact frontend match */
         }
         
         .bullet-icon {
             color: #ffffff;
-            font-weight: bold;
-            min-width: 14px;
-            min-height: 14px;
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-family: sans-serif;
-            flex-shrink: 0;
+            font-weight: 600;
+            min-width: 20px;
+            font-size: 1.2rem;
+            font-family: var(--title-font);
+        }
+        
+        .bullet-icon::before {
+            content: '▶';
+            color: #ffffff;
+            font-size: 1.2rem;
         }
         
         .bullet-text {
-            font-family: sans-serif;
-            font-size: 0.9rem;
-            margin-top: -5px;
-            opacity: 0.8;
+            font-family: var(--content-font);
+            font-size: 18px;
             color: #ffffff;
             line-height: 1.6;
-            flex: 1;
-            min-width: 0;
         }
         
         .bullet-points-right .right-section img {
@@ -1132,174 +1097,98 @@
             position: relative;
             z-index: 1;
         }
-        /* Process Steps Template - EXACT FRONTEND MATCH - NEW DESIGN */
+        /* Process Steps Template - EXACT FRONTEND MATCH */
         .process-steps {
             width: 100%;
             height: 100%;
             min-height: 600px;
-            background: #ffffff; /* White background */
-            font-family: 'sans-serif';
-            display: flex;
-            padding: 50px;
-            align-items: flex-start;
-        }
-        
-        .process-steps .left-column {
-            flex: 1;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            align-items: flex-start;
+            align-items: center;
+            padding: 60px 40px;
+            position: relative;
+            font-family: var(--content-font);
+            overflow: hidden;
         }
         
         .process-steps .slide-title {
-            width: 230px;
-            font-size: 3rem;
-            font-family: serif; /* Serif font */
-            color: #000000; /* Black color */
-            font-weight: bold;
-            line-height: 0.85;
-            margin-bottom: 20px;
-            text-align: left;
-            letter-spacing: -0.04em;
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            font-family: var(--title-font);
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            word-wrap: break-word;
         }
         
-        .process-steps .slide-subtitle {
-            font-size: 1.4rem;
-            font-family: sans-serif; /* Sans-serif font */
-            color: #09090B; /* Black color */
-            font-weight: normal;
-            text-align: left;
-            opacity: 0.9;
-            letter-spacing: 0.01em;
-        }
-        
-        .process-steps .right-column {
-            flex: 1.8;
+        .process-steps .steps-container {
             display: flex;
-            flex-direction: column;
-            gap: 7px;
+            justify-content: space-around;
+            align-items: start;
+            gap: 32px; /* Exact frontend match */
+            flex: 1;
         }
         
         .process-step {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            padding: 25px 36px;
-            border-radius: 2px;
-            min-height: 110px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            width: 100%;
-            position: relative;
+            text-align: center;
+            max-width: 220px; /* Exact frontend match */
+            background: rgba(0,0,0,0.08);
+            border-radius: 12px; /* Exact frontend match */
+            padding: 24px 16px; /* Exact frontend match */
         }
         
-        .step-number-circle {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            position: absolute;
-            left: -21px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .step-number-inner {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .step-content {
-            width: 80%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-left: 25px;
-            gap: 6px;
-        }
-        
-        .step-title {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: white;
-            margin: 0;
-            font-family: sans-serif;
-            letter-spacing: 0.02em;
+        .step-number {
+            font-size: 2rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 10px; /* Exact frontend match */
+            font-family: var(--title-font);
         }
         
         .step-description {
-            font-size: 1.1rem;
-            color: white;
+            font-family: var(--content-font);
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
             margin: 0;
-            opacity: 0.95;
-            line-height: 1.4;
-            font-family: sans-serif;
-            width: 262px;
+            word-wrap: break-word;
         }
         
         /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
         .challenges-solutions {
             width: 100%;
-            height: 100%;
-            background: #ffffff;
-            padding: 40px;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            padding: 60px;
+            position: relative;
+            font-family: var(--content-font);
             display: flex;
             flex-direction: column;
-            font-family: Georgia, serif;
-            min-height: 600px;
-            position: relative;
-            overflow: hidden;
+            justify-content: center;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .challenges-solutions .slide-title {
-            color: #000000;
-            font-size: 2.5rem;
-            font-family: Georgia, serif;
-            margin-bottom: 10px;
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            font-family: var(--title-font);
             text-align: center;
+            margin-bottom: 50px; /* Exact frontend match */
+            line-height: 1.3;
+            max-width: 1174px; /* Updated to match new slide width */
+            margin: 0 auto 50px auto;
             word-wrap: break-word;
-            font-weight: bold;
-            flex-shrink: 0;
         }
         
-        .challenges-solutions .slide-subtitle {
-            color: #000000;
-            font-size: 1.1rem;
-            font-family: Arial, sans-serif;
-            margin-bottom: 40px;
-            text-align: center;
-            word-wrap: break-word;
-            font-weight: normal;
-            flex-shrink: 0;
-        }
-        
-        .challenges-solutions .main-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            position: relative;
-            height: 400px;
+        .challenges-solutions .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px; /* Exact frontend match */
+            max-width: 1000px; /* Exact frontend match */
+            margin: 0 auto;
+            flex: 1;
             width: 100%;
-        }
-        
-        .challenges-solutions .image-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            box-sizing: border-box;
         }
         
         .callout-box {
@@ -1374,7 +1263,7 @@
             width: 100%;
             height: 100%;
             min-height: 600px;
-            background: var(--bg-color);
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -1382,11 +1271,12 @@
             padding: 60px 40px;
             position: relative;
             font-family: var(--content-font);
+            overflow: hidden;
         }
         
         .two-column .slide-title {
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             font-family: var(--title-font);
             font-size: 45px;
             color: #ffffff;
@@ -1397,11 +1287,7 @@
             display: flex;
             gap: 0px;
             width: 100%;
-            max-width: 1400px;
-            flex: 1;
-            min-height: 0;
             position: relative;
-            align-items: stretch;
         }
         
         .two-column-layout::before {
@@ -1417,25 +1303,24 @@
         }
         
         .column {
-            flex: 1.2;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 40px 30px 20px 30px;
+            padding: 40px 30px;
             border-radius: 8px;
             position: relative;
-            min-height: 0;
         }
         
         .column-title {
-            font-size: 3.1rem;
+            font-size: 2.9rem;
             font-family: var(--title-font);
             color: #ffffff;
             text-align: center;
             margin-bottom: 20px;
             line-height: 1.2;
-            max-width: 375px;
+            max-width: 340px;
             word-wrap: break-word;
             font-weight: bold;
             position: relative;
@@ -1444,13 +1329,13 @@
         }
         
         .column-content {
-            width: 468px;
+            width: 325px;
             font-size: 1.4rem;
             font-family: var(--content-font);
             color: #ffffff;
             text-align: center;
-            margin-bottom: 60px;
-            margin-top: 0;
+            margin-bottom: 40px;
+            margin-top: 10px;
             line-height: 1.4;
             max-width: 500px;
             word-wrap: break-word;
@@ -1480,121 +1365,114 @@
             margin-bottom: 24px;
         }
         
+        .column-title {
+            font-family: var(--title-font);
+            font-size: 27px;
+            color: var(--title-color);
+            margin: 16px 0 16px 0;
+            align-self: flex-start;
+            word-wrap: break-word;
+        }
+        
+        .column-content {
+            font-family: var(--content-font);
+            font-size: 18px;
+            color: var(--content-color);
+            margin: 0;
+            align-self: flex-start;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
         /* Big Numbers Template - EXACT FRONTEND MATCH */
         .big-numbers {
             width: 100%;
+            height: 100%;
             min-height: 600px;
-            background: white;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            font-family: var(--content-font);
-        }
-        
-        .big-numbers .header-section {
-            background: var(--bg-color); /* темный фон темы */
-            padding: 48px 64px 48px 64px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .big-numbers .header-section .slide-title {
-            font-size: 2.5rem;
-            font-family: var(--title-font);
-            color: var(--title-color); /* белый на темном фоне */
-            text-align: left;
-            margin-bottom: 24px;
-            width: 100%;
-            word-wrap: break-word;
-            font-weight: bold;
-            line-height: 1.2;
-        }
-        
-        .big-numbers .header-section .slide-subtitle {
-            font-size: 1.5rem;
-            font-family: var(--content-font);
-            color: var(--subtitle-color); /* светлый на темном фоне */
-            text-align: left;
-            width: 95%;
-            word-wrap: break-word;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-        
-        .big-numbers .content-section {
-            padding: 64px;
-            padding-top: 20px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
-            background: white;
+            padding: 40px;
+            position: relative;
+            font-family: var(--content-font);
+            overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
-        .big-numbers .numbers-grid {
+        .big-numbers .slide-title {
+            font-size: 45px;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 56px;
+            width: 100%;
+            word-wrap: break-word;
+        }
+        
+        .numbers-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 48px;
+            gap: 32px; /* Exact frontend match */
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
         
-        .big-numbers .number-item {
+        .number-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding: 32px 24px;
+            padding: 0 16px;
         }
         
-        .big-numbers .number-value {
-            font-size: 3rem;
+        .number-value {
+            font-size: 4.5rem;
             color: var(--content-color);
             margin-bottom: 16px;
             font-family: var(--title-font);
             word-wrap: break-word;
-            font-weight: bold;
         }
         
-        .big-numbers .number-label {
-            font-size: 1.5rem;
+        .number-label {
+            font-size: 1.4rem;
             color: var(--content-color);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-family: var(--title-font);
             word-wrap: break-word;
-            font-weight: 600;
         }
         
-        .big-numbers .number-description {
-            font-size: 1rem;
+        .number-description {
+            font-size: 18px;
             color: var(--content-color);
             font-family: var(--content-font);
             line-height: 1.5;
             word-wrap: break-word;
         }
         
-        /* Four Box Grid Template - EXACT FRONTEND MATCH - UPDATED */
+        /* Four Box Grid Template - EXACT FRONTEND MATCH */
         .four-box-grid {
             width: 100%;
+            height: 100%;
             min-height: 600px;
-            background: #ffffff; /* White background */
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            padding: 60px 80px;
+            align-items: stretch;
+            padding: 40px;
             font-family: var(--content-font);
+            position: relative;
+            overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .four-box-grid .slide-title {
-            font-size: 2.5rem;
+            font-size: 45px;
             font-family: var(--title-font);
-            color: #000000; /* Black color on white background */
+            color: var(--title-color);
             text-align: left;
             margin-bottom: 40px;
             word-wrap: break-word;
-            font-weight: bold;
         }
         
         .grid-container {
@@ -1603,35 +1481,35 @@
             grid-template-rows: 1fr 1fr;
             gap: 24px;
             width: 100%;
+            flex: 1;
         }
         
         .box-item {
-            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); /* Blue gradient */
+            background-color: rgba(255,255,255,0.08);
             border-radius: 8px;
             padding: 20px;
-            color: #ffffff; /* White text */
+            color: var(--content-color);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            min-height: 200px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 0 0 #393963;
+            border: 1px solid #393963;
+            min-height: 160px;
         }
         
         .box-heading {
             font-size: 1.5rem;
-            color: #ffffff; /* White text */
+            color: var(--content-color);
             margin-bottom: 12px;
             font-family: var(--title-font);
             word-wrap: break-word;
-            font-weight: bold;
         }
         
         .box-text {
-            font-size: 1rem;
-            color: #ffffff; /* White text */
+            font-size: 18px;
+            color: var(--content-color);
             font-family: var(--content-font);
             word-wrap: break-word;
-            opacity: 0.9;
         }
         
         /* Pyramid Template - EXACT FRONTEND MATCH */
@@ -1647,18 +1525,17 @@
         
         .pyramid-level {
             background: rgba(0,0,0,0.08);
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
+            border-radius: 8px; /* Exact frontend match */
             padding: 20px; /* Exact frontend match */
             text-align: center;
             width: 100%;
         }
         
-        .pyramid-level:nth-child(5) { width: 110%; }
-        .pyramid-level:nth-child(4) { width: 90%; }
-        .pyramid-level:nth-child(3) { width: 70%; }
-        .pyramid-level:nth-child(2) { width: 50%; }
-        .pyramid-level:nth-child(1) { width: 30%; }
+        .pyramid-level:nth-child(1) { width: 100%; }
+        .pyramid-level:nth-child(2) { width: 80%; }
+        .pyramid-level:nth-child(3) { width: 60%; }
+        .pyramid-level:nth-child(4) { width: 40%; }
+        .pyramid-level:nth-child(5) { width: 20%; }
         
         .level-content {
             font-size: 18px; /* Exact frontend match */
@@ -1672,43 +1549,22 @@
         .six-ideas-container {
             display: flex;
             flex-direction: column;
-            width: 100%;
-            height: 130vh;
-            min-height: 120%;
-            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
-            padding: 40px 40px 10px 40px;
+            height: 100%;
+            padding: 40px;
             box-sizing: border-box;
-            position: relative;
         }
         
-        .six-ideas-header-space {
-            flex: 0 0 auto;
-            min-height: 60px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        
-        .six-ideas-top-section {
-            flex: 0 0 auto;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        
-        .six-ideas-title {
+        .slide-title-section {
             text-align: center;
-            color: #ffffff;
-            font-size: 2.5rem;
-            font-weight: 700;
-            font-family: Georgia, serif;
-            margin-bottom: 30px;
-            text-transform: uppercase;
+            margin-bottom: 40px;
         }
         
         .ideas-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 40px; /* Exact frontend match */
+            flex: 1;
+            margin-bottom: 20px;
         }
         
         .idea-item {
@@ -1720,116 +1576,46 @@
         .idea-header {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px; /* Exact frontend match */
             width: 100%;
         }
         
         .idea-number {
-            font-size: 24px;
+            font-size: 24px; /* Exact frontend match */
             font-weight: 700;
-            color: #ffffff;
-            margin-right: 12px;
-            font-family: Arial, sans-serif;
-            min-width: 40px;
+            color: var(--title-color);
+            margin-right: 12px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
         }
         
         .idea-line {
             flex: 1;
             height: 2px;
-            background-color: #ffffff;
+            background-color: var(--title-color);
         }
         
         .idea-text {
-            font-size: 16px;
-            color: #ffffff;
+            font-size: 16px; /* Exact frontend match */
+            color: var(--content-color);
             line-height: 1.4;
-            font-family: Arial, sans-serif;
-        }
-        
-        .six-ideas-bottom-section {
-            flex: 1 1 auto;
-            width: calc(100% + 80px);
-            min-height: 400px;
-            border-radius: 0;
-            overflow: visible;
-            margin: 0 -40px 0 -40px;
-            padding: 0 40px 60px 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-        }
-        
-        .six-ideas-footer-space {
-            flex: 0 0 auto;
-            min-height: 60px;
-            width: 100%;
-            margin-top: 20px;
+            font-family: 'Martel Sans', sans-serif;
         }
         
         .image-section {
             width: 100%;
-            height: 100%;
-            min-height: 400px;
-            border-radius: 0;
+            height: 300px; /* Exact frontend match */
+            border-radius: 8px; /* Exact frontend match */
             overflow: hidden;
+            border: 2px dashed #adb5bd;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .image-section img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 0;
-            display: block;
+            color: #6c757d;
+            font-size: 16px;
         }
         
         .image-placeholder {
             text-align: center;
-            color: #333;
-        }
-        
-        .image-placeholder-icon {
-            font-size: 48px;
-            color: #ccc;
-            margin-bottom: 10px;
-        }
-        
-        .image-placeholder-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .image-placeholder-subtext {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 3px;
-        }
-        
-        .image-placeholder-italic {
-            font-size: 14px;
-            color: #666;
-            font-style: italic;
-            margin-bottom: 10px;
-        }
-        
-        .image-placeholder-link {
-            font-size: 14px;
-            color: #007bff;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .image-placeholder-ai-link {
-            font-size: 14px;
-            color: #6f42c1;
-            text-decoration: none;
-            display: block;
         }
         
         /* Org Chart Template - EXACT FRONTEND MATCH */
@@ -2065,24 +1851,11 @@
         .contraindications-indications-template {
             width: 100%;
             height: 100%;
-            background: #ffffff;
-            padding: 40px;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            font-family: Georgia, serif;
-            min-height: 600px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .contraindications-indications-template .main-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            position: relative;
-            height: 400px;
-            width: 100%;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
         }
         
         .contraindications-indications-container {
@@ -2147,22 +1920,11 @@
         .metrics-analytics-template {
             width: 100%;
             height: 100%;
-            background: var(--bg-color);
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             padding: 40px;
-            font-family: var(--content-font);
-            box-sizing: border-box;
-            position: relative;
-        }
-        
-        .metrics-analytics-template .slide-title {
-            font-weight: 700;
-            font-size: var(--title-size);
-            color: var(--title-color);
-            text-align: center;
-            font-family: var(--title-font);
-            margin-bottom: 40px;
+            font-family: 'Martel Sans', sans-serif;
         }
         
         .metrics-grid {
@@ -2172,6 +1934,8 @@
             flex: 1;
             position: relative;
         }
+        
+
         
         .metric-item {
             display: flex;
@@ -2184,170 +1948,93 @@
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
         
         .metric-number {
             font-size: 36px;
             font-weight: 700;
-            color: #ffffff;
+            color: var(--accent-color);
             margin-bottom: 16px;
-            font-family: var(--title-font);
+            font-family: 'Martel Sans', sans-serif;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .metric-text {
-            font-size: var(--content-size);
-            color: #ffffff;
+            font-size: 16px;
+            color: var(--content-color);
             line-height: 1.5;
-            font-family: var(--content-font);
+            font-family: 'Martel Sans', sans-serif;
             font-weight: 500;
         }
         
-        /* Event List Template - Two Column Layout with Timeline */
+        /* Event List Template - EXACT FRONTEND MATCH */
         .event-list-template {
             width: 100%;
             height: 100%;
             background-color: var(--bg-color);
             display: flex;
-            flex-direction: row;
-            position: relative;
-            font-family: 'Martel Sans', sans-serif;
-            overflow: hidden;
-        }
-        
-        .event-list-left-section {
-            width: 33%;
-            height: 100%;
-            position: absolute;
-            left: 0;
-            top: 0;
-            display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            background: linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%);
-            padding: 60px 40px;
-            z-index: 2;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+            position: relative;
+            box-sizing: border-box;
         }
         
-        .event-list-right-section {
-            width: 67%;
-            height: 100%;
-            position: absolute;
-            right: 0;
-            top: 0;
+        .events-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background: #ffffff;
-            z-index: 1;
+            width: 100%;
+            max-width: 600px;
         }
         
-        .event-list-title {
-            font-size: 2.7rem;
-            font-family: 'Martel Sans', sans-serif;
-            color: #ffffff;
-            font-weight: bold;
-            text-align: left;
-            margin-bottom: 20px;
-            word-wrap: break-word;
-            line-height: 1.1;
+        .event-item {
+            margin: 24px 0;
+            text-align: center;
+            width: 100%;
+            position: relative;
         }
         
-        .event-list-presenter {
-            font-size: 1.1rem;
-            color: #ffffff;
+        .event-item:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background-color: var(--title-color);
+            opacity: 0.3;
+        }
+        
+        .event-date {
+            font-weight: 700;
+            font-size: 40px;
+            color: var(--title-color);
             margin-bottom: 8px;
             font-family: 'Martel Sans', sans-serif;
-            word-wrap: break-word;
-            line-height: 1.4;
+            text-align: center;
         }
         
-        .event-list-subject {
-            font-size: 1.1rem;
-            color: #ffffff;
-            font-family: 'Martel Sans', sans-serif;
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-        
-        .events-timeline-container {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            position: relative;
-            padding: 80px 40px;
-            min-height: 200px;
-        }
-        
-        .timeline-line {
-            position: absolute;
-            top: 75%;
-            left: 0px;
-            right: 170px;
-            height: 2px;
-            background-color: #0F58F9;
-            transform: translateY(-50%);
-            z-index: 1;
-        }
-        
-        .timeline-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-            flex: 1;
-        }
-        
-        .timeline-number-box {
-            width: 40px;
-            height: 40px;
-            background-color: #0F58F9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .timeline-number {
-            color: #ffffff;
-            font-size: 20px;
-            font-weight: bold;
-            font-family: 'Martel Sans', sans-serif;
-            line-height: 1;
-        }
-        
-        .timeline-description {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 115px;
-            margin-top: 120px;
-            margin-left: 72px;
-        }
-        
-        .timeline-description-text {
+        .event-description {
             font-weight: 400;
-            font-size: 1rem;
+            font-size: 22px;
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
-            word-wrap: break-word;
-            line-height: 1.4;
-            width: 100%;
             text-align: center;
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH - NEW DESIGN */
 .timeline {
-     width: 100%;
+    width: 100%;
     height: 100%;
     min-height: 600px;
     background: #ffffff;
@@ -2355,10 +2042,10 @@
     flex-direction: column;
     padding: 50px;
     font-family: Georgia, serif;
-     align-items: stretch;
+    align-items: stretch;
     text-align: left;
     overflow: hidden;
-     position: relative;
+    position: relative;
 }
 
 .timeline .slide-title {
@@ -2384,10 +2071,10 @@
 
 .timeline-line {
     position: absolute;
-    top: 155px;
-    left: calc(50% - 390px);
-    width: 115%;
-    height: 2px;
+    top: 11px;
+    left: calc(50% + 60px);
+    width: 2px;
+    height: 115%;
     background: #0F58F9;
 }
 
@@ -2408,19 +2095,18 @@
     transform: translateY(-50%);
 }
 
-.timeline-step-heading {
-    font-size: 1.2rem;
+.step-heading {
+    font-size: 1.1rem;
     color: #000000;
-    font-family: 'Arial, sans-serif';
+    font-family: Arial, sans-serif;
     font-weight: bold;
-    margin-bottom: 8px;
     word-wrap: break-word;
 }
 
-.timeline-step-description {
-    font-size: 0.9rem;
+.step-description {
+    font-size: 0.95rem;
     color: #000000;
-    font-family: 'Arial, sans-serif';
+    font-family: Arial, sans-serif;
     line-height: 1.4;
     word-wrap: break-word;
 }
@@ -2651,77 +2337,146 @@
                 
             {% elif slide.templateId == 'big-image-top' %}
                 <div class="big-image-top">
-                    <!-- Top 50% - Image Container -->
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: #f8f9fa;">
-                                <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
+                            <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
+                            <div style="
+                                position: relative;
+                                overflow: hidden;
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: {{ ('{}px'.format(slide.props.widthPx|int)) if slide.props.widthPx else '100%' }};
+                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 240 }}px;
+                                margin: 0 auto;
+                                margin-bottom: 24px !important;
+                            ">
+                                <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset or slide.props.imageScale %}
+                                            transform: 
+                                            {% if slide.props.imageOffset %}
+                                                translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
+                                            {% endif %}
+                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
+                                            {% endif %};
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px;
+                                        margin: 0;
+                                        padding: 0;
+                                        display: block;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            </div>
+                            <div class="image-placeholder" style="display: none;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A high-quality illustration for the topic' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">100% × 240px</div>
                             </div>
                         {% else %}
                             <!-- Placeholder when no image -->
-                            <div style="width: 100%; height: 100%; border: 2px dashed #e0e0e0; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                            <div style="width: 100%; height: 240px; border: 2px dashed #e0e0e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; margin-bottom: 32px;">
                                 <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% endif %}
                     </div>
-                    
-                    <!-- Bottom 50% - Content Container -->
                     <div class="content-container">
                         {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                            <h1 class="slide-title">{{ slide.props.title }}</h1>
+                            <h1 class="slide-title positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set titleId = slide.slideId + '-0' %}
+                                    {% if slide.metadata.elementPositions[titleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[titleId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[titleId].y|float|round(2) }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >{{ slide.props.title }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                            <div class="content-text">{{ slide.props.subtitle }}</div>
+                            <div class="content-text positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set subtitleId = slide.slideId + '-1' %}
+                                    {% if slide.metadata.elementPositions[subtitleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[subtitleId].y|float|round(2) }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >{{ slide.props.subtitle }}</div>
                         {% endif %}
                     </div>
                 </div>
                 
                 {% elif slide.templateId == 'bullet-points' %}
                 <div class="bullet-points">
-                    <!-- LEFT section with IMAGE (white background) -->
-                    <div class="left-section">
-                        {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: cover;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        {% else %}
-                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; background-color: #f8f9fa;">
-                                🖼️ Add image
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- RIGHT section with TITLE and BULLETS (dark blue background) -->
-                    <div class="right-section">
-                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
-                        
-                        <div class="bullets-container">
-                            <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-end;">
-                                {% if slide.props.bullets and slide.props.bullets|length > 0 %}
-                                    {% for bullet in slide.props.bullets %}
-                                        {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
-                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
-                                                <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
-                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    {% for i in range(3) %}
-                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
-                                            <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
-                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
-                                        </li>
-                                    {% endfor %}
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    <div class="content-row">
+                        <div class="placeholder-container">
+                            {% if slide.props.imagePath %}
+                                <!-- EXACT TWO-COLUMNS APPROACH: Direct image styling without container wrapper -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '480px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '480px' }};
+                                        margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                <div class="placeholder" style="display: none;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
+                                    <div style="font-size: 12px; color: #868e96;">480px × 480px</div>
+                                </div>
+                            {% else %}
+                                <div class="placeholder" style="width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; aspect-ratio: 1 / 1;">
+                                    <!-- Empty placeholder - maintains layout -->
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="bullets-container positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set bulletsId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[bulletsId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
+                            <ul class="bullet-list">
+                                {% for bullet in slide.props.bullets %}
+                                    {% if bullet and bullet != 'Click to add bullet point' %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">
+                                                {% if slide.props.bulletStyle == 'arrow' %}→
+                                                {% elif slide.props.bulletStyle == 'check' %}✓
+                                                {% elif slide.props.bulletStyle == 'star' %}★
+                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                                {% else %}•
+                                                {% endif %}
+                                            </span>
+                                            <span class="bullet-text">{{ bullet }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -2734,22 +2489,27 @@
                     <div class="left-section">
                         <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
                         
-                        <div class="bullets-container">
-                            <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-start;">
+                        <div class="bullets-container positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[bulletsId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
+                            <ul class="bullet-list">
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
-                                        {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
-                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
-                                                <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
-                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
-                                            </li>
-                                        {% endif %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">▶</span>
+                                            <span class="bullet-text">{{ bullet if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] else 'Add bullet point' }}</span>
+                                        </li>
                                     {% endfor %}
                                 {% else %}
                                     {% for i in range(3) %}
-                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
-                                            <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
-                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">▶</span>
+                                            <span class="bullet-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
                                         </li>
                                     {% endfor %}
                                 {% endif %}
@@ -2774,103 +2534,94 @@
                 
             {% elif slide.templateId == 'process-steps' %}
                 <div class="process-steps">
-                    <!-- Left Column - Title and Subtitle -->
-                    <div class="left-column">
-                        <h1 class="slide-title">{{ slide.props.title or 'The Stages of Research' }}</h1>
-                        {% if slide.props.subtitle %}
-                        <p class="slide-subtitle">{{ slide.props.subtitle }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Right Column - Process Steps -->
-                    <div class="right-column">
-                        {% set stepColors = ['#0F58F9', '#2A7CFF', '#09ACD8', '#1B94E8', '#01298A'] %}
-                        {% set defaultSteps = [
-                            {'title': 'PROBLEM', 'description': 'Identify a problem and form a thesis statement.'},
-                            {'title': 'READ', 'description': 'Review literature related to your topic.'},
-                            {'title': 'HYPOTHESIZE', 'description': 'Come up with an educated guess based on your research.'},
-                            {'title': 'RESEARCH', 'description': 'Read resources to support your hypothesis.'},
-                            {'title': 'CONCLUSION', 'description': 'Interpret the results and write your conclusion.'}
-                        ] %}
-                        {% set displaySteps = slide.props.steps if slide.props.steps and slide.props.steps|length > 0 else defaultSteps %}
-                        
-                        {% for step in displaySteps[:5] %}
-                            {% set stepColor = stepColors[loop.index0] %}
-                            {% if step is mapping %}
-                                {% if 'title' in step and step['title'] %}
-                                    {% set stepTitle = step['title'] %}
-                                {% else %}
-                                    {% set stepTitle = '' %}
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
-                                {% if 'description' in step and step['description'] %}
-                                    {% set stepDescription = step['description'] %}
-                                {% else %}
-                                    {% set stepDescription = 'Description' %}
-                                {% endif %}
-                            {% elif step is string %}
-                                {# Handle string format - treat entire string as description, no title #}
-                                {% set stepTitle = '' %}
-                                    {% set stepDescription = step %}
-                            {% else %}
-                                {% set stepTitle = '' %}
-                                {% set stepDescription = step|string if step else 'Description' %}
                             {% endif %}
-                            
-                            <div class="process-step" style="background: {{ stepColor }};">
-                                <!-- Step Number Circle -->
-                                <div class="step-number-circle" style="border: 3px solid {{ stepColor }};">
-                                    <div class="step-number-inner" style="color: {{ stepColor }};">
-                                        {{ loop.index }}
-                                    </div>
-                                </div>
-
-                                <!-- Step Content -->
-                                <div class="step-content">
-                                    {% if stepTitle %}
-                                    <h3 class="step-title">{{ stepTitle }}</h3>
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    <div class="steps-container">
+                        {% for step in slide.props.steps %}
+                            {% set stepText = step.description if step.description else (step if step is string else '') %}
+                            {% if stepText and stepText != 'Click to add step description' %}
+                                <div class="process-step positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
+                                        {% if slide.metadata.elementPositions[stepId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
+                                        {% endif %}
                                     {% endif %}
-                                    <p class="step-description" style="{% if not stepTitle %}width: 100%;{% endif %}">{{ stepDescription }}</p>
+                                >
+                                    <div class="step-number">{{ loop.index }}</div>
+                                    <p class="step-description">{{ stepText }}</p>
                                 </div>
-                            </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'challenges-solutions' %}
                 <div class="challenges-solutions">
-                    <h1 class="slide-title">{{ slide.props.title or 'Challenges & Solutions' }}</h1>
-                    {% if slide.props.subtitle %}
-                    <h2 class="slide-subtitle">{{ slide.props.subtitle }}</h2>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
                     {% endif %}
-                    
-                    <div class="main-content">
-                        <!-- Left side text items (Challenges) - positioned at 15%, 48%, 75% -->
-                        {% set leftPositions = ['15%', '48%', '75%'] %}
-                        {% set displayChallenges = slide.props.challenges if slide.props.challenges and slide.props.challenges|length > 0 else ['Add challenge', 'Add challenge', 'Add challenge'] %}
-                        {% for challenge in displayChallenges[:3] %}
-                            <div style="position: absolute; top: {{ leftPositions[loop.index0] }}; left: 20px; width: 280px; z-index: 10;">
-                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ challenge }}</div>
+                    <div class="grid">
+                        <div class="callout-box positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set challengesId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[challengesId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[challengesId].x }}px, {{ slide.metadata.elementPositions[challengesId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
+                            <div class="callout-header">
+                                <svg class="icon-xmark" viewBox="0 0 512 512">
+                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+                                </svg>
+                                <h2 class="section-title">{{ slide.props.challengesTitle or 'Виклики' }}</h2>
+                            </div>
+                            <ul class="callout-list">
+                                {% for challenge in slide.props.challenges %}
+                                    <li class="callout-item">
+                                        <div class="callout-bullet"></div>
+                                        <span>{{ challenge or 'Click to add challenge' }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
                         </div>
-                        {% endfor %}
-
-                        <!-- Right side text items (Solutions) - positioned at 15%, 48%, 75% -->
-                        {% set rightPositions = ['15%', '48%', '75%'] %}
-                        {% set displaySolutions = slide.props.solutions if slide.props.solutions and slide.props.solutions|length > 0 else ['Add solution', 'Add solution', 'Add solution'] %}
-                        {% for solution in displaySolutions[:3] %}
-                            <div style="position: absolute; top: {{ rightPositions[loop.index0] }}; right: 10px; width: 280px; z-index: 10;">
-                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ solution }}</div>
-                        </div>
-                        {% endfor %}
-
-                        <!-- Central Image -->
-                        <div class="image-container">
-                            <img src="{{ 'group_img.png'|static_image_base64 }}" alt="Group" style="width: 500px; height: 400px; object-fit: contain;" />
-                        </div>
-
-                        <!-- Bottom Labels -->
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, 160px); display: flex; gap: 70px; z-index: 10; padding-left: 40px;">
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.challengesTitle or 'Challenges' }}</div>
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.solutionsTitle or 'Solutions' }}</div>
+                        <div class="callout-box positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set solutionsId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[solutionsId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[solutionsId].x }}px, {{ slide.metadata.elementPositions[solutionsId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
+                            <div class="callout-header">
+                                <svg class="icon-check" viewBox="0 0 512 512">
+                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
+                                </svg>
+                                <h2 class="section-title">{{ slide.props.solutionsTitle or 'Рішення' }}</h2>
+                            </div>
+                            <ul class="callout-list">
+                                {% for solution in slide.props.solutions %}
+                                    <li class="callout-item">
+                                        <div class="callout-bullet"></div>
+                                        <span>{{ solution or 'Click to add solution' }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -2880,96 +2631,95 @@
                     <div class="two-column-layout">
                         <!-- Left Column -->
                         <div class="column">
-                            <div style="width: 100%; min-height: 140px; margin-bottom: 10px;">
                             <h2 class="column-title">{{ slide.props.leftTitle if slide.props.leftTitle and slide.props.leftTitle not in ['Click to add left title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
-                            </div>
-                            <div style="width: 100%;">
                             <p class="column-content">{{ slide.props.leftContent if slide.props.leftContent and slide.props.leftContent not in ['Click to add left content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
-                            </div>
-                            <div style="width: 497px; height: 290px; display: flex; margin-top: auto; margin-bottom: 8px; justify-content: center; align-items: center; border-radius: 8px; position: relative; left: 50%; transform: translateX(-50%);">
                             {% if slide.props.leftImagePath %}
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
                                         width: 100%;
-                                            height: 100%;
+                                        height: 250px;
                                         object-fit: cover;
                                         border-radius: 4px;
+                                        margin-top: 20px;
                                      " />
                             {% else %}
-                                    <div class="placeholder" style="width: 100%; height: 100%; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
                                     🖼️ Add image
                                 </div>
                             {% endif %}
-                            </div>
                         </div>
                         
                         <!-- Right Column -->
                         <div class="column">
-                            <div style="width: 100%; min-height: 140px; margin-bottom: 10px;">
                             <h2 class="column-title">{{ slide.props.rightTitle if slide.props.rightTitle and slide.props.rightTitle not in ['Click to add right title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
-                            </div>
-                            <div style="width: 100%;">
                             <p class="column-content">{{ slide.props.rightContent if slide.props.rightContent and slide.props.rightContent not in ['Click to add right content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
-                            </div>
-                            <div style="width: 497px; height: 290px; display: flex; margin-top: auto; margin-bottom: 8px; justify-content: center; align-items: center; border-radius: 8px; position: relative; left: 50%; transform: translateX(-50%);">
                             {% if slide.props.rightImagePath %}
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
                                         width: 100%;
-                                            height: 100%;
+                                        height: 250px;
                                         object-fit: cover;
                                         border-radius: 4px;
+                                        margin-top: 20px;
                                      " />
                             {% else %}
-                                    <div class="placeholder" style="width: 100%; height: 100%; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
                                     🖼️ Add image
                                 </div>
                             {% endif %}
-                            </div>
                         </div>
                     </div>
                 </div>
                 
                 {% elif slide.templateId == 'big-numbers' %}
                 <div class="big-numbers">
-                    <!-- Header Section - Dark Blue Background -->
-                    <div class="header-section">
-                        <h1 class="slide-title">{{ slide.props.title or 'Stress Management Made Simple' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Add slide description' }}</p>
-                    </div>
-
-                    <!-- Main Content Area - White Background -->
-                    <div class="content-section">
-                        <div class="numbers-grid">
-                            {% if slide.props.steps and slide.props.steps|length >= 3 %}
-                                {% for step in slide.props.steps[:3] %}
-                                <div class="number-item">
-                                        <div class="number-value">{{ step.value or '85%' }}</div>
-                                        <div class="number-label">{{ step.label or 'Increase Productivity' }}</div>
-                                        <div class="number-description">{{ step.description or 'Gain the skills to be productive and successful in the workplace.' }}</div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <!-- Default 3 items if no steps provided -->
-                                <div class="number-item">
-                                    <div class="number-value">85%</div>
-                                    <div class="number-label">Increase Productivity</div>
-                                    <div class="number-description">Gain the skills to be productive and successful in the workplace.</div>
-                                </div>
-                                <div class="number-item">
-                                    <div class="number-value">90%</div>
-                                    <div class="number-label">Reduce Stress</div>
-                                    <div class="number-description">Learn effective stress management techniques.</div>
-                        </div>
-                                <div class="number-item">
-                                    <div class="number-value">95%</div>
-                                    <div class="number-label">Improve Balance</div>
-                                    <div class="number-description">Achieve better work-life balance.</div>
-                                </div>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
                             {% endif %}
-                        </div>
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    <div class="numbers-grid">
+                        {% for item in slide.props.steps %}
+                            <div class="number-item">
+                                {% if item.value %}
+                                    <div class="number-value positioned-element"
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set valueId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 1)|string %}
+                                            {% if slide.metadata.elementPositions[valueId] %}
+                                                style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                            {% endif %}
+                                        {% endif %}
+                                    >{{ item.value }}</div>
+                                {% endif %}
+                                {% if item.label %}
+                                    <div class="number-label positioned-element"
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set labelId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 2)|string %}
+                                            {% if slide.metadata.elementPositions[labelId] %}
+                                                style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                            {% endif %}
+                                        {% endif %}
+                                    >{{ item.label }}</div>
+                                {% endif %}
+                                {% if item.description %}
+                                    <div class="number-description positioned-element"
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 3)|string %}
+                                            {% if slide.metadata.elementPositions[descriptionId] %}
+                                                style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                            {% endif %}
+                                        {% endif %}
+                                    >{{ item.description }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
                 
@@ -3030,111 +2780,45 @@
                 
             {% elif slide.templateId == 'timeline' %}
                 <div class="timeline">
-                    <h1 class="slide-title">{{ slide.props.title or 'Timeline' }}</h1>
-                    
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="timeline-container">
-                        <!-- Vertical Line -->
                         <div class="timeline-line"></div>
                         
-                        {# Convert events to steps format if events exist, otherwise use steps #}
-                        {% if slide.props.events and slide.props.events|length > 0 %}
-                            {% set normalizedSteps = [] %}
-                            {% for event in slide.props.events %}
-                                {% set _ = normalizedSteps.append({
-                                    'heading': event.date if event.date else event.title,
-                                    'description': event.description
-                                }) %}
-                            {% endfor %}
-                        {% else %}
-                            {% set normalizedSteps = slide.props.steps if slide.props.steps else [] %}
-                        {% endif %}
-                        
                         <!-- Item 1 - Left side -->
-                        {% set step0 = normalizedSteps[0] if normalizedSteps|length > 0 else none %}
-                        <div class="timeline-circle" style="top: 5%;"></div>
-                        <div class="timeline-text-block" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">
-                                {% if step0 and step0 is mapping and step0.heading %}
-                                    {{ step0.heading }}
-                                {% elif step0 and not (step0 is mapping) %}
-                                    {{ step0 }}
-                                {% else %}
-                                    Milestone 1
-                                {% endif %}
-                            </div>
-                            <div class="timeline-step-description">
-                                {% if step0 and step0 is mapping and step0.description %}
-                                    {{ step0.description }}
-                                {% else %}
-                                    Description of the first milestone
-                                {% endif %}
-                            </div>
+                        <div class="timeline-circle positioned-element" style="top: 5%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}</div>
                         </div>
 
                         <!-- Item 2 - Right side -->
-                        {% set step1 = normalizedSteps[1] if normalizedSteps|length > 1 else none %}
-                        <div class="timeline-circle" style="top: 31%;"></div>
-                        <div class="timeline-text-block" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">
-                                {% if step1 and step1 is mapping and step1.heading %}
-                                    {{ step1.heading }}
-                                {% elif step1 and not (step1 is mapping) %}
-                                    {{ step1 }}
-                                {% else %}
-                                    Milestone 2
-                                {% endif %}
-                            </div>
-                            <div class="timeline-step-description">
-                                {% if step1 and step1 is mapping and step1.description %}
-                                    {{ step1.description }}
-                                {% else %}
-                                    Description of the second milestone
-                                {% endif %}
-                            </div>
+                        <div class="timeline-circle positioned-element" style="top: 31%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}</div>
                         </div>
 
                         <!-- Item 3 - Left side -->
-                        {% set step2 = normalizedSteps[2] if normalizedSteps|length > 2 else none %}
-                        <div class="timeline-circle" style="top: 56%;"></div>
-                        <div class="timeline-text-block" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">
-                                {% if step2 and step2 is mapping and step2.heading %}
-                                    {{ step2.heading }}
-                                {% elif step2 and not (step2 is mapping) %}
-                                    {{ step2 }}
-                                {% else %}
-                                    Milestone 3
-                                {% endif %}
-                            </div>
-                            <div class="timeline-step-description">
-                                {% if step2 and step2 is mapping and step2.description %}
-                                    {{ step2.description }}
-                                {% else %}
-                                    Description of the third milestone
-                                {% endif %}
-                            </div>
+                        <div class="timeline-circle positioned-element" style="top: 56%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}</div>
                         </div>
 
                         <!-- Item 4 - Right side -->
-                        {% set step3 = normalizedSteps[3] if normalizedSteps|length > 3 else none %}
-                        <div class="timeline-circle" style="top: 81%;"></div>
-                        <div class="timeline-text-block" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">
-                                {% if step3 and step3 is mapping and step3.heading %}
-                                    {{ step3.heading }}
-                                {% elif step3 and not (step3 is mapping) %}
-                                    {{ step3 }}
-                                {% else %}
-                                    Milestone 4
-                                {% endif %}
-                            </div>
-                            <div class="timeline-step-description">
-                                {% if step3 and step3 is mapping and step3.description %}
-                                    {{ step3.description }}
-                                {% else %}
-                                    Description of the fourth milestone
-                                {% endif %}
-                            </div>
+                        <div class="timeline-circle positioned-element" style="top: 81%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}</div>
                         </div>
                     </div>
                 </div>
@@ -3237,92 +2921,79 @@
             {% elif slide.templateId == 'pyramid' %}
                 <div class="pyramid-template">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                        {% set titlePos = slide.metadata.elementPositions[titleId] if slide.metadata and slide.metadata.elementPositions and titleId in slide.metadata.elementPositions else none %}
-                        {% set titleColor = slide.metadata.elementColors[titleId] if slide.metadata and slide.metadata.elementColors and titleId in slide.metadata.elementColors else none %}
                         <h1 class="slide-title positioned-element"
-                            style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
-                        >{{ slide.props.title|safe }}</h1>
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="main-content">
-                        <div class="pyramid-container">
-                            <!-- Pyramid Levels -->
-                            {% for i in range(5) %}
-                                <div class="pyramid-level positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set levelId = slide.slideId + '-pyramid-level-' + i|string %}
-                                        {% if slide.metadata.elementPositions[levelId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[levelId].x }}px, {{ slide.metadata.elementPositions[levelId].y }}px) translateX(-50%);"
-                                        {% endif %}
-                                    {% endif %}
-                                >
-                                    <div style="display: flex; align-items: center;">
-                                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; flex-shrink: 0;">
-                                            <path d="M21 11.5C21 16.7467 16.9706 21 12 21C10.3126 21 8.73389 20.5668 7.37021 19.7936L3 21L4.20641 16.6298C3.43313 15.2661 3 13.6874 3 12C3 6.75329 7.02944 3 12 3C16.9706 3 21 6.75329 21 11.5Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
-                                            {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
-                                                {{ slide.props.steps[i].number }}
-                                            {% else %}
-                                                {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-
-                            <!-- Text Blocks positioned around pyramid -->
-                            {% for i in range(5) %}
-                                {% set textPos = none %}
-                                {% set textColor = none %}
+                        <!-- Pyramid Levels -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-level positioned-element"
                                 {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% for key in slide.metadata.elementPositions.keys() %}
-                                        {% if ('pyramid-item-' + (i + 1)|string) in key or ('pyramid-text-' + i|string) in key %}
-                                            {% if textPos is none %}
-                                                {% set textPos = slide.metadata.elementPositions[key] %}
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
+                                    {% set levelId = 'draggable-' + slide.slideId + '-' + (i + 1)|string %}
+                                    {% if slide.metadata.elementPositions[levelId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[levelId].x }}px, {{ slide.metadata.elementPositions[levelId].y }}px);"
+                                    {% endif %}
                                 {% endif %}
-                                {% if slide.metadata and slide.metadata.elementColors %}
-                                    {% for key in slide.metadata.elementColors.keys() %}
-                                        {% if ('pyramid-item-' + (i + 1)|string) in key or ('pyramid-text-' + i|string) in key %}
-                                            {% if textColor is none %}
-                                                {% set textColor = slide.metadata.elementColors[key] %}
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                                <div class="pyramid-text-block level-{{ i }} positioned-element"
-                                    style="{% if textPos %}transform: translate({{ textPos.x }}px, {{ textPos.y }}px);{% endif %}"
-                                >
-                                    <div class="pyramid-text-heading" style="{% if textColor %}color: {{ textColor }};{% endif %}">
-                                        {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading %}
-                                            {{ slide.props.steps[i].heading|safe }}
-                                        {% else %}
-                                            Headline
-                                        {% endif %}
+                            >
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-right: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #3388FF;"></div>
                                     </div>
-                                    <div class="pyramid-text-description" style="{% if textColor %}color: {{ textColor }};{% endif %}">
-                                        {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description %}
-                                            {{ slide.props.steps[i].description|safe }}
+                                    <div style="font-size: 16px; font-weight: bold; color: #ffffff; font-family: Arial, sans-serif;">
+                                        {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
+                                            {{ slide.props.steps[i].number }}
                                         {% else %}
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                            {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
                                         {% endif %}
                                     </div>
                                 </div>
-                            {% endfor %}
+                            </div>
+                        {% endfor %}
 
-                            <!-- Triangle Arrows pointing to pyramid -->
-                            {% for i in range(5) %}
-                                {% set triangleId = slide.slideId + '-pyramid-triangle-' + i|string %}
-                                <div class="pyramid-triangle level-{{ i }} positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[triangleId] %}
+                        <!-- Text Blocks -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-text-block level-{{ i }} positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set textId = 'draggable-' + slide.slideId + '-' + (i + 6)|string %}
+                                    {% if slide.metadata.elementPositions[textId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[textId].x }}px, {{ slide.metadata.elementPositions[textId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
+                                <div class="pyramid-text-heading">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading and slide.props.steps[i].heading != 'Click to add heading' %}
+                                        {{ slide.props.steps[i].heading }}
+                                    {% else %}
+                                        Headline
+                                    {% endif %}
+                                </div>
+                                <div class="pyramid-text-description">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description and slide.props.steps[i].description != 'Click to add description' %}
+                                        {{ slide.props.steps[i].description }}
+                                    {% else %}
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Triangle Arrows -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-triangle level-{{ i }} positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = 'draggable-' + slide.slideId + '-' + (i + 11)|string %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
                                         style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
                                     {% endif %}
-                                ></div>
-                            {% endfor %}
-                        </div>
+                                {% endif %}
+                            ></div>
+                        {% endfor %}
                     </div>
                 </div>
                 
@@ -3419,111 +3090,57 @@
                 </div>
                 
             {% elif slide.templateId == 'contraindications-indications' %}
+                <!-- DEBUG: contraindications-indications template -->
+                <!-- DEBUG: slide.props.contraindications = {{ slide.props.contraindications }} -->
+                <!-- DEBUG: slide.props.indications = {{ slide.props.indications }} -->
                 <div class="contraindications-indications-template">
-                    <div class="main-content">
-                        <!-- Central Image Container -->
-                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
-                            <img src="{{ 'contrad_img.png'|static_image_base64 }}" alt="Contraindications and Indications" style="width: 100%; height: 100%; object-fit: contain;" />
-                        </div>
-
-                        <!-- Vertical Line - Full Height -->
-                        <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: linear-gradient(to bottom, transparent, #0F58F9, transparent); z-index: 10;"></div>
-
-                        <!-- VS Button - Center -->
-                        <div class="positioned-element" 
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set vsId = slide.slideId + '-vs-button' %}
-                                {% if slide.metadata.elementPositions[vsId] %}
-                                    style="position: absolute; top: 50%; left: 50%; transform: translate({{ slide.metadata.elementPositions[vsId].x }}px, {{ slide.metadata.elementPositions[vsId].y }}px) translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;"
+                    <h1 class="slide-title">{{ slide.props.title or 'Contraindications and indications' }}</h1>
+                    <div class="contraindications-indications-container">
+                        <div class="contraindications-section">
+                            <div class="section-header contraindications-header">
+                                <h2>You shouldn't</h2>
+                            </div>
+                            <div class="section-content">
+                                {% if slide.props.contraindications %}
+                                    {% for item in slide.props.contraindications %}
+                                        <div class="list-item">
+                                            <div class="list-bullet contraindications-bullet"></div>
+                                            <div class="list-text">{{ item or 'Click to add contraindication' }}</div>
+                                        </div>
+                                    {% endfor %}
                                 {% else %}
-                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;"
+                                    {% for i in range(5) %}
+                                        <div class="list-item">
+                                            <div class="list-bullet contraindications-bullet"></div>
+                                            <div class="list-text">Describe the things patients shouldn't do here</div>
+                                        </div>
+                                    {% endfor %}
                                 {% endif %}
-                            {% else %}
-                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;"
-                            {% endif %}
-                        >
-                            VS
-                        </div>
-
-                        <!-- Left Project Title -->
-                        {% set leftTitleId = 'draggable-' + slide.slideId + '-0' %}
-                        {% set leftTitlePos = slide.metadata.elementPositions[leftTitleId] if slide.metadata and slide.metadata.elementPositions and leftTitleId in slide.metadata.elementPositions else none %}
-                        {% set leftTitleColor = slide.metadata.elementColors[leftTitleId] if slide.metadata and slide.metadata.elementColors and leftTitleId in slide.metadata.elementColors else none %}
-                        <div class="positioned-element"
-                            {% if leftTitlePos %}
-                                style="position: absolute; left: 3%; top: 50%; transform: translate({{ leftTitlePos.x }}px, {{ leftTitlePos.y }}px) translateY(-50%); z-index: 10;"
-                            {% else %}
-                                style="position: absolute; left: 2.6%; top: 50%; transform: translateY(-50%); z-index: 10;"
-                            {% endif %}
-                        >
-                            <div style="width: 170px; font-size: 1.5rem; {% if leftTitleColor %}color: {{ leftTitleColor }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; font-weight: semibold; min-width: 100px;">
-                                The first project
                             </div>
                         </div>
-
-                        <!-- Right Project Title -->
-                        {% set rightTitleId = 'draggable-' + slide.slideId + '-1' %}
-                        {% set rightTitlePos = slide.metadata.elementPositions[rightTitleId] if slide.metadata and slide.metadata.elementPositions and rightTitleId in slide.metadata.elementPositions else none %}
-                        {% set rightTitleColor = slide.metadata.elementColors[rightTitleId] if slide.metadata and slide.metadata.elementColors and rightTitleId in slide.metadata.elementColors else none %}
-                        <div class="positioned-element"
-                            {% if rightTitlePos %}
-                                style="position: absolute; right: -3.1%; top: 50%; transform: translate({{ rightTitlePos.x }}px, {{ rightTitlePos.y }}px) translateY(-50%); z-index: 10;"
-                            {% else %}
-                                style="position: absolute; right: -3.1%; top: 50%; transform: translateY(-50%); z-index: 10;"
-                            {% endif %}
-                        >
-                            <div style="width: 200px; font-size: 1.5rem; {% if rightTitleColor %}color: {{ rightTitleColor }};{% else %}color: #ffffff;{% endif %} font-family: Arial, sans-serif; text-align: left; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 140px; font-weight: semibold;">
-                                The second project
+                        
+                        <div class="indications-section">
+                            <div class="section-header indications-header">
+                                <h2>You should</h2>
+                            </div>
+                            <div class="section-content">
+                                {% if slide.props.indications %}
+                                    {% for item in slide.props.indications %}
+                                        <div class="list-item">
+                                            <div class="list-bullet indications-bullet"></div>
+                                            <div class="list-text">{{ item or 'Click to add indication' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for i in range(5) %}
+                                        <div class="list-item">
+                                            <div class="list-bullet indications-bullet"></div>
+                                            <div class="list-text">Describe the things patients should do here</div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
-
-                        <!-- Left Side Text Blocks -->
-                        {% set leftBaseIndex = 2 %}
-                        {% for i in range(3) %}
-                            {% set headingIndex = leftBaseIndex + (i * 2) %}
-                            {% set descIndex = leftBaseIndex + (i * 2) + 1 %}
-                            {% set headingId = 'draggable-' + slide.slideId + '-' + headingIndex|string %}
-                            {% set descId = 'draggable-' + slide.slideId + '-' + descIndex|string %}
-                            {% set leftPositions = [{'left': '23%', 'top': '27%'}, {'left': '26%', 'top': '44%'}, {'left': '22%', 'top': '62%'}] %}
-                            {% set blockPos = leftPositions[i] %}
-                            
-                            <div style="position: absolute; left: {{ blockPos.left }}; top: {{ blockPos.top }}; z-index: 10; max-width: 200px;">
-                                {% set headingPos = slide.metadata.elementPositions[headingId] if slide.metadata and slide.metadata.elementPositions and headingId in slide.metadata.elementPositions else none %}
-                                {% set headingColor = slide.metadata.elementColors[headingId] if slide.metadata and slide.metadata.elementColors and headingId in slide.metadata.elementColors else none %}
-                                <div class="positioned-element" style="font-size: 0.9rem; font-weight: bold; {% if headingColor %}color: {{ headingColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;{% if headingPos %} transform: translate({{ headingPos.x }}px, {{ headingPos.y }}px);{% endif %}">
-                                    Heading text goes here
-                                </div>
-                                {% set descPos = slide.metadata.elementPositions[descId] if slide.metadata and slide.metadata.elementPositions and descId in slide.metadata.elementPositions else none %}
-                                {% set descColor = slide.metadata.elementColors[descId] if slide.metadata and slide.metadata.elementColors and descId in slide.metadata.elementColors else none %}
-                                <div class="positioned-element" style="font-size: 0.8rem; {% if descColor %}color: {{ descColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;{% if descPos %} transform: translate({{ descPos.x }}px, {{ descPos.y }}px);{% endif %}">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        <!-- Right Side Text Blocks -->
-                        {% set rightBaseIndex = 8 %}
-                        {% for i in range(3) %}
-                            {% set headingIndex = rightBaseIndex + (i * 2) %}
-                            {% set descIndex = rightBaseIndex + (i * 2) + 1 %}
-                            {% set headingId = 'draggable-' + slide.slideId + '-' + headingIndex|string %}
-                            {% set descId = 'draggable-' + slide.slideId + '-' + descIndex|string %}
-                            {% set rightPositions = [{'right': '23%', 'top': '27%'}, {'right': '26%', 'top': '44%'}, {'right': '22%', 'top': '62%'}] %}
-                            {% set blockPos = rightPositions[i] %}
-                            
-                            <div style="position: absolute; right: {{ blockPos.right }}; top: {{ blockPos.top }}; z-index: 10; max-width: 200px; text-align: right;">
-                                {% set headingPos = slide.metadata.elementPositions[headingId] if slide.metadata and slide.metadata.elementPositions and headingId in slide.metadata.elementPositions else none %}
-                                {% set headingColor = slide.metadata.elementColors[headingId] if slide.metadata and slide.metadata.elementColors and headingId in slide.metadata.elementColors else none %}
-                                <div class="positioned-element" style="font-size: 0.9rem; font-weight: bold; {% if headingColor %}color: {{ headingColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; margin-bottom: 4px;{% if headingPos %} transform: translate({{ headingPos.x }}px, {{ headingPos.y }}px);{% endif %}">
-                                    Heading text goes here
-                                </div>
-                                {% set descPos = slide.metadata.elementPositions[descId] if slide.metadata and slide.metadata.elementPositions and descId in slide.metadata.elementPositions else none %}
-                                {% set descColor = slide.metadata.elementColors[descId] if slide.metadata and slide.metadata.elementColors and descId in slide.metadata.elementColors else none %}
-                                <div class="positioned-element" style="font-size: 0.8rem; {% if descColor %}color: {{ descColor }};{% else %}color: #000000;{% endif %} font-family: Arial, sans-serif; line-height: 1.3;{% if descPos %} transform: translate({{ descPos.x }}px, {{ descPos.y }}px);{% endif %}">
-                                    Lorem ipsum dolor sit amet, consectetur elit, sed do
-                                </div>
-                            </div>
-                        {% endfor %}
                     </div>
                 </div>
                 
@@ -3552,67 +3169,25 @@
                 </div>
                 
             {% elif slide.templateId == 'event-list' %}
-                <!-- Event List Template - Two Column Layout with Timeline -->
+                <!-- DEBUG: event-list template -->
+                <!-- DEBUG: slide.props.events = {{ slide.props.events }} -->
                 <div class="event-list-template">
-                    <!-- Left section with title, presenter, and subject (blue background) -->
-                    <div class="event-list-left-section">
-                        {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                        {% set titlePos = slide.metadata.elementPositions[titleId] if slide.metadata and slide.metadata.elementPositions and titleId in slide.metadata.elementPositions else none %}
-                        {% set titleColor = slide.metadata.elementColors[titleId] if slide.metadata and slide.metadata.elementColors and titleId in slide.metadata.elementColors else none %}
-                        <div class="event-list-title positioned-element"
-                            style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
-                        >{{ (slide.props.title or 'Add title')|safe }}</div>
-                        
-                        {% set presenterId = 'draggable-' + slide.slideId + '-1' %}
-                        {% set presenterPos = slide.metadata.elementPositions[presenterId] if slide.metadata and slide.metadata.elementPositions and presenterId in slide.metadata.elementPositions else none %}
-                        {% set presenterColor = slide.metadata.elementColors[presenterId] if slide.metadata and slide.metadata.elementColors and presenterId in slide.metadata.elementColors else none %}
-                        <div class="event-list-presenter positioned-element"
-                            style="{% if presenterPos %}transform: translate({{ presenterPos.x }}px, {{ presenterPos.y }}px);{% endif %}{% if presenterColor %} color: {{ presenterColor }};{% endif %}"
-                        >{{ (slide.props.presenter or 'Add presenter name')|safe }}</div>
-                        
-                        {% set subjectId = 'draggable-' + slide.slideId + '-2' %}
-                        {% set subjectPos = slide.metadata.elementPositions[subjectId] if slide.metadata and slide.metadata.elementPositions and subjectId in slide.metadata.elementPositions else none %}
-                        {% set subjectColor = slide.metadata.elementColors[subjectId] if slide.metadata and slide.metadata.elementColors and subjectId in slide.metadata.elementColors else none %}
-                        <div class="event-list-subject positioned-element"
-                            style="{% if subjectPos %}transform: translate({{ subjectPos.x }}px, {{ subjectPos.y }}px);{% endif %}{% if subjectColor %} color: {{ subjectColor }};{% endif %}"
-                        >{{ (slide.props.subject or 'Add subject')|safe }}</div>
-                    </div>
-                    
-                    <!-- Right section with timeline -->
-                    <div class="event-list-right-section">
-                        {% set timelineId = 'draggable-' + slide.slideId + '-3' %}
-                        {% set timelinePos = slide.metadata.elementPositions[timelineId] if slide.metadata and slide.metadata.elementPositions and timelineId in slide.metadata.elementPositions else none %}
-                        <div class="events-timeline-container positioned-element"
-                            style="{% if timelinePos %}transform: translate({{ timelinePos.x }}px, {{ timelinePos.y }}px);{% endif %}"
-                        >
-                            <!-- Timeline line -->
-                            <div class="timeline-line"></div>
-                            
-                            <!-- Timeline steps -->
-                            {% if slide.props.events %}
-                                {% for event in slide.props.events[:3] %}
-                                    <div class="timeline-step">
-                                        <div class="timeline-number-box">
-                                            <span class="timeline-number">{{ loop.index }}</span>
-                                        </div>
-                                        <div class="timeline-description">
-                                            <div class="timeline-description-text">{{ (event.description or 'description')|safe }}</div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                {% for i in range(3) %}
-                                    <div class="timeline-step">
-                                        <div class="timeline-number-box">
-                                            <span class="timeline-number">{{ i + 1 }}</span>
-                                        </div>
-                                        <div class="timeline-description">
-                                            <div class="timeline-description-text">description</div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
+                    <div class="events-container">
+                        {% if slide.props.events %}
+                            {% for event in slide.props.events %}
+                                <div class="event-item">
+                                    <div class="event-date">{{ event.date or 'Click to add date' }}</div>
+                                    <div class="event-description">{{ event.description or 'Click to add description' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for i in range(3) %}
+                                <div class="event-item">
+                                    <div class="event-date">January {{ i + 1 }}, 2024</div>
+                                    <div class="event-description">Important milestone or event description</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
 
@@ -3624,7 +3199,7 @@
                         <div style="margin-bottom: 20px;">
                             <h1 style="color: #ffffff; font-size: 2.4rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'The new os solution' }}</h1>
                         </div>
-
+                        
                         <!-- Subtitle -->
                         <div style="color: #ffffff; font-size: 1rem; margin-bottom: 50px; font-family: Arial, sans-serif; opacity: 0.8;">
                             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium ?
@@ -3641,8 +3216,8 @@
                                 </div>
                             {% endfor %}
                         </div>
-                                        </div>
-                                        
+                    </div>
+
                     <!-- Right section with bar chart (white background) - 60% width -->
                     <div style="width: 60%; height: 100%; position: absolute; right: 0; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; padding: 40px; z-index: 1;">
                         <!-- Bar Chart -->
@@ -3663,11 +3238,11 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
-                                        </div>
-                                        
+                            </div>
+
                             <!-- Chart bars -->
                             <div style="display: flex; align-items: flex-end; justify-content: space-evenly; gap: 20px; height: 100%; width: 100%; position: relative; z-index: 1; padding-bottom: 0px;">
-                                            {% for item in slide.props.chartData %}
+                                {% for item in slide.props.chartData %}
                                     <div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; position: relative;">
                                         <!-- Bar -->
                                         <div style="width: 90px; height: {{ (item.percentage / 100) * 400 }}px; background: linear-gradient(to bottom, {{ item.gradientStart or item.color }}, {{ item.gradientEnd or item.color }}); border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
@@ -3676,17 +3251,17 @@
                                             </span>
                                         </div>
                                         
-                                                    <!-- Year label -->
+                                        <!-- Year label -->
                                         <div style="position: absolute; bottom: -30px; width: 90px; text-align: center;">
                                             <div style="font-size: 16px; color: #09090B; font-family: Arial, sans-serif; text-align: center; margin-top: 15px;">
                                                 {{ item.label }}
-                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 {% endfor %}
-                                    </div>
-                                </div>
                             </div>
+                        </div>
+                    </div>
 
                             <!-- Legend Section - Right side -->
                             <div style="display: flex; flex-direction: column; gap: 2rem; margin-left: 4rem;">
@@ -3711,102 +3286,108 @@
 
             {% elif slide.templateId == 'table-dark' %}
                 <div class="slide" style="background-color: #F8F8FF; padding: 50px; font-family: Georgia, serif;">
-                        <!-- Title -->
+                    <!-- Title -->
                     <div style="margin-bottom: 30px;">
                         <h1 style="color: #09090B; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'Comparison table template' }}</h1>
-                        </div>
-                        
-                        <!-- Table Container -->
+                    </div>
+                    
+                    <!-- Table Container -->
                     <div style="width: 100%; border-radius: 15px; overflow: hidden; background-color: #ffffff; border: 1px solid #E0E0E0; padding: 30px;">
                         <table style="width: 100%; border-collapse: separate; border-spacing: 8px 0px; background-color: #ffffff;">
-                                <!-- Headers -->
-                                <thead>
+                            <!-- Headers -->
+                            <thead>
                                 <tr>
-                                        {% for header in slide.props.tableData.headers %}
-                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; {% if loop.first %}text-align: left;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px; {% if loop.first %}border-top-left-radius: 15px;{% endif %} {% if loop.last %}border-top-right-radius: 15px;{% endif %}">
-                                                {{ header }}
-                                            </th>
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                
-                                <!-- Body -->
-                                <tbody>
-                                    {% for row in slide.props.tableData.rows %}
+                                    <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: left; padding: 16px 12px; height: 60px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                        Product version
+                                    </th>
+                                    {% for header in slide.props.tableData.headers %}
+                                        <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px; {% if loop.last %}border-top-right-radius: 15px;{% else %}border-top-left-radius: 15px; border-top-right-radius: 15px;{% endif %}">
+                                            {{ header }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            
+                            <!-- Body -->
+                            <tbody>
+                                {% for row in slide.props.tableData.rows %}
                                     <tr>
-                                            {% for cell in row %}
-                                                {% set isFirstColumn = loop.index == 1 %}
+                                        {% for cell in row %}
+                                            {% set isFirstColumn = loop.index == 1 %}
                                             <td style="background-color: #F2F8FE; color: #000000; font-size: 0.95rem; {% if isFirstColumn %}text-align: left; font-weight: bold;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px;">
-                                                    {% if isFirstColumn %}
+                                                {% if isFirstColumn %}
                                                     <div style="display: flex; align-items: center; gap: 8px;">
                                                         <div style="width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0F58F9; font-weight: bold;">►</div>
                                                         <span>{{ cell }}</span>
                                                     </div>
-                                                    {% else %}
+                                                {% else %}
                                                     <div style="display: flex; justify-content: center; align-items: center;">
                                                         <div style="width: 20px; height: 20px; border-radius: 2px; background-color: {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}#0F58F9{% else %}#BED5FC{% endif %}; display: flex; align-items: center; justify-content: center; position: relative;">
-                                                        {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}
+                                                            {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}
                                                                 <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1;">✓</div>
                                                             {% endif %}
-                                                            </div>
-                                                            </div>
-                                                    {% endif %}
-                                                </td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
             {% elif slide.templateId == 'table-light' %}
                 <div class="slide" style="background: transparent; padding: 50px; font-family: Georgia, serif;">
-                        <!-- Title -->
+                    <!-- Title -->
                     <div style="margin-bottom: 30px;">
                         <h1 style="color: #000000; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'This is table' }}</h1>
-                        </div>
-                        
-                        <!-- Table Container -->
+                    </div>
+                    
+                    <!-- Table Container -->
                     <div style="width: 100%; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                         <table style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
-                                <!-- Headers -->
-                                <thead>
+                            <!-- Headers -->
+                            <thead>
                                 <tr>
-                                        {% for header in slide.props.tableData.headers %}
-                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; {% if loop.first %}text-align: left;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px;">
-                                                {{ header }}
-                                            </th>
+                                    <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
+                                        <!-- Empty corner cell -->
+                                    </th>
+                                    {% for header in slide.props.tableData.headers %}
+                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
+                                            {{ header }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            
+                            <!-- Body -->
+                            <tbody>
+                                {% for row in slide.props.tableData.rows %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            {% set isFirstColumn = loop.index == 1 %}
+                                            <td style="{% if isFirstColumn %}background-color: #F2F8FE; color: #000000; font-weight: bold; text-align: left;{% else %}background-color: #ffffff; color: #000000; text-align: center;{% endif %} font-size: 0.95rem; padding: 16px 12px; height: 60px;">
+                                                {{ cell }}
+                                            </td>
                                         {% endfor %}
                                     </tr>
-                                </thead>
-                                
-                                <!-- Body -->
-                                <tbody>
-                                    {% for row in slide.props.tableData.rows %}
-                                    <tr>
-                                            {% for cell in row %}
-                                                {% set isFirstColumn = loop.index == 1 %}
-                                            <td style="{% if isFirstColumn %}background-color: #F2F8FE; color: #000000; font-weight: bold; text-align: left;{% else %}background-color: #ffffff; color: #000000; text-align: center;{% endif %} font-size: 0.95rem; padding: 16px 12px; height: 60px;">
-                                                    {{ cell }}
-                                                </td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                             {% elif slide.templateId == 'pie-chart-infographics' %}
-                    <div class="slide" style="background-color: #ffffff;">
+                    <div class="slide" style="background-color: var(--bg-color);">
                         <!-- Main Content Container -->
-                        <div style="width: 100%; max-width: 80rem; margin: 0 auto; padding: 2rem;">
+                        <div style="width: 100%; max-width: 80rem; margin: 0 auto;">
                             <!-- Title -->
                             <div style="text-align: center; margin-bottom: 3rem;">
-                                <h1 style="color: #000000; font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Pie chart' }}</h1>
-                                <p style="color: #4B5563; font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
-                                    {{ slide.props.descriptionText or 'Editable infographic' }}
+                                <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Pie Chart Infographics' }}</h1>
+                                <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
+                                    {{ slide.props.descriptionText or 'To modify this graph, click on it, follow the link, change the data and paste it here' }}
                                 </p>
                             </div>
                             
@@ -3815,13 +3396,16 @@
                                 <!-- Left Column - Segments 1-3 -->
                                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                                     {% for item in slide.props.monthlyData[:3] %}
-                                        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem;">
-                                            <!-- Headline with segment color -->
-                                            <div style="color: {{ item.color }}; font-weight: bold; font-size: 1.125rem;">
-                                                {{ item.month }}
+                                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <!-- Color indicator -->
+                                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background-color: {{ item.color or '#0ea5e9' }};"></div>
+                                                <!-- Segment name -->
+                                                <div style="background-color: {{ item.color or '#0ea5e9' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem; flex: 1;">
+                                                    {{ item.month }}
+                                                </div>
                                             </div>
-                                            <!-- Description -->
-                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description }}</p>
+                                            <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5; margin-left: 1.75rem;">{{ item.description }}</p>
                                         </div>
                                     {% endfor %}
                                 </div>
@@ -3834,8 +3418,8 @@
                                         {{ pie_chart_html | safe }}
                                     {% else %}
                                         <!-- Fallback to image if CSS not available -->
-                                        <div style="position: relative; width: 400px; height: 400px; margin: 0 auto;">
-                                            <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 400px; height: 400px; border-radius: 50%;" />
+                                        <div style="position: relative; width: 320px; height: 320px; margin: 0 auto;">
+                                            <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 320px; height: 320px;" />
                                         </div>
                                     {% endif %}
                                 </div>
@@ -3843,13 +3427,16 @@
                                 <!-- Right Column - Segments 4-6 -->
                                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                                     {% for item in slide.props.monthlyData[3:6] %}
-                                        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem;">
-                                            <!-- Headline with segment color -->
-                                            <div style="color: {{ item.color }}; font-weight: bold; font-size: 1.125rem;">
-                                                {{ item.month }}
+                                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <!-- Color indicator -->
+                                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background-color: {{ item.color or '#f97316' }};"></div>
+                                                <!-- Segment name -->
+                                                <div style="background-color: {{ item.color or '#f97316' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem; flex: 1;">
+                                                    {{ item.month }}
+                                                </div>
                                             </div>
-                                            <!-- Description -->
-                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description }}</p>
+                                            <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5; margin-left: 1.75rem;">{{ item.description }}</p>
                                         </div>
                                     {% endfor %}
                                 </div>
@@ -3931,120 +3518,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-            {% elif slide.templateId == 'six-ideas-list' or slide.templateId == 'list-numbered-6' %}
-                <!-- Six Ideas List Template -->
-                <div class="six-ideas-container">
-                    <!-- Header Space at the Top -->
-                    <div class="six-ideas-header-space"></div>
-                    
-                    <!-- Top Section - Dark Blue Background with Title and Ideas -->
-                    <div class="six-ideas-top-section">
-                        {% set titlePos = none %}
-                        {% set titleColor = none %}
-                        {% if slide.metadata and slide.metadata.elementPositions %}
-                            {% for key in slide.metadata.elementPositions.keys() %}
-                                {% if 'title' in key and titlePos is none %}
-                                    {% set titlePos = slide.metadata.elementPositions[key] %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        {% if slide.metadata and slide.metadata.elementColors %}
-                            {% for key in slide.metadata.elementColors.keys() %}
-                                {% if 'title' in key and titleColor is none %}
-                                    {% set titleColor = slide.metadata.elementColors[key] %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        <h1 class="six-ideas-title positioned-element"
-                            style="{% if titlePos %}transform: translate({{ titlePos.x }}px, {{ titlePos.y }}px);{% endif %}{% if titleColor %} color: {{ titleColor }};{% endif %}"
-                        >{{ (slide.props.title or 'SIX DIFFERENT IDEAS')|safe }}</h1>
-                        
-                        <div class="ideas-grid">
-                            {% set ideas = slide.props.ideas if slide.props.ideas else [] %}
-                            {% set default_ideas = [
-                                'Mercury is the smallest planet in the Solar System',
-                                'Venus is the second planet from the Sun',
-                                'Despite being red, Mars is actually a cold place',
-                                'Jupiter is the biggest planet in the Solar System',
-                                'Saturn is composed of hydrogen and helium',
-                                'Neptune is the farthest planet from the Sun'
-                            ] %}
-                            
-                            {% for i in range(6) %}
-                                {% set ideaPos = none %}
-                                {% set ideaColor = none %}
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% for key in slide.metadata.elementPositions.keys() %}
-                                        {% if ('idea-text-' + (i + 1)|string) in key or ('idea-' + i|string) in key %}
-                                            {% if ideaPos is none %}
-                                                {% set ideaPos = slide.metadata.elementPositions[key] %}
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                                {% if slide.metadata and slide.metadata.elementColors %}
-                                    {% for key in slide.metadata.elementColors.keys() %}
-                                        {% if ('idea-text-' + (i + 1)|string) in key or ('idea-' + i|string) in key %}
-                                            {% if ideaColor is none %}
-                                                {% set ideaColor = slide.metadata.elementColors[key] %}
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                                <div class="idea-item positioned-element"
-                                    style="{% if ideaPos %}transform: translate({{ ideaPos.x }}px, {{ ideaPos.y }}px);{% endif %}"
-                                >
-                                    <div class="idea-header">
-                                        <div class="idea-number">{{ '%02d'|format(i + 1) }}</div>
-                                        <div class="idea-line"></div>
-                                    </div>
-                                    <div class="idea-text" style="{% if ideaColor %}color: {{ ideaColor }};{% endif %}">
-                                        {% if ideas and ideas|length > i %}
-                                            {% if ideas[i] is mapping and ideas[i].text %}
-                                                {{ ideas[i].text|safe }}
-                                            {% else %}
-                                                {{ ideas[i]|safe }}
-                                            {% endif %}
-                                        {% else %}
-                                            {{ default_ideas[i]|safe }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                    <!-- Bottom Section - Image Area -->
-                    <div class="six-ideas-bottom-section">
-                        <div class="image-section positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set imageId = slide.slideId + '-image' %}
-                                {% if slide.metadata.elementPositions[imageId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            {% if slide.props.imagePath or slide.props.imageUrl %}
-                                <img src="{{ slide.props.imagePath or slide.props.imageUrl }}" 
-                                     alt="Slide image" 
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 0;" />
-                            {% else %}
-                                <div class="image-placeholder">
-                                    <div class="image-placeholder-icon">🖼️</div>
-                                    <div class="image-placeholder-text">LARGE Image</div>
-                                    <div class="image-placeholder-subtext">Click to upload image</div>
-                                    <div class="image-placeholder-italic">"relevant illustration for the ideas"</div>
-                                    <a href="#" class="image-placeholder-link">Click to upload</a>
-                                    <a href="#" class="image-placeholder-ai-link">Or generate with AI</a>
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Footer Space at the Bottom -->
-                        <div class="six-ideas-footer-space"></div>
                     </div>
                 </div>
                 

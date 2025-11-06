@@ -136,8 +136,6 @@ interface TrainingPlanTableProps {
     videoPresentation?: boolean;
     lessonPresentation?: boolean;
   };
-  onProductClick?: (product: any) => void; // Handler for product clicks
-  isPublicView?: boolean; // Flag to enable public view mode
 }
 
 const localizationConfig = {
@@ -315,8 +313,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   projectIsAdvanced,
   projectAdvancedRates,
   columnVisibility,
-  onProductClick,
-  isPublicView = false,
 }) => {
     // --- MOCK DATA FOR DEMO PURPOSES ---
     // These would be replaced by real data in production
@@ -2585,77 +2581,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             </div>
                           );
                         case 'quiz':
-                          const hasQuiz = (lesson as any).attached_products?.some((p: any) => p.type === 'Quiz' || p.component_name === 'QuizDisplay');
-                          const quizProduct = (lesson as any).attached_products?.find((p: any) => p.type === 'Quiz' || p.component_name === 'QuizDisplay');
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>
-                            {isPublicView && hasQuiz && onProductClick && quizProduct ? (
-                              <button
-                                onClick={() => onProductClick(quizProduct)}
-                                className="cursor-pointer hover:bg-blue-50 p-1 rounded transition-colors"
-                                title="Click to view quiz"
-                              >
-                                <TickIcon />
-                              </button>
-                            ) : hasQuiz ? (
-                              <TickIcon />
-                            ) : (
-                              <CrossIcon />
-                            )}
-                          </div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.quiz ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'onePager':
-                          const hasOnePager = (lesson as any).attached_products?.some((p: any) => p.type === 'One Pager' || p.component_name === 'OnePagerDisplay');
-                          const onePagerProduct = (lesson as any).attached_products?.find((p: any) => p.type === 'One Pager' || p.component_name === 'OnePagerDisplay');
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>
-                            {isPublicView && hasOnePager && onProductClick && onePagerProduct ? (
-                              <button
-                                onClick={() => onProductClick(onePagerProduct)}
-                                className="cursor-pointer hover:bg-blue-50 p-1 rounded transition-colors"
-                                title="Click to view one-pager"
-                              >
-                                <TickIcon />
-                              </button>
-                            ) : hasOnePager ? (
-                              <TickIcon />
-                            ) : (
-                              <CrossIcon />
-                            )}
-                          </div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.onePager ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'videoPresentation':
-                          const hasVideo = (lesson as any).attached_products?.some((p: any) => p.type === 'Video Lesson' || p.component_name === 'VideoLessonDisplay');
-                          const videoProduct = (lesson as any).attached_products?.find((p: any) => p.type === 'Video Lesson' || p.component_name === 'VideoLessonDisplay');
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>
-                            {isPublicView && hasVideo && onProductClick && videoProduct ? (
-                              <button
-                                onClick={() => onProductClick(videoProduct)}
-                                className="cursor-pointer hover:bg-blue-50 p-1 rounded transition-colors"
-                                title="Click to view video lesson"
-                              >
-                                <TickIcon />
-                              </button>
-                            ) : hasVideo ? (
-                              <TickIcon />
-                            ) : (
-                              <CrossIcon />
-                            )}
-                          </div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.videoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'lessonPresentation':
-                          const hasPresentation = (lesson as any).attached_products?.some((p: any) => p.type === 'Slide Deck' || p.component_name === 'SlideDeckDisplay');
-                          const presentationProduct = (lesson as any).attached_products?.find((p: any) => p.type === 'Slide Deck' || p.component_name === 'SlideDeckDisplay');
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>
-                            {isPublicView && hasPresentation && onProductClick && presentationProduct ? (
-                              <button
-                                onClick={() => onProductClick(presentationProduct)}
-                                className="cursor-pointer hover:bg-blue-50 p-1 rounded transition-colors"
-                                title="Click to view presentation"
-                              >
-                                <TickIcon />
-                              </button>
-                            ) : hasPresentation ? (
-                              <TickIcon />
-                            ) : (
-                              <CrossIcon />
-                            )}
-                          </div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.lessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         default:
                           return <div key={col.key} className={commonCls}></div>;
                       }

@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
-import { YourLogo } from '@/components/YourLogo';
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
   theme?: string | SlideTheme;
@@ -17,7 +16,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   author,
   date,
   backgroundImage,
-  logoPath,
   onUpdate,
   theme,
   isEditable = false
@@ -179,13 +177,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     setEditingDate(false);
   };
 
-  // Handle logo upload
-  const handleLogoUploaded = (newLogoPath: string) => {
-    if (onUpdate) {
-      onUpdate({ logoPath: newLogoPath });
-    }
-  };
-
   return (
     <div className="title-slide-template" style={slideStyles}>
       {/* Logo at the top */}
@@ -195,13 +186,24 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
         data-draggable="true" 
         style={logoStyles}
       >
-        <YourLogo
-          logoPath={logoPath}
-          onLogoUploaded={handleLogoUploaded}
-          isEditable={isEditable}
-          color={titleColor}
-          text="Your Logo"
-        />
+        <div style={logoIconStyles}>
+          <div style={{
+            width: '12px',
+            height: '2px',
+            backgroundColor: titleColor,
+            position: 'absolute'
+          }} />
+          <div style={{
+            width: '2px',
+            height: '12px',
+            backgroundColor: titleColor,
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)'
+          }} />
+        </div>
+        <span style={logoTextStyles}>Your Logo</span>
       </div>
 
       {/* Main Title - wrapped */}

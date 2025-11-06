@@ -78,7 +78,6 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   ];
 
   const slideStyles: React.CSSProperties = {
-    width: '100%', // Ensure slide takes full width of container
     minHeight: '600px',
     background: '#ffffff', // White background as in photo
     fontFamily: currentTheme.fonts.contentFont,
@@ -134,8 +133,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
     background: color, // Solid color instead of gradient as in photo
-    width: '100%', // Each block takes full width of right column
-    position: 'relative' // Required for absolutely positioned step number circles
+    width: '100%' // Each block takes full width of right column
   });
 
   // Helper function to adjust color brightness
@@ -203,7 +201,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     opacity: 0.95,
     lineHeight: '1.4',
     fontFamily: 'sans-serif',
-    width: '262px',
+    width: '210px',
   };
 
   // Handle title editing
@@ -343,46 +341,42 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
           data-draggable="true" 
           style={{ display: 'inline-block', width: '100%' }}
         >
-          {(props as any).subtitle && (
-            <>
-              {props.isEditable && editingSubtitle ? (
-                <WysiwygEditor
-                  initialValue={(props as any).subtitle || ''}
-                  onSave={handleSubtitleSave}
-                  onCancel={handleSubtitleCancel}
-                  placeholder="Enter subtitle..."
-                  className="inline-editor-subtitle"
-                  style={{
-                    ...subtitleStyles,
-                    padding: '8px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block',
-                    lineHeight: '1.4'
-                  }}
-                />
-              ) : (
-                <p 
-                  style={subtitleStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (props.isEditable) {
-                      setEditingSubtitle(true);
-                    }
-                  }}
-                  className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  dangerouslySetInnerHTML={{ __html: (props as any).subtitle }}
-                />
-              )}
-            </>
+          {props.isEditable && editingSubtitle ? (
+            <WysiwygEditor
+              initialValue={(props as any).subtitle || 'Miss Jones Science Class'}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.4'
+              }}
+            />
+          ) : (
+            <p 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (props.isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              dangerouslySetInnerHTML={{ __html: (props as any).subtitle || 'Miss Jones Science Class' }}
+            />
           )}
         </div>
       </div>
@@ -390,10 +384,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
       {/* Right Column - Process Steps - GUARANTEED 5 BLOCKS */}
       <div style={rightColumnStyles}>
         {steps.map((step: StepItem, index: number) => {
-          // If step is a string, treat it as the full content (no separate title/description)
-          const isStringStep = typeof step === 'string';
-          const stepTitle = isStringStep ? '' : step.title;
-          const stepDescription = isStringStep ? step : step.description;
+          const stepTitle = typeof step === 'string' ? `Step ${index + 1}` : step.title;
+          const stepDescription = typeof step === 'string' ? step : step.description;
           const stepColor = stepColors[index] || stepColors[0];
           
           return (
@@ -412,47 +404,43 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
 
               {/* Step Content */}
               <div style={stepContentStyles}>
-                {/* Step Title - only show if step has explicit title */}
-                {!isStringStep && stepTitle && (
-                  <>
-                    {props.isEditable && editingStepTitle === index ? (
-                      <WysiwygEditor
-                        initialValue={stepTitle}
-                        onSave={(newValue) => handleStepTitleSave(index, newValue)}
-                        onCancel={handleStepTitleCancel}
-                        placeholder="Enter step title..."
-                        className="inline-editor-step-title"
-                        style={{
-                          ...stepTitleStyles,
-                          padding: '8px',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '4px',
-                          wordWrap: 'break-word',
-                          whiteSpace: 'pre-wrap',
-                          boxSizing: 'border-box',
-                          display: 'block',
-                          lineHeight: '1.2'
-                        }}
-                      />
-                    ) : (
-                      <h3 
-                        style={stepTitleStyles}
-                        onClick={(e) => {
-                          const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                          if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            return;
-                          }
-                          if (props.isEditable) {
-                            startEditingStepTitle(index);
-                          }
-                        }}
-                        className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                        dangerouslySetInnerHTML={{ __html: stepTitle }}
-                      />
-                    )}
-                  </>
+                {/* Step Title */}
+                {props.isEditable && editingStepTitle === index ? (
+                  <WysiwygEditor
+                    initialValue={stepTitle}
+                    onSave={(newValue) => handleStepTitleSave(index, newValue)}
+                    onCancel={handleStepTitleCancel}
+                    placeholder="Enter step title..."
+                    className="inline-editor-step-title"
+                    style={{
+                      ...stepTitleStyles,
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      lineHeight: '1.2'
+                    }}
+                  />
+                ) : (
+                  <h3 
+                    style={stepTitleStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (props.isEditable) {
+                        startEditingStepTitle(index);
+                      }
+                    }}
+                    className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: stepTitle }}
+                  />
                 )}
 
                 {/* Step Description */}
@@ -472,16 +460,12 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
-                      lineHeight: '1.4',
-                      ...(isStringStep ? { width: '100%' } : {})
+                      lineHeight: '1.4'
                     }}
                   />
                 ) : (
                   <p 
-                    style={{
-                      ...stepDescriptionStyles,
-                      ...(isStringStep ? { width: '100%' } : {})
-                    }}
+                    style={stepDescriptionStyles}
                     onClick={(e) => {
                       const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                       if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {

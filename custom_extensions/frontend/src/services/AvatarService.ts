@@ -3,17 +3,18 @@
 import { ElaiAvatar, AvatarServiceResponse } from '@/types/elaiTypes';
 
 export class AvatarService {
-  private static readonly CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  private static readonly API_BASE = 'https://apis.elai.io/api/v1';
+  private static readonly API_TOKEN = '5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e';
   
   /**
-   * Fetch all available avatars from backend API
+   * Fetch all available avatars from Elai API
    */
   static async fetchAvatars(): Promise<AvatarServiceResponse> {
     try {
-      // Call backend endpoint instead of direct Elai API
-      const response = await fetch(`${AvatarService.CUSTOM_BACKEND_URL}/video/avatars`, {
+      const response = await fetch(`${AvatarService.API_BASE}/avatars`, {
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${AvatarService.API_TOKEN}`
         }
       });
       
@@ -21,15 +22,11 @@ export class AvatarService {
         throw new Error(`Failed to fetch avatars: ${response.status} - ${response.statusText}`);
       }
       
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch avatars');
-      }
+      const avatars: ElaiAvatar[] = await response.json();
       
       return {
         success: true,
-        data: result.avatars || []
+        data: avatars
       };
     } catch (error) {
       console.error('Error fetching avatars:', error);

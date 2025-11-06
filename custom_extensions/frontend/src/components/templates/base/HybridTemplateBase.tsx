@@ -29,7 +29,6 @@ interface HybridTemplateProps extends BaseTemplateProps {
   theme?: SlideTheme;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   children?: React.ReactNode;
-  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
@@ -42,8 +41,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   isEditable = false,
   onUpdate,
   onSlideUpdate,
-  children,
-  isVideoMode = false
+  children
 }) => {
   const [currentItems, setCurrentItems] = useState<PositionableItem[]>(items);
   const [currentCanvasConfig, setCurrentCanvasConfig] = useState<CanvasConfig>(
@@ -170,92 +168,20 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
 
   // Handle position changes from drag enhancer
   const handlePositionChange = useCallback((elementId: string, position: { x: number; y: number }) => {
-    // 🔍 GET ACTUAL CANVAS DIMENSIONS
-    const slideCanvas = document.querySelector('[data-slide-canvas="true"]');
-    const canvasRect = slideCanvas?.getBoundingClientRect();
-    const actualWidth = canvasRect?.width || 1174;
-    const actualHeight = canvasRect?.height || 600;
-    
-    // 🔍 COMPREHENSIVE POSITION SAVE LOGGING
-    console.log('💾 [POSITION_SAVE] Saving position to slide metadata');
-    console.log('  📍 Element ID:', elementId);
-    console.log('  📊 Position:', position);
-    console.log('  🎬 Slide ID:', slide?.slideId || 'unknown');
-    console.log('  🎨 Template ID:', slide?.templateId);
-    
-    // Log if this is an avatar-service slide
-    const isAvatarService = slide?.templateId === 'avatar-service' || slide?.templateId === 'avatar-service-slide';
-    if (isAvatarService) {
-      console.log('  🎯 AVATAR-SERVICE SLIDE DETECTED!');
-      
-      // 📐 CANVAS DIMENSION VERIFICATION
-      console.log('  📐 Canvas Dimensions:');
-      console.log('    ACTUAL Editor Canvas (measured):');
-      console.log('      - Width:', actualWidth.toFixed(2) + 'px', actualWidth !== 1174 ? '⚠️ DIFFERENT FROM DESIGN' : '✅');
-      console.log('      - Height:', actualHeight.toFixed(2) + 'px', actualHeight !== 600 ? '⚠️ DIFFERENT FROM DESIGN' : '✅');
-      console.log('      - Aspect Ratio:', (actualWidth / actualHeight).toFixed(3), `(${actualWidth.toFixed(0)}:${actualHeight.toFixed(0)})`);
-      console.log('    Design Editor Canvas (hardcoded):');
-      console.log('      - Width: 1174px (defined)');
-      console.log('      - Height: 600px (defined)');
-      console.log('      - Aspect Ratio:', (1174 / 600).toFixed(3), '(1.957:1)');
-      console.log('    Video Canvas:');
-      console.log('      - Width: 1920px (defined)');
-      console.log('      - Height: 1080px (defined)');
-      console.log('      - Aspect Ratio:', (1920 / 1080).toFixed(3), '(1.778:1 - 16:9)');
-      
-      console.log('  📏 Scale Factors (using ACTUAL canvas):');
-      console.log('    CORRECT Scale Factors:', {
-        scaleX: (1920 / actualWidth).toFixed(6) + ` (1920/${actualWidth.toFixed(0)})`,
-        scaleY: (1080 / actualHeight).toFixed(6) + ` (1080/${actualHeight.toFixed(0)})`
-      });
-      console.log('    ❌ OLD (WRONG) Scale Factors:', {
-        scaleX: (1920 / 1174).toFixed(6) + ' (1920/1174)',
-        scaleY: (1080 / 600).toFixed(6) + ' (1080/600)'
-      });
-      console.log('  🔢 Expected Scaled Position (using ACTUAL canvas):', {
-        scaledX: (position.x * (1920 / actualWidth)).toFixed(2),
-        scaledY: (position.y * (1080 / actualHeight)).toFixed(2)
-      });
-      console.log('  ⚠️ CRITICAL: Canvas size mismatch detected!', {
-        designWidth: 1174,
-        actualWidth: actualWidth.toFixed(2),
-        widthError: ((actualWidth / 1174 - 1) * 100).toFixed(2) + '%',
-        impactOnScaling: 'Scale factor will be ' + (((1920/actualWidth) / (1920/1174) - 1) * 100).toFixed(2) + '% off'
-      });
-    }
-    
     // Save position changes to slide data if needed
     if (slide && onSlideUpdate) {
-      const previousPositions = slide.metadata?.elementPositions || {};
       const updatedSlide: ComponentBasedSlide = {
         ...slide,
         metadata: {
           ...slide.metadata,
           elementPositions: {
-            ...previousPositions,
+            ...slide.metadata?.elementPositions,
             [elementId]: position
-          },
-          // 🔧 CRITICAL FIX: Store actual canvas dimensions in metadata
-          canvasDimensions: {
-            width: actualWidth,
-            height: actualHeight,
-            aspectRatio: actualWidth / actualHeight
           },
           updatedAt: new Date().toISOString()
         }
       };
-      
-      console.log('  📦 Updated Metadata:', {
-        previousPositions,
-        newPositions: updatedSlide.metadata?.elementPositions || {},
-        totalElementsPositioned: Object.keys(updatedSlide.metadata?.elementPositions || {}).length,
-        canvasDimensions: updatedSlide.metadata?.canvasDimensions
-      });
-      console.log('  ✅ Position saved successfully (with actual canvas dimensions)');
-      
       onSlideUpdate(updatedSlide);
-    } else {
-      console.log('  ⚠️ Position NOT saved - missing slide or onSlideUpdate callback');
     }
   }, [slide, onSlideUpdate]);
 
@@ -263,15 +189,16 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   // FIXED: Use more flexible positioning that doesn't interfere with slide flow
   return (
     <div 
-      className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''} ${isVideoMode ? 'video-mode' : ''}`}
+      className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
       style={{
         // Use max-width and max-height instead of fixed dimensions to allow natural flow
-        width: isVideoMode ? '80%' : '100%',
+        maxWidth: currentCanvasConfig.width,
+        width: '100%',
         height: 'auto',
-        minHeight: isVideoMode ? 'auto' : '600px', // No minHeight in video mode
+        minHeight: '600px', // Ensure minimum height for consistency
         position: 'relative',
         // Ensure the wrapper doesn't interfere with slide spacing
-        margin: isVideoMode ? '0 auto' : 0,
+        margin: 0,
         padding: 0,
         display: 'block'
       }}

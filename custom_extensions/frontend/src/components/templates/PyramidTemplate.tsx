@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { MessageCircle } from 'lucide-react';
 
 export interface PyramidItem {
   heading: string;
@@ -168,15 +167,15 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    background: currentTheme.colors.pyramidBackgroundColor || '#ffffff',
-    padding: '40px 40px 0px 40px',
+    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+    padding: '40px',
     display: 'flex',
     flexDirection: 'column',
     fontFamily: 'Georgia, serif',
     minHeight: '600px',
     width: '100%',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'visible'
   };
 
   const titleStyles: React.CSSProperties = {
@@ -191,34 +190,28 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const mainContentStyles: React.CSSProperties = {
     display: 'flex',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
-    top: '87px',
+    height: '450px',
+    paddingTop: '20px'
   };
 
-  // Pyramid colors exactly as requested - 5 distinct levels
+  // Pyramid colors exactly as in photo - 5 distinct levels
   const pyramidColors = [
-    '#2A7CFF', // Level 1 - smallest, top
-    '#09ACD8', // Level 2
-    '#1B94E8', // Level 3
-    '#3A11C3', // Level 4
-    '#01298A'  // Level 5 - largest, bottom
+    '#3D8BFF', // Light blue (level 1 - smallest, top)
+    '#00BCD4', // Cyan (level 2)
+    '#1E88E5', // Medium blue (level 3)
+    '#5E35B1', // Purple (level 4)
+    '#1A237E'  // Dark navy blue (level 5 - largest, bottom)
   ];
 
-  // Pyramid level dimensions - 5 clear levels with unique clipPath for each
+  // Pyramid level dimensions - 5 clear levels with proper trapezoid shape
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [144, 228, 311, 401, 493]; // 5 levels, increasing
-    const heights = [75, 75, 75, 75, 75]; // Same height for each
-    const topPositions = [0, 80, 160, 240, 320]; // Stacked perfectly
-    const clipPaths = [
-      'polygon(24% 0%, 78% 0%, 100% 100%, 0% 100%)', // Level 1
-      'polygon(18% 0%, 83% 0%, 100% 100%, 0% 100%)', // Level 2
-      'polygon(13% 0%, 87% 0%, 100% 100%, 0% 100%)', // Level 3
-      'polygon(11% 0%, 89% 0%, 100% 100%, 0% 100%)', // Level 4
-      'polygon(9% 0%, 91% 0%, 100% 100%, 0% 100%)'   // Level 5
-    ];
+    const widths = [130, 210, 290, 370, 450]; // 5 levels, increasing
+    const heights = [65, 65, 65, 65, 65]; // Same height for each
+    const topPositions = [0, 65, 130, 195, 260]; // Stacked perfectly
     
     return {
       position: 'absolute',
@@ -228,45 +221,60 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       left: '50%',
       transform: 'translateX(-50%)',
       background: pyramidColors[index],
-      clipPath: clipPaths[index],
+      clipPath: 'polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%)', // More straight edges like in photo
       display: 'flex',
       alignItems: 'center',
-      borderRadius: '5px',
       justifyContent: 'center',
       zIndex: 5 - index,
       boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
     };
   };
 
-  const MessageIcon = () => (
-    <MessageCircle size={22} color="#ffffff" style={{ marginRight: '8px' }} />
-  );
+  // Speech bubble
+  const speechBubbleStyles: React.CSSProperties = {
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    background: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  };
+
+  const speechBubbleIconStyles: React.CSSProperties = {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    background: '#1E88E5'
+  };
 
   // Number styles
   const numberStyles: React.CSSProperties = {
-    fontSize: '19px',
+    fontSize: '15px',
+    fontWeight: 'bold',
     color: '#ffffff',
     fontFamily: 'Arial, sans-serif'
   };
 
-  // Text blocks - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
+  // Text blocks - exactly as in photo: right-left-right-left-left
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '-19px', left: '13%', textAlign: 'right' as const },     // Level 1 - LEFT (top segment)
-      { top: '55px', right: '10%', textAlign: 'left' as const },   // Level 2 - RIGHT (second segment)
-      { top: '124px', left: '7%', textAlign: 'right' as const },    // Level 3 - LEFT (third segment)
-      { top: '218px', right: '2%', textAlign: 'left' as const },  // Level 4 - RIGHT (fourth segment)
-      { top: '285px', left: '0%', textAlign: 'right' as const }     // Level 5 - LEFT (bottom segment)
+      { top: '25px', right: '7%', textAlign: 'right' as const },   // Level 1 - RIGHT
+      { top: '90px', left: '7%', textAlign: 'left' as const },     // Level 2 - LEFT
+      { top: '155px', right: '7%', textAlign: 'right' as const },  // Level 3 - RIGHT
+      { top: '220px', left: '7%', textAlign: 'left' as const },    // Level 4 - LEFT
+      { top: '285px', left: '7%', textAlign: 'left' as const }     // Level 5 - LEFT
     ];
-
+    
     const pos = positions[index];
     return {
       position: 'absolute',
       top: pos.top,
-      left: pos.left ? pos.left : 'auto',
-      right: pos.right ? pos.right : 'auto',
-      width: '35%',
-      maxWidth: '250px',
+      [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
+      width: '30%',
+      maxWidth: '320px',
       zIndex: 10,
       textAlign: pos.textAlign
     };
@@ -283,21 +291,20 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const textDescriptionStyles: React.CSSProperties = {
     fontSize: '0.85rem',
-    marginTop: '15px',
     color: '#000000',
     fontFamily: 'Georgia, serif',
     lineHeight: 1.4,
     wordWrap: 'break-word'
   };
 
-  // Triangle arrows - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
+  // Triangle arrows - exactly as in photo
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '21px', left: '42%' },    // Level 1 - LEFT (pointing to top segment)
-      { top: '98px', right: '39%' },  // Level 2 - RIGHT (pointing to second segment)
-      { top: '168px', left: '36%' },   // Level 3 - LEFT (pointing to third segment)
-      { top: '265px', right: '31%' },  // Level 4 - RIGHT (pointing to fourth segment)
-      { top: '340px', left: '27%' }    // Level 5 - LEFT (pointing to bottom segment)
+      { top: '55px', right: '19%' },   // Level 1 - RIGHT
+      { top: '120px', left: '19%' },   // Level 2 - LEFT
+      { top: '185px', right: '19%' },  // Level 3 - RIGHT
+      { top: '250px', left: '19%' },   // Level 4 - LEFT
+      { top: '315px', left: '19%' }    // Level 5 - LEFT
     ];
     
     const pos = positions[index];
@@ -306,9 +313,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       ...pos,
       width: '0',
       height: '0',
-      borderLeft: '8px solid transparent',
-      borderRight: '8px solid transparent',
-      borderTop: `12px solid ${pyramidColors[index]}`,
+      borderLeft: '7px solid transparent',
+      borderRight: '7px solid transparent',
+      borderTop: '10px solid #1E88E5',
       zIndex: 10
     };
   };
@@ -385,9 +392,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '25,000' }
   ];
 
-  // Filter out null/undefined values to prevent errors
-  const validSteps = (steps || []).filter((step): step is PyramidItem => step !== null && step !== undefined);
-  const displaySteps = validSteps.length >= 5 ? validSteps.slice(0, 5) : defaultSteps;
+  const displaySteps = steps.length >= 5 ? steps.slice(0, 5) : defaultSteps;
 
   return (
     <div className="pyramid-template" style={slideStyles}>
@@ -418,7 +423,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         {displaySteps.map((step, index) => (
           <div key={index} style={pyramidLevelStyles(index)}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <MessageIcon />
+              <div style={speechBubbleStyles}>
+                <div style={speechBubbleIconStyles}></div>
+              </div>
               {isEditable && editingItemNumbers.includes(index) ? (
                 <InlineEditor
                   initialValue={step.number || ''}

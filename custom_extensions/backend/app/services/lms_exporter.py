@@ -71,10 +71,9 @@ async def export_course_outline_to_lms_format(
     user_id: str,
     user_email: str,
     smartexpert_token: Optional[str] = None,
-    smartexpert_base_url: Optional[str] = None,
-    session_cookies: Optional[Dict[str, str]] = None
+    smartexpert_base_url: Optional[str] = None
 ) -> dict:
-    logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id} auto_index={session_cookies is not None}")
+    logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id}")
 
     async with get_connection() as connection:
         row = await connection.fetchrow(
@@ -492,17 +491,17 @@ async def export_course_outline_to_lms_format(
                         if 'Slide Deck' in mapped_mtype:
                             pdf_bytes = await generate_presentation_pdf(matched, user_id)
                             file_name = f"slide-deck_{product_id}.pdf"
-                            file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}presentations/", session_cookies=session_cookies)
+                            file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}presentations/")
                             link = await create_public_download_link(user_id, file_path)
                         elif any(t in mapped_mtype for t in ['One Pager', 'Text Presentation', 'PDF Lesson']):
                             pdf_bytes = await generate_onepager_pdf(matched, user_id)
                             file_name = f"onepager_{product_id}.pdf"
-                            file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}onepagers/", session_cookies=session_cookies)
+                            file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}onepagers/")
                             link = await create_public_download_link(user_id, file_path)
                         elif 'Quiz' in mapped_mtype:
                             cbai_bytes = await export_quiz_to_cbai(matched, user_id)
                             file_name = f"quiz_{product_id}.cbai"
-                            file_path = await upload_file_to_smartdrive(user_id, cbai_bytes, file_name, f"{export_folder}quizzes/", session_cookies=session_cookies)
+                            file_path = await upload_file_to_smartdrive(user_id, cbai_bytes, file_name, f"{export_folder}quizzes/")
                             link = await create_public_download_link(user_id, file_path)
                         logger.info(f"[LMS] Uploaded and linked | type='{item_type_raw}' id={product_id} link={link}")
                     except Exception as e:
@@ -575,7 +574,7 @@ async def export_course_outline_to_lms_format(
         logger.warning(f"[LMS-SUMMARY] Failed to produce final summary: {_e}")
 
     structure_json = json.dumps(structure, indent=2).encode('utf-8')
-    structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder, session_cookies=session_cookies)
+    structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder)
     structure_download_link = await create_public_download_link(user_id, structure_path)
 
     smartexpert_result = await post_export_to_smartexpert(structure_json, user_email, smartexpert_token, smartexpert_base_url)

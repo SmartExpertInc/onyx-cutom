@@ -13,10 +13,6 @@ def get_main_db_pool():
     import main
     return main.DB_POOL
 
-async def get_pool():
-    """Get the main application's database pool (async wrapper)."""
-    return get_main_db_pool()
-
 @asynccontextmanager
 async def get_connection():
     """Get a database connection from the main application's pool."""

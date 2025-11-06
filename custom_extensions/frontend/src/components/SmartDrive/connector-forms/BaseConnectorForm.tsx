@@ -54,20 +54,6 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
         fieldSchema = Yup.boolean();
       }
       
-      if (field.type === 'text' && field.name === 'indexing_start') {
-        fieldSchema = Yup.string().test(
-          'date-format',
-          'Date must be in YYYY-MM-DD format',
-          (value) => {
-            if (!value) return true; // Allow empty values
-            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-            if (!dateRegex.test(value)) return false;
-            const date = new Date(value);
-            return !isNaN(date.getTime());
-          }
-        );
-      }
-      
       schema[field.name] = fieldSchema;
     });
     
@@ -80,64 +66,20 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
   const buildInitialValues = (fields: ConnectorFormField[]) => {
     const values: any = {};
     fields.forEach(field => {
-      if (field.type === 'boolean') {
-        values[field.name] = initialData[field.name] ?? field.defaultValue ?? false;
-      } else if (field.type === 'multiselect') {
-        values[field.name] = initialData[field.name] ?? field.defaultValue ?? [];
-      } else if (field.type === 'number') {
-        values[field.name] = initialData[field.name] ?? field.defaultValue ?? null;
-      } else {
-        values[field.name] = initialData[field.name] ?? field.defaultValue ?? '';
-      }
+      values[field.name] = initialData[field.name] || field.defaultValue || 
+        (field.type === 'boolean' ? false : 
+         field.type === 'multiselect' ? [] : '');
     });
     return values;
   };
 
   const initialValues = buildInitialValues(config.fields);
 
-  const convertStringToDateTime = (indexingStart: string | null) => {
-    if (!indexingStart) return null;
-    
-    // Validate date format (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(indexingStart)) {
-      throw new Error('Date must be in YYYY-MM-DD format');
-    }
-    
-    const date = new Date(indexingStart);
-    if (isNaN(date.getTime())) {
-      throw new Error('Invalid date format');
-    }
-    
-    return date;
-  };
-
-  const convertToNumber = (value: any): number | null => {
-    if (value === null || value === undefined || value === '') return null;
-    const num = Number(value);
-    return isNaN(num) ? null : num;
-  };
-
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     setIsSubmitting(true);
     setError(null);
     
     try {
-      // Process all form values based on field types
-      const processedValues = { ...values };
-      
-      // Convert indexing_start field if it exists
-      if (values.indexing_start) {
-        processedValues.indexing_start = convertStringToDateTime(values.indexing_start);
-      }
-      
-      // Convert all number fields
-      config.fields.forEach(field => {
-        if (field.type === 'number' && values[field.name] !== undefined) {
-          processedValues[field.name] = convertToNumber(values[field.name]);
-        }
-      });
-
       const response = await fetch(config.submitEndpoint, {
         method: 'POST',
         headers: {
@@ -145,7 +87,7 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
         },
         credentials: 'same-origin',
         body: JSON.stringify({
-          ...processedValues,
+          ...values,
           connector_id: config.connectorId,
           access_type: 'private',
           smart_drive: true

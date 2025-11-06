@@ -1,16 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import Image from 'next/image';
-import contradImg from './contrad_img.png';
-
-export interface ContraindicationsIndicationsTemplateProps {
-  title?: string;
-  subtitle?: string;
-  theme?: string;
-  isEditable?: boolean;
-  slideId?: string;
-  onUpdate?: (data: Partial<ContraindicationsIndicationsTemplateProps>) => void;
-}
+import { ContraindicationsIndicationsTemplateProps } from '@/types/slideTemplates';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -58,31 +48,41 @@ function InlineEditor({
     onSave(value);
   };
 
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
   if (multiline) {
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder={placeholder}
-        className={className}
         style={{
           ...style,
+          background: 'transparent',
           border: 'none',
           outline: 'none',
-          background: 'transparent',
+          boxShadow: 'none',
           resize: 'none',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          color: 'inherit',
-          textAlign: 'inherit',
-          lineHeight: 'inherit',
+          overflow: 'hidden',
           width: '100%',
-          minHeight: '60px'
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
         }}
+        rows={1}
       />
     );
   }
@@ -90,490 +90,287 @@ function InlineEditor({
   return (
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
       type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       placeholder={placeholder}
-      className={className}
       style={{
         ...style,
+        background: 'transparent',
         border: 'none',
         outline: 'none',
-        background: 'transparent',
-        fontFamily: 'inherit',
-        fontSize: 'inherit',
-        fontWeight: 'inherit',
-        color: 'inherit',
-        textAlign: 'inherit',
-        width: '100%'
+        boxShadow: 'none',
+        width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
+        boxSizing: 'border-box',
+        display: 'block',
+        lineHeight: '1.2'
       }}
     />
   );
 }
 
 const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndicationsTemplateProps> = ({
-  title = 'Contraindications and Indications',
-  subtitle = 'Type The Subtitle Of Your Great Here',
+  title = 'Contraindications and indications',
+  contraindications = [
+    'Describe the things patients should do here',
+    'Describe the things patients should do here',
+    'Describe the things patients should do here',
+    'Describe the things patients should do here',
+    'Describe the things patients should do here'
+  ],
+  indications = [
+    'Describe the things patients shouldn\'t do here',
+    'Describe the things patients shouldn\'t do here',
+    'Describe the things patients shouldn\'t do here',
+    'Describe the things patients shouldn\'t do here',
+    'Describe the things patients shouldn\'t do here'
+  ],
+  titleColor,
+  contraindicationsColor,
+  indicationsColor,
+  backgroundColor,
+  slideId,
   theme,
-  isEditable = true,
-  slideId = 'contraindications-indications',
+  isEditable = false,
   onUpdate
-}: ContraindicationsIndicationsTemplateProps) => {
-  const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
-  
-  // Состояние для текстовых элементов
-  const [leftProjectTitle, setLeftProjectTitle] = useState('The first project');
-  const [rightProjectTitle, setRightProjectTitle] = useState('The second project');
-  const [leftHeadings, setLeftHeadings] = useState(['Heading text goes here', 'Heading text goes here', 'Heading text goes here']);
-  const [rightHeadings, setRightHeadings] = useState(['Heading text goes here', 'Heading text goes here', 'Heading text goes here']);
-  const [leftDescriptions, setLeftDescriptions] = useState(['Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do']);
-  const [rightDescriptions, setRightDescriptions] = useState(['Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do']);
-  
-  // Состояния редактирования
-  const [editingLeftProject, setIsEditingLeftProject] = useState(false);
-  const [editingRightProject, setIsEditingRightProject] = useState(false);
-  const [editingLeftHeadings, setEditingLeftHeadings] = useState([false, false, false]);
-  const [editingRightHeadings, setEditingRightHeadings] = useState([false, false, false]);
-  const [editingLeftDescriptions, setEditingLeftDescriptions] = useState([false, false, false]);
-  const [editingRightDescriptions, setEditingRightDescriptions] = useState([false, false, false]);
-  
-  
-  // Позиционирование элементов
-  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '4.8%', top: '50%' });
-  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '-2%', top: '50%' });
-  const [leftItemsPositions, setLeftItemsPositions] = useState([
-    { left: '23%', top: '27%' },
-    { left: '26%', top: '44%' },
-    { left: '22%', top: '62%' }
-  ]);
-  const [rightItemsPositions, setRightItemsPositions] = useState([
-    { right: '23%', top: '27%' },
-    { right: '26%', top: '44%' },
-    { right: '22%', top: '62%' }
-  ]);
-  
-  const slideContainerRef = useRef<HTMLDivElement>(null);
+}) => {
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const tColor = titleColor || currentTheme.colors.titleColor;
+  const contraColor = contraindicationsColor || currentTheme.colors.contentColor;
+  const indColor = indicationsColor || currentTheme.colors.contentColor;
+  const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingContraindications, setEditingContraindications] = useState<{ [key: number]: boolean }>({});
+  const [editingIndications, setEditingIndications] = useState<{ [key: number]: boolean }>({});
 
-  const handleLeftProjectSave = (value: string) => {
-    setLeftProjectTitle(value);
-    setIsEditingLeftProject(false);
+  const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+    setEditingTitle(false);
   };
 
-  const handleRightProjectSave = (value: string) => {
-    setRightProjectTitle(value);
-    setIsEditingRightProject(false);
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
   };
 
-  const handleLeftHeadingSave = (index: number, value: string) => {
-    const newHeadings = [...leftHeadings];
-    newHeadings[index] = value;
-    setLeftHeadings(newHeadings);
-    const newEditingStates = [...editingLeftHeadings];
-    newEditingStates[index] = false;
-    setEditingLeftHeadings(newEditingStates);
+  const handleContraindicationSave = (index: number, value: string) => {
+    if (onUpdate) {
+      const updatedContraindications = [...contraindications];
+      updatedContraindications[index] = value;
+      onUpdate({ contraindications: updatedContraindications });
+    }
+    setEditingContraindications(prev => ({ ...prev, [index]: false }));
   };
 
-  const handleRightHeadingSave = (index: number, value: string) => {
-    const newHeadings = [...rightHeadings];
-    newHeadings[index] = value;
-    setRightHeadings(newHeadings);
-    const newEditingStates = [...editingRightHeadings];
-    newEditingStates[index] = false;
-    setEditingRightHeadings(newEditingStates);
-  };
-
-  const handleLeftDescriptionSave = (index: number, value: string) => {
-    const newDescriptions = [...leftDescriptions];
-    newDescriptions[index] = value;
-    setLeftDescriptions(newDescriptions);
-    const newEditingStates = [...editingLeftDescriptions];
-    newEditingStates[index] = false;
-    setEditingLeftDescriptions(newEditingStates);
-  };
-
-  const handleRightDescriptionSave = (index: number, value: string) => {
-    const newDescriptions = [...rightDescriptions];
-    newDescriptions[index] = value;
-    setRightDescriptions(newDescriptions);
-    const newEditingStates = [...editingRightDescriptions];
-    newEditingStates[index] = false;
-    setEditingRightDescriptions(newEditingStates);
-  };
-
-
-  const slideStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    background: '#ffffff',
-    padding: '40px',
-        display: 'flex',
-        flexDirection: 'column',
-    fontFamily: 'Georgia, serif',
-    minHeight: '600px',
-    position: 'relative',
-    overflow: 'hidden'
-  };
-
-
-  const mainContentStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
-        position: 'relative',
-    height: '400px',
-    width: '100%'
-  };
-
-  const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative'
+  const handleIndicationSave = (index: number, value: string) => {
+    if (onUpdate) {
+      const updatedIndications = [...indications];
+      updatedIndications[index] = value;
+      onUpdate({ indications: updatedIndications });
+    }
+    setEditingIndications(prev => ({ ...prev, [index]: false }));
   };
 
   return (
-    <div style={slideStyles} ref={slideContainerRef}>
-
-      {/* Main Content with Image */}
-      <div style={mainContentStyles}>
-        <div style={imageContainerStyles}>
-          <Image src={contradImg} alt="Contraindications and Indications" style={{width: '100%'}} />
-        </div>
-
-        {/* Vertical Line - Full Height */}
-        <div style={{
-          position: 'absolute',
-          top: '0',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '2px',
-          height: '100%',
-          background: 'linear-gradient(to bottom, transparent, #0F58F9, transparent)',
-          zIndex: 10
-        }}></div>
-
-        {/* VS Button - Center */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '70px',
-          height: '50px',
-          borderRadius: '40px',
-          background: '#0F58F9',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#ffffff',
-          fontSize: '1.2rem',
-          fontWeight: 'bold',
-          fontFamily: 'Arial, sans-serif',
-          zIndex: 20,
-        }}>
-          VS
-        </div>
-
-        {/* Left Project Title */}
-        <div style={{
-          position: 'absolute',
-          left: leftProjectPosition.left,
-          top: leftProjectPosition.top,
-          transform: 'translateY(-50%)',
-          zIndex: 10
-        }}>
-          {editingLeftProject ? (
+    <div
+      style={{
+        background: bgColor,
+        minHeight: 600,
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: currentTheme.fonts.contentFont,
+        position: 'relative',
+        padding: '40px',
+        boxSizing: 'border-box'
+      }}
+    >
+      {/* Title Section */}
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        {isEditable && editingTitle ? (
           <InlineEditor
-              initialValue={leftProjectTitle}
-              onSave={handleLeftProjectSave}
-              onCancel={() => setIsEditingLeftProject(false)}
-              placeholder="Enter project title"
+            initialValue={title}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={false}
+            placeholder="Enter title..."
             style={{
-                width: '200px',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-                padding: '10px',
-                borderRadius: '8px',
-                minWidth: '150px'
+              fontWeight: 700,
+              fontSize: currentTheme.fonts.titleSize,
+              color: tColor,
+              textAlign: 'center',
+              width: '100%',
+              fontFamily: currentTheme.fonts.titleFont
             }}
           />
         ) : (
           <div
             style={{
-                width: '200px',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
+              fontWeight: 700,
+              fontSize: currentTheme.fonts.titleSize,
+              color: tColor,
+              textAlign: 'center',
               cursor: isEditable ? 'pointer' : 'default',
-                padding: '10px',
-                borderRadius: '8px',
-                minWidth: '150px'
+              fontFamily: currentTheme.fonts.titleFont
             }}
-              onClick={() => isEditable && setIsEditingLeftProject(true)}
-              data-draggable={isEditable}
+            onClick={() => isEditable && setEditingTitle(true)}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
-              {leftProjectTitle}
+            {title || (isEditable ? 'Click to add title' : '')}
           </div>
         )}
       </div>
 
-        {/* Right Project Title */}
+      {/* Content Section */}
       <div style={{ 
-          position: 'absolute',
-          right: rightProjectPosition.right,
-          top: rightProjectPosition.top,
-          transform: 'translateY(-50%)',
-          zIndex: 10
-        }}>
-          {editingRightProject ? (
-            <InlineEditor
-              initialValue={rightProjectTitle}
-              onSave={handleRightProjectSave}
-              onCancel={() => setIsEditingRightProject(false)}
-              placeholder="Enter project title"
-              style={{
-                fontSize: '1.5rem',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-                padding: '10px',
-                borderRadius: '8px',
-                minWidth: '150px',
-                width: '200px'
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                fontSize: '1.5rem',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-                cursor: isEditable ? 'pointer' : 'default',
-                padding: '10px',
+        display: 'flex', 
+        gap: '40px',
+        flex: 1
+      }}>
+        {/* Left Column - Contraindications */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            backgroundColor: '#f8f9fa',
             borderRadius: '8px',
-                minWidth: '150px',
-                width: '200px'
-              }}
-              onClick={() => isEditable && setIsEditingRightProject(true)}
-              data-draggable={isEditable}
-            >
-              {rightProjectTitle}
+            padding: '15px',
+            marginBottom: '20px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontWeight: 600,
+              fontSize: '18px',
+              color: '#6c757d',
+              fontFamily: currentTheme.fonts.titleFont
+            }}>
+              You shouldn't
             </div>
-          )}
           </div>
           
-        {/* Left Side Text Blocks */}
-        {leftHeadings.map((heading: string, index: number) => (
-          <div 
-            key={`left-${index}`} 
-            style={{
-              position: 'absolute',
-              left: leftItemsPositions[index].left,
-              top: leftItemsPositions[index].top,
-              zIndex: 10,
-              maxWidth: '200px'
-            }}
-          >
-            {/* Heading */}
-            {editingLeftHeadings[index] ? (
-              <InlineEditor
-                initialValue={leftHeadings[index]}
-                onSave={(value) => handleLeftHeadingSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingLeftHeadings];
-                  newEditingStates[index] = false;
-                  setEditingLeftHeadings(newEditingStates);
-                }}
-                placeholder="Enter heading"
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default'
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
+          <div style={{ flex: 1 }}>
+            {contraindications.map((item, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                marginBottom: '12px',
+                padding: '8px',
+                borderRadius: '4px',
                 cursor: isEditable ? 'pointer' : 'default'
               }}
-                onClick={() => {
-                  if (isEditable) {
-                    const newEditingStates = [...editingLeftHeadings];
-                    newEditingStates[index] = true;
-                    setEditingLeftHeadings(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {heading}
-              </div>
-            )}
-
-            {/* Description */}
-            {editingLeftDescriptions[index] ? (
+              onClick={() => isEditable && setEditingContraindications(prev => ({ ...prev, [index]: true }))}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ff6b6b',
+                  marginRight: '12px',
+                  marginTop: '6px',
+                  flexShrink: 0
+                }} />
+                {isEditable && editingContraindications[index] ? (
                   <InlineEditor
-                initialValue={leftDescriptions[index]}
-                onSave={(value) => handleLeftDescriptionSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingLeftDescriptions];
-                  newEditingStates[index] = false;
-                  setEditingLeftDescriptions(newEditingStates);
-                }}
-                placeholder="Enter description"
+                    initialValue={item}
+                    onSave={(value) => handleContraindicationSave(index, value)}
+                    onCancel={() => setEditingContraindications(prev => ({ ...prev, [index]: false }))}
                     multiline={true}
+                    placeholder="Enter contraindication..."
                     style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default'
+                      fontSize: currentTheme.fonts.contentSize,
+                      color: contraColor,
+                      lineHeight: '1.4',
+                      flex: 1
                     }}
                   />
                 ) : (
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default'
-                }}
-                onClick={() => {
-                  if (isEditable) {
-                    const newEditingStates = [...editingLeftDescriptions];
-                    newEditingStates[index] = true;
-                    setEditingLeftDescriptions(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {leftDescriptions[index]}
+                  <div style={{
+                    fontSize: currentTheme.fonts.contentSize,
+                    color: contraColor,
+                    lineHeight: '1.4',
+                    flex: 1
+                  }}>
+                    {item || (isEditable ? 'Click to add contraindication' : '')}
                   </div>
                 )}
               </div>
             ))}
+          </div>
+        </div>
 
-
-        {/* Right Side Text Blocks */}
-        {rightHeadings.map((heading: string, index: number) => (
-          <div 
-            key={`right-${index}`} 
-            style={{
-              position: 'absolute',
-              right: rightItemsPositions[index].right,
-              top: rightItemsPositions[index].top,
-              zIndex: 10,
-              maxWidth: '200px',
-              textAlign: 'right'
-            }}
-          >
-            {/* Heading */}
-            {editingRightHeadings[index] ? (
-              <InlineEditor
-                initialValue={rightHeadings[index]}
-                onSave={(value) => handleRightHeadingSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingRightHeadings];
-                  newEditingStates[index] = false;
-                  setEditingRightHeadings(newEditingStates);
-                }}
-                placeholder="Enter heading"
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                }}
-                onClick={() => {
-                  if (isEditable) {
-                    const newEditingStates = [...editingRightHeadings];
-                    newEditingStates[index] = true;
-                    setEditingRightHeadings(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {heading}
+        {/* Right Column - Indications */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px',
+            padding: '15px',
+            marginBottom: '20px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontWeight: 600,
+              fontSize: '18px',
+              color: '#6c757d',
+              fontFamily: currentTheme.fonts.titleFont
+            }}>
+              You should
             </div>
-            )}
-
-            {/* Description */}
-            {editingRightDescriptions[index] ? (
-              <InlineEditor
-                initialValue={rightDescriptions[index]}
-                onSave={(value) => handleRightDescriptionSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingRightDescriptions];
-                  newEditingStates[index] = false;
-                  setEditingRightDescriptions(newEditingStates);
-                }}
-                placeholder="Enter description"
+          </div>
+          
+          <div style={{ flex: 1 }}>
+            {indications.map((item, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                marginBottom: '12px',
+                padding: '8px',
+                borderRadius: '4px',
+                cursor: isEditable ? 'pointer' : 'default'
+              }}
+              onClick={() => isEditable && setEditingIndications(prev => ({ ...prev, [index]: true }))}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ff6b6b',
+                  marginRight: '12px',
+                  marginTop: '6px',
+                  flexShrink: 0
+                }} />
+                {isEditable && editingIndications[index] ? (
+                  <InlineEditor
+                    initialValue={item}
+                    onSave={(value) => handleIndicationSave(index, value)}
+                    onCancel={() => setEditingIndications(prev => ({ ...prev, [index]: false }))}
                     multiline={true}
+                    placeholder="Enter indication..."
                     style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
+                      fontSize: currentTheme.fonts.contentSize,
+                      color: indColor,
+                      lineHeight: '1.4',
+                      flex: 1
                     }}
                   />
                 ) : (
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                }}
-                onClick={() => {
-                  if (isEditable) {
-                    const newEditingStates = [...editingRightDescriptions];
-                    newEditingStates[index] = true;
-                    setEditingRightDescriptions(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {rightDescriptions[index]}
+                  <div style={{
+                    fontSize: currentTheme.fonts.contentSize,
+                    color: indColor,
+                    lineHeight: '1.4',
+                    flex: 1
+                  }}>
+                    {item || (isEditable ? 'Click to add indication' : '')}
                   </div>
                 )}
               </div>
             ))}
-
+          </div>
+        </div>
       </div>
     </div>
   );

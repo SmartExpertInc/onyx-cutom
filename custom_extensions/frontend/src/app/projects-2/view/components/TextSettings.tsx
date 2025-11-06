@@ -3,19 +3,7 @@ import AdvancedSettings from './AdvancedSettings';
 import ColorPalettePopup from './ColorPalettePopup';
 import Tooltip from './Tooltip';
 
-interface ComputedStyles {
-  fontSize?: string;
-  fontFamily?: string;
-  color?: string;
-  textAlign?: string;
-}
-
-interface TextSettingsProps {
-  activeEditor?: any | null; // TipTap Editor instance
-  computedStyles?: ComputedStyles | null;
-}
-
-export default function TextSettings({ activeEditor, computedStyles }: TextSettingsProps) {
+export default function TextSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
   const [animationType, setAnimationType] = useState<'none' | 'fade' | 'slide' | 'grow'>('fade');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -29,6 +17,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isParagraph, setIsParagraph] = useState(false);
   const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('left');
   const [fontColor, setFontColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
@@ -48,64 +37,6 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
   const [positionY, setPositionY] = useState(0);
   const [width, setWidth] = useState(100);
   const [height, setHeight] = useState(100);
-
-  // Sync formatting state with active editor
-  useEffect(() => {
-    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-      try {
-        // Update button states based on current selection
-        setIsBold(activeEditor.isActive('bold'));
-        setIsItalic(activeEditor.isActive('italic'));
-        setIsUnderline(activeEditor.isActive('underline'));
-        setIsStrikethrough(activeEditor.isActive('strike'));
-        
-        // Get current text color from inline styles
-        const inlineColor = activeEditor.getAttributes('textStyle').color;
-        const currentColor = inlineColor || computedStyles?.color || '#000000';
-        setFontColor(currentColor);
-        
-        // Get current font family - prefer inline, fallback to computed
-        const inlineFontFamily = activeEditor.getAttributes('textStyle').fontFamily;
-        const currentFontFamily = inlineFontFamily || computedStyles?.fontFamily || 'Arial, sans-serif';
-        setFontFamily(currentFontFamily);
-        
-        // Get current font size - prefer inline, fallback to computed
-        const inlineFontSize = activeEditor.getAttributes('textStyle').fontSize;
-        const currentFontSize = inlineFontSize || computedStyles?.fontSize || '16px';
-        setFontSize(currentFontSize);
-        
-        // Get current text alignment
-        if (activeEditor.isActive({ textAlign: 'left' })) {
-          setTextAlign('left');
-        } else if (activeEditor.isActive({ textAlign: 'center' })) {
-          setTextAlign('center');
-        } else if (activeEditor.isActive({ textAlign: 'right' })) {
-          setTextAlign('right');
-        } else {
-          // Use computed alignment if available
-          const computedAlign = computedStyles?.textAlign || 'left';
-          setTextAlign(computedAlign as 'left' | 'center' | 'right');
-        }
-        
-        console.log('✏️ TextSettings synced with editor:', {
-          bold: activeEditor.isActive('bold'),
-          italic: activeEditor.isActive('italic'),
-          underline: activeEditor.isActive('underline'),
-          strike: activeEditor.isActive('strike'),
-          color: currentColor,
-          fontFamily: currentFontFamily,
-          fontSize: currentFontSize,
-          textAlign: activeEditor.isActive({ textAlign: 'left' }) ? 'left' : 
-                     activeEditor.isActive({ textAlign: 'center' }) ? 'center' : 
-                     activeEditor.isActive({ textAlign: 'right' }) ? 'right' : computedStyles?.textAlign || 'left',
-          hasInlineStyles: { inlineColor, inlineFontFamily, inlineFontSize },
-          computedStyles: computedStyles
-        });
-      } catch (error) {
-        console.warn('Editor sync failed:', error);
-      }
-    }
-  }, [activeEditor, computedStyles]);
 
   // Refs for dropdowns
   const fontFamilyDropdownRef = useRef<HTMLDivElement>(null);
@@ -194,45 +125,21 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
     { value: 'grow', label: 'Grow' }
   ];
 
-  // Web-safe fonts list with fallbacks
   const fontFamilyOptions = [
-    { value: 'Arial, sans-serif', label: 'Arial', preview: 'Arial' },
-    { value: 'Helvetica, Arial, sans-serif', label: 'Helvetica', preview: 'Helvetica' },
-    { value: '"Times New Roman", Times, serif', label: 'Times New Roman', preview: 'Times New Roman' },
-    { value: 'Georgia, serif', label: 'Georgia', preview: 'Georgia' },
-    { value: '"Courier New", Courier, monospace', label: 'Courier New', preview: 'Courier New' },
-    { value: 'Verdana, Geneva, sans-serif', label: 'Verdana', preview: 'Verdana' },
-    { value: 'Tahoma, Geneva, sans-serif', label: 'Tahoma', preview: 'Tahoma' },
-    { value: '"Trebuchet MS", Helvetica, sans-serif', label: 'Trebuchet MS', preview: 'Trebuchet MS' },
-    { value: '"Comic Sans MS", cursive, sans-serif', label: 'Comic Sans MS', preview: 'Comic Sans MS' },
-    { value: 'Impact, Charcoal, sans-serif', label: 'Impact', preview: 'Impact' },
-    { value: '"Lucida Console", Monaco, monospace', label: 'Lucida Console', preview: 'Lucida Console' },
-    { value: '"Palatino Linotype", "Book Antiqua", Palatino, serif', label: 'Palatino', preview: 'Palatino' },
-    { value: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', label: 'Inter (Modern)', preview: 'Inter' },
-    { value: 'Lora, serif', label: 'Lora (Elegant)', preview: 'Lora' }
+    { value: 'Arial', label: 'Arial' },
+    { value: 'Times New Roman', label: 'Times New Roman' },
+    { value: 'Helvetica', label: 'Helvetica' }
   ];
 
   const fontSizeOptions = [
-    { value: '10px', label: '10' },
-    { value: '12px', label: '12' },
-    { value: '14px', label: '14' },
-    { value: '16px', label: '16' },
-    { value: '18px', label: '18' },
-    { value: '20px', label: '20' },
-    { value: '24px', label: '24' },
-    { value: '28px', label: '28' },
-    { value: '32px', label: '32' },
-    { value: '36px', label: '36' },
-    { value: '42px', label: '42' },
-    { value: '48px', label: '48' },
-    { value: '56px', label: '56' },
-    { value: '64px', label: '64' },
-    { value: '72px', label: '72' }
+    { value: '12px', label: '12px' },
+    { value: '16px', label: '16px' },
+    { value: '24px', label: '24px' }
   ];
 
   return (
     <>
-      <div className={`bg-white rounded-lg border border-gray-200 h-fit flex flex-col`} data-textsettings-panel="true">
+      <div className={`bg-white rounded-lg border border-gray-200 h-fit flex flex-col`}>
       {/* Header with grey background */}
       <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 flex-shrink-0`}>
         <div className="flex items-center space-x-2">
@@ -243,17 +150,13 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             </svg>
           </div>
           {/* Text name */}
-          <span className="text-sm font-medium text-gray-700">
-            {activeEditor ? 'Text Formatting' : 'Text (Select text to edit)'}
-          </span>
+          <span className="text-sm font-medium text-gray-700">Text</span>
         </div>
         
-        {/* Status indicator */}
-        {activeEditor && (
-          <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-            Active
-          </div>
-        )}
+        {/* Remove button */}
+        <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+          Remove
+        </button>
       </div>
       
       {/* Tab buttons */}
@@ -269,10 +172,12 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
           Format
         </button>
         <button
-          onClick={() => {}}
-          className="flex-1 py-3 px-4 text-sm font-medium transition-all opacity-50 cursor-not-allowed text-gray-400"
-          title="Soon"
-          disabled
+          onClick={() => setActiveTab('animate')}
+          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+            activeTab === 'animate'
+              ? 'text-black border-b-2 border-black'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
         >
           Animate
         </button>
@@ -287,60 +192,32 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
               <span className="text-sm font-medium text-gray-700">Font family</span>
               <div className="relative" ref={fontFamilyDropdownRef}>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
-                  disabled={!activeEditor}
-                  className={`flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black ${
-                    !activeEditor ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                  <span className="text-gray-700 max-w-[120px] truncate">
-                    {fontFamilyOptions.find(opt => opt.value === fontFamily)?.label || 'Select font'}
-                  </span>
+                  <span className="text-gray-700">{fontFamily}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
-                {showFontFamilyDropdown && activeEditor && (
-                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-64 overflow-y-auto">
+                {showFontFamilyDropdown && (
+                  <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                     {fontFamilyOptions.map((option) => (
                       <button
                         key={option.value}
-                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                            try {
-                              // Apply font family to current selection or to entire content if no selection
-                              const { from, to } = activeEditor.state.selection;
-                              const hasSelection = from !== to;
-                              
-                              if (hasSelection) {
-                                // Apply to selected text only
-                                activeEditor.chain().focus().setMark('textStyle', { fontFamily: option.value }).run();
-                              } else {
-                                // No selection - apply to entire content
-                                activeEditor.chain().focus().selectAll().setMark('textStyle', { fontFamily: option.value }).run();
-                                // Restore cursor to end
-                                const contentLength = activeEditor.state.doc.content.size;
-                                activeEditor.chain().setTextSelection({ from: contentLength, to: contentLength }).run();
-                              }
-                              setFontFamily(option.value);
-                              setShowFontFamilyDropdown(false);
-                            } catch (error) {
-                              console.warn('Font family change failed:', error);
-                            }
-                          }
+                          setFontFamily(option.value);
+                          setShowFontFamilyDropdown(false);
                         }}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
-                        style={{ fontFamily: option.preview }}
                       >
                         {fontFamily === option.value ? (
-                          <svg className="w-4 h-4 text-black mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         ) : (
-                          <div className="w-4 h-4 mr-2 flex-shrink-0"></div>
+                          <div className="w-4 h-4 mr-2"></div>
                         )}
                         <span className="text-gray-700">{option.label}</span>
                       </button>
@@ -355,21 +232,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
               <span className="text-sm font-medium text-gray-700">Font style</span>
               <div className="flex space-x-2">
                 <button
-                  onMouseDown={(e) => e.preventDefault()} 
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().toggleBold().run();
-                        setIsBold(activeEditor.isActive('bold'));
-                      } catch (error) {
-                        console.warn('Bold toggle failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setIsBold(!isBold)}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive?.('bold') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    isBold ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  }`}
                   title="Bold"
                 >
                   <span className="font-bold text-sm">B</span>
@@ -379,21 +245,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   </div>
                 </button>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().toggleItalic().run();
-                        setIsItalic(activeEditor.isActive('italic'));
-                      } catch (error) {
-                        console.warn('Italic toggle failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setIsItalic(!isItalic)}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive?.('italic') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    isItalic ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  }`}
                   title="Italic"
                 >
                   <span className="italic text-sm">I</span>
@@ -403,21 +258,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   </div>
                 </button>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().toggleUnderline().run();
-                        setIsUnderline(activeEditor.isActive('underline'));
-                      } catch (error) {
-                        console.warn('Underline toggle failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setIsUnderline(!isUnderline)}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive?.('underline') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    isUnderline ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  }`}
                   title="Underline"
                 >
                   <span className="underline text-sm">U</span>
@@ -427,26 +271,28 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   </div>
                 </button>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().toggleStrike().run();
-                        setIsStrikethrough(activeEditor.isActive('strike'));
-                      } catch (error) {
-                        console.warn('Strike toggle failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setIsStrikethrough(!isStrikethrough)}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive?.('strike') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    isStrikethrough ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  }`}
                   title="Strikethrough"
                 >
                   <span className="line-through text-sm">S</span>
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Strikethrough
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setIsParagraph(!isParagraph)}
+                  className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
+                    isParagraph ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  }`}
+                  title="Paragraph"
+                >
+                  <span className="text-sm">P</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Paragraph
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
                 </button>
@@ -458,50 +304,34 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
               <span className="text-sm font-medium text-gray-700">Font size</span>
               <div className="relative" ref={fontSizeDropdownRef}>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
-                  disabled={!activeEditor}
-                  className={`flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black ${
-                    !activeEditor ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                  <span className="text-gray-700">{fontSizeOptions.find(opt => opt.value === fontSize)?.label || fontSize}</span>
+                  <span className="text-gray-700">{fontSize}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
-                {showFontSizeDropdown && activeEditor && (
-                  <div className="absolute right-0 mt-1 w-24 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-64 overflow-y-auto">
+                {showFontSizeDropdown && (
+                  <div className="absolute right-0 mt-1 w-20 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                     {fontSizeOptions.map((option) => (
                       <button
                         key={option.value}
-                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                            try {
-                              // Apply font size via inline style using TextStyle extension
-                              activeEditor.chain().focus().setMark('textStyle', { fontSize: option.value }).run();
-                              setFontSize(option.value);
-                              setShowFontSizeDropdown(false);
-                            } catch (error) {
-                              console.warn('Font size change failed:', error);
-                            }
-                          }
+                          setFontSize(option.value);
+                          setShowFontSizeDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center justify-between"
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        <div className="flex items-center flex-1">
-                          {fontSize === option.value ? (
-                            <svg className="w-4 h-4 text-black mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <div className="w-4 h-4 mr-2 flex-shrink-0"></div>
-                          )}
-                          <span className="text-gray-700">{option.label}</span>
-                        </div>
-                        <span className="text-xs text-gray-400">px</span>
+                        {fontSize === option.value ? (
+                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          <div className="w-4 h-4 mr-2"></div>
+                        )}
+                        <span className="text-gray-700">{option.label}</span>
                       </button>
                     ))}
                   </div>
@@ -514,21 +344,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
               <span className="text-sm font-medium text-gray-700">Text align</span>
               <div className="bg-gray-100 rounded-full p-1 flex space-x-1">
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().setTextAlign('left').run();
-                        setTextAlign('left');
-                      } catch (error) {
-                        console.warn('Text align left failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setTextAlign('left')}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'left' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  }`}
                   title="Align left"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
@@ -540,21 +359,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   </div>
                 </button>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().setTextAlign('center').run();
-                        setTextAlign('center');
-                      } catch (error) {
-                        console.warn('Text align center failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setTextAlign('center')}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'center' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  }`}
                   title="Align center"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
@@ -566,21 +374,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
                   </div>
                 </button>
                 <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-                      try {
-                        activeEditor.chain().focus().setTextAlign('right').run();
-                        setTextAlign('right');
-                      } catch (error) {
-                        console.warn('Text align right failed:', error);
-                      }
-                    }
-                  }}
-                  disabled={!activeEditor}
+                  onClick={() => setTextAlign('right')}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'right' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  }`}
                   title="Align right"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
@@ -612,11 +409,10 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Background color</span>
               <button
-                onClick={() => {}}
-                className="w-8 h-8 rounded-md border-2 border-gray-300 transition-all opacity-50 cursor-not-allowed shadow-sm relative overflow-hidden"
+                onClick={handleBackgroundColorClick}
+                className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                 style={{ backgroundColor: backgroundColor }}
-                title="Soon"
-                disabled
+                title={`Background color: ${backgroundColor}`}
               >
                 {/* Add a subtle pattern for better color visibility */}
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
@@ -627,46 +423,42 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Order</span>
               <div className="flex space-x-2">
-                <Tooltip content="Soon">
+                <Tooltip content="Send text to back">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
-                    title="Soon"
-                    disabled
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
+                    title="Send text to back"
                   >
-                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5V6H9.5A3.5 3.5 0 0 0 6 9.5V13H4.5A2.5 2.5 0 0 1 2 10.5v-6ZM9.5 7A2.5 2.5 0 0 0 7 9.5v6A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7h-6ZM8 9.5A1.5 1.5 0 0 1 9.5 8h6A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5v-6Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Soon">
+                <Tooltip content="Send text backward">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
-                    title="Soon"
-                    disabled
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
+                    title="Send text backward"
                   >
-                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v6A2.5 2.5 0 0 0 4.5 13H6v-1.707L5.293 12H4.5c-.232 0-.45-.053-.647-.146L6 9.707V9.5c0-.571.137-1.11.38-1.586l-3.234 3.233A1.495 1.495 0 0 1 3 10.5v-.94L9.56 3h.94c.232 0 .45.052.647.146L7.914 6.38A3.485 3.485 0 0 1 9.5 6h.207l2.147-2.147c.094.196.146.415.146.647v.793L11.293 6H13V4.5A2.5 2.5 0 0 0 10.5 2h-6ZM3 4.5A1.5 1.5 0 0 1 4.5 3h.647L3 5.147V4.5Zm0 2.06L6.56 3h1.587L3 8.147V6.56ZM7 9.5A2.5 2.5 0 0 1 9.5 7h6A2.5 2.5 0 0 1 18 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 7 15.5v-6ZM9.5 8A1.5 1.5 0 0 0 8 9.5v6A1.5 1.5 0 0 0 9.5 17h6a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 15.5 8h-6Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Soon">
+                <Tooltip content="Bring text forward">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
-                    title="Soon"
-                    disabled
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
+                    title="Bring text forward"
                   >
-                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6ZM4.5 3A1.5 1.5 0 0 0 3 4.5v.647L5.147 3H4.5Zm2.06 0L3 6.56v1.587L8.147 3H6.56ZM3 10.5c0 .232.052.45.146.647l8-8A1.495 1.495 0 0 0 10.5 3h-.94L3 9.56v.94ZM4.5 12h.793L12 5.293V4.5c0-.232-.053-.45-.146-.647l-8 8c.195.095.414.147.646.147Zm5.207 0h.793a1.5 1.5 0 0 0 1.5-1.5v-.793L9.707 12Zm-1.414 0L12 8.293V6.707L6.707 12h1.586Z"/>
                     </svg>
                   </button>
                 </Tooltip>
-                <Tooltip content="Soon">
+                <Tooltip content="Send text to front">
                   <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center opacity-50 cursor-not-allowed"
-                    title="Soon"
-                    disabled
+                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
+                    title="Send text to front"
                   >
-                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6Z"/>
                     </svg>
                   </button>
@@ -675,42 +467,62 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
             </div>
 
             {/* Advanced Settings Content */}
-            <div className="pt-4 opacity-50 pointer-events-none">
+            <div className="pt-4">
               <AdvancedSettings
                 rotation={rotation}
-                onRotationChange={() => {}}
+                onRotationChange={setRotation}
                 positionX={positionX}
-                onPositionXChange={() => {}}
+                onPositionXChange={setPositionX}
                 positionY={positionY}
-                onPositionYChange={() => {}}
+                onPositionYChange={setPositionY}
                 width={width}
-                onWidthChange={() => {}}
+                onWidthChange={setWidth}
                 height={height}
-                onHeightChange={() => {}}
+                onHeightChange={setHeight}
               />
             </div>
-            <div className="text-xs text-gray-500 mt-2" title="Soon">Soon</div>
           </div>
         ) : (
-          <div className="space-y-4 opacity-50 pointer-events-none">
+          <div className="space-y-4">
             {/* Animate content */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-400">Animation type</span>
+              <span className="text-sm font-medium text-gray-700">Animation type</span>
               <div className="relative" ref={animationDropdownRef}>
                 <button
-                  onClick={() => {}}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md cursor-not-allowed"
-                  disabled
-                  title="Soon"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                  <span className="text-gray-400">{animationOptions.find(opt => opt.value === animationType)?.label}</span>
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-gray-700">{animationOptions.find(opt => opt.value === animationType)?.label}</span>
+                  <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
+                
+                {showDropdown && (
+                  <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                    {animationOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setAnimationType(option.value as 'none' | 'fade' | 'slide' | 'grow');
+                          setShowDropdown(false);
+                        }}
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                      >
+                        {animationType === option.value ? (
+                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          <div className="w-4 h-4 mr-2"></div>
+                        )}
+                        <span className="text-gray-700">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            <div className="text-xs text-gray-500 mt-2" title="Soon">Soon</div>
           </div>
         )}
       </div>
@@ -720,16 +532,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
     <ColorPalettePopup
       isOpen={showFontColorPicker}
       onClose={() => setShowFontColorPicker(false)}
-      onColorChange={(color) => {
-        setFontColor(color);
-        if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
-          try {
-            activeEditor.chain().focus().setColor(color).run();
-          } catch (error) {
-            console.warn('Color change failed:', error);
-          }
-        }
-      }}
+      onColorChange={setFontColor}
       selectedColor={fontColor}
       position={fontColorPickerPosition}
       recentColors={recentColors}
@@ -740,11 +543,7 @@ export default function TextSettings({ activeEditor, computedStyles }: TextSetti
     <ColorPalettePopup
       isOpen={showBackgroundColorPicker}
       onClose={() => setShowBackgroundColorPicker(false)}
-      onColorChange={(color) => {
-        setBackgroundColor(color);
-        // Background color for text is typically highlight, but TipTap doesn't have built-in highlight in our setup
-        // For now, we'll just track it in state
-      }}
+      onColorChange={setBackgroundColor}
       selectedColor={backgroundColor}
       position={backgroundColorPickerPosition}
       recentColors={recentColors}

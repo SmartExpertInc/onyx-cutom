@@ -39,7 +39,6 @@ class CompositionConfig:
     audio_codec: str = 'aac'
     quality: str = 'high'  # 'high', 'medium', 'low'
     layout: str = 'picture_in_picture'  # 'side_by_side', 'picture_in_picture', 'split_screen'
-    avatar_position: Optional[Dict] = None  # Optional custom avatar position (x, y, width, height)
 
 class ProfessionalVideoComposer:
     """Professional video composition service using FFmpeg."""
@@ -119,8 +118,7 @@ class ProfessionalVideoComposer:
                 slide_video_path=slide_video,
                 avatar_video_path=avatar_video,
                 output_path=config.output_path,
-                progress_callback=progress_callback,
-                avatar_position=config.avatar_position  # Pass custom avatar position if provided
+                progress_callback=progress_callback
             )
             
             # Cleanup

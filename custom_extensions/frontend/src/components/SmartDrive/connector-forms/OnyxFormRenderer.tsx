@@ -116,7 +116,6 @@ const OnyxFormRenderer: FC<OnyxFormRendererProps> = ({
             name={field.name}
             tabs={field.tabs || []}
             description={field.description}
-            defaultTab={field.defaultTab}
           />
         );
       case "string_tab":

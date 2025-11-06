@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video, SlidersHorizontal, ListMinus } from 'lucide-react';
@@ -13,6 +13,12 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
+import { Input } from '../ui/input';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
+import { Progress } from '../ui/progress';
+import { EmptySmartDrive } from '../EmptySmartDrive';
+import { EmptyConnectors } from '../EmptyConnectors';
 
 interface ConnectorConfig {
   id: string;
@@ -92,6 +98,166 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const isLoadingRef = useRef(false);
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [hasFiles, setHasFiles] = useState(false);
+
+  // Notify parent when tab changes
+  useEffect(() => {
+    onTabChange?.(activeTab);
+  }, [activeTab, onTabChange]);
+  
+  // Handle file selection from SmartDriveBrowser
+  const handleFilesSelected = useCallback((filePaths: string[]) => {
+    setSelectedFiles(filePaths);
+    if (onFileSelect) {
+      // Convert paths to file objects with necessary info
+      const fileObjects = filePaths.map(path => ({
+        path,
+        name: path.split('/').pop() || path,
+        id: path,
+      }));
+      onFileSelect(fileObjects);
+    }
+  }, [onFileSelect]);
+  
+  // Handle files loaded callback from SmartDriveBrowser
+  const handleFilesLoaded = useCallback((filesExist: boolean) => {
+    setHasFiles(filesExist);
+  }, []);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window === 'undefined') return 'grid';
+    const saved = localStorage.getItem('smartDriveViewMode');
+    if (saved === 'grid' || saved === 'list') {
+      return saved;
+    }
+    return 'grid';
+  });
+  
+  // Additional state for search and file operations
+  const [search, setSearch] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [sortBy, setSortBy] = useState('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [contentTypeFilter, setContentTypeFilter] = useState('all');
+  const [mkdirOpen, setMkdirOpen] = useState(false);
+  const [mkdirName, setMkdirName] = useState('');
+  const uploadInput = useRef<HTMLInputElement>(null);
+  
+  // SmartDrive browser state
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  const [currentPath, setCurrentPath] = useState<string>('/');
+  const [items, setItems] = useState<SmartDriveItem[]>([]);
+  const [smartDriveLoading, setSmartDriveLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [uploading, setUploading] = useState<UploadProgress[]>([]);
+  const [indexing, setIndexing] = useState<IndexingState>({});
+  
+  // Placeholder objects for filter functionality
+  const contentTypeFilterLabels: Record<string, string> = {
+    all: 'All',
+    documents: 'Documents',
+    images: 'Images',
+    videos: 'Videos'
+  };
+  const contentTypeFilterKeys = Object.keys(contentTypeFilterLabels);
+  const contentTypeFilterIcons: Record<string, React.ComponentType<any>> = {
+    all: ListMinus,
+    documents: FileText,
+    images: ImageIcon,
+    videos: Video
+  };
+  
+  // SmartDrive browser functions
+  const fetchList = useCallback(async (path: string) => {
+    setSmartDriveLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`List failed: ${res.status}`);
+      const data = await res.json();
+      setItems(Array.isArray(data.files) ? data.files : []);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load');
+      setItems([]);
+    } finally {
+      setSmartDriveLoading(false);
+    }
+  }, [CUSTOM_BACKEND_URL]);
+
+  const createFolder = async () => {
+    const name = mkdirName.trim();
+    if (!name) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/mkdir`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setMkdirOpen(false);
+      setMkdirName('');
+      await fetchList(currentPath);
+    } catch (e) {
+      alert('Failed to create folder');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+    console.log('[SmartDrive] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
+    
+    const progress: UploadProgress[] = files.map(f => ({ filename: f.name, progress: 0 }));
+    setUploading(progress);
+    setBusy(true);
+    try {
+      const form = new FormData();
+      for (const f of files) form.append('files', f);
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/upload?path=${encodeURIComponent(currentPath)}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: form,
+      });
+      
+      if (!res.ok && res.status !== 207) {
+        const errorText = await res.text();
+        throw new Error(errorText);
+      }
+      
+      await fetchList(currentPath);
+    } catch (e) {
+      console.error('[SmartDrive] Upload error:', e);
+      alert('Upload failed');
+    } finally {
+      setUploading([]);
+      setBusy(false);
+    }
+  };
+
+  const onUploadClick = () => uploadInput.current?.click();
+  
+  const onUploadChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await uploadFiles(Array.from(files));
+    if (uploadInput.current) uploadInput.current.value = '';
+  };
+
+  // Drag and drop handlers
+  const onDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+    await uploadFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -380,42 +546,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     ]
   };
 
-  // Feature-gated connector ids (must match ids above)
-  const GATED_CONNECTOR_IDS = useMemo(() => (
-    [
-      's3', 'r2', 'google_cloud_storage', 'oci_storage', 'sharepoint',
-      'teams', 'discourse', 'gong', 'axero', 'mediawiki',
-      'bookstack', 'guru', 'slab', 'linear', 'highspot', 'loopio'
-    ]
-  ), []);
-
-  // Load feature flags for gated connectors
-  useEffect(() => {
-    const abort = new AbortController();
-    const loadFlags = async () => {
-      try {
-        const base = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-        const entries = await Promise.all(
-          GATED_CONNECTOR_IDS.map(async (id: string) => {
-            try {
-              const res = await fetch(`${base}/features/check/connector_${id}`, { credentials: 'same-origin', signal: abort.signal });
-              if (!res.ok) return [id, false] as const;
-              const json = await res.json();
-              return [id, Boolean(json?.is_enabled)] as const;
-            } catch {
-              return [id, false] as const;
-            }
-          })
-        );
-        setConnectorVisibility(Object.fromEntries(entries));
-      } catch {
-        // ignore
-      }
-    };
-    loadFlags();
-    return () => abort.abort();
-  }, [GATED_CONNECTOR_IDS]);
-
   // Load user's existing connectors
   const loadUserConnectors = useCallback(async () => {
     console.log('[POPUP_DEBUG] loadUserConnectors called, isLoadingRef.current:', isLoadingRef.current);
@@ -595,7 +725,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       const result = await response.json();
       console.log("Connector created successfully:", result);
       if (connector) {
-        await trackConnector("Completed", connector.id, connector.name);
+        try {
+          await trackConnector("Completed", connector.id, connector.name);
+        } catch (trackError) {
+          console.warn("Failed to track connector completion:", trackError);
+        }
       }
 
       // Close the modal and refresh the connector list
@@ -605,7 +739,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     } catch (error) {
       if (connector) {
         setIsConnectorFailed(true);
-        await trackConnector("Failed", connector.id, connector.name);
+        try {
+          await trackConnector("Failed", connector.id, connector.name);
+        } catch (trackError) {
+          console.warn("Failed to track connector failure:", trackError);
+        }
       }
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
@@ -826,84 +964,153 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             <p className="text-sm text-gray-700 mb-6">{showQuotaModal.message}</p>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowQuotaModal(null)}>Close</Button>
-              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }} className="text-gray-900">Buy More</Button>
+              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }}>Buy More</Button>
             </div>
           </div>
         </div>
       )}
-      {/* Usage Progress Bars */}
-      {entitlements && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
-          </div>
-          <div className="space-y-4">
-            {/* Connectors Progress */}
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-700 font-medium">Connectors</span>
-                <span className="text-gray-600">
-                  {entitlements.connectors_used} / {entitlements.connectors_limit}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    entitlements.connectors_used >= entitlements.connectors_limit
-                      ? 'bg-red-500'
-                      : entitlements.connectors_used / entitlements.connectors_limit > 0.8
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
-                  }`}
-                  style={{
-                    width: `${Math.min(
-                      (entitlements.connectors_used / entitlements.connectors_limit) * 100,
-                      100
-                    )}%`,
-                  }}
-                />
-              </div>
-              {entitlements.connectors_used >= entitlements.connectors_limit && (
-                <div className="mt-2 text-right">
-                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+      {/* Smart Drive Tab Content */}
+      {activeTab === 'smart-drive' && (
+        <div className={isSelectMode ? 'mt-6' : ''}>
+          {/* Usage Progress Bars */}
+          {entitlements && !hideStatsBar && (
+            <div className="bg-white py-5 mb-3">
+              <div className="space-y-4">
+                {/* Storage Progress */}
+                <div>
+                  <div className="space-y-3">
+                    {/* Available files, progress bar, and button layout */}
+                    <div className="flex items-center justify-between">
+                      {/* Available files text on the left */}
+                      <div className="text-black font-semibold text-xl">Available files</div>
+                      
+                      {/* Progress bar section on the right */}
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col">
+                          {/* Top labels */}
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-[#4D4D4D] font-medium text-[11px]">Storage used</span>
+                            <span className="text-[#4D4D4D] text-[11px]">
+                              {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
+                            </span>
+                          </div>
+                          
+                          {/* Progress bar */}
+                          <div className="w-48 bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div
+                              className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
+                              style={{
+                                width: `${Math.min(
+                                  (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
+                                  100
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                          
+                          {/* Bottom labels */}
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-[#878787] text-[11px]">
+                              {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
+                            </span>
+                            <span className="text-[#878787] text-[11px]">
+                              {entitlements.storage_gb - entitlements.storage_used_gb} GB free
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Buy more storage button */}
+                        {!isSelectMode && (
+                          <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Buy more storage
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
+          )}
 
-            {/* Storage Progress */}
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-700 font-medium">Storage</span>
-                <span className="text-gray-600">
-                  {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    entitlements.storage_used_gb >= entitlements.storage_gb
-                      ? 'bg-red-500'
-                      : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
-                      ? 'bg-yellow-500'
-                      : 'bg-blue-500'
-                  }`}
-                  style={{
-                    width: `${Math.min(
-                      (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
-                      100
-                    )}%`,
-                  }}
-                />
-              </div>
-              {entitlements.storage_used_gb >= entitlements.storage_gb && (
-                <div className="mt-2 text-right">
-                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+          {/* Upload progress */}
+          {uploading.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {uploading.map(u => (
+                <div key={u.filename} className="flex items-center gap-3 bg-white rounded-lg border border-gray-200 p-3">
+                  <div className="w-48 truncate text-sm text-slate-600">{u.filename}</div>
+                  <Progress value={u.progress} className="w-full" />
                 </div>
-              )}
+              ))}
             </div>
+          )}
+
+          {/* Smart Drive Browser Section */}
+          <div className="mb-8">
+          <div className={`bg-white mb-6 ${isSelectMode ? 'p-4 rounded-lg' : ''}`} onDrop={onDrop} onDragOver={onDragOver}>
+            {smartDriveLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : items.length === 0 && !error && isSelectMode ? (
+              <EmptySmartDrive />
+            ) : process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+              <SmartDriveFrame />
+            ) : (
+              <SmartDriveBrowser 
+                mode={isSelectMode ? "select" : "manage"} 
+                viewMode={viewMode} 
+                contentTypeFilter={contentTypeFilter} 
+                searchQuery={search} 
+                sortBy={sortBy} 
+                sortOrder={sortOrder}
+                onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+                onFilesLoaded={handleFilesLoaded}
+              />
+            )}
           </div>
         </div>
+        </div>
       )}
+
+      {/* Connectors Tab Content */}
+      {activeTab === 'connectors' && (
+        <div className={isSelectMode ? 'mt-6' : ''}>
+          {/* Usage Stats Header */}
+          {entitlements && !hideStatsBar && (
+            <div className="bg-white py-4 mb-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold text-gray-900">Available connectors</h3>
+                <div className="flex items-center gap-2">
+                  <div className="w-[125px] bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
+                      style={{
+                        width: `${Math.min(
+                          (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-[#797979] pr-4 text-xs">
+                    {entitlements.connectors_used}/{entitlements.connectors_limit} used
+                  </span>
+                  {!isSelectMode && (
+                    <Button 
+                      className="bg-[#719AF5] px-4 py-3 cursor-pointer text-white rounded-full" 
+                      size="sm" 
+                      onClick={() => setShowAddonsModal(true)}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Buy more connectors
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Show loading or empty state */}
           {loading ? (
@@ -1055,81 +1262,66 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               })()})</span></h3>
             </div>
 
-      {/* All Connectors Grid - Expandable */}
-      {showAllConnectors && (
-        <>
-          {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
-            <div key={categoryName} className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3">
-                {categoryName}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {connectors.map((connector) => {
-                  const userConnectorsForSource = getConnectorsBySource(connector.id);
-                  const hasConnectors = userConnectorsForSource.length > 0;
-                  const hasMultipleConnectors = userConnectorsForSource.length > 1;
+            {Object.entries(connectorCategories).map(([categoryName, connectors]) => {
+              // Filter out connectors that are already connected
+              const availableConnectors = connectors.filter(connector => {
+                const userConnectorsForSource = getConnectorsBySource(connector.id);
+                return userConnectorsForSource.length === 0;
+              });
 
-                  return (
-                    <Card
-                      key={connector.id}
-                      className="group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105"
-                      style={{
-                        backgroundColor: 'white',
-                        borderColor: '#e2e8f0',
-                        background: 'white',
-                        borderWidth: '1px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-                      }}
-                      onClick={() => handleConnectClick(connector.id, connector.name)}
-                    >
-                      <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
-                      <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
-                      <CardContent className="p-6 relative z-10">
-                        <div className="flex items-center gap-4 mb-4">
-                            <Image
-                              src={connector.logoPath}
-                              alt={`${connector.name} logo`}
-                              width={32}
-                              height={32}
-                              className="object-contain w-8 h-8"
-                              priority={false}
-                              unoptimized={true}
-                            />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-blue-600 truncate">
-                              {connector.name}
-                            </h3>
-                          </div>
-                        </div>
+              // Apply search filter to available connectors
+              const filteredAvailableConnectors = availableConnectors.filter(connector => {
+                if (!search.trim()) return true;
+                return connector.name.toLowerCase().includes(search.toLowerCase());
+              });
 
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                              e.stopPropagation();
-                              handleConnectClick(connector.id, connector.name);
+              // Only show category if there are available connectors after filtering
+              if (filteredAvailableConnectors.length === 0) return null;
+
+              return (
+                <div key={categoryName} className="space-y-4 mb-8">
+                  <h3 className="text-md font-semibold text-gray-700 border-b border-gray-200 pb-3">
+                    {categoryName}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {filteredAvailableConnectors.map((connector) => {
+                      return (
+                        <div key={connector.id} className="relative">
+                          <Card
+                            className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
+                            style={{
+                              backgroundColor: 'white',
+                              borderColor: '#e2e8f0',
+                              borderWidth: '1px'
                             }}
-                            variant="download"
-                            className="flex-1 rounded-full"
                           >
-                            {t('interface.connect', 'Connect')}
-                          </Button>
-
-                        {hasConnectors && (
-                          <div className="relative">
-                            {hasMultipleConnectors ? (
-                              <div className="relative group">
-                                <button 
-                                  onClick={(e) => {
+                            <CardContent className="p-4">
+                              <div className="flex items-left flex-col gap-1 mb-3">
+                                <Image
+                                  src={connector.logoPath}
+                                  alt={`${connector.name} logo`}
+                                  width={40}
+                                  height={40}
+                                  className="object-contain w-10 h-10"
+                                  priority={false}
+                                  unoptimized={true}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-lg font-bold text-gray-900 truncate">
+                                    {connector.name}
+                                  </h3>
+                                  <div className="flex items-center h-5 pt-2 gap-2 mt-1">
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
+                              <div className="flex items-center justify-between">
+                                <button
+                                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                     e.stopPropagation();
-                                    setOpenDropdownId(connector.id);
+                                    handleConnectClick(connector.id, connector.name);
                                   }}
-                                  className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-gray-200 text-[#878787] hover:bg-gray-50"
                                 >
                                   View Integration
                                 </button>
@@ -1190,7 +1382,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 </h2>
                 <button
                   onClick={() => {
-                    !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                    if (!isConnectorFailed) {
+                      try {
+                        trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                      } catch (error) {
+                        console.warn("Failed to track connector click:", error);
+                      }
+                    }
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
@@ -1206,7 +1404,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 connectorId={selectedConnector.id}
                 onSubmit={handleConnectorSubmit}
                 onCancel={() => {
-                  !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                  if (!isConnectorFailed) {
+                    try {
+                      trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                    } catch (error) {
+                      console.warn("Failed to track connector click:", error);
+                    }
+                  }
                   setShowConnectorModal(false);
                   setSelectedConnector(null);
                 }}

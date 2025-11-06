@@ -26,8 +26,8 @@
   --gray-900: #0f172a;
   
   /* Typography */
-  --font-primary: 'Inter', sans-serif;
-  --font-mono: 'Inter', sans-serif;
+  --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   
   /* Spacing - Minimal gaps */
   --space-xs: 2px;
@@ -436,8 +436,8 @@
 .slide-title-text,
 .slide-title-display {
   font-size: 45px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
   color: #ffffff;
   margin: 0;
   line-height: 1.2;
@@ -564,28 +564,28 @@
 
 .professional-headline.level-1 .heading-text {
   font-size: 45px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
   color: #ffffff;
 }
 
 .professional-headline.level-2 .heading-text {
   font-size: 35px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 600;
   color: #ffffff;
 }
 
 .professional-headline.level-3 .heading-text {
   font-size: 28px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 600;
   color: #ffffff;
 }
 
 .professional-headline.level-4 .heading-text {
   font-size: 22px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 500;
   color: #ffffff;
 }
@@ -617,7 +617,7 @@
 .paragraph-text {
   margin: 0;
   font-size: 1rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   line-height: 1.6;
   color: #d9e1ff;
   flex: 1;
@@ -674,8 +674,6 @@
   gap: var(--space-lg);
   margin-bottom: var(--space-sm);
   font-size: 1rem;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
   line-height: 1.6;
   color: var(--gray-700);
 }
@@ -792,8 +790,6 @@
 .bullet-text,
 .number-text {
   flex: 1;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
 }
 
 .professional-alert {
@@ -888,176 +884,33 @@
   line-height: 1;
 }
 
-/* Enhanced Inline Editing - Preserves Layout and Styling */
+/* Clean Inline Editing */
 .inline-editor-input,
 .inline-editor-textarea {
   width: 100%;
   border: 2px solid var(--primary-color);
   border-radius: var(--border-radius);
   padding: var(--space-lg);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
   background: white;
   outline: none;
   box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1000;
-  
-  /* Preserve exact positioning and sizing */
-  margin: 0;
-  display: block;
-  vertical-align: baseline;
-  
-  /* Ensure text doesn't shift */
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  
-  /* Prevent layout shifts */
-  min-height: 0;
-  max-height: none;
-  
-  /* Ensure proper text alignment */
-  text-align: left;
-  
-  /* Prevent text wrapping issues */
-  word-break: normal;
-  overflow-wrap: normal;
-  
-  /* Ensure text is always visible */
-  color: #000000;
-  background: white;
-  
-  /* Prevent text from being cut off */
-  text-indent: 0;
-  text-decoration: none;
-  
-  /* Ensure proper cursor */
-  cursor: text;
-  
-  /* Ensure proper text rendering */
-  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 .inline-editor-input:focus,
 .inline-editor-textarea:focus {
   border-color: var(--primary-dark);
   box-shadow: var(--shadow-lg), 0 0 0 3px rgba(37, 99, 235, 0.1);
-  outline: none;
 }
 
 .inline-editor-textarea {
-  resize: none;
-  overflow: visible;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  min-height: auto;
-  height: auto;
-  
-  /* Prevent text from disappearing */
-  overflow-y: hidden;
-  overflow-x: hidden;
-  
-  /* Ensure proper line height calculation */
-  line-height: inherit;
-  
-  /* Prevent unwanted text wrapping */
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  
-  /* Ensure text is always visible in textarea */
-  color: #000000;
-  background: white;
-  
-  /* Prevent text from disappearing */
-  min-height: 24px;
-  
-  /* Ensure proper line breaks */
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-/* Container for inline editor to prevent layout shifts */
-.inline-editor-container {
-  position: relative;
-  width: 100%;
-  min-height: inherit;
-  display: flex;
-  align-items: center;
-  
-  /* Prevent overlapping with other elements */
-  z-index: 1000;
-  
-  /* Prevent layout shifts */
-  overflow: visible;
-}
-
-/* Ensure proper spacing around inline editor */
-.inline-editor-container .inline-editor-input,
-.inline-editor-container .inline-editor-textarea {
-  flex: 1;
-  margin: 0;
-  padding: var(--space-lg);
-}
-
-/* Specific styles for different block types to maintain exact appearance */
-.inline-editor-input[data-block-type="headline"],
-.inline-editor-textarea[data-block-type="headline"] {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  
-  /* Ensure proper sizing for headlines */
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  
-  /* Prevent text overflow */
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.inline-editor-input[data-block-type="paragraph"],
-.inline-editor-textarea[data-block-type="paragraph"] {
-  font-family: 'Inter', sans-serif;
-  color: #d9e1ff;
-  line-height: 1.6;
-  font-size: 1rem;
-  
-  /* Ensure proper sizing for paragraphs */
-  min-height: 24px;
-  display: flex;
-  align-items: flex-start;
-  
-  /* Allow text wrapping for paragraphs */
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.inline-editor-input[data-block-type="bullet_list"],
-.inline-editor-textarea[data-block-type="bullet_list"],
-.inline-editor-input[data-block-type="numbered_list"],
-.inline-editor-textarea[data-block-type="numbered_list"] {
-  font-family: 'Inter', sans-serif;
-  color: #d9e1ff;
-  line-height: 1.6;
-  font-size: 1rem;
-  
-  /* Ensure proper sizing for lists */
-  min-height: 24px;
-  display: flex;
-  align-items: flex-start;
-  
-  /* Allow proper line breaks for lists */
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  
-  /* Preserve list formatting */
-  padding-left: 0;
-  margin-left: 0;
+  resize: vertical;
+  min-height: 100px;
+  font-family: var(--font-primary);
 }
 
 /* Responsive Design */

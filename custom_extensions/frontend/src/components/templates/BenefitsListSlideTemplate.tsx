@@ -1,20 +1,130 @@
 // custom_extensions/frontend/src/components/templates/BenefitsListSlideTemplate.tsx
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BenefitsListSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import AvatarImageDisplay from '../AvatarImageDisplay';
-import PresentationImageUpload from '../PresentationImageUpload';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
 
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block',
+      }}
+    />
+  );
+}
 
 export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   theme?: SlideTheme | string;
-  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
-  slideId: _slideId,
+  slideId,
   title = 'Benefits',
   subtitle = 'Employment',
   description = 'Here is a list of benefits that you can offer to your employees to maintain small business compliance:',
@@ -31,9 +141,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   currentStep = 3,
   totalSteps = 4,
   companyName = 'Company name',
-  benefitsListIcon = '',
-  pageNumber = '15',
-  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -41,32 +148,27 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText: _voiceoverText,
-  onEditorActive
+  voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
   const [editingBenefits, setEditingBenefits] = useState<number | null>(null);
-  const [_editingCompanyName, _setEditingCompanyName] = useState(false);
-  const [editingPageNumber, setEditingPageNumber] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
-  const benefitEditorRefs = useRef<(ControlledWysiwygEditorRef | null)[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
-  const [_currentCompanyName, _setCurrentCompanyName] = useState(companyName);
-  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '16/9',
+    height: '600px',
+    background: themeBg,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -78,7 +180,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -86,7 +188,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -94,7 +196,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentDescription(newDescription);
     setEditingDescription(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
     }
   };
 
@@ -104,7 +206,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentBenefits(newBenefits);
     setEditingBenefits(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
     }
   };
 
@@ -128,62 +230,33 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setEditingDescription(false);
   };
 
-  const _handleCompanyNameSave = (newCompanyName: string) => {
-    _setCurrentCompanyName(newCompanyName);
-    _setEditingCompanyName(false);
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
-  const _handleCompanyNameCancel = () => {
-    _setCurrentCompanyName(companyName);
-    _setEditingCompanyName(false);
+  const handleCompanyNameCancel = () => {
+    setCurrentCompanyName(companyName);
+    setEditingCompanyName(false);
   };
 
-  const handlePageNumberSave = (newPageNumber: string) => {
-    setCurrentPageNumber(newPageNumber);
-    setEditingPageNumber(false);
+  const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
-    }
-  };
-
-  const handlePageNumberCancel = () => {
-    setCurrentPageNumber(pageNumber);
-    setEditingPageNumber(false);
-  };
-
-  const handleLogoNewUploaded = (newLogoPath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
-    }
-  };
-
-  const handleBenefitsListIconUploaded = (newIconPath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, benefitsListIcon: newIconPath });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
   return (
-    <div className="benefits-list-slide-template inter-theme" style={slideStyles}>
-      <style>{`
-        .benefits-list-slide-template *:not(.title-element) {
-          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        }
-        .benefits-list-slide-template .title-element {
-          font-family: "Lora", serif !important;
-          font-weight: 500 !important;
-        }
-      `}</style>
-      {/* Top section with blue gradient background */}
+    <div className="benefits-list-slide-template" style={slideStyles}>
+      {/* Top section with green background */}
       <div style={{
-        flex: '0 0 427px', // Фиксированная высота для верхней секции
-        background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', 
+        flex: '0 0 396px', // Фиксированная высота для верхней секции
+        backgroundColor: themeAccent,
         position: 'relative',
         padding: '40px 60px',
-        paddingTop: '44px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -192,85 +265,71 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <div>
           {/* Subtitle */}
           <div style={{
-            marginBottom: '25px',
+            fontSize: '14px',
+            color: themeBg,
+            marginBottom: '10px',
+            fontWeight: '300',
+            minHeight: '20px',
+            maxHeight: '20px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            overflow: 'hidden'
           }}>
-            <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '24px',
-              padding: '9px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              {/* Circle indicator */}
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#0F58F9'
-              }} />
-              
-              {/* Subtitle text */}
-              {isEditable && editingSubtitle ? (
-                <ImprovedInlineEditor
-                  initialValue={currentSubtitle}
-                  onSave={handleSubtitleSave}
-                  onCancel={handleSubtitleCancel}
-                  className="benefits-subtitle-editor"
-                  style={{
-                    fontSize: '20px',
-                    color: '#09090BCC',
-                    fontWeight: '400',
-                    fontFamily: currentTheme.fonts.contentFont,
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingSubtitle(true)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
-                    fontSize: '20px',
-                    color: '#09090BCC',
-                    fontWeight: '400',
-                    fontFamily: currentTheme.fonts.contentFont
-                  }}
-                >
-                  {currentSubtitle}
-                </div>
-              )}
-            </div>
+            {isEditable && editingSubtitle ? (
+              <InlineEditor
+                initialValue={currentSubtitle}
+                onSave={handleSubtitleSave}
+                onCancel={handleSubtitleCancel}
+                className="benefits-subtitle-editor"
+                style={{
+                  fontSize: '25px',
+                  color: themeBg,
+                  fontWeight: '300',
+                  width: '100%',
+                  height: '100%',
+                  minHeight: '20px',
+                  maxHeight: '20px'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingSubtitle(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                {currentSubtitle}
+              </div>
+            )}
           </div>
 
           {/* Main title */}
           <div style={{
-            fontSize: '48px',
-            color: '#FFFFFF',
-            marginBottom: '10px',
+            fontSize: '55px',
+            color: themeBg,
+            marginBottom: '20px',
             lineHeight: '1.1',
             minHeight: '65px',
             maxHeight: '65px',
             display: 'flex',
-            fontFamily: "'Lora', serif",
             alignItems: 'center',
             overflow: 'hidden'
           }}>
             {isEditable && editingTitle ? (
-              <ImprovedInlineEditor
+              <InlineEditor
                 initialValue={currentTitle}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
-                className="benefits-title-editor title-element"
+                className="benefits-title-editor"
                 style={{
-                  fontSize: '48px',
-                  color: '#FFFFFF',
+                  fontSize: '55px',
+                  color: themeBg,
                   lineHeight: '1.1',
-                  fontFamily: "'Lora', serif",
                   width: '100%',
                   height: '100%',
                   minHeight: '65px',
@@ -279,7 +338,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               />
             ) : (
               <div
-                className="title-element"
                 onClick={() => isEditable && setEditingTitle(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
@@ -287,14 +345,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   width: '100%',
                   height: '100%',
                   display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '48px',
-                  color: '#FFFFFF',
-                  lineHeight: '1.1',
-                  fontFamily: "'Lora', serif",
-                  minHeight: '65px',
-                  maxHeight: '65px',
-                  overflow: 'hidden'
+                  alignItems: 'center'
                 }}
               >
                 {currentTitle}
@@ -304,28 +355,25 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '28px',
-            color: 'rgba(255, 255, 255, 0.8)',
+            fontSize: '22px',
+            color: themeBg,
             lineHeight: '1.4',
-            maxWidth: '643px',
+            maxWidth: '530px',
             minHeight: '30px',
             display: 'flex',
             alignItems: 'flex-start'
           }}>
             {isEditable && editingDescription ? (
-              <ImprovedInlineEditor
+              <InlineEditor
                 initialValue={currentDescription}
                 onSave={handleDescriptionSave}
                 onCancel={handleDescriptionCancel}
                 multiline={true}
                 className="benefits-description-editor"
                 style={{
-                  fontSize: '28px',
-                  color: 'rgba(255, 255, 255, 0.8)',
+                  fontSize: '18px',
+                  color: themeBg,
                   lineHeight: '1.4',
-                  fontFamily: currentTheme.fonts.contentFont,
-                  fontWeight: '300',
-                  letterSpacing: '0.05rem',
                   width: '100%'
                 }}
               />
@@ -335,15 +383,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
-                  fontSize: '28px',
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  lineHeight: '1.4',
-                  fontFamily: currentTheme.fonts.contentFont,
-                  fontWeight: '300',
-                  letterSpacing: '0.05rem',
-                  maxWidth: '643px',
-                  minHeight: '30px',
-                  width: '100%'
+                  fontSize: '22px'
                 }}
               >
                 {currentDescription}
@@ -352,27 +392,27 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           </div>
         </div>
 
-        {/* Navigation squares */}
+        {/* Navigation circles */}
         <div style={{
           display: 'flex',
-          gap: '55px',
+          gap: '15px',
+          marginTop: '20px'
         }}>
           {Array.from({ length: totalSteps }, (_, i) => (
             <div
               key={i}
               style={{
-                width: '55px',
-                height: '55px',
-                borderRadius: '2px',
-                border: `2px solid #ffffff`,
-                backgroundColor: i + 1 === currentStep ? "#ffffff" : 'transparent',
+                width: '45px',
+                height: '45px',
+                borderRadius: '50%',
+                border: `2px solid ${themeBg}`,
+                background: i + 1 === currentStep ? themeBg : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: i + 1 === currentStep ? '#0F58F9' : '#ffffff',
-                fontSize: '32px',
-                fontWeight: '',
-                fontFamily: currentTheme.fonts.contentFont
+                color: i + 1 === currentStep ? themeAccent : themeBg,
+                fontSize: '25px',
+                fontWeight: ''
               }}
             >
               {i + 1}
@@ -380,26 +420,27 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           ))}
         </div>
 
-        {/* Avatar in circular container */}
+        {/* Profile image */}
         <div style={{
           position: 'absolute',
-          top: '60px',
+          top: '40px',
           right: '60px',
-          width: '170px',
-          height: '170px',
+          width: '180px',
+          height: '180px',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: '#ffffff',
         }}>
-          <AvatarImageDisplay
-            size="MEDIUM"
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
             position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
             style={{
-              width: '88%',
-              height: '135%',
+              width: '100%',
+              height: '100%',
               borderRadius: '50%',
-              position: 'relative',
-              bottom: '0px',
               objectFit: 'cover'
             }}
           />
@@ -409,7 +450,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        backgroundColor: '#E0E7FF',
+        background: themeBg,
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -423,185 +464,101 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           maxWidth: '1000px',
           marginTop: '20px'
         }}>
-          {currentBenefits.map((benefit: string, index: number) => (
+          {currentBenefits.map((benefit, index) => (
             <div
               key={index}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                fontSize: '24px',
-                color: '#5E5E5E'
+                fontSize: '18px',
+                color: themeContent
               }}
             >
-              <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
-              </svg>
+              <span style={{ fontSize: '18px' }}>→</span>
               {isEditable && editingBenefits === index ? (
-                <ControlledWysiwygEditor
-                  ref={(el) => {
-                    if (!benefitEditorRefs.current) benefitEditorRefs.current = [];
-                    benefitEditorRefs.current[index] = el;
-                  }}
+                <InlineEditor
                   initialValue={benefit}
                   onSave={(value) => handleBenefitSave(index, value)}
                   onCancel={handleBenefitCancel}
-                  placeholder="Enter benefit..."
                   className="benefit-editor"
                   style={{
-                    fontSize: '24px',
-                    color: '#5E5E5E',
-                    fontFamily: currentTheme.fonts.contentFont,
-                    letterSpacing: '0.05rem',
-                    flex: '1',
-                    padding: '8px 12px',
-                    border: '1px solid rgba(0,0,0,0.2)',
-                    borderRadius: '4px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                    fontSize: '16px',
+                    color: themeContent,
+                    flex: '1'
                   }}
-                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `benefit-${index}`, computedStyles)}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingBenefits(index)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    flex: '1',
-                    fontSize: '24px',
-                    color: '#5E5E5E',
-                    fontFamily: currentTheme.fonts.contentFont,
-                    letterSpacing: '0.05rem'
+                    userSelect: 'none',
+                    flex: '1'
                   }}
-                  dangerouslySetInnerHTML={{ __html: benefit }}
-                />
+                >
+                  {benefit}
+                </div>
               )}
             </div>
           ))}
         </div>
 
-      </div>
-
-      {/* Logo in bottom-right corner */}
-      <div style={{
-        position: 'absolute',
-        bottom: '30px',
-        right: '30px'
-      }}>
-        {logoNew ? (
-          <ClickableImagePlaceholder
-            imagePath={logoNew}
-            onImageUploaded={handleLogoNewUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              height: '30px',
-              maxWidth: '120px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          <div 
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              cursor: isEditable ? 'pointer' : 'default'
-            }}
-          >
-            <div style={{
-              width: '30px',
-              height: '30px',
-              border: '2px solid #09090B',
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
-              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
-            </div>
-            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
-          </div>
-        )}
-      </div>
-
-      {/* Page number with line */}
-      <div style={{
-        position: 'absolute',
-        bottom: '30px',
-        left: '0px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
-      }}>
-        {/* Small line */}
-        <div style={{
-          width: '20px',
+        {/* Horizontal line separator */}
+        <hr style={{
+          border: 'none',
           height: '1px',
-          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+          backgroundColor: themeContent,
+          opacity: 0.3,
+          margin: '20px 0',
+          marginTop: '30px'
         }} />
-        {/* Page number */}
-        {isEditable && editingPageNumber ? (
-          <ImprovedInlineEditor
-            initialValue={currentPageNumber}
-            onSave={handlePageNumberSave}
-            onCancel={handlePageNumberCancel}
-            className="page-number-editor"
-            style={{
-              color: '#09090B99',
-              fontSize: '17px',
-              fontWeight: '300',
-              fontFamily: currentTheme.fonts.contentFont,
-              width: '30px',
-              height: 'auto'
-            }}
-          />
-        ) : (
-          <div
-            onClick={() => isEditable && setEditingPageNumber(true)}
-            style={{
-              color: '#09090B99',
-              fontSize: '17px',
-              fontWeight: '300',
-              fontFamily: currentTheme.fonts.contentFont,
-              cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
-            }}
-          >
-            {currentPageNumber}
+
+        {/* Footer */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginTop: 'auto',
+          marginBottom: '20px'
+        }}>
+          <div style={{
+            width: '16px',
+            height: '16px',
+            backgroundColor: themeAccent,
+            transform: 'rotate(45deg)'
+          }} />
+          <div style={{
+            fontSize: '12px',
+            color: themeContent,
+            fontWeight: '300'
+          }}>
+            {isEditable && editingCompanyName ? (
+              <InlineEditor
+                initialValue={currentCompanyName}
+                onSave={handleCompanyNameSave}
+                onCancel={handleCompanyNameCancel}
+                className="company-name-editor"
+                style={{
+                  fontSize: '12px',
+                  color: themeContent,
+                  fontWeight: '300'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingCompanyName(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentCompanyName}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
-
-      {/* Logo Upload Modal */}
-      {showUploadModal && (
-        <PresentationImageUpload
-          isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          onImageUploaded={(newIconPath: string) => {
-            handleBenefitsListIconUploaded(newIconPath);
-            setShowUploadModal(false);
-          }}
-          title="Upload Benefits List Icon"
-        />
-      )}
-
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleLogoNewUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
   );
 };

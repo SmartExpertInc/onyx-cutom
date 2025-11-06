@@ -179,10 +179,10 @@ class CleanVideoGenerationService:
                 "templateId": "avatar-checklist",
                 "title": "Pipeline Test",
                 "items": [
-                    {"text": "HTML Generation SUCCESS", "isPositive": True},
-                    {"text": "PNG Conversion SUCCESS", "isPositive": True},
-                    {"text": "Video Assembly SUCCESS", "isPositive": True},
-                    {"text": "No UI Chrome SUCCESS", "isPositive": True}
+                    {"text": "HTML Generation ✓", "isPositive": True},
+                    {"text": "PNG Conversion ✓", "isPositive": True},
+                    {"text": "Video Assembly ✓", "isPositive": True},
+                    {"text": "No UI Chrome ✓", "isPositive": True}
                 ]
             }
             

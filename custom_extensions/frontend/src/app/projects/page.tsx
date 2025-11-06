@@ -50,7 +50,7 @@ import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
 import { ToastProvider } from '../../components/ui/toast';
-import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView, trackFeedback } from '@/lib/mixpanelClient';
+import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
 import Userback, { UserbackWidget } from '@userback/widget';
 import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
 import { Button } from '@/components/ui/button';
@@ -863,10 +863,6 @@ const ProjectsPageInner: React.FC = () => {
           const instance = await Userback(token, {
             widget_settings: {
               language: language == 'uk' ? 'en' : language
-            },
-            before_send: async () => {
-              await trackFeedback();
-              return true;
             },
             user_data: {
               id: currentUser.id,

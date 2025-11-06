@@ -8,7 +8,6 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { ConnectorCard } from "@/components/ui/connector-card";
 import {TextIcon, ClockIcon } from "@/components/ui/custom-icons";
-import { trackSyncConnector } from "@/lib/mixpanelClient";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -179,13 +178,6 @@ export default function ConnectorManagementPage({
   // Handle indexing
   const handleIndexing = async (fromBeginning: boolean = false) => {
     if (!ccPair) return;
-
-    // track indexing event
-    if (fromBeginning) {
-      trackSyncConnector('Full Re-index', ccPair.connector.id.toString(), ccPair.connector.name);
-    } else {
-      trackSyncConnector('Index', ccPair.connector.id.toString(), ccPair.connector.name);
-    }
 
     try {
       const result = await triggerIndexing(

@@ -392,8 +392,6 @@ function GenerateProductPicker() {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
-    } else if (product === 'video-lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
-      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else {
       // Try to get from sessionStorage
       try {
@@ -423,16 +421,6 @@ function GenerateProductPicker() {
       } else if (lessonContext.product === 'text-presentation') {
         setActiveProduct("One-Pager");
         setUseExistingTextOutline(true);
-        sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
-      } else if (lessonContext.product === 'video-lesson') {
-        setActiveProduct("Video Lesson");
-        
-        // Video Lesson uses the same outline selection as Presentation
-        // Since we have video lesson context from the modal, automatically set useExistingOutline to true
-        // This bypasses the "Do you want to create a lesson from an existing Course Outline?" question
-        setUseExistingOutline(true);
-        
-        // Store video lesson context for pre-selecting dropdowns after outlines are loaded
         sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
       } else {
         setActiveProduct("Presentation");
@@ -465,8 +453,8 @@ function GenerateProductPicker() {
         // Continue with clearing if there's an error
       }
 
-          // Clear lesson context when switching away from Presentation or Video Lesson
-    if (activeProduct !== "Presentation" && activeProduct !== "Video Lesson") {
+          // Clear lesson context when switching away from Presentation
+    if (activeProduct !== "Presentation") {
         setUseExistingOutline(false);  // Default to standalone mode instead of null
         setSelectedOutlineId(null);
         setSelectedModuleIndex(null);
@@ -510,29 +498,6 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10,12,15,20]);
-  const [entitlements, setEntitlements] = useState<any | null>(null);
-
-  // Fetch entitlements to decide on slides options
-  useEffect(() => {
-    const loadEntitlements = async () => {
-      try {
-        const backendUrl = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-        const res = await fetch(`${backendUrl}/entitlements/me`, { credentials: 'include' });
-        if (!res.ok) return;
-        const data = await res.json();
-        setEntitlements(data);
-        // Merge default options with entitlement-based extended options (additive)
-        const defaultOpts = [5,6,7,8,9,10,12,15,20];
-        const extended = Array.isArray(data?.slides_options) && data.slides_options.length > 0
-          ? data.slides_options
-          : (data?.slides_max > 20 ? [25, 30, 35, 40] : []);
-        const merged = Array.from(new Set([...defaultOpts, ...extended])).sort((a,b)=>a-b);
-        setSlidesOptions(merged);
-      } catch {}
-    };
-    loadEntitlements();
-  }, []);
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(false);
 
   // --- Quiz specific state ---
@@ -571,9 +536,9 @@ function GenerateProductPicker() {
     };
   }, [showQuestionTypesDropdown]);
 
-  // Fetch outlines when switching to Presentation or Video Lesson tab and user chooses to use existing outline
+  // Fetch outlines when switching to Presentation tab and user chooses to use existing outline
   useEffect(() => {
-    if ((activeProduct !== "Presentation" && activeProduct !== "Video Lesson") || useExistingOutline !== true) return;
+    if (activeProduct !== "Presentation" || useExistingOutline !== true) return;
     const fetchOutlines = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
@@ -638,7 +603,7 @@ function GenerateProductPicker() {
 
   // Fetch lessons when outline changes
   useEffect(() => {
-    if ((activeProduct !== "Presentation" && activeProduct !== "Video Lesson") || selectedOutlineId == null || useExistingOutline !== true) return;
+    if (activeProduct !== "Presentation" || selectedOutlineId == null || useExistingOutline !== true) return;
     
     // Skip if we already have modules loaded (from pre-selection)
     if (modulesForOutline.length > 0) return;
@@ -1168,27 +1133,14 @@ function GenerateProductPicker() {
   };
 
   const handleVideoLessonStart = () => {
-    // Check if using existing outline or standalone mode
-    if (useExistingOutline === true) {
-      if (!selectedOutlineId || !selectedLesson) return;
-    } else {
-      // If standalone video lesson, check if prompt entered or coming from files/text/knowledge base
+    // Check if prompt entered or coming from files/text/knowledge base
     if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
-    }
 
     const params = new URLSearchParams();
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
     params.set("lang", language);
-    
-    // Add outline and lesson parameters if using existing outline
-    if (useExistingOutline === true && selectedOutlineId) {
-      params.set("outlineId", String(selectedOutlineId));
-    }
-    if (useExistingOutline === true && selectedLesson) {
-      params.set("lesson", selectedLesson);
-    }
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -1537,8 +1489,8 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {(activeProduct === "Presentation" || activeProduct === "Video Lesson") && useExistingOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+        {activeProduct === "Presentation" && useExistingOutline !== null && (
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1609,10 +1561,12 @@ function GenerateProductPicker() {
                           label={t('interface.language', 'Language')}
                         />
                         <CustomPillSelector
-                          value={slidesCount.toString()}
-                          onValueChange={(value) => setSlidesCount(Number(value))}
-                          options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
-                          icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+                          value={`${slidesCount} ${t('interface.generate.slides', 'slides')}`}
+                          onValueChange={(value) => setSlidesCount(Number(value.split(' ')[0]))}
+                          options={Array.from({ length: 14 }, (_, i) => ({
+                            value: `${i + 2} ${t('interface.generate.slides', 'slides')}`,
+                            label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                          }))}
                           label={t('interface.generate.slides', 'Slides')}
                         />
                       </div>
@@ -1635,15 +1589,17 @@ function GenerateProductPicker() {
                       label={t('interface.language', 'Language')}
                     />
                     <CustomPillSelector
-                      value={slidesCount.toString()}
-                      onValueChange={(value) => setSlidesCount(Number(value))}
-                      options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
-                      icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+                      value={`${slidesCount} ${t('interface.generate.slides', 'slides')}`}
+                      onValueChange={(value) => setSlidesCount(Number(value.split(' ')[0]))}
+                      options={Array.from({ length: 14 }, (_, i) => ({
+                        value: `${i + 2} ${t('interface.generate.slides', 'slides')}`,
+                        label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                      }))}
                       label={t('interface.generate.slides', 'Slides')}
                     />
                   </div>
                 )}
-          </div>
+              </>
         )}
 
         {/* Quiz Configuration */}
@@ -1936,14 +1892,16 @@ function GenerateProductPicker() {
               </>
         )}
 
-        {/* Video Lesson Configuration - only show in standalone mode (not when using existing outline) */}
-        {activeProduct === "Video Lesson" && useExistingOutline === false && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+        {/* Video Lesson Configuration */}
+        {activeProduct === "Video Lesson" && (
+          <div className="flex flex-wrap justify-center gap-4">
             <CustomPillSelector
-              value={slidesCount.toString()}
-              onValueChange={(value) => setSlidesCount(Number(value))}
-              options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
-              icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+              value={`${slidesCount} ${t('interface.generate.slides', 'slides')}`}
+              onValueChange={(value) => setSlidesCount(Number(value.split(' ')[0]))}
+              options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => ({
+                value: `${count} ${t('interface.generate.slides', 'slides')}`,
+                label: `${count} ${t('interface.generate.slides', 'slides')}`
+              }))}
               label={t('interface.generate.slides', 'Slides')}
             />
             <CustomPillSelector
@@ -1962,7 +1920,7 @@ function GenerateProductPicker() {
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course") || 
-          (activeProduct === "Video Lesson" && useExistingOutline === false) ||
+          (activeProduct === "Video Lesson") ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
@@ -2037,9 +1995,7 @@ function GenerateProductPicker() {
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
-          (activeProduct === "Video Lesson" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Video Lesson" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
           <div className="flex justify-center mt-3 mb-4">
             <Button
               onClick={() => {

@@ -106,15 +106,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         case 'big-image-left':
         case 'big-image-top':
           const imageElementId = `${slideId}-image`;
-          console.log(`[AutoImageGen] Checking ${templateId}:`, {
-            slideId,
-            hasPrompt: !!slide.props.imagePrompt,
-            hasImage: !!slide.props.imagePath,
-            prompt: slide.props.imagePrompt?.substring(0, 50)
-          });
           // Only include if has prompt, no image, AND not manually deleted
           if (slide.props.imagePrompt && !slide.props.imagePath) {
-            console.log(`[AutoImageGen] ✅ Adding ${templateId} to generation queue`);
             extractedPlaceholders.push({
               elementId: imageElementId,
               slideId,
@@ -168,22 +161,6 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
               imagePrompt: slide.props.rightImagePrompt,
               imagePath: slide.props.rightImagePath,
               placeholderDimensions: { width: 250, height: 180 },
-              isGenerating: false
-            });
-          }
-          break;
-
-        case 'phishing-definition-slide':
-          // Handle right side image
-          const phishingRightImageElementId = `${slideId}-right-image`;
-          if (slide.props.rightImagePrompt && !slide.props.rightImagePath) {
-            extractedPlaceholders.push({
-              elementId: phishingRightImageElementId,
-              slideId,
-              templateId,
-              imagePrompt: slide.props.rightImagePrompt,
-              imagePath: slide.props.rightImagePath,
-              placeholderDimensions: { width: 935, height: 843 }, // Large right section - portrait orientation
               isGenerating: false
             });
           }

@@ -12,8 +12,9 @@ import {
 import { AvatarService } from './AvatarService';
 
 export class VideoGenerationService {
-  private static readonly CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-  private static readonly MAX_WAIT_TIME = 60 * 60 * 1000; // 60 minutes
+  private static readonly ELAI_API_BASE = 'https://apis.elai.io/api/v1';
+  private static readonly API_TOKEN = '5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e';
+  private static readonly MAX_WAIT_TIME = 15 * 60 * 1000; // 15 minutes
   private static readonly POLL_INTERVAL = 30 * 1000; // 30 seconds
   
   /**
@@ -161,10 +162,10 @@ export class VideoGenerationService {
         }
       };
       
-      // Call backend endpoint instead of direct Elai API
-      const response = await fetch(`${VideoGenerationService.CUSTOM_BACKEND_URL}/video/create-from-request`, {
+      const response = await fetch(`${VideoGenerationService.ELAI_API_BASE}/videos`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${VideoGenerationService.API_TOKEN}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -176,15 +177,11 @@ export class VideoGenerationService {
         throw new Error(`Video creation failed: ${response.status} - ${errorText}`);
       }
       
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Video creation failed');
-      }
+      const result: ElaiVideoResponse = await response.json();
       
       return {
         success: true,
-        videoId: result.videoId || result._id
+        videoId: result._id
       };
       
     } catch (error) {
@@ -201,22 +198,15 @@ export class VideoGenerationService {
    */
   private static async renderVideo(videoId: string): Promise<boolean> {
     try {
-      // Call backend endpoint instead of direct Elai API
-      const response = await fetch(`${VideoGenerationService.CUSTOM_BACKEND_URL}/video/render/${videoId}`, {
+      const response = await fetch(`${VideoGenerationService.ELAI_API_BASE}/videos/render/${videoId}`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${VideoGenerationService.API_TOKEN}`,
           'Accept': 'application/json'
         }
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error starting video render:', errorText);
-        return false;
-      }
-      
-      const result = await response.json();
-      return result.success === true;
+      return response.ok;
     } catch (error) {
       console.error('Error starting video render:', error);
       return false;
@@ -280,12 +270,12 @@ export class VideoGenerationService {
   }
   
   /**
-   * Check video status from backend API
+   * Check video status from Elai API
    */
   private static async checkVideoStatus(videoId: string): Promise<ElaiVideoStatus> {
-    // Call backend endpoint instead of direct Elai API
-    const response = await fetch(`${VideoGenerationService.CUSTOM_BACKEND_URL}/video/status/${videoId}`, {
+    const response = await fetch(`${VideoGenerationService.ELAI_API_BASE}/videos/${videoId}`, {
       headers: {
+        'Authorization': `Bearer ${VideoGenerationService.API_TOKEN}`,
         'Accept': 'application/json'
       }
     });
@@ -294,33 +284,7 @@ export class VideoGenerationService {
       throw new Error(`Failed to get video status: ${response.status}`);
     }
     
-    const result = await response.json();
-    
-    // Backend returns { success: true, status: { ... } } format
-    if (result.success && result.status) {
-      // Extract the status data and map it to ElaiVideoStatus format
-      const statusData = result.status;
-      return {
-        _id: videoId, // Use the videoId as _id
-        status: statusData.status || statusData.data?.status || 'unknown',
-        progress: statusData.progress || 0,
-        videoUrl: statusData.videoUrl || statusData.downloadUrl || statusData.url || statusData.data?.videoUrl || statusData.data?.url,
-        url: statusData.videoUrl || statusData.downloadUrl || statusData.url || statusData.data?.videoUrl || statusData.data?.url,
-        playerData: statusData.data?.playerData,
-        error: statusData.error
-      };
-    }
-    
-    // Fallback: return the result directly if it's already in the right format, but ensure _id is present
-    if (result._id) {
-      return result;
-    }
-    
-    // If no _id in result, add it from videoId
-    return {
-      _id: videoId,
-      ...result
-    };
+    return response.json();
   }
   
   /**

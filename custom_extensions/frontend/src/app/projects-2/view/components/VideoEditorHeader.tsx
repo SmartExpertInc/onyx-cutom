@@ -1,15 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff, Play, Undo2, Redo2, Gem, Video } from 'lucide-react';
+import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
-import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
-import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
-import { useVoice } from '@/contexts/VoiceContext';
-import { SLIDE_TEMPLATE_REGISTRY } from '@/components/templates/registry';
 
 interface EmailInput {
   id: string;
@@ -20,21 +16,9 @@ interface EmailInput {
 interface VideoEditorHeaderProps {
   aspectRatio: string;
   onAspectRatioChange: (ratio: string) => void;
-  // Video generation data props
-  videoLessonData?: any;
-  componentBasedSlideDeck?: any;
-  currentSlideId?: string;
-  showReady?: boolean;
 }
 
-export default function VideoEditorHeader({ 
-  aspectRatio, 
-  onAspectRatioChange,
-  videoLessonData,
-  componentBasedSlideDeck,
-  currentSlideId,
-  showReady
-}: VideoEditorHeaderProps) {
+export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: VideoEditorHeaderProps) {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
@@ -48,43 +32,6 @@ export default function VideoEditorHeader({
     { id: '1', email: '', role: 'editor' }
   ]);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  
-  // Video generation state - transferred from VideoDownloadButton
-  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [generationJobId, setGenerationJobId] = useState<string | null>(null);
-  const [generationError, setGenerationError] = useState<string | null>(null);
-  
-  // Use global avatar context instead of local state
-  const { defaultAvatar } = useAvatarDisplay();
-  
-  // Use global voice context
-  const { selectedVoice } = useVoice();
-  
-  // Debug logging for avatar context
-  useEffect(() => {
-    console.log('🎬 [VIDEO_GENERATION] Avatar context updated:', {
-      hasDefaultAvatar: !!defaultAvatar,
-      avatarName: defaultAvatar?.avatar?.name,
-      avatarCode: defaultAvatar?.avatar?.code,
-      variantName: defaultAvatar?.selectedVariant?.name,
-      variantCode: defaultAvatar?.selectedVariant?.code
-    });
-  }, [defaultAvatar]);
-
-  // Debug logging for voice context
-  useEffect(() => {
-    console.log('🎤 [VIDEO_GENERATION] Voice context updated:', {
-      hasSelectedVoice: !!selectedVoice,
-      voiceCharacter: selectedVoice?.character,
-      voiceId: selectedVoice?.voice,
-      voiceProvider: selectedVoice?.voiceProvider,
-      voiceLocale: selectedVoice?.locale,
-      voicePremium: selectedVoice?.premium
-    });
-  }, [selectedVoice]);
-  
-  
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const sharePopupRef = useRef<HTMLDivElement>(null);
@@ -184,556 +131,6 @@ export default function VideoEditorHeader({
     // Don't allow deleting the first input
     if (id === '1') return;
     setEmailInputs(prev => prev.filter(input => input.id !== id));
-  };
-
-  // Video generation constants and functions - transferred from VideoDownloadButton
-  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-
-  // Function to extract actual slide data from current project - updated to use props
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[], transitions: any[] }> => {
-    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
-    console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
-    console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
-    console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
-    
-    // Helper function to attach avatar position and Elai background color from template registry to slides
-    const attachAvatarPositionsToSlides = (slides: any[]) => {
-      return slides.map(slide => {
-        const templateId = slide.templateId;
-        if (templateId) {
-          const template = SLIDE_TEMPLATE_REGISTRY[templateId];
-          const updatedSlide: any = { ...slide };
-          
-          if (template?.avatarPosition) {
-            console.log(`🎬 [AVATAR_POSITION] Attaching avatar position for template ${templateId}:`, template.avatarPosition);
-            updatedSlide.avatarPosition = template.avatarPosition;
-          }
-          
-          if (template?.elaiBackgroundColor) {
-            console.log(`🎬 [ELAI_BACKGROUND] Attaching Elai background color for template ${templateId}:`, template.elaiBackgroundColor);
-            updatedSlide.elaiBackgroundColor = template.elaiBackgroundColor;
-          }
-          
-          return updatedSlide;
-        }
-        return slide;
-      });
-    };
-    
-    try {
-      // First try to get data from componentBasedSlideDeck (newer structure)
-      if (componentBasedSlideDeck?.slides && componentBasedSlideDeck.slides.length > 0) {
-        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in componentBasedSlideDeck:', componentBasedSlideDeck.slides.length, 'slides');
-        
-        // Extract voiceover texts from slides
-        const voiceoverTexts = componentBasedSlideDeck.slides
-          .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText || '')
-          .filter((text: string) => text && text.trim().length > 0);
-        
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from componentBasedSlideDeck:', voiceoverTexts);
-        
-        // Attach avatar positions from template registry
-        const slidesWithAvatarPositions = attachAvatarPositionsToSlides(componentBasedSlideDeck.slides);
-        
-        // Extract transitions from deck (new feature)
-        const transitions = componentBasedSlideDeck.transitions || [];
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted transitions from componentBasedSlideDeck:', transitions);
-        
-        return {
-          slides: slidesWithAvatarPositions,
-          theme: componentBasedSlideDeck.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts,
-          transitions: transitions
-        };
-      }
-      
-      // Then try to get data from videoLessonData (older structure)
-      if (videoLessonData?.slides && videoLessonData.slides.length > 0) {
-        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in videoLessonData:', videoLessonData.slides.length, 'slides');
-        
-        // Extract voiceover texts from slides
-        const voiceoverTexts = videoLessonData.slides
-          .map((slide: any) => slide.voiceoverText || '')
-          .filter((text: string) => text && text.trim().length > 0);
-        
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from videoLessonData:', voiceoverTexts);
-        
-        // Attach avatar positions from template registry
-        const slidesWithAvatarPositions = attachAvatarPositionsToSlides(videoLessonData.slides);
-        
-        // Extract transitions from video lesson data
-        const transitions = videoLessonData.transitions || [];
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted transitions from videoLessonData:', transitions);
-        
-        return {
-          slides: slidesWithAvatarPositions,
-          theme: videoLessonData.theme || 'dark-purple',
-          voiceoverTexts: voiceoverTexts,
-          transitions: transitions
-        };
-      }
-
-      // If no slides found, create a fallback with the current slide if available
-      if (currentSlideId) {
-        console.log('🎬 [VIDEO_DOWNLOAD] No slides found, but currentSlideId exists:', currentSlideId);
-        
-        // Try to find the current slide in either data structure
-        let currentSlide = null;
-        if (componentBasedSlideDeck?.slides) {
-          currentSlide = componentBasedSlideDeck.slides.find((s: any) => s.slideId === currentSlideId);
-        } else if (videoLessonData?.slides) {
-          currentSlide = videoLessonData.slides.find((s: any) => s.slideId === currentSlideId);
-        }
-        
-        if (currentSlide) {
-          const voiceoverText = currentSlide.voiceoverText || currentSlide.props?.voiceoverText || 
-            'Welcome to this professional presentation. We will explore key concepts and insights.';
-          
-          console.log('🎬 [VIDEO_DOWNLOAD] Using current slide as fallback:', voiceoverText);
-          
-          return {
-            slides: [currentSlide],
-            theme: 'dark-purple',
-            voiceoverTexts: [voiceoverText],
-            transitions: []
-          };
-        }
-      }
-
-      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data - no slides found');
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
-        
-    } catch (error) {
-      console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple', voiceoverTexts: [], transitions: [] };
-    }
-  };
-
-  // Avatar selection is now handled by the global AvatarDisplayManager context
-
-  // Download video function - transferred from VideoDownloadButton
-  const downloadVideo = async (jobId: string) => {
-    try {
-      console.log('🎬 [VIDEO_GENERATION] Downloading video for job:', jobId);
-      
-      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'video/mp4',
-        },
-        credentials: 'same-origin',
-      });
-       
-      console.log('🎬 [VIDEO_GENERATION] Download response status:', downloadResponse.status);
-      if (!downloadResponse.ok) {
-        console.error('🎬 [VIDEO_GENERATION] Download failed with status:', downloadResponse.status);
-        throw new Error(`Download failed: ${downloadResponse.status}`);
-      }
-
-      // Create blob and download
-      console.log('🎬 [VIDEO_GENERATION] Creating blob and initiating download...');
-      const blob = await downloadResponse.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `professional_presentation_${jobId}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      console.log('🎬 [VIDEO_GENERATION] Video downloaded successfully!');
-       
-    } catch (error) {
-      console.error('🎬 [VIDEO_GENERATION] Download failed:', error);
-      setGenerationError(error instanceof Error ? error.message : 'Download failed');
-    }
-  };
-
-  // Save generated video as a product in the database
-  const saveVideoAsProduct = async (jobId: string) => {
-    try {
-      console.log('🎬 [VIDEO_GENERATION] Saving video as product for job:', jobId);
-      
-      // Get the first slide data for the product name
-      const firstSlide = componentBasedSlideDeck?.slides?.[0] || videoLessonData?.slides?.[0];
-      const productName = firstSlide?.props?.title || firstSlide?.slideTitle || videoTitle || 'Generated Video';
-      
-      // Find or create video product template
-      let videoTemplateId: number | null = null;
-      try {
-        // First, try to find existing template
-        const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`);
-        if (templatesResponse.ok) {
-          const templates = await templatesResponse.json();
-          console.log('🎬 [VIDEO_GENERATION] All templates:', templates.map((t: any) => ({ id: t.id, name: t.template_name, component: t.component_name, microproduct_type: t.microproduct_type })));
-          
-          const videoTemplate = templates.find((t: any) => 
-            t.component_name === 'VideoProductDisplay'
-          );
-          
-          if (videoTemplate) {
-            videoTemplateId = videoTemplate.id;
-            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', {
-              id: videoTemplate.id,
-              name: videoTemplate.template_name,
-              component_name: videoTemplate.component_name,
-              microproduct_type: videoTemplate.microproduct_type
-            });
-          } else {
-            console.log('🎬 [VIDEO_GENERATION] No VideoProductDisplay template found in existing templates');
-          }
-        }
-        
-        // If not found, ensure it exists
-        if (!videoTemplateId) {
-          console.log('🎬 [VIDEO_GENERATION] Video template not found, creating...');
-          const ensureResponse = await fetch(`${CUSTOM_BACKEND_URL}/ensure-video-product-template`, {
-            method: 'POST',
-            credentials: 'same-origin'
-          });
-          
-          if (ensureResponse.ok) {
-            const templateData = await ensureResponse.json();
-            videoTemplateId = templateData.id;
-            console.log('🎬 [VIDEO_GENERATION] Created video template:', videoTemplateId);
-          } else {
-            throw new Error(`Failed to create video template: ${ensureResponse.status}`);
-          }
-        }
-        
-        if (!videoTemplateId) {
-          throw new Error('Video product template could not be created or found');
-        }
-      } catch (error) {
-        console.error('🎬 [VIDEO_GENERATION] Error with video template:', error);
-        throw error;
-      }
-      
-      // Create video metadata structure (without component_name field - it comes from template)
-      const videoMetadata = {
-        videoJobId: jobId,
-        videoUrl: `/presentations/${jobId}/video`,
-        thumbnailUrl: `/presentations/${jobId}/thumbnail`,
-        generatedAt: new Date().toISOString(),
-        sourceSlides: componentBasedSlideDeck?.slides || videoLessonData?.slides || []
-      };
-      
-      // Create project data following ProjectCreateRequest model
-      const projectData = {
-        projectName: productName,
-        microProductName: productName,
-        design_template_id: videoTemplateId,
-        aiResponse: JSON.stringify(videoMetadata),
-        // Optional but recommended fields for proper organization
-        chatSessionId: null, // TODO: Pass from parent component if available
-        outlineId: null,     // TODO: Pass from parent component if available
-        folder_id: null,     // TODO: Pass from parent component if available
-        theme: null          // TODO: Pass from parent component if available
-      };
-
-      console.log('🎬 [VIDEO_GENERATION] Saving video with payload:', {
-        projectName: projectData.projectName,
-        templateId: projectData.design_template_id,
-        hasAiResponse: !!projectData.aiResponse,
-        aiResponseLength: projectData.aiResponse.length
-      });
-      
-      console.log('🎬 [VIDEO_GENERATION] Final videoTemplateId being used:', videoTemplateId);
-
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin', // Important for session cookies
-        body: JSON.stringify(projectData)
-      });
-
-      if (!response.ok) {
-        // Enhanced error handling with response body
-        let errorDetail = `HTTP ${response.status}`;
-        try {
-          const errorBody = await response.json();
-          errorDetail = errorBody.detail || errorBody.message || errorDetail;
-        } catch (e) {
-          // Response might not be JSON
-        }
-        throw new Error(`Failed to save video as product: ${errorDetail}`);
-      }
-
-      const savedProject = await response.json();
-      console.log('🎬 [VIDEO_GENERATION] ✅ Video saved as product successfully:', {
-        projectId: savedProject.id,
-        projectName: savedProject.project_name
-      });
-      
-      return savedProject;
-      
-    } catch (error) {
-      console.error('🎬 [VIDEO_GENERATION] ❌ Failed to save video as product:', error);
-      throw error; // Re-throw to allow calling code to handle
-    }
-  };
-
-  // Main video generation function - transferred from VideoDownloadButton
-  const handleVideoGeneration = async (debugMode: boolean = false) => {
-    console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
-    console.log('🎬 [VIDEO_GENERATION] Debug mode:', debugMode);
-    console.log('🎬 [VIDEO_GENERATION] Global defaultAvatar:', defaultAvatar);
-    
-    // Use the global avatar context instead of local state
-    let avatarToUse = defaultAvatar?.avatar;
-    let variantToUse = defaultAvatar?.selectedVariant;
-    
-    // In debug mode, we skip avatar validation
-    if (!debugMode) {
-      if (!avatarToUse) {
-        console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
-        // Use a real avatar that exists in the backend as fallback
-        avatarToUse = {
-          id: 'max-avatar',
-          code: 'max',
-          name: 'Max',
-          type: null,
-          status: 1,
-          accountId: 'default',
-          gender: 'male' as const,
-          thumbnail: '',
-          canvas: '',
-          variants: [{
-            id: 'business-variant',
-            code: 'business',
-            name: 'Business',
-            thumbnail: '',
-            canvas: ''
-          }]
-        };
-        variantToUse = {
-          id: 'business-variant',
-          code: 'business',
-          name: 'Business',
-          thumbnail: '',
-          canvas: ''
-        };
-        console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
-      } else {
-        console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
-      }
-    } else {
-      console.log('🎬 [VIDEO_GENERATION] Debug mode: Skipping avatar (slide-only render)');
-    }
-
-          try {
-        setGenerationStatus('generating');
-        setGenerationProgress(0);
-        setGenerationError(null);
-
-        // Debug: Log all available data at generation start
-        console.log('🎬 [VIDEO_GENERATION] Generation started with data:', {
-          selectedAvatar: avatarToUse?.name,
-          selectedVariant: variantToUse?.name,
-          videoTitle,
-          videoLessonData: videoLessonData ? 'Available' : 'Not available',
-          componentBasedSlideDeck: componentBasedSlideDeck ? 'Available' : 'Not available',
-          currentSlideId,
-          videoLessonDataSlides: videoLessonData?.slides?.length || 0,
-          componentBasedSlides: componentBasedSlideDeck?.slides?.length || 0
-        });
-
-      console.log('🎬 [VIDEO_GENERATION] Starting video generation with avatar:', {
-        avatar: avatarToUse?.name,
-        variant: variantToUse?.name,
-        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code
-      });
-
-      // Extract slide data
-      console.log('🎬 [VIDEO_GENERATION] Extracting slide data...');
-      const slideData = await extractSlideData();
-      
-      if (!slideData.slides || slideData.slides.length === 0) {
-        const errorMsg = 'No slide data found. Please make sure you have a slide open.';
-        console.error('🎬 [VIDEO_GENERATION]', errorMsg);
-        setGenerationError(errorMsg);
-        setGenerationStatus('error');
-        return;
-      }
-
-      console.log('🎬 [VIDEO_GENERATION] Slide data extracted successfully');
-      console.log('🎬 [VIDEO_GENERATION] Slides count:', slideData.slides.length);
-      console.log('🎬 [VIDEO_GENERATION] Theme:', slideData.theme);
-      console.log('🎬 [VIDEO_GENERATION] Voiceover texts count:', slideData.voiceoverTexts.length);
-
-      // Create the request payload
-      console.log('🎤 [VIDEO_GENERATION] ========== PAYLOAD CONSTRUCTION STARTED ==========');
-      console.log('🎤 [VIDEO_GENERATION] Voice data for payload:', {
-        hasSelectedVoice: !!selectedVoice,
-        voiceCharacter: selectedVoice?.character,
-        voiceId: selectedVoice?.voice,
-        voiceProvider: selectedVoice?.voiceProvider,
-        voiceLocale: selectedVoice?.locale,
-        voicePremium: selectedVoice?.premium
-      });
-      
-      const requestPayload = {
-        projectName: videoTitle || 'Generated Video',
-        voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
-          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better."
-        ],  // Use actual voiceover texts or fallback
-        slidesData: slideData.slides,  // Add the extracted slide data
-        theme: slideData.theme,  // Use the extracted theme
-        transitions: componentBasedSlideDeck?.transitions || [],  // Add transitions for multi-slide concatenation
-        avatarCode: debugMode ? undefined : (variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code),
-        voiceId: debugMode ? undefined : (selectedVoice?.voice || null),  // Add selected voice ID
-        voiceProvider: debugMode ? undefined : (selectedVoice?.voiceProvider || null),  // Add voice provider
-        useAvatarMask: true,
-        layout: 'picture_in_picture',
-        duration: debugMode ? 10.0 : 30.0,  // Use 10s for debug mode, 30s for standard
-        quality: 'high',
-        resolution: [1920, 1080],
-        slideOnly: debugMode  // NEW: Enable slide-only mode for debug rendering
-      };
-      
-      console.log('🎤 [VIDEO_GENERATION] Final request payload:', {
-        projectName: requestPayload.projectName,
-        voiceoverTextsCount: requestPayload.voiceoverTexts.length,
-        slidesDataCount: requestPayload.slidesData.length,
-        transitionsCount: requestPayload.transitions.length,
-        theme: requestPayload.theme,
-        avatarCode: requestPayload.avatarCode,
-        voiceId: requestPayload.voiceId,
-        voiceProvider: requestPayload.voiceProvider,
-        useAvatarMask: requestPayload.useAvatarMask,
-        layout: requestPayload.layout,
-        duration: requestPayload.duration,
-        quality: requestPayload.quality,
-        resolution: requestPayload.resolution,
-        slideOnly: requestPayload.slideOnly,
-        debugMode: debugMode
-      });
-      console.log('🎤 [VIDEO_GENERATION] ========== PAYLOAD CONSTRUCTION COMPLETED ==========');
-      
-
-      console.log('🎬 [VIDEO_GENERATION] Request payload:', requestPayload);
-
-      // Additional debugging for the request payload
-      console.log('🎬 [VIDEO_GENERATION] Final request payload:', {
-        projectName: requestPayload.projectName,
-        voiceoverTextsCount: requestPayload.voiceoverTexts.length,
-        voiceoverTexts: requestPayload.voiceoverTexts,
-        slidesCount: requestPayload.slidesData.length,
-        theme: requestPayload.theme,
-        avatarCode: requestPayload.avatarCode,
-        voiceId: requestPayload.voiceId,
-        voiceProvider: requestPayload.voiceProvider
-      });
-
-      // Create presentation
-      console.log('🎬 [VIDEO_GENERATION] Making API request to:', `${CUSTOM_BACKEND_URL}/presentations`);
-      const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(requestPayload)
-      });
-
-      console.log('🎬 [VIDEO_GENERATION] API response status:', createResponse.status);
-      if (!createResponse.ok) {
-        const errorText = await createResponse.text();
-        console.error('🎬 [VIDEO_GENERATION] API request failed:', errorText);
-        throw new Error(`Failed to create presentation: ${createResponse.status} - ${errorText}`);
-      }
-
-      const createData = await createResponse.json();
-      console.log('🎬 [VIDEO_GENERATION] API response data:', createData);
-
-      if (!createData.success) {
-        console.error('🎬 [VIDEO_GENERATION] API returned success: false:', createData.error);
-        throw new Error(createData.error || 'Failed to create presentation');
-      }
-
-      const newJobId = createData.jobId;
-      setGenerationJobId(newJobId);
-      console.log('🎬 [VIDEO_GENERATION] Presentation job created successfully:', newJobId);
-
-      // Close GenerateModal and open GenerationCompletedModal
-      console.log('🎬 [VIDEO_GENERATION] Closing GenerateModal and opening GenerationCompletedModal');
-      setIsGenerateModalOpen(false);
-      setIsGenerationCompletedModalOpen(true);
-
-      // Poll for completion
-      console.log('🎬 [VIDEO_GENERATION] Starting polling for job completion...');
-      const pollInterval = setInterval(async () => {
-        try {
-          console.log('🎬 [VIDEO_GENERATION] Polling job status for:', newJobId);
-          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
-            method: 'GET',
-            credentials: 'same-origin',
-          });
-
-          if (!statusResponse.ok) {
-            console.error('🎬 [VIDEO_GENERATION] Status check failed with status:', statusResponse.status);
-            throw new Error(`Status check failed: ${statusResponse.status}`);
-          }
-
-          const statusData = await statusResponse.json();
-          console.log('🎬 [VIDEO_GENERATION] Status response:', statusData);
-          
-          if (statusData.success) {
-            const currentProgress = statusData.progress || 0;
-            setGenerationProgress(currentProgress);
-            
-            console.log('🎬 [VIDEO_GENERATION] Job progress:', currentProgress, 'Status:', statusData.status);
-            
-            if (statusData.status === 'completed') {
-              clearInterval(pollInterval);
-              setGenerationStatus('completed');
-              setGenerationProgress(100);
-              console.log('🎬 [VIDEO_GENERATION] Video generation completed successfully!');
-              
-              // Auto-download the video
-              console.log('🎬 [VIDEO_GENERATION] Starting video download...');
-              await downloadVideo(newJobId);
-              
-              // Save video as a product in the database
-              console.log('🎬 [VIDEO_GENERATION] Saving video as product...');
-              await saveVideoAsProduct(newJobId);
-            } else if (statusData.status === 'failed') {
-              clearInterval(pollInterval);
-              setGenerationStatus('error');
-              console.error('🎬 [VIDEO_GENERATION] Video generation failed:', statusData.error);
-              throw new Error(statusData.error || 'Video generation failed');
-            }
-          } else {
-            console.error('🎬 [VIDEO_GENERATION] Status check returned success: false:', statusData.error);
-            throw new Error(statusData.error || 'Status check failed');
-          }
-        } catch (error) {
-          console.error('🎬 [VIDEO_GENERATION] Status check error:', error);
-          clearInterval(pollInterval);
-          setGenerationStatus('error');
-          setGenerationError(error instanceof Error ? error.message : 'Status check failed');
-        }
-      }, 2000);
-
-      // Set a timeout to stop polling after 60 minutes
-      setTimeout(() => {
-        console.log('🎬 [VIDEO_GENERATION] Polling timeout reached (60 minutes)');
-        clearInterval(pollInterval);
-        if (generationStatus === 'generating') {
-          setGenerationStatus('error');
-          setGenerationError('Video generation timed out after 60 minutes. This may indicate a backend issue. Please check the status manually.');
-        }
-      }, 3600000);
-
-    } catch (error) {
-      console.error('🎬 [VIDEO_GENERATION] Video generation failed:', error);
-      setGenerationStatus('error');
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
-      setGenerationError(errorMsg);
-    }
   };
 
   const handleDropdownToggle = (id: string) => {
@@ -893,34 +290,42 @@ export default function VideoEditorHeader({
 
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3">
-            <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
               <Undo2 className="w-4 h-4 text-gray-700" />
             </button>
-            <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
+
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
               <Redo2 className="w-4 h-4 text-gray-700" />
             </button>
+
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
+
+            {/* New button with document SVG - hidden on smaller screens */}
             <div className="hidden lg:flex items-center">
-              <button className={`p-1 rounded transition-colors flex items-center justify-center ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`} title={showReady ? 'Soon' : undefined}>
+              <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 28 28" className="w-4 h-4 text-gray-700">
                   <path fill="currentColor" d="M6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v15.5A1.75 1.75 0 0 0 6 23.482V16.25A2.25 2.25 0 0 1 8.25 14h11.5A2.25 2.25 0 0 1 22 16.25v7.232a1.75 1.75 0 0 0 1.5-1.732V8.786c0-.465-.184-.91-.513-1.238l-2.535-2.535a1.75 1.75 0 0 0-1.238-.513H19v4.25A2.25 2.25 0 0 1 16.75 11h-6.5A2.25 2.25 0 0 1 8 8.75V4.5H6.25Zm3.25 0v4.25c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75V4.5h-8Zm11 19v-7.25a.75.75 0 0 0-.75-.75H8.25a.75.75 0 0 0-.75.75v7.25h13ZM3 6.25A3.25 3.25 0 0 1 6.25 3h12.965a3.25 3.25 0 0 1 2.298.952l2.535 2.535c.61.61.952 1.437.952 2.299V21.75A3.25 3.25 0 0 1 21.75 25H6.25A3.25 3.25 0 0 1 3 21.75V6.25Z"/>
                 </svg>
               </button>
             </div>
+
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
+
+            {/* Resize tool - visible on all screens for testing */}
             <div className="flex items-center relative">
               <button
                 ref={resizeButtonRef}
-                onClick={() => { if (!showReady) handleResizeClick(); }}
-                className={`flex items-center gap-2 p-1 rounded transition-colors ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`}
-                title={showReady ? 'Soon' : undefined}
+                onClick={handleResizeClick}
+                className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
                   <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
                 </svg>
                 <span className="text-black text-sm font-normal">Resize</span>
               </button>
-              {!showReady && isResizePopupOpen && (
+
+              {/* Resize popup */}
+              {isResizePopupOpen && (
                 <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80" data-resize-popup>
                   <div className="py-2">
                     {resizeOptions.map((option, index) => (
@@ -942,6 +347,8 @@ export default function VideoEditorHeader({
                       </button>
                     ))}
                   </div>
+                  
+                  {/* Warning text - extends to side borders with bottom spacing */}
                   <div className="pb-3">
                     <div className="bg-amber-50 text-amber-800 text-sm p-3 mx-0">
                       Existing content on the scene will not be reorganised automatically.
@@ -950,12 +357,14 @@ export default function VideoEditorHeader({
                 </div>
               )}
             </div>
+
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
+
+            {/* Grid tool - hidden on smaller screens */}
             <div className="hidden lg:flex items-center">
               <button 
-                onClick={() => { if (!showReady) handleEyeToggle(); }}
-                className={`p-1 rounded transition-colors flex items-center justify-center gap-2 ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'}`}
-                title={showReady ? 'Soon' : undefined}
+                onClick={handleEyeToggle}
+                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer gap-2"
               >
                 {isEyeVisible ? (
                   <Eye className="w-4 h-4 text-gray-700" />
@@ -965,11 +374,13 @@ export default function VideoEditorHeader({
                 <span className="text-black text-sm font-normal">Grid</span>
               </button>
             </div>
+
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
+
+            {/* Upgrade button */}
             <button
-              onClick={() => { if (!showReady) handleUpgradeClick(); }}
-              className={`rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-purple-100' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer'}`}
-              title={showReady ? 'Soon' : undefined}
+              onClick={handleUpgradeClick}
+              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 cursor-pointer"
             >
               <Gem className="w-4 h-4 text-purple-700" />
               <span className="text-sm font-normal">Upgrade</span>
@@ -1015,9 +426,8 @@ export default function VideoEditorHeader({
         <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
             <button 
-              onClick={() => { if (!showReady) handlePlayClick(); }}
-              className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
-              title={showReady ? 'Soon' : undefined}
+              onClick={handlePlayClick}
+              className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
             >
               <Play className="w-4 h-4 text-gray-700" />
             </button>
@@ -1028,15 +438,14 @@ export default function VideoEditorHeader({
             <div className="relative">
               <button
                 ref={shareButtonRef}
-                onClick={() => { if (!showReady) handleShareClick(); }}
-                className={`rounded-[7px] px-3 py-1.5 border flex items-center h-8 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300' : 'bg-gray-50 border-gray-300 text-black hover:bg-gray-50 cursor-pointer'}`}
-                title={showReady ? 'Soon' : undefined}
+                onClick={handleShareClick}
+                className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
               >
                 <span className="text-sm font-normal">Share</span>
               </button>
 
               {/* Share popup */}
-              {!showReady && isSharePopupOpen && (
+              {isSharePopupOpen && (
                 <div 
                   ref={sharePopupRef}
                   className="fixed top-[76px] right-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
@@ -1147,26 +556,10 @@ export default function VideoEditorHeader({
             {/* Generate button */}
             <button
               onClick={handleGenerateClick}
-              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border bg-black text-white hover:bg-gray-800 cursor-pointer`}
+              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
-
-            {/* Debug Render button (No Avatar) - Hidden */}
-            {false && (
-              <button
-                onClick={() => {
-                  if (showReady) return;
-                  setIsGenerateModalOpen(false);
-                  handleVideoGeneration(true);
-                }}
-                className={`rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-gray-300 ${showReady ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'}`}
-                title={showReady ? 'Soon' : 'Render slides with transitions only (no avatar) - for testing and debugging'}
-              >
-                <Video className="w-4 h-4 text-gray-700" />
-                <span className="text-sm font-normal">Debug</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -1183,10 +576,7 @@ export default function VideoEditorHeader({
         isOpen={isGenerateModalOpen} 
         onClose={() => setIsGenerateModalOpen(false)} 
         title={videoTitle}
-        onGenerationStart={handleVideoGeneration}
-        generationStatus={generationStatus}
-        generationError={generationError}
-        showReady={showReady}
+        onGenerationStart={() => setIsGenerationCompletedModalOpen(true)}
       />
 
       {/* Generation Completed Modal */}
@@ -1194,13 +584,6 @@ export default function VideoEditorHeader({
         isOpen={isGenerationCompletedModalOpen}
         onClose={() => setIsGenerationCompletedModalOpen(false)}
         videoTitle={videoTitle}
-        generationStatus={generationStatus}
-        generationProgress={generationProgress}
-        generationJobId={generationJobId}
-        generationError={generationError}
-        videoLessonData={videoLessonData}
-        componentBasedSlideDeck={componentBasedSlideDeck}
-        currentSlideId={currentSlideId}
       />
 
       {/* Upgrade Modal */}

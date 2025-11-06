@@ -28,11 +28,11 @@ export interface TableLightTemplateProps extends BaseTemplateProps {
 export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   title = 'This is table',
   tableData = {
-    headers: ['Planet', 'Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+    headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
     rows: [
-      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX']
+      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#ffffff',
@@ -113,7 +113,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   const addRow = () => {
     const newRows = [...tableData.rows];
-    const newRow = new Array(tableData.headers.length).fill('XX');
+    const newRow = new Array(tableData.headers.length + 1).fill('XX');
     newRow[0] = `Planet ${newRows.length + 1}`;
     newRows.push(newRow);
     const newData = { 
@@ -124,7 +124,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   };
 
   const addColumn = () => {
-    const newHeaders = [...tableData.headers, `Team ${String.fromCharCode(65 + tableData.headers.length - 1)}`];
+    const newHeaders = [...tableData.headers, `Team ${String.fromCharCode(65 + tableData.headers.length)}`];
     const newRows = tableData.rows.map(row => [...row, 'XX']);
     const newData = { 
       title, 
@@ -143,11 +143,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   };
 
   const removeColumn = (colIndex: number) => {
-    // Prevent removing the first column (row names)
-    if (colIndex === 0) return;
-    
     const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
-    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex));
+    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex + 1));
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -164,7 +161,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    padding: '50px 20px 50px 50px', // Reduced right padding to minimize white space
+    padding: '50px',
     fontFamily: 'Georgia, serif'
   };
 
@@ -183,7 +180,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     width: '100%',
     borderRadius: '8px',
     overflow: 'hidden',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    display: 'flex',
+    justifyContent: 'center'
   };
 
   // Table styles - perfectly aligned
@@ -191,47 +190,50 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     width: '100%',
     borderCollapse: 'collapse',
     backgroundColor: '#ffffff',
-    tableLayout: 'auto' // Auto width for proper column sizing
+    tableLayout: 'fixed' // Ensures consistent column widths
   };
 
-  // Header styles - using theme colors, no borders
+  // Header styles - using theme colors, with vertical borders only
   const headerStyles: React.CSSProperties = {
-    backgroundColor: '#0F58F9',
+    backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
     padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
-    height: '60px'
+    height: '60px' // Fixed height for perfect alignment
   };
 
-  // First column (row headers) styles - using theme colors, no borders
+  // First column (row headers) styles - using theme colors, with vertical borders only
   const firstColumnStyles: React.CSSProperties = {
-    backgroundColor: '#F2F8FE',
+    backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
     color: '#000000',
     fontWeight: 'bold',
     fontSize: '0.95rem',
     textAlign: 'left',
     padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
-    height: '60px'
+    height: '60px' // Fixed height for perfect alignment
   };
 
-  // Data cell styles - no borders
+  // Data cell styles - with vertical borders only
   const dataCellStyles: React.CSSProperties = {
     backgroundColor: '#ffffff',
     color: '#000000',
     fontSize: '0.95rem',
     textAlign: 'center',
     padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
-    height: '60px'
+    height: '60px' // Fixed height for perfect alignment
   };
 
   // Add button styles - using theme colors, perfectly aligned
   const addButtonStyles: React.CSSProperties = {
-    backgroundColor: '#0F58F9',
+    backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
     color: '#ffffff',
     border: 'none',
     borderRadius: '50%',
@@ -243,7 +245,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     cursor: 'pointer',
     fontSize: '16px',
     fontWeight: 'bold',
-    margin: '0 auto'
+    margin: '0 auto' // Perfect centering
   };
 
   // Delete button styles - perfectly aligned
@@ -265,55 +267,6 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   return (
     <div style={slideStyles}>
-      {/* Editing toolbar - positioned above table */}
-      {isEditable && (
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          marginBottom: '20px',
-          flexWrap: 'wrap'
-        }}>
-          <button
-            onClick={addRow}
-            style={{
-              backgroundColor: '#0F58F9',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '8px 16px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-            title="Add Row"
-          >
-            + Add Row
-          </button>
-          <button
-            onClick={addColumn}
-            style={{
-              backgroundColor: '#0F58F9',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '8px 16px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-            title="Add Column"
-          >
-            + Add Column
-          </button>
-        </div>
-      )}
-      
       {/* Title */}
       <div style={{ marginBottom: '30px' }}>
         <div data-draggable="true" style={{ display: 'inline-block' }}>
@@ -361,14 +314,16 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           {/* Headers */}
           <thead>
             <tr>
-              {/* Team headers - all from tableData.headers */}
+              {/* Empty corner cell */}
+              <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}></th>
+              
+              {/* Team headers */}
               {tableData.headers.map((header, index) => (
                 <th 
                   key={index} 
                   style={{
                     ...headerStyles,
-                    textAlign: index === 0 ? 'left' : 'center',
-                    position: 'relative'
+                    borderRight: index === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
                   }}
                   onMouseEnter={() => setHoveredColumn(index)}
                   onMouseLeave={() => setHoveredColumn(null)}
@@ -383,7 +338,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                         className="inline-editor-header"
                         style={{
                           color: '#ffffff',
-                          textAlign: index === 0 ? 'left' : 'center',
+                          textAlign: 'center',
                           fontWeight: 'bold',
                           fontSize: '1rem',
                           padding: '8px',
@@ -401,10 +356,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                         style={{ 
                           display: 'flex', 
                           alignItems: 'center', 
-                          justifyContent: index === 0 ? 'flex-start' : 'center', 
+                          justifyContent: 'center', 
                           gap: '8px',
-                          position: 'relative',
-                          color: '#ffffff'
+                          position: 'relative'
                         }}
                       >
                         <span 
@@ -420,29 +374,51 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                           className={isEditable ? 'cursor-pointer' : ''}
                           dangerouslySetInnerHTML={{ __html: header }}
                         />
+                        {isEditable && (
+                          <button
+                            onClick={() => removeColumn(index)}
+                            style={{
+                              ...deleteButtonStyles,
+                              opacity: hoveredColumn === index ? 1 : 0,
+                              transition: 'opacity 0.2s ease',
+                              position: 'absolute',
+                              top: '50%',
+                              right: '8px',
+                              transform: 'translateY(-50%)'
+                            }}
+                            title="Remove Column"
+                          >
+                            ✗
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
-                  {/* Delete column button - positioned absolutely on top right of header */}
-                  {isEditable && index > 0 && (
-                    <button
-                      onClick={() => removeColumn(index)}
-                      style={{
-                        ...deleteButtonStyles,
-                        opacity: hoveredColumn === index ? 1 : 0,
-                        transition: 'opacity 0.2s ease',
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        zIndex: 10
-                      }}
-                      title="Remove Column"
-                    >
-                      ✗
-                    </button>
-                  )}
                 </th>
               ))}
+              
+              {/* Add column button - always visible */}
+              {isEditable && (
+                <th style={{ 
+                  ...headerStyles, 
+                  backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <button
+                    onClick={addColumn}
+                    style={{
+                      ...addButtonStyles,
+                      opacity: 1,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                    title="Add Column"
+                  >
+                    +
+                  </button>
+                </th>
+              )}
             </tr>
           </thead>
 
@@ -451,7 +427,6 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
             {tableData.rows.map((row, rowIndex) => (
               <tr 
                 key={rowIndex}
-                style={{ position: 'relative' }}
                 onMouseEnter={() => setHoveredRow(rowIndex)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
@@ -462,7 +437,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   return (
                     <td 
                       key={colIndex}
-                      style={isFirstColumn ? firstColumnStyles : dataCellStyles}
+                      style={{
+                        ...(isFirstColumn ? firstColumnStyles : dataCellStyles),
+                        borderRight: colIndex === row.length - 1 ? 'none' : '1px solid #E0E0E0'
+                      }}
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
@@ -507,26 +485,77 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     </td>
                   );
                 })}
-                {/* Delete row button - positioned absolutely outside table */}
+                
+                {/* Delete row button - appears on hover */}
                 {isEditable && (
-                  <button
-                    onClick={() => removeRow(rowIndex)}
-                    style={{
-                      ...deleteButtonStyles,
-                      opacity: hoveredRow === rowIndex ? 1 : 0,
-                      transition: 'opacity 0.2s ease',
-                      position: 'absolute',
-                      right: '-40px',
-                      top: '50%',
-                      transform: 'translateY(-50%)'
-                    }}
-                    title="Remove Row"
-                  >
-                    ✗
-                  </button>
+                  <td style={{ 
+                    ...dataCellStyles, 
+                    textAlign: 'center', 
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <button
+                      onClick={() => removeRow(rowIndex)}
+                      style={{
+                        ...deleteButtonStyles,
+                        opacity: hoveredRow === rowIndex ? 1 : 0,
+                        transition: 'opacity 0.2s ease'
+                      }}
+                      title="Remove Row"
+                    >
+                      ✗
+                    </button>
+                  </td>
                 )}
               </tr>
             ))}
+            
+            {/* Add row button - appears on hover */}
+            {isEditable && (
+              <tr 
+                onMouseEnter={() => setHoveredRow(-1)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
+                <td style={{ 
+                  ...firstColumnStyles, 
+                  textAlign: 'center',
+                  borderRight: '1px solid #E0E0E0',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <button
+                    onClick={addRow}
+                    style={{
+                      ...addButtonStyles,
+                      opacity: hoveredRow === -1 ? 1 : 0,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                    title="Add Row"
+                  >
+                    +
+                  </button>
+                </td>
+                {/* Empty cells for other columns */}
+                {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
+                  <td 
+                    key={colIndex} 
+                    style={{ 
+                      ...dataCellStyles, 
+                      borderRight: colIndex === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
+                    }}
+                  />
+                ))}
+                {/* Empty cell for delete column */}
+                <td style={{ 
+                  ...dataCellStyles, 
+                  textAlign: 'center'
+                }} />
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

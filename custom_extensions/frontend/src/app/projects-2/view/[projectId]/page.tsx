@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import VideoEditorHeader from '../components/VideoEditorHeader';
@@ -26,11 +26,9 @@ import ImageSettings from '../components/ImageSettings';
 import AvatarSettings from '../components/AvatarSettings';
 import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
-import TemplateSelector from '../components/TemplateSelector';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import AvatarDataProvider from '../components/AvatarDataService';
-import { VoiceProvider } from '@/contexts/VoiceContext';
+import '../components/compact-slide-styles.css';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -71,145 +69,50 @@ export default function Projects2ViewPage() {
   
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
-  
-  // NEW: Track active text editor for TextSettings control
-  const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
-  const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
-  
-  // NEW: Track active transition for Transition panel
-  const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
-
-  // Ref for slide editor container to detect clicks outside
-  const slideEditorRef = useRef<HTMLDivElement>(null);
-
-  // Ready flag to hide advanced controls per requirements
-  const showReady = true;
-
-  // Debug v1/v2 toggle removed; always using v2
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
-    console.log('🔍 handleAddSlide called with:', {
-      newSlide,
-      isComponentBasedVideoLesson,
-      hasVideoLessonData: !!videoLessonData,
-      hasComponentBasedSlideDeck: !!componentBasedSlideDeck
-    });
+    if (!videoLessonData) return;
 
-    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
-      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility
-      // This matches the golden reference implementation in SmartSlideDeckViewer
-      const slideWithBackendCompat: any = {
-        ...newSlide,
-        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
-        slideNumber: componentBasedSlideDeck.slides.length + 1
-      };
+    // Convert ComponentBasedSlide to VideoLessonSlideData
+    const videoLessonSlide: VideoLessonSlideData = {
+      slideId: newSlide.slideId,
+      slideNumber: videoLessonData.slides.length + 1,
+      slideTitle: newSlide.props?.title || `Slide ${videoLessonData.slides.length + 1}`,
+      displayedText: newSlide.props?.content || '',
+      displayedPictureDescription: '',
+      displayedVideoDescription: '',
+      voiceoverText: ''
+    };
 
-      // Handle component-based slide deck (new structure)
-      const updatedSlides = [...componentBasedSlideDeck.slides, slideWithBackendCompat];
-      const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentBasedSlideDeck,
-        slides: updatedSlides,
-        currentSlideId: newSlide.slideId
-      };
+    const updatedData = {
+      ...videoLessonData,
+      slides: [...videoLessonData.slides, videoLessonSlide]
+    };
 
-      console.log('🔍 Adding slide to component-based deck with backend compatibility:', {
-        originalSlideCount: componentBasedSlideDeck.slides.length,
-        newSlideCount: updatedSlides.length,
-        newSlideId: newSlide.slideId,
-        hasSlideTitle: !!slideWithBackendCompat.slideTitle,
-        slideTitle: slideWithBackendCompat.slideTitle
-      });
-
-      setComponentBasedSlideDeck(updatedDeck);
-      setCurrentSlideId(newSlide.slideId);
-      
-      // Save to backend
-      saveVideoLessonData(updatedDeck);
-      
-      // Switch back to script view after adding slide
-      setActiveComponent('script');
-    } else if (videoLessonData) {
-      // Handle old video lesson structure (legacy)
-      const videoLessonSlide: VideoLessonSlideData = {
-        slideId: newSlide.slideId,
-        slideNumber: videoLessonData.slides.length + 1,
-        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${videoLessonData.slides.length + 1}`,
-        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || 'Add your text here',
-        displayedPictureDescription: '',
-        displayedVideoDescription: '',
-        voiceoverText: ''
-      };
-
-      const updatedData = {
-        ...videoLessonData,
-        slides: [...videoLessonData.slides, videoLessonSlide]
-      };
-
-      console.log('🔍 Adding slide to legacy video lesson:', {
-        originalSlideCount: videoLessonData.slides.length,
-        newSlideCount: updatedData.slides.length,
-        newSlideId: videoLessonSlide.slideId
-      });
-
-      setVideoLessonData(updatedData);
-      setCurrentSlideId(videoLessonSlide.slideId);
-      
-      // Save to backend
-      saveVideoLessonData(updatedData);
-      
-      // Switch back to script view after adding slide
-      setActiveComponent('script');
-    } else {
-      console.error('❌ handleAddSlide: No valid data structure found!', {
-        isComponentBasedVideoLesson,
-        hasVideoLessonData: !!videoLessonData,
-        hasComponentBasedSlideDeck: !!componentBasedSlideDeck
-      });
-    }
+    setVideoLessonData(updatedData);
+    setCurrentSlideId(videoLessonSlide.slideId);
+    
+    // Save to backend
+    saveVideoLessonData(updatedData);
   };
 
   // NEW: Function to save Video Lesson data
   const saveVideoLessonData = async (data: VideoLessonData | ComponentBasedSlideDeck) => {
     try {
       if (!projectId) {
-        console.error('❌ saveVideoLessonData: No projectId provided');
         return;
       }
-      
-      console.log('💾 Saving video lesson data:', {
-        projectId,
-        dataType: data.constructor.name,
-        slideCount: 'slides' in data ? data.slides.length : 'N/A'
-      });
-
-      // 🔧 CRITICAL FIX: Add dev user header to match old UI's golden reference pattern
-      const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === 'development') {
-        saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-      }
-
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT',
-        headers: saveOperationHeaders,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ microProductContent: data })
       });
-      
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Failed to save video lesson data:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-        throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
+        // Handle error silently or with user notification
       }
-      
-      console.log('✅ Video lesson data saved successfully');
     } catch (error) {
-      console.error('❌ Error saving video lesson data:', error);
-      // TODO: Show user notification for save errors
+      // Handle error silently or with user notification
     }
   };
 
@@ -221,11 +124,6 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
-  };
-
-  // Function to open template selector panel
-  const handleOpenTemplateSelector = () => {
-    setActiveComponent('templates');
   };
 
   // NEW: Function to handle text changes (for Script component)
@@ -288,130 +186,39 @@ export default function Projects2ViewPage() {
     }
   };
 
-  // NEW: Handle transition button click
-  const handleTransitionClick = (transitionIndex: number) => {
-    console.log('🎬 Transition clicked:', transitionIndex);
-    setActiveTransitionIndex(transitionIndex);
-    setActiveSettingsPanel('transition');
-  };
-
-  // NEW: Handle transition change
-  const handleTransitionChange = (transitionData: any) => {
-    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || activeTransitionIndex === null) return;
-    
-    console.log('🎬 Transition change:', { transitionIndex: activeTransitionIndex, transitionData });
-    
-    // Initialize transitions array if it doesn't exist
-    const transitions = componentBasedSlideDeck.transitions || [];
-    
-    // Ensure array is large enough (should be slides.length - 1)
-    const requiredLength = componentBasedSlideDeck.slides.length - 1;
-    while (transitions.length < requiredLength) {
-      transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
-    }
-    
-    // Check if "Apply to all" is enabled
-    if (transitionData.applyToAll) {
-      // Apply the same transition to ALL transition slots
-      for (let i = 0; i < transitions.length; i++) {
-        transitions[i] = { ...transitionData };
-      }
-    } else {
-      // Update only the specific transition
-      transitions[activeTransitionIndex] = { ...transitionData };
-    }
-    
-    // Update the deck with new transitions
-    const updatedDeck: ComponentBasedSlideDeck = {
-      ...componentBasedSlideDeck,
-      transitions: [...transitions]
-    };
-    
-    setComponentBasedSlideDeck(updatedDeck);
-    saveVideoLessonData(updatedDeck);
-  };
-
   // NEW: Function to delete slide (following old interface pattern)
   const handleDeleteSlide = (slideId: string) => {
-    console.log('🗑️ handleDeleteSlide called with:', {
-      slideId,
-      isComponentBasedVideoLesson,
-      hasVideoLessonData: !!videoLessonData,
-      hasComponentBasedSlideDeck: !!componentBasedSlideDeck
-    });
-
-    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
-      // Handle component-based slide deck (new structure)
-      if (componentBasedSlideDeck.slides.length <= 1) {
-        console.log('⚠️ Cannot delete slide: only one slide remaining');
-        return;
-      }
-
-      const updatedSlides = componentBasedSlideDeck.slides.filter(slide => slide.slideId !== slideId);
-      const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentBasedSlideDeck,
-        slides: updatedSlides,
-        currentSlideId: currentSlideId === slideId ? updatedSlides[0]?.slideId : currentSlideId
-      };
-
-      console.log('🗑️ Deleting slide from component-based deck:', {
-        originalSlideCount: componentBasedSlideDeck.slides.length,
-        newSlideCount: updatedSlides.length,
-        deletedSlideId: slideId
-      });
-
-      setComponentBasedSlideDeck(updatedDeck);
-      setCurrentSlideId(updatedDeck.currentSlideId || undefined);
-      
-      // Save to backend
-      saveVideoLessonData(updatedDeck);
-    } else if (videoLessonData) {
-      // Handle old video lesson structure (legacy)
-      if (videoLessonData.slides.length <= 1) {
-        console.log('⚠️ Cannot delete slide: only one slide remaining');
-        return;
-      }
-      
-      // Filter out the deleted slide and renumber remaining slides
-      const updatedSlides = videoLessonData.slides
-        .filter(slide => slide.slideId !== slideId)
-        .map((slide, index) => ({
-          ...slide,
-          slideNumber: index + 1
-        }));
-
-      const updatedData = {
-        ...videoLessonData,
-        slides: updatedSlides
-      };
-
-      // Handle current slide selection after deletion
-      let newCurrentSlideId = currentSlideId;
-      if (currentSlideId === slideId) {
-        // If we deleted the current slide, select the next one or previous one
-        const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
-        const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
-        newCurrentSlideId = nextSlide?.slideId;
-      }
-
-      console.log('🗑️ Deleting slide from legacy video lesson:', {
-        originalSlideCount: videoLessonData.slides.length,
-        newSlideCount: updatedSlides.length,
-        deletedSlideId: slideId
-      });
-
-      setVideoLessonData(updatedData);
-      setCurrentSlideId(newCurrentSlideId);
-      
-      // Save to backend
-      saveVideoLessonData(updatedData);
-    } else {
-      console.error('❌ handleDeleteSlide: No valid data structure found!', {
-        isComponentBasedVideoLesson,
-        hasVideoLessonData: !!videoLessonData,
-        hasComponentBasedSlideDeck: !!componentBasedSlideDeck
-      });
+    if (!videoLessonData || videoLessonData.slides.length <= 1) {
+      return;
     }
+    
+    // Filter out the deleted slide and renumber remaining slides
+    const updatedSlides = videoLessonData.slides
+      .filter(slide => slide.slideId !== slideId)
+      .map((slide, index) => ({
+        ...slide,
+        slideNumber: index + 1
+      }));
+
+    const updatedData = {
+      ...videoLessonData,
+      slides: updatedSlides
+    };
+
+    // Handle current slide selection after deletion
+    let newCurrentSlideId = currentSlideId;
+    if (currentSlideId === slideId) {
+      // If we deleted the current slide, select the next one or previous one
+      const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
+      const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
+      newCurrentSlideId = nextSlide?.slideId;
+    }
+
+    setVideoLessonData(updatedData);
+    setCurrentSlideId(newCurrentSlideId);
+    
+    // Save to backend
+    saveVideoLessonData(updatedData);
   };
 
   // NEW: Load Video Lesson data on component mount
@@ -430,23 +237,12 @@ export default function Projects2ViewPage() {
         if (response.ok) {
           const instanceData = await response.json();
           
-          // Check if this is a generated Video Product (different from editable Video Lesson)
-          const isVideoProduct = instanceData.component_name === 'VideoProductDisplay';
-          
-          // Check if this is a Video Lesson project (editable)
+          // Check if this is a Video Lesson project
           const isVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay' ||
                                instanceData.component_name === 'VideoLesson' ||
                                instanceData.component_name === 'video_lesson_presentation';
           
           const isComponentBasedVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay';
-          
-          if (isVideoProduct) {
-            // Redirect to proper video product view (not the editor)
-            console.log('🎬 [VIDEO_PRODUCT] Detected VideoProductDisplay, redirecting to video player view');
-            // For now, just navigate to the old projects view which handles VideoProductDisplay
-            window.location.href = `/projects/view/${projectId}`;
-            return;
-          }
           
           if (isVideoLesson) {
             setIsVideoLessonMode(true);
@@ -472,8 +268,7 @@ export default function Projects2ViewPage() {
                   lessonTitle: instanceData.name || 'Untitled Video Lesson',
                   slides: [],
                   detectedLanguage: instanceData.detectedLanguage || 'en',
-                  hasVoiceover: true,
-                  templateVersion: 'v2' // Set v2 for new presentations
+                  hasVoiceover: true
                 };
                 setComponentBasedSlideDeck(emptyComponentData);
               } else {
@@ -492,7 +287,6 @@ export default function Projects2ViewPage() {
             setIsComponentBasedVideoLesson(true);
             const testComponentData: ComponentBasedSlideDeck = {
               lessonTitle: 'Test Video Lesson',
-              templateVersion: 'v2', // Set v2 for new presentations
               slides: [
                 {
                   slideId: 'slide-1',
@@ -563,29 +357,6 @@ export default function Projects2ViewPage() {
     };
   }, [openMenuSceneId, menuPosition]);
 
-  // Close text editor panel when clicking outside slide editor
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (activeSettingsPanel === 'text' && slideEditorRef.current) {
-        const target = event.target as Node;
-        if (!slideEditorRef.current.contains(target)) {
-          // Click is outside the slide editor, close text panel
-          setActiveSettingsPanel(null);
-          setActiveTextEditor(null);
-          setComputedTextStyles(null);
-          setActiveComponent('script');
-        }
-      }
-    };
-
-    if (activeSettingsPanel === 'text') {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [activeSettingsPanel]);
-
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
     
@@ -614,12 +385,6 @@ export default function Projects2ViewPage() {
       setIsMediaPopupOpen(true);
     } else {
       setActiveComponent(toolId);
-      // Ensure side panels are closed when switching, especially when returning to script
-      if (toolId === 'script') {
-        setActiveSettingsPanel(null);
-        setActiveTextEditor(null);
-        setComputedTextStyles(null);
-      }
       setIsMediaPopupOpen(false);
     }
     // Close text, shapes, interaction, and AI popups when switching tools
@@ -706,22 +471,13 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
+          return <TextSettings />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
           return <AvatarSettings />;
         case 'shape':
           return <ShapeSettings />;
-        case 'transition':
-          const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
-          return (
-            <Transition 
-              transitionIndex={activeTransitionIndex}
-              currentTransition={currentTransition}
-              onTransitionChange={handleTransitionChange}
-            />
-          );
         default:
           break;
       }
@@ -731,7 +487,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
+          return <TextSettings />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -745,7 +501,6 @@ export default function Projects2ViewPage() {
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             currentSlideId={currentSlideId}
             onTextChange={handleTextChange}
-            showReady={showReady}
           />;
       }
     }
@@ -759,17 +514,13 @@ export default function Projects2ViewPage() {
           componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
-          showReady={showReady}
-        />;
-      case 'templates':
-        return <TemplateSelector 
-          currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
-          onAddSlide={handleAddSlide}
         />;
       case 'background':
         return <Background />;
       case 'music':
         return <Music />;
+      case 'transition':
+        return <Transition />;
       case 'comments':
         return <Comments />;
       default:
@@ -779,25 +530,18 @@ export default function Projects2ViewPage() {
           componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
-          showReady={showReady}
         />;
     }
   };
 
   return (
-    <VoiceProvider>
-      <AvatarDataProvider>
-        <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
-          closeMenu();
-        }}>
+    <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
+      closeMenu();
+    }}>
       {/* Header */}
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
-        videoLessonData={videoLessonData}
-        componentBasedSlideDeck={componentBasedSlideDeck}
-        currentSlideId={currentSlideId}
-        showReady={showReady}
       />
 
       {/* Toolbar */}
@@ -808,11 +552,8 @@ export default function Projects2ViewPage() {
           onShapesButtonClick={handleShapesButtonClick}
           onInteractionButtonClick={handleInteractionButtonClick}
           onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
-          showReady={showReady}
         />
       </div>
-
-      {/* Debug v1/v2 toggle removed */}
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
@@ -827,7 +568,7 @@ export default function Projects2ViewPage() {
           {/* Top Container - Takes 80% of main container height (increased from 75%) */}
           <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Settings Buttons - Top Left Corner */}
-            {false && isComponentBasedVideoLesson && componentBasedSlideDeck && (
+            {isComponentBasedVideoLesson && componentBasedSlideDeck && (
               <div className="absolute top-2 left-2 z-10 flex gap-1">
                 <button
                   onClick={() => handleSettingsButtonClick('text')}
@@ -880,46 +621,29 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                ref={slideEditorRef}
-                className="bg-white rounded-md relative overflow-hidden flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden compact-slide-mode flex items-center justify-center w-full h-full"
               >
-                {/* Slide Container - Keeps original size */}
-                <div
-                  style={{
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                    userSelect: 'auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
+                {/* Slide Content - Using same approach as LessonPlanView carousel */}
                 <div
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
-                      width: aspectRatio === '16:9' ? '900px' 
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                    width: '100%',
+                    maxWidth: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
-                      height: aspectRatio === '16:9' ? '506px' 
-                        : aspectRatio === '9:16' ? '711px'
-                        : '800px',
-                    }}
+                    aspectRatio: aspectRatio === '16:9' ? '16/10' 
+                      : aspectRatio === '9:16' ? '9/16'
+                      : '1/1',
+                    minHeight: '400px',
+                    maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
+                  }}
+                >
+                  <div 
+                    style={{ width: '100%', height: '100%' }} 
+                    className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-2xl [&_h2]:!text-xl [&_h3]:!text-lg [&_h4]:!text-base [&_h5]:!text-sm [&_h6]:!text-xs"
                   >
-                    {/* Apply zoom to content INSIDE the slide container */}
-                    <div style={{ 
-                      width: '100%', 
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                      paddingTop: '5%', // Push content down slightly to show top properly
-                    }}>
-                    <div style={{
-                      zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
-                      width: '100%',
-                      height: '100%',
-                    }}>
                     <ComponentBasedSlideDeckRenderer
                       slides={componentBasedSlideDeck.slides}
                       selectedSlideId={currentSlideId}
@@ -936,19 +660,8 @@ export default function Projects2ViewPage() {
                           saveVideoLessonData(updatedDeck);
                         }
                       }}
-                      onEditorActive={(editor, field, computedStyles) => {
-                        console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
-                        setActiveTextEditor(editor);
-                        setComputedTextStyles(computedStyles || null);
-                        setActiveSettingsPanel('text');
-                        // Don't change activeComponent when text editor activates - let it stay as is
-                        // The activeSettingsPanel will override the sidebar display
-                      }}
-                      theme={'default'}
-                      isVideoMode={true}
+                      theme="default"
                     />
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -973,10 +686,6 @@ export default function Projects2ViewPage() {
             onSlideSelect={handleSlideSelect}
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
-            onOpenTemplateSelector={handleOpenTemplateSelector}
-            onTransitionClick={handleTransitionClick}
-            activeTransitionIndex={activeTransitionIndex}
-            showReady={showReady}
           />
         </div>
       </div>
@@ -1101,8 +810,6 @@ export default function Projects2ViewPage() {
         position={optionPopupPosition}
       />
       
-        </div>
-      </AvatarDataProvider>
-    </VoiceProvider>
+    </div>
   );
 }

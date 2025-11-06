@@ -1,534 +1,498 @@
+// custom_extensions/frontend/src/components/templates/ChallengesSolutionsTemplate.tsx
+
 import React, { useState, useRef, useEffect } from 'react';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
-import Image from 'next/image';
-import groupImg from './group_img.png';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
-export interface ChallengesSolutionsTemplateProps {
-  title?: string;
-  subtitle?: string;
-  theme?: string;
-  isEditable?: boolean;
-  slideId?: string;
-  onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={className}
-        style={{
-          ...style,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          resize: 'none',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          color: 'inherit',
-          textAlign: 'inherit',
-          lineHeight: 'inherit',
-          width: '100%',
-          minHeight: '60px'
-        }}
-      />
-    );
+// FIXED: Function to detect language and provide localized headers
+const getLocalizedHeaders = (title: string, challenges: string[], solutions: string[]): { challengesTitle: string, solutionsTitle: string } => {
+  // Combine all text content to analyze language
+  const allText = [title, ...(challenges || []), ...(solutions || [])].join(' ').toLowerCase();
+  
+  // Language detection patterns
+  const ukrainianChars = /[її єю ґ]/gi;
+  const russianChars = /[ыъё]/gi;
+  const spanishChars = /[ñáéíóúü]/gi;
+  
+  // Count matches
+  const ukrainianMatches = (allText.match(ukrainianChars) || []).length;
+  const russianMatches = (allText.match(russianChars) || []).length;
+  const spanishMatches = (allText.match(spanishChars) || []).length;
+  
+  // Determine language based on character frequency
+  if (ukrainianMatches > 0) {
+    return { challengesTitle: 'Виклики', solutionsTitle: 'Рішення' };
+  } else if (russianMatches > 0) {
+    return { challengesTitle: 'Вызовы', solutionsTitle: 'Решения' };
+  } else if (spanishMatches > 0) {
+    return { challengesTitle: 'Desafíos', solutionsTitle: 'Soluciones' };
+  } else {
+    // Default to English
+    return { challengesTitle: 'Challenges', solutionsTitle: 'Solutions' };
   }
+};
 
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      type="text"
-      value={value}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={className}
-        style={{
-          ...style,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          color: 'inherit',
-          textAlign: 'inherit',
-          width: '100%'
-        }}
-    />
-  );
-}
-
-const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>> = ({
-  title = 'Challenges & Solutions',
-  subtitle = '',
-  theme,
-  isEditable = true,
-  slideId = 'challenges-solutions',
+export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
+  theme?: SlideTheme;
+  onUpdate?: (props: any) => void;
+  isEditable?: boolean;
+}> = ({
+  slideId,
+  title,
+  challengesTitle,
+  solutionsTitle,
+  challenges,
+  solutions,
   onUpdate,
-  challengesTitle = 'Challenges',
-  solutionsTitle = 'Solutions',
-  challenges = [],
-  solutions = []
-}: ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>) => {
-  const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
-  const [isEditingChallengesTitle, setIsEditingChallengesTitle] = useState(false);
-  const [isEditingSolutionsTitle, setIsEditingSolutionsTitle] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(title);
-  const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
-  const [currentChallengesTitle, setCurrentChallengesTitle] = useState(challengesTitle);
-  const [currentSolutionsTitle, setCurrentSolutionsTitle] = useState(solutionsTitle);
+  theme,
+  isEditable = false
+}) => {
+  // FIXED: Use localized headers based on content language
+  const localizedHeaders = getLocalizedHeaders(title || '', challenges || [], solutions || []);
+  const finalChallengesTitle = challengesTitle || localizedHeaders.challengesTitle;
+  const finalSolutionsTitle = solutionsTitle || localizedHeaders.solutionsTitle;
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
-  // Состояние для элементов списков
-  const [challengeItems, setChallengeItems] = useState(
-    (Array.isArray(challenges) && challenges.length > 0) ? challenges : [
-      'Title goes here', 'Title goes here', 'Title goes here'
-    ]
-  );
-  const [solutionItems, setSolutionItems] = useState(
-    (Array.isArray(solutions) && solutions.length > 0) ? solutions : [
-      'Title goes here', 'Title goes here', 'Title goes here'
-    ]
-  );
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingChallengesTitle, setEditingChallengesTitle] = useState(false);
+  const [editingSolutionsTitle, setEditingSolutionsTitle] = useState(false);
+  const [editingChallenges, setEditingChallenges] = useState<number[]>([]);
+  const [editingSolutions, setEditingSolutions] = useState<number[]>([]);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Состояния редактирования для каждого элемента
-  const [editingChallengeItems, setEditingChallengeItems] = useState([false, false, false]);
-  const [editingSolutionItems, setEditingSolutionItems] = useState([false, false, false]);
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
   
-  const slideContainerRef = useRef<HTMLDivElement>(null);
-
-  const handleTitleSave = (value: string) => {
-    setCurrentTitle(value);
-    setIsEditingTitle(false);
-    if (onUpdate) {
-      onUpdate({ title: value });
-    }
-  };
-
-  const handleSubtitleSave = (value: string) => {
-    setCurrentSubtitle(value);
-    setIsEditingSubtitle(false);
-    if (onUpdate) {
-      onUpdate({ subtitle: value });
-    }
-  };
-
-  const handleChallengesTitleSave = (value: string) => {
-    setCurrentChallengesTitle(value);
-    setIsEditingChallengesTitle(false);
-    if (onUpdate) {
-      onUpdate({ challengesTitle: value });
-    }
-  };
-
-  const handleSolutionsTitleSave = (value: string) => {
-    setCurrentSolutionsTitle(value);
-    setIsEditingSolutionsTitle(false);
-    if (onUpdate) {
-      onUpdate({ solutionsTitle: value });
-    }
-  };
-
-  // Обработчики для элементов списков
-  const handleChallengeItemSave = (index: number, value: string) => {
-    const newItems = [...challengeItems];
-    newItems[index] = value;
-    setChallengeItems(newItems);
-    
-    const newEditingStates = [...editingChallengeItems];
-    newEditingStates[index] = false;
-    setEditingChallengeItems(newEditingStates);
-  };
-
-  const handleSolutionItemSave = (index: number, value: string) => {
-    const newItems = [...solutionItems];
-    newItems[index] = value;
-    setSolutionItems(newItems);
-    
-    const newEditingStates = [...editingSolutionItems];
-    newEditingStates[index] = false;
-    setEditingSolutionItems(newEditingStates);
-  };
-
-  const handleChallengeItemEdit = (index: number) => {
-    if (isEditable) {
-      const newEditingStates = [...editingChallengeItems];
-      newEditingStates[index] = true;
-      setEditingChallengeItems(newEditingStates);
-    }
-  };
-
-  const handleSolutionItemEdit = (index: number) => {
-    if (isEditable) {
-      const newEditingStates = [...editingSolutionItems];
-      newEditingStates[index] = true;
-      setEditingSolutionItems(newEditingStates);
-    }
-  };
-
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
-    background: '#ffffff',
-    padding: '40px',
-    display: 'flex',
-    flexDirection: 'column',
-    fontFamily: 'Georgia, serif',
     minHeight: '600px',
+        background: currentTheme.colors.backgroundColor,
+    padding: '60px',
     position: 'relative',
-    overflow: 'hidden'
+    fontFamily: currentTheme.fonts.contentFont
   };
 
   const titleStyles: React.CSSProperties = {
-    color: '#000000',
-    fontSize: '2.5rem',
-    fontFamily: 'Georgia, serif',
-    marginBottom: '10px',
+    fontSize: currentTheme.fonts.titleSize,
+    fontWeight: 700,
+    color: currentTheme.colors.titleColor,
+    fontFamily: currentTheme.fonts.titleFont,
     textAlign: 'center',
-    wordWrap: 'break-word',
-    fontWeight: 'bold',
-    flexShrink: 0
+    marginBottom: '50px',
+    lineHeight: 1.3,
+    maxWidth: '900px',
+    margin: '0 auto 50px auto',
+    wordWrap: 'break-word'
   };
 
-  const subtitleStyles: React.CSSProperties = {
-    color: '#000000',
-    fontSize: '1.1rem',
-    fontFamily: 'Arial, sans-serif',
-    marginBottom: '40px',
-    textAlign: 'center',
-    wordWrap: 'break-word',
-    fontWeight: 'normal',
-    flexShrink: 0
+  const gridStyles: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '40px',
+    maxWidth: '1000px',
+    margin: '0 auto'
   };
 
-  const mainContentStyles: React.CSSProperties = {
+  const calloutBoxStyles = (bgColor: string): React.CSSProperties => ({
+    backgroundColor: bgColor,
+    borderRadius: '12px',
+    padding: '24px',
+    border: '1px solid rgba(0,0,0,0.1)',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+  });
+
+  const headerStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
-    position: 'relative',
-    height: '400px',
-    width: '100%'
+    gap: '12px',
+    marginBottom: '20px'
   };
 
-  const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative'
+  const sectionTitleStyles: React.CSSProperties = {
+    fontSize: '1.25rem',
+    fontWeight: 700,
+    color: currentTheme.colors.contentColor,
+    fontFamily: currentTheme.fonts.titleFont,
+    margin: 0,
+    wordWrap: 'break-word'
   };
+
+  const listStyles: React.CSSProperties = {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0
+  };
+
+  const listItemStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '8px',
+    marginBottom: '12px',
+    fontSize: currentTheme.fonts.contentSize,
+    lineHeight: 1.5,
+    color: currentTheme.colors.contentColor,
+    fontFamily: currentTheme.fonts.contentFont
+  };
+
+  const bulletStyles: React.CSSProperties = {
+    minWidth: '6px',
+    width: '6px',
+    height: '6px',
+    backgroundColor: currentTheme.colors.contentColor,
+    borderRadius: '50%',
+    marginTop: '8px'
+  };
+
+  // Handle title editing
+  const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+    setEditingTitle(false);
+  };
+
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
+  };
+
+  // Handle challenges title editing
+  const handleChallengesTitleSave = (newChallengesTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ challengesTitle: newChallengesTitle });
+    }
+    setEditingChallengesTitle(false);
+  };
+
+  const handleChallengesTitleCancel = () => {
+    setEditingChallengesTitle(false);
+  };
+
+  // Handle solutions title editing
+  const handleSolutionsTitleSave = (newSolutionsTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ solutionsTitle: newSolutionsTitle });
+    }
+    setEditingSolutionsTitle(false);
+  };
+
+  const handleSolutionsTitleCancel = () => {
+    setEditingSolutionsTitle(false);
+  };
+
+  // Handle challenge editing
+  const handleChallengeSave = (index: number, newChallenge: string) => {
+    if (onUpdate && challenges) {
+      const updatedChallenges = [...challenges];
+      updatedChallenges[index] = newChallenge;
+      onUpdate({ challenges: updatedChallenges });
+    }
+    setEditingChallenges(editingChallenges.filter(i => i !== index));
+  };
+
+  const handleChallengeCancel = (index: number) => {
+    setEditingChallenges(editingChallenges.filter((i: number) => i !== index));
+  };
+
+  // Handle solution editing
+  const handleSolutionSave = (index: number, newSolution: string) => {
+    if (onUpdate && solutions) {
+      const updatedSolutions = [...solutions];
+      updatedSolutions[index] = newSolution;
+      onUpdate({ solutions: updatedSolutions });
+    }
+    setEditingSolutions(editingSolutions.filter((i: number) => i !== index));
+  };
+
+  const handleSolutionCancel = (index: number) => {
+    setEditingSolutions(editingSolutions.filter((i: number) => i !== index));
+  };
+
+  const startEditingChallenge = (index: number) => {
+    setEditingChallenges([...editingChallenges, index]);
+  };
+
+  const startEditingSolution = (index: number) => {
+    setEditingSolutions([...editingSolutions, index]);
+  };
+
+  // SVG Icons
+  const XMarkIcon = () => (
+    <svg 
+      width="24" 
+      height="24" 
+      viewBox="0 0 512 512" 
+      fill={currentTheme.colors.accentColor}
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+    </svg>
+  );
+
+  const CheckIcon = () => (
+    <svg 
+      width="24" 
+      height="24" 
+      viewBox="0 0 512 512" 
+      fill={currentTheme.colors.accentColor}
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
+    </svg>
+  );
 
   return (
-    <div style={slideStyles} ref={slideContainerRef}>
-      {/* Title */}
-      {isEditingTitle ? (
-        <InlineEditor
-          initialValue={currentTitle}
-          onSave={handleTitleSave}
-          onCancel={() => setIsEditingTitle(false)}
-          placeholder="Enter title"
-          style={titleStyles}
-        />
-      ) : (
-        <h1
-          style={titleStyles}
-          onClick={() => isEditable && setIsEditingTitle(true)}
-          data-draggable={isEditable}
+    <div className="challenges-solutions-template" style={slideStyles}>
+      {/* Main Title - wrapped */}
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block', width: '100%' }}
+      >
+        {isEditable && editingTitle ? (
+          <WysiwygEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.3'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+            dangerouslySetInnerHTML={{ __html: title || 'Click to add title' }}
+          />
+        )}
+      </div>
+
+      {/* Two Column Grid */}
+      <div style={gridStyles}>
+        {/* Challenges Column */}
+        <div 
+          data-moveable-element={`${slideId}-challenges`}
+          data-draggable="true"
+          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
         >
-          {currentTitle}
-        </h1>
-      )}
-
-      {/* Subtitle - only show if subtitle exists */}
-      {currentSubtitle && (
-        <>
-          {isEditingSubtitle ? (
-            <InlineEditor
-              initialValue={currentSubtitle}
-              onSave={handleSubtitleSave}
-              onCancel={() => setIsEditingSubtitle(false)}
-              placeholder="Enter subtitle"
-              style={subtitleStyles}
-            />
-          ) : (
-            <h2
-              style={subtitleStyles}
-              onClick={() => isEditable && setIsEditingSubtitle(true)}
-              data-draggable={isEditable}
-            >
-              {currentSubtitle}
-            </h2>
-          )}
-        </>
-      )}
-
-      {/* Main Content with Image */}
-      <div style={mainContentStyles}>
-        {/* Left side text items - positioned next to icons */}
-        {challengeItems.map((item: string, index: number) => {
-          // Position each challenge next to its icon
-          const positions = [
-            { top: '15%', left: '20px' },   // Top icon
-            { top: '48%', left: '20px' },   // Middle icon
-            { top: '75%', left: '20px' }    // Bottom icon
-          ];
-          const pos = positions[index] || positions[0];
-          
-          return (
-            <div key={index} style={{
-              position: 'absolute',
-              ...pos,
-              width: '280px',
-              zIndex: 10
-            }}>
-              {editingChallengeItems[index] ? (
-                <InlineEditor
-                  initialValue={challengeItems[index]}
-                  onSave={(value) => handleChallengeItemSave(index, value)}
-                  onCancel={() => {
-                    const newEditingStates = [...editingChallengeItems];
-                    newEditingStates[index] = false;
-                    setEditingChallengeItems(newEditingStates);
-                  }}
-                  placeholder="Enter challenge"
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    width: '100%',
-                    minWidth: '200px'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    cursor: isEditable ? 'pointer' : 'default',
-                    textAlign: 'left',
-                    width: '100%',
-                    wordWrap: 'break-word'
-                  }}
-                  onClick={() => handleChallengeItemEdit(index)}
-                  data-draggable={isEditable}
-                >
-                  {item}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Right side text items - positioned next to icons */}
-        {solutionItems.map((item: string, index: number) => {
-          // Position each solution next to its icon
-          const positions = [
-            { top: '15%', right: '10px' },   // Top icon
-            { top: '48%', right: '10px' },   // Middle icon
-            { top: '75%', right: '10px' }    // Bottom icon
-          ];
-          const pos = positions[index] || positions[0];
-          
-          return (
-            <div key={index} style={{
-              position: 'absolute',
-              ...pos,
-              width: '280px',
-              zIndex: 10
-            }}>
-              {editingSolutionItems[index] ? (
-                <InlineEditor
-                  initialValue={solutionItems[index]}
-                  onSave={(value) => handleSolutionItemSave(index, value)}
-                  onCancel={() => {
-                    const newEditingStates = [...editingSolutionItems];
-                    newEditingStates[index] = false;
-                    setEditingSolutionItems(newEditingStates);
-                  }}
-                  placeholder="Enter solution"
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    textAlign: 'left',
-                    width: '100%',
-                    minWidth: '200px'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    textAlign: 'left',
-                    cursor: isEditable ? 'pointer' : 'default',
-                    width: '100%',
-                    wordWrap: 'break-word'
-                  }}
-                  onClick={() => handleSolutionItemEdit(index)}
-                  data-draggable={isEditable}
-                >
-                  {item}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        <div style={imageContainerStyles}>
-          <Image src={groupImg} alt="Group" width={500} height={400} />
+          <div style={headerStyles}>
+            <XMarkIcon />
+            {isEditable && editingChallengesTitle ? (
+              <WysiwygEditor
+                initialValue={finalChallengesTitle || ''}
+                onSave={handleChallengesTitleSave}
+                onCancel={handleChallengesTitleCancel}
+                placeholder="Enter challenges title..."
+                className="inline-editor-challenges-title"
+                style={{
+                  ...sectionTitleStyles,
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  lineHeight: '1.2'
+                }}
+              />
+            ) : (
+              <h2 
+                style={sectionTitleStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setEditingChallengesTitle(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+                dangerouslySetInnerHTML={{ __html: finalChallengesTitle || 'Click to add challenges title' }}
+              />
+            )}
+          </div>
+          <ul style={listStyles}>
+            {challenges?.map((challenge: string, index: number) => (
+              <li key={index} style={listItemStyles}>
+                <div style={bulletStyles}></div>
+                {isEditable && editingChallenges.includes(index) ? (
+                  <WysiwygEditor
+                    initialValue={challenge || ''}
+                    onSave={(newChallenge) => handleChallengeSave(index, newChallenge)}
+                    onCancel={() => handleChallengeCancel(index)}
+                    placeholder="Enter challenge..."
+                    className="inline-editor-challenge"
+                    style={{
+                      fontSize: currentTheme.fonts.contentSize,
+                      lineHeight: 1.5,
+                      color: currentTheme.colors.contentColor,
+                      fontFamily: currentTheme.fonts.contentFont,
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      margin: '0'
+                    }}
+                  />
+                ) : (
+                  <span 
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingChallenge(index);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: challenge || 'Click to add challenge' }}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Bottom labels - positioned below central icons */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, 160px)',
-          display: 'flex',
-          gap: '70px',
-          zIndex: 10,
-          paddingLeft: '10px',
-          justifyContent: 'space-between',
-          width: '400px'
-        }}>
-          {/* Challenges Title */}
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
-            {isEditable && isEditingChallengesTitle ? (
-              <InlineEditor
-                initialValue={currentChallengesTitle}
-                onSave={handleChallengesTitleSave}
-                onCancel={() => setIsEditingChallengesTitle(false)}
-                placeholder="Challenges"
-                style={{
-                  fontSize: '19px',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  fontWeight: '500',
-                  textAlign: 'center',
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  fontSize: '19px',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  fontWeight: '500',
-                  textAlign: 'center',
-                  cursor: isEditable ? 'pointer' : 'default',
-                }}
-                onClick={() => isEditable && setIsEditingChallengesTitle(true)}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {currentChallengesTitle}
-              </div>
-            )}
-          </div>
-          
-          {/* Solutions Title */}
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
-            {isEditable && isEditingSolutionsTitle ? (
-              <InlineEditor
-                initialValue={currentSolutionsTitle}
+        {/* Solutions Column */}
+        <div 
+          data-moveable-element={`${slideId}-solutions`}
+          data-draggable="true"
+          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
+        >
+          <div style={headerStyles}>
+            <CheckIcon />
+            {isEditable && editingSolutionsTitle ? (
+              <WysiwygEditor
+                initialValue={finalSolutionsTitle || ''}
                 onSave={handleSolutionsTitleSave}
-                onCancel={() => setIsEditingSolutionsTitle(false)}
-                placeholder="Solutions"
+                onCancel={handleSolutionsTitleCancel}
+                placeholder="Enter solutions title..."
+                className="inline-editor-solutions-title"
                 style={{
-                  fontSize: '19px',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  fontWeight: '500',
-                  textAlign: 'left',
+                  ...sectionTitleStyles,
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  lineHeight: '1.2'
                 }}
               />
             ) : (
-              <div
-                style={{
-                  fontSize: '19px',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  fontWeight: '500',
-                  textAlign: 'left',
-                  cursor: isEditable ? 'pointer' : 'default',
+              <h2 
+                style={sectionTitleStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setEditingSolutionsTitle(true);
+                  }
                 }}
-                onClick={() => isEditable && setIsEditingSolutionsTitle(true)}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {currentSolutionsTitle}
-              </div>
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+                dangerouslySetInnerHTML={{ __html: solutionsTitle || 'Click to add solutions title' }}
+              />
             )}
           </div>
+          <ul style={listStyles}>
+            {solutions?.map((solution: string, index: number) => (
+              <li key={index} style={listItemStyles}>
+                <div style={bulletStyles}></div>
+                {isEditable && editingSolutions.includes(index) ? (
+                  <WysiwygEditor
+                    initialValue={solution || ''}
+                    onSave={(newSolution) => handleSolutionSave(index, newSolution)}
+                    onCancel={() => handleSolutionCancel(index)}
+                    placeholder="Enter solution..."
+                    className="inline-editor-solution"
+                    style={{
+                      fontSize: currentTheme.fonts.contentSize,
+                      lineHeight: 1.5,
+                      color: currentTheme.colors.contentColor,
+                      fontFamily: currentTheme.fonts.contentFont,
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      margin: '0'
+                    }}
+                  />
+                ) : (
+                  <span 
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingSolution(index);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: solution || 'Click to add solution' }}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
   );
 };
 
-export default ChallengesSolutionsTemplate;
+export default ChallengesSolutionsTemplate; 

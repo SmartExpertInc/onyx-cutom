@@ -14,13 +14,6 @@ export const es = {
     downloadPdf: "Descargar PDF",
     saveErrorTitle: "Error al guardar:",
     rendering: "Renderizando contenido...",
-    close: "Cerrar",
-  },
-  insufficientCredits: {
-    title: "Créditos insuficientes",
-    message:
-      "No puedes crear nuevos productos en este momento debido a créditos insuficientes para esta operación. Por favor compra más créditos para continuar.",
-    buyMore: "Comprar"
   },
   qualityTiers: {
     basic: "Básico",

@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw, ShieldAlert, XCircle, AlertTriangle, Eye, ChevronDown } from 'lucide-react';
+import { FolderOpen, Sparkles, Edit3, Plus, ShieldAlert, ChevronDown, Eye } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -11,9 +11,6 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
 import { AiAgent } from '@/components/ui/ai-agent';
-import SmartPromptEditor from '@/components/SmartPromptEditor';
-import ScormDownloadButton from '@/components/ScormDownloadButton';
-import { ToastProvider } from '@/components/ui/toast';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -109,7 +106,8 @@ export default function ProductViewNewPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
-  const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('col_video_presentation');
+  // const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
+  const columnVideoLessonEnabled = false;
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   // Helper function for Slavic pluralization (Russian, Ukrainian)
@@ -145,28 +143,12 @@ export default function ProductViewNewPage() {
   }}>({});
   const [collapsedSections, setCollapsedSections] = useState<{[key: number]: boolean}>({});
   const [showAiAgent, setShowAiAgent] = useState(false);
-  const [showSmartEditor, setShowSmartEditor] = useState(false);
   const [editPrompt, setEditPrompt] = useState('');
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
   const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [previewContent, setPreviewContent] = useState<TrainingPlanData | null>(null);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
-
-  // Smart Edit handlers
-  const handleSmartEditContentUpdate = (updatedData: TrainingPlanData) => {
-    setEditableData(updatedData);
-  };
-
-  const handleSmartEditError = (error: string) => {
-    console.error('Smart edit error:', error);
-    setSaveError(error);
-  };
-
-  const handleSmartEditRevert = () => {
-    setEditableData(projectData?.details as TrainingPlanData);
-    setShowSmartEditor(false);
-  };
 
   // AI Agent examples (similar to course outline)
   const aiAgentExamples = [
@@ -350,15 +332,6 @@ export default function ProductViewNewPage() {
     setEditPrompt('');
     setSelectedExamples([]);
   };
-
-  // Course sharing state
-  const [isSharing, setIsSharing] = useState(false);
-  const [shareData, setShareData] = useState<{
-    shareToken: string;
-    publicUrl: string;
-    expiresAt: string;
-  } | null>(null);
-  const [shareError, setShareError] = useState<string | null>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -666,13 +639,8 @@ export default function ProductViewNewPage() {
   }, [router]);
 
   // Function to handle icon clicks for navigation
-  const handleIconClick = useCallback((productId: number, contentType?: string) => {
-    // Video lessons should navigate to view-new-2, all other products use view
-    if (contentType === 'video-lesson') {
-      router.push(`/projects-2/view/${productId}`);
-    } else {
-      router.push(`/projects/view/${productId}`);
-    }
+  const handleIconClick = useCallback((productId: number) => {
+    router.push(`/projects/view/${productId}`);
   }, [router]);
 
   // Function to check existing content for lessons
@@ -1049,69 +1017,6 @@ export default function ProductViewNewPage() {
     setCollapsedSections(allCollapsed);
   };
 
-  /* --- Course sharing handlers --- */
-  const handleShareCourse = async () => {
-    if (!productId) return;
-    
-    setIsSharing(true);
-    setShareError(null);
-    
-    try {
-      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/course-outlines/${productId}/share`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          expires_in_days: 30 // Default 30 days
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.detail || `Failed to share course: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setShareData({
-        shareToken: data.share_token,
-        publicUrl: data.public_url,
-        expiresAt: data.expires_at
-      });
-      
-      console.log('✅ [COURSE SHARING] Successfully created share link:', data.public_url);
-      
-    } catch (error: any) {
-      console.error('❌ [COURSE SHARING] Error sharing course:', error);
-      setShareError(error.message || 'Failed to create share link');
-    } finally {
-      setIsSharing(false);
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      console.log('✅ [COURSE SHARING] Link copied to clipboard');
-    } catch (error) {
-      console.error('❌ [COURSE SHARING] Failed to copy to clipboard:', error);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      console.log('✅ [COURSE SHARING] Link copied to clipboard (fallback)');
-    }
-  };
-
-  const handleCloseShareModal = () => {
-    setShareData(null);
-    setShareError(null);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -1143,128 +1048,16 @@ export default function ProductViewNewPage() {
         background: '#F8F8F8'
       }}
     >
-      <div className="max-w-7xl mx-auto flex flex-col">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-x-4">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[8px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {t('interface.viewNew.back', 'Back')}
-            </button>
-
-            <button
-              onClick={() => { if (typeof window !== 'undefined') window.location.href = '/projects'; }}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <FolderOpen size={14} style={{ color: '#0F58F9' }} />
-              {t('interface.viewNew.openProducts', 'Open Products')}
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {/* Smart Edit button for Course Outline */}
-            {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && (
-              <button
-                onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#8B5CF6',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title="Smart edit with AI"
-              >
-                <Sparkles size={14} style={{ color: 'white' }} /> {t('actions.smartEdit', 'Smart Edit')}
-              </button>
-            )}
-
-            {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && scormEnabled && (
-              <ToastProvider>
-                <ScormDownloadButton
-                  courseOutlineId={Number(productId)}
-                  label={t('interface.viewNew.exportScorm', 'Export to SCORM 2004')}
-                  className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
-                  style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
-                />
-              </ToastProvider>
-            )}
-
-            {/* Share button for Training Plans */}
-            {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && (
-              <button
-                onClick={handleShareCourse}
-                disabled={isSharing}
-                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-                style={{
-                  color: '#0F58F9',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={t('interface.viewNew.shareCourse', 'Share course outline')}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                {isSharing ? t('interface.viewNew.sharing', 'Sharing...') : t('interface.viewNew.share', 'Share')}
-              </button>
-            )}
-
-            {/* Download PDF button for Course Outline
-            <button
-              onClick={() => {}}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-              style={{
-                backgroundColor: '#0F58F9',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-              title="Download content as PDF"
-            >
-              <Download size={14} style={{ color: 'white' }} /> Download PDF
-            </button> */}
-          </div>
-        </div>
-
-        {/* Smart Prompt Editor - positioned between top panel and main content */}
-        {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-[200px]">
-            <SmartPromptEditor
-              projectId={projectData.project_id}
-              onContentUpdate={handleSmartEditContentUpdate}
-              onError={handleSmartEditError}
-              onRevert={handleSmartEditRevert}
-              currentLanguage={editableData.detectedLanguage}
-              currentTheme={editableData.theme}
-            />
-          </div>
-        )}
-      </div>
+      <ProductViewHeader
+        projectData={projectData}
+        editableData={editableData}
+        productId={productId}
+        showAiAgent={showAiAgent}
+        setShowAiAgent={setShowAiAgent}
+        scormEnabled={scormEnabled}
+        componentName={COMPONENT_NAME_TRAINING_PLAN}
+        t={t}
+      />
 
       <div 
         className="max-w-7xl mx-auto flex flex-col transition-all duration-300 ease-in-out"
@@ -1713,8 +1506,8 @@ export default function ProductViewNewPage() {
                                         className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
-                                          if (status?.videoLesson?.productId) {
-                                            handleIconClick(status.videoLesson.productId, 'video-lesson');
+                                          if (status?.onePager?.productId) {
+                                            handleIconClick(status.onePager.productId);
                                           }
                                         }}
                                       >
@@ -1883,79 +1676,6 @@ export default function ProductViewNewPage() {
             />
           )}
       </div>
-
-      {/* Course Share Modal */}
-      {shareData && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 pb-4">
-              <h2 className="text-xl font-semibold text-gray-900">{t('interface.viewNew.shareCourse', 'Share Course Outline')}</h2>
-              <button
-                onClick={handleCloseShareModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <XCircle size={24} />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="px-6 pb-6">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('interface.viewNew.shareLink', 'Share Link')}
-                </label>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={shareData.publicUrl}
-                    readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-900"
-                  />
-                  <button
-                    onClick={() => copyToClipboard(shareData.publicUrl)}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
-                  >
-                    {t('interface.viewNew.copy', 'Copy')}
-                  </button>
-                </div>
-              </div>
-
-              <div className="text-sm text-gray-600">
-                <p className="mb-2">
-                  {t('interface.viewNew.shareDescription', 'Anyone with this link can view your course outline and attached products.')}
-                </p>
-                <p>
-                  <strong>{t('interface.viewNew.expires', 'Expires:')}</strong> {new Date(shareData.expiresAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* Share Error Modal */}
-      {shareError && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <AlertTriangle className="text-red-500 mr-3" size={24} />
-                <h2 className="text-xl font-semibold text-gray-900">{t('interface.viewNew.shareError', 'Share Error')}</h2>
-              </div>
-              <p className="text-gray-600 mb-4">{shareError}</p>
-              <button
-                onClick={handleCloseShareModal}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {t('interface.viewNew.close', 'Close')}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </main>
   );
 }

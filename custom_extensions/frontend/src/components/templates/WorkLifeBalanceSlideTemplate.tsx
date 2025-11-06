@@ -4,9 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { WorkLifeBalanceSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
-import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '@/components/editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -126,7 +124,6 @@ function InlineEditor({
 
 export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & {
   theme?: SlideTheme | string;
-  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Work-life balance',
@@ -142,21 +139,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText,
-  pageNumber = '02',
-  onEditorActive
+  voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
-  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
-  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
-  
-  // Editor refs
-  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
-  const contentEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -164,8 +153,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '16/9',
-    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+    height: '600px',
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -175,56 +164,39 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
-    onEditorActive?.(null as any, 'title');
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, title: newTitle });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
   const handleContentSave = (newContent: string) => {
     setCurrentContent(newContent);
     setEditingContent(false);
-    onEditorActive?.(null as any, 'content');
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, content: newContent });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
     }
   };
 
   const handleTitleCancel = () => {
     setCurrentTitle(title);
     setEditingTitle(false);
-    onEditorActive?.(null as any, 'title');
   };
 
   const handleContentCancel = () => {
     setCurrentContent(content);
     setEditingContent(false);
-    onEditorActive?.(null as any, 'content');
   };
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, imagePath: newImagePath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, imagePath: newImagePath });
     }
   };
 
   const handleLogoUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, logoPath: newLogoPath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, logoPath: newLogoPath });
     }
-  };
-
-  const handlePageNumberSave = (newPageNumber: string) => {
-    setCurrentPageNumber(newPageNumber);
-    setEditingPageNumber(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, pageNumber: newPageNumber });
-    }
-  };
-
-  const handlePageNumberCancel = () => {
-    setCurrentPageNumber(pageNumber);
-    setEditingPageNumber(false);
   };
 
   return (
@@ -234,18 +206,17 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         width: '60%',
         height: '100%',
         position: 'relative',
-        zIndex: 0
+        zIndex: 2
       }}>
         {/* Logo placeholder */}
         <div style={{
           position: 'absolute',
-          top: '25px',
-          left: '25px',
+          top: '40px',
+          left: '60px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: '#ffffff',
-          zIndex: 0
+          color: themeTitle
         }}>
           {logoPath ? (
             // Show uploaded logo image
@@ -275,7 +246,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid #ffffff`,
+                border: `2px solid ${themeContent}`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -285,20 +256,20 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: themeContent,
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: themeContent,
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: '#ffffff' }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Your Logo</span>
             </div>
           )}
         </div>
@@ -306,145 +277,95 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Title - Centered vertically */}
         <div style={{ 
           position: 'absolute',
-          top: '22%',
+          top: '40%',
           left: '60px',
           transform: 'translateY(-50%)',
-          marginBottom: '40px',
-          zIndex: 0
+          marginBottom: '40px'
         }}>
           {isEditable && editingTitle ? (
-            <ControlledWysiwygEditor
-              ref={titleEditorRef}
+            <InlineEditor
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              placeholder="Enter title..."
               className="work-life-balance-title-editor"
               style={{
-                marginTop: '162px',
-                fontSize: '58px',
-                color: '#ffffff',
+                fontSize: '68px',
+                color: themeTitle,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'relative',
-                // no padding/border/background to avoid visual changes
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
-              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
                 marginTop: '162px',
-                fontSize: '58px',
-                color: '#ffffff',
+                fontSize: '68px',
+                color: themeTitle,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
                 userSelect: 'none',
                 position: 'relative'
               }}
-              className={isEditable ? 'cursor-pointer hover:opacity-80' : ''}
-              dangerouslySetInnerHTML={{ __html: currentTitle }}
-            />
+            >
+              {currentTitle}
+            </div>
           )}
         </div>
 
         {/* Content */}
         <div style={{ 
           position: 'absolute',
-          top: '39%',
+          top: '55%',
           left: '60px',
-          zIndex: 0
+          maxWidth: '500px'
         }}>
           {isEditable && editingContent ? (
-            <ControlledWysiwygEditor
-              ref={contentEditorRef}
+            <InlineEditor
               initialValue={currentContent}
               onSave={handleContentSave}
               onCancel={handleContentCancel}
-              placeholder="Enter content..."
+              multiline={true}
               className="work-life-balance-content-editor"
               style={{
-                marginTop: '31px',
-                marginLeft: '6px',
-                width: '451px',
-                fontSize: '24px',
-                color: '#ffffff',
+                fontSize: '23px',
+                color: themeContent,
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont,
-                position: 'relative',
-                padding: '8px 12px',
-                border: '1px solid rgba(255,255,255,0.3)',
-                borderRadius: '4px',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
-              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'content', computedStyles)}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingContent(true)}
               style={{
-                marginTop: '31px',
-                marginLeft: '6px',
-                width: '500px',
+                marginTop: '43px',
+                marginLeft: '8px',
+                width: '611px',
                 fontSize: '23px',
-                color: '#ffffff',
+                color: themeContent,
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
                 userSelect: 'none',
                 position: 'relative'
               }}
-              className={isEditable ? 'cursor-pointer hover:opacity-80' : ''}
-              dangerouslySetInnerHTML={{ __html: currentContent }}
-            />
-          )}
-        </div>
-
-        {/* Page number with line */}
-        <div style={{
-          position: 'absolute',
-          bottom: '30px',
-          left: '0px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          zIndex: 0
-        }}>
-          {/* Small line */}
-          <div style={{
-            width: '20px',
-            height: '1px',
-            backgroundColor: 'rgba(255, 255, 255, 0.5)'
-          }} />
-          {/* Page number */}
-          {isEditable && editingPageNumber ? (
-            <InlineEditor
-              initialValue={currentPageNumber}
-              onSave={handlePageNumberSave}
-              onCancel={handlePageNumberCancel}
-              className="page-number-editor"
-              style={{
-                color: '#ffffff',
-                fontSize: '17px',
-                fontWeight: '300',
-                width: '30px',
-                height: 'auto'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingPageNumber(true)}
-              style={{
-                color: '#ffffff',
-                fontSize: '17px',
-                fontWeight: '300',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
             >
-              {currentPageNumber}
+              {currentContent}
             </div>
           )}
         </div>
@@ -457,39 +378,40 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'visible'
+        justifyContent: 'center'
       }}>
         {/* Arch background */}
         <div style={{
           position: 'absolute',
-          right: '0px',
-          bottom: '0',
+          right: '0',
+          top: '10%',
           transform: 'rotate(90deg)',
-          width: '116%',
-          height: '74%',
-          backgroundColor: '#ffffff',
+          width: '105%',
+          height: '75%',
+          backgroundColor: themeAccent,
           borderRadius: '50% 0 0 50%',
           zIndex: 1
         }} />
 
-        {/* Avatar */}
+        {/* Image */}
         <div style={{
           position: 'absolute',
-          left: '-42px',
+          left: '34px',
           bottom: '-27px',
           zIndex: 2,
-          width: '100%',
+          width: '80%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <AvatarImageDisplay
-            size="LARGE"
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
             position="CENTER"
+            description="Work-life balance image"
+            isEditable={isEditable}
             style={{
-              height: '565px',
-              width: 'auto',
+              height: '474px',
               borderRadius: '10px',
               objectFit: 'contain'
             }}

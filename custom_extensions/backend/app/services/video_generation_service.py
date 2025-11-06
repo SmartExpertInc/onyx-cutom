@@ -17,19 +17,23 @@ class ElaiVideoGenerationService:
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
         self.max_wait_time = 15 * 60  # 15 minutes
         self.poll_interval = 30  # 30 seconds
+        
+        # Initialize httpx client safely
+        self.client = None
+        self._init_client()
     
-    def _get_client(self):
-        """Get or create HTTP client in the current event loop."""
+    def _init_client(self):
+        """Initialize the HTTP client safely."""
         try:
             import httpx
-            # Create a new client for each request to avoid event loop issues
-            return httpx.AsyncClient(timeout=60.0)
+            self.client = httpx.AsyncClient(timeout=60.0)
+            logger.info("HTTP client initialized successfully")
         except ImportError:
             logger.error("httpx not available - video generation will not work")
-            return None
+            self.client = None
         except Exception as e:
-            logger.error(f"Failed to create HTTP client: {e}")
-            return None
+            logger.error(f"Failed to initialize HTTP client: {e}")
+            self.client = None
     
     @property
     def headers(self):
@@ -47,15 +51,14 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing avatar list or error
         """
-        client = self._get_client()
-        if not client:
+        if not self.client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
         try:
-            response = await client.get(
+            response = await self.client.get(
                 f"{self.api_base}/avatars",
                 headers=self.headers
             )
@@ -74,47 +77,8 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
-        finally:
-            await client.aclose()
     
-    async def get_voices(self) -> Dict[str, Any]:
-        """
-        Fetch available voices from Elai API.
-        
-        Returns:
-            Dict containing voices list or error
-        """
-        client = self._get_client()
-        if not client:
-            return {
-                "success": False,
-                "error": "HTTP client not available - httpx may not be installed"
-            }
-        
-        try:
-            response = await client.get(
-                f"{self.api_base}/voices",
-                headers=self.headers
-            )
-            
-            if response.is_success:
-                voices = response.json()
-                logger.info(f"Successfully fetched voices")
-                return {"success": True, "voices": voices}
-            else:
-                logger.error(f"Failed to fetch voices: {response.status_code} - {response.text}")
-                return {
-                    "success": False,
-                    "error": f"Failed to fetch voices: {response.status_code}"
-                }
-                
-        except Exception as e:
-            logger.error(f"Error fetching voices: {str(e)}")
-            return {"success": False, "error": str(e)}
-        finally:
-            await client.aclose()
-    
-    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, voice_id: str = None, voice_provider: str = None, elai_background_color: str = None) -> Dict[str, Any]:
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
         
@@ -122,9 +86,6 @@ class ElaiVideoGenerationService:
             project_name: Name of the project
             voiceover_texts: List of voiceover texts
             avatar_code: Avatar code to use
-            voice_id: Voice ID from Elai API (optional)
-            voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
-            elai_background_color: Background color for Elai video canvas (optional, defaults to #ffffff)
             
         Returns:
             Dict containing result with success status and video ID
@@ -134,14 +95,10 @@ class ElaiVideoGenerationService:
         logger.info(f"  - Project name: {project_name}")
         logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
         logger.info(f"  - Avatar code: {avatar_code}")
-        logger.info(f"  - Voice ID: {voice_id}")
-        logger.info(f"  - Voice Provider: {voice_provider}")
         
         for i, text in enumerate(voiceover_texts):
             logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
-        
-        client = self._get_client()
-        if not client:
+        if not self.client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
@@ -295,10 +252,6 @@ class ElaiVideoGenerationService:
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
             
-            # Determine background color: use provided color, or fallback to white
-            background_color = elai_background_color if elai_background_color else "#ffffff"
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using Elai background color: {background_color}")
-            
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request with CORRECT 1080x1080 dimensions")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
             logger.info(f"  - Name: {project_name}")
@@ -306,7 +259,6 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Resolution: 1080p (CORRECT)")
             logger.info(f"  - Avatar scale: 0.3x0.3 (appropriate for 1080x1080)")
             logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
-            logger.info(f"  - Background color: {background_color}")
 
             # FIXED: Official Elai API structure with correct 1080x1080 dimensions
             # Use actual avatar data instead of hardcoded example values
@@ -331,7 +283,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": background_color,  # ✅ Dynamic background color from slide template
+                        "background": "#110c35",  
                         "version": "4.4.0"        # Exact from example
                     },
                     "avatar": {
@@ -342,9 +294,9 @@ class ElaiVideoGenerationService:
                     "animation": "fade_in",
                     "language": "English",
                     "speech": " ".join(cleaned_texts),
-                    "voice": voice_id if voice_id else "en-US-AriaNeural",
+                    "voice": "en-US-AriaNeural",
                     "voiceType": "text",
-                    "voiceProvider": voice_provider if voice_provider else "azure"
+                    "voiceProvider": "azure"
                 }],
                 "tags": ["video_lesson", "generated", "presentation"],
                 "format": "1_1",  # CRITICAL FIX: Specify 1:1 aspect ratio for 1080x1080
@@ -359,7 +311,7 @@ class ElaiVideoGenerationService:
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Headers: {self.headers}")
             
             # Create video
-            response = await client.post(
+            response = await self.client.post(
                 f"{self.api_base}/videos",
                 headers=self.headers,
                 json=video_request
@@ -398,24 +350,19 @@ class ElaiVideoGenerationService:
                 "success": False,
                 "error": f"Failed to create video: {str(e)}"
             }
-        finally:
-            await client.aclose()
 
-    async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any], voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
+    async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a video with the given slides and avatar data.
         
         Args:
             slides_data: List of slide data with voiceover text
             avatar_data: Avatar configuration data
-            voice_id: Voice ID from Elai API (optional)
-            voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
             
         Returns:
             Dict containing video creation response
         """
-        client = self._get_client()
-        if not client:
+        if not self.client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
@@ -425,165 +372,27 @@ class ElaiVideoGenerationService:
             # Prepare slides for Elai API
             elai_slides = []
             for i, slide in enumerate(slides_data):
-                # Extract slide data
-                slide_id = slide.get("slideId", f"slide-{i}")
-                props = slide.get("props", {})
-                metadata = slide.get("metadata", {})
-                element_positions = metadata.get("elementPositions", {})
-                
-                # 🔍 COMPREHENSIVE POSITIONING DEBUG
-                logger.info(f"🔍 POSITIONING DEBUG for slide {i+1} (ID: {slide_id})")
-                logger.info(f"   📋 Slide data keys: {list(slide.keys())}")
-                logger.info(f"   📋 Props keys: {list(props.keys())}")
-                logger.info(f"   📋 Metadata keys: {list(metadata.keys()) if metadata else 'None'}")
-                logger.info(f"   📋 Element positions dict: {element_positions}")
-                logger.info(f"   📋 Number of positions: {len(element_positions)}")
-                logger.info(f"   📋 Available position keys: {list(element_positions.keys()) if element_positions else 'None'}")
-                
-                # Check if we have any positioning data at all
-                if not element_positions:
-                    logger.warning(f"   ⚠️ NO ELEMENT POSITIONS FOUND for slide {slide_id}")
-                    logger.warning(f"   ⚠️ This means positions will use fallback defaults!")
-                else:
-                    logger.info(f"   ✅ Element positions found: {len(element_positions)} items")
-                
-                # Build canvas objects starting with avatar
-                canvas_objects = [{
-                    "type": "avatar",
-                    "left": 510,
-                    "top": 255,
-                    "fill": "#4868FF",
-                    "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
-                    "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
-                    "width": 1080,
-                    "height": 1080,
-                    "src": avatar_data.get("canvas_url"),
-                    "avatarType": "transparent",
-                    "animation": {
-                        "type": None,
-                        "exitType": None
-                    }
-                }]
-                
-                # Add text elements with dynamic positioning
-                text_elements_added = 0
-                
-                # Add title if present
-                if props.get("title") and props.get("title") != "Click to add title":
-                    title_id = f"draggable-{slide_id}-0"
-                    logger.info(f"   🎯 Looking for title ID: '{title_id}'")
-                    logger.info(f"   🎯 Available position keys: {list(element_positions.keys()) if element_positions else 'None'}")
-                    
-                    title_position = element_positions.get(title_id, {"x": 100, "y": 100})  # Default position
-                    logger.info(f"   🎯 Title position found: {title_position}")
-                    logger.info(f"   🎯 Using fallback? {title_id not in element_positions}")
-                    
-                    canvas_objects.append({
-                        "type": "text",
-                        "left": title_position.get("x", 100),
-                        "top": title_position.get("y", 100),
-                        "width": 800,
-                        "height": 100,
-                        "fill": "#000000",
-                        "fontSize": 48,
-                        "fontFamily": "Arial",
-                        "fontWeight": "bold",
-                        "text": props.get("title"),
-                        "textAlign": "left",
-                        "textDecoration": "none"
-                    })
-                    text_elements_added += 1
-                    logger.info(f"   ✅ Added title text element at position ({title_position.get('x', 100)}, {title_position.get('y', 100)})")
-                    logger.info(f"   📤 Sending to Elai API: left={title_position.get('x', 100)}, top={title_position.get('y', 100)}")
-                
-                # Add subtitle if present
-                if props.get("subtitle") and props.get("subtitle") != "Click to add content":
-                    subtitle_id = f"draggable-{slide_id}-1"
-                    logger.info(f"   🎯 Looking for subtitle ID: '{subtitle_id}'")
-                    
-                    subtitle_position = element_positions.get(subtitle_id, {"x": 100, "y": 200})  # Default position
-                    logger.info(f"   🎯 Subtitle position found: {subtitle_position}")
-                    logger.info(f"   🎯 Using fallback? {subtitle_id not in element_positions}")
-                    
-                    canvas_objects.append({
-                        "type": "text",
-                        "left": subtitle_position.get("x", 100),
-                        "top": subtitle_position.get("y", 200),
-                        "width": 800,
-                        "height": 80,
-                        "fill": "#333333",
-                        "fontSize": 32,
-                        "fontFamily": "Arial",
-                        "fontWeight": "normal",
-                        "text": props.get("subtitle"),
-                        "textAlign": "left",
-                        "textDecoration": "none"
-                    })
-                    text_elements_added += 1
-                    logger.info(f"   ✅ Added subtitle text element at position ({subtitle_position.get('x', 100)}, {subtitle_position.get('y', 200)})")
-                    logger.info(f"   📤 Sending to Elai API: left={subtitle_position.get('x', 100)}, top={subtitle_position.get('y', 200)}")
-                
-                # Add content text if present
-                if props.get("content") and props.get("content") != "Click to add content":
-                    content_id = f"draggable-{slide_id}-2"
-                    logger.info(f"   🎯 Looking for content ID: '{content_id}'")
-                    
-                    content_position = element_positions.get(content_id, {"x": 100, "y": 300})  # Default position
-                    logger.info(f"   🎯 Content position found: {content_position}")
-                    logger.info(f"   🎯 Using fallback? {content_id not in element_positions}")
-                    
-                    canvas_objects.append({
-                        "type": "text",
-                        "left": content_position.get("x", 100),
-                        "top": content_position.get("y", 300),
-                        "width": 800,
-                        "height": 200,
-                        "fill": "#666666",
-                        "fontSize": 24,
-                        "fontFamily": "Arial",
-                        "fontWeight": "normal",
-                        "text": props.get("content"),
-                        "textAlign": "left",
-                        "textDecoration": "none"
-                    })
-                    text_elements_added += 1
-                    logger.info(f"   ✅ Added content text element at position ({content_position.get('x', 100)}, {content_position.get('y', 300)})")
-                    logger.info(f"   📤 Sending to Elai API: left={content_position.get('x', 100)}, top={content_position.get('y', 300)}")
-                
-                logger.info(f"   📊 SUMMARY for slide {i+1}:")
-                logger.info(f"      - Added {text_elements_added} text elements")
-                logger.info(f"      - Element positions available: {list(element_positions.keys()) if element_positions else 'None'}")
-                logger.info(f"      - Canvas objects count: {len(canvas_objects)}")
-                
-                # 🔍 FINAL DEBUG: Log the complete canvas objects being sent to Elai
-                logger.info(f"   📤 FINAL CANVAS OBJECTS for Elai API:")
-                for j, obj in enumerate(canvas_objects):
-                    if obj.get("type") == "text":
-                        logger.info(f"      Text {j}: left={obj.get('left')}, top={obj.get('top')}, text='{obj.get('text', '')[:50]}...'")
-                    else:
-                        logger.info(f"      {obj.get('type', 'unknown')} {j}: left={obj.get('left')}, top={obj.get('top')}")
-                
-                logger.info(f"🔍 END POSITIONING DEBUG for slide {i+1}")
-                logger.info("=" * 80)
-                
-                # Extract Elai background color from slide data (from template registry)
-                elai_background_color = slide.get("elaiBackgroundColor")
-                if not elai_background_color:
-                    # Fallback: try to extract from avatarPosition backgroundColor
-                    avatar_position = slide.get("avatarPosition", {})
-                    elai_background_color = avatar_position.get("backgroundColor")
-                # Only fallback to white if no color was found at all
-                if not elai_background_color:
-                    elai_background_color = "#ffffff"  # Final fallback only if truly missing
-                
-                logger.info(f"🎨 [ELAI_BACKGROUND] Slide {i+1} using background color: {elai_background_color}")
-                
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
-                        "objects": canvas_objects,
-                        "background": elai_background_color,  # ✅ Dynamic background color from slide template
+                        "objects": [{
+                            "type": "avatar",
+                            "left": 510,
+                            "top": 255,
+                            "fill": "#4868FF",
+                            "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
+                            "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
+                            "width": 1080,
+                            "height": 1080,
+                            "src": avatar_data.get("canvas_url"),
+                            "avatarType": "transparent",
+                            "animation": {
+                                "type": None,
+                                "exitType": None
+                            }
+                        }],
+                        "background": "#ffffff",  # Keep original white background for safety
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -595,21 +404,11 @@ class ElaiVideoGenerationService:
                     "animation": "fade_in",
                     "language": "English",
                     "speech": slide.get("voiceover_text", ""),
-                    "voice": voice_id if voice_id else avatar_data.get("voice", "en-US-AriaNeural"),
+                    "voice": avatar_data.get("voice", "en-US-AriaNeural"),
                     "voiceType": "text",
-                    "voiceProvider": voice_provider if voice_provider else avatar_data.get("voice_provider", "azure")
+                    "voiceProvider": avatar_data.get("voice_provider", "azure")
                 }
                 elai_slides.append(elai_slide)
-            
-            # Log voice parameters used in Elai API payload
-            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE PARAMETERS IN ELAI PAYLOAD ==========")
-            for i, slide in enumerate(elai_slides):
-                logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Slide {i+1} voice configuration:")
-                logger.info(f"  - Voice: {slide.get('voice')}")
-                logger.info(f"  - Voice Provider: {slide.get('voiceProvider')}")
-                logger.info(f"  - Voice Type: {slide.get('voiceType')}")
-                logger.info(f"  - Speech Text: {slide.get('speech', '')[:100]}...")
-            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE PARAMETERS LOGGED ==========")
             
             # Prepare video request
             video_request = {
@@ -621,97 +420,23 @@ class ElaiVideoGenerationService:
             }
             
             # Create video
-            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== ELAI API CALL STARTED ==========")
-            logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Making POST request to: {self.api_base}/videos")
-            logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Request payload summary:")
-            logger.info(f"  - Video name: {video_request['name']}")
-            logger.info(f"  - Slides count: {len(video_request['slides'])}")
-            logger.info(f"  - Format: {video_request['format']}")
-            logger.info(f"  - Resolution: {video_request['resolution']}")
-            
-            response = await client.post(
+            response = await self.client.post(
                 f"{self.api_base}/videos",
                 headers=self.headers,
                 json=video_request
             )
             
-            logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Elai API response status: {response.status_code}")
-            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== ELAI API CALL COMPLETED ==========")
-            
             if response.is_success:
                 result = response.json()
-                video_id = result.get('_id')
-                logger.info(f"🎤 [ELAI_VIDEO_GENERATION] ✅ Video created successfully with ID: {video_id}")
-                logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE INTEGRATION SUCCESS ==========")
+                logger.info(f"Video created successfully: {result.get('_id')}")
                 return result
             else:
-                logger.error(f"🎤 [ELAI_VIDEO_GENERATION] ❌ Failed to create video: {response.status_code} - {response.text}")
-                logger.error("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE INTEGRATION FAILED ==========")
+                logger.error(f"Failed to create video: {response.status_code} - {response.text}")
                 raise Exception(f"Video creation failed: {response.status_code}")
                 
         except Exception as e:
             logger.error(f"Error creating video: {str(e)}")
             raise
-        finally:
-            await client.aclose()
-    
-    async def create_video_from_elai_request(self, elai_video_request: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a video directly from an Elai video request format (used by frontend).
-        
-        Args:
-            elai_video_request: Complete Elai API video request payload with slides, canvas objects, etc.
-            
-        Returns:
-            Dict containing video creation response with video ID
-        """
-        client = self._get_client()
-        if not client:
-            return {
-                "success": False,
-                "error": "HTTP client not available - httpx may not be installed"
-            }
-        
-        try:
-            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Creating video from frontend request")
-            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Video name: {elai_video_request.get('name', 'Unknown')}")
-            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Slides count: {len(elai_video_request.get('slides', []))}")
-            
-            # Make API call to Elai
-            response = await client.post(
-                f"{self.api_base}/videos",
-                headers=self.headers,
-                json=elai_video_request
-            )
-            
-            logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] API response status: {response.status_code}")
-            
-            if response.is_success:
-                result = response.json()
-                video_id = result.get("_id")
-                
-                logger.info(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Video created successfully: {video_id}")
-                return {
-                    "success": True,
-                    "videoId": video_id,
-                    "_id": video_id
-                }
-            else:
-                error_text = response.text
-                logger.error(f"🎬 [ELAI_VIDEO_FROM_REQUEST] Video creation failed: {response.status_code} - {error_text}")
-                return {
-                    "success": False,
-                    "error": f"Video creation failed: {response.status_code} - {error_text}"
-                }
-                
-        except Exception as e:
-            logger.error(f"Error creating video from request: {str(e)}")
-            return {
-                "success": False,
-                "error": f"Failed to create video: {str(e)}"
-            }
-        finally:
-            await client.aclose()
     
     async def render_video(self, video_id: str) -> Dict[str, Any]:
         """
@@ -723,15 +448,14 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing render response
         """
-        client = self._get_client()
-        if not client:
+        if not self.client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
         try:
-            response = await client.post(
+            response = await self.client.post(
                 f"{self.api_base}/videos/render/{video_id}",
                 headers=self.headers
             )
@@ -755,8 +479,6 @@ class ElaiVideoGenerationService:
                 "success": False,
                 "error": f"Failed to start video render: {str(e)}"
             }
-        finally:
-            await client.aclose()
     
     async def check_video_status(self, video_id: str) -> Dict[str, Any]:
         """
@@ -768,15 +490,14 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing video status information
         """
-        client = self._get_client()
-        if not client:
+        if not self.client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
         try:
-            response = await client.get(
+            response = await self.client.get(
                 f"{self.api_base}/videos/{video_id}",
                 headers=self.headers
             )
@@ -839,8 +560,6 @@ class ElaiVideoGenerationService:
                 "success": False,
                 "error": f"Error checking video status: {str(e)}"
             }
-        finally:
-            await client.aclose()
     
     async def wait_for_completion(self, video_id: str) -> Optional[str]:
         """
@@ -931,17 +650,12 @@ class ElaiVideoGenerationService:
         Returns:
             True if download successful, False otherwise
         """
-        client = self._get_client()
-        if not client:
-            logger.error("HTTP client not available")
-            return False
-        
         try:
             logger.info(f"Downloading video from: {download_url}")
             logger.info(f"Downloading to: {output_path}")
             
             # Use httpx to download the video
-            response = await client.get(download_url, timeout=300)
+            response = await self.client.get(download_url, timeout=300)
             response.raise_for_status()
             
             # Get total size for progress tracking
@@ -996,8 +710,6 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Download failed: {str(e)}")
             return False
-        finally:
-            await client.aclose()
     
     async def _analyze_downloaded_video(self, video_path: str):
         """
@@ -1075,15 +787,13 @@ class ElaiVideoGenerationService:
             logger.warning(f"🎬 [VIDEO_ANALYSIS] Could not analyze video: {str(e)}")
             # Don't fail the whole process if analysis fails
     
-    async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any], voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
+    async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Complete video generation process: create, render, and wait for completion.
         
         Args:
             slides_data: List of slide data with voiceover text
             avatar_data: Avatar configuration data
-            voice_id: Voice ID from Elai API (optional)
-            voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
             
         Returns:
             Dict containing result with success status and download URL
@@ -1102,7 +812,7 @@ class ElaiVideoGenerationService:
                     return {"success": False, "error": f"Slide {i + 1} has no voiceover text"}
             
             # Create video
-            video_data = await self.create_video(slides_data, avatar_data, voice_id, voice_provider)
+            video_data = await self.create_video(slides_data, avatar_data)
             video_id = video_data.get("_id")
             
             if not video_id:
@@ -1130,8 +840,9 @@ class ElaiVideoGenerationService:
             return {"success": False, "error": str(e)}
     
     async def close(self):
-        """Close the HTTP client. (No-op since clients are now closed immediately after use)"""
-        pass
+        """Close the HTTP client."""
+        if self.client:
+            await self.client.aclose()
 
 # Global instance
 video_generation_service = ElaiVideoGenerationService()

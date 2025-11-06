@@ -1,47 +1,10 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
-
-// Avatar data interfaces
-interface AvatarVariant {
-  code: string;
-  name: string;
-  thumbnail: string;
-  canvas: string;
-}
-
-interface AvatarData {
-  id: string;
-  code: string;
-  name: string;
-  gender: "male" | "female";
-  age?: number;
-  ethnicity?: string;
-  thumbnail?: string;
-  canvas?: string;
-  variants: AvatarVariant[];
-}
-
-interface ProcessedAvatar {
-  id: string;
-  code: string;
-  name: string;
-  gender: "male" | "female";
-  age?: number;
-  ethnicity?: string;
-  thumbnail: string;
-  canvas: string;
-  selectedVariant?: AvatarVariant;
-  displayName: string;
-  lookCategory: string;
-}
+import React, { useRef, useEffect, useState } from 'react';
 
 interface AvatarPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  onAvatarSelect: (avatar: ProcessedAvatar, variant?: AvatarVariant) => void;
-  avatarData: AvatarData[];
   title?: string;
   displayMode?: 'modal' | 'popup';
   className?: string;
@@ -51,8 +14,6 @@ interface AvatarPopupProps {
 export default function AvatarPopup({ 
   isOpen, 
   onClose, 
-  onAvatarSelect,
-  avatarData,
   title = "Choose Avatar", 
   displayMode = 'popup',
   className = '',
@@ -60,34 +21,9 @@ export default function AvatarPopup({
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
   const [activeButton, setActiveButton] = useState<string>('button1');
-  const [selectedFilters, setSelectedFilters] = useState({
-    gender: 'View All',
-    age: null as string | null,
-    ethnicity: null as string | null,
-    look: null as string | null
-  });
+  const [selectedItems, setSelectedItems] = useState<{[key: string]: boolean}>({});
   const [previewMode, setPreviewMode] = useState<boolean>(false);
-  const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
-  
-  // Integrate with global avatar system
-  const { updateSelectedAvatar } = useAvatarDisplay();
-
-  // 🔍 **DEBUG LOGGING: Component Props Received**
-  console.log('🎬 [AVATAR_POPUP] AvatarPopup component rendered with props:', {
-    isOpen,
-    title,
-    displayMode,
-    avatarDataCount: avatarData?.length || 0
-  });
-
-  // 🔍 **DEBUG LOGGING: Avatar Data Analysis**
-  useEffect(() => {
-    if (avatarData && avatarData.length > 0) {
-      console.log('🎬 [AVATAR_POPUP] Avatar data received, total avatars:', avatarData.length);
-    } else {
-      console.warn('🎬 [AVATAR_POPUP] No avatar data received or empty array');
-    }
-  }, [avatarData]);
+  const [selectedAvatar, setSelectedAvatar] = useState<{name: string} | null>(null);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -105,198 +41,23 @@ export default function AvatarPopup({
     };
   }, [isOpen, displayMode, onClose]);
 
-  // Process avatar data to flatten variants
-  const processedAvatars = useMemo(() => {
-    if (!avatarData || avatarData.length === 0) {
-      return [];
-    }
-    
-    const processed = avatarData.flatMap((avatar, avatarIndex) => {
-      if (avatar.variants && avatar.variants.length > 0) {
-        // Create separate entry for each variant
-        const variantEntries = avatar.variants.map((variant, variantIndex) => {
-          const processedAvatar = {
-            id: `${avatar.id}-${variant.code}`, // Unique ID for each variant
-            code: avatar.code,
-            name: avatar.name,
-            gender: avatar.gender,
-            age: avatar.age,
-            ethnicity: avatar.ethnicity,
-            thumbnail: variant.thumbnail || variant.canvas || '',
-            canvas: variant.canvas || '',
-            selectedVariant: variant,
-            displayName: `${avatar.name} - ${variant.name}`,
-            lookCategory: variant.name
-          };
-          
-          return processedAvatar;
-        });
-        
-        return variantEntries;
-      } else {
-        // Avatar without variants
-        const defaultEntry = {
-          id: avatar.id,
-          code: avatar.code,
-          name: avatar.name,
-          gender: avatar.gender,
-          age: avatar.age,
-          ethnicity: avatar.ethnicity,
-          thumbnail: avatar.thumbnail || avatar.canvas || '',
-          canvas: avatar.canvas || '',
-          displayName: avatar.name,
-          lookCategory: 'Default'
-        };
-        
-        return [defaultEntry];
-      }
-    });
-    
-    console.log('🎬 [AVATAR_POPUP] Avatar processing complete, total:', processed.length);
-    return processed;
-  }, [avatarData]);
-
-  // Apply filters to avatars
-  const filteredAvatars = useMemo(() => {
-    const filtered = processedAvatars.filter((avatar) => {
-      // Gender filter
-      if (selectedFilters.gender !== 'View All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
-        return false;
-      }
-      
-      // Age filter
-      if (selectedFilters.age && avatar.age) {
-        const ageMatch = (
-          (selectedFilters.age === 'Young' && avatar.age < 30) ||
-          (selectedFilters.age === 'Middle-aged' && avatar.age >= 30 && avatar.age <= 50) ||
-          (selectedFilters.age === 'Senior' && avatar.age > 50)
-        );
-        if (!ageMatch) {
-          return false;
-        }
-      }
-      
-      // Ethnicity filter
-      if (selectedFilters.ethnicity && avatar.ethnicity && 
-          !avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())) {
-        return false;
-      }
-      
-      // Look filter (variant name)
-      if (selectedFilters.look && avatar.lookCategory !== selectedFilters.look) {
-        return false;
-      }
-      
-      return true;
-    });
-    
-    console.log('🎬 [AVATAR_POPUP] Filtering complete, filtered:', filtered.length, 'from:', processedAvatars.length);
-    return filtered;
-  }, [processedAvatars, selectedFilters]);
-
   if (!isOpen) return null;
 
-  const handleFilterChange = (filterType: string, value: string | null) => {
-    setSelectedFilters(prev => ({
+  const handleCheckboxChange = (itemKey: string) => {
+    setSelectedItems(prev => ({
       ...prev,
-      [filterType]: value
+      [itemKey]: !prev[itemKey]
     }));
   };
 
-  const handleAvatarClick = (avatar: ProcessedAvatar) => {
-    console.log('🎬 [AVATAR_POPUP] Avatar clicked for preview:', {
-      id: avatar.id,
-      name: avatar.name,
-      displayName: avatar.displayName,
-      gender: avatar.gender,
-      age: avatar.age,
-      ethnicity: avatar.ethnicity,
-      thumbnail: avatar.thumbnail,
-      selectedVariant: avatar.selectedVariant
-    });
-    
+  const handleAvatarClick = (avatar: {name: string}) => {
     setSelectedAvatar(avatar);
     setPreviewMode(true);
-    
-    console.log('🎬 [AVATAR_POPUP] Preview mode activated for avatar:', avatar.displayName);
   };
 
   const handleBackClick = () => {
-    console.log('🎬 [AVATAR_POPUP] Back button clicked, returning to avatar grid');
     setPreviewMode(false);
     setSelectedAvatar(null);
-    console.log('🎬 [AVATAR_POPUP] Preview mode deactivated, avatar grid restored');
-  };
-
-  const handleAddToScene = () => {
-    console.log('🎬 [AVATAR_POPUP] Add to Scene button clicked!');
-    console.log('🎬 [AVATAR_POPUP] Selected avatar:', selectedAvatar);
-    console.log('🎬 [AVATAR_POPUP] onAvatarSelect callback exists:', !!onAvatarSelect);
-    
-    if (selectedAvatar && onAvatarSelect) {
-      console.log('🎬 [AVATAR_POPUP] Calling onAvatarSelect with:', {
-        avatar: selectedAvatar,
-        variant: selectedAvatar.selectedVariant
-      });
-      
-      // Call the callback to update the avatar on the slide
-      onAvatarSelect(selectedAvatar, selectedAvatar.selectedVariant);
-      
-              // Update the global avatar system (same as AvatarSelector does)
-        if (selectedAvatar.selectedVariant) {
-          const elaiAvatar = {
-            id: selectedAvatar.id,
-            code: selectedAvatar.code,
-            name: selectedAvatar.name,
-            type: null,
-            status: 1,
-            accountId: '',
-            gender: selectedAvatar.gender,
-            thumbnail: selectedAvatar.thumbnail,
-            canvas: selectedAvatar.canvas,
-            age: selectedAvatar.age,
-            ethnicity: selectedAvatar.ethnicity,
-            variants: [{
-              code: selectedAvatar.selectedVariant.code,
-              id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
-              name: selectedAvatar.selectedVariant.name,
-              thumbnail: selectedAvatar.selectedVariant.thumbnail,
-              canvas: selectedAvatar.selectedVariant.canvas
-            }]
-          };
-          
-          const elaiVariant = {
-            code: selectedAvatar.selectedVariant.code,
-            id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
-            name: selectedAvatar.selectedVariant.name,
-            thumbnail: selectedAvatar.selectedVariant.thumbnail,
-            canvas: selectedAvatar.selectedVariant.canvas
-          };
-          
-          updateSelectedAvatar(elaiAvatar, elaiVariant);
-          console.log('🎬 [AVATAR_POPUP] Global avatar context updated:', {
-            avatar: selectedAvatar.name,
-            variant: selectedAvatar.selectedVariant.name
-          });
-        }
-      
-      console.log('🎬 [AVATAR_POPUP] Avatar selection callback completed, closing popup');
-      onClose();
-    } else {
-      console.error('🎬 [AVATAR_POPUP] Cannot add to scene:', {
-        hasSelectedAvatar: !!selectedAvatar,
-        hasCallback: !!onAvatarSelect
-      });
-    }
-  };
-
-  const resetFilters = () => {
-    setSelectedFilters({
-      gender: 'View All',
-      age: null,
-      ethnicity: null,
-      look: null
-    });
   };
 
   const content = (
@@ -343,40 +104,46 @@ export default function AvatarPopup({
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto pb-4">
-              {/* Gender */}
+              {/* Sex */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Gender</h4>
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Sex</h4>
                 <div className="space-y-2">
                   <label className="flex items-center cursor-pointer pl-2">
                     <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'Male'}
-                      onChange={() => handleFilterChange('gender', 'Male')}
+                      type="checkbox"
+                      checked={selectedItems['male'] || false}
+                      onChange={() => handleCheckboxChange('male')}
                       className="mr-2 border-gray-400 text-black focus:ring-0"
                     />
                     <span className="text-sm text-black">Male</span>
                   </label>
                   <label className="flex items-center cursor-pointer pl-2">
                     <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'Female'}
-                      onChange={() => handleFilterChange('gender', 'Female')}
+                      type="checkbox"
+                      checked={selectedItems['female'] || false}
+                      onChange={() => handleCheckboxChange('female')}
                       className="mr-2 border-gray-400 text-black focus:ring-0"
                     />
                     <span className="text-sm text-black">Female</span>
                   </label>
-                  <label className="flex items-center cursor-pointer pl-2">
+                </div>
+              </div>
+
+              {/* Feature */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Feature</h4>
+                <div className="space-y-2">
+                  {['NEO avatar', 'Hand gesture', 'Emotions', 'Side view', 'Logo addition'].map((feature) => (
+                    <label key={feature} className="flex items-center cursor-pointer pl-2">
                       <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'View All'}
-                      onChange={() => handleFilterChange('gender', 'View All')}
+                        type="checkbox"
+                        checked={selectedItems[feature.toLowerCase().replace(/\s+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(feature.toLowerCase().replace(/\s+/g, '_'))}
                         className="mr-2 border-gray-400 text-black focus:ring-0"
                       />
-                    <span className="text-sm text-black">View All</span>
+                      <span className="text-sm text-black">{feature}</span>
                     </label>
+                  ))}
                 </div>
               </div>
 
@@ -387,10 +154,9 @@ export default function AvatarPopup({
                   {['Young', 'Middle-aged', 'Senior'].map((age) => (
                     <label key={age} className="flex items-center cursor-pointer pl-2">
                       <input
-                        type="radio"
-                        name="age"
-                        checked={selectedFilters.age === age}
-                        onChange={() => handleFilterChange('age', age)}
+                        type="checkbox"
+                        checked={selectedItems[age.toLowerCase().replace(/\s+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(age.toLowerCase().replace(/\s+/g, '_'))}
                         className="mr-2 border-gray-400 text-black focus:ring-0"
                       />
                       <span className="text-sm text-black">{age}</span>
@@ -403,13 +169,12 @@ export default function AvatarPopup({
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
                 <div className="space-y-2">
-                  {['Asian', 'Black', 'White / Caucasian', 'South Asian / Indian', 'Southeast Asian / Pacific Island', 'Black, Latino / Hispanic', 'Latino / Hispanic', 'Middle Eastern'].map((ethnicity) => (
+                  {['Caucasian', 'Black / African American', 'East Asian', 'Hispanic / Latino', 'South Asian'].map((ethnicity) => (
                     <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
                       <input
-                        type="radio"
-                        name="ethnicity"
-                        checked={selectedFilters.ethnicity === ethnicity}
-                        onChange={() => handleFilterChange('ethnicity', ethnicity)}
+                        type="checkbox"
+                        checked={selectedItems[ethnicity.toLowerCase().replace(/[\/\s]+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(ethnicity.toLowerCase().replace(/[\/\s]+/g, '_'))}
                         className="mr-2 border-gray-400 text-black focus:ring-0"
                       />
                       <span className="text-sm text-black">{ethnicity}</span>
@@ -418,36 +183,53 @@ export default function AvatarPopup({
                 </div>
               </div>
 
-              {/* Look (Avatar Variants) */}
+              {/* Scenario */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Look</h4>
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Scenario</h4>
                 <div className="space-y-2">
-                  {['Business', 'Casual', 'Call Centre', 'Doctor', 'Construction', 'Fitness', 'Chef', 'Thobe', 'Casual White'].map((look) => (
-                    <label key={look} className="flex items-center cursor-pointer pl-2">
+                  {['Office', 'Healthcare', 'Factory', 'Education', 'Construction', 'Heavy machinery', 'Retail & hospitality', 'Government', 'Customer support', 'Storage facility', 'Other'].map((scenario) => (
+                    <label key={scenario} className="flex items-center cursor-pointer pl-2">
                       <input
-                        type="radio"
-                        name="look"
-                        checked={selectedFilters.look === look}
-                        onChange={() => handleFilterChange('look', look)}
+                        type="checkbox"
+                        checked={selectedItems[scenario.toLowerCase().replace(/[&\s]+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(scenario.toLowerCase().replace(/[&\s]+/g, '_'))}
                         className="mr-2 border-gray-400 text-black focus:ring-0"
                       />
-                      <span className="text-sm text-black">{look}</span>
+                      <span className="text-sm text-black">{scenario}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Avatar type */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Avatar type</h4>
+                <div className="space-y-2">
+                  {['Studio avatar', 'Instant avatar', 'Scenario avatar'].map((avatarType) => (
+                    <label key={avatarType} className="flex items-center cursor-pointer pl-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems[avatarType.toLowerCase().replace(/\s+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(avatarType.toLowerCase().replace(/\s+/g, '_'))}
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
+                      <span className="text-sm text-black">{avatarType}</span>
                     </label>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Footer - appears when filters are applied */}
-            {(selectedFilters.age || selectedFilters.ethnicity || selectedFilters.look || selectedFilters.gender !== 'View All') && (
+            {/* Footer - appears when items are checked */}
+            {Object.values(selectedItems).some(Boolean) && (
               <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6 flex justify-center">
                 <button 
-                  onClick={resetFilters}
+                  onClick={() => setSelectedItems({})}
                   className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
                   style={{ width: 'fit-content' }}
                 >
                   <span className="text-base">×</span>
-                  <span>Reset filters</span>
+                  <span>Reset filters ({Object.values(selectedItems).filter(Boolean).length})</span>
                 </button>
               </div>
             )}
@@ -459,12 +241,12 @@ export default function AvatarPopup({
       )}
 
       {/* Right main area */}
-      <div className={`flex flex-col ${previewMode ? 'w-full' : 'flex-1'} min-h-0`}>
+      <div className={`flex flex-col p-4 ${previewMode ? 'w-full' : 'flex-1'}`}>
         {previewMode ? (
           // Preview mode content
           <>
             {/* Header with back button and avatar name */}
-            <div className="flex items-center gap-3 mb-6 flex-shrink-0 px-4 pt-4">
+            <div className="flex items-center gap-3 mb-6 flex-shrink-0">
               <button 
                 onClick={handleBackClick}
                 className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 transition-colors"
@@ -473,42 +255,24 @@ export default function AvatarPopup({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <span className="text-lg font-medium text-black">{selectedAvatar?.displayName}</span>
+              <span className="text-lg font-medium text-black">{selectedAvatar?.name}</span>
             </div>
 
             {/* Main preview area */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0">
-              {/* Big rectangle with avatar thumbnail */}
-              <div className="relative w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-                {selectedAvatar?.thumbnail ? (
-                  <img 
-                    src={selectedAvatar.thumbnail} 
-                    alt={selectedAvatar.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              
-              {/* Avatar name only */}
-              <div className="w-full text-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {selectedAvatar?.displayName}
-                </h3>
+            <div className="flex-1 flex flex-col items-center justify-center">
+              {/* Big rectangle with play button */}
+              <div className="relative w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center">
+                <button className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                  <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
             {/* Footer with Add to Scene button */}
-            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 pb-4 px-4">
-              <button 
-                onClick={handleAddToScene}
-                className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors"
-              >
+            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 -mx-4">
+              <button className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors">
                 + Add to scene
               </button>
             </div>
@@ -544,52 +308,32 @@ export default function AvatarPopup({
             <div className="flex-1 overflow-y-auto pb-4">
               {/* Avatar rectangles grid */}
               <div className="grid grid-cols-3 gap-4">
-                 {filteredAvatars.map((avatar: ProcessedAvatar, index) => (
-                   <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
+                {[
+                  { name: 'Sarah Johnson' },
+                  { name: 'Michael Chen' },
+                  { name: 'Emma Rodriguez' },
+                  { name: 'David Thompson' },
+                  { name: 'Lisa Park' },
+                  { name: 'James Wilson' },
+                  { name: 'Maria Garcia' },
+                  { name: 'Robert Kim' },
+                  { name: 'Jennifer Lee' }
+                ].map((avatar, index) => (
+                  <div key={index} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                        className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden"
+                      className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-colors group"
                       onClick={() => handleAvatarClick(avatar)}
-                      >
-                        {avatar.thumbnail ? (
-                          <img 
-                            src={avatar.thumbnail} 
-                            alt={avatar.displayName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                          </div>
-                        )}
-                        {/* Overlay on hover */}
-                        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-200"></div>
-                        
-                        {/* Avatar info overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <div className="text-white text-xs">
-                            <div className="font-medium">{avatar.name}</div>
-                            {avatar.selectedVariant && (
-                              <div className="text-gray-300">{avatar.selectedVariant.name}</div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Click indicator */}
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <svg className="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    >
+                      {/* Plus button that appears on hover */}
+                      <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-lg flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 cursor-pointer">
+                        <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
-                        </div>
-                      </div>
-                      
-                      {/* Avatar name only */}
-                      <div className="text-center w-full">
-                        <div className="text-sm text-black font-medium">{avatar.displayName}</div>
+                      </button>
                     </div>
+                    {/* Name */}
+                    <span className="text-sm text-black font-medium">{avatar.name}</span>
                   </div>
                 ))}
               </div>
@@ -613,8 +357,8 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 ${className}`}
-          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px', height: previewMode ? 'auto' : '420px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
+          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px' }}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -628,17 +372,13 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
         style={{ 
           borderRadius: '12px',
           left: position?.x || 0,
           top: position?.y || 0,
           width: previewMode ? '500px' : '800px',
-          height: previewMode ? 'auto' : '420px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
+          height: '420px'
         }}
       >
         {/* Main content area with sidebar */}

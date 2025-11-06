@@ -182,8 +182,6 @@ export default function BillingPage() {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [itemToCancel, setItemToCancel] = useState(null);
   const [billingInfo, setBillingInfo] = useState({ plan: 'starter', status: 'inactive', interval: null, priceId: null, subscriptionId: null });
-  const [activeAddons, setActiveAddons] = useState([]);
-  const [creditsHistory, setCreditsHistory] = useState([]);
   const [portalLoading, setPortalLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
@@ -193,29 +191,38 @@ export default function BillingPage() {
   const currentTab = 'payments';
 
   useEffect(() => {
-    const load = async () => {
+    const loadBilling = async () => {
       try {
-        const [b, addons, credits] = await Promise.all([
-          fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' }),
-          fetch('/api/custom-projects-backend/billing/addons', { credentials: 'same-origin' }),
-          fetch('/api/custom-projects-backend/billing/credits/history', { credentials: 'same-origin' }),
-        ]);
-        if (b.ok) setBillingInfo(await b.json());
-        if (addons.ok) setActiveAddons(await addons.json());
-        if (credits.ok) setCreditsHistory(await credits.json());
-      } catch (e) { console.error('Failed to load billing data', e); }
+        const res = await fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' });
+        if (res.ok) {
+          const data = await res.json();
+          setBillingInfo(data);
+        }
+      } catch (e) {
+        console.error('Failed to load billing info', e);
+      }
     };
-    load();
+    loadBilling();
   }, []);
-  
-  const purchasedItems = activeAddons.map((a) => ({
-    type: a.type,
-    name: a.type === 'connectors' ? `${a.quantity} Connectors` : `${a.quantity} GB Storage`,
-    amount: a.type === 'connectors' ? `${a.quantity} connectors` : `${a.quantity} GB storage`,
-    price: undefined,
-    priceNote: 'per month',
-    purchaseDate: a.next_billing_at || ''
-  }));
+
+  const purchasedItems = [
+    {
+      type: 'connectors',
+      name: '5 Connectors',
+      amount: '5 connectors',
+      price: 25,
+      priceNote: 'per month',
+      purchaseDate: '2025-09-10'
+    },
+    {
+      type: 'storage',
+      name: '5 GB Storage',
+      amount: '5 GB storage',
+      price: 150,
+      priceNote: 'per month',
+      purchaseDate: '2025-09-01'
+    },
+  ];
 
   const getIcon = (type) => {
     switch (type) {
@@ -345,11 +352,18 @@ export default function BillingPage() {
   })();
   const handleUpgradeToYearly = async () => {
     try {
+      // Map current plan to yearly price id
+      const yearlyPriceIdMap = {
+        pro: 'price_1SEBUCH2U2KQUmUhkym5Q9TS',
+        business: 'price_1SEBUoH2U2KQUmUhMktbhCsm'
+      };
+      const planKey = currentPlan.name.toLowerCase();
+      const priceId = planKey.includes('business') ? yearlyPriceIdMap.business : yearlyPriceIdMap.pro;
       const res = await fetch('/api/custom-projects-backend/billing/checkout', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planName: `${currentPlan.name.toLowerCase()}_yearly`, upgradeFromSubscriptionId: billingInfo.subscriptionId })
+        body: JSON.stringify({ priceId, planName: `${currentPlan.name} (Yearly)`, upgradeFromSubscriptionId: billingInfo.subscriptionId })
       });
       if (!res.ok) throw new Error('Failed to create upgrade session');
       const data = await res.json();
@@ -622,35 +636,26 @@ export default function BillingPage() {
               variant="download"
               disabled={cancelLoading}
               onClick={async () => {
+                if (itemToCancel?.type !== 'subscription') return;
                 try {
                   setCancelLoading(true);
-                  if (itemToCancel?.type === 'subscription') {
-                    const res = await fetch('/api/custom-projects-backend/billing/cancel', {
-                      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
-                      body: JSON.stringify({ subscriptionId: billingInfo.subscriptionId })
-                    });
-                    if (!res.ok) throw new Error('Cancel failed');
-                  } else {
-                    // Find an active add-on to cancel by type (first match)
-                    const addon = activeAddons.find(a => (a.type === itemToCancel.type));
-                    if (addon) {
-                      const body = addon.stripe_subscription_item_id ? { subscriptionItemId: addon.stripe_subscription_item_id } : { subscriptionId: addon.stripe_subscription_id };
-                      const res = await fetch('/api/custom-projects-backend/billing/addons/cancel', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
-                        body: JSON.stringify(body)
-                      });
-                      if (!res.ok) throw new Error('Cancel failed');
-                    }
-                  }
+                  const res = await fetch('/api/custom-projects-backend/billing/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ subscriptionId: billingInfo.subscriptionId })
+                  });
+                  if (!res.ok) throw new Error('Cancel failed');
                   setIsCancelModalOpen(false);
                   setItemToCancel(null);
-                  const [b, addons] = await Promise.all([
-                    fetch('/api/custom-projects-backend/billing/me?refresh=1', { credentials: 'same-origin' }),
-                    fetch('/api/custom-projects-backend/billing/addons', { credentials: 'same-origin' })
-                  ]);
-                  if (b.ok) setBillingInfo(await b.json());
-                  if (addons.ok) setActiveAddons(await addons.json());
-                } catch (e) { console.error(e); } finally { setCancelLoading(false); }
+                  // Refresh billing info
+                  const refreshed = await fetch('/api/custom-projects-backend/billing/me?refresh=1', { credentials: 'same-origin' });
+                  if (refreshed.ok) setBillingInfo(await refreshed.json());
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  setCancelLoading(false);
+                }
               }}
               className="flex-1 bg-red-500 text-white hover:bg-red-600 border-red-500"
             >

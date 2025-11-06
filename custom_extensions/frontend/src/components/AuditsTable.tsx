@@ -233,7 +233,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
           
           // FALLBACK: Extract company name from project name for AI audit landing pages
           if (project.projectName && project.projectName.includes('AI-Аудит Landing Page:')) {
-            const extractedCompanyName = project.projectName.replace('AI-Аудит Landing Page:', '').trim().replace('- Commercial Proposal', '').trim();
+            const extractedCompanyName = project.projectName.replace('AI-Аудит Landing Page:', '').trim();
             if (extractedCompanyName && extractedCompanyName !== 'Company Name') {
               companyName = extractedCompanyName;
               companyNameSource = 'projectName.extracted';
@@ -542,12 +542,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
 
   // Handle row click navigation
   const handleRowClick = (audit: Audit) => {
-    if (!audit.name.includes('- Commercial Proposal')) {
-      router.push(`/create/audit-2-dynamic/${audit.id}`);
-    } else {
-      router.push(`/create/commercial-proposal/${audit.id}`);
-    }
-
+    router.push(`/create/audit-2-dynamic/${audit.id}`);
   };
 
   if (loading) {

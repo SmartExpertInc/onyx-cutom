@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
-import { useVoice } from '@/contexts/VoiceContext';
 
 // Custom Radio Wave Icon
 const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
@@ -85,24 +84,9 @@ interface VoicePickerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectVoice?: (voice: Voice) => void;
-  showReady?: boolean;
 }
 
-interface ElaiVoice {
-  character: string;
-  voice: string;
-  voiceProvider: string;
-  locale?: string;
-  icon?: string;
-  tags?: string[];
-  premium?: boolean;
-  name?: string;
-  url?: string;
-}
-
-export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps) {
-  const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
-  
+export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice }: VoicePickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
   const [ageDropdownOpen, setAgeDropdownOpen] = useState(false);
@@ -115,158 +99,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
   const [selectedTones, setSelectedTones] = useState<string[]>([]);
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
-  const [voices, setVoices] = useState<ElaiVoice[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tempSelectedVoice, setTempSelectedVoice] = useState<ElaiVoice | null>(null);
-  const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   
   const accentRef = useRef<HTMLDivElement>(null);
   const ageRef = useRef<HTMLDivElement>(null);
   const toneRef = useRef<HTMLDivElement>(null);
   const scenarioRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize temporary selection from global selection when modal opens
-  useEffect(() => {
-    if (isOpen && globalSelectedVoice) {
-      console.log('🎤 [VOICE_PICKER] Modal opened with existing global voice selection:', {
-        character: globalSelectedVoice.character,
-        voiceId: globalSelectedVoice.voice,
-        provider: globalSelectedVoice.voiceProvider,
-        locale: globalSelectedVoice.locale
-      });
-      setTempSelectedVoice(globalSelectedVoice);
-    } else if (isOpen) {
-      console.log('🎤 [VOICE_PICKER] Modal opened without existing voice selection');
-    }
-  }, [isOpen, globalSelectedVoice]);
-
-  // Fetch voices from backend API
-  useEffect(() => {
-    const fetchVoices = async () => {
-      try {
-        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-        
-        console.log('🎤 [VOICE_PICKER] ========== VOICE FETCH STARTED ==========');
-        console.log('🎤 [VOICE_PICKER] Fetching voices from backend API...');
-        console.log('🎤 [VOICE_PICKER] API Endpoint: ' + `${CUSTOM_BACKEND_URL}/video/voices`);
-        
-        setLoading(true);
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/video/voices`, {
-          method: 'GET',
-          headers: {
-            'accept': 'application/json'
-          }
-        });
-
-        console.log('🎤 [VOICE_PICKER] API Response Status:', response.status);
-        
-        if (!response.ok) {
-          console.error('🎤 [VOICE_PICKER] Failed to fetch voices:', response.status);
-          throw new Error(`Failed to fetch voices: ${response.status}`);
-        }
-
-        const result = await response.json();
-        
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to fetch voices');
-        }
-        
-        const data = result.voices || [];
-        console.log('🎤 [VOICE_PICKER] API Response received');
-        console.log('🎤 [VOICE_PICKER] Language groups count:', data.length);
-        
-        // Flatten the nested structure (array of language groups with male/female arrays)
-        const allVoices: ElaiVoice[] = [];
-        let maleCount = 0;
-        let femaleCount = 0;
-        
-        data.forEach((languageGroup: any) => {
-          if (languageGroup.male && Array.isArray(languageGroup.male)) {
-            allVoices.push(...languageGroup.male);
-            maleCount += languageGroup.male.length;
-          }
-          if (languageGroup.female && Array.isArray(languageGroup.female)) {
-            allVoices.push(...languageGroup.female);
-            femaleCount += languageGroup.female.length;
-          }
-        });
-
-        console.log('🎤 [VOICE_PICKER] Voices extracted:');
-        console.log('🎤 [VOICE_PICKER] - Total voices:', allVoices.length);
-        console.log('🎤 [VOICE_PICKER] - Male voices:', maleCount);
-        console.log('🎤 [VOICE_PICKER] - Female voices:', femaleCount);
-        console.log('🎤 [VOICE_PICKER] - Azure voices:', allVoices.filter(v => v.voiceProvider === 'azure').length);
-        console.log('🎤 [VOICE_PICKER] - ElevenLabs voices:', allVoices.filter(v => v.voiceProvider === 'elevenlabs').length);
-        console.log('🎤 [VOICE_PICKER] - Premium voices:', allVoices.filter(v => v.premium).length);
-        console.log('🎤 [VOICE_PICKER] ========== VOICE FETCH COMPLETED ==========');
-
-        setVoices(allVoices);
-      } catch (error) {
-        console.error('🎤 [VOICE_PICKER] ❌ Error fetching voices:', error);
-        console.error('🎤 [VOICE_PICKER] Error details:', error instanceof Error ? error.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (isOpen) {
-      fetchVoices();
-    }
-  }, [isOpen]);
-
-  // Handle voice preview playback
-  const handlePlayVoice = (e: React.MouseEvent, voice: ElaiVoice) => {
-    e.stopPropagation(); // Prevent voice selection when clicking play button
-    
-    console.log('🎤 [VOICE_PICKER] Play button clicked for voice:', {
-      character: voice.character,
-      voiceId: voice.voice,
-      provider: voice.voiceProvider,
-      hasUrl: !!voice.url
-    });
-    
-    // If clicking the same voice that's playing, stop it
-    if (playingVoice === voice.voice) {
-      console.log('🎤 [VOICE_PICKER] Stopping currently playing voice');
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      setPlayingVoice(null);
-      return;
-    }
-    
-    // Stop any currently playing audio
-    if (audioRef.current) {
-      console.log('🎤 [VOICE_PICKER] Stopping previous audio');
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    
-    // Play the new voice preview
-    if (voice.url) {
-      console.log('🎤 [VOICE_PICKER] Starting audio playback from URL:', voice.url.substring(0, 50) + '...');
-      const audio = new Audio(voice.url);
-      audioRef.current = audio;
-      
-      audio.play().catch((error) => {
-        console.error('🎤 [VOICE_PICKER] ❌ Error playing audio:', error);
-        setPlayingVoice(null);
-      });
-      
-      setPlayingVoice(voice.voice);
-      console.log('🎤 [VOICE_PICKER] ✅ Audio playback started successfully');
-      
-      // Reset playing state when audio ends
-      audio.onended = () => {
-        console.log('🎤 [VOICE_PICKER] Audio playback ended');
-        setPlayingVoice(null);
-      };
-    } else {
-      console.warn('🎤 [VOICE_PICKER] ⚠️ No audio URL available for voice:', voice.character);
-    }
-  };
 
   // Accent options with country flags
   const accentOptions = [
@@ -392,18 +229,6 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [accentDropdownOpen, ageDropdownOpen, toneDropdownOpen, scenarioDropdownOpen]);
-
-  // Cleanup audio when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-      }
-      setPlayingVoice(null);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -711,9 +536,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <div className="px-6 py-4 flex justify-between">
             {/* Left Zone */}
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-gray-900">
-                {loading ? 'Loading voices...' : `${voices.length} voices found`}
-              </h3>
+              <h3 className="text-sm font-medium text-gray-900">358 voices found</h3>
             </div>
             
             {/* Right Zone */}
@@ -729,16 +552,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Create Custom Voice Row */}
             <div className="mb-3">
               <div 
-                className={`rounded-lg p-4 flex items-center justify-between ${showReady ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+                className="rounded-lg p-4 flex items-center justify-between cursor-pointer"
                 style={{ 
                   backgroundColor: '#EFF7FE' 
-                }}
-                title={showReady ? 'Soon' : undefined}
-                onClick={(e) => {
-                  if (showReady) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -763,77 +579,31 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
 
 
 
-            {/* Dynamically rendered voice items from Elai API */}
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading voices...</div>
-            ) : voices.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No voices found</div>
-            ) : (
-               voices.map((voice, index) => (
-                 <div 
-                   key={voice.voice || index} 
-                   className="mb-4 group"
-                   onClick={() => {
-                     console.log('🎤 [VOICE_PICKER] Voice item clicked:', {
-                       character: voice.character,
-                       voiceId: voice.voice,
-                       provider: voice.voiceProvider,
-                       locale: voice.locale,
-                       premium: voice.premium
-                     });
-                     setTempSelectedVoice(voice);
-                   }}
-                 >
-                   <div className={`rounded-lg p-4 flex items-center justify-between cursor-pointer border transition-colors ${
-                     tempSelectedVoice?.voice === voice.voice 
-                       ? 'border-blue-500 bg-blue-50' 
-                       : 'border-gray-300 bg-white hover:bg-gray-50'
-                   }`}>
+            {/* Voice Item Row - Copy 1 */}
+            <div className="mb-4 group">
+              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-3">
                   {/* Radio wave icon / Play button */}
-                      <div 
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300 cursor-pointer"
-                        onClick={(e) => handlePlayVoice(e, voice)}
-                      >
-                        {playingVoice === voice.voice ? (
-                          <div className="flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                            <div className="flex gap-0.5">
-                              <div className="w-1 h-3 bg-gray-600"></div>
-                              <div className="w-1 h-3 bg-gray-600"></div>
-                    </div>
-                  </div>
-                        ) : (
-                          <>
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
                     <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
                     <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
                       <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
                     </div>
-                          </>
-                        )}
                   </div>
                   
                   {/* Text and badges */}
                   <div className="flex flex-col gap-2">
-                        <span className="text-gray-900 font-medium">{voice.character}</span>
-                        <div className="flex gap-2 flex-wrap">
-                          {voice.name && (
+                    <span className="text-gray-900 font-medium">Ana rus</span>
+                    <div className="flex gap-2">
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
-                              {voice.name}
+                        32 languages
                       </span>
-                          )}
-                          {voice.premium && (
                       <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
-                              <span>Premium</span>
+                        <span>Cloned voice</span>
                       </span>
-                          )}
-                          {voice.tags && voice.tags.slice(0, 2).map((tag, i) => (
-                            <span key={i} className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-full">
-                              {tag}
-                      </span>
-                          ))}
                     </div>
                   </div>
                 </div>
@@ -855,57 +625,223 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 </div>
               </div>
             </div>
-              ))
-            )}
+
+            {/* Voice Item Row - Copy 2 */}
+            <div className="mb-4 group">
+              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  {/* Radio wave icon / Play button */}
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-900 font-medium">Ana rus</span>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
+                        32 languages
+                      </span>
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                          <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                        </svg>
+                        <span>Cloned voice</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action buttons - visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-2">
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </button>
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Voice Item Row - Copy 3 */}
+            <div className="mb-4 group">
+              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  {/* Radio wave icon / Play button */}
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-900 font-medium">Ana rus</span>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
+                        32 languages
+                      </span>
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                          <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                        </svg>
+                        <span>Cloned voice</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action buttons - visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-2">
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </button>
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Voice Item Row - Copy 4 */}
+            <div className="mb-4 group">
+              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  {/* Radio wave icon / Play button */}
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-900 font-medium">Ana rus</span>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
+                        32 languages
+                      </span>
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                          <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                        </svg>
+                        <span>Cloned voice</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action buttons - visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-2">
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </button>
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Voice Item Row - Copy 5 */}
+            <div className="mb-4 group">
+              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  {/* Radio wave icon / Play button */}
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-900 font-medium">Ana rus</span>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
+                        32 languages
+                      </span>
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                          <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                        </svg>
+                        <span>Cloned voice</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action buttons - visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-2">
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </button>
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
 
           </div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0 relative">
-            {showReady && (
-              <div className="absolute inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-10 pointer-events-none">
-                <span className="text-sm text-gray-600 font-medium">Soon</span>
-              </div>
-            )}
-            <div className={showReady ? 'opacity-50 pointer-events-none' : ''}>
-            {tempSelectedVoice ? (
-              <>
-                {/* Row 1: Voice name title */}
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0">
+            {/* Row 1: Maya title */}
             <div className="mb-2">
-                  <h3 className="text-xl text-gray-900">{tempSelectedVoice.character}</h3>
+              <h3 className="text-xl text-gray-900">Maya</h3>
             </div>
             
-                {/* Row 2: Flag + locale */}
-                {tempSelectedVoice.name && (
+            {/* Row 2: USA flag + American English */}
             <div className="flex items-center gap-2 mb-3">
-                    {tempSelectedVoice.icon === 'us' && <AmericanFlag size={16} />}
-                    {tempSelectedVoice.icon === 'gb' && <BritishFlag size={16} />}
-                    {tempSelectedVoice.icon === 'au' && <AustralianFlag size={16} />}
-                    <span className="text-xs text-gray-700">{tempSelectedVoice.name}</span>
+              <AmericanFlag size={16} />
+              <span className="text-xs text-gray-700">American English</span>
             </div>
-                )}
             
             {/* Row 3: Badges */}
-                {tempSelectedVoice.tags && tempSelectedVoice.tags.length > 0 && (
             <div className="mb-3">
               <div className="flex flex-wrap gap-2">
-                      {tempSelectedVoice.tags.map((tag, index) => (
+                {['Adult', 'Confident', 'Educational', 'Friendly', 'Professional', 'Customer Service', 'E-Learning'].map((badge) => (
                   <span
-                          key={index}
+                    key={badge}
                     className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] rounded-full border border-gray-300"
                   >
-                          {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    {badge}
                   </span>
                 ))}
               </div>
             </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                Select a voice to view details
-              </div>
-            )}
             
             {/* Row 4: Horizontal line */}
             <div className="mb-3 -mx-3">
@@ -950,18 +886,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 8: Play Sample button */}
-            {tempSelectedVoice && (
-              <button 
-                onClick={(e) => handlePlayVoice(e, tempSelectedVoice)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
-              >
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
               <Volume2 size={16} className="text-gray-700" />
-                <span className="text-sm font-medium text-gray-700">
-                  {playingVoice === tempSelectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
-                </span>
+              <span className="text-sm font-medium text-gray-700">Play Sample</span>
             </button>
-            )}
-            </div>
           </div>
         </div>
         </div>
@@ -969,51 +897,41 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         {/* Footer */}
         <div className="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-xl">
           {/* Left side - Apply new voice to */}
-          <div className="flex-1 relative">
-            {showReady && (
-              <div className="absolute inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-10 pointer-events-none">
-                <span className="text-sm text-gray-600 font-medium">Soon</span>
-              </div>
-            )}
-            <div className={showReady ? 'opacity-50 pointer-events-none' : ''} title={showReady ? 'Soon' : undefined}>
-              <div className="mb-2">
-                <span className="text-sm text-gray-700">Apply new voice to</span>
-              </div>
-              <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
-                <button
-                  onClick={() => setApplyTo('block')}
-                  disabled={showReady}
-                  className={`flex-1 py-1 text-sm rounded transition-colors ${
-                    applyTo === 'block' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  This block only
-                </button>
-                <button
-                  onClick={() => setApplyTo('scene')}
-                  disabled={showReady}
-                  className={`flex-1 py-1 text-sm rounded transition-colors ${
-                    applyTo === 'scene' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  This scene only
-                </button>
-                <button
-                  onClick={() => setApplyTo('all')}
-                  disabled={showReady}
-                  className={`flex-1 py-1 text-sm rounded transition-colors ${
-                    applyTo === 'all' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  All scenes
-                </button>
-              </div>
+          <div className="flex-1">
+            <div className="mb-2">
+              <span className="text-sm text-gray-700">Apply new voice to</span>
+            </div>
+            <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
+              <button
+                onClick={() => setApplyTo('block')}
+                className={`flex-1 py-1 text-sm rounded transition-colors ${
+                  applyTo === 'block' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:bg-gray-300'
+                }`}
+              >
+                This block only
+              </button>
+              <button
+                onClick={() => setApplyTo('scene')}
+                className={`flex-1 py-1 text-sm rounded transition-colors ${
+                  applyTo === 'scene' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:bg-gray-300'
+                }`}
+              >
+                This scene only
+              </button>
+              <button
+                onClick={() => setApplyTo('all')}
+                className={`flex-1 py-1 text-sm rounded transition-colors ${
+                  applyTo === 'all' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:bg-gray-300'
+                }`}
+              >
+                All scenes
+              </button>
             </div>
           </div>
 
@@ -1027,28 +945,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </button>
             <button
               onClick={() => {
-                 if (tempSelectedVoice) {
-                   console.log('🎤 [VOICE_PICKER] ========== APPLY VOICE STARTED ==========');
-                   console.log('🎤 [VOICE_PICKER] Applying voice to global context:', {
-                     character: tempSelectedVoice.character,
-                     voiceId: tempSelectedVoice.voice,
-                     provider: tempSelectedVoice.voiceProvider,
-                     locale: tempSelectedVoice.locale,
-                     premium: tempSelectedVoice.premium,
-                     tags: tempSelectedVoice.tags
-                   });
-                   
-                   setGlobalSelectedVoice(tempSelectedVoice);
-                   
-                   console.log('🎤 [VOICE_PICKER] ✅ Voice successfully applied to global context');
-                   console.log('🎤 [VOICE_PICKER] ========== APPLY VOICE COMPLETED ==========');
-                 } else {
-                   console.warn('🎤 [VOICE_PICKER] ⚠️ No voice selected to apply');
-                 }
+                // Handle apply voice logic here
                 onClose();
               }}
               className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-               disabled={!tempSelectedVoice}
             >
               Apply voice
             </button>

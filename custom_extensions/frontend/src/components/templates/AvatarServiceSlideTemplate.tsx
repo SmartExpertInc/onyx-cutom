@@ -5,7 +5,6 @@ import { AvatarSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
-import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '@/components/editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -131,7 +130,6 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
-  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   title,
   subtitle,
@@ -141,8 +139,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   slideId,
   onUpdate,
   theme,
-  isEditable = false,
-  onEditorActive
+  isEditable = false
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -153,11 +150,6 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Editor refs for controlled editing
-  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
-  const subtitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
-  const contentEditorRef = useRef<ControlledWysiwygEditorRef>(null);
   
   useEffect(() => {
     return () => {
@@ -298,150 +290,132 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   return (
-    <div style={slideStyles} data-slide-canvas="true">
+    <div style={slideStyles}>
       {/* Dark shape in top-left corner */}
       <div style={darkShapeStyles}></div>
       
       <div style={contentContainerStyles}>
         {/* Left content */}
         <div style={leftContentStyles}>
-          {/* Title - wrapped in draggable div */}
-          <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
-            {isEditable && editingTitle ? (
-              <ControlledWysiwygEditor
-                ref={titleEditorRef}
-                initialValue={title || ''}
-                onSave={handleTitleSave}
-                onCancel={handleTitleCancel}
-                placeholder="Enter slide title..."
-                className="inline-editor-title"
+          {/* Title */}
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || ''}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                margin: '0',
+                padding: '8px 12px',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={() => {
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || 'Клиентский сервис -'}
+            </h1>
+          )}
+
+          {/* Subtitle */}
+          {subtitle && (
+            isEditable && editingSubtitle ? (
+              <InlineEditor
+                initialValue={subtitle}
+                onSave={handleSubtitleSave}
+                onCancel={handleSubtitleCancel}
+                multiline={true}
+                placeholder="Enter subtitle..."
+                className="inline-editor-subtitle"
                 style={{
-                  ...titleStyles,
+                  ...subtitleStyles,
                   margin: '0',
                   padding: '8px 12px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '4px',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  lineHeight: '1.2'
+                  borderRadius: '4px'
                 }}
-                onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
               />
             ) : (
-              <h1 
-                style={titleStyles}
-                onClick={(e) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
+              <h2 
+                style={subtitleStyles}
+                onClick={() => {
                   if (isEditable) {
-                    setEditingTitle(true);
+                    setEditingSubtitle(true);
                   }
                 }}
                 className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                dangerouslySetInnerHTML={{ __html: title || 'Клиентский сервис -' }}
-              />
-            )}
-          </div>
-
-          {/* Subtitle - wrapped in draggable div */}
-          {subtitle && (
-            <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
-              {isEditable && editingSubtitle ? (
-                <ControlledWysiwygEditor
-                  ref={subtitleEditorRef}
-                  initialValue={subtitle}
-                  onSave={handleSubtitleSave}
-                  onCancel={handleSubtitleCancel}
-                  placeholder="Enter subtitle..."
-                  className="inline-editor-subtitle"
-                  style={{
-                    ...subtitleStyles,
-                    margin: '0',
-                    padding: '8px 12px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    lineHeight: '1.6'
-                  }}
-                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'subtitle', computedStyles)}
-                />
-              ) : (
-                <h2 
-                  style={subtitleStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      setEditingSubtitle(true);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                  dangerouslySetInnerHTML={{ __html: subtitle }}
-                />
-              )}
-            </div>
+              >
+                {subtitle}
+              </h2>
+            )
           )}
 
-          {/* Content - wrapped in draggable div */}
+          {/* Content */}
           {content && (
-            <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
-              {isEditable && editingContent ? (
-                <ControlledWysiwygEditor
-                  ref={contentEditorRef}
-                  initialValue={content}
-                  onSave={handleContentSave}
-                  onCancel={handleContentCancel}
-                  placeholder="Enter content..."
-                  className="inline-editor-content"
-                  style={{
-                    ...contentStyles,
-                    margin: '0',
-                    padding: '8px 12px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    lineHeight: '1.6'
-                  }}
-                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'content', computedStyles)}
-                />
-              ) : (
-                <div 
-                  style={contentStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      setEditingContent(true);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                  dangerouslySetInnerHTML={{ __html: content }}
-                />
-              )}
-            </div>
+            isEditable && editingContent ? (
+              <InlineEditor
+                initialValue={content}
+                onSave={handleContentSave}
+                onCancel={handleContentCancel}
+                multiline={true}
+                placeholder="Enter content..."
+                className="inline-editor-content"
+                style={{
+                  ...contentStyles,
+                  margin: '0',
+                  padding: '8px 12px',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
+                }}
+              />
+            ) : (
+              <p 
+                style={contentStyles}
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingContent(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {content}
+              </p>
+            )
           )}
         </div>
 

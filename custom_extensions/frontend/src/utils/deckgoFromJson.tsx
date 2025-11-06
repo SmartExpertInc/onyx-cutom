@@ -7,24 +7,20 @@ import {
   HeadlineBlock,
   ParagraphBlock,
   AlertBlock,
-  ListItem,
 } from '@/types/pdfLesson';
 
 /* -------- Render individual list items (handles nested structures) ---------- */
-type NestedListItem = ListItem;
-
-const renderListItem = (item: NestedListItem, index: number): React.ReactNode => {
+const renderListItem = (item: any, index: number): React.ReactNode => {
   if (typeof item === 'string') {
     return <span key={index}>{item}</span>;
   }
   
-  if (typeof item === 'object' && item && 'type' in item) {
-    const typed = item as AnyContentBlock;
-    switch (typed.type) {
+  if (typeof item === 'object' && item.type) {
+    switch (item.type) {
       case 'bullet_list':
         return (
           <ul key={index} className="nested-bullet-list">
-            {(typed as BulletListBlock).items?.map((subItem: ListItem, subIndex: number) => (
+            {item.items.map((subItem: any, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
             ))}
           </ul>
@@ -32,7 +28,7 @@ const renderListItem = (item: NestedListItem, index: number): React.ReactNode =>
       case 'numbered_list':
         return (
           <ol key={index} className="nested-numbered-list">
-            {(typed as NumberedListBlock).items?.map((subItem: ListItem, subIndex: number) => (
+            {item.items.map((subItem: any, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
             ))}
           </ol>

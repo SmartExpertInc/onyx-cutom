@@ -169,18 +169,10 @@ export const NumberInput: FC<NumberInputProps> = ({
       </label>
       <Input
         type="number"
+        variant="shadow"
         name={name}
-        value={values[name] !== null && values[name] !== undefined ? values[name] : ""}
-        onChange={(e) => {
-          const value = e.target.value;
-          // Convert to number if it's a valid number, otherwise keep as string for validation
-          if (value === '') {
-            setFieldValue(name, null);
-          } else {
-            const numValue = Number(value);
-            setFieldValue(name, isNaN(numValue) ? value : numValue);
-          }
-        }}
+        value={values[name] || ""}
+        onChange={(e) => setFieldValue(name, e.target.value)}
         min={min}
         max={max}
         className={`w-full px-3 py-2 ${
@@ -230,7 +222,7 @@ export const BooleanFormField: FC<BooleanFormFieldProps> = ({
           id={name}
           name={name}
           checked={values[name] || false}
-          onCheckedChange={(checked: boolean) => {
+          onCheckedChange={(checked) => {
             setFieldValue(name, checked);
           }}
           disabled={disabled}
@@ -361,18 +353,16 @@ interface TabsFieldProps {
   name: string;
   tabs: TabField[];
   description?: string;
-  defaultTab?: string;
 }
 
 export const TabsField: FC<TabsFieldProps> = ({
   label,
   name,
   tabs,
-  description,
-  defaultTab
+  description
 }) => {
   const { values, setFieldValue } = useFormikContext<any>();
-  const [activeTab, setActiveTab] = React.useState(defaultTab || tabs[0]?.value || "");
+  const [activeTab, setActiveTab] = React.useState(tabs[0]?.value || "");
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
@@ -465,20 +455,19 @@ export const TabsField: FC<TabsFieldProps> = ({
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 mb-4">
         <nav className="-mb-px flex space-x-8">
-           {tabs.map((tab) => (
-             <button
-               key={tab.value}
-               type="button"
-               onClick={() => handleTabChange(tab.value)}
-               className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                 activeTab === tab.value
-                   ? "border-blue-500 text-blue-600"
-                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-               }`}
-             >
-               {tab.label}
-             </button>
-           ))}
+          {tabs.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => handleTabChange(tab.value)}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === tab.value
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </nav>
       </div>
 

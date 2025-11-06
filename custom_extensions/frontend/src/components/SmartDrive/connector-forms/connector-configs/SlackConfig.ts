@@ -32,30 +32,56 @@ export const SlackConfig: ConnectorFormConfig = {
       }
     },
     {
-      name: 'channels',
-      label: 'Channels',
+      name: 'channel_ids',
+      label: 'Channel IDs',
       type: 'textarea',
-      placeholder: 'Enter channels, one per line',
-      description: 'Specific channels to index (leave empty to index all accessible channels)',
+      placeholder: 'Enter channel IDs, one per line',
+      description: 'Specific channel IDs to index (leave empty to index all accessible channels)',
       validation: {
-        pattern: '^[a-z0-9\\s\\n]*$',
-        message: 'Channels should contain only lowercase letters and numbers'
+        pattern: '^[A-Z0-9\\s\\n]*$',
+        message: 'Channel IDs should contain only uppercase letters and numbers'
       }
     },
     {
-      name: 'channel_regex_enabled',
-      label: 'Enable Channel Regex',
+      name: 'include_public_channels',
+      label: 'Include Public Channels',
       type: 'boolean',
-      defaultValue: false,
-      description: 'If enabled, we will treat the "channels" specified above as regular expressions. A channel\'s messages will be pulled in by the connector if the name of the channel fully matches any of the specified regular expressions. For example, specifying .*-support.* as a "channel" will cause the connector to include any channels with "-support" in the name.'
+      defaultValue: true,
+      description: 'Whether to include public channels'
     },
     {
-      name: "indexing_start",
-      label: "Start Date",
-      type: "text",
-      placeholder: "YYYY-MM-DD",
-      description: `Only messages after this date will be indexed. Format: YYYY-MM-DD`,
+      name: 'include_private_channels',
+      label: 'Include Private Channels',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'Whether to include private channels you\'re a member of'
     },
+    {
+      name: 'include_direct_messages',
+      label: 'Include Direct Messages',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'Whether to include direct messages'
+    },
+    {
+      name: 'include_threads',
+      label: 'Include Threads',
+      type: 'boolean',
+      defaultValue: true,
+      description: 'Whether to include thread replies'
+    },
+    {
+      name: 'message_limit',
+      label: 'Message Limit',
+      type: 'number',
+      defaultValue: 1000,
+      description: 'Maximum number of messages to index per channel',
+      validation: {
+        min: 1,
+        max: 10000,
+        message: 'Message limit should be between 1 and 10,000'
+      }
+    }
   ],
   sections: [
     {
@@ -66,12 +92,12 @@ export const SlackConfig: ConnectorFormConfig = {
     {
       title: 'Channel Selection',
       description: 'Configure which channels to include in the index',
-      fields: ['channels', 'channel_regex_enabled']
+      fields: ['channel_ids', 'include_public_channels', 'include_private_channels', 'include_direct_messages']
     },
     {
       title: 'Content Options',
       description: 'Configure what content to include in the index',
-      fields: ['indexing_start']
+      fields: ['include_threads', 'message_limit']
     }
   ]
 }; 

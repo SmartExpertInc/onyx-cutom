@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Simple Video Composer - FIXED VERSION
-=====================================
+Simple Video Composer
+=====================
 
 A reliable, single-method video composition system using pure OpenCV.
 Replaces the dual-approach complexity with one robust solution.
@@ -12,9 +12,7 @@ Key Features:
 - Frame-by-frame composition with progress feedback
 - Single method - no fallback complexity
 - Preserves original slide video as background canvas
-- FFmpeg for final audio merge with BROWSER-COMPATIBLE encoding
-
-CRITICAL FIX: Replaced -c:v copy with browser-compatible H.264 encoding
+- FFmpeg for final audio merge only
 """
 
 import cv2
@@ -36,8 +34,6 @@ class SimpleVideoComposer:
     
     Eliminates the dual-approach complexity and provides a single,
     robust method for composing slide and avatar videos.
-    
-    FIXED: Now uses browser-compatible H.264 encoding instead of copying video streams.
     """
     
     def __init__(self):
@@ -60,33 +56,19 @@ class SimpleVideoComposer:
                            slide_video_path: str, 
                            avatar_video_path: str, 
                            output_path: str,
-                           progress_callback=None,
-                           avatar_position: dict = None) -> bool:
+                           progress_callback=None) -> bool:
         """
         Compose slide and avatar videos using OpenCV.
-        
-        Supports rectangular, circular, and arch avatars based on 'shape' property.
         
         Args:
             slide_video_path: Path to slide video (from working pipeline)
             avatar_video_path: Path to avatar video (from Elai API)
             output_path: Path for output video
             progress_callback: Optional callback for progress updates
-            avatar_position: Optional dict with custom avatar position:
-                           - Required: x, y, width, height (pixels)
-                           - Optional: shape ('circle', 'arch', or 'rectangle', default: 'rectangle')
-                           - Optional: backgroundColor (hex color string)
-                           - Optional: borderWidth (pixels, for circular and arch avatars)
-                           - Optional: borderColor (hex color string, for circular and arch avatars)
-                           If not provided, uses default template position
             
         Returns:
             True if successful, False otherwise
         """
-        # Use custom avatar position if provided, otherwise use default
-        active_avatar_config = avatar_position if avatar_position else self.avatar_template
-        
-        logger.info(f"🎬 [SIMPLE_COMPOSER] Using avatar position: {active_avatar_config}")
         try:
             logger.info("🎬 [SIMPLE_COMPOSER] Starting video composition")
             logger.info(f"🎬 [SIMPLE_COMPOSER] Input files:")
@@ -120,8 +102,7 @@ class SimpleVideoComposer:
                 temp_video_path,
                 slide_props,
                 avatar_props,
-                progress_callback,
-                active_avatar_config  # Pass custom avatar position
+                progress_callback
             )
             
             if not success:
@@ -212,36 +193,16 @@ class SimpleVideoComposer:
                             output_path: str,
                             slide_props: dict,
                             avatar_props: dict,
-                            progress_callback=None,
-                            avatar_config: dict = None) -> bool:
+                            progress_callback=None) -> bool:
         """
         Compose videos frame by frame using OpenCV.
         
         This method:
         1. Uses slide video as full background canvas (1920x1080)
-        2. Scales avatar to template dimensions (from avatar_config)
-        3. Positions avatar at template coordinates (from avatar_config)
+        2. Scales avatar to template dimensions (935x843)
+        3. Positions avatar at template coordinates (925, 118)
         4. Overlays avatar onto slide frame by frame
-        5. Supports rectangular, circular, and arch avatars based on 'shape' property
-        
-        Args:
-            avatar_config: Dict with 'x', 'y', 'width', 'height' keys for avatar positioning.
-                          Optional 'shape' key: 'circle' for circular mask, 'arch' for arch mask, 'rectangle' (default) for rectangular.
-                          Optional 'borderWidth' and 'borderColor' for circular and arch avatars.
         """
-        # Use provided config or fall back to default
-        if avatar_config is None:
-            avatar_config = self.avatar_template
-        
-        # Log avatar shape information
-        shape = avatar_config.get('shape', 'rectangle')
-        shape_desc = {
-            'circle': 'circular mask',
-            'arch': 'arch mask (rounded top corners)',
-            'rectangle': 'rectangular'
-        }.get(shape, 'rectangular')
-        logger.info(f"🎬 [SIMPLE_COMPOSER] Frame composition using avatar config: {avatar_config}")
-        logger.info(f"🎬 [SIMPLE_COMPOSER] Avatar shape: {shape.upper()} ({shape_desc})")
         try:
             logger.info("🎬 [SIMPLE_COMPOSER] Starting frame-by-frame composition")
             
@@ -257,30 +218,14 @@ class SimpleVideoComposer:
             # Calculate total frames for progress tracking
             slide_frame_count = int(slide_cap.get(cv2.CAP_PROP_FRAME_COUNT))
             avatar_frame_count = int(avatar_cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            
-            # OPTIMIZATION: Use minimum frame count to avoid processing unnecessary frames
-            # Previously used max() which caused processing of 1500 frames when avatar only had 140
-            total_frames = min(slide_frame_count, avatar_frame_count)
+            total_frames = max(slide_frame_count, avatar_frame_count)
             
             logger.info(f"🎬 [SIMPLE_COMPOSER] Frame composition setup:")
             logger.info(f"  - Output dimensions: {output_width}x{output_height}")
             logger.info(f"  - Output FPS: {output_fps}")
             logger.info(f"  - Slide frames: {slide_frame_count}")
             logger.info(f"  - Avatar frames: {avatar_frame_count}")
-            logger.info(f"  - Total frames to process: {total_frames} (using min to optimize)")
-            
-            # Warn if frame counts differ significantly (more than 10% difference)
-            frame_diff = abs(slide_frame_count - avatar_frame_count)
-            frame_diff_percent = (frame_diff / max(slide_frame_count, avatar_frame_count)) * 100 if max(slide_frame_count, avatar_frame_count) > 0 else 0
-            
-            if frame_diff_percent > 10:
-                logger.warning(f"🎬 [SIMPLE_COMPOSER] ⚠️ Frame count mismatch detected!")
-                logger.warning(f"  - Slide frames: {slide_frame_count}")
-                logger.warning(f"  - Avatar frames: {avatar_frame_count}")
-                logger.warning(f"  - Difference: {frame_diff} frames ({frame_diff_percent:.1f}%)")
-                logger.warning(f"  - This may cause sync issues. Consider matching durations when creating videos.")
-            else:
-                logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Frame counts match well (difference: {frame_diff_percent:.1f}%)")
+            logger.info(f"  - Total frames to process: {total_frames}")
             
             # Define video codec and writer
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -317,62 +262,17 @@ class SimpleVideoComposer:
                 # Process avatar frame if available
                 if avatar_ret:
                     # CRITICAL FIX: Crop avatar instead of resizing to maintain aspect ratio
-                    avatar_cropped = self._crop_avatar_to_template(avatar_frame, avatar_config)
+                    avatar_cropped = self._crop_avatar_to_template(avatar_frame)
                     
-                    # Get position coordinates from config
-                    x = avatar_config['x']
-                    y = avatar_config['y']
-                    avatar_width = avatar_config['width']
-                    avatar_height = avatar_config['height']
-                    shape = avatar_config.get('shape', 'rectangle')  # ✅ NEW: Support circular avatars
+                    # Get position coordinates
+                    x = self.avatar_template['x']
+                    y = self.avatar_template['y']
                     
                     # Ensure avatar fits within bounds
-                    if x + avatar_width <= output_width and y + avatar_height <= output_height:
-                        # Draw background color behind avatar if specified
-                        if 'backgroundColor' in avatar_config and avatar_config['backgroundColor']:
-                            bg_color = self._hex_to_bgr(avatar_config['backgroundColor'])
-                            cv2.rectangle(background, (x, y), (x + avatar_width, y + avatar_height), bg_color, -1)
-                        
-                        # ✅ NEW: Apply mask based on shape
-                        if shape == 'circle':
-                            border_width = avatar_config.get('borderWidth', 0)
-                            border_color = avatar_config.get('borderColor', '#ffffff')
-                            
-                            # Apply circular mask with optional border
-                            avatar_processed = self._apply_circular_mask(
-                                avatar_cropped,
-                                border_width=border_width,
-                                border_color=border_color
-                            )
-                            
-                            # Use alpha compositing for circular avatar (preserves transparency)
-                            background = self._overlay_with_alpha(background, avatar_processed, x, y)
-                            
-                            if frame_count == 0:  # Log once on first frame
-                                logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Using CIRCULAR avatar (border: {border_width}px)")
-                        elif shape == 'arch':
-                            border_width = avatar_config.get('borderWidth', 0)
-                            border_color = avatar_config.get('borderColor', '#ffffff')
-                            
-                            # Apply arch mask with optional border
-                            avatar_processed = self._apply_arch_mask(
-                                avatar_cropped,
-                                border_width=border_width,
-                                border_color=border_color
-                            )
-                            
-                            # Use alpha compositing for arch avatar (preserves transparency)
-                            background = self._overlay_with_alpha(background, avatar_processed, x, y)
-                            
-                            if frame_count == 0:  # Log once on first frame
-                                logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Using ARCH avatar (border: {border_width}px)")
-                        else:
-                            # Simple rectangular overlay (existing method - backward compatible)
-                            background[y:y + avatar_height, 
-                                     x:x + avatar_width] = avatar_cropped
-                            
-                            if frame_count == 0:  # Log once on first frame
-                                logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Using RECTANGULAR avatar (default)")
+                    if x + self.avatar_template['width'] <= output_width and y + self.avatar_template['height'] <= output_height:
+                        # Simple overlay (replace method - could be enhanced with alpha blending)
+                        background[y:y + self.avatar_template['height'], 
+                                 x:x + self.avatar_template['width']] = avatar_cropped
                     else:
                         logger.warning(f"🎬 [SIMPLE_COMPOSER] Avatar position out of bounds: ({x}, {y})")
                 
@@ -415,9 +315,6 @@ class SimpleVideoComposer:
         """
         Add audio from avatar video to the composed video using FFmpeg.
         
-        CRITICAL FIX: Now uses browser-compatible H.264 encoding instead of copying video streams.
-        This fixes the issue where videos show only the first frame with audio playing.
-        
         Args:
             video_path: Path to video without audio
             audio_source_path: Path to video with audio (avatar video)
@@ -427,18 +324,13 @@ class SimpleVideoComposer:
             True if successful, False otherwise
         """
         try:
-            logger.info("🎬 [SIMPLE_COMPOSER] Adding audio to composed video with BROWSER-COMPATIBLE encoding")
+            logger.info("🎬 [SIMPLE_COMPOSER] Adding audio to composed video")
             
-            # FIXED: Use browser-compatible H.264 encoding instead of copying video streams
             cmd = [
                 'ffmpeg',
                 '-i', video_path,        # Video input (no audio)
                 '-i', audio_source_path, # Audio source (avatar video)
-                '-c:v', 'libx264',       # Use H.264 codec for browser compatibility
-                '-profile:v', 'baseline', # Ensure maximum browser compatibility
-                '-level', '3.0',         # H.264 level for web compatibility
-                '-pix_fmt', 'yuv420p',   # Standard pixel format for web
-                '-movflags', '+faststart', # Enable progressive download
+                '-c:v', 'copy',          # Copy video stream as-is
                 '-c:a', 'aac',           # Encode audio as AAC
                 '-map', '0:v:0',         # Use video from first input
                 '-map', '1:a:0',         # Use audio from second input
@@ -447,7 +339,7 @@ class SimpleVideoComposer:
                 output_path
             ]
             
-            logger.info(f"🎬 [SIMPLE_COMPOSER] FFmpeg audio command (FIXED): {' '.join(cmd)}")
+            logger.info(f"🎬 [SIMPLE_COMPOSER] FFmpeg audio command: {' '.join(cmd)}")
             
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -461,7 +353,7 @@ class SimpleVideoComposer:
                 logger.error(f"🎬 [SIMPLE_COMPOSER] Audio merge failed: {stderr.decode()}")
                 return False
             
-            logger.info("🎬 [SIMPLE_COMPOSER] Audio merge completed successfully with browser-compatible encoding")
+            logger.info("🎬 [SIMPLE_COMPOSER] Audio merge completed successfully")
             
             # Verify final output
             if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
@@ -476,214 +368,7 @@ class SimpleVideoComposer:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Audio merge error: {str(e)}")
             return False
     
-    def _hex_to_bgr(self, hex_color: str) -> tuple:
-        """
-        Convert hex color string to BGR tuple for OpenCV.
-        
-        Args:
-            hex_color: Hex color string (e.g., '#FFFFFF' or 'FFFFFF')
-            
-        Returns:
-            BGR tuple (e.g., (255, 255, 255))
-        """
-        try:
-            # Remove '#' if present
-            hex_color = hex_color.lstrip('#')
-            
-            # Convert hex to RGB
-            r = int(hex_color[0:2], 16)
-            g = int(hex_color[2:4], 16)
-            b = int(hex_color[4:6], 16)
-            
-            # OpenCV uses BGR format
-            return (b, g, r)
-        except Exception as e:
-            logger.warning(f"🎬 [SIMPLE_COMPOSER] Invalid hex color '{hex_color}': {e}. Using white as default.")
-            return (255, 255, 255)  # Default to white
-    
-    def _apply_circular_mask(self, 
-                           frame: np.ndarray, 
-                           border_width: int = 0,
-                           border_color: str = '#ffffff') -> np.ndarray:
-        """
-        Apply circular mask to avatar frame with transparent background.
-        
-        This method creates a perfect circle from the frame and makes everything
-        outside the circle transparent using an alpha channel.
-        
-        Args:
-            frame: Avatar frame (BGR numpy array)
-            border_width: Border thickness in pixels (optional, default: 0)
-            border_color: Border color in hex format (optional, default: '#ffffff')
-            
-        Returns:
-            Frame with circular mask and alpha channel (BGRA)
-        """
-        try:
-            height, width = frame.shape[:2]
-            
-            # Create circular mask
-            mask = np.zeros((height, width), dtype=np.uint8)
-            center = (width // 2, height // 2)
-            radius = min(width, height) // 2
-            
-            # Draw white circle (255 = visible, 0 = transparent)
-            cv2.circle(mask, center, radius, 255, -1)
-            
-            # Convert to BGRA for alpha channel
-            if frame.shape[2] == 3:  # BGR
-                frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
-            else:
-                frame_bgra = frame.copy()
-            
-            # Apply mask to alpha channel
-            frame_bgra[:, :, 3] = mask
-            
-            # Add border if specified
-            if border_width > 0:
-                bgr_color = self._hex_to_bgr(border_color)
-                # Draw border circle on top of the masked frame
-                cv2.circle(frame_bgra, center, radius, (*bgr_color, 255), border_width)
-                logger.debug(f"🎬 [SIMPLE_COMPOSER] Added circular border: {border_width}px, color: {border_color}")
-            
-            return frame_bgra
-            
-        except Exception as e:
-            logger.error(f"🎬 [SIMPLE_COMPOSER] Circular mask error: {str(e)}")
-            # Fallback: return frame with full opacity
-            if frame.shape[2] == 3:
-                frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
-                frame_bgra[:, :, 3] = 255  # Fully opaque
-                return frame_bgra
-            return frame
-    
-    def _apply_arch_mask(self, 
-                        frame: np.ndarray, 
-                        border_width: int = 0,
-                        border_color: str = '#ffffff') -> np.ndarray:
-        """
-        Apply arch mask to avatar frame with transparent background.
-        
-        This method creates an arch shape (rounded top side, sharp bottom side)
-        matching CSS border-radius: 50% 50% 0 0 (rounded top-left and top-right corners).
-        
-        Args:
-            frame: Avatar frame (BGR numpy array)
-            border_width: Border thickness in pixels (optional, default: 0)
-            border_color: Border color in hex format (optional, default: '#ffffff')
-            
-        Returns:
-            Frame with arch mask and alpha channel (BGRA)
-        """
-        try:
-            height, width = frame.shape[:2]
-            
-            # Create arch mask (rounded top side, sharp bottom side)
-            # CSS equivalent: border-radius: 50% 50% 0 0 (rounded top corners)
-            mask = np.zeros((height, width), dtype=np.uint8)
-            
-            # Calculate radius for rounded corners (50% of width for horizontal rounding)
-            radius = width // 2
-            
-            # Draw rectangle covering bottom portion (straight edges)
-            cv2.rectangle(mask, (0, radius), (width, height), 255, -1)
-            
-            # Add rounded top using two quarter-circles
-            # Top-left quarter-circle (angles: 180 to 270 degrees)
-            cv2.ellipse(mask, (radius, radius), (radius, radius), 0, 180, 270, 255, -1)
-            # Top-right quarter-circle (angles: 270 to 360 degrees)
-            cv2.ellipse(mask, (radius, radius), (radius, radius), 0, 270, 360, 255, -1)
-            
-            # Convert to BGRA for alpha channel
-            if frame.shape[2] == 3:  # BGR
-                frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
-            else:
-                frame_bgra = frame.copy()
-            
-            # Apply mask to alpha channel
-            frame_bgra[:, :, 3] = mask
-            
-            # Add border if specified
-            if border_width > 0:
-                bgr_color = self._hex_to_bgr(border_color)
-                # Draw border along the arch shape
-                # Top-left rounded border
-                cv2.ellipse(frame_bgra, (radius, radius), (radius, radius), 0, 180, 270, (*bgr_color, 255), border_width)
-                # Top-right rounded border
-                cv2.ellipse(frame_bgra, (radius, radius), (radius, radius), 0, 270, 360, (*bgr_color, 255), border_width)
-                # Left side straight border
-                cv2.line(frame_bgra, (0, radius), (0, height), (*bgr_color, 255), border_width)
-                # Right side straight border
-                cv2.line(frame_bgra, (width-1, radius), (width-1, height), (*bgr_color, 255), border_width)
-                # Bottom straight border
-                cv2.line(frame_bgra, (0, height-1), (width, height-1), (*bgr_color, 255), border_width)
-                logger.debug(f"🎬 [SIMPLE_COMPOSER] Added arch border: {border_width}px, color: {border_color}")
-            
-            return frame_bgra
-            
-        except Exception as e:
-            logger.error(f"🎬 [SIMPLE_COMPOSER] Arch mask error: {str(e)}")
-            # Fallback: return frame with full opacity
-            if frame.shape[2] == 3:
-                frame_bgra = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
-                frame_bgra[:, :, 3] = 255  # Fully opaque
-                return frame_bgra
-            return frame
-    
-    def _overlay_with_alpha(self, 
-                          background: np.ndarray, 
-                          overlay: np.ndarray, 
-                          x: int, 
-                          y: int) -> np.ndarray:
-        """
-        Overlay image with alpha channel (transparency) onto background.
-        
-        This method performs proper alpha compositing to blend the overlay
-        with the background, respecting transparency.
-        
-        Args:
-            background: Background frame (BGR)
-            overlay: Overlay frame with alpha channel (BGRA)
-            x: X position to place overlay
-            y: Y position to place overlay
-            
-        Returns:
-            Composite frame (BGR)
-        """
-        try:
-            h, w = overlay.shape[:2]
-            
-            # Ensure we don't go out of bounds
-            if y + h > background.shape[0] or x + w > background.shape[1]:
-                logger.warning(f"🎬 [SIMPLE_COMPOSER] Overlay position ({x}, {y}) with size ({w}, {h}) "
-                             f"exceeds background size {background.shape}")
-                return background
-            
-            # Get region of interest
-            roi = background[y:y+h, x:x+w].copy()
-            
-            # Extract alpha channel and normalize to 0-1 range
-            alpha = overlay[:, :, 3] / 255.0
-            
-            # Create 3-channel alpha for blending
-            alpha_3d = np.stack([alpha, alpha, alpha], axis=2)
-            
-            # Extract BGR channels from overlay
-            overlay_bgr = overlay[:, :, :3]
-            
-            # Alpha compositing: result = foreground * alpha + background * (1 - alpha)
-            blended = (alpha_3d * overlay_bgr + (1 - alpha_3d) * roi).astype(np.uint8)
-            
-            # Place blended region back into background
-            background[y:y+h, x:x+w] = blended
-            
-            return background
-            
-        except Exception as e:
-            logger.error(f"🎬 [SIMPLE_COMPOSER] Alpha overlay error: {str(e)}")
-            return background
-    
-    def _crop_avatar_to_template(self, avatar_frame: np.ndarray, avatar_config: dict = None) -> np.ndarray:
+    def _crop_avatar_to_template(self, avatar_frame: np.ndarray) -> np.ndarray:
         """
         Crop avatar frame to template dimensions while maintaining aspect ratio.
         
@@ -692,22 +377,17 @@ class SimpleVideoComposer:
         
         Args:
             avatar_frame: Input avatar frame (numpy array)
-            avatar_config: Dict with 'width' and 'height' keys for target dimensions
             
         Returns:
-            Cropped avatar frame matching template dimensions
+            Cropped avatar frame matching template dimensions (935x843)
         """
-        # Use provided config or fall back to default
-        if avatar_config is None:
-            avatar_config = self.avatar_template
-            
         try:
             # Get input frame dimensions
             input_height, input_width = avatar_frame.shape[:2]
             
-            # Target template dimensions from config
-            target_width = avatar_config['width']
-            target_height = avatar_config['height']
+            # Target template dimensions
+            target_width = self.avatar_template['width']   # 935
+            target_height = self.avatar_template['height'] # 843
             
             logger.debug(f"🎬 [SIMPLE_COMPOSER] Cropping avatar frame:")
             logger.debug(f"  - Input dimensions: {input_width}x{input_height}")
@@ -762,9 +442,7 @@ class SimpleVideoComposer:
         except Exception as e:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Avatar cropping error: {str(e)}")
             # Fallback to resize if cropping fails
-            if avatar_config is None:
-                avatar_config = self.avatar_template
-            return cv2.resize(avatar_frame, (avatar_config['width'], avatar_config['height']))
+            return cv2.resize(avatar_frame, (self.avatar_template['width'], self.avatar_template['height']))
     
     def cleanup(self):
         """Cleanup temporary files and resources."""

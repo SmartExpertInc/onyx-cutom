@@ -23,9 +23,9 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
   onUpdate
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const tColor = titleColor || '#ffffff';
-  const numColor = numberColor || '#ffffff';
-  const txtColor = textColor || '#ffffff';
+  const tColor = titleColor || currentTheme.colors.titleColor;
+  const numColor = numberColor || currentTheme.colors.accentColor;
+  const txtColor = textColor || currentTheme.colors.contentColor;
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
   // Inline editing state

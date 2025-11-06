@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
 
@@ -263,7 +263,6 @@ interface CourseTemplate {
 interface CourseModule {
   title: string
   lessons: string[]
-  lessonAssessments?: { type: string; duration: string }[]
 }
 
 interface LandingPageData {
@@ -297,7 +296,6 @@ const getLocalizedText = (language: string | undefined, texts: { en: any; es: an
 
 export default function DynamicAuditLandingPage() {
   const params = useParams()
-  const router = useRouter()
   const projectId = params?.projectId as string
   const [landingPageData, setLandingPageData] = useState<LandingPageData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -324,57 +322,6 @@ export default function DynamicAuditLandingPage() {
       ...prev,
       [moduleId]: !prev[moduleId]
     }))
-  }
-
-  const handleCreateCP = async () => {
-    try {
-      console.log('🚀 [CREATE COMMERCIAL PROPOSAL] Starting commercial proposal creation for project:', projectId);
-      
-      if (!projectId) {
-        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Project ID is required');
-        return;
-      }
-      
-      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const apiEndpoint = `${CUSTOM_BACKEND_URL}/commercial-proposal/generate`;
-      
-      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Making request to:', apiEndpoint);
-      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Project ID:', projectId);
-      
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_id: parseInt(projectId),
-          language: landingPageData?.language || 'ru'
-        })
-      });
-      
-      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Response status:', response.status);
-      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Response ok:', response.ok);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ [CREATE COMMERCIAL PROPOSAL] Successfully created commercial proposal');
-        console.log('✅ [CREATE COMMERCIAL PROPOSAL] New project ID:', data.projectId);
-        console.log('✅ [CREATE COMMERCIAL PROPOSAL] Message:', data.message);
-        
-        // Redirect to the new commercial proposal page
-        if (data.projectId) {
-          router.push(`/create/commercial-proposal/${data.projectId}`);
-        }
-      } else {
-        const errorText = await response.text();
-        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Request failed:', response.status);
-        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error response:', errorText);
-        alert(`Failed to create commercial proposal. Please try again. ${errorText}`);
-      }
-    } catch (error) {
-      console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error creating commercial proposal:', error);
-      alert('An error occurred while creating the commercial proposal. Please try again.');
-    }
   }
 
   // Text editing handlers
@@ -589,16 +536,6 @@ export default function DynamicAuditLandingPage() {
           const moduleIndex = parseInt(parts[1])
           const lessonIndex = parseInt(parts[2])
           currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessons?.[lessonIndex] || '';
-        } else if (field.startsWith('assessmentType_')) {
-          const parts = field.split('_')
-          const moduleIndex = parseInt(parts[1])
-          const lessonIndex = parseInt(parts[2])
-          currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessonAssessments?.[lessonIndex]?.type || '';
-        } else if (field.startsWith('assessmentDuration_')) {
-          const parts = field.split('_')
-          const moduleIndex = parseInt(parts[1])
-          const lessonIndex = parseInt(parts[2])
-          currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessonAssessments?.[lessonIndex]?.duration || '';
         }
         break
     }
@@ -835,44 +772,6 @@ export default function DynamicAuditLandingPage() {
           if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]?.lessons) {
             updatedData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue
             console.log('✅ [TEXT SAVE] Successfully updated course lesson', moduleIndex, lessonIndex);
-          }
-        } else if (field.startsWith('assessmentType_')) {
-          const parts = field.split('_')
-          const moduleIndex = parseInt(parts[1])
-          const lessonIndex = parseInt(parts[2])
-          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]) {
-            // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
-            if (!updatedData.courseOutlineModules[moduleIndex].lessonAssessments) {
-              console.log('⚠️ [TEXT SAVE] lessonAssessments not found, initializing array for module', moduleIndex);
-              const lessonsCount = updatedData.courseOutlineModules[moduleIndex].lessons?.length || 0;
-              updatedData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
-                type: 'test',
-                duration: '5 min'
-              }));
-            }
-            if (updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
-              updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue
-              console.log('✅ [TEXT SAVE] Successfully updated assessment type', moduleIndex, lessonIndex);
-            }
-          }
-        } else if (field.startsWith('assessmentDuration_')) {
-          const parts = field.split('_')
-          const moduleIndex = parseInt(parts[1])
-          const lessonIndex = parseInt(parts[2])
-          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]) {
-            // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
-            if (!updatedData.courseOutlineModules[moduleIndex].lessonAssessments) {
-              console.log('⚠️ [TEXT SAVE] lessonAssessments not found, initializing array for module', moduleIndex);
-              const lessonsCount = updatedData.courseOutlineModules[moduleIndex].lessons?.length || 0;
-              updatedData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
-                type: 'test',
-                duration: '5 min'
-              }));
-            }
-            if (updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
-              updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue
-              console.log('✅ [TEXT SAVE] Successfully updated assessment duration', moduleIndex, lessonIndex);
-            }
           }
         }
         break
@@ -1129,40 +1028,6 @@ export default function DynamicAuditLandingPage() {
                 if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]?.lessons) {
                   recoveredData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue;
                 }
-              } else if (field.startsWith('assessmentType_')) {
-                const parts = field.split('_');
-                const moduleIndex = parseInt(parts[1]);
-                const lessonIndex = parseInt(parts[2]);
-                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]) {
-                  // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
-                  if (!recoveredData.courseOutlineModules[moduleIndex].lessonAssessments) {
-                    const lessonsCount = recoveredData.courseOutlineModules[moduleIndex].lessons?.length || 0;
-                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
-                      type: 'test',
-                      duration: '5 min'
-                    }));
-                  }
-                  if (recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
-                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue;
-                  }
-                }
-              } else if (field.startsWith('assessmentDuration_')) {
-                const parts = field.split('_');
-                const moduleIndex = parseInt(parts[1]);
-                const lessonIndex = parseInt(parts[2]);
-                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]) {
-                  // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
-                  if (!recoveredData.courseOutlineModules[moduleIndex].lessonAssessments) {
-                    const lessonsCount = recoveredData.courseOutlineModules[moduleIndex].lessons?.length || 0;
-                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
-                      type: 'test',
-                      duration: '5 min'
-                    }));
-                  }
-                  if (recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
-                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue;
-                  }
-                }
               }
               break;
           }
@@ -1236,17 +1101,6 @@ export default function DynamicAuditLandingPage() {
       console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
     }
     
-    // 🔍 CRITICAL LOGGING: Verify assessment data is in the payload
-    if (field.startsWith('assessmentType_') || field.startsWith('assessmentDuration_')) {
-      console.log('🎯 [ASSESSMENT PERSISTENCE] ==========================================');
-      console.log('🎯 [ASSESSMENT PERSISTENCE] Saving assessment field:', field);
-      console.log('🎯 [ASSESSMENT PERSISTENCE] New value:', newValue);
-      console.log('🎯 [ASSESSMENT PERSISTENCE] courseOutlineModules in updatedData:', updatedData.courseOutlineModules);
-      console.log('🎯 [ASSESSMENT PERSISTENCE] Full courseOutlineModules:', JSON.stringify(updatedData.courseOutlineModules, null, 2));
-      console.log('🎯 [ASSESSMENT PERSISTENCE] Will be included in API payload: YES');
-      console.log('🎯 [ASSESSMENT PERSISTENCE] ==========================================');
-    }
-    
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       const apiEndpoint = `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`;
@@ -1265,19 +1119,6 @@ export default function DynamicAuditLandingPage() {
       // 🔍 EXTRA LOGGING: Table headers in payload
       if (field.startsWith('tableHeader')) {
         console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
-      }
-      
-      // 🔍 EXTRA LOGGING: Assessment data in payload
-      if (field.startsWith('assessmentType_') || field.startsWith('assessmentDuration_')) {
-        console.log('🎯 [ASSESSMENT API] ==========================================');
-        console.log('🎯 [ASSESSMENT API] Field being saved:', field);
-        console.log('🎯 [ASSESSMENT API] courseOutlineModules in payload:', requestPayload.microProductContent.courseOutlineModules);
-        if (requestPayload.microProductContent.courseOutlineModules) {
-          requestPayload.microProductContent.courseOutlineModules.forEach((module: any, idx: number) => {
-            console.log(`🎯 [ASSESSMENT API] Module ${idx} lessonAssessments:`, module.lessonAssessments);
-          });
-        }
-        console.log('🎯 [ASSESSMENT API] ==========================================');
       }
       
       console.log('📤 [SENDING TO BACKEND] ==========================================');
@@ -1447,19 +1288,41 @@ export default function DynamicAuditLandingPage() {
     };
   }, [editingField]);
 
-  // Use assessment data from backend instead of generating randomly
+  // Helper function to generate random assessment type and duration
+  const getRandomAssessment = () => {
+    // 📊 DETAILED LOGGING: Language parameter usage in conditional rendering
+    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "${landingPageData?.language}"`)
+    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': ${landingPageData?.language === 'en'}`)
+    
+    const assessments = getLocalizedText(landingPageData?.language, {
+      en: ['none', 'test', 'practice'],
+      es: ['ninguno', 'prueba', 'práctica'],
+      ua: ['немає', 'тест', 'практика'],
+      ru: ['нет', 'тест', 'практика']
+    })
+    
+    const durations = getLocalizedText(landingPageData?.language, {
+      en: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
+      es: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
+      ua: ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв'],
+      ru: ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+    })
+    
+    return {
+      type: assessments[Math.floor(Math.random() * assessments.length)],
+      duration: durations[Math.floor(Math.random() * durations.length)]
+    }
+  }
+
+  // Generate stable assessment data for all modules
   const generateAssessmentData = () => {
     if (!landingPageData?.courseOutlineModules) return {}
     
     const data: { [key: string]: { type: string; duration: string }[] } = {}
     
-    landingPageData.courseOutlineModules.forEach((module: any, moduleIndex: number) => {
-      // Use backend-generated assessment data if available, otherwise use fallback
-      if (module.lessonAssessments && module.lessonAssessments.length > 0) {
-        data[`module-${moduleIndex}`] = module.lessonAssessments
-      } else if (module.lessons) {
-        // Fallback: generate default assessments if backend data is missing
-        data[`module-${moduleIndex}`] = module.lessons.map(() => ({ type: 'test', duration: '5 min' }))
+    landingPageData.courseOutlineModules.forEach((module, moduleIndex) => {
+      if (module.lessons) {
+        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
       }
     })
     
@@ -1883,34 +1746,6 @@ export default function DynamicAuditLandingPage() {
                     })}
                   </span>
                 </button>
-
-                {/* Create CP Button */}
-                <button
-                  onClick={() => handleCreateCP()}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
-                  title={getLocalizedText(landingPageData?.language, {
-                    en: 'Create Commercial Proposal',
-                    es: 'Crear Commercial Proposal',
-                    ua: 'Створити Commercial Proposal',
-                    ru: 'Создать Commercial Proposal'
-                  })}
-                >
-                  <svg
-                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors"
-                    viewBox="0 0 32 32"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  >
-                    <path d="M16 2 L16 30 M2 16 L30 16" />
-                  </svg>
-                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
-                    Commercial Proposal
-                  </span>
-                </button>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
@@ -1960,7 +1795,7 @@ export default function DynamicAuditLandingPage() {
                     es: 'para empresa',
                     ua: 'для компанії',
                     ru: 'для компании'
-                  })} {editingField === 'companyName' ? (
+                  }                  )} {editingField === 'companyName' ? (
                     <InlineEditor
                       initialValue={companyName}
                       onSave={(value) => handleTextSave('companyName', value)}
@@ -2120,7 +1955,7 @@ export default function DynamicAuditLandingPage() {
                           en: 'AI Onboarding Implementation',
                           es: 'Implementación de Incorporación IA',
                           ua: 'Впровадження AI-онбордингу',
-                          ru: 'Внедрение AI-онбординга'
+                          ru: 'Внедрение AI-онбординг'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -3053,7 +2888,7 @@ export default function DynamicAuditLandingPage() {
                           en: 'Ready-made course templates for onboarding and training your employees:',
                           es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
                           ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
-                          ru: 'Готовые шаблоны курсов для онбординга и обучения ваших сотрудников:'
+                          ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
                         })}
                       onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
                       onCancel={handleTextCancel}
@@ -3198,6 +3033,11 @@ export default function DynamicAuditLandingPage() {
                       </div>
                     </div>
                   ))}
+  
+  
+  
+  
+  
                 </div>
                 
                 <div className="flex flex-col gap-[10px] xl:gap-[15px]">
@@ -3595,7 +3435,7 @@ export default function DynamicAuditLandingPage() {
                                           )}
                                         </div>
                                         <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                          {assessment.type === 'нет' || assessment.type === 'none' || assessment.type === 'ninguno' || assessment.type === 'немає' ? (
+                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
                                             <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                               <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
                                             </svg>
@@ -3604,45 +3444,17 @@ export default function DynamicAuditLandingPage() {
                                               <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
                                             </svg>
                                           )}
-                                          {editingField === `assessmentType_0_${index}` ? (
-                                            <InlineEditor
-                                              initialValue={assessment.type}
-                                              onSave={(value) => handleTextSave(`assessmentType_0_${index}`, value)}
-                                              onCancel={handleTextCancel}
-                                              className="font-medium"
-                                              style={{ fontSize: '12px', color: '#09090B' }}
-                                            />
-                                          ) : (
-                                            <span 
-                                              onClick={() => startEditing(`assessmentType_0_${index}`)}
-                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[12px] text-[#09090B] leading-[120%]"
-                                              title="Click to edit assessment type"
-                                            >
-                                              {assessment.type}
-                                            </span>
-                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
                                         </div>
                                         <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                           <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                           </svg>
-                                          {editingField === `assessmentDuration_0_${index}` ? (
-                                            <InlineEditor
-                                              initialValue={assessment.duration}
-                                              onSave={(value) => handleTextSave(`assessmentDuration_0_${index}`, value)}
-                                              onCancel={handleTextCancel}
-                                              className="font-medium"
-                                              style={{ fontSize: '12px', color: '#09090B' }}
-                                            />
-                                          ) : (
-                                            <span 
-                                              onClick={() => startEditing(`assessmentDuration_0_${index}`)}
-                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[12px] text-[#09090B] leading-[120%]"
-                                              title="Click to edit duration"
-                                            >
-                                              {assessment.duration}
-                                            </span>
-                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
@@ -4988,15 +4800,15 @@ export default function DynamicAuditLandingPage() {
                   })}
                 </h3>
   
-                <div className="border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] overflow-hidden" 
-                     style={{boxShadow: 'rgba(42, 51, 70, 0.03) 0px 6.43px 6.43px -2.14px, rgba(42, 51, 70, 0.03) 0px 2.68px 2.68px -1.34px, rgba(42, 51, 70, 0.03) 0px 1.34px 1.34px -0.67px'}}>
-                  <img 
-                    src={`/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${
-                      landingPageData?.language === 'ua' ? 'ua' : 'en'
-                    }.png`}
-                    alt="Service Image"
-                    className="w-full h-auto block rounded-[2px]" />
-                </div>
+                <div 
+                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
+                  style={{ 
+                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                  }}
+                ></div>
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] mb-[15px] xl:mb-[40px]">
                   <div 
