@@ -563,7 +563,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <div className="w-px bg-[#E0E0E0]"></div>
           
           {/* Right Panel Container */}
-          <div className="w-80 flex flex-col gap-2 p-4">
+          <div className="flex flex-col gap-2 p-4" style={{ width: '300px' }}>
             {/* Voice Details Label */}
             <div>
               <span className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
