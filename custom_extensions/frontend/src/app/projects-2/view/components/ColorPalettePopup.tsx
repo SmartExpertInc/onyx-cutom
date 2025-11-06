@@ -373,7 +373,7 @@ const VerticalSlider: React.FC<VerticalSliderProps> = ({
         }}
       >
         {/* Outer white border ring */}
-        <div className="w-3 h-3 rounded-full border-2 border-white bg-transparent" />
+        <div className="w-3 h-3 rounded-full border-[3px] border-white bg-transparent" />
         {/* Inner colored dot */}
         {thumbColor && (
           <div
@@ -758,7 +758,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       <div
         ref={popupRef}
         data-color-palette-popup
-        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[336px]"
+        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 w-[336px] overflow-hidden"
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
@@ -771,8 +771,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-3 border-b" style={{ borderColor: '#E0E0E0' }}>
-          <span className="text-sm font-medium text-gray-800">Color Picker</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#E0E0E0' }}>
+          <span className="text-md font-medium text-gray-800">Color Picker</span>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -782,7 +782,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               e.stopPropagation();
               e.preventDefault();
             }}
-            className="w-6 h-6 rounded-full bg-white flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+            className="w-5 h-5 rounded-full bg-white flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
             style={{
               backdropFilter: 'blur(12.857142448425293px)',
               boxShadow: '0px 6.43px 6.43px 0px #0000001A, 0px 2.57px 2.57px 0px #0000000D, 0px 0.64px 0px 0px #0000000D'
@@ -802,6 +802,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           </button>
         </div>
 
+        {/* Main Content Area */}
+        <div className="px-4 py-4">
         {/* Saturation/Brightness Square with Vertical Sliders */}
         <div className="flex gap-3 mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
           e.stopPropagation();
@@ -816,7 +818,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               handleMouseDown(e);
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-[180px] h-[180px] rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200 flex-shrink-0"
+            className="w-[240px] h-[240px] rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200 flex-shrink-0"
             style={{
               background: `linear-gradient(to top, #000, transparent),
                            linear-gradient(to right, #fff, hsl(${colorState.hsb.h}, 100%, 50%))`
@@ -835,7 +837,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           >
             {/* Custom cursor indicator */}
             <div
-              className="absolute w-3 h-3 rounded-full border-2 border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              className="absolute w-3 h-3 rounded-full border-[3px] border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
                 left: `${colorState.hsb.s}%`,
                 top: `${100 - colorState.hsb.b}%`,
@@ -853,10 +855,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 transform: 'translate(-50%, -50%)'
               }}
             />
-          </div>
+        </div>
 
           {/* Hue Slider - Vertical */}
-          <div className="relative z-[10001]">
+            <div className="relative z-[10001]">
             <VerticalSlider
               value={colorState.hsb.h}
               min={0}
@@ -864,37 +866,37 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               onChange={handleHueChange}
               onChangeCommitted={handleHueChangeCommitted}
               background="linear-gradient(to bottom, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
-              width={14}
-              height={180}
+              width={16}
+              height={240}
               thumbColor={`hsl(${colorState.hsb.h}, 100%, 50%)`}
             />
-          </div>
+            </div>
 
           {/* Opacity Slider - Vertical */}
-          <div className="relative z-[10001]">
-            <div className="relative">
-              {/* Squared background for opacity slider */}
-              <div 
-                className="absolute inset-0 rounded-lg"
-                style={{
-                  background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                               linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                               linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                               linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-                  backgroundSize: '8px 8px',
-                  backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
-                }}
-              />
+            <div className="relative z-[10001]">
+              <div className="relative">
+                {/* Squared background for opacity slider */}
+                <div 
+                  className="absolute inset-0 rounded-lg"
+                  style={{
+                    background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                                 linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                                 linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                                 linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+                    backgroundSize: '8px 8px',
+                    backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                  }}
+                />
               <VerticalSlider
-                value={colorState.opacity}
-                min={0}
-                max={1}
-                step={0.01}
-                onChange={handleOpacityChange}
-                onChangeCommitted={handleOpacityChangeCommitted}
+                  value={colorState.opacity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={handleOpacityChange}
+                  onChangeCommitted={handleOpacityChangeCommitted}
                 background={`linear-gradient(to bottom, ${colorState.hex}00, ${colorState.hex}80, ${colorState.hex})`}
-                width={14}
-                height={180}
+                width={16}
+                height={240}
                 thumbColor={`rgba(${Math.round(colorState.rgba.r)}, ${Math.round(colorState.rgba.g)}, ${Math.round(colorState.rgba.b)}, ${colorState.opacity})`}
               />
             </div>
@@ -902,7 +904,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Color Format Toggle Buttons */}
-        <div className="mt-4 p-1 bg-gray-200 rounded-lg flex gap-1 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+        <div className="mt-4 p-1 rounded-lg flex gap-1 relative z-[10001]" style={{ backgroundColor: '#E0E0E0' }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
           e.stopPropagation();
           e.preventDefault(); // Prevent focus loss from editor
         }}>
@@ -919,9 +921,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               }}
               className={`flex-1 px-3 py-1.5 border-none rounded-lg text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
-                  ? 'bg-white text-black font-normal shadow-sm' 
-                  : 'bg-transparent text-black font-normal'
+                  ? 'bg-white font-normal shadow-sm' 
+                  : 'bg-transparent font-normal'
               }`}
+              style={{ color: colorFormat === format ? '#171718' : '#878787' }}
             >
               {format}
             </button>
@@ -929,16 +932,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Color Code and Opacity Display */}
-        <div className="mt-4 flex items-center gap-3" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="mt-4 flex items-center" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
           {/* SVG Icon */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 mr-5">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 22.0018L3 21.0018M3 21.0018H6L15 12.0018M3 21.0018V18.0018L12 9.00179M15 6.00179L18.4 2.60179C18.7978 2.20396 19.3374 1.98047 19.9 1.98047C20.4626 1.98047 21.0022 2.20396 21.4 2.60179C21.7978 2.99961 22.0213 3.53918 22.0213 4.10179C22.0213 4.6644 21.7978 5.20396 21.4 5.60179L18 9.00179L18.4 9.40179C18.597 9.59877 18.7532 9.83262 18.8598 10.09C18.9665 10.3474 19.0213 10.6232 19.0213 10.9018C19.0213 11.1804 18.9665 11.4562 18.8598 11.7136C18.7532 11.971 18.597 12.2048 18.4 12.4018C18.203 12.5988 17.9692 12.755 17.7118 12.8616C17.4544 12.9682 17.1786 13.0231 16.9 13.0231C16.6214 13.0231 16.3456 12.9682 16.0882 12.8616C15.8308 12.755 15.597 12.5988 15.4 12.4018L11.6 8.60179C11.403 8.40481 11.2468 8.17095 11.1402 7.91358C11.0335 7.65621 10.9787 7.38036 10.9787 7.10179C10.9787 6.82321 11.0335 6.54737 11.1402 6.28999C11.2468 6.03262 11.403 5.79877 11.6 5.60179C11.797 5.40481 12.0308 5.24855 12.2882 5.14194C12.5456 5.03534 12.8214 4.98047 13.1 4.98047C13.3786 4.98047 13.6544 5.03534 13.9118 5.14194C14.1692 5.24855 14.403 5.40481 14.6 5.60179L15 6.00179Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
 
           {/* Code Display */}
-          <div className="flex-1 rounded-lg px-3 py-2 flex items-center" style={{ backgroundColor: '#E0E0E0' }}>
+          <div className="flex-1 rounded-lg px-3 py-2 flex items-center mr-1.5" style={{ backgroundColor: '#E0E0E0' }}>
             {colorFormat === 'HEX' && (
               <span className="text-sm font-mono">
                 <span style={{ color: '#969298' }}># </span>
@@ -1111,57 +1114,57 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             </div>
           )}
         </div> */}
-
-
+        </div>
+        {/* End Main Content Area */}
 
         {/* Footer - Last Used Colors */}
-        <div className="mt-6 pt-4 border-t relative z-[10001]" style={{ borderColor: '#E0E0E0' }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
-          e.stopPropagation();
-          e.preventDefault(); // Prevent focus loss from editor
-        }}>
-          <div className="text-gray-500 mb-2 block text-xs font-medium">
+        <div className="px-4 pt-4 pb-4 border-t relative z-[10001]" style={{ borderColor: '#E0E0E0' }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault(); // Prevent focus loss from editor
+          }}>
+          <div className="text-[#171718] mb-2 block text-xs font-medium">
             Last Used
-          </div>
+            </div>
           <div className="flex gap-2 flex-wrap">
             {Array.from({ length: 9 }, (_, index) => {
-              const color = recentColors[index];
-              return (
-                <div
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    color && handleRecentColorClick(color);
-                  }}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault(); // Prevent focus loss from editor
-                  }}
+                const color = recentColors[index];
+                return (
+                  <div
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      color && handleRecentColorClick(color);
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault(); // Prevent focus loss from editor
+                    }}
                   className={`w-6 h-6 border border-gray-300 rounded-lg bg-gray-100 transition-all duration-200 relative z-[10002] ${
-                    color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
-                  }`}
-                  style={{
-                    backgroundColor: color || '#f0f0f0'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (color) {
-                      e.currentTarget.style.border = '2px solid #666';
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.border = '1px solid #ccc';
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                  title={color || 'No recent color'}
-                >
-                  {!color && (
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 bg-gray-400 rounded-full" />
-                  )}
-                </div>
-              );
-            })}
+                      color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
+                    }`}
+                    style={{
+                      backgroundColor: color || '#f0f0f0'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (color) {
+                        e.currentTarget.style.border = '2px solid #666';
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.border = '1px solid #ccc';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                    title={color || 'No recent color'}
+                  >
+                    {!color && (
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 bg-gray-400 rounded-full" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
       </div>
     </>
   );
