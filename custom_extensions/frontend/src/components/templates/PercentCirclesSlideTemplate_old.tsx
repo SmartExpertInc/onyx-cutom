@@ -420,6 +420,8 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & {
 
             {/* Text */}
             <div className="card-text" style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
+              <h1>{backgroundColor}</h1>
+              
               {isEditable && edit?.k===`bt${i}` ? (
                 <ControlledWysiwygEditor
                   ref={(el) => {
