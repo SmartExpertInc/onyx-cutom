@@ -65,7 +65,6 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     left: '16px',
     right: '16px',
     bottom: '16px',
-    backgroundColor: '#E0E7FF',
     borderRadius: '20px'
   };
 
