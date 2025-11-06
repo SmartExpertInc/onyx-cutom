@@ -373,7 +373,7 @@ const VerticalSlider: React.FC<VerticalSliderProps> = ({
         }}
       >
         {/* Outer white border ring */}
-        <div className="w-[13px] h-[13px] rounded-full border-[3px] border-white bg-transparent" />
+        <div className="w-[14px] h-[14px] rounded-full border-[4px] border-white bg-transparent" />
         {/* Inner colored dot */}
         {thumbColor && (
           <div
@@ -828,7 +828,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           >
             {/* Custom cursor indicator */}
             <div
-              className="absolute w-[13px] h-[13px] rounded-full border-[3px] border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              className="absolute w-[14px] h-[14px] rounded-full border-[4px] border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
                 left: `${colorState.hsb.s}%`,
                 top: `${100 - colorState.hsb.b}%`,
@@ -874,8 +874,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                                  linear-gradient(-45deg, #ccc 25%, transparent 25%), 
                                  linear-gradient(45deg, transparent 75%, #ccc 75%), 
                                  linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-                    backgroundSize: '8px 8px',
-                    backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                    backgroundSize: '12px 12px',
+                    backgroundPosition: '0 0, 0 6px, 6px -6px, -6px 0px'
                   }}
                 />
               <VerticalSlider
@@ -910,10 +910,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 e.stopPropagation();
                 e.preventDefault(); // Prevent focus loss from editor
               }}
-              className={`flex-1 px-3 py-1.5 border-none rounded-lg text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
+              className={`flex-1 px-3 py-1.5 border-none text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
-                  ? 'bg-white font-normal shadow-sm' 
-                  : 'bg-transparent font-normal'
+                  ? 'bg-white font-normal shadow-sm rounded-md' 
+                  : 'bg-transparent font-normal rounded-md'
               }`}
               style={{ color: colorFormat === format ? '#171718' : '#878787' }}
             >
@@ -1116,7 +1116,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           <div className="text-[#171718] mb-3 block text-xs font-medium">
             Last Used
             </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {Array.from({ length: 9 }, (_, index) => {
                 const color = recentColors[index];
                 return (
@@ -1130,7 +1130,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       e.stopPropagation();
                       e.preventDefault(); // Prevent focus loss from editor
                     }}
-                  className={`w-6 h-6 border border-gray-300 rounded-md bg-gray-100 transition-all duration-200 relative z-[10002] ${
+                  className={`w-7 h-7 border border-[#E0E0E0] rounded-md bg-gray-100 transition-all duration-200 relative z-[10002] ${
                       color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
                     }`}
                     style={{
