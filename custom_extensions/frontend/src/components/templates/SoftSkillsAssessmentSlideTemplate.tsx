@@ -137,6 +137,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   backgroundColor,
+  containerColors,
   titleColor,
   contentColor,
   accentColor,
@@ -148,6 +149,28 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   voiceoverText,
   onEditorActive
 }) => {
+  // Track selected container for visual feedback
+  const [selectedContainerId, setSelectedContainerId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleContainerSelect = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { containerId } = customEvent.detail;
+      setSelectedContainerId(containerId);
+    };
+
+    const handleClearSelection = () => {
+      setSelectedContainerId(null);
+    };
+
+    document.addEventListener('selectContainer', handleContainerSelect);
+    document.addEventListener('clearContainerSelection', handleClearSelection);
+    
+    return () => {
+      document.removeEventListener('selectContainer', handleContainerSelect);
+      document.removeEventListener('clearContainerSelection', handleClearSelection);
+    };
+  }, []);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTips, setEditingTips] = useState<number | null>(null);
   const [editingAdditionalTips, setEditingAdditionalTips] = useState<number | null>(null);
@@ -335,25 +358,60 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         gap: '30px',
         marginTop: '-35px'
       }}>
-        {currentTips.map((tip, index) => (
-          <div
-            key={index}
-            style={{
-              flex: '1',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px'
-            }}
-          >
-            {/* Main tip block */}
-            <div style={{
-              padding: '20px 70px 30px 32px',
-              backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
-              minHeight: '355px',
-              display: 'flex',
-              zIndex: '2',
-              borderRadius: '4px',
-            }}>
+        {currentTips.map((tip, index) => {
+          const containerId = `tipCard${index}`;
+          const defaultColor = index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent';
+          const containerColor = containerColors?.[containerId] || defaultColor;
+          const isSelected = selectedContainerId === containerId;
+
+          return (
+            <div
+              key={index}
+              style={{
+                flex: '1',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px'
+              }}
+            >
+              {/* Main tip block */}
+              <div 
+                data-container-id={containerId}
+                data-selectable-container="true"
+                style={{
+                  padding: '20px 70px 30px 32px',
+                  backgroundColor: containerColor,
+                  minHeight: '355px',
+                  display: 'flex',
+                  zIndex: '2',
+                  borderRadius: '4px',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  transition: 'outline 0.2s ease',
+                  outline: isEditable && isSelected ? '3px solid #0F58F9' : 'none',
+                  outlineOffset: isEditable && isSelected ? '-3px' : '0',
+                  position: 'relative'
+                }}
+                onClick={(e) => {
+                  if (isEditable) {
+                    e.stopPropagation();
+                    const event = new CustomEvent('selectContainer', {
+                      detail: { containerId },
+                      bubbles: true
+                    });
+                    e.currentTarget.dispatchEvent(event);
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  if (isEditable && !isSelected) {
+                    e.currentTarget.style.outline = '2px solid rgba(15, 88, 249, 0.5)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (isEditable && !isSelected) {
+                    e.currentTarget.style.outline = 'none';
+                  }
+                }}
+              >
               <div style={{
                 fontSize: '37px',
                 fontWeight: '700',
@@ -402,7 +460,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             </div>
 
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Footer separator and elements */}

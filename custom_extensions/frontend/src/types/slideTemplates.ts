@@ -713,6 +713,7 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
   profileImagePath?: string;
   profileImageAlt?: string;
   backgroundColor?: string;
+  containerColors?: Record<string, string>; // { tipCard0: color, tipCard1: color }
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
