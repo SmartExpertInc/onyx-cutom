@@ -331,7 +331,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t('voicePicker.searchPlaceholder', 'Search...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-[#878787]"
@@ -351,7 +351,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.filter(voice => 
                   voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                   (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                ).length + (('Sarah - Conversational'.toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') ? 1 : 0)} ${t('voicePicker.voicesFound', 'voices found')}`}
+                ).length + ((t('voicePicker.mockVoiceName', 'Sarah - Conversational').toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') ? 1 : 0)} ${t('voicePicker.voicesFound', 'voices found')}`}
                   </span>
                 </div>
                       
@@ -394,7 +394,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
 
             {/* Mock voice item */}
-            {('Sarah - Conversational'.toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') && (
+            {(t('voicePicker.mockVoiceName', 'Sarah - Conversational').toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') && (
             <div className="mb-3 group">
               <div 
                 className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
@@ -427,11 +427,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   
                   {/* Text and badges */}
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-gray-900 text-sm font-medium">Sarah - Conversational</span>
+                    <span className="text-gray-900 text-sm font-medium">{t('voicePicker.mockVoiceName', 'Sarah - Conversational')}</span>
                     <div className="flex gap-2 flex-wrap">
                       {/* 32 languages badge - no SVG */}
                       <span className="px-2.5 py-0.5 text-[11px] rounded-full leading-none inline-flex items-center" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
-                        32 languages
+                        {t('voicePicker.badge32Languages', '32 languages')}
                       </span>
                       
                       {/* Custom voice badge */}
@@ -439,7 +439,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11.0837 5.83073V6.9974C11.0837 8.08036 10.6535 9.11897 9.88768 9.88475C9.1219 10.6505 8.08329 11.0807 7.00033 11.0807M7.00033 11.0807C5.91736 11.0807 4.87875 10.6505 4.11297 9.88475C3.3472 9.11897 2.91699 8.08036 2.91699 6.9974V5.83073M7.00033 11.0807V12.8307M7.00033 1.16406C6.5362 1.16406 6.09108 1.34844 5.76289 1.67663C5.4347 2.00481 5.25033 2.44993 5.25033 2.91406V6.9974C5.25033 7.46152 5.4347 7.90664 5.76289 8.23483C6.09108 8.56302 6.5362 8.7474 7.00033 8.7474C7.46445 8.7474 7.90957 8.56302 8.23776 8.23483C8.56595 7.90664 8.75033 7.46152 8.75033 6.9974V2.91406C8.75033 2.44993 8.56595 2.00481 8.23776 1.67663C7.90957 1.34844 7.46445 1.16406 7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Custom voice
+                        {t('voicePicker.badgeCustomVoice', 'Custom voice')}
                       </span>
                       
                       {/* Best fit for avatar badge */}
@@ -447,7 +447,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7.00033 1.16406L8.80283 4.81573L12.8337 5.4049L9.91699 8.24573L10.6053 12.2591L7.00033 10.3632L3.39533 12.2591L4.08366 8.24573L1.16699 5.4049L5.19783 4.81573L7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Best fit for avatar
+                        {t('voicePicker.badgeBestFitAvatar', 'Best fit for avatar')}
                   </span>
                       
                       {/* Previously used badge */}
@@ -455,7 +455,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1.75 7C1.75 5.60761 2.30312 4.27226 3.28769 3.28769C4.27226 2.30312 5.60761 1.75 7 1.75C8.46769 1.75552 9.87643 2.32821 10.9317 3.34833L12.25 4.66667M12.25 4.66667V1.75M12.25 4.66667H9.33333M12.25 7C12.25 8.39239 11.6969 9.72774 10.7123 10.7123C9.72774 11.6969 8.39239 12.25 7 12.25C5.53231 12.2445 4.12357 11.6718 3.06833 10.6517L1.75 9.33333M1.75 9.33333H4.66667M1.75 9.33333V12.25" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Previously used
+                        {t('voicePicker.badgePreviouslyUsed', 'Previously used')}
                   </span>
                 </div>
                       </div>
@@ -474,10 +474,6 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
               );
-              
-              console.log('🔍 [SEARCH] searchTerm:', searchTerm);
-              console.log('🔍 [SEARCH] Total voices:', voices.length);
-              console.log('🔍 [SEARCH] Filtered voices:', filteredVoices.length);
               
               return filteredVoices.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">{t('voicePicker.noResultsFound', 'No results found')}</div>

@@ -2155,6 +2155,7 @@ export const uk = {
   voicePicker: {
     title: "Оберіть голос",
     search: "Пошук",
+    searchPlaceholder: "Пошук...",
     selected: "обрано",
     accent: "Акцент",
     age: "Вік",
@@ -2167,6 +2168,7 @@ export const uk = {
     createCustomVoice: "Створити власний голос",
     new: "НОВИЙ",
     noVoicesFound: "Голоси не знайдені",
+    noResultsFound: "Результатів не знайдено",
     premium: "Преміум",
     selectVoiceToViewDetails: "Виберіть голос для перегляду деталей",
     advancedSettings: "Розширені налаштування",
@@ -2179,6 +2181,13 @@ export const uk = {
     thisSceneOnly: "Тільки ця сцена",
     allScenes: "Всі сцени",
     cancel: "Скасувати",
-    applyVoice: "Застосувати голос"
+    apply: "Застосувати",
+    applyVoice: "Застосувати голос",
+    // Badge translations
+    mockVoiceName: "Сара - Розмовний",
+    badge32Languages: "32 мови",
+    badgeCustomVoice: "Власний голос",
+    badgeBestFitAvatar: "Найкраще підходить для аватара",
+    badgePreviouslyUsed: "Раніше використаний"
   }
 };

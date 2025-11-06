@@ -2175,6 +2175,7 @@ export const es = {
   voicePicker: {
     title: "Elegir una voz",
     search: "Buscar",
+    searchPlaceholder: "Buscar...",
     selected: "seleccionado",
     accent: "Acento",
     age: "Edad",
@@ -2187,6 +2188,7 @@ export const es = {
     createCustomVoice: "Crear una voz personalizada",
     new: "NUEVO",
     noVoicesFound: "No se encontraron voces",
+    noResultsFound: "No se encontraron resultados",
     premium: "Premium",
     selectVoiceToViewDetails: "Seleccione una voz para ver los detalles",
     advancedSettings: "Configuración avanzada",
@@ -2199,6 +2201,13 @@ export const es = {
     thisSceneOnly: "Solo esta escena",
     allScenes: "Todas las escenas",
     cancel: "Cancelar",
-    applyVoice: "Aplicar voz"
+    apply: "Aplicar",
+    applyVoice: "Aplicar voz",
+    // Badge translations
+    mockVoiceName: "Sara - Conversacional",
+    badge32Languages: "32 idiomas",
+    badgeCustomVoice: "Voz personalizada",
+    badgeBestFitAvatar: "Mejor ajuste para avatar",
+    badgePreviouslyUsed: "Usado anteriormente"
   }
 };

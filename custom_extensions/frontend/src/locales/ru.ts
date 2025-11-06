@@ -2150,6 +2150,7 @@ export const ru = {
   voicePicker: {
     title: "Выберите голос",
     search: "Поиск",
+    searchPlaceholder: "Поиск...",
     selected: "выбрано",
     accent: "Акцент",
     age: "Возраст",
@@ -2162,6 +2163,7 @@ export const ru = {
     createCustomVoice: "Создать пользовательский голос",
     new: "НОВЫЙ",
     noVoicesFound: "Голоса не найдены",
+    noResultsFound: "Результаты не найдены",
     premium: "Премиум",
     selectVoiceToViewDetails: "Выберите голос для просмотра деталей",
     advancedSettings: "Расширенные настройки",
@@ -2174,6 +2176,13 @@ export const ru = {
     thisSceneOnly: "Только эта сцена",
     allScenes: "Все сцены",
     cancel: "Отмена",
-    applyVoice: "Применить голос"
+    apply: "Применить",
+    applyVoice: "Применить голос",
+    // Badge translations
+    mockVoiceName: "Сара - Разговорный",
+    badge32Languages: "32 языка",
+    badgeCustomVoice: "Пользовательский голос",
+    badgeBestFitAvatar: "Лучше всего подходит для аватара",
+    badgePreviouslyUsed: "Ранее использованный"
   }
 };
