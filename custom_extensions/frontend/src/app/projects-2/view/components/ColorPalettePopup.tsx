@@ -749,11 +749,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       <div
         ref={popupRef}
         data-color-palette-popup
-        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 w-[336px] overflow-hidden"
+        className="fixed z-[9999] bg-white rounded-lg shadow-lg border border-[#E0E0E0] w-[336px] overflow-hidden"
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
-          height: '540px'
+          height: '520px'
         }}
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => {
@@ -779,7 +779,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               boxShadow: '0px 6.43px 6.43px 0px #0000001A, 0px 2.57px 2.57px 0px #0000000D, 0px 0.64px 0px 0px #0000000D'
             }}
           >
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="11" height="11" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clipPath="url(#clip0_2114_29206)">
                 <path d="M1.2002 8.39922L8.4002 1.19922" stroke="#878787" strokeWidth="0.964286" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M1.2002 1.19922L8.4002 8.39922" stroke="#878787" strokeWidth="0.964286" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
@@ -796,7 +796,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         {/* Main Content Area */}
         <div className="px-4 py-4">
         {/* Saturation/Brightness Square with Vertical Sliders */}
-        <div className="flex gap-3 mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+        <div className="flex gap-3.5 mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
           e.stopPropagation();
           e.preventDefault(); // Prevent focus loss from editor
         }}>
@@ -936,22 +936,25 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             {colorFormat === 'HEX' && (
               <span className="text-sm font-mono">
                 <span style={{ color: '#969298' }}># </span>
-                <span style={{ color: '#171718' }}>{colorState.hex.slice(1)}</span>
+                <span style={{ color: '#171718' }}>{colorState.hex.slice(1).toUpperCase()}</span>
               </span>
             )}
             {colorFormat === 'RGB' && (
-              <span className="text-sm font-mono" style={{ color: '#171718' }}>
-                rgb({Math.round(colorState.rgba.r)}, {Math.round(colorState.rgba.g)}, {Math.round(colorState.rgba.b)})
+              <span className="text-sm font-mono">
+                <span style={{ color: '#878787' }}>rgb</span>
+                <span style={{ color: '#171718' }}>({Math.round(colorState.rgba.r)}, {Math.round(colorState.rgba.g)}, {Math.round(colorState.rgba.b)})</span>
               </span>
             )}
             {colorFormat === 'HSL' && (
-              <span className="text-sm font-mono" style={{ color: '#171718' }}>
-                hsl({Math.round(colorState.hsla.h)}, {Math.round(colorState.hsla.s)}%, {Math.round(colorState.hsla.l)}%)
+              <span className="text-sm font-mono">
+                <span style={{ color: '#878787' }}>hsl</span>
+                <span style={{ color: '#171718' }}>({Math.round(colorState.hsla.h)}, {Math.round(colorState.hsla.s)}%, {Math.round(colorState.hsla.l)}%)</span>
               </span>
             )}
             {colorFormat === 'HSB' && (
-              <span className="text-sm font-mono" style={{ color: '#171718' }}>
-                hsb({Math.round(colorState.hsb.h)}, {Math.round(colorState.hsb.s)}%, {Math.round(colorState.hsb.b)}%)
+              <span className="text-sm font-mono">
+                <span style={{ color: '#878787' }}>hsb</span>
+                <span style={{ color: '#171718' }}>({Math.round(colorState.hsb.h)}, {Math.round(colorState.hsb.s)}%, {Math.round(colorState.hsb.b)}%)</span>
               </span>
             )}
           </div>
