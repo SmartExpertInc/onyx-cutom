@@ -200,7 +200,6 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
       <div style={{
         width: '100%',
         height: '100%',
-        backgroundColor: '#E0E7FF',
         display: 'flex',
         padding: '40px 60px',
         paddingRight: '0px',
