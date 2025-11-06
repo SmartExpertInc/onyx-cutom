@@ -364,7 +364,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Create Custom Voice Row */}
             <div className="mb-2">
               <div 
-                className="rounded-lg p-2 flex items-center justify-between cursor-pointer bg-white border"
+                className="rounded-lg p-1 flex items-center justify-between cursor-pointer bg-white border"
                 style={{ 
                   borderColor: '#0F58F9' 
                 }}
@@ -396,7 +396,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Mock voice item */}
             <div className="mb-2 group">
               <div 
-                className="rounded-lg p-2 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
+                className="rounded-lg p-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
                 }}
@@ -429,12 +429,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     <span className="text-gray-900 text-sm font-medium">Sarah - Conversational</span>
                     <div className="flex gap-2 flex-wrap">
                       {/* 32 languages badge - no SVG */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
+                      <span className="px-2 py-0.5 text-[11px] rounded-full leading-none" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
                         32 languages
                       </span>
                       
                       {/* Custom voice badge */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2" style={{ backgroundColor: '#CCDBFC', color: '#171718' }}>
+                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CCDBFC', color: '#171718' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11.0837 5.83073V6.9974C11.0837 8.08036 10.6535 9.11897 9.88768 9.88475C9.1219 10.6505 8.08329 11.0807 7.00033 11.0807M7.00033 11.0807C5.91736 11.0807 4.87875 10.6505 4.11297 9.88475C3.3472 9.11897 2.91699 8.08036 2.91699 6.9974V5.83073M7.00033 11.0807V12.8307M7.00033 1.16406C6.5362 1.16406 6.09108 1.34844 5.76289 1.67663C5.4347 2.00481 5.25033 2.44993 5.25033 2.91406V6.9974C5.25033 7.46152 5.4347 7.90664 5.76289 8.23483C6.09108 8.56302 6.5362 8.7474 7.00033 8.7474C7.46445 8.7474 7.90957 8.56302 8.23776 8.23483C8.56595 7.90664 8.75033 7.46152 8.75033 6.9974V2.91406C8.75033 2.44993 8.56595 2.00481 8.23776 1.67663C7.90957 1.34844 7.46445 1.16406 7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
@@ -442,20 +442,20 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       </span>
                       
                       {/* Best fit for avatar badge */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2" style={{ backgroundColor: '#CAFCF7', color: '#171718' }}>
+                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CAFCF7', color: '#171718' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7.00033 1.16406L8.80283 4.81573L12.8337 5.4049L9.91699 8.24573L10.6053 12.2591L7.00033 10.3632L3.39533 12.2591L4.08366 8.24573L1.16699 5.4049L5.19783 4.81573L7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         Best fit for avatar
-                      </span>
+                  </span>
                       
                       {/* Previously used badge */}
-                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2" style={{ backgroundColor: '#FEE7C8', color: '#171718' }}>
+                      <span className="px-2 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#FEE7C8', color: '#171718' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1.75 7C1.75 5.60761 2.30312 4.27226 3.28769 3.28769C4.27226 2.30312 5.60761 1.75 7 1.75C8.46769 1.75552 9.87643 2.32821 10.9317 3.34833L12.25 4.66667M12.25 4.66667V1.75M12.25 4.66667H9.33333M12.25 7C12.25 8.39239 11.6969 9.72774 10.7123 10.7123C9.72774 11.6969 8.39239 12.25 7 12.25C5.53231 12.2445 4.12357 11.6718 3.06833 10.6517L1.75 9.33333M1.75 9.33333H4.66667M1.75 9.33333V12.25" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         Previously used
-                      </span>
+                  </span>
                 </div>
                       </div>
                     </div>
@@ -492,7 +492,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                    }}
                  >
                   <div 
-                    className={`rounded-lg p-2 flex items-center justify-between cursor-pointer border transition-all ${
+                    className={`rounded-lg p-1 flex items-center justify-between cursor-pointer border transition-all ${
                     tempSelectedVoice?.voice === voice.voice 
                         ? 'border-[#E0E0E0] bg-white' 
                         : 'border-[#E0E0E0] bg-white'
@@ -514,32 +514,27 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   >
                 <div className="flex items-center gap-3">
                   {/* Voice icon / Play button */}
-                      <div 
-                    className="cursor-pointer"
-                        onClick={(e) => handlePlayVoice(e, voice)}
-                      >
-                        {playingVoice === voice.voice ? (
-                      <div className="w-12 h-12 flex items-center justify-center">
-                            <div className="flex gap-0.5">
-                              <div className="w-0.5 h-2.5 bg-gray-600"></div>
-                              <div className="w-0.5 h-2.5 bg-gray-600"></div>
-                    </div>
-                  </div>
-                        ) : (
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 40.5C15.25 40.5 14.5469 39.7969 14.5469 38.8594V25.8125C14.5469 24.9531 15.25 24.25 16.1094 24.25C17.0469 24.25 17.75 24.9531 17.75 25.8125V38.9375C17.75 39.7969 16.9688 40.5 16.1094 40.5Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M10.875 34.7188C9.9375 34.7188 9.23438 34.0156 9.23438 33.0781V15.4219C9.23438 14.4844 9.9375 13.7812 10.875 13.7812C11.7344 13.7812 12.4375 14.4844 12.4375 15.4219V33.0781C12.4375 34.0156 11.7344 34.7188 10.875 34.7188Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M5.64062 30.5C4.70312 30.5 4 29.7969 4 28.9375V19.5625C4 18.7031 4.70312 18 5.64062 18C6.5 18 7.20312 18.7031 7.20312 19.5625V28.9375C7.20312 29.7969 6.5 30.5 5.64062 30.5Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M31.8906 28.4688C31.0312 28.4688 30.25 27.7656 30.25 26.9062V21.6719C30.25 20.7344 30.9531 20.0312 31.8906 20.0312C32.75 20.0312 33.4531 20.7344 33.4531 21.6719V26.8281C33.4531 27.7656 32.75 28.4688 31.8906 28.4688Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 19.9531C25.7188 19.9531 25.0156 19.1719 25.0156 18.3125V15.0312C25.0156 14.0938 25.7188 13.3906 26.6562 13.3906C27.5156 13.3906 28.2188 14.0938 28.2188 15.0312V18.3125C28.2188 19.1719 27.5156 19.9531 26.6562 19.9531Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 35.1094C25.7188 35.1094 25.0156 34.4062 25.0156 33.4688V22.6875C25.0156 21.8281 25.7188 21.125 26.6562 21.125C27.5156 21.125 28.2188 21.8281 28.2188 22.6875V33.4688C28.2188 34.3281 27.5156 35.1094 26.6562 35.1094Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M21.3438 33.1562C20.4844 33.1562 19.7812 32.375 19.7812 31.5156V16.9844C19.7812 16.125 20.4844 15.3438 21.3438 15.3438C22.2812 15.3438 22.9844 16.125 22.9844 16.9844V31.5156C22.9844 32.4531 22.2812 33.1562 21.3438 33.1562Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#E0E0E0"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#E0E0E0"/>
-                      </svg>
-                        )}
-                  </div>
+                  {/* Voice icon - hidden on hover and when selected */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" 
+                    className={tempSelectedVoice?.voice === voice.voice ? 'hidden' : 'group-hover:hidden'}>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 40.5C15.25 40.5 14.5469 39.7969 14.5469 38.8594V25.8125C14.5469 24.9531 15.25 24.25 16.1094 24.25C17.0469 24.25 17.75 24.9531 17.75 25.8125V38.9375C17.75 39.7969 16.9688 40.5 16.1094 40.5Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10.875 34.7188C9.9375 34.7188 9.23438 34.0156 9.23438 33.0781V15.4219C9.23438 14.4844 9.9375 13.7812 10.875 13.7812C11.7344 13.7812 12.4375 14.4844 12.4375 15.4219V33.0781C12.4375 34.0156 11.7344 34.7188 10.875 34.7188Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M5.64062 30.5C4.70312 30.5 4 29.7969 4 28.9375V19.5625C4 18.7031 4.70312 18 5.64062 18C6.5 18 7.20312 18.7031 7.20312 19.5625V28.9375C7.20312 29.7969 6.5 30.5 5.64062 30.5Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M31.8906 28.4688C31.0312 28.4688 30.25 27.7656 30.25 26.9062V21.6719C30.25 20.7344 30.9531 20.0312 31.8906 20.0312C32.75 20.0312 33.4531 20.7344 33.4531 21.6719V26.8281C33.4531 27.7656 32.75 28.4688 31.8906 28.4688Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 19.9531C25.7188 19.9531 25.0156 19.1719 25.0156 18.3125V15.0312C25.0156 14.0938 25.7188 13.3906 26.6562 13.3906C27.5156 13.3906 28.2188 14.0938 28.2188 15.0312V18.3125C28.2188 19.1719 27.5156 19.9531 26.6562 19.9531Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 35.1094C25.7188 35.1094 25.0156 34.4062 25.0156 33.4688V22.6875C25.0156 21.8281 25.7188 21.125 26.6562 21.125C27.5156 21.125 28.2188 21.8281 28.2188 22.6875V33.4688C28.2188 34.3281 27.5156 35.1094 26.6562 35.1094Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M21.3438 33.1562C20.4844 33.1562 19.7812 32.375 19.7812 31.5156V16.9844C19.7812 16.125 20.4844 15.3438 21.3438 15.3438C22.2812 15.3438 22.9844 16.125 22.9844 16.9844V31.5156C22.9844 32.4531 22.2812 33.1562 21.3438 33.1562Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#E0E0E0"/>
+                  </svg>
+                  {/* Play button - visible on hover and when selected */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" 
+                    className={tempSelectedVoice?.voice === voice.voice ? 'block' : 'hidden group-hover:block'}
+                    onClick={(e) => handlePlayVoice(e, voice)}>
+                    <circle cx="24" cy="24" r="19.5" fill="white" stroke="#4D4D4D"/>
+                    <path d="M31.75 23.3612C32.4167 23.7461 32.4167 24.7084 31.75 25.0933L20.5 31.5885C19.8333 31.9734 19 31.4922 19 30.7224L19 17.7321C19 16.9623 19.8333 16.4811 20.5 16.866L31.75 23.3612Z" fill="#4D4D4D"/>
+                  </svg>
                   
                   {/* Text and badges */}
                   <div className="flex flex-col gap-1.5">
@@ -585,7 +580,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             
                 {/* Row 2: Flag + locale */}
                 {tempSelectedVoice.name && (
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2">
                     {tempSelectedVoice.icon === 'us' && <AmericanFlag size={16} />}
                     {tempSelectedVoice.icon === 'gb' && <BritishFlag size={16} />}
                     {tempSelectedVoice.icon === 'au' && <AustralianFlag size={16} />}
@@ -600,7 +595,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       {tempSelectedVoice.tags.map((tag, index) => (
                   <span
                           key={index}
-                    className="px-2 py-0.5 bg-white text-[11px] rounded-full"
+                    className="px-2 py-0.5 bg-white text-[11px] rounded-full leading-none"
                     style={{ color: '#878787', borderWidth: '1px', borderStyle: 'solid', borderColor: '#878787' }}
                   >
                           {tag.charAt(0).toUpperCase() + tag.slice(1)}
@@ -617,12 +612,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             )}
             
             {/* Advanced settings */}
-            <div className="my-3">
-              <h4 className="text-xs font-medium" style={{ color: '#878787' }}>{t('voicePicker.advancedSettings', 'Advanced settings')}</h4>
+            <div className="my-4">
+              <h4 className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.advancedSettings', 'Advanced settings')}</h4>
             </div>
             
             {/* Speed */}
-            <div className="mb-4">
+            <div className="mb-2">
               <div className="flex justify-between items-center mb-1">
                 <label className="text-xs" style={{ color: '#4D4D4D' }}>{t('voicePicker.speed', 'Speed')}</label>
                 <span className="text-xs" style={{ color: '#4D4D4D' }}>{speed}</span>
@@ -654,7 +649,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.06533 4.93417C9.61212 5.48112 9.91929 6.22285 9.91929 6.99625C9.91929 7.76965 9.61212 8.51138 9.06533 9.05833M11.1245 2.875C12.2181 3.96891 12.8324 5.45238 12.8324 6.99917C12.8324 8.54596 12.2181 10.0294 11.1245 11.1233M6.41699 2.91583L3.50033 5.24917H1.16699V8.74917H3.50033L6.41699 11.0825V2.91583Z" stroke="#4D4D4D" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span className="text-xs font-medium">
+                <span className="text-xs">
                   {playingVoice === tempSelectedVoice.voice ? t('voicePicker.stopSample', 'Stop Sample') : t('voicePicker.playSample', 'Play Sample')}
                 </span>
             </button>
@@ -669,7 +664,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         <div className="bg-white flex items-center justify-between rounded-b-xl">
           {/* Left side - Apply new voice to */}
           <div className="flex-1">
-            <div className="rounded-lg px-1 py-1 flex gap-1 w-full max-w-md" style={{ backgroundColor: '#F4F4F5' }}>
+            <div className="rounded-lg px-1 py-1 flex gap-1" style={{ backgroundColor: '#F4F4F5', width: '250px' }}>
               <button
                 onClick={() => setApplyTo('scene')}
                 className={`flex-1 py-1 text-xs rounded transition-colors ${
