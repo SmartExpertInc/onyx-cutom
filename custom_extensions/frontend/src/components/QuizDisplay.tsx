@@ -829,18 +829,18 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               <circle cx="9.44068" cy="16.5227" r="1.57349" fill="white"/>
               </svg> */}
               </div>
-          <div className="flex-1">
+              <div className="flex-1">
                 {(isEditing || (editingField?.type === 'question' && editingField.questionIndex === index)) ? (
-              <input
-                type="text"
-                value={question.question_text}
-                onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
-                    onBlur={handleBlur}
-                    autoFocus
-                    className="w-[400px] text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
-                    placeholder={`${questionNumber}. Enter your question...`}
-              />
-            ) : (
+                  <input
+                    type="text"
+                    value={question.question_text}
+                    onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
+                        onBlur={handleBlur}
+                        autoFocus
+                        className="w-[400px] text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
+                        placeholder={`${questionNumber}. Enter your question...`}
+                  />
+                ) : (
                   <h3 
                     className="text-xl font-bold text-[#0F58F9] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
                     onClick={() => onTextChange && setEditingField({type: 'question', questionIndex: index})}
@@ -850,11 +850,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 )}
               </div>
             </div>
-            <button className="p-2 hover:bg-blue-100 rounded">
-              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9.44573 2.60853H2.48794C1.96071 2.60853 1.45507 2.81797 1.08225 3.19078C0.709443 3.5636 0.5 4.06924 0.5 4.59647V18.5121C0.5 19.0393 0.709443 19.5449 1.08225 19.9177C1.45507 20.2906 1.96071 20.5 2.48794 20.5H16.4035C16.9308 20.5 17.4364 20.2906 17.8092 19.9177C18.182 19.5449 18.3915 19.0393 18.3915 18.5121V11.5543M16.9005 1.11757C17.2959 0.722148 17.8323 0.5 18.3915 0.5C18.9507 0.5 19.487 0.722148 19.8824 1.11757C20.2779 1.513 20.5 2.04931 20.5 2.60853C20.5 3.16775 20.2779 3.70406 19.8824 4.09949L10.4397 13.5422L6.46382 14.5362L7.45779 10.5603L16.9005 1.11757Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            {(isEditing || editingField !== null) && (
+              <button className="p-2 rounded">
+                <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.44573 2.60853H2.48794C1.96071 2.60853 1.45507 2.81797 1.08225 3.19078C0.709443 3.5636 0.5 4.06924 0.5 4.59647V18.5121C0.5 19.0393 0.709443 19.5449 1.08225 19.9177C1.45507 20.2906 1.96071 20.5 2.48794 20.5H16.4035C16.9308 20.5 17.4364 20.2906 17.8092 19.9177C18.182 19.5449 18.3915 19.0393 18.3915 18.5121V11.5543M16.9005 1.11757C17.2959 0.722148 17.8323 0.5 18.3915 0.5C18.9507 0.5 19.487 0.722148 19.8824 1.11757C20.2779 1.513 20.5 2.04931 20.5 2.60853C20.5 3.16775 20.2779 3.70406 19.8824 4.09949L10.4397 13.5422L6.46382 14.5362L7.45779 10.5603L16.9005 1.11757Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
