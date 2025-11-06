@@ -122,6 +122,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'answer' | 'prompt' | 'match-option' | 'explanation', questionIndex: number, optionIndex?: number, answerIndex?: number, promptIndex?: number} | null>(null);
   const [showQuestionTypeMenu, setShowQuestionTypeMenu] = useState(false);
   const questionTypeMenuRef = useRef<HTMLDivElement>(null);
+  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
 
@@ -141,6 +142,27 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showQuestionTypeMenu]);
+
+  // Debounced auto-save function
+  const debouncedAutoSave = () => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      if (onAutoSave) {
+        onAutoSave();
+      }
+    }, 1000); // 1 second debounce
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!dataToDisplay || !dataToDisplay.questions) {
     return null;
@@ -175,10 +197,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const handleBlur = () => {
     setEditingField(null);
     console.log('handleBlur');
-    // Trigger auto-save immediately on blur
-    if (onAutoSave) {
-      onAutoSave();
-    }
+    // Trigger debounced auto-save on blur
+    debouncedAutoSave();
   };
 
   const handleCorrectAnswerChange = (questionIndex: number, optionId: string, isCorrect: boolean) => {
@@ -199,10 +219,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         : [...currentCorrectIds, optionId];
       handleTextChange(['questions', questionIndex, 'correct_option_ids'], newCorrectIds);
     }
-    // Trigger auto-save immediately after changing correct answer
-    if (onAutoSave) {
-      onAutoSave();
-    }
+    // Trigger debounced auto-save after changing correct answer
+    debouncedAutoSave();
   };
 
   const handleAddQuestion = (questionType: 'multiple-choice' | 'multi-select' | 'matching' | 'sorting' | 'open-answer') => {
@@ -288,10 +306,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const updatedQuestions = [...questions, newQuestion];
     handleTextChange(['questions'], updatedQuestions);
     setShowQuestionTypeMenu(false);
-    // Trigger auto-save immediately after adding a question
-    if (onAutoSave) {
-      onAutoSave();
-    }
+    // Trigger debounced auto-save after adding a question
+    debouncedAutoSave();
   };
 
   const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
@@ -427,10 +443,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         [promptId]: newOptionId,
       };
       handleTextChange(['questions', index, 'correct_matches'], newCorrectMatches);
-      // Trigger auto-save immediately when match is changed
-      if (onAutoSave) {
-        onAutoSave();
-      }
+      // Trigger debounced auto-save when match is changed
+      debouncedAutoSave();
     };
 
     return (
@@ -642,10 +656,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       
       setSortedItems(newSortedItems);
       handleTextChange(['questions', index, 'correct_order'], newSortedItems);
-      // Trigger auto-save immediately after drag-and-drop
-      if (onAutoSave) {
-        onAutoSave();
-      }
+      // Trigger debounced auto-save after drag-and-drop
+      debouncedAutoSave();
     };
 
     if (isEditing) {
@@ -658,10 +670,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           
           handleTextChange(['questions', index, 'items_to_sort'], newItemsToSort);
           handleTextChange(['questions', index, 'correct_order'], newCorrectOrder);
-          // Trigger auto-save immediately after adding an item
-          if (onAutoSave) {
-            onAutoSave();
-          }
+          // Trigger debounced auto-save after adding an item
+          debouncedAutoSave();
         };
 
         const handleRemoveItem = (itemId: string) => {
@@ -670,10 +680,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
           handleTextChange(['questions', index, 'items_to_sort'], newItemsToSort);
           handleTextChange(['questions', index, 'correct_order'], newCorrectOrder);
-          // Trigger auto-save immediately after removing an item
-          if (onAutoSave) {
-            onAutoSave();
-          }
+          // Trigger debounced auto-save after removing an item
+          debouncedAutoSave();
         };
 
         return (
