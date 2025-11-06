@@ -1325,6 +1325,7 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   middlePanelColor?: string;
   avatarPath?: string;
   voiceoverText?: string;
+  backgroundColor?: string;
 }
 
 export interface PercentCirclesProps extends BaseTemplateProps {

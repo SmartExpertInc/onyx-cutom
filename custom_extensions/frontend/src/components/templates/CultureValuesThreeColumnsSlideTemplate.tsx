@@ -20,6 +20,7 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   rightText: string;
   middlePanelColor?: string;
   avatarPath?: string;
+  backgroundColor?: string;
 }
 
 export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { 
@@ -41,7 +42,8 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   isEditable = false,
   onUpdate,
   theme,
-  onEditorActive
+  onEditorActive,
+  backgroundColor
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editLogo, setEditLogo] = useState(false);
@@ -64,7 +66,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const rightTitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
   const rightTextEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'black', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background: backgroundColor || '#E0E7FF', color:'black', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontWeight:800, color:'#242424' };
