@@ -72,6 +72,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
+    backgroundColor: backgroundColor || '#E0E7FF',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -409,7 +410,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        backgroundColor: '#E0E7FF',
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
