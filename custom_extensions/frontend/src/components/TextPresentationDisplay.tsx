@@ -2785,12 +2785,21 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [fabOpen, setFabOpen] = useState(false);
   const [addSectionDropdownOpen, setAddSectionDropdownOpen] = useState(false);
   const [editingBlockIndex, setEditingBlockIndex] = useState<number | null>(null);
-  const [purpleBoxContent, setPurpleBoxContent] = useState(PURPLE_BOX_CONTENT);
+  const [purpleBoxContent, setPurpleBoxContent] = useState(() => {
+    return (dataToDisplay as any)?.purpleBoxContent || PURPLE_BOX_CONTENT;
+  });
   const [editingPurpleBox, setEditingPurpleBox] = useState<{
     type: 'title' | 'description' | 'card' | null;
     cardIndex?: number;
     field?: 'title' | 'description';
   }>({ type: null });
+
+  // Sync purpleBoxContent with dataToDisplay when it changes
+  useEffect(() => {
+    if ((dataToDisplay as any)?.purpleBoxContent) {
+      setPurpleBoxContent((dataToDisplay as any).purpleBoxContent);
+    }
+  }, [(dataToDisplay as any)?.purpleBoxContent]);
   
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
@@ -2818,47 +2827,61 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [isEditing]);
 
   const handlePurpleBoxChange = useCallback((value: string) => {
-    setPurpleBoxContent(prev => {
+    if (!onTextChange) return;
+    
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
+      let updated;
       if (editingPurpleBox.type === 'title') {
-        return { ...prev, title: value };
+        updated = { ...prev, title: value };
+        onTextChange(['purpleBoxContent', 'title'], value);
       } else if (editingPurpleBox.type === 'description') {
-        return { ...prev, description: value };
+        updated = { ...prev, description: value };
+        onTextChange(['purpleBoxContent', 'description'], value);
       } else if (editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex !== undefined && editingPurpleBox.field) {
         const newCards = [...prev.cards];
         newCards[editingPurpleBox.cardIndex] = {
           ...newCards[editingPurpleBox.cardIndex],
           [editingPurpleBox.field]: value
         };
-        return { ...prev, cards: newCards };
+        updated = { ...prev, cards: newCards };
+        onTextChange(['purpleBoxContent', 'cards'], newCards);
+      } else {
+        return prev;
       }
-      return prev;
+      return updated;
     });
-  }, [editingPurpleBox]);
+  }, [editingPurpleBox, onTextChange]);
 
   const closePurpleBoxEdit = useCallback(() => {
     setEditingPurpleBox({ type: null });
   }, []);
 
   const addPurpleBoxCard = useCallback(() => {
-    setPurpleBoxContent(prev => ({
-      ...prev,
-      cards: [
+    if (!onTextChange) return;
+    
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
+      const newCards = [
         ...prev.cards,
         {
           title: 'New Card',
           description: 'Card description',
           icon: 'drilling'
         }
-      ]
-    }));
-  }, []);
+      ];
+      onTextChange(['purpleBoxContent', 'cards'], newCards);
+      return { ...prev, cards: newCards };
+    });
+  }, [onTextChange]);
 
   const removePurpleBoxCard = useCallback((index: number) => {
-    setPurpleBoxContent(prev => ({
-      ...prev,
-      cards: prev.cards.filter((_, i) => i !== index)
-    }));
-  }, []);
+    if (!onTextChange) return;
+    
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
+      const newCards = prev.cards.filter((_: any, i: number) => i !== index);
+      onTextChange(['purpleBoxContent', 'cards'], newCards);
+      return { ...prev, cards: newCards };
+    });
+  }, [onTextChange]);
 
   const [draggedCardIndex, setDraggedCardIndex] = useState<number | null>(null);
   const [dragOverCardIndex, setDragOverCardIndex] = useState<number | null>(null);
@@ -2876,18 +2899,19 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   const handleCardDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    if (draggedCardIndex === null || draggedCardIndex === dropIndex) return;
+    if (draggedCardIndex === null || draggedCardIndex === dropIndex || !onTextChange) return;
     
-    setPurpleBoxContent(prev => {
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
       const newCards = [...prev.cards];
       const [draggedCard] = newCards.splice(draggedCardIndex, 1);
       newCards.splice(dropIndex, 0, draggedCard);
+      onTextChange(['purpleBoxContent', 'cards'], newCards);
       return { ...prev, cards: newCards };
     });
     
     setDraggedCardIndex(null);
     setDragOverCardIndex(null);
-  }, [draggedCardIndex]);
+  }, [draggedCardIndex, onTextChange]);
 
   const handleCardDragEnd = useCallback(() => {
     setDraggedCardIndex(null);
@@ -2938,7 +2962,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       'md:grid-cols-4'
                     }`}
                   >
-                  {purpleBoxContent.cards.map((card, index) => {
+                  {purpleBoxContent.cards.map((card: { title: string; description: string; icon: string }, index: number) => {
                     const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
                     const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
                     
