@@ -122,7 +122,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       handleTextChange(['questions', questionIndex, 'correct_option_ids'], newCorrectIds);
     }
     // Trigger auto-save immediately after changing correct answer
-    if (onAutoSave && isEditing) {
+    if (onAutoSave) {
       onAutoSave();
     }
   };
@@ -211,7 +211,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     handleTextChange(['questions'], updatedQuestions);
     setShowQuestionTypeMenu(false);
     // Trigger auto-save immediately after adding a question
-    if (onAutoSave && isEditing) {
+    if (onAutoSave) {
       onAutoSave();
     }
   };
@@ -414,7 +414,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       };
       handleTextChange(['questions', index, 'correct_matches'], newCorrectMatches);
       // Trigger auto-save immediately when match is changed
-      if (onAutoSave && isEditing) {
+      if (onAutoSave) {
         onAutoSave();
       }
     };
@@ -660,7 +660,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       setSortedItems(newSortedItems);
       handleTextChange(['questions', index, 'correct_order'], newSortedItems);
       // Trigger auto-save immediately after drag-and-drop
-      if (onAutoSave && isEditing) {
+      if (onAutoSave) {
         onAutoSave();
       }
     };
