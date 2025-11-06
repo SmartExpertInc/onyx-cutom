@@ -159,14 +159,18 @@ class HTMLToImageService:
             logger.error(f"weasyprint conversion error: {str(e)}")
             return False
     
-    async def convert_html_to_png_playwright(self, html_content: str, output_path: str) -> bool:
+    async def convert_html_to_png_playwright(self, html_content: str, output_path: str, width: int = None, height: int = None) -> bool:
         """Convert HTML to PNG using Playwright (most reliable method)."""
         try:
             # Try to use playwright for HTML to image conversion
             from playwright.async_api import async_playwright
             import os
             
-            logger.info("Using Playwright for HTML to PNG conversion")
+            # Use custom dimensions if provided, otherwise use default video dimensions
+            target_width = width if width is not None else self.video_width
+            target_height = height if height is not None else self.video_height
+            
+            logger.info(f"Using Playwright for HTML to PNG conversion (dimensions: {target_width}x{target_height})")
             
             async with async_playwright() as p:
                 # Launch browser with optimized settings
@@ -188,7 +192,7 @@ class HTMLToImageService:
                 logger.info(f"🎬 [PLAYWRIGHT] Using base URL for HTML rendering: {base_url}")
 
                 context = await browser.new_context(
-                    viewport={'width': self.video_width, 'height': self.video_height},
+                    viewport={'width': target_width, 'height': target_height},
                     base_url=base_url,
                     device_scale_factor=1
                 )
@@ -259,22 +263,24 @@ class HTMLToImageService:
                 logger.info(f"🎬 [PLAYWRIGHT] Waiting for fonts to load...")
                 try:
                     # Add timeout to font loading - don't wait forever for Google Fonts
+                    # Increased timeout for poster generation to ensure Montserrat loads properly
                     await asyncio.wait_for(
                         page.evaluate("document.fonts.ready"),
-                        timeout=5.0  # 5 seconds max for fonts
+                        timeout=10.0  # 10 seconds max for fonts (increased for posters)
                     )
                     logger.info(f"🎬 [PLAYWRIGHT] Fonts loaded successfully")
                 except asyncio.TimeoutError:
-                    logger.warning(f"🎬 [PLAYWRIGHT] Font loading timed out after 5s (using system fonts as fallback)")
+                    logger.warning(f"🎬 [PLAYWRIGHT] Font loading timed out after 10s (using system fonts as fallback)")
                 except Exception as font_error:
                     logger.warning(f"🎬 [PLAYWRIGHT] Font loading failed (non-critical): {font_error}")
                 
                 # Give extra time for final rendering (CSS animations, transitions, etc.)
-                await asyncio.sleep(1)
+                # Increased wait time for posters to ensure proper font rendering
+                await asyncio.sleep(2)
                 logger.info(f"🎬 [PLAYWRIGHT] Final render delay completed")
                 
                 # Take screenshot with proper dimensions
-                logger.info(f"🎬 [PLAYWRIGHT] Taking screenshot at {self.video_width}x{self.video_height}...")
+                logger.info(f"🎬 [PLAYWRIGHT] Taking screenshot at {target_width}x{target_height}...")
                 await page.screenshot(
                     path=output_path,
                     type='png',
@@ -282,8 +288,8 @@ class HTMLToImageService:
                     clip={
                         'x': 0,
                         'y': 0,
-                        'width': self.video_width,
-                        'height': self.video_height
+                        'width': target_width,
+                        'height': target_height
                     }
                 )
                 logger.info(f"🎬 [PLAYWRIGHT] Screenshot captured successfully")
@@ -614,7 +620,9 @@ class HTMLToImageService:
     async def convert_html_to_png(self, 
                                 html_content: str, 
                                 output_path: str,
-                                template_id: str = "unknown") -> bool:
+                                template_id: str = "unknown",
+                                width: int = None,
+                                height: int = None) -> bool:
         """
         Convert HTML content to PNG image using the best available method.
         
@@ -622,6 +630,8 @@ class HTMLToImageService:
             html_content: Clean HTML content
             output_path: Path where PNG should be saved
             template_id: Template ID for logging
+            width: Custom width (optional, uses default video width if not provided)
+            height: Custom height (optional, uses default video height if not provided)
             
         Returns:
             True if successful, False otherwise
@@ -630,12 +640,16 @@ class HTMLToImageService:
         start_time = time.time()
         conversion_id = f"conv-{int(time.time())}-{template_id}"
         
+        # Determine target dimensions
+        target_width = width if width is not None else self.video_width
+        target_height = height if height is not None else self.video_height
+        
         try:
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] ========== HTML-TO-IMAGE CONVERSION STARTED ==========")
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}")
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Template ID: {template_id}")
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Conversion method: {self.method}")
-            logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Target dimensions: {self.video_width}x{self.video_height}")
+            logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Target dimensions: {target_width}x{target_height}")
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Output path: {output_path}")
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] HTML content length: {len(html_content)} characters")
             logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] HTML preview (first 150 chars): {html_content[:150]}...")
@@ -646,7 +660,7 @@ class HTMLToImageService:
             
             if self.method == "playwright":
                 logger.info(f" [HTML_TO_IMAGE] [{conversion_id}] Attempting Playwright conversion...")
-                success = await self.convert_html_to_png_playwright(html_content, output_path)
+                success = await self.convert_html_to_png_playwright(html_content, output_path, target_width, target_height)
                 method_end = time.time()
                 method_duration = (method_end - method_start) * 1000
                 

@@ -40119,11 +40119,14 @@ async def generate_poster_image(request: Request):
                 logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - html_content length: {len(html_content)} chars")
                 logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - output_path: {output_path}")
                 logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - template_id: poster")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - dimensions: 1000x1000 (poster format)")
                 
                 success = await html_to_image_service.convert_html_to_png(
                     html_content=html_content,
                     output_path=output_path,
-                    template_id="poster"
+                    template_id="poster",
+                    width=1000,
+                    height=1000
                 )
                 
                 conversion_end = time.time()
@@ -40162,7 +40165,9 @@ async def generate_poster_image(request: Request):
             success = await html_to_image_service.convert_html_to_png(
                 html_content=html_content,
                 output_path=output_path,
-                template_id="poster"
+                template_id="poster",
+                width=1000,
+                height=1000
             )
         
         # File validation and analysis
