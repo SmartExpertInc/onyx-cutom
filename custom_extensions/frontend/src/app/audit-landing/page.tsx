@@ -273,7 +273,7 @@ export default function AuditLandingPage() {
 
         {/* Try for Free Button */}
         <button 
-          className="w-full md:w-auto px-10 py-4 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center justify-center gap-4 md:inline-flex transition-all hover:scale-105 md:static fixed bottom-6 left-6 right-6 z-20"
+          className="w-full md:w-auto px-10 py-4 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center justify-center gap-4 md:inline-flex transition-all hover:scale-105 md:static bottom-6 left-6 right-6 z-20"
           style={{
             backgroundColor: '#0F58F9',
           }}
@@ -380,7 +380,7 @@ export default function AuditLandingPage() {
                     <path d="M19.9598 4.76162C18.8145 4.76162 17.8864 3.83207 17.8849 2.68673V0H0.744851C0.33255 0 0 0.333991 0 0.74485V29.2537C0 29.666 0.332516 30 0.744851 30H21.9016C22.3139 30 22.6465 29.666 22.6465 29.2537V4.76155L19.9598 4.76162ZM11.9915 10.5754H13.83C14.198 10.5754 14.495 10.8724 14.495 11.2404C14.495 11.6084 14.1979 11.9054 13.83 11.9054H11.9915C11.625 11.9054 11.3265 11.6084 11.3265 11.2404C11.3265 10.8724 11.625 10.5754 11.9915 10.5754ZM4.38791 6.81575H9.48511C9.85309 6.81575 10.1501 7.1128 10.1501 7.48077C10.1501 7.84875 9.85308 8.14579 9.48511 8.14579H4.38942C4.02144 8.14579 3.7244 7.84875 3.7244 7.48077C3.7244 7.1128 4.02145 6.81575 4.38942 6.81575H4.38791ZM4.38791 10.5754H8.73413C9.10063 10.5754 9.39915 10.8724 9.39915 11.2404C9.39915 11.6084 9.10063 11.9054 8.73413 11.9054H4.38791C4.02141 11.9054 3.72289 11.6084 3.72289 11.2404C3.72289 10.8724 4.02141 10.5754 4.38791 10.5754ZM18.2574 23.1843H4.38942C4.02144 23.1843 3.7244 22.8872 3.7244 22.5192C3.7244 22.1513 4.02145 21.8542 4.38942 21.8542H18.2589H18.2574C18.6254 21.8542 18.9224 22.1513 18.9224 22.5192C18.9224 22.8872 18.6254 23.1843 18.2574 23.1843ZM18.2574 19.4246H4.38942C4.02144 19.4246 3.7244 19.1276 3.7244 18.7596C3.7244 18.3916 4.02145 18.0946 4.38942 18.0946H18.2589H18.2574C18.6254 18.0946 18.9224 18.3916 18.9224 18.7596C18.9224 19.1276 18.6254 19.4246 18.2574 19.4246ZM18.2574 15.665H4.38942C4.02144 15.665 3.7244 15.368 3.7244 15C3.7244 14.632 4.02145 14.335 4.38942 14.335H18.2589H18.2574C18.6254 14.335 18.9224 14.632 18.9224 15C18.9224 15.368 18.6254 15.665 18.2574 15.665Z" fill="#0F58F9"/>
                     </svg>
                 </div>
-                <p className="text-[18px] max-w-lg text-black sora-font">
+                <p className="text-[18px] max-w-md text-black sora-font">
                   Turn any files into ready-to-use courses, lessons, and presentations with AI.
                 </p>
               </div>
@@ -396,7 +396,7 @@ export default function AuditLandingPage() {
                     <path d="M26.5591 27.8545H1.07275C0.788238 27.8545 0.515381 27.9675 0.314201 28.1687C0.113021 28.3699 0 28.6427 0 28.9272C0 29.2118 0.113021 29.4846 0.314201 29.6858C0.515381 29.887 0.788238 30 1.07275 30H26.5591C26.8436 30 27.1165 29.887 27.3177 29.6858C27.5189 29.4846 27.6319 29.2118 27.6319 28.9272C27.6319 28.6427 27.5189 28.3699 27.3177 28.1687C27.1165 27.9675 26.8436 27.8545 26.5591 27.8545Z" fill="#0F58F9"/>
                     </svg>
                 </div>
-                <p className="text-[18px] max-w-lg text-black sora-font">
+                <p className="text-[18px] max-w-md text-black sora-font">
                   Your files don't just sit — they teach.
                 </p>
               </div>
@@ -473,7 +473,7 @@ export default function AuditLandingPage() {
           {/* Two Column Layout */}
           <div className="w-full flex gap-25 mb-12">
             {/* Left Column - Features & Platforms */}
-            <div className="flex flex-col gap-8 max-w-[460px]">
+            <div className="flex flex-col gap-8 max-w-[450px]">
               {/* Feature 1 */}
               <div className="flex gap-4">
                 <div 
@@ -1007,15 +1007,15 @@ export default function AuditLandingPage() {
             <div className="flex gap-6 min-w-max pr-8">
               {/* Card 0 - +80% engagement */}
               <div 
-                className="bg-white rounded-lg p-8 flex-shrink-0 w-[380px]"
+                className="bg-white/80 backdrop-blur-sm rounded-lg p-8 flex-shrink-0 w-[380px]"
                 style={{ 
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   userSelect: 'none'
                 }}
               >
-                <p className="text-[42px] font-bold text-black mb-2 sora-font">80%</p>
-                <p className="text-[20px] text-black mb-6 sora-font">reduction in training costs</p>
-                <p className="text-[20px] text-black mb-6 sora-font">
+                <p className="text-[42px] font-semibold text-black mb-2 sora-font">80%</p>
+                <p className="text-[18px] text-black mb-6 sora-font">reduction in training costs</p>
+                <p className="text-[18px] text-black mb-6 sora-font">
                   "We replaced expensive course production with automation. The savings reached tens of thousands of dollars."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1031,15 +1031,15 @@ export default function AuditLandingPage() {
               </div>
               {/* Card 1 - 80% reduction */}
               <div 
-                className="bg-white rounded-lg p-8 flex-shrink-0 w-[380px]"
+                className="bg-white/80 backdrop-blur-sm rounded-lg p-8 flex-shrink-0 w-[380px]"
                 style={{ 
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   userSelect: 'none'
                 }}
               >
                 <p className="text-[42px] font-semibold text-black mb-2 sora-font">80%</p>
-                <p className="text-[20px] text-black mb-6 sora-font">reduction in training costs</p>
-                <p className="text-[20px] text-black mb-6 sora-font">
+                <p className="text-[18px] text-black mb-6 sora-font">reduction in training costs</p>
+                <p className="text-[18px] text-black mb-6 sora-font">
                   "We replaced expensive course production with automation. The savings reached tens of thousands of dollars."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1056,15 +1056,15 @@ export default function AuditLandingPage() {
 
               {/* Card 2 - 40% faster onboarding */}
               <div 
-                className="bg-white rounded-lg p-8 flex-shrink-0 w-[380px]"
+                className="bg-white/80 backdrop-blur-sm rounded-lg p-8 flex-shrink-0 w-[380px]"
                 style={{ 
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   userSelect: 'none'
                 }}
               >
-                <p className="text-[42px] font-bold text-black mb-2 sora-font">40%</p>
-                <p className="text-[20px] text-black mb-6 sora-font">faster onboarding</p>
-                <p className="text-[20px] text-black mb-6 sora-font">
+                <p className="text-[42px] font-semibold text-black mb-2 sora-font">40%</p>
+                <p className="text-[18px] text-black mb-6 sora-font">faster onboarding</p>
+                <p className="text-[18px] text-black mb-6 sora-font">
                   "Training that used to take months is now ready in 3 days. New hires become productive much faster."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1081,15 +1081,15 @@ export default function AuditLandingPage() {
 
               {/* Card 3 - 30% higher retention */}
               <div 
-                className="bg-white rounded-lg p-8 flex-shrink-0 w-[380px]"
+                className="bg-white/80 backdrop-blur-sm rounded-lg p-8 flex-shrink-0 w-[380px]"
                 style={{ 
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   userSelect: 'none'
                 }}
               >
-                <p className="text-[42px] font-bold text-black mb-2 sora-font">30%</p>
-                <p className="text-[20px] text-black mb-6 sora-font">higher employee retention</p>
-                <p className="text-[20px] text-black mb-6 sora-font">
+                <p className="text-[42px] font-semibold text-black mb-2 sora-font">30%</p>
+                <p className="text-[18px] text-black mb-6 sora-font">higher employee retention</p>
+                <p className="text-[18px] text-black mb-6 sora-font">
                   "Standardized onboarding and training helped us reduce turnover. New hires feel supported and stay longer."
                 </p>
                 <div className="flex items-center gap-3">
@@ -1106,15 +1106,15 @@ export default function AuditLandingPage() {
 
               {/* Card 4 - +70% engagement */}
               <div 
-                className="bg-white rounded-lg p-8 flex-shrink-0 w-[380px]"
+                className="bg-white/80 backdrop-blur-sm rounded-lg p-8 flex-shrink-0 w-[380px]"
                 style={{ 
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   userSelect: 'none'
                 }}
               >
-                <p className="text-[42px] font-bold text-black mb-2 sora-font">+70%</p>
-                <p className="text-[20px] text-black mb-6 sora-font">engagement</p>
-                <p className="text-[20px] text-black mb-6 sora-font">
+                <p className="text-[42px] font-semibold text-black mb-2 sora-font">+70%</p>
+                <p className="text-[18px] text-black mb-6 sora-font">engagement</p>
+                <p className="text-[18px] text-black mb-6 sora-font">
                   "With AI-powered courses, employees actually complete training. Completion rates almost doubled."
                 </p>
                 <div className="flex items-center gap-3">
