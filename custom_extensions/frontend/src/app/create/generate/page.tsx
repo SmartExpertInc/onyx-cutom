@@ -1099,7 +1099,7 @@ function GenerateProductPicker() {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
       // If standalone video lesson, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
