@@ -166,6 +166,31 @@ declare global {
         alt?: string;
         [key: string]: any;
       };
+      textarea: {
+        slot?: string;
+        value?: string;
+        onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+        onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+        onBlur?: () => void;
+        placeholder?: string;
+        className?: string;
+        style?: React.CSSProperties;
+        ref?: React.RefObject<HTMLTextAreaElement>;
+        [key: string]: any;
+      };
+      input: {
+        slot?: string;
+        type?: string;
+        value?: string;
+        onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+        onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+        onBlur?: () => void;
+        placeholder?: string;
+        className?: string;
+        style?: React.CSSProperties;
+        ref?: React.RefObject<HTMLInputElement>;
+        [key: string]: any;
+      };
     }
   }
 }

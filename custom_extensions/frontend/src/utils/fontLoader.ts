@@ -43,11 +43,19 @@ export const isFontLoaded = (fontFamily: string): boolean => {
 
 /**
  * Preload Mont fonts programmatically
+ * Only preloads fonts that are actually used (regular and bold)
  */
 export const preloadMontFonts = async (): Promise<void> => {
   if (typeof document === 'undefined') return;
 
-  const fontPromises = Object.entries(MONT_FONT_URLS).map(([variant, url]) => {
+  // Only preload fonts that are actually used in the application
+  const fontsToPreload = {
+    regular: MONT_FONT_URLS.regular,
+    bold: MONT_FONT_URLS.bold,
+    // Thin is not preloaded as it's not used in the application
+  };
+
+  const fontPromises = Object.entries(fontsToPreload).map(([variant, url]) => {
     return new Promise<void>((resolve, reject) => {
       const link = document.createElement('link');
       link.rel = 'preload';
@@ -72,7 +80,7 @@ export const preloadMontFonts = async (): Promise<void> => {
 
   try {
     await Promise.all(fontPromises);
-    console.log('🎉 All Mont fonts preloaded successfully');
+    console.log('🎉 All required Mont fonts preloaded successfully');
   } catch (error) {
     console.error('⚠️ Some Mont fonts failed to preload:', error);
   }

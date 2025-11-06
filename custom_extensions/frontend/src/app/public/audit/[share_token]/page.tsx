@@ -73,6 +73,7 @@ interface LandingPageData {
   courseOutlineModules: Array<{
     title: string
     lessons: string[]
+    lessonAssessments?: Array<{ type: string; duration: string }>
   }>
   courseTemplates: Array<{
     title: string
@@ -122,29 +123,44 @@ export default function PublicAuditPage() {
     return { modules, lessons }
   }
 
-  // Generate random assessment data for lessons
-  const getRandomAssessment = () => {
-    const types = ['нет', 'тест', 'практика', 'проект']
-    const durations = ['5 мин', '10 мин', '15 мин', '20 мин', '30 мин']
-    
-    return {
-      type: types[Math.floor(Math.random() * types.length)],
-      duration: durations[Math.floor(Math.random() * durations.length)]
-    }
-  }
-
-  // Generate stable assessment data for all modules
+  // Generate assessment data from backend data (stored in courseOutlineModules)
   const generateAssessmentData = () => {
     if (!courseOutlineModules) return {}
     
+    console.log('🎯 [PUBLIC ASSESSMENT] Generating assessment data from backend')
     const data: { [key: string]: { type: string; duration: string }[] } = {}
     
     courseOutlineModules.forEach((module, moduleIndex) => {
-      if (module.lessons) {
-        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+      // Use lessonAssessments from backend if available, otherwise use fallback
+      if (module.lessonAssessments && Array.isArray(module.lessonAssessments)) {
+        console.log(`🎯 [PUBLIC ASSESSMENT] Module ${moduleIndex}: Using backend lessonAssessments (${module.lessonAssessments.length} items)`)
+        data[`module-${moduleIndex}`] = module.lessonAssessments
+      } else if (module.lessons) {
+        // Fallback: generate default assessments based on language
+        console.log(`🎯 [PUBLIC ASSESSMENT] Module ${moduleIndex}: No lessonAssessments found, using fallback`)
+        const language = auditData?.language || 'en'
+        let defaultType = 'test'
+        let defaultDuration = '5 min'
+        
+        if (language === 'ru') {
+          defaultType = 'тест'
+          defaultDuration = '5 мин'
+        } else if (language === 'ua') {
+          defaultType = 'тест'
+          defaultDuration = '5 хв'
+        } else if (language === 'es') {
+          defaultType = 'prueba'
+          defaultDuration = '5 min'
+        }
+        
+        data[`module-${moduleIndex}`] = module.lessons.map(() => ({
+          type: defaultType,
+          duration: defaultDuration
+        }))
       }
     })
     
+    console.log('🎯 [PUBLIC ASSESSMENT] Final assessment data:', data)
     return data
   }
 
@@ -2066,22 +2082,27 @@ export default function PublicAuditPage() {
                   })}
                 </h3>
   
-                <div 
-                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
-                  style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                  }}
-                ></div>
+                <div className="border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] overflow-hidden" 
+                     style={{boxShadow: 'rgba(42, 51, 70, 0.03) 0px 6.43px 6.43px -2.14px, rgba(42, 51, 70, 0.03) 0px 2.68px 2.68px -1.34px, rgba(42, 51, 70, 0.03) 0px 1.34px 1.34px -0.67px'}}>
+                  <img 
+                    src={`/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${
+                      language === 'ua' ? 'ua' : 'en'
+                    }.png`}
+                    alt="Service Image"
+                    className="w-full h-auto block rounded-[2px]" />
+                </div>
                 
                 <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] mb-[15px] xl:mb-[40px]">
                   <div 
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      AI capabilities:
+                      {getLocalizedText(language, {
+                        en: 'AI capabilities:',
+                        es: 'Capacidades de IA:',
+                        ua: 'Можливості ШІ:',
+                        ru: 'Возможности ИИ:'
+                      })}
                     </h4>
                     
                     {/* Capability 1 */}

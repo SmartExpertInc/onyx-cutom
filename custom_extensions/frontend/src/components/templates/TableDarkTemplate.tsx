@@ -29,11 +29,11 @@ export interface TableDarkTemplateProps extends BaseTemplateProps {
 export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   title = 'Comparison table template',
   tableData = {
-    headers: ['feature 1', 'feature 2', 'feature 3', 'feature 4'],
+    headers: ['Feature', 'Option 1', 'Option 2', 'Option 3'],
     rows: [
-      ['version 1', '✓', '✓', '✗', '✗'],
-      ['version 2', '✗', '✓', '✓', '✗'],
-      ['version 3', '✗', '✗', '✓', '✓']
+      ['Feature A', '✓', '✓', '✗'],
+      ['Feature B', '✗', '✓', '✓'],
+      ['Feature C', '✗', '✗', '✓']
     ]
   },
   backgroundColor = '#f8fafc',
@@ -115,8 +115,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   const addRow = () => {
     const newRows = [...tableData.rows];
-    const newRow = new Array(tableData.headers.length + 1).fill('');
-    newRow[0] = `version ${newRows.length + 1}`;
+    const newRow = new Array(tableData.headers.length).fill('');
+    newRow[0] = `Row ${newRows.length + 1}`;
     for (let i = 1; i < newRow.length; i++) {
       newRow[i] = i % 2 === 1 ? '✓' : '✗';
     }
@@ -129,7 +129,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const addColumn = () => {
-    const newHeaders = [...tableData.headers, `feature ${tableData.headers.length + 1}`];
+    const newHeaders = [...tableData.headers, `Option ${tableData.headers.length}`];
     const newRows = tableData.rows.map(row => [...row, '✓']);
     const newData = { 
       title, 
@@ -148,8 +148,11 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const removeColumn = (colIndex: number) => {
+    // Prevent removing the first column (feature names)
+    if (colIndex === 0) return;
+    
     const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
-    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex + 1));
+    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex));
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -271,7 +274,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    padding: '50px',
+    padding: '50px 20px 50px 50px', // Reduced right padding to minimize white space
     fontFamily: 'Georgia, serif'
   };
 
@@ -292,8 +295,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     overflow: 'hidden',
     backgroundColor: '#ffffff',
     border: '1px solid #E0E0E0',
-    display: 'flex',
-    justifyContent: 'center',
     padding: '30px'
   };
 
@@ -303,12 +304,13 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     borderCollapse: 'separate',
     borderSpacing: '8px 0px',
     backgroundColor: '#ffffff',
+    tableLayout: 'auto' // Auto width for proper column sizing
   };
 
   // Header styles - no borders, with spacing
   const headerStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableFirstColumnColor,
-    color: '#000000',
+    backgroundColor: '#0F58F9',
+    color: '#ffffff',
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
@@ -342,8 +344,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Add button styles - using theme colors, perfectly aligned
   const addButtonStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-    color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
+    backgroundColor: '#0F58F9',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '50%',
     width: '24px',
@@ -376,7 +378,56 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   return (
     <div style={slideStyles}>
-        {/* Title */}
+      {/* Editing toolbar - positioned above table */}
+      {isEditable && (
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          marginBottom: '20px',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            onClick={addRow}
+            style={{
+              backgroundColor: '#0F58F9',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Add Row"
+          >
+            + Add Row
+          </button>
+          <button
+            onClick={addColumn}
+            style={{
+              backgroundColor: '#0F58F9',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Add Column"
+          >
+            + Add Column
+          </button>
+        </div>
+      )}
+      
+      {/* Title */}
       <div style={{ marginBottom: '30px' }}>
         <div data-draggable="true" style={{ display: 'inline-block' }}>
           {editingTitle && isEditable ? (
@@ -423,44 +474,82 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
             {/* Headers */}
             <thead>
             <tr>
-              {/* Product version header */}
+              {/* First column header - from data */}
+              {tableData.headers.length > 0 && (
               <th style={{ 
-                ...headerStyles, 
-                backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
-                color: '#000000',
+                ...headerStyles,
                 textAlign: 'left',
                 borderTopLeftRadius: '15px',
                 borderTopRightRadius: '15px'
               }}>
                 <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                    Product version
-                  </span>
-                </div>
-                </th>
-              
-              {/* Feature headers */}
-                {tableData.headers.map((header, index) => (
-                  <th 
-                    key={index}
-                    style={{ 
-                    ...headerStyles,
-                    borderTopLeftRadius: '15px',
-                    borderTopRightRadius: '15px'
-                  }}
-                  onMouseEnter={() => setHoveredColumn(index)}
-                  onMouseLeave={() => setHoveredColumn(null)}
-                >
-                  <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
-                    {editingHeader === index && isEditable ? (
+                    {editingHeader === -1 && isEditable ? (
                       <WysiwygEditor
-                        initialValue={header}
-                        onSave={(value) => handleHeaderUpdate(index, value)}
+                        initialValue={tableData.headers[0]}
+                        onSave={(value) => handleHeaderUpdate(0, value)}
                         onCancel={() => setEditingHeader(null)}
                         placeholder="Enter header..."
                         className="inline-editor-header"
                         style={{
-                          color: headerColor,
+                          color: '#ffffff',
+                          textAlign: 'left',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          padding: '8px',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '4px',
+                          wordWrap: 'break-word',
+                          whiteSpace: 'pre-wrap',
+                          boxSizing: 'border-box',
+                          display: 'block',
+                          lineHeight: '1.2'
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        style={{ fontWeight: 'bold', fontSize: '1rem', color: '#ffffff' }}
+                        onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+                          const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                          if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return;
+                          }
+                          if (isEditable) setEditingHeader(-1);
+                        }}
+                        className={isEditable ? 'cursor-pointer' : ''}
+                        dangerouslySetInnerHTML={{ __html: tableData.headers[0] }}
+                      />
+                    )}
+                </div>
+                </th>
+              )}
+              
+              {/* Remaining column headers */}
+                {tableData.headers.slice(1).map((header, idx) => {
+                  const actualIndex = idx + 1; // Adjust index since we're using slice(1)
+                  return (
+                  <th 
+                    key={idx}
+                    style={{ 
+                    ...headerStyles,
+                    borderTopLeftRadius: '15px',
+                    borderTopRightRadius: '15px',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={() => setHoveredColumn(actualIndex)}
+                  onMouseLeave={() => setHoveredColumn(null)}
+                >
+                  <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+                    {editingHeader === actualIndex && isEditable ? (
+                      <WysiwygEditor
+                        initialValue={header}
+                        onSave={(value) => handleHeaderUpdate(actualIndex, value)}
+                        onCancel={() => setEditingHeader(null)}
+                        placeholder="Enter header..."
+                        className="inline-editor-header"
+                        style={{
+                          color: '#ffffff',
                           textAlign: 'center',
                           fontWeight: 'bold',
                           fontSize: '1rem',
@@ -481,7 +570,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                           alignItems: 'center', 
                           justifyContent: 'center', 
                           gap: '8px',
-                          position: 'relative'
+                          position: 'relative',
+                          color: '#ffffff'
                         }}
                       >
                         <span 
@@ -492,56 +582,35 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                               e.stopPropagation();
                               return;
                             }
-                            if (isEditable) setEditingHeader(index);
+                            if (isEditable) setEditingHeader(actualIndex);
                           }}
                           className={isEditable ? 'cursor-pointer' : ''}
                           dangerouslySetInnerHTML={{ __html: header }}
                         />
-                        {isEditable && (
-                          <button
-                            onClick={() => removeColumn(index)}
-                            style={{
-                              ...deleteButtonStyles,
-                              opacity: hoveredColumn === index ? 1 : 0,
-                              transition: 'opacity 0.2s ease',
-                              position: 'absolute',
-                              top: '50%',
-                              right: '8px',
-                              transform: 'translateY(-50%)'
-                            }}
-                            title="Remove Column"
-                          >
-                            ✗
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
-                  </th>
-                ))}
-              
-              {/* Add column button - always visible */}
-                {isEditable && (
-                <th style={{ 
-                  ...headerStyles, 
-                  backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
+                  {/* Delete column button - positioned absolutely on top right of header */}
+                  {isEditable && (
                     <button
-                      onClick={addColumn}
-                    style={{
-                      ...addButtonStyles,
-                      opacity: 1,
-                      transition: 'opacity 0.2s ease'
-                    }}
-                      title="Add Column"
+                      onClick={() => removeColumn(actualIndex)}
+                      style={{
+                        ...deleteButtonStyles,
+                        opacity: hoveredColumn === actualIndex ? 1 : 0,
+                        transition: 'opacity 0.2s ease',
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        zIndex: 10
+                      }}
+                      title="Remove Column"
                     >
-                      +
+                      ✗
                     </button>
+                  )}
                   </th>
-                )}
+                  );
+                })}
               </tr>
             </thead>
 
@@ -550,8 +619,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               {tableData.rows.map((row, rowIndex) => (
                 <tr 
                   key={rowIndex}
-                onMouseEnter={() => setHoveredRow(rowIndex)}
-                onMouseLeave={() => setHoveredRow(null)}
+                  style={{ position: 'relative' }}
+                  onMouseEnter={() => setHoveredRow(rowIndex)}
+                  onMouseLeave={() => setHoveredRow(null)}
                 >
                   {row.map((cell, colIndex) => {
                     const isFirstColumn = colIndex === 0;
@@ -563,8 +633,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                       style={isFirstColumn ? firstColumnStyles : dataCellStyles}
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
-                        {isEditingThisCell && isEditable ? (
-                          isFirstColumn ? (
+                        {isFirstColumn ? (
+                          // First column: text with inline editing
+                          isEditingThisCell && isEditable ? (
                           <WysiwygEditor
                             initialValue={cell}
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
@@ -588,17 +659,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                               }}
                             />
                           ) : (
-                            <CheckboxEditor
-                              initialValue={cell}
-                              onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
-                              onCancel={() => setEditingCell(null)}
-                              style={{
-                                width: '100%'
-                              }}
-                            />
-                          )
-                        ) : (
-                          isFirstColumn ? (
                             <span 
                               onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                                 const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
@@ -627,93 +687,39 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                                 <span dangerouslySetInnerHTML={{ __html: cell }} />
                               </div>
                             </span>
+                          )
                           ) : (
+                          // All other columns: checkbox only (no text allowed)
                             <div 
                               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               {renderCheckbox(cell, rowIndex, colIndex)}
                             </div>
-                          )
                         )}
                       </div>
                       </td>
                     );
                   })}
-                
-                {/* Delete row button - appears on hover */}
+                  {/* Delete row button - positioned absolutely outside table */}
                   {isEditable && (
-                  <td style={{ 
-                    ...dataCellStyles, 
-                    textAlign: 'center', 
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                      <button
-                        onClick={() => removeRow(rowIndex)}
+                    <button
+                      onClick={() => removeRow(rowIndex)}
                       style={{
                         ...deleteButtonStyles,
                         opacity: hoveredRow === rowIndex ? 1 : 0,
-                        transition: 'opacity 0.2s ease'
+                        transition: 'opacity 0.2s ease',
+                        position: 'absolute',
+                        right: '-40px',
+                        top: '50%',
+                        transform: 'translateY(-50%)'
                       }}
-                        title="Remove Row"
-                      >
-                        ✗
-                      </button>
-                    </td>
+                      title="Remove Row"
+                    >
+                      ✗
+                    </button>
                   )}
                 </tr>
               ))}
-              
-            {/* Add row button - appears on hover */}
-              {isEditable && (
-              <tr 
-                onMouseEnter={() => setHoveredRow(-1)}
-                onMouseLeave={() => setHoveredRow(null)}
-              >
-                <td style={{ 
-                  ...firstColumnStyles, 
-                  textAlign: 'center',
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderBottomLeftRadius: '15px',
-                  borderBottomRightRadius: '15px'
-                }}>
-                    <button
-                      onClick={addRow}
-                    style={{
-                      ...addButtonStyles,
-                      opacity: hoveredRow === -1 ? 1 : 0,
-                      transition: 'opacity 0.2s ease'
-                    }}
-                      title="Add Row"
-                    >
-                    +
-                    </button>
-                  </td>
-                {/* Empty cells for other columns */}
-                {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
-                  <td 
-                    key={colIndex} 
-                    style={{
-                      ...dataCellStyles,
-                      borderBottomLeftRadius: '15px',
-                      borderBottomRightRadius: '15px'
-                    }}
-                  />
-                ))}
-                {/* Empty cell for delete column */}
-                <td style={{ 
-                  ...dataCellStyles, 
-                  textAlign: 'center',
-                  borderBottomLeftRadius: '15px',
-                  borderBottomRightRadius: '15px'
-                }} />
-                </tr>
-              )}
             </tbody>
           </table>
       </div>

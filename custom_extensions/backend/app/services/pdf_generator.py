@@ -16,7 +16,7 @@ from datetime import datetime
 import base64
 import mimetypes
 import math
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 
 # Import pie chart generators
 try:
@@ -108,6 +108,32 @@ jinja_env.filters['shuffle'] = shuffle_filter
 # Add math functions for pie chart calculations
 jinja_env.filters['cos'] = lambda x: math.cos(float(x))
 jinja_env.filters['sin'] = lambda x: math.sin(float(x))
+
+# Add static image to base64 filter
+def static_image_to_base64(filename: str) -> str:
+    """Convert a static image file to base64 data URL for PDF embedding."""
+    try:
+        current_dir = os.path.dirname(__file__)
+        root_dir = os.path.dirname(os.path.dirname(current_dir))
+        static_dir = os.path.join(root_dir, 'static')
+        image_path = os.path.join(static_dir, filename)
+        
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as image_file:
+                image_data = image_file.read()
+                image_base64 = base64.b64encode(image_data).decode('utf-8')
+                mime_type, _ = mimetypes.guess_type(image_path)
+                if not mime_type:
+                    mime_type = 'image/png'
+                return f"data:{mime_type};base64,{image_base64}"
+        else:
+            logger.warning(f"Static image not found: {image_path}")
+            return ""
+    except Exception as e:
+        logger.error(f"Failed to load static image {filename}: {e}")
+        return ""
+
+jinja_env.filters['static_image_base64'] = static_image_to_base64
 
 # Font embedding functions for PDF generation
 def get_font_as_base64(font_filename: str) -> str:
@@ -325,7 +351,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"PDF GEN: Big Image Left Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
             logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default')}px")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default')}px")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -336,7 +367,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"PDF GEN: Big Image Top Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
             logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 100%')}")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 240px')}")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -346,7 +382,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
         elif template_id == 'bullet-points':
             logger.info(f"PDF GEN: Bullet Points Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 50%')}")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 50%')}")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -368,7 +409,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"PDF GEN: Bullet Points Right Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
             logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 320px')}")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 320px')}")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -806,7 +852,8 @@ async def log_transform_applications(page, slide_data: dict, slide_index: int = 
     image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
     for prop in image_props:
         if prop in props:
-            logger.info(f"PDF GEN: Found {prop}: {props[prop]}")
+            if prop != 'imagePath':
+                logger.info(f"PDF GEN: Found {prop}: {props[prop]}")
             
             # Check for corresponding offset and scale
             if prop == 'imagePath':
@@ -1545,7 +1592,7 @@ async def generate_pdf_from_html_template(
 
 
 
-async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None) -> int:
+async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None, deck_template_version: Optional[str] = None) -> int:
     """
     Calculate the exact height needed for a single slide.
     
@@ -1553,6 +1600,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         slide_data: The slide data dictionary
         theme: The theme name
         browser: Optional browser instance to reuse
+        deck_template_version: Optional deck template version (e.g., 'v2')
     
     Returns:
         int: The calculated height in pixels
@@ -1633,7 +1681,17 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
                 logger.info(f"Element positions: {safe_slide_data.get('metadata', {}).get('elementPositions', {})}")
                 logger.info(f"=== END BIG NUMBERS TEMPLATE DEBUG ===")
             
-            template = jinja_env.get_template("single_slide_pdf_template.html")
+            # Select template based on deck version (matching frontend logic)
+            # Frontend: if (!effectiveVersion || effectiveVersion < 'v2') -> use old
+            # Use old template for legacy decks (no version or version < 'v2')
+            if not deck_template_version or deck_template_version < 'v2':
+                template_file = "single_slide_pdf_template_old.html"
+                logger.info(f"📄 TEMPLATE SELECTION (calculate_slide_dimensions): Using LEGACY template for version: {deck_template_version}")
+            else:
+                template_file = "single_slide_pdf_template.html"
+                logger.info(f"📄 TEMPLATE SELECTION (calculate_slide_dimensions): Using V2 template for version: {deck_template_version}")
+            
+            template = jinja_env.get_template(template_file)
             html_content = template.render(**context_data)
         except Exception as template_error:
             logger.error(f"Template rendering error for {template_id}: {template_error}", exc_info=True)
@@ -1754,7 +1812,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         if should_close_browser and browser:
             await browser.close()
 
-async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None) -> bool:
+async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None, deck_template_version: Optional[str] = None) -> bool:
     """
     Generate a PDF for a single slide with exact dimensions.
     
@@ -1766,6 +1824,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         browser: Optional browser instance to reuse
         slide_index: Optional slide index for logging (1-based)
         template_id: Optional template ID for logging
+        deck_template_version: Optional deck template version (e.g., 'v2')
     
     Returns:
         bool: True if successful, False otherwise
@@ -2123,7 +2182,17 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"DEBUG: metrics-analytics metrics length: {len(metrics)}")
                 logger.info(f"DEBUG: metrics-analytics metrics: {metrics}")
             
-            template = jinja_env.get_template("single_slide_pdf_template.html")
+            # Select template based on deck version (matching frontend logic)
+            # Frontend: if (!effectiveVersion || effectiveVersion < 'v2') -> use old
+            # Use old template for legacy decks (no version or version < 'v2')
+            if not deck_template_version or deck_template_version < 'v2':
+                template_file = "single_slide_pdf_template_old.html"
+                logger.info(f"📄 TEMPLATE SELECTION (generate_single_slide_pdf): Using LEGACY template for version: {deck_template_version}")
+            else:
+                template_file = "single_slide_pdf_template.html"
+                logger.info(f"📄 TEMPLATE SELECTION (generate_single_slide_pdf): Using V2 template for version: {deck_template_version}")
+            
+            template = jinja_env.get_template(template_file)
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")
             
@@ -2284,7 +2353,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         if should_close_browser and browser:
             await browser.close()
 
-async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> list:
+async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck_template_version: Optional[str] = None) -> list:
     """
     Process a batch of slides in parallel for better performance.
     
@@ -2298,7 +2367,24 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     """
     tasks = []
     for slide_data, slide_height, output_path, slide_index, template_id in slides_batch:
-        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
+        # NOTE: We do NOT add _old suffix for PDF rendering because:
+        # 1. The Jinja PDF template doesn't have _old versions of templates
+        # 2. Old and new slides render the same way in PDF (colors are handled by theme)
+        # 3. The _old suffix is only for frontend React component selection
+        try:
+            effective_version = deck_template_version
+            if not effective_version:
+                effective_version = (slide_data or {}).get('metadata', {}).get('version')
+            
+            original_template_id = slide_data.get('templateId') if isinstance(slide_data, dict) else None
+            logger.info(f"🔍 PDF VERSION CHECK - Slide {slide_index}: deck_template_version={deck_template_version}, effective_version={effective_version}, templateId={original_template_id}")
+            
+            # PDF templates are version-agnostic - they use the base template ID
+            # Theme colors will be applied based on deck version elsewhere
+            logger.info(f"✅ PDF RENDERING - Slide {slide_index}: Using base template {original_template_id}")
+        except Exception as e:
+            logger.error(f"❌ PDF VERSION CHECK ERROR - Slide {slide_index}: {e}", exc_info=True)
+        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id, deck_template_version)
         tasks.append(task)
     
     results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -2358,12 +2444,14 @@ async def generate_slide_deck_pdf_with_progress(
         browser = await pyppeteer.launch(**get_browser_launch_options())
         
         slide_heights = []
+        # Note: generate_slide_deck_pdf_with_progress doesn't have deck_template_version parameter
+        # This is acceptable as it's a legacy function; the main flow uses generate_slide_deck_pdf_with_dynamic_height
         for i, slide_data in enumerate(slides_data):
             template_id = slide_data.get('templateId', 'unknown')
             yield {'type': 'progress', 'message': f'Calculating dimensions for slide {i + 1}: {template_id}', 'current': i, 'total': len(slides_data)}
             
             try:
-                height = await calculate_slide_dimensions(slide_data, theme, browser)
+                height = await calculate_slide_dimensions(slide_data, theme, browser, deck_template_version=None)
                 slide_heights.append(height)
             except Exception as e:
                 logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
@@ -2400,7 +2488,7 @@ async def generate_slide_deck_pdf_with_progress(
                     yield {'type': 'progress', 'message': f'Generating slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
                     
                     success = await generate_single_slide_pdf(
-                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id
+                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id, deck_template_version=None
                     )
                     
                     if success:
@@ -2467,7 +2555,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
     output_filename: str,
-    use_cache: bool = True
+    use_cache: bool = True,
+    deck_template_version: Optional[str] = None
 ) -> str:
     """
     Generate a PDF slide deck with dynamic height per slide.
@@ -2484,6 +2573,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     """
     pdf_path_in_cache = PDF_CACHE_DIR / output_filename
     
+    logger.info(f"🔍 PDF GENERATION START - deck_template_version={deck_template_version}, slides_count={len(slides_data)}, theme={theme}")
+    
     if use_cache and pdf_path_in_cache.exists():
         logger.info(f"PDF CACHE: Serving cached PDF: {pdf_path_in_cache}")
         return str(pdf_path_in_cache)
@@ -2496,7 +2587,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     start_time = time.time()
     
     try:
-        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}")
+        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}, version: {deck_template_version}")
         
         # Step 1: Calculate heights for all slides with a single browser instance
         logger.info("Calculating slide heights...")
@@ -2507,7 +2598,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             template_id = slide_data.get('templateId', 'unknown')
             logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)} (templateId: {template_id})")
             try:
-                height = await calculate_slide_dimensions(slide_data, theme, browser)
+                height = await calculate_slide_dimensions(slide_data, theme, browser, deck_template_version)
                 slide_heights.append(height)
                 logger.info(f"✓ Slide {i + 1} ({template_id}) height calculated: {height}px")
             except Exception as e:
@@ -2546,7 +2637,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             batch_browser = await pyppeteer.launch(**get_browser_launch_options())
             
             try:
-                batch_results = await process_slide_batch(batch, theme, batch_browser)
+                batch_results = await process_slide_batch(batch, theme, batch_browser, deck_template_version)
                 successful_paths.extend(batch_results)
                 temp_pdf_paths.extend(batch_results)
             except Exception as e:
@@ -2666,7 +2757,7 @@ async def test_single_slide_generation(slide_data: dict, theme: str, slide_index
         logger.info(f"  📏 Testing height calculation for {slide_info} ({template_id})...")
         try:
             browser = await pyppeteer.launch(**get_browser_launch_options())
-            height = await calculate_slide_dimensions(slide_data, theme, browser)
+            height = await calculate_slide_dimensions(slide_data, theme, browser, deck_template_version=None)
             result['height_calculation_success'] = True
             result['calculated_height'] = height
             logger.info(f"  ✅ Height calculation successful: {height}px")
@@ -2684,7 +2775,7 @@ async def test_single_slide_generation(slide_data: dict, theme: str, slide_index
         try:
             temp_pdf_path = f"/tmp/test_slide_{slide_index}_{uuid.uuid4().hex[:8]}.pdf"
             browser = await pyppeteer.launch(**get_browser_launch_options())
-            success = await generate_single_slide_pdf(slide_data, theme, result['calculated_height'], temp_pdf_path, browser, slide_index, template_id)
+            success = await generate_single_slide_pdf(slide_data, theme, result['calculated_height'], temp_pdf_path, browser, slide_index, template_id, deck_template_version=None)
             
             if success:
                 result['pdf_generation_success'] = True
@@ -2923,12 +3014,84 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         # Fallback to default on any parsing issue
         theme_value = "dark-purple"
 
+    # Extract deck templateVersion for version-aware rendering
+    # Frontend logic: const effectiveVersion = deckTemplateVersion || defaultVersion || 'v1'
+    #                if (!effectiveVersion || effectiveVersion < 'v2') -> use old template
+    # Default to 'v1' to match frontend behavior (None would also trigger old template, but explicit is better)
+    deck_template_version = 'v1'  # Default to v1 for backward compatibility
+    try:
+        # Use content_obj (the parsed version) instead of raw_content for extraction
+        _log.info(f"🔍 PDF VERSION EXTRACTION START - content_obj type: {type(content_obj)}")
+        
+        if isinstance(content_obj, dict):
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj has {len(content_obj.keys())} keys")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj keys: {list(content_obj.keys())}")
+            
+            # Try multiple extraction paths (matching frontend's ComponentBasedSlideDeck structure)
+            extracted = (
+                content_obj.get("templateVersion")           # Direct field (frontend: slideDeck.templateVersion)
+                or content_obj.get("template_version")       # Snake case variant
+                or (content_obj.get("details") or {}).get("templateVersion")  # In details
+                or (content_obj.get("details") or {}).get("template_version") # In details snake case
+            )
+            
+            if extracted:
+                deck_template_version = extracted
+                _log.info(f"✅ PDF VERSION EXTRACTION SUCCESS - Found version: {deck_template_version}")
+            else:
+                _log.warning(f"⚠️ PDF VERSION EXTRACTION - No templateVersion found, using default: {deck_template_version}")
+            
+            # Log what we checked
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.templateVersion: {content_obj.get('templateVersion')}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.template_version: {content_obj.get('template_version')}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.lessonTitle: {content_obj.get('lessonTitle')}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.slides: {len(content_obj.get('slides', []))} slides")
+            
+            # Also check if it's nested in details
+            if content_obj.get('details'):
+                details = content_obj.get('details')
+                if isinstance(details, dict):
+                    _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details keys: {list(details.keys())}")
+                    _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details.templateVersion: {details.get('templateVersion')}")
+                else:
+                    _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details is not a dict: {type(details)}")
+        else:
+            _log.warning(f"⚠️ PDF VERSION EXTRACTION - content_obj is not a dict: {type(content_obj)}")
+                
+        _log.info(f"🔍 PDF VERSION EXTRACTION COMPLETE - FINAL VERSION: '{deck_template_version}'")
+    except Exception as e:
+        _log.error(f"❌ PDF VERSION EXTRACTION ERROR: {e}", exc_info=True)
+        deck_template_version = 'v1'  # Fallback to v1 on error
+    
+    # Frontend matching logic: if (!effectiveVersion || effectiveVersion < 'v2') -> old template
+    will_use_v2 = deck_template_version and deck_template_version >= 'v2'
+    _log.info(f"🎯 PDF TEMPLATE DECISION - product_id={product_data['id']}, version='{deck_template_version}', using={'V2 NEW' if will_use_v2 else 'V1 LEGACY'} template")
+    
+    # Apply version-aware theme mapping (matching frontend logic)
+    # Legacy decks (no version or < v2) should use v1 theme variants with old colors
+    THEME_V1_MAP = {
+        'dark-purple': 'dark-purple-v1',
+        # Add other theme mappings as needed
+    }
+    
+    original_theme = theme_value
+    if not deck_template_version or deck_template_version < 'v2':
+        v1_theme = THEME_V1_MAP.get(theme_value)
+        if v1_theme:
+            theme_value = v1_theme
+            _log.info(f"🎨 PDF THEME MAPPING - Legacy deck: {original_theme} -> {theme_value}")
+        else:
+            _log.info(f"🎨 PDF THEME - Legacy deck using: {theme_value} (no v1 variant)")
+    else:
+        _log.info(f"🎨 PDF THEME - New deck (v2+) using: {theme_value}")
+
     output_filename = f"presentation_{product_data['id']}.pdf"
     pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
         slides_list,
         theme_value,
         output_filename,
-        use_cache=False
+        use_cache=False,
+        deck_template_version=deck_template_version
     )
 
     with open(pdf_path, 'rb') as pdf_file:

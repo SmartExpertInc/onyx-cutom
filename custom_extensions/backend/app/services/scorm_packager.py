@@ -10,7 +10,8 @@ import base64
 import mimetypes
 import html
 import asyncio
-from typing import Any, Dict, List, Optional, Tuple
+import time
+from typing import Any, Dict, List, Optional, Tuple, AsyncGenerator
 import pathlib
 
 from fastapi import HTTPException
@@ -22,12 +23,15 @@ import httpx
 from app.services.pdf_generator import jinja_env
 # Add helper from pdf_generator where needed
 try:
-    from app.services.pdf_generator import get_embedded_fonts_css
+    from app.services.pdf_generator import get_embedded_fonts_css, calculate_slide_dimensions
 except Exception:
     def get_embedded_fonts_css() -> str:
         return ""
+    async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None, deck_template_version: Optional[str] = None) -> int:
+        return 660  # Fallback to 16:9 minimum
 
 from app.services.pdf_generator import generate_slide_deck_pdf_with_dynamic_height
+import pyppeteer
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +116,7 @@ def _project_type_matches(proj: Dict[str, Any], target_mtypes: List[str]) -> boo
 def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str, used_ids: set) -> Optional[Dict[str, Any]]:
     target_mtypes = _map_item_type_to_microproduct(desired_type)
     if not target_mtypes or not lesson_title:
+        logger.info(f"[SCORM-MATCH] No target types for desired_type='{desired_type}' or no lesson_title")
         return None
 
     def is_unused(proj_id: Any) -> bool:
@@ -123,12 +128,20 @@ def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, 
     def mname(proj: Dict[str, Any]) -> str:
         return (proj.get('microproduct_name') or '').strip()
 
+    # Log available candidates for this type
+    candidates = [p for p in projects if _project_type_matches(p, target_mtypes) and is_unused(p.get('id'))]
+    logger.info(f"[SCORM-MATCH] Looking for type='{desired_type}' (mtypes={target_mtypes}) for lesson='{lesson_title}' | {len(candidates)} unused candidates")
+    if candidates and len(candidates) <= 5:
+        for c in candidates:
+            logger.info(f"[SCORM-MATCH]   Candidate: id={c.get('id')}, pname='{pname(c)}', mname='{mname(c)}', type={c.get('microproduct_type')}")
+
     # Pattern A (quizzes)
     if 'Quiz' in (target_mtypes or []):
         target_name = f"Quiz - {outline_name}: {lesson_title}"
         for proj in projects:
             if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == target_name:
+                    logger.info(f"[SCORM-MATCH] ✓ Matched Pattern A (Quiz) id={proj.get('id')}")
                     return dict(proj)
 
     # Pattern A2 (prefixed)
@@ -144,6 +157,7 @@ def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, 
         for proj in projects:
             if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == target_name_prefixed:
+                    logger.info(f"[SCORM-MATCH] ✓ Matched Pattern A2 (Prefixed) id={proj.get('id')}, pattern='{target_name_prefixed}'")
                     return dict(proj)
 
     # Pattern B: "{outline}: {lesson}"
@@ -151,26 +165,40 @@ def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, 
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if pname(proj) == target_name:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern B (Outline:Lesson) id={proj.get('id')}")
                 return dict(proj)
 
     # Pattern C: microproduct_name equals lesson title
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if mname(proj) == lesson_title:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern C (mname==lesson) id={proj.get('id')}")
                 return dict(proj)
 
     # Pattern E: project_name == outline AND microproduct_name == lesson
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if pname(proj) == outline_name and mname(proj) == lesson_title:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern E (pname==outline AND mname==lesson) id={proj.get('id')}")
                 return dict(proj)
 
     # Pattern D: project_name equals lesson title
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if pname(proj) == lesson_title:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern D (pname==lesson) id={proj.get('id')}")
                 return dict(proj)
 
+    # Pattern F (NEW): Fuzzy match - project_name contains lesson title
+    for proj in projects:
+        if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
+            pn = pname(proj).lower()
+            lt = lesson_title.lower()
+            if lt in pn or pn in lt:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern F (Fuzzy) id={proj.get('id')}, pname='{pname(proj)}'")
+                return dict(proj)
+
+    logger.warning(f"[SCORM-MATCH] ✗ No match found for type='{desired_type}' lesson='{lesson_title}' outline='{outline_name}'")
     return None
 
 
@@ -509,23 +537,98 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
         return html
 
 
-def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
-    """Render slide deck HTML using the exact PDF slide template, stacked, and ready for SCORM asset localization."""
+async def _render_slide_deck_html_with_progress(
+    product_row: Dict[str, Any], 
+    content: Any,
+    progress_callback=None
+) -> AsyncGenerator[Dict[str, Any], None]:
+    """
+    Generator version that yields progress updates during slide height calculation.
+    Yields: {"type": "progress", "message": "..."} or {"type": "complete", "html": "..."}
+    """
+    browser = None
     try:
-        template = jinja_env.get_template('single_slide_pdf_template.html')
+        # Extract version first to determine which template to use
+        effective_version = None
+        try:
+            if isinstance(content, dict):
+                effective_version = content.get('templateVersion') or (content.get('metadata') or {}).get('templateVersion')
+        except Exception:
+            effective_version = None
+        
+        logger.info(f"🔍 SCORM VERSION CHECK - product_id={product_row.get('id')}, templateVersion={effective_version}")
+        
+        # Select template based on version (matching PDF generation logic)
+        if not effective_version or effective_version < 'v2':
+            template_file = "single_slide_pdf_template_old.html"
+            logger.info(f"📄 SCORM TEMPLATE SELECTION: Using LEGACY template for version: {effective_version}")
+        else:
+            template_file = "single_slide_pdf_template.html"
+            logger.info(f"📄 SCORM TEMPLATE SELECTION: Using V2 template for version: {effective_version}")
+        
+        template = jinja_env.get_template(template_file)
+        
         slides = content.get('slides', []) if isinstance(content, dict) else []
         if not slides:
-            return _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')
+            yield {"type": "complete", "html": _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')}
+            return
+
+        logger.info(f"✅ SCORM RENDERING - slides_count={len(slides)}, calculating heights...")
+        yield {"type": "progress", "message": f"Calculating slide dimensions for {len(slides)} slides..."}
 
         # Theme and dimensions consistent with PDF rendering
         theme = content.get('theme', 'dark-purple')
-        slide_height = content.get('slide_height', 800)
         embedded_fonts_css = get_embedded_fonts_css()
+
+        # Calculate heights for each slide with progress updates every 10 seconds
+        try:
+            from app.services.pdf_generator import get_browser_launch_options
+            browser = await pyppeteer.launch(**get_browser_launch_options())
+            slide_heights = []
+            
+            start_time = time.time()
+            last_progress_time = start_time
+            
+            for i, slide_data in enumerate(slides):
+                template_id = slide_data.get('templateId', 'unknown')
+                try:
+                    height = await calculate_slide_dimensions(slide_data, theme, browser, effective_version)
+                    slide_heights.append(height)
+                    logger.info(f"✓ SCORM Slide {i + 1}/{len(slides)} ({template_id}) height: {height}px")
+                except Exception as e:
+                    logger.error(f"✗ Failed to calculate height for slide {i + 1} ({template_id}): {e}")
+                    slide_heights.append(660)  # Fallback to 16:9 minimum
+                
+                # Send keep-alive progress update every 10 seconds
+                current_time = time.time()
+                if current_time - last_progress_time >= 10:
+                    elapsed = int(current_time - start_time)
+                    yield {"type": "progress", "message": f"Processing slides... {i + 1}/{len(slides)} complete ({elapsed}s elapsed)"}
+                    last_progress_time = current_time
+                    
+            await browser.close()
+            browser = None
+            yield {"type": "progress", "message": f"All {len(slides)} slide dimensions calculated"}
+        except Exception as e:
+            logger.error(f"Failed to calculate slide heights: {e}, using default 660px for all")
+            slide_heights = [660] * len(slides)
+            if browser:
+                await browser.close()
+                browser = None
 
         injected_styles = ''
         stacked_bodies: List[str] = []
 
-        for idx, slide in enumerate(slides):
+        # NOTE: Template selection is version-aware (above)
+        # Each template (single_slide_pdf_template.html vs _old.html) has the same theme class names
+        # but with different CSS variable values (e.g., .theme-dark-purple has different colors in each template)
+        # Therefore, template selection handles color differences - no theme name mapping needed
+        
+        logger.info(f"🎨 SCORM THEME - Using theme: {theme} with {'V1 OLD' if (not effective_version or effective_version < 'v2') else 'V2 NEW'} template")
+
+        for idx, raw_slide in enumerate(slides):
+            slide = raw_slide
+            slide_height = slide_heights[idx]  # Use calculated height for this specific slide
             rendered = template.render(
                 slide=slide,
                 theme=theme,
@@ -538,32 +641,53 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
                 injected_styles = _extract_style_blocks(head_inner)
                 if not injected_styles and embedded_fonts_css:
                     injected_styles = f"<style>\n{embedded_fonts_css}\n</style>"
+            
+            # CRITICAL: Inject the specific height as an inline style on this slide's .slide-page div
+            # This ensures each slide gets its own calculated height, not just the first slide's height from CSS
+            body_inner = body_inner.replace(
+                '<div class="slide-page">',
+                f'<div class="slide-page" style="height: {slide_height}px; min-height: {slide_height}px; max-height: {slide_height}px;">'
+            )
+            
             stacked_bodies.append(body_inner)
 
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
         # Inject styles at the top of body for SCORM wrapper
+        # Heights are set per-slide via inline styles (injected above in the loop)
         scorm_overrides = """
 <style>
-  /* SCORM overrides to match PDF dynamic heights and spacing */
+  /* SCORM overrides to match PDF dynamic heights */
   .slide-page { 
-    height: auto !important; 
-    min-height: 0 !important; 
-    max-height: none !important; 
+    width: 1174px;
+    /* Height is set per-slide via inline style attribute (e.g., style="height: 780px") */
+    /* Each slide gets its own calculated height from Pyppeteer measurement */
     margin: 0 auto 32px auto !important; 
     display: block; 
     background: transparent; 
   }
   .slide-page:last-child { margin-bottom: 0 !important; }
-  .slide-content { height: auto !important; min-height: 0 !important; }
+  .slide-content { 
+    height: 100% !important; /* Fill parent height */
+  }
 </style>
 """
         body_html = scorm_overrides + (injected_styles or '') + "".join(stacked_bodies)
-        return _wrap_html_as_sco(title, body_html)
+        final_html = _wrap_html_as_sco(title, body_html)
+        yield {"type": "complete", "html": final_html}
 
     except Exception as e:
         logger.error(f"[SCORM] Error rendering slide deck: {e}")
         title = product_row.get('project_name') or 'Presentation'
-        return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>Error rendering presentation content.</p>")
+        yield {"type": "complete", "html": _wrap_html_as_sco(title, f"<h1>{title}</h1><p>Error rendering presentation content.</p>")}
+
+
+async def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
+    """Backward-compatible wrapper that uses the progress generator."""
+    async for update in _render_slide_deck_html_with_progress(product_row, content):
+        if update["type"] == "complete":
+            return update["html"]
+    # Fallback
+    return _wrap_html_as_sco('Presentation', '<h1>Error rendering presentation</h1>')
 
 
 def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
@@ -1269,11 +1393,13 @@ def _infer_products_for_lesson(projects: List[Dict[str, Any]], outline_name: str
     return matches
 
 
-async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple[str, bytes]:
+async def build_scorm_package_zip_with_progress(course_outline_id: int, user_id: str) -> AsyncGenerator[Dict[str, Any], None]:
     """
-    Build a SCORM 2004 (4th Ed) package ZIP for the given course outline.
-    Returns (filename, zip_bytes).
+    Generator version that builds SCORM package and yields progress updates.
+    Yields: {"type": "progress", "message": "..."} or {"type": "complete", "filename": "...", "zip_bytes": b"..."}
     """
+    yield {"type": "progress", "message": "Loading course outline..."}
+    
     # Load course outline
     course = await _load_training_plan_row(course_outline_id, user_id)
     outline_name = course.get('project_name') or course.get('title') or 'Course'
@@ -1291,6 +1417,8 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
     structure = json.loads(json.dumps(stored))  # deep copy
     main_title = structure.get('mainTitle') or course.get('microproduct_name') or outline_name or 'Course'
+
+    yield {"type": "progress", "message": f"Fetching products for '{main_title}'..."}
 
     # Fetch all user projects for matching
     all_projects = await _load_all_user_projects(user_id)
@@ -1327,6 +1455,10 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
     org_items: List[Dict[str, Any]] = []
 
     sections = structure.get('sections') or []
+    total_lessons = sum(len(s.get('lessons', [])) for s in sections if isinstance(s, dict))
+    processed_lessons = 0
+
+    yield {"type": "progress", "message": f"Processing {total_lessons} lessons..."}
 
     for s_idx, section in enumerate(sections, start=1):
         if not isinstance(section, dict):
@@ -1342,6 +1474,9 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
             if not isinstance(lesson, dict):
                 continue
             lesson_title = (lesson.get('title') or f"Lesson {l_idx}").strip()
+            processed_lessons += 1
+            yield {"type": "progress", "message": f"Processing lesson {processed_lessons}/{total_lessons}: {lesson_title}"}
+            
             recs = lesson.get('recommended_content_types') or {}
             raw_primary = recs.get('primary')
             logger.info(f"[SCORM] Lesson '{lesson_title}' primary(raw)={raw_primary}")
@@ -1373,6 +1508,9 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 'title': lesson_title,
                 'children': []
             }
+            
+            # Track which product types have been added to prevent duplicates
+            added_types_for_lesson: set = set()
 
             normalized: List[Dict[str, Any]] = []
             for it in primary or []:
@@ -1407,17 +1545,24 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 type_label = None
                 if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
                     type_label = 'Onepager'
+                    added_types_for_lesson.add('onepager')
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                     logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    # Render as HTML using the same template as PDFs and inline images
+                    # Use generator version to get progress updates
                     content_dict = content if isinstance(content, dict) else {}
-                    body_html = _render_slide_deck_html(matched, content_dict)
+                    async for slide_update in _render_slide_deck_html_with_progress(matched, content_dict):
+                        if slide_update["type"] == "progress":
+                            yield slide_update  # Forward progress from slide rendering
+                        elif slide_update["type"] == "complete":
+                            body_html = slide_update["html"]
                     type_label = 'Presentation'
+                    added_types_for_lesson.add('presentation')
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                     type_label = 'Quiz'
+                    added_types_for_lesson.add('quiz')
                     logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
                 else:
                     continue
@@ -1426,7 +1571,6 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 sco_dir = f"sco_{product_id}"
                 logger.info(f"[SCORM] Starting image localization for product_id={product_id}, sco_dir={sco_dir}")
                 
-                # Show a sample of the HTML to see what images are included
                 html_sample = body_html[:1000] + "..." if len(body_html) > 1000 else body_html
                 logger.debug(f"[SCORM] HTML sample for product_id={product_id}: {html_sample}")
                 
@@ -1436,12 +1580,112 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 # Write SCO HTML into package
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{(type_label or 'sco').lower()}-{product_id}"
-                # Write as HTML for all types now
                 z.writestr(href, body_html)
                 logger.info(f"[SCORM] Written SCO HTML to {href}")
                 sco_entries.append((res_id, href))
 
                 # Add leaf item under lesson
+                lesson_item['children'].append({
+                    'identifier': f"itm-{product_id}",
+                    'title': (type_label or title_for_sco),
+                    'res_id': res_id,
+                })
+
+            # Also try to find and include any additional products for this lesson
+            logger.info(f"[SCORM] Looking for additional unlisted products for lesson='{lesson_title}'")
+            additional_products = _infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_ids)
+            
+            # Group additional products by type and keep only the newest of each type
+            products_by_type: Dict[str, List[Dict[str, Any]]] = {}
+            for prod in additional_products:
+                mtype = (prod.get('microproduct_type') or '').strip().lower()
+                comp = (prod.get('component_name') or '').strip().lower()
+                
+                if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
+                    type_key = 'onepager'
+                elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
+                    type_key = 'presentation'
+                elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
+                    type_key = 'quiz'
+                else:
+                    continue
+                
+                if type_key in added_types_for_lesson:
+                    logger.info(f"[SCORM] Skipping additional product id={prod.get('id')} type={type_key} - already have one from primary list")
+                    continue
+                
+                if type_key not in products_by_type:
+                    products_by_type[type_key] = []
+                products_by_type[type_key].append(prod)
+            
+            # For each type, keep only the newest product
+            for type_key, prods in products_by_type.items():
+                if not prods:
+                    continue
+                
+                prods.sort(key=lambda p: p.get('id', 0), reverse=True)
+                newest = prods[0]
+                
+                if len(prods) > 1:
+                    logger.info(f"[SCORM] Found {len(prods)} products of type '{type_key}' for lesson='{lesson_title}', keeping newest id={newest.get('id')}")
+                
+                additional_match = newest
+                product_id = additional_match['id']
+                if product_id in used_ids:
+                    continue
+                
+                logger.info(f"[SCORM] Found additional product id={product_id} for lesson='{lesson_title}' (not in primary list)")
+                used_ids.add(product_id)
+
+                mtype = (additional_match.get('microproduct_type') or '').strip().lower()
+                comp = (additional_match.get('component_name') or '').strip().lower()
+                try:
+                    content = await _load_product_content(product_id, user_id)
+                except Exception as e:
+                    logger.warning(f"[SCORM] Failed to load product content id={product_id}: {e}")
+                    content = None
+
+                title_for_sco = additional_match.get('project_name') or additional_match.get('microproduct_name') or lesson_title or 'Lesson'
+
+                type_label = None
+                if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
+                    type_label = 'Onepager'
+                    added_types_for_lesson.add('onepager')
+                    body_html = _render_onepager_html(additional_match, content if isinstance(content, dict) else {})
+                    logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
+                elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
+                    content_dict = content if isinstance(content, dict) else {}
+                    async for slide_update in _render_slide_deck_html_with_progress(additional_match, content_dict):
+                        if slide_update["type"] == "progress":
+                            yield slide_update
+                        elif slide_update["type"] == "complete":
+                            body_html = slide_update["html"]
+                    type_label = 'Presentation'
+                    added_types_for_lesson.add('presentation')
+                    logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
+                elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
+                    body_html = _render_quiz_html(additional_match, content if isinstance(content, dict) else {})
+                    type_label = 'Quiz'
+                    added_types_for_lesson.add('quiz')
+                    logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
+                else:
+                    continue
+
+                sco_dir = f"sco_{product_id}"
+                logger.info(f"[SCORM] Starting image localization for product_id={product_id}, sco_dir={sco_dir}")
+                
+                html_sample = body_html[:1000] + "..." if len(body_html) > 1000 else body_html
+                logger.debug(f"[SCORM] HTML sample for product_id={product_id}: {html_sample}")
+                
+                body_html = await _localize_images_to_assets(body_html, z, sco_dir)
+                logger.info(f"[SCORM] Completed image localization for product_id={product_id}, final HTML length={len(body_html)}")
+
+                href = f"{sco_dir}/index.html"
+                res_id = f"res-{(type_label or 'sco').lower()}-{product_id}"
+                z.writestr(href, body_html)
+                logger.info(f"[SCORM] Written SCO HTML to {href}")
+                sco_entries.append((res_id, href))
+
                 lesson_item['children'].append({
                     'identifier': f"itm-{product_id}",
                     'title': (type_label or title_for_sco),
@@ -1455,6 +1699,8 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
         # Only add section if it has lessons
         if sec_item['children']:
             org_items.append(sec_item)
+
+    yield {"type": "progress", "message": "Generating SCORM manifest..."}
 
     # Build resources XML
     resources_xml_parts: List[str] = []
@@ -1475,8 +1721,24 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
         file_info = z.getinfo(filename)
         logger.info(f"[SCORM]   {i+1:3d}. {filename} ({file_info.file_size} bytes)")
 
+    yield {"type": "progress", "message": "Finalizing SCORM package..."}
+
     z.close()
     zip_bytes = zip_buffer.getvalue()
     filename = f"{re.sub(r'[^A-Za-z0-9_-]+', '_', main_title) or 'course'}_scorm2004.zip"
     logger.info(f"[SCORM] Package complete: {filename} ({len(zip_bytes)} bytes total)")
-    return filename, zip_bytes 
+    
+    yield {"type": "complete", "filename": filename, "zip_bytes": zip_bytes}
+
+
+async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple[str, bytes]:
+    """
+    Build a SCORM 2004 (4th Ed) package ZIP for the given course outline.
+    Returns (filename, zip_bytes).
+    Backward-compatible wrapper that uses the progress generator.
+    """
+    async for update in build_scorm_package_zip_with_progress(course_outline_id, user_id):
+        if update["type"] == "complete":
+            return update["filename"], update["zip_bytes"]
+    # Fallback
+    raise HTTPException(status_code=500, detail="SCORM package generation failed") 

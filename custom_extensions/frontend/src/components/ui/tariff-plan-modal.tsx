@@ -377,15 +377,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       try {
                         setPortalLoading(true);
                         
-                        // Map plan to Stripe price ID
-                        const priceIdMap: Record<string, string> = {
-                          'pro': billingCycle === 'yearly' ? 'price_1SEBUCH2U2KQUmUhkym5Q9TS' : 'price_1SEBM4H2U2KQUmUhkn6A7Hlm',
-                          'business': billingCycle === 'yearly' ? 'price_1SEBUoH2U2KQUmUhMktbhCsm' : 'price_1SEBTeH2U2KQUmUhi02e1uC9'
-                        };
-                        
-                        const priceId = priceIdMap[selectedPlan.id];
-                        if (!priceId) {
-                          throw new Error('Price ID not configured for this plan');
+                        if (!['Pro', 'Business', 'Enterprise'].includes(selectedPlan.name)) {
+                          throw new Error('Plan not supported');
                         }
                         
                         const res = await fetch('/api/custom-projects-backend/billing/checkout', { 
@@ -393,8 +386,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           credentials: 'same-origin',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ 
-                            priceId: priceId,
-                            planName: selectedPlan.name 
+                            planName: `${selectedPlan.name.toLowerCase()}_${billingCycle === 'yearly' ? 'yearly' : 'monthly'}`,
                           })
                         });
                         if (!res.ok) throw new Error('Failed to create checkout session');
@@ -763,17 +755,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         )}
                       </div>
 
-                      {/* CTA Button */}
-                    <button
-                        onClick={() => {
-                          if (plan.name.includes('Enterprise')) {
-                            onOpenChange(false);
-                            setShowContactSales(true);
-                          } else if (plan.id !== 'starter' && plan.id !== currentPlanId) {
-                            handlePurchasePlan(plan);
-                          }
-                        }}
-                        className={`w-full py-2.5 rounded-full font-public-sans font-semibold text-sm transition-all duration-300 ${
+                      <button
+                        onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
+                        className={`w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-[#878787] cursor-not-allowed'
                             : plan.name.includes('Enterprise')

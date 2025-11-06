@@ -167,48 +167,50 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   return (
     <div className="content-slide-template" style={slideStyles}>
-      {/* Title - wrapped */}
-      <div data-draggable="true" style={{ display: 'inline-block' }}>
-        {isEditable && editingTitle ? (
-          <WysiwygEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              padding: '8px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block',
-              lineHeight: '1.2'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={(e) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              
-              console.log('Title clicked, isEditable:', isEditable);
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-            dangerouslySetInnerHTML={{ __html: title || 'Click to add title' }}
-          />
-        )}
-      </div>
+      {/* Title - wrapped - only show if title exists */}
+      {title && (
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
+          {isEditable && editingTitle ? (
+            <WysiwygEditor
+              initialValue={title || ''}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.2'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                
+                console.log('Title clicked, isEditable:', isEditable);
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+              dangerouslySetInnerHTML={{ __html: title }}
+            />
+          )}
+        </div>
+      )}
 
       {/* Content - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>

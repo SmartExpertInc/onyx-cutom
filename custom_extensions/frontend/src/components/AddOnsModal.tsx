@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Coins, Workflow, Server, LucideIcon, HardDrive, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,6 +28,7 @@ interface AddOnCardProps {
   quantity: number;
   onQuantityChange: (delta: number) => void;
   showAmount?: boolean;
+  catalog?: Record<string, { unit_amount: number; currency: string; interval?: string }>;
 }
 
 const CoinsIcon: React.FC<{ size?: number }> = ({ size }) => (
@@ -103,8 +104,11 @@ const ConnectorsIcon: React.FC<{ size?: number }> = ({ size }) => (
   </svg>
 );
 
-function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount = true }: AddOnCardProps) {
+function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount = true, catalog }: AddOnCardProps) {
   const { t } = useLanguage();
+  const BACKEND = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
   return (
     <Card className="border border-gray-200">
       <CardHeader className='px-4 pt-4 pb-3'>
@@ -118,47 +122,88 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-4 pb-3 pt-0">
-          <div>
-            {showAmount && (
-              <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold">
-                <span>{addOn.amount}</span>
-                      </div>
-            )}
-            <div className="text-3xl pb-2 font-bold text-gray-900">
-              {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
-              {addOn.priceNote === 'per month' && (
-                <span className="text-xs font-normal text-[#0D001B]">/month</span>
-              )}
-            </div>
-            {!addOn.isEnterprise && (
-              <div className="flex border border-[#E0E0E0] rounded-sm py-0.5 px-1 mb-2 items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onQuantityChange(-1)}
-                  className="h-5 w-5 bg-[#CCDBFC] rounded-xs hover:bg-[#C0CEED] text-sm text-[#0F58F9]"
-                >
-                  <span className='text-lg font-light'>-</span>
-                </Button>
-                <div className="flex-1 text-center font-regular text-[#71717A]">{quantity}</div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onQuantityChange(1)}
-                  className="h-5 w-5 bg-white rounded-xs bg-[#CCDBFC] hover:bg-[#C0CEED] text-sm text-[#0F58F9]"
-                >
-                  <span className='text-lg font-light'>+</span>
-                </Button>
-              </div>
-            )}
-            {addOn.isEnterprise && (
-              <div className="h-2"></div>
-            )}
-            <Button className={`w-full pt-1 ${addOn.isEnterprise ? 'bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#C2D1F0]' : 'bg-[#0F58F9] text-white'} cursor-pointer rounded-full`} variant="download">
-              {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy now')}
+      <CardContent className="space-y-4">
+        {showAmount && (
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="w-2 h-2 bg-gray-400 rounded-full" />
+            <span>{addOn.amount}</span>
+                  </div>
+        )}
+        <div className="text-3xl font-bold text-gray-900">
+          {(() => {
+            const idToSku: Record<string, string> = {
+              small: 'credits_100', medium: 'credits_300', large: 'credits_1000',
+              single: 'connectors_1', five: 'connectors_5', ten: 'connectors_10',
+              oneGb: 'storage_1gb', fiveGb: 'storage_5gb', tenGb: 'storage_10gb'
+            };
+            const sku = idToSku[(addOn as any).id];
+            const entry = (catalog as any)[sku];
+            if (entry && typeof entry.unit_amount === 'number') {
+              const amount = (entry.unit_amount / 100).toFixed(2);
+              return `$${amount}${entry.interval ? `/${entry.interval}` : ''}`;
+            }
+            return typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price;
+          })()}
+        </div>
+        {!addOn.isEnterprise && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onQuantityChange(-1)}
+              className="h-10 w-10 bg-white"
+            >
+              -
+            </Button>
+            <div className="flex-1 text-center font-medium">{quantity}</div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onQuantityChange(1)}
+              className="h-10 w-10 bg-white"
+            >
+              +
             </Button>
           </div>
+        )}
+        <Button
+          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+          variant="download"
+          disabled={busy}
+          onClick={async () => {
+            if (addOn.isEnterprise) {
+              window.open('https://calendly.com/k-torhonska-smartexpert/30min', '_blank');
+              return;
+            }
+            setBusy(true); setErr(null);
+            try {
+              // Decide SKU by id
+              const idToSku: Record<string, string> = {
+                small: 'credits_100', medium: 'credits_300', large: 'credits_1000',
+                single: 'connectors_1', five: 'connectors_5', ten: 'connectors_10',
+                oneGb: 'storage_1gb', fiveGb: 'storage_5gb', tenGb: 'storage_10gb'
+              };
+              const sku = idToSku[(addOn as any).id] || '';
+              const isCredits = sku.startsWith('credits_');
+              const endpoint = isCredits ? `${BACKEND}/billing/credits/checkout` : `${BACKEND}/billing/addons/checkout`;
+              const body = isCredits
+                ? { sku, quantity }
+                : { items: [{ sku, quantity }] };
+              const res = await fetch(endpoint, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+              if (!res.ok) throw new Error(await res.text());
+              const data = await res.json();
+              if (data?.url) window.location.href = data.url;
+            } catch (e: any) {
+              setErr(e?.message || 'Checkout failed');
+            } finally { setBusy(false); }
+          }}
+        >
+          {busy ? t('addOns.processing', 'Processing...') : (addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy Now'))}
+        </Button>
+        {err && <p className="text-center text-sm text-red-600">{err}</p>}
+        {addOn.priceNote && addOn.priceNote !== 'per month' && (
+          <p className="text-center text-sm text-gray-500">{addOn.priceNote}</p>
+        )}
       </CardContent>
     </Card>
   );
@@ -166,6 +211,11 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
 
 export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModalProps) {
   const { t } = useLanguage();
+  const BACKEND = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  const [loading, setLoading] = useState(false);
+  const [activeAddons, setActiveAddons] = useState<any[]>([]);
+  const [catalog, setCatalog] = useState<Record<string, { unit_amount: number; currency: string; interval?: string }>>({});
+  const [error, setError] = useState<string | null>(null);
   
   const CREDITS_DATA_TRANSLATED: AddOn[] = [
     {
@@ -286,6 +336,85 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
     }));
   };
 
+  // Map UI ids to backend SKUs
+  const toSku = (id: string): string | null => {
+    switch (id) {
+      // credits
+      case 'small': return 'credits_100';
+      case 'medium': return 'credits_300';
+      case 'large': return 'credits_1000';
+      // connectors
+      case 'single': return 'connectors_1';
+      case 'five': return 'connectors_5';
+      case 'ten': return 'connectors_10';
+      // storage
+      case 'oneGb': return 'storage_1gb';
+      case 'fiveGb': return 'storage_5gb';
+      case 'tenGb': return 'storage_10gb';
+      default: return null;
+    }
+  };
+
+  // Checkout helpers
+  const startCreditsCheckout = async (sku: string, qty: number) => {
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch(`${BACKEND}/billing/credits/checkout`, {
+        method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sku, quantity: qty })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } catch (e: any) {
+      setError(e?.message || 'Failed to start checkout');
+    } finally { setLoading(false); }
+  };
+
+  const startAddonCheckout = async (sku: string, qty: number) => {
+    setLoading(true); setError(null);
+    try {
+      const body = { items: [{ sku, quantity: qty }] };
+      const res = await fetch(`${BACKEND}/billing/addons/checkout`, {
+        method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } catch (e: any) {
+      setError(e?.message || 'Failed to start checkout');
+    } finally { setLoading(false); }
+  };
+
+  // Load active add-ons
+  const loadActiveAddons = async () => {
+    try {
+      const res = await fetch(`${BACKEND}/billing/addons`, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setActiveAddons(Array.isArray(data) ? data : []);
+    } catch (e) { /* ignore in modal */ }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadActiveAddons();
+      // load catalog for dynamic prices
+      (async () => {
+        try {
+          const res = await fetch(`${BACKEND}/billing/catalog`, { credentials: 'same-origin' });
+          if (res.ok) {
+            const list = await res.json();
+            const map: Record<string, any> = {};
+            list.forEach((p: any) => { map[p.sku] = { unit_amount: p.unit_amount, currency: p.currency, interval: p.interval }; });
+            setCatalog(map);
+          }
+        } catch {}
+      })();
+    }
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[94vh] !bg-white/90 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
@@ -337,7 +466,47 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsTrigger>
           </TabsList>
 
-          <ScrollArea className="overflow-y-auto flex-1 px-6 py-5">
+          <div className="overflow-y-auto flex-1 p-6">
+            {/* Active Add-ons */}
+            {activeAddons.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">{t('addOns.activeAddons', 'Your Active Add-ons')}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {activeAddons.map((a) => (
+                    <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg border border-gray-200 p-3">
+                      <div className="text-sm text-gray-800">
+                        <div className="font-medium capitalize">{a.type}</div>
+                        <div className="text-gray-600">{t('addOns.quantity', 'Quantity')}: {a.quantity} · {t('addOns.status', 'Status')}: {a.status || 'active'}</div>
+                        {a.next_billing_at && (
+                          <div className="text-gray-500 text-xs">{t('addOns.nextBilling', 'Next billing')}: {a.next_billing_at}</div>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          setLoading(true); setError(null);
+                          try {
+                            const body: any = a.stripe_subscription_item_id ? { subscriptionItemId: a.stripe_subscription_item_id } : { subscriptionId: a.stripe_subscription_id };
+                            const res = await fetch(`${BACKEND}/billing/addons/cancel`, {
+                              method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify(body)
+                            });
+                            if (!res.ok) throw new Error(await res.text());
+                            await loadActiveAddons();
+                          } catch (e: any) {
+                            setError(e?.message || 'Failed to cancel');
+                          } finally { setLoading(false); }
+                        }}
+                      >
+                        {t('addOns.cancel', 'Cancel')}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
             <TabsContent value="credits" className="mt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-5">
                     {CREDITS_DATA_TRANSLATED.map((credit) => (
@@ -347,6 +516,8 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                         icon={CoinsIcon}
                         quantity={quantities[credit.id]}
                         onQuantityChange={(delta) => handleQuantityChange(credit.id, delta)}
+                        showAmount={false}
+                        catalog={catalog}
                       />
                     ))}
                   </div>
@@ -358,10 +529,11 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                   <AddOnCard
                     key={storage.id}
                     addOn={storage}
-                    icon={StorageIcon}
+                    icon={Server}
                     quantity={quantities[storage.id]}
                     onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
-                    showAmount={true}
+                    showAmount={false}
+                    catalog={catalog}
                   />
                 ))}
               </div>
@@ -376,12 +548,13 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     icon={ConnectorsIcon}
                     quantity={quantities[connector.id]}
                     onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
-                    showAmount={true}
+                    showAmount={false}
+                    catalog={catalog}
                   />
                 ))}
               </div>
             </TabsContent>
-          </ScrollArea>
+          </div>
         </Tabs>
       </DialogContent>
     </Dialog>

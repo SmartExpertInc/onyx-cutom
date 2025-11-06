@@ -28,7 +28,7 @@ async def get_or_create_user_credits(pool: asyncpg.Pool, user_id: int) -> Dict[s
                 VALUES ($1, $2, $3, $3)
                 ON CONFLICT (onyx_user_id) DO NOTHING
                 """,
-                str(user_id), "User", 100, 100  # Default 100 credits, matching main.py schema
+                str(user_id), "User", 100  # Default 100 credits, matching main.py schema
             )
             
             # Create SmartDrive account placeholder for new user
