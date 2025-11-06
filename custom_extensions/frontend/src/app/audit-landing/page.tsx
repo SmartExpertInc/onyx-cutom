@@ -73,6 +73,40 @@ const BottomRightGradient: React.FC<{ size?: number }> = () => (
 export default function AuditLandingPage() {
   const [activeProduct, setActiveProduct] = useState("Course");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const carouselRef = React.useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+    carouselRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (carouselRef.current) {
+      carouselRef.current.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    if (carouselRef.current) {
+      carouselRef.current.style.cursor = 'grab';
+    }
+  };
 
   return (
     <div 
@@ -955,12 +989,26 @@ export default function AuditLandingPage() {
           </h2>
 
           {/* Testimonial Cards Carousel */}
-          <div className="overflow-x-auto mb-12 pb-4">
+          <div 
+            ref={carouselRef}
+            className="overflow-x-auto mb-12 pb-4 select-none"
+            style={{ 
+              cursor: 'grab',
+              scrollBehavior: isDragging ? 'auto' : 'smooth'
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+          >
             <div className="flex gap-6 min-w-max">
               {/* Card 1 - 80% reduction */}
               <div 
                 className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+                style={{ 
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  userSelect: 'none'
+                }}
               >
                 <p className="text-5xl font-bold text-black mb-2 sora-font">80%</p>
                 <p className="text-lg text-black mb-6 sora-font">reduction in training costs</p>
@@ -982,7 +1030,10 @@ export default function AuditLandingPage() {
               {/* Card 2 - 40% faster onboarding */}
               <div 
                 className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+                style={{ 
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  userSelect: 'none'
+                }}
               >
                 <p className="text-5xl font-bold text-black mb-2 sora-font">40%</p>
                 <p className="text-lg text-black mb-6 sora-font">faster onboarding</p>
@@ -1004,7 +1055,10 @@ export default function AuditLandingPage() {
               {/* Card 3 - 30% higher retention */}
               <div 
                 className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+                style={{ 
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  userSelect: 'none'
+                }}
               >
                 <p className="text-5xl font-bold text-black mb-2 sora-font">30%</p>
                 <p className="text-lg text-black mb-6 sora-font">higher employee retention</p>
@@ -1026,7 +1080,35 @@ export default function AuditLandingPage() {
               {/* Card 4 - +70% engagement */}
               <div 
                 className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+                style={{ 
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  userSelect: 'none'
+                }}
+              >
+                <p className="text-5xl font-bold text-black mb-2 sora-font">+70%</p>
+                <p className="text-lg text-black mb-6 sora-font">engagement</p>
+                <p className="text-base text-black mb-6 sora-font">
+                  "With AI-powered courses, employees actually complete training. Completion rates almost doubled."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-full bg-gray-300"
+                    style={{ backgroundColor: '#E5E7EB' }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-black sora-font">Director</p>
+                    <p className="text-sm text-gray-600 sora-font">Education</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 5 - +70% engagement */}
+              <div 
+                className="bg-white rounded-lg p-8 flex-shrink-0 w-80"
+                style={{ 
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  userSelect: 'none'
+                }}
               >
                 <p className="text-5xl font-bold text-black mb-2 sora-font">+70%</p>
                 <p className="text-lg text-black mb-6 sora-font">engagement</p>
@@ -1080,7 +1162,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-4xl mx-auto">
           {/* Heading */}
-          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-12 sora-font" style={{ color: '#2D3748' }}>
+          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-12 sora-font" style={{ color: '#020617' }}>
             Frequently Asked Questions
           </h2>
 
@@ -1125,26 +1207,24 @@ export default function AuditLandingPage() {
                   className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
                   onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                 >
-                  <span className="text-lg font-semibold text-black sora-font pr-4">
+                  <span className="text-[22px] font-regular text-black sora-font pr-4">
                     {faq.question}
                   </span>
-                  <svg
-                    className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
-                      openFaqIndex === index ? 'transform rotate-180' : ''
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+
+                  {openFaqIndex === index ? <svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3.42161 0.333966C3.73622 -0.111531 4.31607 -0.111531 4.63068 0.333966L7.86884 4.91932C8.29596 5.52414 7.93149 6.44238 7.26431 6.44238L0.787987 6.44238C0.120803 6.44238 -0.243666 5.52413 0.183455 4.91932L3.42161 0.333966Z" fill="#020617"/>
                   </svg>
+                  : <svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.63112 6.10842C4.31651 6.55391 3.73666 6.55391 3.42206 6.10842L0.183896 1.52306C-0.243225 0.918246 0.121245 -7.15278e-08 0.788429 0L7.26475 6.94317e-07C7.93193 7.65845e-07 8.2964 0.918248 7.86928 1.52307L4.63112 6.10842Z" fill="#020617" fill-opacity="0.4"/>
+                  </svg>
+                  }
                 </button>
                 <div
                   className={`overflow-hidden transition-all duration-300 ${
                     openFaqIndex === index ? 'max-h-96' : 'max-h-0'
                   }`}
                 >
-                  <div className="px-6 pb-5 text-base text-gray-600 sora-font">
+                  <div className="px-6 pb-5 text-[18px] text-gray-900 sora-font">
                     {faq.answer}
                   </div>
                 </div>
@@ -1190,7 +1270,7 @@ export default function AuditLandingPage() {
       {/* Footer */}
       <footer className="w-full bg-black py-16 px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-15">
             {/* Company Info */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
@@ -1204,6 +1284,7 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Product Links */}
+          <div className="flex gap-8">
             <div>
               <h3 className="text-white font-semibold mb-4 sora-font">Product</h3>
               <ul className="space-y-3">
@@ -1233,7 +1314,7 @@ export default function AuditLandingPage() {
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Contact</a></li>
               </ul>
             </div>
-
+          </div>
             {/* Newsletter */}
             <div>
               <h3 className="text-white font-semibold mb-2 sora-font">Join our newsletter</h3>
