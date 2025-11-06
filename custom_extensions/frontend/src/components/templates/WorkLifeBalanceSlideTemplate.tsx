@@ -351,7 +351,6 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         </div>
 
         {/* Content */}
-        <h1>Background Color New Template: {backgroundColor}</h1>
         <div style={{ 
           position: 'absolute',
           top: '39%',
