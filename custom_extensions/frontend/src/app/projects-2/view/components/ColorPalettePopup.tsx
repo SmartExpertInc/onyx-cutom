@@ -32,7 +32,7 @@ interface HSLA {
   a: number; // 0-1
 }
 
-type ColorFormat = 'HEX' | 'RGBA' | 'HSLA';
+type ColorFormat = 'HEX' | 'RGB' | 'HSL' | 'HSB';
 
 // Color conversion utility functions
 function hexToHsb(hex: string): HSB {
@@ -260,6 +260,113 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         style={{
           left: `${getPercentage()}%`,
           top: '50%',
+          transform: 'translate(-50%, -50%)'
+        }}
+      />
+    </div>
+  );
+};
+
+// Vertical Slider Component
+interface VerticalSliderProps {
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+  onChangeCommitted: (value: number) => void;
+  background?: string;
+  width?: number;
+  height?: number;
+}
+
+const VerticalSlider: React.FC<VerticalSliderProps> = ({
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+  onChangeCommitted,
+  background,
+  width = 14,
+  height = 100
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  const getPercentage = () => {
+    return ((value - min) / (max - min)) * 100;
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsDragging(true);
+    handleMouseMove(e);
+  };
+
+  const handleMouseMove = (e: MouseEvent | React.MouseEvent) => {
+    if (!isDragging && !('clientY' in e)) return;
+    
+    if (sliderRef.current) {
+      const rect = sliderRef.current.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const percentage = Math.max(0, Math.min(100, (y / rect.height) * 100));
+      const newValue = min + (percentage / 100) * (max - min);
+      const steppedValue = Math.round(newValue / step) * step;
+      const clampedValue = Math.max(min, Math.min(max, steppedValue));
+      
+      onChange(clampedValue);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      onChangeCommitted(value);
+    }
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, value]);
+
+  return (
+    <div
+      ref={sliderRef}
+      className="relative cursor-pointer overflow-hidden"
+      style={{
+        width: width,
+        height: height,
+        borderRadius: width / 2,
+        background: background || '#e0e0e0'
+      }}
+      onMouseDown={handleMouseDown}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Track */}
+      <div
+        className="absolute inset-0"
+        style={{
+          borderRadius: width / 2,
+          background: background || '#e0e0e0'
+        }}
+      />
+      
+      {/* Thumb */}
+      <div
+        className="absolute w-3.5 h-3.5 bg-white rounded-full shadow-md cursor-pointer z-20"
+        style={{
+          top: `${getPercentage()}%`,
+          left: '50%',
           transform: 'translate(-50%, -50%)'
         }}
       />
@@ -508,7 +615,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const updatedRecentColors = [
       color,
       ...recentColors.filter(c => c !== color) // Remove if already exists
-    ].slice(0, 5); // Keep only 5 colors
+    ].slice(0, 9); // Keep only 9 colors
     
     onRecentColorChange(updatedRecentColors);
     
@@ -634,10 +741,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       <div
         ref={popupRef}
         data-color-palette-popup
-        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[270px]"
+        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[336px]"
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
+          height: '512px'
         }}
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => {
@@ -645,11 +753,44 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           e.preventDefault(); // Prevent focus loss from editor
         }}
       >
-                {/* Custom Saturation/Brightness Square */}
-        <div className="mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 pb-3 border-b" style={{ borderColor: '#E0E0E0' }}>
+          <span className="text-sm font-medium text-gray-800">Color Picker</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            className="w-6 h-6 rounded-full bg-white flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+            style={{
+              backdropFilter: 'blur(12.857142448425293px)',
+              boxShadow: '0px 6.43px 6.43px 0px #0000001A, 0px 2.57px 2.57px 0px #0000000D, 0px 0.64px 0px 0px #0000000D'
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clipPath="url(#clip0_2114_29206)">
+                <path d="M1.2002 8.39922L8.4002 1.19922" stroke="#878787" strokeWidth="0.964286" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1.2002 1.19922L8.4002 8.39922" stroke="#878787" strokeWidth="0.964286" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_2114_29206">
+                  <rect width="9.6" height="9.6" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+
+        {/* Saturation/Brightness Square with Vertical Sliders */}
+        <div className="flex gap-3 mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
           e.stopPropagation();
           e.preventDefault(); // Prevent focus loss from editor
         }}>
+          {/* Saturation/Brightness Square */}
           <div
             ref={sbRef}
             onMouseDown={(e) => {
@@ -658,7 +799,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               handleMouseDown(e);
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
+            className="w-[180px] h-[180px] rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200 flex-shrink-0"
             style={{
               background: `linear-gradient(to top, #000, transparent),
                            linear-gradient(to right, #fff, hsl(${colorState.hsb.h}, 100%, 50%))`
@@ -696,43 +837,24 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               }}
             />
           </div>
-        </div>
 
-        {/* Preview Square and Sliders Layout */}
-        <div className="flex gap-4 mb-4 items-center" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-          {/* Color Preview Square */}
-          <div className="w-10 h-10 rounded-lg relative z-[10001] flex-shrink-0"
-            style={{
-              background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                           linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                           linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                           linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-              backgroundSize: '10px 10px',
-              backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
-            }}>
-                      <div className="w-full h-full border border-gray-300 rounded-lg"
-            style={{
-              backgroundColor: colorState.hex,
-              opacity: colorState.opacity
-            }} />
-          </div>
-
-          {/* Sliders Column */}
-          <div className="flex flex-col gap-2 flex-1">
-            {/* Hue Slider */}
+          {/* Vertical Sliders Column */}
+          <div className="flex flex-col gap-3 justify-center">
+            {/* Hue Slider - Vertical */}
             <div className="relative z-[10001]">
-                          <CustomSlider
-              value={colorState.hsb.h}
-              min={0}
-              max={360}
-              onChange={handleHueChange}
-              onChangeCommitted={handleHueChangeCommitted}
-              background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
-              height={14}
-            />
+              <VerticalSlider
+                value={colorState.hsb.h}
+                min={0}
+                max={360}
+                onChange={handleHueChange}
+                onChangeCommitted={handleHueChangeCommitted}
+                background="linear-gradient(to bottom, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
+                width={14}
+                height={80}
+              />
             </div>
 
-            {/* Opacity Slider */}
+            {/* Opacity Slider - Vertical */}
             <div className="relative z-[10001]">
               <div className="relative">
                 {/* Squared background for opacity slider */}
@@ -747,18 +869,38 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                     backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
                   }}
                 />
-                <CustomSlider
+                <VerticalSlider
                   value={colorState.opacity}
                   min={0}
                   max={1}
                   step={0.01}
                   onChange={handleOpacityChange}
                   onChangeCommitted={handleOpacityChangeCommitted}
-                  background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
-                  height={14}
+                  background="linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
+                  width={14}
+                  height={80}
                 />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Preview Square */}
+        <div className="flex gap-4 mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+          <div className="w-10 h-10 rounded-lg relative z-[10001] flex-shrink-0"
+            style={{
+              background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                           linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                           linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                           linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+              backgroundSize: '10px 10px',
+              backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
+            }}>
+            <div className="w-full h-full border border-gray-300 rounded-lg"
+              style={{
+                backgroundColor: colorState.hex,
+                opacity: colorState.opacity
+              }} />
           </div>
         </div>
 
@@ -767,7 +909,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           e.stopPropagation();
           e.preventDefault(); // Prevent focus loss from editor
         }}>
-          {(['HEX', 'RGBA', 'HSLA'] as ColorFormat[]).map((format) => (
+          {(['HEX', 'RGB', 'HSL', 'HSB'] as ColorFormat[]).map((format) => (
             <button
               key={format}
               onClick={(e) => {
@@ -778,7 +920,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 e.stopPropagation();
                 e.preventDefault(); // Prevent focus loss from editor
               }}
-              className={`flex-1 px-3 py-1.5 border-none rounded-full text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
+              className={`flex-1 px-3 py-1.5 border-none rounded-lg text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
                   ? 'bg-white text-black font-normal shadow-sm' 
                   : 'bg-transparent text-black font-normal'
@@ -789,8 +931,51 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           ))}
         </div>
 
-        {/* Conditional Input Fields */}
-        <div className="mt-4 min-h-[56px] relative z-[10002]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+        {/* Color Code and Opacity Display */}
+        <div className="mt-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+          {/* SVG Icon */}
+          <div className="flex-shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 22.0018L3 21.0018M3 21.0018H6L15 12.0018M3 21.0018V18.0018L12 9.00179M15 6.00179L18.4 2.60179C18.7978 2.20396 19.3374 1.98047 19.9 1.98047C20.4626 1.98047 21.0022 2.20396 21.4 2.60179C21.7978 2.99961 22.0213 3.53918 22.0213 4.10179C22.0213 4.6644 21.7978 5.20396 21.4 5.60179L18 9.00179L18.4 9.40179C18.597 9.59877 18.7532 9.83262 18.8598 10.09C18.9665 10.3474 19.0213 10.6232 19.0213 10.9018C19.0213 11.1804 18.9665 11.4562 18.8598 11.7136C18.7532 11.971 18.597 12.2048 18.4 12.4018C18.203 12.5988 17.9692 12.755 17.7118 12.8616C17.4544 12.9682 17.1786 13.0231 16.9 13.0231C16.6214 13.0231 16.3456 12.9682 16.0882 12.8616C15.8308 12.755 15.597 12.5988 15.4 12.4018L11.6 8.60179C11.403 8.40481 11.2468 8.17095 11.1402 7.91358C11.0335 7.65621 10.9787 7.38036 10.9787 7.10179C10.9787 6.82321 11.0335 6.54737 11.1402 6.28999C11.2468 6.03262 11.403 5.79877 11.6 5.60179C11.797 5.40481 12.0308 5.24855 12.2882 5.14194C12.5456 5.03534 12.8214 4.98047 13.1 4.98047C13.3786 4.98047 13.6544 5.03534 13.9118 5.14194C14.1692 5.24855 14.403 5.40481 14.6 5.60179L15 6.00179Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+
+          {/* Code Display */}
+          <div className="flex-1 rounded-lg px-3 py-2 flex items-center" style={{ backgroundColor: '#E0E0E0' }}>
+            {colorFormat === 'HEX' && (
+              <span className="text-sm font-mono">
+                <span style={{ color: '#969298' }}>#</span>
+                <span style={{ color: '#171718' }}>{colorState.hex.slice(1)}</span>
+              </span>
+            )}
+            {colorFormat === 'RGB' && (
+              <span className="text-sm font-mono" style={{ color: '#171718' }}>
+                rgb({Math.round(colorState.rgba.r)}, {Math.round(colorState.rgba.g)}, {Math.round(colorState.rgba.b)})
+              </span>
+            )}
+            {colorFormat === 'HSL' && (
+              <span className="text-sm font-mono" style={{ color: '#171718' }}>
+                hsl({Math.round(colorState.hsla.h)}, {Math.round(colorState.hsla.s)}%, {Math.round(colorState.hsla.l)}%)
+              </span>
+            )}
+            {colorFormat === 'HSB' && (
+              <span className="text-sm font-mono" style={{ color: '#171718' }}>
+                hsb({Math.round(colorState.hsb.h)}, {Math.round(colorState.hsb.s)}%, {Math.round(colorState.hsb.b)}%)
+              </span>
+            )}
+          </div>
+
+          {/* Opacity Display */}
+          <div className="rounded-lg px-3 py-2 flex items-center" style={{ backgroundColor: '#E0E0E0' }}>
+            <span className="text-sm font-mono">
+              <span style={{ color: '#171718' }}>{Math.round(colorState.opacity * 100)}</span>
+              <span style={{ color: '#969298' }}>%</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Conditional Input Fields - OLD VERSION (Commented out) */}
+        {/* <div className="mt-4 min-h-[56px] relative z-[10002]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
           e.stopPropagation();
           // Note: NOT preventing default here to allow input fields to receive focus
         }}>
@@ -825,16 +1010,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             </div>
           )}
 
-          {colorFormat === 'RGBA' && (
+          {colorFormat === 'RGB' && (
             <div>
               <div className="flex gap-2 w-full">
                 {[
                   { label: 'R', value: Math.round(colorState.rgba.r), field: 'r' as keyof RGBA, min: 0, max: 255, step: 1 },
                   { label: 'G', value: Math.round(colorState.rgba.g), field: 'g' as keyof RGBA, min: 0, max: 255, step: 1 },
-                  { label: 'B', value: Math.round(colorState.rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
-                  { label: 'A', value: colorState.rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
+                  { label: 'B', value: Math.round(colorState.rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} className={`relative ${label === 'A' ? 'w-[60px]' : 'w-[50px]'}`}>
+                  <div key={label} className="relative w-[70px]">
                     <input
                       type="text"
                       value={value}
@@ -878,16 +1062,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             </div>
           )}
 
-          {colorFormat === 'HSLA' && (
+          {colorFormat === 'HSL' && (
             <div>
               <div className="flex gap-2 w-full">
                 {[
                   { label: 'H', value: Math.round(colorState.hsla.h), field: 'h' as keyof HSLA, min: 0, max: 360, step: 1 },
                   { label: 'S', value: Math.round(colorState.hsla.s), field: 's' as keyof HSLA, min: 0, max: 100, step: 1 },
-                  { label: 'L', value: Math.round(colorState.hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
-                  { label: 'A', value: colorState.hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
+                  { label: 'L', value: Math.round(colorState.hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} className={`relative ${label === 'A' ? 'w-[60px]' : 'w-[50px]'}`}>
+                  <div key={label} className="relative w-[70px]">
                     <input
                       type="text"
                       value={value}
@@ -930,21 +1113,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
 
 
-        {/* Recent Colors - Hidden */}
-        {/* {onRecentColorChange && (
-          <div className="mt-4 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
+        {/* Footer - Last Used Colors */}
+        {onRecentColorChange && (
+          <div className="mt-6 pt-4 border-t relative z-[10001]" style={{ borderColor: '#E0E0E0' }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => {
             e.stopPropagation();
             e.preventDefault(); // Prevent focus loss from editor
           }}>
-            <div className="text-gray-500 mb-2 block text-xs">
-              Recent Colors
+            <div className="text-gray-500 mb-2 block text-xs font-medium">
+              Last Used
             </div>
-            <div className="flex gap-2">
-              {Array.from({ length: 5 }, (_, index) => {
+            <div className="flex gap-2 flex-wrap">
+              {Array.from({ length: 9 }, (_, index) => {
                 const color = recentColors[index];
                 return (
                   <div
@@ -957,7 +1140,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       e.stopPropagation();
                       e.preventDefault(); // Prevent focus loss from editor
                     }}
-                    className={`w-6 h-6 border border-gray-300 rounded bg-gray-100 transition-all duration-200 relative z-[10002] ${
+                    className={`w-6 h-6 border border-gray-300 rounded-lg bg-gray-100 transition-all duration-200 relative z-[10002] ${
                       color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
                     }`}
                     style={{
@@ -983,7 +1166,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               })}
             </div>
           </div>
-        )} */}
+        )}
       </div>
     </>
   );
