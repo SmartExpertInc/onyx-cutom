@@ -72,6 +72,7 @@ const BottomRightGradient: React.FC<{ size?: number }> = () => (
 
 export default function AuditLandingPage() {
   const [activeProduct, setActiveProduct] = useState("Course");
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
     <div 
@@ -692,14 +693,14 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="flex flex-row text-[28px] md:text-[35px] lg:text-[46px] font-semibold text-center mb-16 sora-font">
+          <h2 className="flex flex-row items-center justify-center text-[28px] md:text-[35px] lg:text-[46px] font-semibold mb-16 sora-font">
             <span className="text-black">Trusted by </span>
             <img 
               src="/custom-projects-ui/images/deloitteIcoBlue.svg"
               alt="Deloitte"
-              className="w-full h-auto"
+              className="w-auto h-[35px] mx-2"
             />
-            <span className="text-black"> and global brands</span>
+            <span className="text-black">and global brands</span>
           </h2>
 
           {/* Statistics Cards */}
@@ -715,7 +716,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto"
               />
               <div className="pt-5">
-                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2 inter-theme">3,000+</p>
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2">3,000+</p>
                 <p className="text-[18px] lg:text-[22px] text-[#020617] sora-font">courses delivered</p>
               </div>
             </div>
@@ -731,7 +732,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto"
               />
               <div className="pt-5">
-                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2 inter-theme">170+</p>
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2">170+</p>
                 <p className="text-[18px] lg:text-[22px] text-[#020617] sora-font">universities launched</p>
               </div>
             </div>
@@ -750,7 +751,7 @@ export default function AuditLandingPage() {
             >
               <h2 className="text-4xl md:text-[46px] font-semibold text-left mb-5 sora-font">
                 <span className="text-black">Built for </span>
-                <span style={{ color: '#0F58F9' }}> every team.</span>
+                <span style={{ color: '#0F58F9' }}> every team. </span>
                 <span className="text-black">For any workflow</span>
               </h2>
               <p className="text-black text-left text-lg sora-font">
@@ -906,8 +907,46 @@ export default function AuditLandingPage() {
         </div>
       </section>
             {/* Measurable Impact Section */}
-            <section className="w-full bg-white py-20 px-8 relative z-10">
-        <div className="max-w-7xl mx-auto">
+            <section className="w-full bg-white py-20 px-8 relative z-10 overflow-hidden">
+        {/* Background Ellipses */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="flex gap-20 opacity-20">
+            {/* Ellipse 1 - Blue */}
+            <div 
+              className="w-64 h-64 rounded-full"
+              style={{
+                background: '#0F58F9',
+                filter: 'blur(80px)'
+              }}
+            />
+            {/* Ellipse 2 - Purple */}
+            <div 
+              className="w-64 h-64 rounded-full"
+              style={{
+                background: '#D817FF',
+                filter: 'blur(80px)'
+              }}
+            />
+            {/* Ellipse 3 - Cyan */}
+            <div 
+              className="w-64 h-64 rounded-full"
+              style={{
+                background: '#4CFFF0',
+                filter: 'blur(80px)'
+              }}
+            />
+            {/* Ellipse 4 - Orange */}
+            <div 
+              className="w-64 h-64 rounded-full"
+              style={{
+                background: '#FFA52E',
+                filter: 'blur(80px)'
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           {/* Heading */}
           <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-16 sora-font">
             <span className="text-black">From </span>
@@ -992,7 +1031,7 @@ export default function AuditLandingPage() {
                 <p className="text-5xl font-bold text-black mb-2 sora-font">+70%</p>
                 <p className="text-lg text-black mb-6 sora-font">engagement</p>
                 <p className="text-base text-black mb-6 sora-font">
-                  "With AI, employee training is almost completely automated. Engagement rates went up significantly."
+                  "With AI-powered courses, employees actually complete training. Completion rates almost doubled."
                 </p>
                 <div className="flex items-center gap-3">
                   <div 
@@ -1036,6 +1075,213 @@ export default function AuditLandingPage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+        <div className="max-w-4xl mx-auto">
+          {/* Heading */}
+          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-12 sora-font" style={{ color: '#2D3748' }}>
+            Frequently Asked Questions
+          </h2>
+
+          {/* FAQ List */}
+          <div className="space-y-4">
+            {[
+              {
+                question: "Do I need any training to start?",
+                answer: "No. Just upload your files or ideas — AI does the rest."
+              },
+              {
+                question: "Can I start for free?",
+                answer: "Yes, we offer a free trial so you can explore all features before committing."
+              },
+              {
+                question: "How do I share my courses?",
+                answer: "You can share courses via direct links, export to LMS platforms, or upload to global marketplaces."
+              },
+              {
+                question: "Can I create videos with AI avatars and my own voice?",
+                answer: "Yes, our AI Studio lets you create videos with AI avatars and clone your own voice for a personalized touch."
+              },
+              {
+                question: "Can I use ContentBuilder in multiple languages?",
+                answer: "Absolutely! ContentBuilder supports 120+ languages for creating and translating content."
+              },
+              {
+                question: "For big companies too?",
+                answer: "Yes, our enterprise plan is designed for large organizations with advanced features and dedicated support."
+              },
+              {
+                question: "Is my data secure?",
+                answer: "Yes, we use industry-standard encryption and security measures to protect your data at all times."
+              }
+            ].map((faq, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden transition-all duration-200"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <button
+                  className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                  onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                >
+                  <span className="text-lg font-semibold text-black sora-font pr-4">
+                    {faq.question}
+                  </span>
+                  <svg
+                    className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
+                      openFaqIndex === index ? 'transform rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    openFaqIndex === index ? 'max-h-96' : 'max-h-0'
+                  }`}
+                >
+                  <div className="px-6 pb-5 text-base text-gray-600 sora-font">
+                    {faq.answer}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Start Creating CTA Section */}
+      <section 
+        className="w-full py-32 px-8 relative z-10 flex items-center justify-center"
+        style={{
+          backgroundImage: 'url(/custom-projects-ui/images/startCreatingBg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+          {/* Heading */}
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 sora-font">
+            Start creating with AI today
+          </h2>
+
+          {/* CTA Button */}
+          <button 
+            className="px-10 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            style={{
+              backgroundColor: '#0F58F9',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.4954 12.0048C11.8606 13.536 10.3172 15.0797 8.78594 19.7143C8.65996 20.0953 8.12119 20.0953 7.99523 19.7143C6.46398 15.0795 4.9203 13.5361 0.285762 12.0048C-0.0952539 11.8788 -0.0952539 11.34 0.285762 11.2141C4.92057 9.68284 6.46393 8.13916 7.99523 3.50462C8.12121 3.1236 8.65998 3.1236 8.78594 3.50462C10.3172 8.13942 11.8609 9.68278 16.4954 11.2141C16.8764 11.3401 16.8764 11.8788 16.4954 12.0048Z" fill="white"/>
+              <path d="M19.8562 4.39352C17.5393 5.15865 16.7671 5.93093 16.0009 8.24878C15.9384 8.43929 15.6691 8.43929 15.6056 8.24878C14.8404 5.93193 14.0682 5.1597 11.7503 4.39352C11.5598 4.33104 11.5598 4.06167 11.7503 3.99816C14.0672 3.23304 14.8394 2.46076 15.6056 0.142909C15.668 -0.0476019 15.9374 -0.0476019 16.0009 0.142909C16.766 2.45976 17.5383 3.23199 19.8562 3.99816C20.0467 4.06064 20.0467 4.33002 19.8562 4.39352Z" fill="white"/>
+            </svg>
+            Try for Free
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full bg-black py-16 px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+            {/* Company Info */}
+            <div className="lg:col-span-1">
+              <div className="flex items-center gap-2 mb-4">
+                <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16.5052 15.6323L13.6767 13.7977C14.0397 12.7628 13.9578 11.6068 13.4318 10.6258L15.7518 8.55315C17.0263 9.34825 18.7248 9.19306 19.8327 8.08507C21.1224 6.79547 21.1224 4.70442 19.8327 3.41474C18.543 2.12507 16.4518 2.12507 15.1623 3.41474C14.1463 4.43071 13.9314 5.94335 14.5156 7.17045L12.1953 9.24347C11.0846 8.47479 9.66779 8.34042 8.4502 8.84192L5.77453 5.15987C6.73434 3.89973 6.63966 2.09303 5.4884 0.941636C4.23289 -0.313879 2.19727 -0.313879 0.941686 0.941636C-0.313895 2.19722 -0.313895 4.2329 0.941686 5.48842C1.84322 6.38995 3.14657 6.64398 4.27477 6.25115L6.95077 9.93353C5.62932 11.4835 5.69975 13.8135 7.16495 15.2786C7.1931 15.3068 7.22204 15.3332 7.25104 15.3604L4.65848 19.9106C3.58095 19.6558 2.40042 19.9479 1.56006 20.7883C0.270391 22.0781 0.270391 24.1693 1.56006 25.4588C2.84973 26.7485 4.94085 26.7485 6.23045 25.4588C7.50665 24.1827 7.51926 22.1223 6.26963 20.8296L8.86199 16.2799C10.1638 16.6537 11.6194 16.3445 12.6656 15.3528L15.4968 17.1887C15.3161 18.0282 15.5511 18.9394 16.2035 19.5917C17.2255 20.6137 18.8821 20.6137 19.904 19.5917C20.9259 18.5699 20.9259 16.9132 19.904 15.8913C18.9775 14.9651 17.5291 14.8786 16.5052 15.6323ZM2.67889 22.3901C2.61606 22.4613 2.55693 22.5286 2.49892 22.5865C2.42665 22.6587 2.32788 22.7467 2.20533 22.7846C2.05139 22.8321 1.89409 22.7903 1.77352 22.6697C1.45825 22.3545 1.57882 21.7581 2.05404 21.283C2.52938 20.8077 3.12556 20.6871 3.44096 21.0025C3.56146 21.1228 3.60328 21.2803 3.55571 21.4343C3.51792 21.5568 3.42992 21.6559 3.35771 21.7279C3.29971 21.7857 3.23245 21.8449 3.16117 21.9077C3.07892 21.9801 2.99369 22.055 2.90979 22.1387C2.82595 22.2226 2.75123 22.3078 2.67889 22.3901ZM15.6563 3.90911C16.1315 3.4339 16.7278 3.3132 17.043 3.62853C17.1635 3.74897 17.2054 3.90634 17.1578 4.06041C17.12 4.18302 17.0319 4.28199 16.9598 4.35413C16.9019 4.41194 16.8347 4.47107 16.7633 4.53383C16.681 4.60631 16.5959 4.68109 16.5119 4.76493C16.428 4.8489 16.3532 4.93419 16.2807 5.01651C16.2181 5.0876 16.1588 5.15505 16.101 5.21292C16.0288 5.28513 15.9298 5.37313 15.8073 5.41099C15.6532 5.45849 15.496 5.41667 15.3755 5.2961C15.0604 4.98077 15.181 4.38426 15.6563 3.90911ZM2.03098 2.50086C1.96967 2.57023 1.91213 2.63576 1.85604 2.69212C1.78581 2.76234 1.68948 2.8479 1.57004 2.88496C1.42013 2.93108 1.26699 2.89045 1.14959 2.77325C0.842653 2.46624 0.96025 1.88558 1.42298 1.42299C1.88563 0.960267 2.46602 0.842802 2.7731 1.14981C2.89043 1.26714 2.93132 1.42035 2.88488 1.57019C2.84782 1.68957 2.76239 1.78589 2.6921 1.85599C2.63568 1.91241 2.57014 1.97008 2.50077 2.03093C2.42064 2.10136 2.33766 2.17429 2.25607 2.25595C2.17434 2.33767 2.10134 2.42078 2.03098 2.50086ZM7.75525 10.2904C8.32296 9.72264 9.03501 9.57862 9.41172 9.95526C9.55574 10.0994 9.60576 10.2872 9.54901 10.4712C9.50355 10.6178 9.39857 10.7358 9.31229 10.8222C9.24312 10.8913 9.16265 10.9617 9.07756 11.0368C8.97939 11.1234 8.87765 11.2126 8.77736 11.3128C8.67707 11.4132 8.58775 11.5149 8.50133 11.6133C8.42628 11.6983 8.35566 11.7787 8.28655 11.8478C8.20027 11.9343 8.08221 12.0391 7.93568 12.0844C7.75175 12.1412 7.56386 12.0913 7.41964 11.9472C7.04319 11.5702 7.18755 10.8582 7.75525 10.2904ZM16.9478 17.3161C16.8905 17.3733 16.812 17.4431 16.715 17.473C16.5931 17.5106 16.4687 17.4775 16.3729 17.3821C16.123 17.1323 16.2185 16.6598 16.5953 16.2832C16.9716 15.9066 17.4441 15.8111 17.6941 16.0611C17.7894 16.1564 17.8226 16.2811 17.785 16.4032C17.755 16.5004 17.6852 16.5787 17.6281 16.6358C17.5822 16.6816 17.529 16.7285 17.4725 16.7782C17.4075 16.8354 17.3398 16.8949 17.2734 16.9613C17.2069 17.0277 17.1474 17.0951 17.0904 17.1605C17.0405 17.217 16.9936 17.2702 16.9478 17.3161Z" fill="white"/>
+                </svg>
+                <span className="text-white text-xl font-semibold sora-font">ContentBuilder</span>
+              </div>
+              <p className="text-gray-400 text-sm mb-8 sora-font">AI Copilot for enterprises</p>
+              <p className="text-gray-500 text-xs sora-font">© CONTENT BUILDER, INC</p>
+            </div>
+
+            {/* Product Links */}
+            <div>
+              <h3 className="text-white font-semibold mb-4 sora-font">Product</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Features</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Integrations</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Roadmap</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">API</a></li>
+              </ul>
+            </div>
+
+            {/* Company Links */}
+            <div>
+              <h3 className="text-white font-semibold mb-4 sora-font">Company</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Our team</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Careers</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Community</a></li>
+              </ul>
+            </div>
+
+            {/* Other Resources */}
+            <div>
+              <h3 className="text-white font-semibold mb-4 sora-font">Other resources</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Blog</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Changelog</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Contact</a></li>
+              </ul>
+            </div>
+
+            {/* Newsletter */}
+            <div>
+              <h3 className="text-white font-semibold mb-2 sora-font">Join our newsletter</h3>
+              <p className="text-gray-400 text-sm mb-4 sora-font">Stay connected with AI based Analytics</p>
+              
+              {/* Email Input and Button */}
+              <div className="flex mb-6">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 px-4 py-2 rounded-l-md text-sm focus:outline-none"
+                  style={{ backgroundColor: 'white', color: '#333' }}
+                />
+                <button
+                  className="px-6 py-2 rounded-r-md text-white text-sm font-semibold sora-font"
+                  style={{ backgroundColor: '#0F58F9' }}
+                >
+                  Subscribe
+                </button>
+              </div>
+
+              {/* Social Media Icons */}
+              <div className="flex gap-4">
+                {/* X (Twitter) */}
+                <a href="#" className="text-white hover:text-gray-400 transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </a>
+                
+                {/* YouTube */}
+                <a href="#" className="text-white hover:text-gray-400 transition-colors">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                </a>
+                
+                {/* LinkedIn */}
+                <a href="#" className="text-white hover:text-gray-400 transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
