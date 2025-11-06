@@ -298,19 +298,19 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[90vh] flex flex-col px-6 py-3 gap-3 z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[85vh] flex flex-col px-6 py-3 gap-3 z-10"
         style={{ borderRadius: '12px' }}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
+          className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
           style={{
             backdropFilter: 'blur(20px)',
             boxShadow: '0px 10px 10px 0px #0000001A, 0px 4px 4px 0px #0000000D, 0px 1px 0px 0px #0000000D'
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
