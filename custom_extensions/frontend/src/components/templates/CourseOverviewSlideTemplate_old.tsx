@@ -160,7 +160,7 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffffff',
+    backgroundColor: backgroundColor || '#ffffff',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
