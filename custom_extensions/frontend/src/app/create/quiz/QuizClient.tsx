@@ -1555,7 +1555,7 @@ export default function QuizClient() {
                       {/* Content preview */}
                       {question.content && (
                         <div 
-                          className={`rounded !text-sm p-2 pl-6 pt-4 -m-2 ${streamDone ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                          className={`rounded !text-sm p-2 pl-6 pt-4 -m-2 ${!streamDone && 'opacity-50'}`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
                         >
                           {renderQuestionContent(getContentForQuestion(question, idx))}
                         </div>
