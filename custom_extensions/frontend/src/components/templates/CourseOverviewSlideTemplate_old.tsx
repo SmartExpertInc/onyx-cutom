@@ -341,7 +341,6 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
       <div style={{
         width: '55%',
         height: '100%',
-        backgroundColor: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
