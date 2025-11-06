@@ -91,10 +91,6 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const handleTextChange = (path: (string | number)[], newValue: any) => {
     if (onTextChange) {
       onTextChange(path, newValue);
-      
-      if (onAutoSave && isEditing) {
-        onAutoSave();
-      }
     }
   };
 
@@ -123,6 +119,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         ? currentCorrectIds.filter(id => id !== optionId)
         : [...currentCorrectIds, optionId];
       handleTextChange(['questions', questionIndex, 'correct_option_ids'], newCorrectIds);
+    }
+    // Trigger auto-save immediately after changing correct answer
+    if (onAutoSave && isEditing) {
+      onAutoSave();
     }
   };
 
@@ -209,6 +209,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const updatedQuestions = [...questions, newQuestion];
     handleTextChange(['questions'], updatedQuestions);
     setShowQuestionTypeMenu(false);
+    // Trigger auto-save immediately after adding a question
+    if (onAutoSave && isEditing) {
+      onAutoSave();
+    }
   };
 
   const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
@@ -253,18 +257,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           ))}
         </div>
         {(isEditing || (editingField?.type === 'explanation' && editingField.questionIndex === index)) ? (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
-            <input
-              type="text"
-              value={question.explanation || ''}
-              onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={handleBlur}
-              autoFocus={editingField?.type === 'explanation'}
-              className="w-full p-2 border rounded text-black"
-              placeholder={t('quiz.explanation', 'Explanation')}
-            />
-          </div>
+          <input
+            type="text"
+            value={question.explanation || ''}
+            onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
+            onBlur={handleBlur}
+            autoFocus={editingField?.type === 'explanation'}
+            className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 mt-4"
+            placeholder={t('quiz.explanation', 'Explanation')}
+          />
         ) : question.explanation && (
           <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
             <div className="flex items-start gap-3">
@@ -353,18 +354,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           ))}
         </div>
         {(isEditing || (editingField?.type === 'explanation' && editingField.questionIndex === index)) ? (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
-            <input
-              type="text"
-              value={question.explanation || ''}
-              onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={handleBlur}
-              autoFocus={editingField?.type === 'explanation'}
-              className="w-full p-2 border rounded text-black"
-              placeholder={t('quiz.explanation', 'Explanation')}
-            />
-          </div>
+          <input
+            type="text"
+            value={question.explanation || ''}
+            onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
+            onBlur={handleBlur}
+            autoFocus={editingField?.type === 'explanation'}
+            className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 mt-4"
+            placeholder={t('quiz.explanation', 'Explanation')}
+          />
         ) : question.explanation && (
           <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
             <div className="flex items-start gap-3">
@@ -414,6 +412,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         [promptId]: newOptionId,
       };
       handleTextChange(['questions', index, 'correct_matches'], newCorrectMatches);
+      // Trigger auto-save immediately when match is changed
+      if (onAutoSave && isEditing) {
+        onAutoSave();
+      }
     };
 
     return (
@@ -433,6 +435,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                       type="text"
                       value={prompt.text}
                       onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                      onBlur={handleBlur}
                       className="flex-1 p-2 border rounded text-black bg-white"
                       placeholder={`Item ${prompt.id}`}
                     />
@@ -454,6 +457,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                       type="text"
                       value={option.text}
                       onChange={(e) => handleTextChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
+                      onBlur={handleBlur}
                       className="flex-1 p-2 border rounded text-black bg-white"
                       placeholder={`Option ${option.id}`}
                     />
@@ -559,18 +563,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           </div>
         )}
         {(isEditing || (editingField?.type === 'explanation' && editingField.questionIndex === index)) ? (
-          <div className="mt-6 pt-4 border-t">
-            <label className="block text-sm font-medium text-black mb-2">{t('quiz.explanation', 'Explanation')}</label>
-            <input
-              type="text"
-              value={question.explanation || ''}
-              onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={handleBlur}
-              autoFocus={editingField?.type === 'explanation'}
-              className="w-full p-3 border rounded text-black"
-              placeholder={t('quiz.explanation', 'Explanation for this question...')}
-            />
-          </div>
+          <input
+            type="text"
+            value={question.explanation || ''}
+            onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
+            onBlur={handleBlur}
+            autoFocus={editingField?.type === 'explanation'}
+            className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 mt-6 pt-4"
+            placeholder={t('quiz.explanation', 'Explanation')}
+          />
         ) : question.explanation && (
 <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
             <div className="flex items-start gap-3">
@@ -657,6 +658,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       
       setSortedItems(newSortedItems);
       handleTextChange(['questions', index, 'correct_order'], newSortedItems);
+      // Trigger auto-save immediately after drag-and-drop
+      if (onAutoSave && isEditing) {
+        onAutoSave();
+      }
     };
 
     if (isEditing) {
@@ -669,6 +674,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           
           handleTextChange(['questions', index, 'items_to_sort'], newItemsToSort);
           handleTextChange(['questions', index, 'correct_order'], newCorrectOrder);
+          // Trigger auto-save immediately after adding an item
+          if (onAutoSave) {
+            onAutoSave();
+          }
         };
 
         const handleRemoveItem = (itemId: string) => {
@@ -677,6 +686,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
           handleTextChange(['questions', index, 'items_to_sort'], newItemsToSort);
           handleTextChange(['questions', index, 'correct_order'], newCorrectOrder);
+          // Trigger auto-save immediately after removing an item
+          if (onAutoSave) {
+            onAutoSave();
+          }
         };
 
         return (
@@ -704,6 +717,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                       type="text"
                       value={item?.text || ''}
                       onChange={(e) => handleTextChange(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
+                      onBlur={handleBlur}
                       className="flex-1 p-1 border-none rounded text-black bg-transparent focus:ring-0"
                     />
                     <button type="button" onClick={() => handleRemoveItem(itemId)} className="ml-2 text-red-500 font-bold">X</button>
@@ -714,18 +728,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#2563eb]">{t('quiz.addItem', 'Add Item')}</button>
 
              {(isEditing || (editingField?.type === 'explanation' && editingField.questionIndex === index)) ? (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
-                <input
-                  type="text"
-                  value={question.explanation || ''}
-                  onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-                  onBlur={() => setEditingField(null)}
-                  autoFocus={editingField?.type === 'explanation'}
-                  className="w-full p-2 border rounded text-black"
-                  placeholder={t('quiz.explanation', 'Explanation')}
-                />
-              </div>
+              <input
+                type="text"
+                value={question.explanation || ''}
+                onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
+                onBlur={handleBlur}
+                autoFocus={editingField?.type === 'explanation'}
+                className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 mt-4"
+                placeholder={t('quiz.explanation', 'Explanation')}
+              />
             ) : question.explanation && (
               <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
                 <div className="flex items-start gap-3">
@@ -778,18 +789,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           })}
         </div>
         {(editingField?.type === 'explanation' && editingField.questionIndex === index) ? (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
-            <input
-              type="text"
-              value={question.explanation || ''}
-              onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={() => setEditingField(null)}
-              autoFocus
-              className="w-full p-2 border rounded text-black"
-              placeholder={t('quiz.explanation', 'Explanation')}
-            />
-          </div>
+          <input
+            type="text"
+            value={question.explanation || ''}
+            onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
+            onBlur={handleBlur}
+            autoFocus={editingField?.type === 'explanation'}
+            className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 mt-4"
+            placeholder={t('quiz.explanation', 'Explanation')}
+          />
         ) : question.explanation && (
           <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
             <div className="flex items-start gap-3">
@@ -860,18 +868,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           ))}
         </div>
         {(isEditing || (editingField?.type === 'explanation' && editingField.questionIndex === index)) ? (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
-            <input
-              type="text"
-              value={question.explanation || ''}
-              onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={handleBlur}
-              autoFocus={editingField?.type === 'explanation'}
-              className="w-full p-2 border rounded text-black"
-              placeholder={t('quiz.explanation', 'Explanation')}
-            />
-          </div>
+          <input
+            type="text"
+            value={question.explanation || ''}
+            onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
+            onBlur={handleBlur}
+            autoFocus={editingField?.type === 'explanation'}
+            className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 mt-4"
+            placeholder={t('quiz.explanation', 'Explanation')}
+          />
         ) : question.explanation && (
           <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
             <div className="flex items-start gap-3">
