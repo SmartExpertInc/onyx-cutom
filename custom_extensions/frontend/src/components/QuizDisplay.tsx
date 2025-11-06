@@ -452,148 +452,88 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
     return (
       <div>
-        {isEditing ? (
-          <div className="space-y-6">
-            {/* Items/Prompts Section */}
-            <div>
-              <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.prompts', 'Items to Match')}</h4>
-              <div className="space-y-2">
-                {question.prompts.map((prompt, promptIndex) => (
-                  <div key={prompt.id} className="flex items-center p-3 bg-blue-50 rounded-lg border">
-                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold mr-3">
-                      {prompt.id}
-                    </span>
-                    <input
-                      type="text"
-                      value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
-                      onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                      onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                      className="flex-1 p-2 border rounded text-black bg-white"
-                      placeholder={`Item ${prompt.id}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Options Section */}
-            <div>
-              <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.options', 'Answer Options')}</h4>
-              <div className="space-y-2">
-                {question.options.map((option, optionIndex) => (
-                  <div key={option.id} className="flex items-center p-3 bg-green-50 rounded-lg border">
-                    <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold mr-3">
-                      {option.id}
-                    </span>
-                    <input
-                      type="text"
-                      value={getInputValue(['questions', index, 'options', optionIndex, 'text'], option.text)}
-                      onChange={(e) => handleInputChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
-                      onBlur={(e) => handleBlur(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
-                      className="flex-1 p-2 border rounded text-black bg-white"
-                      placeholder={`Option ${option.id}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Correct Matches Section */}
-            <div>
-              <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.correctMatches', 'Correct Matches')}</h4>
-              <div>
-                {question.prompts.map((prompt) => {
-                  const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
-                  return (
-                    <div key={prompt.id} className="flex items-center p-3 bg-yellow-50 rounded-lg border">
-                      <div className="flex items-center flex-1">
-                        <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold mr-3">
-                          {prompt.id}
-                        </span>
-                        <span className="text-black font-medium mr-3">{prompt.text}</span>
-                        <span className="text-gray-500 mx-2">→</span>
-                        <select
-                          value={question.correct_matches[prompt.id] || ''}
-                          onChange={(e) => handleMatchChange(prompt.id, e.target.value)}
-                          className="p-2 border rounded text-black bg-white min-w-[120px]"
-                        >
-                          <option value="" disabled>{t('quiz.selectOption', 'Select option')}</option>
-                          {question.options.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.id}: {option.text.substring(0, 30)}{option.text.length > 30 ? '...' : ''}
-                            </option>
-                          ))}
-                        </select>
-                        <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold ml-1">
-                          {matchedOption?.id || '?'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        ) : (
+        <div className="space-y-6">
+          {/* Items/Prompts Section */}
           <div>
-            <div className="grid grid-cols-2 gap-4 mb-2">
-              <h4 className="font-light ml-2 text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
-              <h4 className="font-light text-sm text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
-            </div>
-            {question.prompts.map((prompt, promptIndex) => {
-              const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
-              const matchedOptionIndex = question.options.findIndex(opt => opt.id === question.correct_matches[prompt.id]);
-              return (
-                <div key={prompt.id} className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center">
-                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
-                      {prompt.id}
-                    </span>
-                    {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
-                      <input
-                        type="text"
-                        value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
-                        onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                        onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                        autoFocus
-                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
-                      />
-                    ) : (
-                      <span 
-                        className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
-                        onClick={() => onTextChange && setEditingField({type: 'prompt', questionIndex: index, promptIndex})}
-                      >
-                        {prompt.text}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center">
-                    <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
-                      {matchedOption?.id}
-                    </span>
-                    {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
-                      <input
-                        type="text"
-                        value={getInputValue(['questions', index, 'options', matchedOptionIndex, 'text'], matchedOption?.text || '')}
-                        onChange={(e) => handleInputChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
-                        onBlur={(e) => handleBlur(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
-                        autoFocus
-                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
-                      />
-                    ) : (
-                      <span 
-                        className="text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
-                        onClick={() => onTextChange && matchedOption && setEditingField({type: 'match-option', questionIndex: index, optionIndex: matchedOptionIndex})}
-                      >
-                        {matchedOption?.text}
-                      </span>
-                    )}
-                  </div>
+            <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.prompts', 'Items to Match')}</h4>
+            <div className="space-y-2">
+              {question.prompts.map((prompt, promptIndex) => (
+                <div key={prompt.id} className="flex items-center p-3 bg-blue-50 rounded-lg border">
+                  <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold mr-3">
+                    {prompt.id}
+                  </span>
+                  <input
+                    type="text"
+                    value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
+                    onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                    onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                    className="flex-1 p-2 border rounded text-black bg-white"
+                    placeholder={`Item ${prompt.id}`}
+                  />
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Options Section */}
+          <div>
+            <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.options', 'Answer Options')}</h4>
+            <div className="space-y-2">
+              {question.options.map((option, optionIndex) => (
+                <div key={option.id} className="flex items-center p-3 bg-green-50 rounded-lg border">
+                  <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold mr-3">
+                    {option.id}
+                  </span>
+                  <input
+                    type="text"
+                    value={getInputValue(['questions', index, 'options', optionIndex, 'text'], option.text)}
+                    onChange={(e) => handleInputChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
+                    onBlur={(e) => handleBlur(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
+                    className="flex-1 p-2 border rounded text-black bg-white"
+                    placeholder={`Option ${option.id}`}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Correct Matches Section */}
+          <div>
+            <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <div>
+              {question.prompts.map((prompt) => {
+                const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
+                return (
+                  <div key={prompt.id} className="flex items-center p-3 bg-yellow-50 rounded-lg border">
+                    <div className="flex items-center flex-1">
+                      <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold mr-3">
+                        {prompt.id}
+                      </span>
+                      <span className="text-black font-medium mr-3">{prompt.text}</span>
+                      <span className="text-gray-500 mx-2">→</span>
+                      <select
+                        value={question.correct_matches[prompt.id] || ''}
+                        onChange={(e) => handleMatchChange(prompt.id, e.target.value)}
+                        className="p-2 border rounded text-black bg-white min-w-[120px]"
+                      >
+                        <option value="" disabled>{t('quiz.selectOption', 'Select option')}</option>
+                        {question.options.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.id}: {option.text.substring(0, 30)}{option.text.length > 30 ? '...' : ''}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold ml-1">
+                        {matchedOption?.id || '?'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        
         <ExplanationField
           explanation={question.explanation}
           questionIndex={index}
@@ -660,102 +600,72 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       handleTextSubmit(['questions', index, 'correct_order'], newSortedItems);
     };
 
-    if (isEditing) {
-        const handleAddItem = () => {
-          const newItemId = `item-${Date.now()}`;
-          const newItem = { id: newItemId, text: 'New Item' };
-          
-          const newItemsToSort = [...question.items_to_sort, newItem];
-          const newCorrectOrder = [...question.correct_order, newItemId];
-          
-          handleTextSubmit(['questions', index, 'items_to_sort'], newItemsToSort);
-          handleTextSubmit(['questions', index, 'correct_order'], newCorrectOrder);
-        };
 
-        const handleRemoveItem = (itemId: string) => {
-          const newItemsToSort = question.items_to_sort.filter(item => item.id !== itemId);
-          const newCorrectOrder = question.correct_order.filter(id => id !== itemId);
+    const handleAddItem = () => {
+      const newItemId = `item-${Date.now()}`;
+      const newItem = { id: newItemId, text: 'New Item' };
+      
+      const newItemsToSort = [...question.items_to_sort, newItem];
+      const newCorrectOrder = [...question.correct_order, newItemId];
+      
+      handleTextSubmit(['questions', index, 'items_to_sort'], newItemsToSort);
+      handleTextSubmit(['questions', index, 'correct_order'], newCorrectOrder);
+    };
 
-          handleTextSubmit(['questions', index, 'items_to_sort'], newItemsToSort);
-          handleTextSubmit(['questions', index, 'correct_order'], newCorrectOrder);
-        };
+    const handleRemoveItem = (itemId: string) => {
+      const newItemsToSort = question.items_to_sort.filter(item => item.id !== itemId);
+      const newCorrectOrder = question.correct_order.filter(id => id !== itemId);
 
-        return (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2 text-black">{t('quiz.itemsToSort', 'Items to Sort')}</h4>
-            <div className="space-y-2">
-              {sortedItems.map((itemId, orderIndex) => {
-                const item = question.items_to_sort.find(i => i.id === itemId);
-                if (!item) return null;
-                return (
-                  <div 
-                    key={itemId} 
-                    className="flex items-center p-2 border rounded bg-white"
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleEditDrop(e, itemId)}
-                  >
-                    <span 
-                        className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab"
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, itemId)}
-                    >
-                      {orderIndex + 1}
-                    </span>
-                    <input
-                      type="text"
-                      value={getInputValue(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], item?.text || '')}
-                      onChange={(e) => handleInputChange(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
-                      onBlur={(e) => handleBlur(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
-                      className="flex-1 p-1 border-none rounded text-black bg-transparent focus:ring-0"
-                    />
-                    <button type="button" onClick={() => handleRemoveItem(itemId)} className="ml-2 text-red-500 font-bold">X</button>
-                  </div>
-                );
-              })}
-            </div>
-            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#2563eb]">{t('quiz.addItem', 'Add Item')}</button>
-
-             <ExplanationField
-              explanation={question.explanation}
-              questionIndex={index}
-              isEditing={isEditing || false}
-              editingField={editingField}
-              onBlur={handleBlur}
-              setEditingField={setEditingField}
-              t={t}
-            />
-          </div>
-        )
-    }
+      handleTextSubmit(['questions', index, 'items_to_sort'], newItemsToSort);
+      handleTextSubmit(['questions', index, 'correct_order'], newCorrectOrder);
+    };
 
     return (
       <div className="mt-4">
+        <h4 className="font-medium mb-2 text-black">{t('quiz.itemsToSort', 'Items to Sort')}</h4>
         <div className="space-y-2">
-          {question.correct_order.map((itemId, orderIndex) => {
+          {sortedItems.map((itemId, orderIndex) => {
             const item = question.items_to_sort.find(i => i.id === itemId);
+            if (!item) return null;
             return (
-              <div key={itemId} className="flex items-center">
-                <span className="w-4 h-4 text-xs flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
+              <div 
+                key={itemId} 
+                className="flex items-center p-2 border rounded bg-white"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleEditDrop(e, itemId)}
+              >
+                <span 
+                    className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, itemId)}
+                >
                   {orderIndex + 1}
                 </span>
-                <span className="text-[#171718]">{item?.text}</span>
+                <input
+                  type="text"
+                  value={getInputValue(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], item?.text || '')}
+                  onChange={(e) => handleInputChange(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
+                  onBlur={(e) => handleBlur(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
+                  className="flex-1 p-1 border-none rounded text-black bg-transparent focus:ring-0"
+                />
+                <button type="button" onClick={() => handleRemoveItem(itemId)} className="ml-2 text-red-500 font-bold">X</button>
               </div>
             );
           })}
         </div>
-        <ExplanationField
+        <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#2563eb]">{t('quiz.addItem', 'Add Item')}</button>
+
+          <ExplanationField
           explanation={question.explanation}
           questionIndex={index}
           isEditing={isEditing || false}
           editingField={editingField}
           onBlur={handleBlur}
-          onInputChange={handleInputChange}
-          getInputValue={getInputValue}
           setEditingField={setEditingField}
           t={t}
         />
-      </div>  
-    );
+      </div>
+    )
   };
 
   const renderOpenAnswer = (question: OpenAnswerQuestion, index: number) => {
