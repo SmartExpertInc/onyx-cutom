@@ -73,7 +73,6 @@ export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlidePr
     left: '15px',
     right: '15px',
     bottom: '80px', // Leave space for logo at bottom
-    backgroundColor: '#E0E7FF', // Darker grey for content block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
