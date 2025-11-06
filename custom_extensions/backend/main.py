@@ -13381,7 +13381,13 @@ def is_generic_response(text: str) -> bool:
         "no accessible information",
         "there is no visible or textual content",
         "no content to outline",
-        "nothing to extract"
+        "nothing to extract",
+        # Additional variants observed in logs when images have no textual content
+        "no content is available",
+        "content has not been supplied",
+        "unable to extract any information",
+        "no information available",
+        "no accessible content"
     ]
     
     # Additional check: if response is very short and contains access issue, it's likely generic
@@ -13391,6 +13397,8 @@ def is_generic_response(text: str) -> bool:
         "cannot access", "unable to access", "don't have access", 
         "wasn't able to access", "access the file"
     ]):
+        return True
+    elif len(text) < 100:
         return True
     
     text_lower = text.lower()
