@@ -1350,7 +1350,6 @@ export default function QuizClient() {
         console.log("Edited question indices:", Array.from(editedTitleIds));
       }
 
-      const payloadToSend = {
       // Add additional questions to content
       if (additionalQuestions.length > 0) {
         const additionalContent = additionalQuestions.map((q, idx) => {
@@ -1396,14 +1395,6 @@ export default function QuizClient() {
       console.log('[QUIZ_FINALIZE] Payload being sent:', {
         aiResponseIsJSON: originalJsonResponse ? true : false,
         aiResponseLength: payloadToSend.aiResponse?.length || 0
-      };
-
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payloadToSend),
       });
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
@@ -1670,8 +1661,7 @@ export default function QuizClient() {
     }
   };
 
-  return (
-    <>
+  return <>
     <div className="flex w-full min-h-screen relative">
       <main className="flex-1 py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden transition-all duration-300 ease-in-out" style={{
         marginRight: showAdvanced ? '400px' : '0'
@@ -2162,6 +2152,5 @@ export default function QuizClient() {
         isOpen={showAddonsModal} 
         onClose={() => setShowAddonsModal(false)} 
       />
-    </>
-  );
+    </>;
 } 
