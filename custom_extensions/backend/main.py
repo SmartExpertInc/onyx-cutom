@@ -13393,12 +13393,12 @@ def is_generic_response(text: str) -> bool:
     # Additional check: if response is very short and contains access issue, it's likely generic
     # But allow longer responses that might contain some useful info even if they mention access issues
     text_lower = text.lower()
-    if len(text) < 150 and any(phrase in text_lower for phrase in [
+    if len(text) < 350 and any(phrase in text_lower for phrase in [
         "cannot access", "unable to access", "don't have access", 
         "wasn't able to access", "access the file"
     ]):
         return True
-    elif len(text) < 100:
+    elif len(text) < 250:
         return True
     
     text_lower = text.lower()
