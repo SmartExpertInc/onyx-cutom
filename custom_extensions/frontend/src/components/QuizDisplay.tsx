@@ -43,6 +43,8 @@ interface ExplanationFieldProps {
   isEditing: boolean;
   editingField: {type: 'question' | 'option' | 'answer' | 'prompt' | 'match-option' | 'explanation', questionIndex: number, optionIndex?: number, answerIndex?: number, promptIndex?: number} | null;
   onBlur: (path: (string | number)[], newValue: any) => void;
+  onInputChange?: (path: (string | number)[], value: string) => void;
+  getInputValue?: (path: (string | number)[], defaultValue: string) => string;
   setEditingField: (field: {type: 'explanation', questionIndex: number} | null) => void;
   t: (key: string, fallback?: string) => string;
   className?: string;
@@ -54,6 +56,8 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   isEditing,
   editingField,
   onBlur,
+  onInputChange,
+  getInputValue,
   setEditingField,
   t,
   className = 'mt-4'
@@ -61,11 +65,14 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   const isEditingExplanation = isEditing || (editingField?.type === 'explanation' && editingField.questionIndex === questionIndex);
 
   if (isEditingExplanation) {
+    const path = ['questions', questionIndex, 'explanation'];
+    const defaultValue = explanation || '';
     return (
       <input
         type="text"
-        value={explanation || ''}
-        onBlur={(e) => onBlur(['questions', questionIndex, 'explanation'], e.target.value)}
+        value={getInputValue ? getInputValue(path, defaultValue) : defaultValue}
+        onChange={onInputChange ? (e) => onInputChange(path, e.target.value) : undefined}
+        onBlur={(e) => onBlur(path, e.target.value)}
         autoFocus={editingField?.type === 'explanation'}
         className={`w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900 ${className}`}
         placeholder={t('quiz.explanation', 'Explanation')}
@@ -116,6 +123,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'answer' | 'prompt' | 'match-option' | 'explanation', questionIndex: number, optionIndex?: number, answerIndex?: number, promptIndex?: number} | null>(null);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
   const [showQuestionTypeMenu, setShowQuestionTypeMenu] = useState(false);
   const questionTypeMenuRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
@@ -168,11 +176,36 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     }
   };
 
+  const getFieldKey = (path: (string | number)[]): string => {
+    return path.join('-');
+  };
+
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    const fieldKey = getFieldKey(path);
+    setEditingValues(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+  };
+
   const handleBlur = (path: (string | number)[], newValue: any) => {
+    const fieldKey = getFieldKey(path);
     setEditingField(null);
+    // Clear the temporary value
+    setEditingValues(prev => {
+      const updated = { ...prev };
+      delete updated[fieldKey];
+      return updated;
+    });
+    // Update the actual data
     if (onTextChange) {
       onTextChange(path, newValue);
     }
+  };
+
+  const getInputValue = (path: (string | number)[], defaultValue: string): string => {
+    const fieldKey = getFieldKey(path);
+    return editingValues[fieldKey] !== undefined ? editingValues[fieldKey] : defaultValue;
   };
 
   const handleCorrectAnswerChange = (questionIndex: number, optionId: string, isCorrect: boolean) => {
@@ -303,7 +336,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
-                    value={option.text}
+                    value={getInputValue(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], option.text)}
+                    onChange={(e) => handleInputChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
                     onBlur={(e) => handleBlur(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
                     autoFocus
                     className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900"
@@ -326,6 +360,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onBlur={handleBlur}
+          onInputChange={handleInputChange}
+          getInputValue={getInputValue}
           setEditingField={setEditingField}
           t={t}
         />
@@ -366,7 +402,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
-                    value={option.text}
+                    value={getInputValue(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], option.text)}
+                    onChange={(e) => handleInputChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
                     onBlur={(e) => handleBlur(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
                     autoFocus
                     className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
@@ -389,6 +426,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onBlur={handleBlur}
+          onInputChange={handleInputChange}
+          getInputValue={getInputValue}
           setEditingField={setEditingField}
           t={t}
         />
@@ -426,7 +465,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     </span>
                     <input
                       type="text"
-                      value={prompt.text}
+                      value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
+                      onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
                       onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
                       className="flex-1 p-2 border rounded text-black bg-white"
                       placeholder={`Item ${prompt.id}`}
@@ -447,7 +487,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     </span>
                     <input
                       type="text"
-                      value={option.text}
+                      value={getInputValue(['questions', index, 'options', optionIndex, 'text'], option.text)}
+                      onChange={(e) => handleInputChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
                       onBlur={(e) => handleBlur(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
                       className="flex-1 p-2 border rounded text-black bg-white"
                       placeholder={`Option ${option.id}`}
@@ -511,7 +552,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
                       <input
                         type="text"
-                        value={prompt.text}
+                        value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
+                        onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
                         onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
                         autoFocus
                         className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
@@ -532,7 +574,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
                       <input
                         type="text"
-                        value={matchedOption?.text || ''}
+                        value={getInputValue(['questions', index, 'options', matchedOptionIndex, 'text'], matchedOption?.text || '')}
+                        onChange={(e) => handleInputChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
                         onBlur={(e) => handleBlur(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
                         autoFocus
                         className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
@@ -660,7 +703,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     </span>
                     <input
                       type="text"
-                      value={item?.text || ''}
+                      value={getInputValue(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], item?.text || '')}
+                      onChange={(e) => handleInputChange(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
                       onBlur={(e) => handleBlur(['questions', index, 'items_to_sort', question.items_to_sort.findIndex(i => i.id === itemId), 'text'], e.target.value)}
                       className="flex-1 p-1 border-none rounded text-black bg-transparent focus:ring-0"
                     />
@@ -705,6 +749,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onBlur={handleBlur}
+          onInputChange={handleInputChange}
+          getInputValue={getInputValue}
           setEditingField={setEditingField}
           t={t}
         />
@@ -728,7 +774,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               {(isEditing || (editingField?.type === 'answer' && editingField.questionIndex === index && editingField.answerIndex === answerIndex)) ? (
                 <input
                   type="text"
-                  value={answer}
+                  value={getInputValue(['questions', index, 'acceptable_answers', answerIndex], answer)}
+                  onChange={(e) => handleInputChange(['questions', index, 'acceptable_answers', answerIndex], e.target.value)}
                   onBlur={(e) => handleBlur(['questions', index, 'acceptable_answers', answerIndex], e.target.value)}
                   autoFocus
                   className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-black"
@@ -750,6 +797,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           isEditing={isEditing || false}
           editingField={editingField}
           onBlur={handleBlur}
+          onInputChange={handleInputChange}
+          getInputValue={getInputValue}
           setEditingField={setEditingField}
           t={t}
         />
@@ -781,7 +830,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 {(isEditing || (editingField?.type === 'question' && editingField.questionIndex === index)) ? (
                   <input
                     type="text"
-                    value={question.question_text}
+                    value={getInputValue(['questions', index, 'question_text'], question.question_text)}
+                    onChange={(e) => handleInputChange(['questions', index, 'question_text'], e.target.value)}
                     onBlur={(e) => handleBlur(['questions', index, 'question_text'], e.target.value)}
                     autoFocus
                     className="w-[400px] text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
