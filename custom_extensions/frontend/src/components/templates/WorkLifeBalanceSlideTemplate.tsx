@@ -165,7 +165,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+    background: backgroundColor || 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
