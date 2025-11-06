@@ -333,6 +333,7 @@ export const WorkLifeBalanceSlideTemplate_old: React.FC<WorkLifeBalanceSlideProp
         </div>
 
         {/* Content */}
+        <h1>Background Color Old Template: {backgroundColor}</h1>
         <div style={{ 
           position: 'absolute',
           top: '39%',
