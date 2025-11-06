@@ -136,7 +136,7 @@ export default function AuditLandingPage() {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-10 pr-15">
           <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
               Solutions
               <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -273,7 +273,7 @@ export default function AuditLandingPage() {
 
         {/* Try for Free Button */}
         <button 
-          className="w-full md:w-auto px-10 py-4 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center justify-center gap-4 md:inline-flex transition-all hover:scale-105 md:static bottom-6 left-6 right-6 z-20"
+          className="w-full md:w-auto px-12 py-4 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center justify-center gap-4 md:inline-flex transition-all hover:scale-105 md:static bottom-6 left-6 right-6 z-20"
           style={{
             backgroundColor: '#0F58F9',
           }}
@@ -302,7 +302,7 @@ export default function AuditLandingPage() {
 
           {/* Description */}
           <p className="text-black text-left md:text-center lg:text-center xl:text-center text-[16px] mb-8 max-w-3xl px-10 sora-font">
-            Generate videos, voices, images, text, and avatars with the world's top AI models — GPT-5.5, VEO3, 11Lab, NanBanana, AvatarCore, and SmartDrive.
+            Generate videos, voices, images, text, and avatars with the world's top <br className="hidden lg:block xl:block" /> AI models — GPT-5.5, VEO3, 11Lab, NanBanana, AvatarCore, and SmartDrive.
           </p>
 
           {/* Feature Pills */}
@@ -343,7 +343,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-12 py-4 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -380,7 +380,7 @@ export default function AuditLandingPage() {
                     <path d="M19.9598 4.76162C18.8145 4.76162 17.8864 3.83207 17.8849 2.68673V0H0.744851C0.33255 0 0 0.333991 0 0.74485V29.2537C0 29.666 0.332516 30 0.744851 30H21.9016C22.3139 30 22.6465 29.666 22.6465 29.2537V4.76155L19.9598 4.76162ZM11.9915 10.5754H13.83C14.198 10.5754 14.495 10.8724 14.495 11.2404C14.495 11.6084 14.1979 11.9054 13.83 11.9054H11.9915C11.625 11.9054 11.3265 11.6084 11.3265 11.2404C11.3265 10.8724 11.625 10.5754 11.9915 10.5754ZM4.38791 6.81575H9.48511C9.85309 6.81575 10.1501 7.1128 10.1501 7.48077C10.1501 7.84875 9.85308 8.14579 9.48511 8.14579H4.38942C4.02144 8.14579 3.7244 7.84875 3.7244 7.48077C3.7244 7.1128 4.02145 6.81575 4.38942 6.81575H4.38791ZM4.38791 10.5754H8.73413C9.10063 10.5754 9.39915 10.8724 9.39915 11.2404C9.39915 11.6084 9.10063 11.9054 8.73413 11.9054H4.38791C4.02141 11.9054 3.72289 11.6084 3.72289 11.2404C3.72289 10.8724 4.02141 10.5754 4.38791 10.5754ZM18.2574 23.1843H4.38942C4.02144 23.1843 3.7244 22.8872 3.7244 22.5192C3.7244 22.1513 4.02145 21.8542 4.38942 21.8542H18.2589H18.2574C18.6254 21.8542 18.9224 22.1513 18.9224 22.5192C18.9224 22.8872 18.6254 23.1843 18.2574 23.1843ZM18.2574 19.4246H4.38942C4.02144 19.4246 3.7244 19.1276 3.7244 18.7596C3.7244 18.3916 4.02145 18.0946 4.38942 18.0946H18.2589H18.2574C18.6254 18.0946 18.9224 18.3916 18.9224 18.7596C18.9224 19.1276 18.6254 19.4246 18.2574 19.4246ZM18.2574 15.665H4.38942C4.02144 15.665 3.7244 15.368 3.7244 15C3.7244 14.632 4.02145 14.335 4.38942 14.335H18.2589H18.2574C18.6254 14.335 18.9224 14.632 18.9224 15C18.9224 15.368 18.6254 15.665 18.2574 15.665Z" fill="#0F58F9"/>
                     </svg>
                 </div>
-                <p className="text-[18px] max-w-md text-black sora-font">
+                <p className="text-[20px] max-w-md text-black sora-font">
                   Turn any files into ready-to-use courses, lessons, and presentations with AI.
                 </p>
               </div>
@@ -396,7 +396,7 @@ export default function AuditLandingPage() {
                     <path d="M26.5591 27.8545H1.07275C0.788238 27.8545 0.515381 27.9675 0.314201 28.1687C0.113021 28.3699 0 28.6427 0 28.9272C0 29.2118 0.113021 29.4846 0.314201 29.6858C0.515381 29.887 0.788238 30 1.07275 30H26.5591C26.8436 30 27.1165 29.887 27.3177 29.6858C27.5189 29.4846 27.6319 29.2118 27.6319 28.9272C27.6319 28.6427 27.5189 28.3699 27.3177 28.1687C27.1165 27.9675 26.8436 27.8545 26.5591 27.8545Z" fill="#0F58F9"/>
                     </svg>
                 </div>
-                <p className="text-[18px] max-w-md text-black sora-font">
+                <p className="text-[20px] max-w-md text-black sora-font">
                   Your files don't just sit — they teach.
                 </p>
               </div>
@@ -447,7 +447,7 @@ export default function AuditLandingPage() {
               />
           </div>
           <button 
-            className="px-10 py-4 -mt-16 text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-12 py-4 -mt-16 text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -479,7 +479,7 @@ export default function AuditLandingPage() {
                 <div 
                   className="w-13 h-13 p-4 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
-                    <svg width="23" height="30" viewBox="0 0 23 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="26" height="33" viewBox="0 0 23 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19.2149 2.68626V0.939453L21.7065 3.43108H19.9597C19.5489 3.43108 19.2149 3.09712 19.2149 2.68626Z" fill="#0F58F9"/>
                     <path d="M19.9598 4.76162C18.8145 4.76162 17.8864 3.83207 17.8849 2.68673V0H0.744851C0.33255 0 0 0.333991 0 0.74485V29.2537C0 29.666 0.332516 30 0.744851 30H21.9016C22.3139 30 22.6465 29.666 22.6465 29.2537V4.76155L19.9598 4.76162ZM11.9915 10.5754H13.83C14.198 10.5754 14.495 10.8724 14.495 11.2404C14.495 11.6084 14.1979 11.9054 13.83 11.9054H11.9915C11.625 11.9054 11.3265 11.6084 11.3265 11.2404C11.3265 10.8724 11.625 10.5754 11.9915 10.5754ZM4.38791 6.81575H9.48511C9.85309 6.81575 10.1501 7.1128 10.1501 7.48077C10.1501 7.84875 9.85308 8.14579 9.48511 8.14579H4.38942C4.02144 8.14579 3.7244 7.84875 3.7244 7.48077C3.7244 7.1128 4.02145 6.81575 4.38942 6.81575H4.38791ZM4.38791 10.5754H8.73413C9.10063 10.5754 9.39915 10.8724 9.39915 11.2404C9.39915 11.6084 9.10063 11.9054 8.73413 11.9054H4.38791C4.02141 11.9054 3.72289 11.6084 3.72289 11.2404C3.72289 10.8724 4.02141 10.5754 4.38791 10.5754ZM18.2574 23.1843H4.38942C4.02144 23.1843 3.7244 22.8872 3.7244 22.5192C3.7244 22.1513 4.02145 21.8542 4.38942 21.8542H18.2589H18.2574C18.6254 21.8542 18.9224 22.1513 18.9224 22.5192C18.9224 22.8872 18.6254 23.1843 18.2574 23.1843ZM18.2574 19.4246H4.38942C4.02144 19.4246 3.7244 19.1276 3.7244 18.7596C3.7244 18.3916 4.02145 18.0946 4.38942 18.0946H18.2589H18.2574C18.6254 18.0946 18.9224 18.3916 18.9224 18.7596C18.9224 19.1276 18.6254 19.4246 18.2574 19.4246ZM18.2574 15.665H4.38942C4.02144 15.665 3.7244 15.368 3.7244 15C3.7244 14.632 4.02145 14.335 4.38942 14.335H18.2589H18.2574C18.6254 14.335 18.9224 14.632 18.9224 15C18.9224 15.368 18.6254 15.665 18.2574 15.665Z" fill="#0F58F9"/>
                     </svg>
@@ -559,7 +559,7 @@ export default function AuditLandingPage() {
                 <input
                   type="text"
                   placeholder="https://www.youtube.com/watch?v=example"
-                  className="w-full px-4 py-3 border border-[#0F58F9] bg-[#F9F9F9] rounded-xs mb-4 text-gray-700"
+                  className="w-full px-4 py-3 border border-[#0F58F9] bg-[#F9F9F9] rounded-xs mb-5 text-gray-700"
                 />
 
                 {/* Import Button */}
@@ -584,7 +584,7 @@ export default function AuditLandingPage() {
 
           {/* Add from Web Button */}
           <button 
-            className="px-10 py-4 rounded-full text-[15px] shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-12 py-4 rounded-full text-[15px] shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -622,7 +622,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 -mt-20 lg:-mt-25 xl:-mt-28 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 hover:scale-105"
+            className="px-12 py-4 -mt-20 lg:-mt-25 xl:-mt-28 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 hover:scale-105 relative z-10"
             style={{
               backgroundColor: '#0F58F9',
               transition: 'transform 0.3s ease'
@@ -718,7 +718,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-12 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0066FF',
             }}
@@ -758,7 +758,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto"
               />
               <div className="pt-5">
-                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2">3,000+</p>
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black">3,000+</p>
                 <p className="text-[18px] lg:text-[20px] text-[#020617] sora-font">courses delivered</p>
               </div>
             </div>
@@ -774,7 +774,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto"
               />
               <div className="pt-5">
-                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black mb-2">170+</p>
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] xl:text-[42px] !font-semibold text-black">170+</p>
                 <p className="text-[18px] lg:text-[20px] text-[#020617] sora-font">universities launched</p>
               </div>
             </div>
@@ -786,7 +786,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-7xl mx-auto">
           {/* Cards Grid */}
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {/* Card 1 - Red Placeholder */}
             <div 
               className="rounded-md overflow-hidden"
@@ -848,12 +848,14 @@ export default function AuditLandingPage() {
               />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-white text-[20px] font-medium mb-2 sora-font">L&D</h3>
-                <p className="text-white text-[15px] sora-font">Launch courses + ROI analytics</p>
-              </div>
-              <div className="absolute bottom-4 right-4">
-                <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
-                </svg>
+                <div className="flex justify-between">
+                  <p className="text-white text-[15px] sora-font">Launch courses + ROI analytics</p>
+                  <div className="mt-2">
+                    <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -875,12 +877,14 @@ export default function AuditLandingPage() {
               />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-white text-[20px] font-medium mb-2 sora-font">Recruiting</h3>
-                <p className="text-white text-[15px] sora-font">Better pre-boarding & retention</p>
-              </div>
-              <div className="absolute bottom-4 right-4">
-                <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
-                </svg>
+                <div className="flex justify-between">
+                  <p className="text-white text-[15px] sora-font">Better pre-boarding & retention</p>
+                  <div className="mt-2">
+                    <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -902,12 +906,14 @@ export default function AuditLandingPage() {
               />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-white text-[20px] font-medium mb-2 sora-font">SMB Entrepreneurs</h3>
-                <p className="text-white text-[15px] sora-font">Train teams, scale faster</p>
-              </div>
-              <div className="absolute bottom-4 right-4">
-                <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
-                </svg>
+                <div className="flex justify-between">
+                  <p className="text-white text-[15px] sora-font">Train teams, scale faster</p>
+                  <div className="mt-2">
+                    <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -929,12 +935,14 @@ export default function AuditLandingPage() {
               />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-white text-[20px] font-medium mb-2 sora-font">Digital Creators</h3>
-                <p className="text-white text-[15px] sora-font">Turn knowledge into revenue</p>
-              </div>
-              <div className="absolute bottom-4 right-4">
-                <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
-                </svg>
+                <div className="flex justify-between">
+                  <p className="text-white text-[15px] sora-font">Turn knowledge into revenue</p>
+                  <div className="mt-2">
+                    <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1254,7 +1262,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-12 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
               boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
@@ -1272,72 +1280,77 @@ export default function AuditLandingPage() {
       {/* Footer */}
       <footer className="w-full bg-black py-16 px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Company Info */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M16.5052 15.6323L13.6767 13.7977C14.0397 12.7628 13.9578 11.6068 13.4318 10.6258L15.7518 8.55315C17.0263 9.34825 18.7248 9.19306 19.8327 8.08507C21.1224 6.79547 21.1224 4.70442 19.8327 3.41474C18.543 2.12507 16.4518 2.12507 15.1623 3.41474C14.1463 4.43071 13.9314 5.94335 14.5156 7.17045L12.1953 9.24347C11.0846 8.47479 9.66779 8.34042 8.4502 8.84192L5.77453 5.15987C6.73434 3.89973 6.63966 2.09303 5.4884 0.941636C4.23289 -0.313879 2.19727 -0.313879 0.941686 0.941636C-0.313895 2.19722 -0.313895 4.2329 0.941686 5.48842C1.84322 6.38995 3.14657 6.64398 4.27477 6.25115L6.95077 9.93353C5.62932 11.4835 5.69975 13.8135 7.16495 15.2786C7.1931 15.3068 7.22204 15.3332 7.25104 15.3604L4.65848 19.9106C3.58095 19.6558 2.40042 19.9479 1.56006 20.7883C0.270391 22.0781 0.270391 24.1693 1.56006 25.4588C2.84973 26.7485 4.94085 26.7485 6.23045 25.4588C7.50665 24.1827 7.51926 22.1223 6.26963 20.8296L8.86199 16.2799C10.1638 16.6537 11.6194 16.3445 12.6656 15.3528L15.4968 17.1887C15.3161 18.0282 15.5511 18.9394 16.2035 19.5917C17.2255 20.6137 18.8821 20.6137 19.904 19.5917C20.9259 18.5699 20.9259 16.9132 19.904 15.8913C18.9775 14.9651 17.5291 14.8786 16.5052 15.6323ZM2.67889 22.3901C2.61606 22.4613 2.55693 22.5286 2.49892 22.5865C2.42665 22.6587 2.32788 22.7467 2.20533 22.7846C2.05139 22.8321 1.89409 22.7903 1.77352 22.6697C1.45825 22.3545 1.57882 21.7581 2.05404 21.283C2.52938 20.8077 3.12556 20.6871 3.44096 21.0025C3.56146 21.1228 3.60328 21.2803 3.55571 21.4343C3.51792 21.5568 3.42992 21.6559 3.35771 21.7279C3.29971 21.7857 3.23245 21.8449 3.16117 21.9077C3.07892 21.9801 2.99369 22.055 2.90979 22.1387C2.82595 22.2226 2.75123 22.3078 2.67889 22.3901ZM15.6563 3.90911C16.1315 3.4339 16.7278 3.3132 17.043 3.62853C17.1635 3.74897 17.2054 3.90634 17.1578 4.06041C17.12 4.18302 17.0319 4.28199 16.9598 4.35413C16.9019 4.41194 16.8347 4.47107 16.7633 4.53383C16.681 4.60631 16.5959 4.68109 16.5119 4.76493C16.428 4.8489 16.3532 4.93419 16.2807 5.01651C16.2181 5.0876 16.1588 5.15505 16.101 5.21292C16.0288 5.28513 15.9298 5.37313 15.8073 5.41099C15.6532 5.45849 15.496 5.41667 15.3755 5.2961C15.0604 4.98077 15.181 4.38426 15.6563 3.90911ZM2.03098 2.50086C1.96967 2.57023 1.91213 2.63576 1.85604 2.69212C1.78581 2.76234 1.68948 2.8479 1.57004 2.88496C1.42013 2.93108 1.26699 2.89045 1.14959 2.77325C0.842653 2.46624 0.96025 1.88558 1.42298 1.42299C1.88563 0.960267 2.46602 0.842802 2.7731 1.14981C2.89043 1.26714 2.93132 1.42035 2.88488 1.57019C2.84782 1.68957 2.76239 1.78589 2.6921 1.85599C2.63568 1.91241 2.57014 1.97008 2.50077 2.03093C2.42064 2.10136 2.33766 2.17429 2.25607 2.25595C2.17434 2.33767 2.10134 2.42078 2.03098 2.50086ZM7.75525 10.2904C8.32296 9.72264 9.03501 9.57862 9.41172 9.95526C9.55574 10.0994 9.60576 10.2872 9.54901 10.4712C9.50355 10.6178 9.39857 10.7358 9.31229 10.8222C9.24312 10.8913 9.16265 10.9617 9.07756 11.0368C8.97939 11.1234 8.87765 11.2126 8.77736 11.3128C8.67707 11.4132 8.58775 11.5149 8.50133 11.6133C8.42628 11.6983 8.35566 11.7787 8.28655 11.8478C8.20027 11.9343 8.08221 12.0391 7.93568 12.0844C7.75175 12.1412 7.56386 12.0913 7.41964 11.9472C7.04319 11.5702 7.18755 10.8582 7.75525 10.2904ZM16.9478 17.3161C16.8905 17.3733 16.812 17.4431 16.715 17.473C16.5931 17.5106 16.4687 17.4775 16.3729 17.3821C16.123 17.1323 16.2185 16.6598 16.5953 16.2832C16.9716 15.9066 17.4441 15.8111 17.6941 16.0611C17.7894 16.1564 17.8226 16.2811 17.785 16.4032C17.755 16.5004 17.6852 16.5787 17.6281 16.6358C17.5822 16.6816 17.529 16.7285 17.4725 16.7782C17.4075 16.8354 17.3398 16.8949 17.2734 16.9613C17.2069 17.0277 17.1474 17.0951 17.0904 17.1605C17.0405 17.217 16.9936 17.2702 16.9478 17.3161Z" fill="white"/>
                 </svg>
-                <span className="text-white text-xl font-semibold sora-font">ContentBuilder</span>
+                <span className="text-white text-[15px] font-semibold sora-font">ContentBuilder</span>
               </div>
-              <p className="text-gray-400 text-sm mb-8 sora-font">AI Copilot for enterprises</p>
-              <p className="text-gray-500 text-xs sora-font">© CONTENT BUILDER, INC</p>
+              <p className="text-white text-[16px] sora-font">AI Copilot for enterprises</p>
             </div>
 
-            {/* Product Links */}
-            <div>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Product</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Features</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Integrations</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Roadmap</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">API</a></li>
-              </ul>
-            </div>
+            {/* Links Group - Product, Company, Other Resources */}
+            <div className="lg:col-span-2 flex flex-wrap md:flex-nowrap gap-3 md:gap-6">
+              {/* Product Links */}
+              <div>
+                <ul className="space-y-3">
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Product</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Features</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Integrations</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Roadmap</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">API</a></li>
+                </ul>
+              </div>
 
-            {/* Company Links */}
-            <div>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Company</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Our team</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Careers</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Community</a></li>
-              </ul>
-            </div>
-            {/* Other Resources */}
-            <div className="mb-6">
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Other resources</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Blog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Changelog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sora-font">Contact</a></li>
-              </ul>
+              {/* Company Links */}
+              <div>
+                <ul className="space-y-3">
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Company</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Our team</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Careers</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Community</a></li>
+                </ul>
+              </div>
+
+              {/* Other Resources */}
+              <div className="mb-6">
+                <ul className="space-y-3">
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Other resources</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Blog</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Changelog</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Contact</a></li>
+                </ul>
+              </div>
             </div>
 
             {/* Newsletter */}
             <div>
               <h3 className="text-white font-semibold mb-2 sora-font">Join our newsletter</h3>
-              <p className="text-gray-400 text-sm mb-4 sora-font">Stay connected with AI based Analytics</p>
+              <p className="text-white text-sm mb-4 sora-font">Stay connected with AI based Analytics</p>
               
               {/* Email Input and Button */}
-              <div className="flex mb-6">
+              <div className="flex gap-2">
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 min-w-0 px-4 py-2 rounded-l-md text-sm focus:outline-none"
+                  className="flex-1 min-w-0 px-4 py-2 rounded-md text-sm focus:outline-none"
                   style={{ backgroundColor: 'white', color: '#333' }}
                 />
                 <button
-                  className="px-4 py-2 rounded-r-md text-white text-sm font-semibold sora-font flex-shrink-0 whitespace-nowrap"
+                  className="px-4 py-2 rounded-md text-white text-sm font-semibold sora-font flex-shrink-0 whitespace-nowrap"
                   style={{ backgroundColor: '#0F58F9' }}
                 >
                   Subscribe
                 </button>
               </div>
-
-              {/* Social Media Icons */}
-              <div className="flex gap-4">
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <p className="text-white text-xs sora-font">© CONTENT BUILDER, INC</p>
+            <div className="flex gap-4 justify-end">
                 {/* X (Twitter) */}
                 <a href="#" className="text-white hover:text-gray-400 transition-colors">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -1359,7 +1372,6 @@ export default function AuditLandingPage() {
                   </svg>
                 </a>
               </div>
-            </div>
           </div>
         </div>
       </footer>
