@@ -300,7 +300,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-8 py-4 rounded-full font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-8 py-4 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -337,7 +337,7 @@ export default function AuditLandingPage() {
                     <path d="M19.9598 4.76162C18.8145 4.76162 17.8864 3.83207 17.8849 2.68673V0H0.744851C0.33255 0 0 0.333991 0 0.74485V29.2537C0 29.666 0.332516 30 0.744851 30H21.9016C22.3139 30 22.6465 29.666 22.6465 29.2537V4.76155L19.9598 4.76162ZM11.9915 10.5754H13.83C14.198 10.5754 14.495 10.8724 14.495 11.2404C14.495 11.6084 14.1979 11.9054 13.83 11.9054H11.9915C11.625 11.9054 11.3265 11.6084 11.3265 11.2404C11.3265 10.8724 11.625 10.5754 11.9915 10.5754ZM4.38791 6.81575H9.48511C9.85309 6.81575 10.1501 7.1128 10.1501 7.48077C10.1501 7.84875 9.85308 8.14579 9.48511 8.14579H4.38942C4.02144 8.14579 3.7244 7.84875 3.7244 7.48077C3.7244 7.1128 4.02145 6.81575 4.38942 6.81575H4.38791ZM4.38791 10.5754H8.73413C9.10063 10.5754 9.39915 10.8724 9.39915 11.2404C9.39915 11.6084 9.10063 11.9054 8.73413 11.9054H4.38791C4.02141 11.9054 3.72289 11.6084 3.72289 11.2404C3.72289 10.8724 4.02141 10.5754 4.38791 10.5754ZM18.2574 23.1843H4.38942C4.02144 23.1843 3.7244 22.8872 3.7244 22.5192C3.7244 22.1513 4.02145 21.8542 4.38942 21.8542H18.2589H18.2574C18.6254 21.8542 18.9224 22.1513 18.9224 22.5192C18.9224 22.8872 18.6254 23.1843 18.2574 23.1843ZM18.2574 19.4246H4.38942C4.02144 19.4246 3.7244 19.1276 3.7244 18.7596C3.7244 18.3916 4.02145 18.0946 4.38942 18.0946H18.2589H18.2574C18.6254 18.0946 18.9224 18.3916 18.9224 18.7596C18.9224 19.1276 18.6254 19.4246 18.2574 19.4246ZM18.2574 15.665H4.38942C4.02144 15.665 3.7244 15.368 3.7244 15C3.7244 14.632 4.02145 14.335 4.38942 14.335H18.2589H18.2574C18.6254 14.335 18.9224 14.632 18.9224 15C18.9224 15.368 18.6254 15.665 18.2574 15.665Z" fill="#0F58F9"/>
                     </svg>
                 </div>
-                <p className="text-[22px] text-black sora-font">
+                <p className="text-[22px] max-w-lg text-black sora-font">
                   Turn any files into ready-to-use courses, lessons, and presentations with AI.
                 </p>
               </div>
@@ -353,7 +353,7 @@ export default function AuditLandingPage() {
                     <path d="M26.5591 27.8545H1.07275C0.788238 27.8545 0.515381 27.9675 0.314201 28.1687C0.113021 28.3699 0 28.6427 0 28.9272C0 29.2118 0.113021 29.4846 0.314201 29.6858C0.515381 29.887 0.788238 30 1.07275 30H26.5591C26.8436 30 27.1165 29.887 27.3177 29.6858C27.5189 29.4846 27.6319 29.2118 27.6319 28.9272C27.6319 28.6427 27.5189 28.3699 27.3177 28.1687C27.1165 27.9675 26.8436 27.8545 26.5591 27.8545Z" fill="#0F58F9"/>
                     </svg>
                 </div>
-                <p className="text-[sora-font] text-black sora-font">
+                <p className="text-[22px] max-w-lg text-black sora-font">
                   Your files don't just sit — they teach.
                 </p>
               </div>
@@ -365,14 +365,14 @@ export default function AuditLandingPage() {
                 src="/custom-projects-ui/images/aiPoweredSmartDrive.svg"
                 alt="All-in-One AI Studio Interface"
                 className="w-full h-auto"
-                style={{ maxWidth: '700px' }}
+                style={{ maxWidth: '800px' }}
               />
             </div>
           </div>
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-10 py-4 rounded-full shadow-xl text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -404,7 +404,7 @@ export default function AuditLandingPage() {
               />
           </div>
           <button 
-            className="px-10 py-4 -mt-15 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-10 py-4 -mt-15 text-[15px] lg:-mt-15 xl:-mt-17 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -463,7 +463,7 @@ export default function AuditLandingPage() {
               {/* Platform Logos */}
               <div className="flex justify-between mt-4">
                 {/* YouTube */}
-                <div className="w-14 h-14 p-3 bg-white rounded-lg flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <img 
                       src="/custom-projects-ui/images/youtubeImg.png"
                       alt="YouTube"
@@ -472,7 +472,7 @@ export default function AuditLandingPage() {
                 </div>
 
                 {/* Git Book */}
-                <div className="w-14 h-14 p-3 bg-white rounded-lg flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <img 
                       src="/custom-projects-ui/images/GitBookLight.png"
                       alt="Git Book"
@@ -481,7 +481,7 @@ export default function AuditLandingPage() {
                 </div>
 
                 {/* Wikipedia */}
-                <div className="w-14 h-14 p-3 bg-white rounded-lg flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                   <img 
                     src="/custom-projects-ui/images/Wikipedia.png"
                     alt="Wikipedia"
@@ -490,7 +490,7 @@ export default function AuditLandingPage() {
                 </div>
 
                 {/* Vimeo */}
-                <div className="w-14 h-14 p-3 bg-white rounded-lg flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <svg width="47" height="40" viewBox="0 0 47 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M46.8593 9.25399C46.6493 13.7544 43.4624 19.918 37.2988 27.7431C30.9251 35.9131 25.5305 40 21.1188 40C18.3877 40 16.075 37.5078 14.1842 32.5216L10.4028 18.811C8.99973 13.823 7.49352 11.3308 5.88415 11.3308C5.53339 11.3308 4.30854 12.0577 2.20585 13.5114L0 10.7078C2.29214 8.71625 4.56739 6.70805 6.82951 4.68317C9.91133 2.05193 12.2222 0.666771 13.7641 0.529553C17.4067 0.182801 19.6482 2.64159 20.4885 7.90407C21.3983 13.5819 22.0304 17.1143 22.3793 18.4976C23.4297 23.2057 24.5851 25.5606 25.8456 25.5606C26.8266 25.5606 28.2972 24.0364 30.2592 20.9898C32.2212 17.9432 33.2716 15.6235 33.4104 14.0306C33.6899 11.3994 32.6395 10.0829 30.2592 10.0829C29.1394 10.0829 27.9821 10.3258 26.7928 10.8097C29.1037 3.4 33.5173 -0.199183 40.0317 0.00849733C44.8636 0.147569 47.1388 3.2294 46.8593 9.25399Z" fill="#1AB7EA"/>
                     </svg>
@@ -511,7 +511,6 @@ export default function AuditLandingPage() {
                   type="text"
                   placeholder="https://www.youtube.com/watch?v=_uQrJ0TkZlc&t=109s"
                   className="w-full px-4 py-3 border border-[#0F58F9] bg-[#F9F9F9] rounded-xs mb-4 text-gray-700"
-                  defaultValue="https://www.youtube.com/watch?v=_uQrJ0TkZlc&t=109s"
                 />
 
                 {/* URL Input 2 */}
@@ -519,7 +518,6 @@ export default function AuditLandingPage() {
                   type="text"
                   placeholder="https://www.youtube.com/watch?v=example"
                   className="w-full px-4 py-3 border border-[#0F58F9] bg-[#F9F9F9] rounded-xs mb-4 text-gray-700"
-                  defaultValue="https://www.youtube.com/watch?v=_yJKfmZX=160s"
                 />
 
                 {/* Import Button */}
@@ -532,7 +530,7 @@ export default function AuditLandingPage() {
                   <span className="text-xs sora-font">Add Another URL</span>
                 </button>
                   <button 
-                    className="px-8 py-3 rounded-lg font-semibold text-white"
+                    className="px-8 py-3 rounded-lg font-regular text-white sora-font text-sm"
                     style={{ backgroundColor: '#0F58F9' }}
                   >
                     Import
@@ -561,13 +559,13 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-4 sora-font">
-            <span className="text-black">Keep your content always up to date Knowledge changes — </span>
+          <h2 className="text-left text-4xl max-w-5xl md:text-[46px] font-semibold lg:text-center xl:text-center mb-4 sora-font">
+            <span className="text-black">Keep your content always up to date <br /> Knowledge changes — </span>
             <span style={{ color: '#0F58F9' }}>update in minutes</span>
           </h2>
 
           {/* Description */}
-          <p className="text-black text-center text-lg mb-8 max-w-4xl px-10 sora-font">
+          <p className="text-black text-left lg:text-center xl:text-center text-lg mb-8 max-w-xl px-10 sora-font">
             AI helps you rebuild outdated courses, lessons, or presentations instantly.
           </p>
 
@@ -582,7 +580,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-8 py-4 -mt-15 rounded-full font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-8 py-4 -mt-15 lg:-mt-20 xl:-mt-25 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -605,10 +603,10 @@ export default function AuditLandingPage() {
           </h2>
 
           {/* Cards Grid */}
-          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
             {/* Card 1 */}
             <div 
-              className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden"
+              className="bg-white p-4 rounded-lg border border-[#E0E0E0] overflow-hidden"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
               <img 
@@ -616,7 +614,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="p-6">
+              <div className="pt-4">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Share on social & video platforms
                 </p>
@@ -625,7 +623,7 @@ export default function AuditLandingPage() {
 
             {/* Card 2 */}
             <div 
-              className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden"
+              className="bg-white p-4 rounded-lg border border-[#E0E0E0] overflow-hidden"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
               <img 
@@ -633,7 +631,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="p-6">
+              <div className="pt-4">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Upload to global marketplaces
                 </p>
@@ -642,7 +640,7 @@ export default function AuditLandingPage() {
 
             {/* Card 3 */}
             <div 
-              className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden"
+              className="bg-white p-4 rounded-lg border border-[#E0E0E0] overflow-hidden"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
               <img 
@@ -650,7 +648,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="p-6">
+              <div className="pt-4">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Export to any LMS platform
                 </p>
@@ -659,7 +657,7 @@ export default function AuditLandingPage() {
 
             {/* Card 4 */}
             <div 
-              className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden"
+              className="bg-white p-4 rounded-lg border border-[#E0E0E0] overflow-hidden"
               style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
             >
               <img 
@@ -667,7 +665,7 @@ export default function AuditLandingPage() {
                 alt="Share on social"
                 className="w-full h-auto"
               />
-              <div className="p-6">
+              <div className="pt-4">
                 <p className="text-[#020617] text-[22px] sora-font">
                   Launch instantly in LMS
                 </p>
@@ -677,7 +675,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-10 py-4 rounded-full font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="px-10 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0066FF',
             }}
@@ -687,6 +685,221 @@ export default function AuditLandingPage() {
             </svg>
             Share your content
           </button>
+        </div>
+      </section>
+
+      {/* Trusted By Section */}
+      <section className="w-full bg-white py-20 px-8 relative z-10">
+        <div className="max-w-5xl mx-auto flex flex-col items-center">
+          {/* Heading */}
+          <h2 className="text-[28px] md:text-[35px] lg:text-[46px] font-semibold text-center mb-16 sora-font">
+            <span className="text-black">Trusted by </span>
+            <span className="font-bold" style={{ color: '#0F58F9' }}>Deloitte</span>
+            <span className="font-bold" style={{ color: '#86BC25' }}>.</span>
+            <span className="text-black"> and global brands</span>
+          </h2>
+
+          {/* Statistics Cards */}
+          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Card 1 - Courses Delivered */}
+            <div 
+              className="bg-white p-4 rounded-lg border border-gray-200 overflow-hidden"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <img 
+                src="/custom-projects-ui/images/courseDelivered.svg"
+                alt="courses delivered"
+                className="w-full h-auto"
+              />
+              <div className="pt-5">
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] !font-semibold text-black mb-2 inter-theme">3,000+</p>
+                <p className="text-[18px] lg:text-[22px] text-[#020617] sora-font">courses delivered</p>
+              </div>
+            </div>
+
+            {/* Card 2 - Universities Launched */}
+            <div 
+              className="bg-white p-4 rounded-lg border border-gray-200 overflow-hidden"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <img 
+                src="/custom-projects-ui/images/universitiesLaunched.svg"
+                alt="universities launched"
+                className="w-full h-auto"
+              />
+              <div className="pt-5">
+                <p className="text-[32px] md:text-[25px] lg:text-[42px] !font-semibold text-black mb-2 inter-theme">170+</p>
+                <p className="text-[18px] lg:text-[22px] text-[#020617] sora-font">universities launched</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Professional Categories Section */}
+      <section className="w-full py-20 px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+        <div className="max-w-7xl mx-auto">
+          {/* Cards Grid */}
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Card 1 - Red Placeholder */}
+            <div 
+              className="rounded-md overflow-hidden"
+            >
+              <h2 className="text-4xl md:text-[46px] font-semibold text-center mb-16 sora-font">
+                <span className="text-black">Built for </span>
+                <span style={{ color: '#0F58F9' }}> every team.</span>
+                <span className="text-black">For any workflow</span>
+              </h2>
+              <p className="text-black text-left text-lg mb-8 max-w-xl px-10 sora-font">
+                Turn processes into playbooks to train colleagues, assist customers, and drive software adoption
+              </p>
+            </div>
+
+            {/* Card 2 - HR */}
+            <div 
+              className="rounded-md overflow-hidden relative group cursor-pointer"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <div className="relative h-64 overflow-hidden">
+                <img 
+                  src="/custom-projects-ui/images/HRfasterOnboarding.png"
+                  alt="HR"
+                  className="w-full h-full object-cover"
+                />
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">HR</h3>
+                  <p className="text-white text-base sora-font">Faster onboarding, lower turnover</p>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 - L&D */}
+            <div 
+              className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <div className="relative h-64 overflow-hidden">
+                <img 
+                  src="/custom-projects-ui/images/LDlaunchCourses.png"
+                  alt="L&D"
+                  className="w-full h-full object-cover"
+                />
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">L&D</h3>
+                  <p className="text-white text-base sora-font">Launch courses + ROI analytics</p>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4 - Recruiting */}
+            <div 
+              className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <div className="relative h-64 overflow-hidden">
+                <img 
+                  src="/custom-projects-ui/images/betterPreBoarding.png"
+                  alt="Recruiting"
+                  className="w-full h-full object-cover"
+                />
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">Recruiting</h3>
+                  <p className="text-white text-base sora-font">Better pre-boarding & retention</p>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 5 - SMB Entrepreneurs */}
+            <div 
+              className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <div className="relative h-64 overflow-hidden">
+                <img 
+                  src="/custom-projects-ui/images/SMBEntrepreneurs.png"
+                  alt="SMB Entrepreneurs"
+                  className="w-full h-full object-cover"
+                />
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">SMB Entrepreneurs</h3>
+                  <p className="text-white text-base sora-font">Train teams, scale faster</p>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 6 - Digital Creators */}
+            <div 
+              className="bg-white rounded-md overflow-hidden relative group cursor-pointer"
+              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+            >
+              <div className="relative h-64 overflow-hidden">
+                <img 
+                  src="/custom-projects-ui/images/digitalCreators.png"
+                  alt="Digital Creators"
+                  className="w-full h-full object-cover"
+                />
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)'
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-white text-2xl font-bold mb-2 sora-font">Digital Creators</h3>
+                  <p className="text-white text-base sora-font">Turn knowledge into revenue</p>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <svg width="6" height="7" viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.68883 2.97453C6.10372 3.24799 6.10372 3.75201 5.68883 4.02547L1.41844 6.84015C0.855172 7.21142 -7.12213e-08 6.89461 -2.99563e-08 6.31468L3.70601e-07 0.685319C4.11866e-07 0.105389 0.855173 -0.211416 1.41845 0.159847L5.68883 2.97453Z" fill="white"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
