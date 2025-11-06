@@ -1806,14 +1806,16 @@ export default function TextPresentationClient() {
                 ))}
 
                 {/* Add Section Button */}
-                <button
-                  type="button"
-                  onClick={handleAddSection}
-                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
-                >
-                  <span className="text-lg">+</span>
-                  <span>{t('interface.generate.addSection', 'Add Section')}</span>
-                </button>
+                {streamDone && (
+                  <button
+                    type="button"
+                    onClick={handleAddSection}
+                    className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-lg">+</span>
+                    <span>{t('interface.generate.addSection', 'Add Section')}</span>
+                  </button>
+                )}
                 <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-2 rounded-b-[8px]">
                   <span className="select-none">{wordCount} {t('interface.generate.words', 'words')}</span>
                   <span className="flex items-center gap-1">
