@@ -781,6 +781,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
   const [isBulletPickerOpen, setIsBulletPickerOpen] = useState(false);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
@@ -798,13 +799,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return fieldKey ? [...path, fieldKey] : path;
   };
 
-  const handleInputChangeEvent = (
-    pathForData: (string | number)[], 
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> 
-  ) => {
+  const getFieldKey = (path: (string | number)[]): string => {
+    return path.join('-');
+  };
+
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    const fieldKey = getFieldKey(path);
+    setEditingValues(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+  };
+
+  const handleBlur = (path: (string | number)[], newValue: any) => {
+    const fieldKey = getFieldKey(path);
+    // Clear the temporary value
+    setEditingValues(prev => {
+      const updated = { ...prev };
+      delete updated[fieldKey];
+      return updated;
+    });
+    // Update the actual data
     if (onTextChange) {
-      onTextChange(pathForData, event.target.value);
+      onTextChange(path, newValue);
     }
+  };
+
+  const getInputValue = (path: (string | number)[], defaultValue: string): string => {
+    const fieldKey = getFieldKey(path);
+    return editingValues[fieldKey] !== undefined ? editingValues[fieldKey] : defaultValue;
   };
   
   switch (block.type) {
@@ -980,8 +1003,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {isEditing && onTextChange ? (
               <input 
                 type="text" 
-                value={text}
-                onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+                value={getInputValue(fieldPath('text'), text || '')}
+                onChange={(e) => handleInputChange(fieldPath('text'), e.target.value)}
+                onBlur={(e) => handleBlur(fieldPath('text'), e.target.value)}
                 className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '')} m-0 p-0`} 
                 style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1 }}
               />
@@ -1065,8 +1089,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
             
             <textarea 
-              value={currentRawText} 
-              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+              value={getInputValue(fieldPath('text'), currentRawText)} 
+              onChange={(e) => handleInputChange(fieldPath('text'), e.target.value)}
+              onBlur={(e) => handleBlur(fieldPath('text'), e.target.value)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} leading-normal text-black text-left`} 
               style={{ fontSize: fontSize || '16px' }}
             />
@@ -1236,8 +1261,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                           <div className="relative z-10">
                             <input
                               type="text"
-                              value={item}
-                              onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                              value={getInputValue(listItemPath(index), item)}
+                              onChange={(e) => handleInputChange(listItemPath(index), e.target.value)}
+                              onBlur={(e) => handleBlur(listItemPath(index), e.target.value)}
                               className={`${editingInputClass} w-full text-base`}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -1309,8 +1335,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                         <div className="relative z-10">
                           <input
                             type="text"
-                            value={item}
-                            onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                            value={getInputValue(listItemPath(index), item)}
+                            onChange={(e) => handleInputChange(listItemPath(index), e.target.value)}
+                            onBlur={(e) => handleBlur(listItemPath(index), e.target.value)}
                             className={`${editingInputClass} w-full text-base`}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
@@ -1449,16 +1476,18 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   {title && (
                     <input
                       type="text"
-                      value={title}
-                      onChange={e => handleInputChangeEvent(fieldPath('title'), e)}
+                      value={getInputValue(fieldPath('title'), title || '')}
+                      onChange={e => handleInputChange(fieldPath('title'), e.target.value)}
+                      onBlur={e => handleBlur(fieldPath('title'), e.target.value)}
                       className={`${editingInputClass} font-bold mb-1`}
                       placeholder="Alert title"
                       style={{ fontSize: fontSize || '10px' }}
                     />
                   )}
                   <textarea
-                    value={text}
-                    onChange={e => handleInputChangeEvent(fieldPath('text'), e)}
+                    value={getInputValue(fieldPath('text'), text || '')}
+                    onChange={e => handleInputChange(fieldPath('text'), e.target.value)}
+                    onBlur={e => handleBlur(fieldPath('text'), e.target.value)}
                     className={`${editingTextareaClass} mb-2`}
                     placeholder="Alert text"
                     style={{ fontSize: fontSize || '16px' }}
@@ -2072,8 +2101,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 {isEditing && onTextChange ? (
                   <input
                     type="text"
-                    value={caption}
-                    onChange={e => handleInputChangeEvent(fieldPath('caption'), e)}
+                    value={getInputValue(fieldPath('caption'), caption || '')}
+                    onChange={e => handleInputChange(fieldPath('caption'), e.target.value)}
+                    onBlur={e => handleBlur(fieldPath('caption'), e.target.value)}
                     className={`${editingInputClass} text-center italic`}
                     placeholder="Image caption"
                   />
@@ -2373,6 +2403,38 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
+
+  const getFieldKey = (path: (string | number)[]): string => {
+    return path.join('-');
+  };
+
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    const fieldKey = getFieldKey(path);
+    setEditingValues(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+  };
+
+  const handleBlur = (path: (string | number)[], newValue: any) => {
+    const fieldKey = getFieldKey(path);
+    // Clear the temporary value
+    setEditingValues(prev => {
+      const updated = { ...prev };
+      delete updated[fieldKey];
+      return updated;
+    });
+    // Update the actual data
+    if (onTextChange) {
+      onTextChange(path, newValue);
+    }
+  };
+
+  const getInputValue = (path: (string | number)[], defaultValue: string): string => {
+    const fieldKey = getFieldKey(path);
+    return editingValues[fieldKey] !== undefined ? editingValues[fieldKey] : defaultValue;
+  };
 
   // Drag & Drop handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -2849,8 +2911,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           {isEditing && onTextChange ? (
               <input 
                   type="text" 
-                  value={dataToDisplay.textTitle} 
-                  onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
+                  value={getInputValue(['textTitle'], dataToDisplay.textTitle || '')} 
+                  onChange={(e) => handleInputChange(['textTitle'], e.target.value)} 
+                  onBlur={(e) => handleBlur(['textTitle'], e.target.value)} 
                   className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold text-[#0F58F9] text-left`}
               />
           ) : (
