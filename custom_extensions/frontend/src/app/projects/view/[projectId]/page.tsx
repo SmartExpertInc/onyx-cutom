@@ -2082,7 +2082,7 @@ export default function ProjectInstanceViewPage() {
     <main 
       className="p-4 md:p-8 min-h-screen font-inter"
       style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
+        background: 'linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF'
       }}
     >
       <div className="max-w-7xl mx-auto">
@@ -2632,6 +2632,5 @@ export default function ProjectInstanceViewPage() {
       />
 
     </main>
-    </>
   );
 }
