@@ -142,7 +142,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
     // Determine insertion position
     const insertIndex = insertAfterIndex !== undefined ? insertAfterIndex + 1 : deck.slides.length;
-    const slideTitle = template.defaultProps.title || `Slide ${insertIndex + 1}`;
+    const slideTitle = (typeof template.defaultProps.title === 'string' ? template.defaultProps.title : null) || `Slide ${insertIndex + 1}`;
 
     const newSlide: ComponentBasedSlide & { slideTitle?: string } = {
       slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
