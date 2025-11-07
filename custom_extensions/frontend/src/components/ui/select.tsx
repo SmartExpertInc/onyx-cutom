@@ -267,6 +267,13 @@ function CustomPillSelector({
   label,
   className
 }: CustomPillSelectorProps) {
+  const selectedOption = React.useMemo(
+    () => options.find((option) => option.value === value),
+    [options, value]
+  )
+
+  const displayText = selectedOption?.label || value
+
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
@@ -275,8 +282,9 @@ function CustomPillSelector({
           className
         )}
       >
-        <div className="flex items-center justify-start w-full overflow-hidden">
-          <span className="text-[#0D001B] text-sm font-medium truncate">{value}</span>
+        <div className="flex items-center justify-start w-full overflow-hidden gap-2">
+          {icon && <span className="flex items-center text-[#0D001B]">{icon}</span>}
+          <span className="text-[#0D001B] text-sm font-medium truncate">{displayText}</span>
         </div>
       </SelectTrigger>
       <SelectContent className="border border-[#171718] max-h-[200px] rounded-xl" sideOffset={15}>

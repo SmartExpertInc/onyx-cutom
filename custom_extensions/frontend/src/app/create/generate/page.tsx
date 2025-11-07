@@ -1938,30 +1938,6 @@ function GenerateProductPicker() {
               </>
         )}
 
-        {/* Video Lesson Configuration - only show in standalone mode (not when using existing outline) */}
-        {activeProduct === "Video Lesson" && useExistingOutline === false && (
-          <div className="flex flex-wrap justify-center gap-4">
-            <CustomPillSelector
-              value={slidesCount.toString()}
-              onValueChange={(value) => setSlidesCount(Number(value))}
-              options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
-              icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
-              label={t('interface.generate.slides', 'Slides')}
-            />
-            <CustomPillSelector
-              value={language}
-              onValueChange={setLanguage}
-              options={[
-                { value: 'en', label: t('interface.english', 'English') },
-                { value: 'uk', label: t('interface.ukrainian', 'Ukrainian') },
-                { value: 'es', label: t('interface.spanish', 'Spanish') },
-                { value: 'ru', label: t('interface.russian', 'Russian') }
-              ]}
-              label={t('interface.language', 'Language')}
-            />
-          </div>
-        )}
-
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course") || 
           (activeProduct === "Video Lesson" && useExistingOutline === false) ||
