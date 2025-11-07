@@ -259,7 +259,7 @@ export default function TextRightPanel({
       onClick={(e) => e.stopPropagation()} // Prevent click propagation
     >
       {/* Typography Section */}
-      <div className="space-y-3 flex-shrink-0 mb-4">
+      <div className="space-y-1 flex-shrink-0 mb-4">
         {/* Typography Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.textRightPanel.typography', 'Typography')}</h3>
@@ -684,7 +684,7 @@ export default function TextRightPanel({
       </div>
 
       {/* Color Section */}
-      <div ref={colorPickerRef} className="space-y-2 flex-shrink-0 mb-4">
+      <div ref={colorPickerRef} className="space-y-1 flex-shrink-0 mb-4">
         {/* Color Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.color', 'Color')}</h3>
@@ -1063,7 +1063,7 @@ export default function TextRightPanel({
       </div>
 
       {/* Alignment Section */}
-      <div className="space-y-2 mb-4 flex-shrink-0 mt-4">
+      <div className="space-y-1 mb-4 flex-shrink-0 mt-4">
         {/* Alignment Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.alignment', 'Alignment')}</h3>
@@ -1137,7 +1137,7 @@ export default function TextRightPanel({
       </div>
 
       {/* Layer Section */}
-      <div className="space-y-2 mb-4 flex-shrink-0">
+      <div className="space-y-1 mb-4 flex-shrink-0">
           {/* Layer Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.layer', 'Layer')}</h3>

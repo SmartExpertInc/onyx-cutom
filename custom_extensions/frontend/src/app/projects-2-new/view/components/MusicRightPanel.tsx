@@ -246,9 +246,9 @@ export default function MusicRightPanel({
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <span className="text-xs" style={{ color: '#878787' }}>
+          <h3 className="text-sm font-medium" style={{ color: '#878787' }}>
             {t('rightPanel.playEverywhere', 'Play everywhere')}
-          </span>
+          </h3>
           <button
             onClick={() => setIsPlayEverywhereEnabled(!isPlayEverywhereEnabled)}
             className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"

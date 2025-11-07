@@ -531,7 +531,7 @@ export default function ShapeRightPanel({
       </div>
 
       {/* Appearance Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-1 mb-4 flex-shrink-0">
         {/* Appearance Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.appearance', 'Appearance')}</h3>
@@ -643,7 +643,7 @@ export default function ShapeRightPanel({
         </div>
 
         {/* Alignment Section */}
-        <div className="space-y-3 flex-shrink-0">
+        <div className="space-y-1 mb-4 flex-shrink-0">
           {/* Alignment Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.alignment', 'Alignment')}</h3>
@@ -717,7 +717,7 @@ export default function ShapeRightPanel({
         </div>
 
         {/* Layer Section */}
-        <div className="space-y-3 flex-shrink-0">
+        <div className="space-y-1 mb-4 flex-shrink-0">
           {/* Layer Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.layer', 'Layer')}</h3>
@@ -798,7 +798,7 @@ export default function ShapeRightPanel({
         </div>
 
         {/* Position Section */}
-        <div className="space-y-2 flex-shrink-0">
+        <div className="space-y-1 flex-shrink-0">
           {/* Position Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.position', 'Position')}</h3>

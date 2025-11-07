@@ -128,7 +128,7 @@ export default function AvatarRightPanel({
       </div>
 
       {/* Appearance Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-1 flex-shrink-0">
         {/* Appearance Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.appearance', 'Appearance')}</h3>
@@ -240,7 +240,7 @@ export default function AvatarRightPanel({
         </div>
 
         {/* Alignment Section */}
-        <div className="space-y-3 flex-shrink-0">
+        <div className="space-y-1 mb-4 flex-shrink-0">
           {/* Alignment Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.alignment', 'Alignment')}</h3>
@@ -314,7 +314,7 @@ export default function AvatarRightPanel({
         </div>
 
         {/* Layer Section */}
-        <div className="space-y-3 flex-shrink-0">
+        <div className="space-y-1 mb-4 flex-shrink-0">
           {/* Layer Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.layer', 'Layer')}</h3>
@@ -395,7 +395,7 @@ export default function AvatarRightPanel({
         </div>
 
         {/* Position Section */}
-        <div className="space-y-2 flex-shrink-0">
+        <div className="space-y-1 flex-shrink-0">
           {/* Position Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.avatarRightPanel.position', 'Position')}</h3>
