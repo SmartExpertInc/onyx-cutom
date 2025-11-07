@@ -33,7 +33,7 @@ import workspaceService, {
   ProductAccessCreate 
 } from '../../../../services/workspaceService';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette, XCircle } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, Trash2, ChevronDown, Sparkles, Download, Palette, XCircle } from 'lucide-react';
 import { VideoDownloadButton } from '@/components/VideoDownloadButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import PresentationLayout from '@/components/PresentationLayout';
@@ -44,12 +44,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
-<<<<<<< HEAD
 import { ProductViewHeader } from '@/components/ProductViewHeader';
 import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
-=======
 import { trackOpenProductEditor, trackSaveDraft } from '@/lib/mixpanelClient';
->>>>>>> main
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -215,18 +212,6 @@ export default function ProjectInstanceViewPage() {
   const { projectId } = params || {};
   const { t } = useLanguage();
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
-
-  const handleBack = useCallback(() => {
-    try {
-      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const fromParam = params?.get('from');
-      if (fromParam === 'create') {
-        router.push('/create/generate');
-        return;
-      }
-    } catch (_) {}
-    router.back();
-  }, [router]);
 
   // Add CSS for hidden scrollbar
   useEffect(() => {
@@ -2082,7 +2067,6 @@ export default function ProjectInstanceViewPage() {
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
   return (
-<<<<<<< HEAD
     <>
       <ProductViewHeader
         projectData={projectInstanceData}
@@ -2118,57 +2102,7 @@ export default function ProjectInstanceViewPage() {
             ? 'max-w-[1920px]'
             : 'max-w-7xl'
         }`}>
-          {/* Role Access Modal - kept for functionality */}
-          {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && roleAccess && createPortal(
-=======
-    <main 
-      className="p-4 md:p-8 min-h-screen font-inter"
-      style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
-      }}
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-
-          <div className="flex items-center gap-x-4">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {t('interface.projectView.back', 'Back')}
-            </button>
-            
-            <button
-              onClick={() => {
-                console.log('Open Products button clicked - navigating to /projects');
-                window.location.href = '/projects';
-              }}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <FolderOpen size={14} style={{ color: '#0F58F9' }} />
-              {t('interface.projectView.openProducts', 'Open Products')}
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {/* Edit button for editable content types */}
+          <div className="mb-6 flex flex-wrap items-center gap-3">
             {canEditContent && (
               <button
                 onClick={handleToggleEdit}
@@ -2197,7 +2131,7 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
 
-            {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
+            {projectInstanceData && typeof projectInstanceData.project_id === 'number' && (
               projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
                 <VideoDownloadButton
                   projectName={projectInstanceData.name}
@@ -2224,12 +2158,11 @@ export default function ProjectInstanceViewPage() {
                   }}
                   title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
                 >
-                 <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                  <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
                 </button>
               )
             )}
 
-            {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
@@ -2259,12 +2192,10 @@ export default function ProjectInstanceViewPage() {
               </ToastProvider>
             )}
 
-
-            {/* Theme Picker button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
               <DropdownMenu open={showTrainingPlanThemePicker} onOpenChange={setShowTrainingPlanThemePicker}>
                 <DropdownMenuTrigger asChild>
-                <button
+                  <button
                     className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                     style={{
                       color: '#0F58F9',
@@ -2273,15 +2204,15 @@ export default function ProjectInstanceViewPage() {
                       lineHeight: '140%',
                       letterSpacing: '0.05em'
                     }}
-                  title="Change theme"
-                >
-                  <Palette size={14} style={{ color: '#0F58F9' }} /> Theme
-                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
-                </button>
+                    title="Change theme"
+                  >
+                    <Palette size={14} style={{ color: '#0F58F9' }} /> Theme
+                    <ChevronDown size={14} style={{ color: '#0F58F9' }} />
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-20" style={{ backgroundColor: 'white' }}>
                   <div className="space-y-1">
-                  {[
+                    {[
                       { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
                       { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
                       { id: 'wine', label: 'Wine', color: '#0540AB' },
@@ -2292,12 +2223,12 @@ export default function ProjectInstanceViewPage() {
                       const trainingPlanData = editableData as TrainingPlanData | null;
                       const currentTheme = trainingPlanData?.theme || 'cherry';
                       const isSelected = currentTheme === theme.id;
-                      
+
                       return (
                         <button
                           key={theme.id}
                           onClick={() => handleTrainingPlanThemeChange(theme.id)}
-                        className={`w-full py-1.5 pr-8 pl-2 text-left text-sm hover:bg-gray-50 rounded cursor-pointer flex items-center gap-2 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
+                          className={`w-full py-1.5 pr-8 pl-2 text-left text-sm hover:bg-gray-50 rounded cursor-pointer flex items-center gap-2 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
                         >
                           <div
                             className="w-4 h-4 rounded-full border border-gray-300"
@@ -2305,7 +2236,7 @@ export default function ProjectInstanceViewPage() {
                           />
                           <span className="flex-1">{theme.label}</span>
                           {isSelected && (
-                          <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                           )}
@@ -2317,30 +2248,29 @@ export default function ProjectInstanceViewPage() {
               </DropdownMenu>
             )}
 
-            {/* Role Visibility Dropdown - only for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && (
-              <>
-                <button
-                  onClick={() => setRoleAccess(!roleAccess)}
-                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                  style={{
-                    color: '#0F58F9',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                  title={t('interface.projectView.configureAccessControl', 'Configure access control')}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {t('interface.projectView.ManageAccess', 'Manage Access')}
-                </button>
+              <button
+                onClick={() => setRoleAccess(!roleAccess)}
+                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  color: '#0F58F9',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+                title={t('interface.projectView.configureAccessControl', 'Configure access control')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {t('interface.projectView.ManageAccess', 'Manage Access')}
+              </button>
+            )}
+          </div>
 
-                {/* Role Access Modal */}
-                {roleAccess && createPortal(
->>>>>>> main
+          {/* Role Access Modal - kept for functionality */}
+          {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && roleAccess && createPortal(
                   <div
                     className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
                     onClick={() => setRoleAccess(false)}

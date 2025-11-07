@@ -1535,15 +1535,6 @@ export default function CourseOutlineClient() {
                 <XCircle className="h-5 w-5" />
                 {t('interface.error', 'Error')}
               </div>
-            )}
-          </div>
-          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
-              <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
-                <XCircle className="h-5 w-5" />
-                {t('interface.error', 'Error')}
-              </div>
               <div className="text-sm text-red-700 mb-4">
                 <p>{error}</p>
               </div>
