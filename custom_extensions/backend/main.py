@@ -743,8 +743,14 @@ class ImageBlock(BaseContentBlock):
     layoutProportion: Optional[str] = None  # '50-50', '60-40', '40-60', '70-30', '30-70'
     float: Optional[str] = None  # Legacy field for backward compatibility: 'left', 'right'
 
+
+# CRITICAL: ColumnContainerBlock must come before SectionBreakBlock in Union order
+# to prevent Pydantic from misclassifying column_container blocks as section_break blocks
+# when nested validation fails
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, 
+    ColumnContainerBlock,  # Moved before SectionBreakBlock to prevent corruption
+    SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -2631,10 +2637,6 @@ class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock
-]
-
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
     # Optional: sequential number of the lesson inside the parent Training Plan
@@ -2745,7 +2747,6 @@ class TextPresentationDetails(BaseModel):
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -3259,10 +3260,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -3822,10 +3819,6 @@ class TableBlock(BaseContentBlock):
     rows: List[List[str]]
     caption: Optional[str] = None
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
-
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
     # Optional: sequential number of the lesson inside the parent Training Plan
@@ -3922,7 +3915,6 @@ AnyQuizQuestion = Union[
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -4437,9 +4429,6 @@ class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -4972,10 +4961,6 @@ class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
-
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
     # Optional: sequential number of the lesson inside the parent Training Plan
@@ -5072,7 +5057,6 @@ AnyQuizQuestion = Union[
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -5586,10 +5570,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -7116,15 +7096,6 @@ class ColumnContainerBlock(BaseContentBlock):
     type: str = "column_container"
     columnCount: int = 2
     columns: List[List[AnyContentBlock]] = Field(default_factory=list)
-
-# CRITICAL: ColumnContainerBlock must come before SectionBreakBlock in Union order
-# to prevent Pydantic from misclassifying column_container blocks as section_break blocks
-# when nested validation fails
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, 
-    ColumnContainerBlock,  # Moved before SectionBreakBlock to prevent corruption
-    SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
