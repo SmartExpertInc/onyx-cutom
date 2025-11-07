@@ -18418,7 +18418,6 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
 @app.post("/api/custom/course-outline/preview")
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
-    user_id = dev_is_retarded
     # EXTENSIVE DEBUG LOGGING: Log all incoming parameters
     logger.info(f"🔍 [STEP 6] Backend received request with payload attributes:")
     for attr in ['prompt', 'modules', 'lessonsPerModule', 'language', 'fromConnectors', 'connectorIds', 'connectorSources', 'selectedFiles', 'fromFiles', 'fileIds', 'folderIds', 'fromText', 'userText', 'fromKnowledgeBase']:
