@@ -564,9 +564,9 @@ export default function AuditLandingPage() {
           {/* Two Column Layout */}
           <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-5 md:gap-15 lg:gap-25 mb-12">
             {/* Left Column - Features & Platforms */}
-            <div className="flex flex-col gap-8 max-w-[450px] md:max-w-[300px] lg:max-w-[450px] border-t-0 border-gray-200 md:border-t pt-6 md:pt-6">
+            <div className="flex flex-col gap-8 max-w-[450px] md:max-w-[300px] lg:max-w-[450px] border-t-0 border-gray-200 lg:border-t pt-6 lg:pt-6">
               {/* Feature 1 */}
-              <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b border-[#0206171A] md:border-b-0 md:pb-0">
+              <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b border-[#0206171A] lg:border-b-0 md:pb-0">
                 <div 
                   className="w-13 h-13 p-4 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -581,7 +581,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Feature 2 */}
-              <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b border-[#0206171A] md:border-b md:border-gray-200 md:pb-6">
+              <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b border-[#0206171A] md:border-b-0 lg:border-b lg:border-gray-200 lg:pb-6">
                 <div 
                   className="w-13 h-13 p-2 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -672,28 +672,28 @@ export default function AuditLandingPage() {
 
               </div>
               <div className="hidden md:flex lg:hidden justify-between mt-6">
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-16 h-16 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <img 
                       src="/custom-projects-ui/images/youtubeImg.png"
                       alt="YouTube"
                       className="w-full h-auto"
                     />
                 </div>
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-16 h-16 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <img 
                       src="/custom-projects-ui/images/GitBookLight.png"
                       alt="Git Book"
                       className="w-full h-auto"
                     />
                 </div>
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-16 h-16 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                   <img 
                     src="/custom-projects-ui/images/Wikipedia.png"
                     alt="Wikipedia"
                     className="w-full h-auto"
                   />
                 </div>
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-16 h-16 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                   <svg width="47" height="40" viewBox="0 0 47 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M46.8593 9.25399C46.6493 13.7544 43.4624 19.918 37.2988 27.7431C30.9251 35.9131 25.5305 40 21.1188 40C18.3877 40 16.075 37.5078 14.1842 32.5216L10.4028 18.811C8.99973 13.823 7.49352 11.3308 5.88415 11.3308C5.53339 11.3308 4.30854 12.0577 2.20585 13.5114L0 10.7078C2.29214 8.71625 4.56739 6.70805 6.82951 4.68317C9.91133 2.05193 12.2222 0.666771 13.7641 0.529553C17.4067 0.182801 19.6482 2.64159 20.4885 7.90407C21.3983 13.5819 22.0304 17.1143 22.3793 18.4976C23.4297 23.2057 24.5851 25.5606 25.8456 25.5606C26.8266 25.5606 28.2972 24.0364 30.2592 20.9898C32.2212 17.9432 33.2716 15.6235 33.4104 14.0306C33.6899 11.3994 32.6395 10.0829 30.2592 10.0829C29.1394 10.0829 27.9821 10.3258 26.7928 10.8097C29.1037 3.4 33.5173 -0.199183 40.0317 0.00849733C44.8636 0.147569 47.1388 3.2294 46.8593 9.25399Z" fill="#1AB7EA"/>
                   </svg>
@@ -864,8 +864,12 @@ export default function AuditLandingPage() {
           <h2 className="w-full text-left md:text-center text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font self-start md:self-center">
             <span className="inline-flex items-center gap-2">
               <span className="text-black">Trusted by</span>
-              <span className="text-[#0F58F9] font-bold">Deloitte</span>
-              <span className="inline-block w-[10px] h-[10px] rounded-full mt-3 bg-[#86BC25]"></span>
+              <span className="text-[#0F58F9] font-bold"><img 
+                src="/custom-projects-ui/images/deloitteIcoBlue.svg"
+                alt="Share on social"
+                className="w-auto h-auto"
+              /></span>
+              <span className="inline-block"></span>
             </span>
             <span className="block md:inline text-black md:ml-2 mt-1 md:mt-0">and global brands</span>
           </h2>
@@ -1460,7 +1464,7 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Newsletter */}
-            <div className="md:col-start-2 md:col-span-1 lg:col-span-1 w-full md:max-w-[360px] md:mt-8 md:text-left">
+            <div className="md:col-start-2 md:col-span-1 lg:col-span-1 w-full md:max-w-[400px] lg:max-w-[360px] md:mt-8 md:text-left">
               <h3 className="text-white text-[20px] md:text-[22px] uppercase md:normal-case font-semibold mb-3 sora-font">Join our newsletter</h3>
               <p className="text-white text-sm mb-5 sora-font">Stay connected with AI based Analytics</p>
               
