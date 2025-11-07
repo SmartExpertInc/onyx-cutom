@@ -379,7 +379,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
               {/* Width resizable via drag */}
               <div
-                style={{ width: `${b.widthPercent}%`, height: '100%', background: 'linear-gradient(to left, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 122% )', borderRadius: '2px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px' }}
+                style={{ width: `${b.widthPercent}%`, height: '100%', background: 'linear-gradient(to left, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 122% )', borderRadius: '2px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px', overflow: 'hidden' }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const container = (e.currentTarget.parentElement as HTMLElement);
@@ -417,13 +417,27 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                       padding: '8px 12px',
                       border: '1px solid rgba(255,255,255,0.3)',
                       borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      maxWidth: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }}
                     onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, `bar-${i}-label`, computedStyles)}
                   />
                 ) : (
                   <div 
-                    style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
+                    style={{ 
+                      color: '#ffffff', 
+                      fontSize: '22px', 
+                      fontWeight: '500', 
+                      whiteSpace: 'nowrap', 
+                      cursor: isEditable ? 'pointer' : 'default',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '100%',
+                      paddingRight: '4px'
+                    }}
                     onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}
                     dangerouslySetInnerHTML={{ __html: b.label }}
                   />
