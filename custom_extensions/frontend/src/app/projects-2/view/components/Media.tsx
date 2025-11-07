@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import MusicRightPanel from '@/app/projects-2-new/view/components/MusicRightPanel';
 
 interface MediaProps {
   isOpen: boolean;
@@ -30,7 +31,11 @@ export default function Media({
   const [isLibraryEmpty, setIsLibraryEmpty] = useState<boolean>(true);
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
   const [promptText, setPromptText] = useState<string>('');
-  const [aiImagePercentage, setAiImagePercentage] = useState<string>('100%');
+  const [isMusicEnabled, setIsMusicEnabled] = useState<boolean>(true);
+  const [showMusicDropdown, setShowMusicDropdown] = useState<boolean>(false);
+  const [selectedMusic, setSelectedMusic] = useState<string>('East London');
+  const [musicVolume, setMusicVolume] = useState<number>(65);
+  const [isPlayEverywhereEnabled, setIsPlayEverywhereEnabled] = useState<boolean>(true);
 
   const handleOptionClick = (option: string) => {
     setSelectedOption(option);
@@ -43,6 +48,12 @@ export default function Media({
       onOptionSelect?.('image');
     }
   }, [isOpen, onOptionSelect]);
+
+  useEffect(() => {
+    if (selectedOption !== 'music') {
+      setShowMusicDropdown(false);
+    }
+  }, [selectedOption]);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -138,32 +149,24 @@ export default function Media({
           {/* AI image option */}
             <div 
               onClick={() => handleOptionClick('aiImage')}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-text transition-colors border" 
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
               style={selectedOption === 'aiImage' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
             >
-              <div className="flex items-center gap-2 w-full">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clipPath="url(#clip0_2114_29818)">
-                    <path opacity="0.5" fillRule="evenodd" clipRule="evenodd" d="M0 0H3.2V3.2H0V0ZM6.4 3.2H3.2V6.4H0V9.6H3.2V12.8H0V16H3.2V12.8H6.4V16H9.6V12.8H12.8V16H16V12.8H12.8V9.6H16V6.4H12.8V3.2H16V0H12.8V3.2H9.6V0H6.4V3.2ZM6.4 6.4V3.2H9.6V6.4H6.4ZM6.4 9.6H3.2V6.4H6.4V9.6ZM9.6 9.6V6.4H12.8V9.6H9.6ZM9.6 9.6H6.4V12.8H9.6V9.6Z" fill="url(#paint0_linear_2114_29818)"/>
-                  </g>
-                  <defs>
-                    <linearGradient id="paint0_linear_2114_29818" x1="0.269531" y1="10.6673" x2="17.2695" y2="10.6673" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#09090B"/>
-                      <stop offset="1" stopColor="#434343"/>
-                    </linearGradient>
-                    <clipPath id="clip0_2114_29818">
-                      <rect width="16" height="16" fill="white"/>
-                    </clipPath>
-                  </defs>
-                </svg>
-                <input
-                  type="text"
-                  value={aiImagePercentage}
-                  onChange={(event) => setAiImagePercentage(event.target.value)}
-                  className="flex-1 bg-transparent border-none text-xs focus:outline-none"
-                  style={{ color: '#878787' }}
-                />
-              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clipPath="url(#clip0_2114_29818)">
+                  <path opacity="0.5" fillRule="evenodd" clipRule="evenodd" d="M0 0H3.2V3.2H0V0ZM6.4 3.2H3.2V6.4H0V9.6H3.2V12.8H0V16H3.2V12.8H6.4V16H9.6V12.8H12.8V16H16V12.8H12.8V9.6H16V6.4H12.8V3.2H16V0H12.8V3.2H9.6V0H6.4V3.2ZM6.4 6.4V3.2H9.6V6.4H6.4ZM6.4 9.6H3.2V6.4H6.4V9.6ZM9.6 9.6V6.4H12.8V9.6H9.6ZM9.6 9.6H6.4V12.8H9.6V9.6Z" fill="url(#paint0_linear_2114_29818)"/>
+                </g>
+                <defs>
+                  <linearGradient id="paint0_linear_2114_29818" x1="0.269531" y1="10.6673" x2="17.2695" y2="10.6673" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#09090B"/>
+                    <stop offset="1" stopColor="#434343"/>
+                  </linearGradient>
+                  <clipPath id="clip0_2114_29818">
+                    <rect width="16" height="16" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
+              <span className="text-xs text-black">{t('panels.media.aiImage', 'AI image')}</span>
             </div>
           </div>
         </div>

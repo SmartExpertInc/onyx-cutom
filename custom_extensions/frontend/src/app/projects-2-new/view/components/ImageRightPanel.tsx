@@ -47,6 +47,9 @@ interface ShapeRightPanelProps {
   // Color palette context
   onColorPaletteContextChange?: (context: 'shape' | 'stroke') => void;
   
+  // Media context
+  mediaType?: 'image' | 'icon';
+
   // Close handler
   onClose: () => void;
   
@@ -85,6 +88,7 @@ export default function ShapeRightPanel({
   strokeColor,
   onStrokeColorChange,
   onColorPaletteContextChange,
+  mediaType = 'image',
   onClose,
   rightPanelRef,
 }: ShapeRightPanelProps) {
@@ -161,12 +165,20 @@ export default function ShapeRightPanel({
     };
   }, [setIsColorPaletteOpen]);
 
+  const isIcon = mediaType === 'icon';
+  const uploadedAssetLabel = isIcon
+    ? t('panels.imageRightPanel.uploadedIcon', 'Uploaded icon')
+    : t('panels.shapeRightPanel.uploadedImage', 'Uploaded image');
+  const removeAssetLabel = isIcon
+    ? t('panels.imageRightPanel.removeIcon', 'Remove icon')
+    : t('panels.imageRightPanel.removeImage', 'Remove image');
+
   return (
     <>
       {/* Uploaded Image Title */}
       <div className="relative flex items-center gap-3 mb-2 flex-shrink-0">
         <div className="w-9 h-9 rounded-sm" style={{ backgroundColor: '#E6E6E6' }}></div>
-        <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.uploadedImage', 'Uploaded image')}</h3>
+        <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{uploadedAssetLabel}</h3>
         <div ref={imageMenuRef} className="relative">
           <button
             type="button"
@@ -205,7 +217,7 @@ export default function ShapeRightPanel({
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M3.2002 4.67399H13.4402M12.3024 4.67399V12.6384C12.3024 13.2073 11.7335 13.7762 11.1646 13.7762H5.47575C4.90686 13.7762 4.33797 13.2073 4.33797 12.6384V4.67399M6.04464 4.67399V3.53622C6.04464 2.96733 6.61353 2.39844 7.18242 2.39844H9.45797C10.0269 2.39844 10.5958 2.96733 10.5958 3.53622V4.67399M7.18242 7.51844V10.9318M9.45797 7.51844V10.9318" stroke="#878787" strokeWidth="0.800098" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>{t('panels.imageRightPanel.removeImage', 'Remove image')}</span>
+                <span>{removeAssetLabel}</span>
               </button>
             </div>
           )}
@@ -439,11 +451,11 @@ export default function ShapeRightPanel({
           </div>
           <div className="flex-1">
             <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 flex-1">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.19238 2.74414C9.20734 2.75487 9.21087 2.77607 9.2002 2.79102L2.23242 12.5068L1.66504 13.2979H14.3994C14.4178 13.2979 14.4326 13.3137 14.4326 13.332C14.4324 13.3503 14.4177 13.3652 14.3994 13.3652H1.59961C1.58706 13.3652 1.57595 13.3577 1.57031 13.3467C1.56474 13.3357 1.56522 13.3227 1.57227 13.3125L9.14551 2.75195C9.15616 2.73709 9.17744 2.73365 9.19238 2.74414ZM14.293 11.165C14.3114 11.165 14.3261 11.1798 14.3262 11.1982C14.3262 11.2167 14.3114 11.2314 14.293 11.2314C14.2747 11.2314 14.2598 11.2166 14.2598 11.1982C14.2598 11.1799 14.2747 11.1651 14.293 11.165ZM13.4395 9.03125C13.4578 9.03125 13.4727 9.04705 13.4727 9.06543C13.4724 9.0836 13.4577 9.09863 13.4395 9.09863C13.4213 9.09848 13.4065 9.08358 13.4062 9.06543C13.4062 9.04708 13.4212 9.0314 13.4395 9.03125ZM12.373 6.89844C12.3914 6.89844 12.4062 6.91326 12.4062 6.93164C12.4062 6.95002 12.3914 6.96484 12.373 6.96484C12.3546 6.96483 12.3398 6.95008 12.3398 6.93164C12.3398 6.91321 12.3546 6.89845 12.373 6.89844ZM11.0928 4.76465C11.111 4.76465 11.1257 4.77962 11.126 4.79785C11.126 4.8163 11.1112 4.83203 11.0928 4.83203C11.0746 4.83187 11.0596 4.81617 11.0596 4.79785C11.0598 4.77974 11.0747 4.76481 11.0928 4.76465Z" fill="#09090B" stroke="#09090B"/>
                 </svg>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center flex-1">
                   <input
                     type="text"
                     value={rotation}
@@ -455,10 +467,10 @@ export default function ShapeRightPanel({
                         setRotation(0);
                       }
                     }}
-                    className="w-10 bg-transparent border-none text-xs focus:outline-none"
-                    style={{ color: '#171718', textAlign: 'left' }}
+                    className="text-sm font-medium border-none outline-none bg-transparent text-right w-full"
+                    style={{ color: '#171718' }}
                   />
-                  <span className="text-xs" style={{ color: '#171718' }}>°</span>
+                  <span className="text-sm font-medium ml-0.5" style={{ color: '#171718' }}>°</span>
                 </div>
               </div>
               <div

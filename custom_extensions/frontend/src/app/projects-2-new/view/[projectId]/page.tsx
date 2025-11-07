@@ -37,11 +37,14 @@ import BrandKitRightPanel from '../../view/components/BrandKitRightPanel';
 import AvatarRightPanel from '../components/AvatarRightPanel';
 import ShapeRightPanel from '../components/ShapeRightPanel';
 import ImageRightPanel from '../components/ImageRightPanel';
+import MusicRightPanel from '../components/MusicRightPanel';
 import TextRightPanel from '../components/TextRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+type MediaOption = 'library' | 'image' | 'video' | 'music' | 'icon' | 'aiImage';
 
 function Projects2ViewPageContent() {
   const params = useParams();
@@ -55,6 +58,8 @@ function Projects2ViewPageContent() {
   const [showAvatarRightPanel, setShowAvatarRightPanel] = useState<boolean>(false);
   const [showShapeRightPanel, setShowShapeRightPanel] = useState<boolean>(false);
   const [showImageRightPanel, setShowImageRightPanel] = useState<boolean>(false);
+  const [showMusicRightPanel, setShowMusicRightPanel] = useState<boolean>(false);
+  const [selectedMediaOption, setSelectedMediaOption] = useState<MediaOption>('image');
   const [showTextRightPanel, setShowTextRightPanel] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
@@ -113,6 +118,7 @@ function Projects2ViewPageContent() {
   const [showMusicDropdown, setShowMusicDropdown] = useState<boolean>(false);
   const [selectedMusic, setSelectedMusic] = useState<string>('East London');
   const [musicVolume, setMusicVolume] = useState<number>(50);
+  const [isPlayEverywhereEnabled, setIsPlayEverywhereEnabled] = useState<boolean>(true);
 
   // Avatar appearance state (separate from music)
   const [isAppearanceEnabled, setIsAppearanceEnabled] = useState<boolean>(true);
@@ -679,13 +685,24 @@ function Projects2ViewPageContent() {
 
   // NEW: Handler for video lesson settings buttons
   const handleMediaOptionSelect = (option: string) => {
-    if (option === 'image') {
+    const mediaOption = option as MediaOption;
+    setSelectedMediaOption(mediaOption);
+
+    if (mediaOption === 'image' || mediaOption === 'icon') {
       setShowImageRightPanel(true);
+      setShowMusicRightPanel(false);
+      setShowShapeRightPanel(false);
+      setShowAvatarRightPanel(false);
+      setShowTextRightPanel(false);
+    } else if (mediaOption === 'music') {
+      setShowMusicRightPanel(true);
+      setShowImageRightPanel(false);
       setShowShapeRightPanel(false);
       setShowAvatarRightPanel(false);
       setShowTextRightPanel(false);
     } else {
       setShowImageRightPanel(false);
+      setShowMusicRightPanel(false);
     }
   };
 
@@ -725,6 +742,8 @@ function Projects2ViewPageContent() {
       setMediaPopupPosition({ x, y });
       setIsMediaPopupOpen(true);
       setShowImageRightPanel(true);
+      setShowMusicRightPanel(false);
+      setSelectedMediaOption('image');
       setShowShapeRightPanel(false);
       setShowAvatarRightPanel(false);
       setShowTextRightPanel(false);
@@ -750,6 +769,7 @@ function Projects2ViewPageContent() {
     setShowAvatarRightPanel(false); // Close avatar panel when opening shape panel
     setShowTextRightPanel(false); // Close text panel when opening shape panel
     setShowImageRightPanel(false);
+    setShowMusicRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -765,6 +785,7 @@ function Projects2ViewPageContent() {
     setShowShapeRightPanel(false); // Close shape panel when opening text popup
     setShowAvatarRightPanel(false); // Close avatar panel when opening text popup
     setShowImageRightPanel(false);
+    setShowMusicRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
@@ -779,6 +800,7 @@ function Projects2ViewPageContent() {
     setShowShapeRightPanel(false); // Close shape panel when opening avatar panel
     setShowTextRightPanel(false); // Close text panel when opening avatar panel
     setShowImageRightPanel(false);
+    setShowMusicRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -1068,6 +1090,7 @@ function Projects2ViewPageContent() {
                       setShowTextRightPanel(true);
                       setShowShapeRightPanel(false);
                       setShowAvatarRightPanel(false);
+                      setShowMusicRightPanel(false);
                       
                       // Update current text color
                       const inlineColor = editor?.getAttributes?.('textStyle')?.color;
@@ -1259,6 +1282,55 @@ function Projects2ViewPageContent() {
               setActiveTransitionIndex={setActiveTransitionIndex}
               onClose={() => setShowAvatarRightPanel(false)}
             />
+          ) : showMusicRightPanel ? (
+            <MusicRightPanel
+              isMusicEnabled={isMusicEnabled}
+              setIsMusicEnabled={setIsMusicEnabled}
+              showMusicDropdown={showMusicDropdown}
+              setShowMusicDropdown={setShowMusicDropdown}
+              selectedMusic={selectedMusic}
+              setSelectedMusic={setSelectedMusic}
+              musicVolume={musicVolume}
+              setMusicVolume={setMusicVolume}
+              isPlayEverywhereEnabled={isPlayEverywhereEnabled}
+              setIsPlayEverywhereEnabled={setIsPlayEverywhereEnabled}
+              onReplaceMusic={() => {
+                if (typeof window !== 'undefined') {
+                  const modalWidth = 950;
+                  const modalHeight = 420;
+                  const gap = 10;
+
+                  let x = window.innerWidth / 2 - modalWidth / 2;
+                  let y = 70;
+
+                  if (x < gap) {
+                    x = gap;
+                  }
+
+                  if (x + modalWidth > window.innerWidth - gap) {
+                    x = window.innerWidth - modalWidth - gap;
+                  }
+
+                  if (y + modalHeight > window.innerHeight - gap) {
+                    y = window.innerHeight - modalHeight - gap;
+                  }
+
+                  if (y < gap) {
+                    y = gap;
+                  }
+
+                  setMediaPopupPosition({ x, y });
+                }
+
+                setSelectedMediaOption('music');
+                setIsMediaPopupOpen(true);
+                setShowImageRightPanel(false);
+                setShowShapeRightPanel(false);
+                setShowAvatarRightPanel(false);
+                setShowTextRightPanel(false);
+                setShowMusicRightPanel(true);
+              }}
+            />
           ) : showImageRightPanel ? (
             <ImageRightPanel
               isAppearanceEnabled={isAppearanceEnabled}
@@ -1295,6 +1367,7 @@ function Projects2ViewPageContent() {
               onStrokeColorChange={setStrokeColor}
               onColorPaletteContextChange={setColorPaletteContext}
               onClose={() => setShowImageRightPanel(false)}
+              mediaType={selectedMediaOption === 'icon' ? 'icon' : 'image'}
               rightPanelRef={rightPanelRef}
             />
           ) : (
