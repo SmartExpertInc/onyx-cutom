@@ -153,19 +153,10 @@ class LokiService:
         if event:
             label_filters.append(f'event="{event}"')
         
-        # Build base query with label selectors
-        # Format: {job="custom_backend", user_id="123"}
-        query = '{' + ', '.join(label_filters) + '}'
-        
-        # Add line filters for JSON field content (level is in JSON, not labels)
-        line_filters = []
         if level:
             label_filters.append(f'level="{level}"')
-        
-        # Combine label selector with line filters
-        # Format: {job="custom_backend"} |= "\"level\":\"error\""
-        if line_filters:
-            query = query + " " + " ".join(line_filters)
+
+        query = '{' + ', '.join(label_filters) + '}'
         
         # Log the query for debugging
         import logging
