@@ -55,7 +55,9 @@ scrape_configs:
             output: log
             stream: stream
             attrs: attrs
+      
       # Try to parse the log line as JSON (if it's structured)
+      # This will fail gracefully if the log is not JSON, and we'll keep the original output
       - json:
           expressions:
             event: event
@@ -69,8 +71,22 @@ scrape_configs:
             module: module
             request_id: request_id
             message: message
+            logger: logger
           source: output
-      # Add labels for filtering
+      
+      # If JSON parsing succeeded, use the parsed fields
+      # If it failed, the output field will still contain the original log line
+      # Ensure we always have a level field (default to 'info' if not present)
+      - template:
+          source: level
+          template: '{{ if .level }}{{ .level }}{{ else }}info{{ end }}'
+      
+      # Ensure message field exists
+      - template:
+          source: message
+          template: '{{ if .message }}{{ .message }}{{ else }}{{ .output }}{{ end }}'
+      
+      # Add labels for filtering (only add if the field exists and is not empty)
       - labels:
           level:
           user_id:
@@ -78,7 +94,10 @@ scrape_configs:
           event:
           module:
           request_id:
-      # Output the log message
+      
+      # Output the full structured log entry
+      # If JSON parsing succeeded, output will contain the structured fields
+      # If it failed, output will be the original log line
       - output:
           source: output
 

@@ -168,12 +168,16 @@ def setup_structured_logging(is_production: bool = False):
         
         def format(self, record: logging.LogRecord) -> str:
             """Format log record as JSON."""
+            # Get the base message (without traceback appended)
+            # Python's logging system appends traceback to the message, so we need to extract it
+            message = record.getMessage()
+            
             # Base log data
             log_data = {
                 'timestamp': datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
                 'level': record.levelname.lower(),
                 'logger': record.name,
-                'message': record.getMessage(),
+                'message': message,
             }
             
             # Parse Uvicorn access log format if it's an access log
@@ -209,8 +213,23 @@ def setup_structured_logging(is_production: bool = False):
                 error_trace = self.formatException(record.exc_info)
                 
                 log_data['error'] = f"{error_type}: {error_msg}"
-                log_data['trace'] = error_trace
+                # Store traceback as a single string with normalized line endings
+                # json.dumps will escape the newlines, but we normalize them first
+                log_data['trace'] = error_trace.replace('\r\n', '\n').replace('\r', '\n')
                 log_data['event'] = 'unexpected_backend_error'
+                
+                # Remove traceback from message if it was appended by Python's logging
+                # Python's getMessage() may include the traceback, so we clean it up
+                if error_trace in message:
+                    # Remove the traceback from the message
+                    message = message.replace(error_trace, '').strip()
+                    log_data['message'] = message
+            
+            # Check if trace is already in log_data (from StructuredLoggerAdapter via extra context)
+            # This happens when StructuredLoggerAdapter._log() adds trace to context
+            if 'trace' in log_data and isinstance(log_data['trace'], str):
+                # Normalize line endings to ensure consistent formatting
+                log_data['trace'] = log_data['trace'].replace('\r\n', '\n').replace('\r', '\n')
             
             # Add any extra fields from record
             if hasattr(record, 'user_id'):
@@ -235,7 +254,12 @@ def setup_structured_logging(is_production: bool = False):
                     if not key.startswith('_'):
                         log_data[key] = value
             
-            return json.dumps(log_data, default=str)
+            # Ensure JSON is output as a single line (no pretty printing)
+            # This is critical for Docker log drivers which expect one JSON object per line
+            json_output = json.dumps(log_data, default=str, ensure_ascii=False)
+            # Remove any actual newlines that might have been introduced (shouldn't happen, but safety check)
+            json_output = json_output.replace('\n', '\\n').replace('\r', '\\r')
+            return json_output
     
     console_handler.setFormatter(JSONFormatter())
     root_logger.addHandler(console_handler)
