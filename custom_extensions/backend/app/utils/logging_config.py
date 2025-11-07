@@ -5,6 +5,7 @@ Integrates with existing Python logging.getLogger() calls.
 import logging
 import sys
 import json
+import re
 import traceback
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
@@ -175,6 +176,32 @@ def setup_structured_logging(is_production: bool = False):
                 'message': record.getMessage(),
             }
             
+            # Parse Uvicorn access log format if it's an access log
+            # Format: "IP:PORT - \"METHOD PATH HTTP/VERSION\" STATUS_CODE STATUS_TEXT"
+            message = record.getMessage()
+            if record.name == "uvicorn.access" and "HTTP/" in message:
+                # Try to parse Uvicorn access log format
+                access_pattern = r'(\d+\.\d+\.\d+\.\d+):(\d+)\s+-\s+"(\w+)\s+([^"]+)\s+HTTP/[^"]+"\s+(\d+)\s+(.*)'
+                match = re.match(access_pattern, message)
+                if match:
+                    ip, port, method, path, status_code, status_text = match.groups()
+                    log_data['ip'] = ip
+                    log_data['port'] = int(port)
+                    log_data['method'] = method
+                    log_data['path'] = path
+                    log_data['endpoint'] = path  # Also set as endpoint for consistency
+                    log_data['status_code'] = int(status_code)
+                    log_data['status_text'] = status_text
+                    # Set level based on status code
+                    status = int(status_code)
+                    if status >= 500:
+                        log_data['level'] = 'error'
+                    elif status >= 400:
+                        log_data['level'] = 'warning'
+                    else:
+                        log_data['level'] = 'info'
+                    log_data['event'] = 'http_request'
+            
             # Add exception info if present
             if record.exc_info:
                 error_type = record.exc_info[0].__name__ if record.exc_info[0] else 'Exception'
@@ -212,6 +239,36 @@ def setup_structured_logging(is_production: bool = False):
     
     console_handler.setFormatter(JSONFormatter())
     root_logger.addHandler(console_handler)
+    
+    # Configure Uvicorn access logger to use structured logging
+    access_logger = logging.getLogger("uvicorn.access")
+    access_logger.setLevel(log_level)
+    access_logger.handlers = []
+    access_handler = logging.StreamHandler(sys.stdout)
+    access_handler.setLevel(log_level)
+    access_handler.setFormatter(JSONFormatter())
+    access_logger.addHandler(access_handler)
+    access_logger.propagate = False  # Prevent duplicate logs
+    
+    # Configure Uvicorn error logger
+    error_logger = logging.getLogger("uvicorn.error")
+    error_logger.setLevel(log_level)
+    error_logger.handlers = []
+    error_handler = logging.StreamHandler(sys.stdout)
+    error_handler.setLevel(log_level)
+    error_handler.setFormatter(JSONFormatter())
+    error_logger.addHandler(error_handler)
+    error_logger.propagate = False
+    
+    # Configure Uvicorn main logger
+    uvicorn_logger = logging.getLogger("uvicorn")
+    uvicorn_logger.setLevel(log_level)
+    uvicorn_logger.handlers = []
+    uvicorn_handler = logging.StreamHandler(sys.stdout)
+    uvicorn_handler.setLevel(log_level)
+    uvicorn_handler.setFormatter(JSONFormatter())
+    uvicorn_logger.addHandler(uvicorn_handler)
+    uvicorn_logger.propagate = False
     
     return root_logger
 
