@@ -23,7 +23,6 @@ import {
   Trash2,
   Plus,
   Bell,
-  MessageSquare,
   ChevronRight,
   LayoutTemplate,
   HardDrive,
@@ -53,7 +52,6 @@ import { ToastProvider } from '../../components/ui/toast';
 import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView, trackFeedback } from '@/lib/mixpanelClient';
 import Userback, { UserbackWidget } from '@userback/widget';
 import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
-import { Button } from '@/components/ui/button';
 import MyProductsTable from '@/components/MyProductsTable';
 
 
@@ -646,7 +644,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen, onSurveyModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void; onSurveyModalOpen: () => void;}) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void; }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -712,10 +710,6 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWor
           <Coins strokeWidth={1.5} size={16} className="font-normal text-[#4D4D4D]" />
           {userCredits !== null ? `${userCredits} ${t('interface.courseOutline.credits', 'Credits')}` : t('interface.loading', 'Loading...')}
         </button>
-        <Button variant="outline" onClick={onSurveyModalOpen}>
-          <MessageSquare size={16} className="mr-2" />
-          {t('interface.survey', 'Survey')}
-        </Button>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
         <LanguageDropdown />
         <UserDropdown />
@@ -748,7 +742,6 @@ const ProjectsPageInner: React.FC = () => {
   const [workspaceData, setWorkspaceData] = useState<any>(null);
   const [tariffModalOpen, setTariffModalOpen] = useState(false);
   const [addOnsModalOpen, setAddOnsModalOpen] = useState(false);
-  const [surveyModalOpen, setSurveyModalOpen] = useState(false);
 
   // LMS Export states
   const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
@@ -1220,7 +1213,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} onSurveyModalOpen={() => setSurveyModalOpen(true)}/>
+      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} />
       <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
@@ -1279,14 +1272,6 @@ const ProjectsPageInner: React.FC = () => {
         isOpen={addOnsModalOpen}
         onClose={() => setAddOnsModalOpen(false)}
       />
-      {surveyModalOpen && (
-        <RegistrationSurveyModal 
-          onComplete={(surveyData) => {
-            handleSurveyComplete(surveyData);
-            setSurveyModalOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 };
