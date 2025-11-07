@@ -18416,11 +18416,54 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
 # ----------------------- ENDPOINTS ---------------------------------------
 
+# Network Error Testing
+if not IS_PRODUCTION:
+    @app.get("/api/custom/test/errors/network-error")
+    async def test_network_error():
+        """Test network request error"""
+        import httpx
+        async with httpx.AsyncClient() as client:
+            # This will raise connection error
+            response = await client.get("http://invalid-url-that-does-not-exist.com")
+        return {"result": response.text}
+
+# JSON Parsing Error Testing
+if not IS_PRODUCTION:
+    @app.post("/api/custom/test/errors/invalid-json")
+    async def test_invalid_json(request: Request):
+        """Test invalid JSON in request body"""
+        body = await request.body()
+        import json
+        # This will raise JSONDecodeError
+        return {"result": json.loads(body)}
+        
+# Middleware Error Testing
+if not IS_PRODUCTION:
+    @app.get("/api/custom/test/errors/middleware-error")
+    async def test_middleware_error(request: Request):
+        """Test error that occurs in middleware processing"""
+        # Access non-existent attribute to trigger error
+        return {"result": request.state.non_existent_attribute}
+
+# Background Task Error Testing
+if not IS_PRODUCTION:
+    @app.get("/api/custom/test/errors/background-task")
+    async def test_background_task_error():
+        """Test error in background task"""
+        import asyncio
+        
+        async def failing_task():
+            await asyncio.sleep(1)
+            raise ValueError("Background task failed")
+        
+        # Create task that will fail
+        task = asyncio.create_task(failing_task())
+        
+        return {"message": "Background task started, check logs for error"}
+
 @app.post("/api/custom/course-outline/preview")
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
     # EXTENSIVE DEBUG LOGGING: Log all incoming parameters
-    user_id = dev_is_retarded
-
     logger.info(f"🔍 [STEP 6] Backend received request with payload attributes:")
     for attr in ['prompt', 'modules', 'lessonsPerModule', 'language', 'fromConnectors', 'connectorIds', 'connectorSources', 'selectedFiles', 'fromFiles', 'fileIds', 'folderIds', 'fromText', 'userText', 'fromKnowledgeBase']:
         value = getattr(payload, attr, 'NOT_SET')
