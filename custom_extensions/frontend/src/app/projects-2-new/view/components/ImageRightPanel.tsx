@@ -181,8 +181,8 @@ export default function ShapeRightPanel({
             </svg>
           </button>
           {isImageMenuOpen && (
-            <div
-              className="absolute right-0 w-40 rounded border bg-white shadow-sm"
+          <div
+            className="absolute right-0 w-40 rounded border bg-white shadow-sm space-y-2"
               style={{ borderColor: '#A5A5A5', top: 'calc(100% + 8px)' }}
             >
               <button
@@ -260,6 +260,230 @@ export default function ShapeRightPanel({
             className="flex-1 bg-transparent border-none text-xs focus:outline-none text-left"
             style={{ color: '#878787', textAlign: 'left' }}
           />
+        </div>
+      </div>
+
+      {/* Alignment Section */}
+      <div className="space-y-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.alignment', 'Alignment')}</h3>
+        </div>
+        <div className="flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5' }}>
+          <button
+            onClick={() => setSelectedAlignment('left')}
+            className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+            style={{
+              backgroundColor: selectedAlignment === 'left' ? 'white' : 'transparent',
+              boxShadow: selectedAlignment === 'left' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clipPath="url(#clip0_2114_34432)">
+                <path d="M1.33366 14.6654V1.33203M13.3337 2.66536H5.33366C4.59728 2.66536 4.00033 3.26232 4.00033 3.9987V5.33203C4.00033 6.06841 4.59728 6.66536 5.33366 6.66536H13.3337C14.07 6.66536 14.667 6.06841 14.667 5.33203V3.9987C14.667 3.26232 14.07 2.66536 13.3337 2.66536ZM8.66699 9.33203H5.33366C4.59728 9.33203 4.00033 9.92898 4.00033 10.6654V11.9987C4.00033 12.7351 4.59728 13.332 5.33366 13.332H8.66699C9.40337 13.332 10.0003 12.7351 10.0003 11.9987V10.6654C10.0003 9.92898 9.40337 9.33203 8.66699 9.33203Z" stroke={selectedAlignment === 'left' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_2114_34432">
+                  <rect width="16" height="16" fill="white" transform="matrix(-1 0 0 1 16 0)"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+          <button
+            onClick={() => setSelectedAlignment('center')}
+            className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+            style={{
+              backgroundColor: selectedAlignment === 'center' ? 'white' : 'transparent',
+              boxShadow: selectedAlignment === 'center' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clipPath="url(#clip0_2114_34434)">
+                <path d="M7.99967 1.33203V14.6654M5.33301 6.66536H2.66634C2.31272 6.66536 1.97358 6.52489 1.72353 6.27484C1.47348 6.02479 1.33301 5.68565 1.33301 5.33203V3.9987C1.33301 3.26536 1.93301 2.66536 2.66634 2.66536H5.33301M10.6663 6.66536H13.333C13.6866 6.66536 14.0258 6.52489 14.2758 6.27484C14.5259 6.02479 14.6663 5.68565 14.6663 5.33203V3.9987C14.6663 3.64508 14.5259 3.30594 14.2758 3.05589C14.0258 2.80584 13.6866 2.66536 13.333 2.66536H10.6663M5.33301 13.332H4.66634C4.31272 13.332 3.97358 13.1916 3.72353 12.9415C3.47348 12.6915 3.33301 12.3523 3.33301 11.9987V10.6654C3.33301 9.93203 3.93301 9.33203 4.66634 9.33203H5.33301M10.6663 9.33203H11.333C11.6866 9.33203 12.0258 9.47251 12.2758 9.72256C12.5259 9.9726 12.6663 10.3117 12.6663 10.6654V11.9987C12.6663 12.3523 12.5259 12.6915 12.2758 12.9415C12.0258 13.1916 11.6866 13.332 11.333 13.332H10.6663" stroke={selectedAlignment === 'center' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_2114_34434">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+          <button
+            onClick={() => setSelectedAlignment('right')}
+            className="flex-1 p-2 rounded-md transition-all flex items-center justify-center cursor-pointer"
+            style={{
+              backgroundColor: selectedAlignment === 'right' ? 'white' : 'transparent',
+              boxShadow: selectedAlignment === 'right' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clipPath="url(#clip0_2114_34436)">
+                <path d="M14.6663 14.6654V1.33203M2.66634 2.66536H10.6663C11.4027 2.66536 11.9997 3.26232 11.9997 3.9987V5.33203C11.9997 6.06841 11.4027 6.66536 10.6663 6.66536H2.66634C1.92996 6.66536 1.33301 6.06841 1.33301 5.33203V3.9987C1.33301 3.26232 1.92996 2.66536 2.66634 2.66536ZM7.33301 9.33203H10.6663C11.4027 9.33203 11.9997 9.92898 11.9997 10.6654V11.9987C11.9997 12.7351 11.4027 13.332 10.6663 13.332H7.33301C6.59663 13.332 5.99967 12.7351 5.99967 11.9987V10.6654C5.99967 9.92898 6.59663 9.33203 7.33301 9.33203Z" stroke={selectedAlignment === 'right' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_2114_34436">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Layer Section */}
+      <div className="space-y-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.layer', 'Layer')}</h3>
+        </div>
+        <div className="flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5' }}>
+          <button
+            onClick={() => setSelectedLayer('toBack')}
+            className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
+            style={{
+              backgroundColor: selectedLayer === 'toBack' ? 'white' : 'transparent',
+              boxShadow: selectedLayer === 'toBack' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.33301 12.6654L1.33301 7.9987L7.33301 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M14.6663 12.6654L8.66634 7.9987L14.6663 3.33203V12.6654Z" stroke={selectedLayer === 'toBack' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toBack' ? '#171718' : '#878787' }}>
+              {t('panels.shapeRightPanel.toBack', 'To back')}
+            </span>
+          </button>
+          <button
+            onClick={() => setSelectedLayer('backward')}
+            className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
+            style={{
+              backgroundColor: selectedLayer === 'backward' ? 'white' : 'transparent',
+              boxShadow: selectedLayer === 'backward' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.33301 12.668V3.33464M12.6663 13.3346L5.99967 8.0013L12.6663 2.66797V13.3346Z" stroke={selectedLayer === 'backward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'backward' ? '#171718' : '#878787' }}>
+              {t('panels.shapeRightPanel.backward', 'Backward')}
+            </span>
+          </button>
+          <button
+            onClick={() => setSelectedLayer('forward')}
+            className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
+            style={{
+              backgroundColor: selectedLayer === 'forward' ? 'white' : 'transparent',
+              boxShadow: selectedLayer === 'forward' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.6663 3.33464V12.668M3.33301 2.66797L9.99967 8.0013L3.33301 13.3346V2.66797Z" stroke={selectedLayer === 'forward' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'forward' ? '#171718' : '#878787' }}>
+              {t('panels.shapeRightPanel.forward', 'Forward')}
+            </span>
+          </button>
+          <button
+            onClick={() => setSelectedLayer('toFront')}
+            className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded-md transition-all cursor-pointer"
+            style={{
+              backgroundColor: selectedLayer === 'toFront' ? 'white' : 'transparent',
+              boxShadow: selectedLayer === 'toFront' ? '0px 1px 3px 0px #0000001A, 0px 1px 2px -1px #0000001A' : 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.66699 12.6654L14.667 7.9987L8.66699 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M1.33366 12.6654L7.33366 7.9987L1.33366 3.33203V12.6654Z" stroke={selectedLayer === 'toFront' ? '#171718' : '#878787'} strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[7px] whitespace-nowrap" style={{ color: selectedLayer === 'toFront' ? '#171718' : '#878787' }}>
+              {t('panels.shapeRightPanel.toFront', 'To front')}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Position Section */}
+      <div className="space-y-2 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.position', 'Position')}</h3>
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
+              {t('panels.shapeRightPanel.xPosition', 'X')}
+            </label>
+            <input
+              type="text"
+              value={positionX}
+              onChange={(e) => setPositionX(e.target.value)}
+              className="w-full px-3 py-2 text-sm rounded-md border-none outline-none"
+              style={{ backgroundColor: '#E0E0E0', color: '#171718' }}
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1" style={{ color: '#171718' }}>
+              {t('panels.shapeRightPanel.yPosition', 'Y')}
+            </label>
+            <input
+              type="text"
+              value={positionY}
+              onChange={(e) => setPositionY(e.target.value)}
+              className="w-full px-3 py-2 text-sm rounded-md border-none outline-none"
+              style={{ backgroundColor: '#E0E0E0', color: '#171718' }}
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 flex items-center">
+            <span className="text-xs font-medium" style={{ color: '#171718' }}>
+              {t('panels.shapeRightPanel.rotation', 'Rotation')}
+            </span>
+          </div>
+          <div className="flex-1">
+            <div className="w-full flex items-center justify-between px-3 py-2 border rounded-md" style={{ borderColor: '#E0E0E0', backgroundColor: 'white' }}>
+              <div className="flex items-center gap-2.5">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9.19238 2.74414C9.20734 2.75487 9.21087 2.77607 9.2002 2.79102L2.23242 12.5068L1.66504 13.2979H14.3994C14.4178 13.2979 14.4326 13.3137 14.4326 13.332C14.4324 13.3503 14.4177 13.3652 14.3994 13.3652H1.59961C1.58706 13.3652 1.57595 13.3577 1.57031 13.3467C1.56474 13.3357 1.56522 13.3227 1.57227 13.3125L9.14551 2.75195C9.15616 2.73709 9.17744 2.73365 9.19238 2.74414ZM14.293 11.165C14.3114 11.165 14.3261 11.1798 14.3262 11.1982C14.3262 11.2167 14.3114 11.2314 14.293 11.2314C14.2747 11.2314 14.2598 11.2166 14.2598 11.1982C14.2598 11.1799 14.2747 11.1651 14.293 11.165ZM13.4395 9.03125C13.4578 9.03125 13.4727 9.04705 13.4727 9.06543C13.4724 9.0836 13.4577 9.09863 13.4395 9.09863C13.4213 9.09848 13.4065 9.08358 13.4062 9.06543C13.4062 9.04708 13.4212 9.0314 13.4395 9.03125ZM12.373 6.89844C12.3914 6.89844 12.4062 6.91326 12.4062 6.93164C12.4062 6.95002 12.3914 6.96484 12.373 6.96484C12.3546 6.96483 12.3398 6.95008 12.3398 6.93164C12.3398 6.91321 12.3546 6.89845 12.373 6.89844ZM11.0928 4.76465C11.111 4.76465 11.1257 4.77962 11.126 4.79785C11.126 4.8163 11.1112 4.83203 11.0928 4.83203C11.0746 4.83187 11.0596 4.81617 11.0596 4.79785C11.0598 4.77974 11.0747 4.76481 11.0928 4.76465Z" fill="#09090B" stroke="#09090B"/>
+                </svg>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    value={rotation}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value)) {
+                        setRotation(value);
+                      } else {
+                        setRotation(0);
+                      }
+                    }}
+                    className="w-10 bg-transparent border-none text-xs focus:outline-none"
+                    style={{ color: '#171718', textAlign: 'left' }}
+                  />
+                  <span className="text-xs" style={{ color: '#171718' }}>°</span>
+                </div>
+              </div>
+              <div
+                className="cursor-pointer flex flex-col"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickY = e.clientY - rect.top;
+                  const halfHeight = rect.height / 2;
+                  if (clickY < halfHeight) {
+                    setRotation((prev) => Math.min(prev + 1, 360));
+                  } else {
+                    setRotation((prev) => Math.max(prev - 1, -360));
+                  }
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <mask id="path-1-inside-1_2114_22857" fill="white">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M5.26071 5.79449C5.07325 5.98195 5.07325 6.28586 5.26071 6.47332C5.44817 6.66076 5.75208 6.66076 5.93954 6.47332L8.00012 4.41272L10.0607 6.47332C10.2482 6.66076 10.5521 6.66076 10.7395 6.47332C10.927 6.28586 10.927 5.98195 10.7395 5.79449L8.33954 3.39449C8.24951 3.30448 8.12742 3.25391 8.00012 3.25391C7.87282 3.25391 7.75073 3.30448 7.66071 3.39449L5.26071 5.79449ZM10.7395 10.2067C10.927 10.0192 10.927 9.71528 10.7395 9.52783C10.5521 9.34038 10.2482 9.34038 10.0607 9.52783L8.00012 11.5884L5.93954 9.52783C5.75208 9.34038 5.44817 9.34038 5.26071 9.52783C5.07325 9.71528 5.07325 10.0192 5.26071 10.2067L7.66071 12.6067C7.84817 12.7941 8.15208 12.7941 8.33954 12.6067L10.7395 10.2067Z"/>
+                  </mask>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M5.26071 5.79449C5.07325 5.98195 5.07325 6.28586 5.26071 6.47332C5.44817 6.66076 5.75208 6.66076 5.93954 6.47332L8.00012 4.41272L10.0607 6.47332C10.2482 6.66076 10.5521 6.66076 10.7395 6.47332C10.927 6.28586 10.927 5.98195 10.7395 5.79449L8.33954 3.39449C8.24951 3.30448 8.12742 3.25391 8.00012 3.25391C7.87282 3.25391 7.75073 3.30448 7.66071 3.39449L5.26071 5.79449ZM10.7395 10.2067C10.927 10.0192 10.927 9.71528 10.7395 9.52783C10.5521 9.34038 10.2482 9.34038 10.0607 9.52783L8.00012 11.5884L5.93954 9.52783C5.75208 9.34038 5.44817 9.34038 5.26071 9.52783C5.07325 9.71528 5.07325 10.0192 5.26071 10.2067L7.66071 12.6067C7.84817 12.7941 8.15208 12.7941 8.33954 12.6067L10.7395 10.2067Z" fill="#878787"/>
+                  <path d="M5.26071 5.79449L4.5536 5.08739L5.26071 5.79449ZM5.26071 6.47332L4.5536 7.18043L4.55362 7.18045L5.26071 6.47332ZM5.93954 6.47332L6.64662 7.18045L6.64664 7.18042L5.93954 6.47332ZM8.00012 4.41272L8.70723 3.70562L8.00012 2.99851L7.29301 3.70562L8.00012 4.41272ZM10.0607 6.47332L9.3536 7.18042L9.35362 7.18045L10.0607 6.47332ZM10.7395 6.47332L11.4466 7.18047L11.4467 7.18035L10.7395 6.47332ZM10.7395 5.79449L11.4467 5.08747L11.4467 5.08738L10.7395 5.79449ZM8.33954 3.39449L9.04664 2.68738L9.0466 2.68734L8.33954 3.39449ZM7.66071 3.39449L8.36782 4.1016L7.66071 3.39449ZM10.7395 10.2067L11.4467 10.9138L11.4467 10.9137L10.7395 10.2067Z" fill="#878787" mask="url(#path-1-inside-1_2114_22857)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
