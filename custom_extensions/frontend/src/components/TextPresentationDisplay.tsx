@@ -3060,7 +3060,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       )}
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
+                        className={`relative ${!isEditing && !isCardTitleEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={() => handlePurpleBoxClick('card', index, 'title')}
                       >
                         {isCardTitleEditing ? (
@@ -3077,7 +3077,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       </div>
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
+                        className={`relative ${!isEditing && !isCardDescEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={() => handlePurpleBoxClick('card', index, 'description')}
                       >
                         {isCardDescEditing ? (
