@@ -478,7 +478,7 @@ export default function BrandKitRightPanel({
           <h3 className="text-md font-medium" style={{ color: '#171718' }}>
             Logos
           </h3>
-          <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="22" height="21" viewBox="9 17 4 4" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10.3008 18.3242L10.9902 20.1123L9.49316 18.293L10.1377 17.9033L10.3008 18.3242ZM12.5059 18.293L11.0088 20.1123L11.6992 18.3242L11.8613 17.9033L12.5059 18.293Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
           </svg>
         </div>
@@ -503,7 +503,7 @@ export default function BrandKitRightPanel({
           <h3 className="text-md font-medium" style={{ color: '#171718' }}>
             Fonts
           </h3>
-          <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="22" height="21" viewBox="9 17 4 4" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10.3008 18.3242L10.9902 20.1123L9.49316 18.293L10.1377 17.9033L10.3008 18.3242ZM12.5059 18.293L11.0088 20.1123L11.6992 18.3242L11.8613 17.9033L12.5059 18.293Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
           </svg>
         </div>
