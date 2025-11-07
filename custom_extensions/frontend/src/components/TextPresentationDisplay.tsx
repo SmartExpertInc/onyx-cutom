@@ -2138,7 +2138,44 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     }
     
     case 'column_container': {
-      const { columnCount, columns } = block as ColumnContainerBlock;
+      const columnBlock = block as ColumnContainerBlock;
+      
+      // 🔍 SAFETY CHECK: Detect corrupted column_container blocks
+      const hasValidColumns = columnBlock.columns && Array.isArray(columnBlock.columns);
+      const hasValidColumnCount = columnBlock.columnCount === 2 || columnBlock.columnCount === 3;
+      const blockAny = block as any;
+      const hasInvalidProperties = 'style' in blockAny;
+      
+      if (!hasValidColumns || !hasValidColumnCount || hasInvalidProperties) {
+        console.warn('🚨 [COLUMN CONTAINER] Invalid column_container block detected:', {
+          block,
+          hasValidColumns,
+          hasValidColumnCount,
+          hasInvalidProperties,
+          columns: columnBlock.columns,
+          columnCount: columnBlock.columnCount,
+          suspiciousProperties: Object.keys(blockAny).filter(key => !['type', 'columnCount', 'columns'].includes(key))
+        });
+        
+        // If it has section break properties, render as section break
+        if (hasInvalidProperties && (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none')) {
+          console.log('🔄 [COLUMN CONTAINER] Converting corrupted column_container block to section break');
+          if (blockAny.style === 'none') return null;
+          const borderStyle = blockAny.style === 'dashed' ? 'border-dashed' : 'border-solid';
+          return <hr className={`my-3 border-t ${borderStyle} border-gray-300`} />;
+        }
+        
+        // Otherwise show error placeholder
+        return (
+          <div className="my-4 text-center">
+            <div className="inline-block p-4 border-2 border-red-300 rounded-lg bg-red-50 text-red-700">
+              <p className="font-semibold">⚠️ Invalid Column Container Block</p>
+            </div>
+          </div>
+        );
+      }
+      
+      const { columnCount, columns } = columnBlock;
       const columnClass = columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
       
       return (
