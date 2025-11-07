@@ -208,16 +208,6 @@ OPENAI_CLIENT = None
 USE_OPENAI_WEB_SEARCH = os.getenv("USE_OPENAI_WEB_SEARCH", "false").strip().lower() in {"1", "true", "yes", "on"}
 logger.info(f"[RESEARCH] USE_OPENAI_WEB_SEARCH={USE_OPENAI_WEB_SEARCH}")
 
-def get_openai_client():
-    """Get or create the OpenAI client instance."""
-    global OPENAI_CLIENT
-    if OPENAI_CLIENT is None:
-        api_key = LLM_API_KEY or LLM_API_KEY_FALLBACK
-        if not api_key:
-            raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
-        OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
-    return OPENAI_CLIENT
-
 async def fetch_current_onyx_user_id_via_me(cookies: Dict[str, str]) -> Optional[str]:
     """Fetch current Onyx user id by calling /me using provided cookies."""
     try:
@@ -232,30 +222,6 @@ async def fetch_current_onyx_user_id_via_me(cookies: Dict[str, str]) -> Optional
         except Exception:
             pass
         return None
-
-def should_use_openai_direct(payload) -> bool:
-    """
-    Determine if we should use OpenAI directly instead of Onyx.
-    Returns True when no file context is present.
-    """
-    # Check if files are explicitly provided
-    has_files = (
-        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
-        (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
-    )
-    
-    # Check if text context is provided (this still uses file system in some cases)
-    has_text_context = (
-        hasattr(payload, 'fromText') and payload.fromText and 
-        hasattr(payload, 'userText') and payload.userText
-    )
-    
-    # Use OpenAI directly only when there's no file context and no text context
-    use_openai = not has_files and not has_text_context
-    
-    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
-    return use_openai
 
 def parse_id_list(id_string: str, context_name: str) -> List[int]:
     """
@@ -463,193 +429,6 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "detectedLanguage": "en"
 }
 """
-
-
-
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    """
-    Global exception handler for unhandled exceptions.
-    Captures all exceptions that aren't explicitly handled.
-    """
-    # Get request context
-    user_id = None
-    endpoint = request.url.path
-    request_id = str(uuid.uuid4())
-    
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Set context for logging
-    set_request_context(
-        user_id=user_id,
-        endpoint=endpoint,
-        request_id=request_id
-    )
-    
-    # Extract exception details
-    error_type = type(exc).__name__
-    error_message = str(exc)
-    error_trace = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
-    
-    # Log as structured error
-    logger.error(
-        f"Unhandled exception: {error_type}: {error_message}",
-        exc_info=True,
-        extra={
-            "event": "unhandled_exception",
-            "error": f"{error_type}: {error_message}",
-            "trace": error_trace,
-            "additional_context": {
-                "method": request.method,
-                "url": str(request.url),
-                "client": request.client.host if request.client else None
-            }
-        }
-    )
-    
-    # Clear context
-    clear_request_context()
-    
-    # Return JSON response
-    return JSONResponse(
-        status_code=500,
-        content={
-            "detail": "Internal server error",
-            "error_type": error_type,
-            "request_id": request_id
-        }
-    )
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Set request context for structured logging
-    set_request_context(
-        user_id=user_id,
-        endpoint=request.url.path,
-        request_id=request_id
-    )
-    
-    # Prepare email placeholder
-    user_email = None
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Determine timeout
-        is_timeout = response.status_code in (408, 504)
-        
-        # For errors/timeouts, try to resolve user email
-        if is_timeout or response.status_code >= 400:
-            try:
-                _, user_email_candidate = await get_user_identifiers_for_workspace(request)
-                user_email = user_email_candidate
-            except Exception:
-                user_email = None
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, user_email, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, is_timeout, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-                """, request_id, request.url.path, request.method, user_id,
-                     user_email, response.status_code, response_time_ms, request_size,
-                     response_size, None, is_timeout, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Determine timeout status and status_code
-        try:
-            import httpx, asyncio
-        except Exception:
-            pass
-        
-        is_timeout = False
-        status_code = 500
-        try:
-            if ('httpx' in globals() and isinstance(e, httpx.TimeoutException)) or ('asyncio' in globals() and isinstance(e, asyncio.TimeoutError)):
-                is_timeout = True
-                status_code = 504
-        except Exception:
-            pass
-        
-        # Try to resolve user email for error cases
-        try:
-            _, user_email_candidate = await get_user_identifiers_for_workspace(request)
-            user_email = user_email_candidate
-        except Exception:
-            user_email = None
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, user_email, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, is_timeout, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-                """, request_id, request.url.path, request.method, user_id,
-                     user_email, status_code, response_time_ms, request_size, None,
-                     str(e), is_timeout, datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
 
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
@@ -3605,90 +3384,6 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
     logger.info(f"Slide normalization complete: {len(slides)} -> {len(normalized_slides)} slides (removed {len(slides) - len(normalized_slides)} invalid slides)")
     return normalized_slides
 
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
-
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
     from app.core.config import settings
@@ -4020,40 +3715,6 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
-def get_openai_client():
-    """Get or create the OpenAI client instance."""
-    global OPENAI_CLIENT
-    if OPENAI_CLIENT is None:
-        api_key = LLM_API_KEY or LLM_API_KEY_FALLBACK
-        if not api_key:
-            raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
-        OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
-    return OPENAI_CLIENT
-
-def should_use_openai_direct(payload) -> bool:
-    """
-    Determine if we should use OpenAI directly instead of Onyx.
-    Returns True when no file context is present.
-    """
-    # Check if files are explicitly provided
-    has_files = (
-        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
-        (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
-    )
-    
-    # Check if text context is provided (this still uses file system in some cases)
-    has_text_context = (
-        hasattr(payload, 'fromText') and payload.fromText and 
-        hasattr(payload, 'userText') and payload.userText
-    )
-    
-    # Use OpenAI directly only when there's no file context and no text context
-    use_openai = not has_files and not has_text_context
-    
-    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
-    return use_openai
-
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
@@ -4170,91 +3831,6 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-
-
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
 
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
@@ -4713,90 +4289,6 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
-
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
     from app.core.config import settings
@@ -5140,40 +4632,6 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
-def get_openai_client():
-    """Get or create the OpenAI client instance."""
-    global OPENAI_CLIENT
-    if OPENAI_CLIENT is None:
-        api_key = LLM_API_KEY or LLM_API_KEY_FALLBACK
-        if not api_key:
-            raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
-        OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
-    return OPENAI_CLIENT
-
-def should_use_openai_direct(payload) -> bool:
-    """
-    Determine if we should use OpenAI directly instead of Onyx.
-    Returns True when no file context is present.
-    """
-    # Check if files are explicitly provided
-    has_files = (
-        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
-        (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
-    )
-    
-    # Check if text context is provided (this still uses file system in some cases)
-    has_text_context = (
-        hasattr(payload, 'fromText') and payload.fromText and 
-        hasattr(payload, 'userText') and payload.userText
-    )
-    
-    # Use OpenAI directly only when there's no file context and no text context
-    use_openai = not has_files and not has_text_context
-    
-    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
-    return use_openai
-
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
@@ -5289,92 +4747,6 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "detectedLanguage": "en"
 }
 """
-
-
-
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
 
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
@@ -5825,91 +5197,6 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "detectedLanguage": "en"
 }
 """
-
-
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
 
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
@@ -6435,6 +5722,7 @@ Each bullet point MUST contain 60-100 words structured as:
     except Exception as e:
         logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
         yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -6575,91 +5863,6 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-
-
-async def get_db_pool():
-    if DB_POOL is None:
-        detail_msg = "Database service not available." # Generic enough for production
-        raise HTTPException(status_code=503, detail=detail_msg)
-    return DB_POOL
-
-app = FastAPI(title="Custom Extension Backend")
-
-app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
-app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
-
-@app.middleware("http")
-async def track_request_analytics(request: Request, call_next):
-    start_time = time.time()
-    request_id = str(uuid.uuid4())
-    
-    # Get user ID if available
-    user_id = None
-    try:
-        if hasattr(request.state, 'user_id'):
-            user_id = request.state.user_id
-    except:
-        pass
-    
-    # Get request size
-    request_size = None
-    try:
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            body = await request.body()
-            request_size = len(body)
-    except:
-        pass
-    
-    try:
-        response = await call_next(request)
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Get response size
-        response_size = None
-        try:
-            if hasattr(response, 'body'):
-                response_size = len(response.body)
-        except:
-            pass
-        
-        # Store analytics in database
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
-        except Exception as e:
-            logger.error(f"Failed to store request analytics: {e}")
-        
-        return response
-        
-    except Exception as e:
-        end_time = time.time()
-        response_time_ms = int((end_time - start_time) * 1000)
-        
-        # Store error analytics
-        try:
-            async with DB_POOL.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
-                        response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
-        except Exception as db_error:
-            logger.error(f"Failed to store error analytics: {db_error}")
-        
-        raise
 
 try:
     from app.services.pdf_generator import generate_pdf_from_html_template
@@ -7120,6 +6323,64 @@ async def get_db_pool():
 
 app = FastAPI(title="Custom Extension Backend")
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Global exception handler for unhandled exceptions.
+    Captures all exceptions that aren't explicitly handled.
+    """
+    # Get request context
+    user_id = None
+    endpoint = request.url.path
+    request_id = str(uuid.uuid4())
+    
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Set context for logging
+    set_request_context(
+        user_id=user_id,
+        endpoint=endpoint,
+        request_id=request_id
+    )
+    
+    # Extract exception details
+    error_type = type(exc).__name__
+    error_message = str(exc)
+    error_trace = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    
+    # Log as structured error
+    logger.error(
+        f"Unhandled exception: {error_type}: {error_message}",
+        exc_info=True,
+        extra={
+            "event": "unhandled_exception",
+            "error": f"{error_type}: {error_message}",
+            "trace": error_trace,
+            "additional_context": {
+                "method": request.method,
+                "url": str(request.url),
+                "client": request.client.host if request.client else None
+            }
+        }
+    )
+    
+    # Clear context
+    clear_request_context()
+    
+    # Return JSON response
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Internal server error",
+            "error_type": error_type,
+            "request_id": request_id
+        }
+    )
+
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
 app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
@@ -7135,6 +6396,13 @@ async def track_request_analytics(request: Request, call_next):
             user_id = request.state.user_id
     except:
         pass
+
+    # Set request context for structured logging
+    set_request_context(
+        user_id=user_id,
+        endpoint=request.url.path,
+        request_id=request_id
+    )
     
     # Get request size
     request_size = None
