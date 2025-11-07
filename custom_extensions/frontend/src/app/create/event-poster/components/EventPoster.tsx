@@ -866,7 +866,7 @@ export default function EventPoster({
             <EditableText
               value={ticketLabel}
               onChange={setTicketLabel}
-              placeholder="Ticket"
+              placeholder="Квиток"
               onAutoSave={handleAutoSave}
               style={{
                 color: '#E5E5E5',

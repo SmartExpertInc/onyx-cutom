@@ -87,6 +87,7 @@ export default function EventPosterQuestionnaire() {
       additionalSpeakers,
       ticketPrice,
       ticketType,
+      ticketLabel: 'Квиток',
       freeAccessConditions,
       speakerImageSrc: speakerImage || null
     };
