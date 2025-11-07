@@ -842,7 +842,7 @@ export default function ShapeRightPanel({
           </div>
 
           {/* Rotation Control */}
-          <div className="flex gap-2 mt-1">
+          <div className="flex gap-2 mt-2">
             {/* Left column - Rotation Label */}
             <div className="flex-1 flex items-center">
               <span className="text-xs font-medium" style={{ color: '#171718' }}>
