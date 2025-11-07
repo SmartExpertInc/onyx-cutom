@@ -34550,7 +34550,6 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
-{DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
 
 ⚠️⚠️⚠️ CRITICAL WARNING ABOUT THE EXAMPLE ABOVE: ⚠️⚠️⚠️
 The example shows "Market Analysis" as the TOPIC being taught.
@@ -34640,6 +34639,11 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
+        # Insert the JSON example using string concatenation to avoid f-string format specifier issues
+        json_preview_instructions_text = json_preview_instructions_text.replace(
+            "CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):\nYou MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:",
+            "CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):\nYou MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:\n" + DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+        )
         # Prepend strict files-only guard to one-pager preview instructions when generating from files
         has_file_context_text = bool(
             getattr(payload, 'fromFiles', None) or
