@@ -373,7 +373,7 @@ export default function VideoRightPanel({
             </div>
           )}
         </div>
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-6">
           <h4 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.videoRightPanel.sound', 'Sound')}</h4>
           <button
             type="button"
