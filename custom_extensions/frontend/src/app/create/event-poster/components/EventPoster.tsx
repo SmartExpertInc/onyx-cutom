@@ -718,7 +718,7 @@ export default function EventPoster({
                 multiline
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: '#E5E5E5',
+              color: '#ebebeb',
                   fontFamily: 'Montserrat',
                   fontWeight: '400',
                   fontSize: '20px',
@@ -846,10 +846,10 @@ export default function EventPoster({
           {/* Ticket price section */}
             <div 
             style={{ 
-              borderTop: '2px solid #5416af',
-              borderBottom: '2px solid #5416af',
-              borderLeft: '1px solid #5416af',
-              borderRight: '1px solid #5416af',
+              borderTop: '2px solid #6a3fd9',
+              borderBottom: '2px solid #6a3fd9',
+              borderLeft: '1px solid #6a3fd9',
+              borderRight: '1px solid #6a3fd9',
               borderRadius: '30px',
               padding: '4px 14px',
               width: '200px', // Fixed width instead of minWidth
@@ -925,8 +925,8 @@ export default function EventPoster({
             className="group"
             style={{
               borderRadius: '30px',
-              marginLeft: '10px',
-              width: '620px', // Slightly wider to match spec
+              marginLeft: '6px',
+              width: '640px', // Slightly wider to reduce gap
               height: '113px', // Match ticket container height
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
@@ -957,7 +957,7 @@ export default function EventPoster({
                 onAutoSave={handleAutoSave}
                 style={{
                   color: '#E5E5E5',
-                  fontWeight: '600',
+                  fontWeight: '500',
                   fontSize: '37px',
                   textAlign: 'center',
                   lineHeight: '1.25',
