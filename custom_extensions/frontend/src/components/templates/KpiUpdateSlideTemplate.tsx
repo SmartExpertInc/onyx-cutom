@@ -282,7 +282,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & {
       </div>
 
       {/* Avatar absolute bottom-left */}
-      <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#0F58F9', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: '40px', bottom: '120px', width: '140px', backgroundColor: '#0F58F9', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
         <AvatarImageDisplay
           size="MEDIUM"
           position="CENTER"

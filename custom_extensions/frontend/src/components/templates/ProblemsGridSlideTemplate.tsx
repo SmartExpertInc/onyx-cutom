@@ -18,6 +18,30 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   logoText?: string;
 }
 
+// Function to clean HTML from unnecessary span tags
+const cleanHtmlFromSpans = (html: string): string => {
+  if (!html) return html;
+  // Remove span tags that contain color styling (especially black color)
+  // This handles cases like <span style="color: black;">text</span> -> text
+  let cleaned = html;
+  // Match and remove span tags with color: black in various formats
+  // Pattern: <span ... style="...color: black..." ...>content</span> -> content
+  const spanPatterns = [
+    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*black[^"']*["'][^>]*>(.*?)<\/span>/gi,
+    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*rgb\(0,\s*0,\s*0\)[^"']*["'][^>]*>(.*?)<\/span>/gi,
+    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*#000000[^"']*["'][^>]*>(.*?)<\/span>/gi,
+    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*#000[^"']*["'][^>]*>(.*?)<\/span>/gi,
+  ];
+  
+  spanPatterns.forEach(pattern => {
+    cleaned = cleaned.replace(pattern, '$1');
+  });
+  
+  // Remove any remaining empty span tags
+  cleaned = cleaned.replace(/<span[^>]*><\/span>/gi, '');
+  return cleaned;
+};
+
 export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { 
   theme?: SlideTheme | string;
   onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
@@ -104,6 +128,10 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .problems-grid-slide .card-title-wrapper,
+        .problems-grid-slide .card-title-wrapper * {
+          font-size: 24px !important;
+        }
         .tag-editor {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 500 !important;
@@ -160,7 +188,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
         {cards.map((c, i)=> (
           <div key={i} style={card}>
             <div style={numBox}>{c.number}</div>
-            <div className="title-element" style={cardTitle}>
+            <div className="card-title-wrapper title-element" style={cardTitle}>
               {isEditable && editCard && editCard.idx === i && editCard.field === 'title' ? (
                 <ControlledWysiwygEditor
                   ref={(el) => {
@@ -174,7 +202,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
                     setEditCard(null);
                   }}
                   onCancel={() => setEditCard(null)}
-                  style={inline(cardTitle)}
+                  style={{ ...inline(cardTitle), fontSize: '24px' }}
                   onEditorReady={(editor, computedStyles) => {
                     if (onEditorActive) {
                       onEditorActive(editor, `card-${i}-title`, computedStyles);
@@ -182,7 +210,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
                   }}
                 />
               ) : (
-                <div onClick={() => isEditable && setEditCard({ idx: i, field: 'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer' : 'default' }} dangerouslySetInnerHTML={{ __html: c.title }} />
+                <div onClick={() => isEditable && setEditCard({ idx: i, field: 'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer' : 'default', fontSize: '24px' }} dangerouslySetInnerHTML={{ __html: cleanHtmlFromSpans(c.title) }} />
               )}
             </div>
             <div style={cardBody}>
