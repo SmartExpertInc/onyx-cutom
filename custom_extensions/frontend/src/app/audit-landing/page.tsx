@@ -438,10 +438,11 @@ export default function AuditLandingPage() {
 
           {/* Two Column Layout */}
           <div className="w-full flex flex-col-reverse lg:flex-row xl:flex-row gap-5 lg:gap-15 mb-12">
+            <div className="h-1 w-full border-b border-gray-200 hidden md:block lg:hidden" />
             {/* Left Column - Features */}
             <div className="flex flex-col md:flex-row lg:flex-col gap-8">
               {/* Feature 1 */}
-              <div className="flex flex-col gap-4 py-7 border-b border-gray-200 lg:border-y lg:border-gray-200">
+              <div className="flex flex-col gap-4 py-7 border-b border-gray-200 md:border-b-0 md:border-r md:border-gray-200 lg:border-y lg:border-gray-200">
                 <div 
                   className="w-13 h-13 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -482,7 +483,7 @@ export default function AuditLandingPage() {
               <img 
                 src="/custom-projects-ui/images/aiPoweredSmartDriveMiddle.svg"
                 alt="All-in-One AI Studio Interface"
-                className="w-full h-auto hidden md:block lg:hidden"
+                className="w-full h-auto hidden md:block lg:hidden mb-5"
                 style={{ maxWidth: '800px' }}
               />
                <img 
@@ -491,6 +492,7 @@ export default function AuditLandingPage() {
                 className="w-full h-auto hidden lg:block"
                 style={{ maxWidth: '800px' }}
               />
+              <div className="h-1 w-full border-b border-gray-200 hidden md:block lg:hidden" />
             </div>
           </div>
 
