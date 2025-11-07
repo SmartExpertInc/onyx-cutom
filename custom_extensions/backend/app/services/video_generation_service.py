@@ -9,6 +9,19 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+# Elai API Limits (based on typical API constraints)
+# Adjust these based on actual Elai API documentation
+MAX_VOICEOVER_TEXT_LENGTH = 5000      # Max characters per voiceover text
+MAX_TOTAL_TEXT_LENGTH = 50000         # Max total characters across all texts
+MAX_PROJECT_NAME_LENGTH = 200          # Max project name length
+MAX_PAYLOAD_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB max payload size
+MAX_SLIDES_PER_REQUEST = 50            # Max slides in single request
+
+# Warning thresholds (trigger warnings before hitting limits)
+WARN_VOICEOVER_TEXT_LENGTH = 4000      # 80% of max
+WARN_TOTAL_TEXT_LENGTH = 40000         # 80% of max
+WARN_PAYLOAD_SIZE_BYTES = 4 * 1024 * 1024  # 80% of max (4 MB)
+
 class ElaiVideoGenerationService:
     """Service for generating videos using the Elai API."""
     
@@ -39,6 +52,230 @@ class ElaiVideoGenerationService:
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
+    
+    def _validate_payload_size(
+        self, 
+        video_request: Dict[str, Any],
+        voiceover_texts: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Validate payload size before sending to API.
+        
+        Checks:
+        1. Individual text lengths
+        2. Total text length across all texts
+        3. Total JSON payload size
+        4. Number of slides
+        
+        Args:
+            video_request: Complete video request payload
+            voiceover_texts: List of voiceover texts
+            
+        Returns:
+            Dict with validation results:
+            - valid: bool (True if payload is valid)
+            - issues: List of validation issues
+            - warnings: List of warnings (non-blocking)
+            - payload_size: Size of payload in bytes
+        """
+        issues = []
+        warnings = []
+        
+        # Calculate payload size
+        import sys
+        payload_json = json.dumps(video_request)
+        payload_size = len(payload_json.encode('utf-8'))
+        
+        logger.info(f"📊 [PAYLOAD_VALIDATION] Starting payload validation")
+        logger.info(f"📊 [PAYLOAD_VALIDATION] Payload size: {payload_size:,} bytes ({payload_size / 1024:.2f} KB)")
+        
+        # Check 1: Individual text lengths
+        total_text_length = 0
+        for i, text in enumerate(voiceover_texts):
+            text_length = len(text)
+            total_text_length += text_length
+            
+            if text_length > MAX_VOICEOVER_TEXT_LENGTH:
+                issues.append(
+                    f"Voiceover text {i+1} exceeds maximum length: "
+                    f"{text_length:,} chars (max: {MAX_VOICEOVER_TEXT_LENGTH:,})"
+                )
+            elif text_length > WARN_VOICEOVER_TEXT_LENGTH:
+                warnings.append(
+                    f"Voiceover text {i+1} approaching limit: "
+                    f"{text_length:,} chars (limit: {MAX_VOICEOVER_TEXT_LENGTH:,})"
+                )
+        
+        # Check 2: Total text length
+        if total_text_length > MAX_TOTAL_TEXT_LENGTH:
+            issues.append(
+                f"Total voiceover text exceeds maximum: "
+                f"{total_text_length:,} chars (max: {MAX_TOTAL_TEXT_LENGTH:,})"
+            )
+        elif total_text_length > WARN_TOTAL_TEXT_LENGTH:
+            warnings.append(
+                f"Total voiceover text approaching limit: "
+                f"{total_text_length:,} chars (limit: {MAX_TOTAL_TEXT_LENGTH:,})"
+            )
+        
+        # Check 3: Payload size
+        if payload_size > MAX_PAYLOAD_SIZE_BYTES:
+            issues.append(
+                f"Payload size exceeds maximum: "
+                f"{payload_size:,} bytes (max: {MAX_PAYLOAD_SIZE_BYTES:,} bytes / "
+                f"{MAX_PAYLOAD_SIZE_BYTES / (1024*1024):.1f} MB)"
+            )
+        elif payload_size > WARN_PAYLOAD_SIZE_BYTES:
+            warnings.append(
+                f"Payload size approaching limit: "
+                f"{payload_size:,} bytes (limit: {MAX_PAYLOAD_SIZE_BYTES:,} bytes / "
+                f"{MAX_PAYLOAD_SIZE_BYTES / (1024*1024):.1f} MB)"
+            )
+        
+        # Check 4: Number of slides
+        num_slides = len(video_request.get('slides', []))
+        if num_slides > MAX_SLIDES_PER_REQUEST:
+            issues.append(
+                f"Number of slides exceeds maximum: "
+                f"{num_slides} slides (max: {MAX_SLIDES_PER_REQUEST})"
+            )
+        
+        # Check 5: Project name length
+        project_name = video_request.get('name', '')
+        if len(project_name) > MAX_PROJECT_NAME_LENGTH:
+            issues.append(
+                f"Project name exceeds maximum length: "
+                f"{len(project_name)} chars (max: {MAX_PROJECT_NAME_LENGTH})"
+            )
+        
+        valid = len(issues) == 0
+        
+        # Log results
+        if valid:
+            logger.info(f"✅ [PAYLOAD_VALIDATION] Payload validation passed")
+            logger.info(f"📊 [PAYLOAD_VALIDATION] Statistics:")
+            logger.info(f"  - Texts: {len(voiceover_texts)}")
+            logger.info(f"  - Total text length: {total_text_length:,} chars")
+            logger.info(f"  - Payload size: {payload_size:,} bytes ({payload_size / 1024:.2f} KB)")
+            logger.info(f"  - Slides: {num_slides}")
+        else:
+            logger.error(f"❌ [PAYLOAD_VALIDATION] Payload validation FAILED")
+            logger.error(f"❌ [PAYLOAD_VALIDATION] Issues found:")
+            for issue in issues:
+                logger.error(f"  - {issue}")
+        
+        if warnings:
+            logger.warning(f"⚠️ [PAYLOAD_VALIDATION] Warnings:")
+            for warning in warnings:
+                logger.warning(f"  - {warning}")
+        
+        return {
+            'valid': valid,
+            'issues': issues,
+            'warnings': warnings,
+            'payload_size': payload_size,
+            'stats': {
+                'num_texts': len(voiceover_texts),
+                'total_text_length': total_text_length,
+                'num_slides': num_slides,
+                'project_name_length': len(project_name)
+            }
+        }
+    
+    def _smart_truncate_texts(
+        self, 
+        texts: List[str], 
+        max_individual: int = MAX_VOICEOVER_TEXT_LENGTH,
+        max_total: int = MAX_TOTAL_TEXT_LENGTH
+    ) -> tuple:
+        """
+        Intelligently truncate texts to fit within limits while preserving as much content as possible.
+        
+        Strategy:
+        1. First, truncate any texts exceeding individual limit
+        2. If total still exceeds limit, proportionally reduce all texts
+        3. Preserve sentence boundaries when possible
+        
+        Args:
+            texts: List of voiceover texts to truncate
+            max_individual: Maximum length per text
+            max_total: Maximum total length
+            
+        Returns:
+            Tuple of (truncated_texts, was_truncated)
+        """
+        was_truncated = False
+        truncated_texts = []
+        
+        # Step 1: Enforce individual limits
+        for i, text in enumerate(texts):
+            if len(text) > max_individual:
+                # Try to truncate at sentence boundary
+                truncated = text[:max_individual]
+                
+                # Find last sentence ending
+                last_period = truncated.rfind('.')
+                last_exclaim = truncated.rfind('!')
+                last_question = truncated.rfind('?')
+                last_sentence = max(last_period, last_exclaim, last_question)
+                
+                if last_sentence > max_individual * 0.8:  # Keep if we retain 80%+
+                    truncated = truncated[:last_sentence + 1]
+                else:
+                    truncated = truncated + "..."
+                
+                truncated_texts.append(truncated)
+                was_truncated = True
+                logger.warning(
+                    f"⚠️ [TEXT_TRUNCATION] Text {i+1} truncated from {len(text)} to {len(truncated)} chars"
+                )
+            else:
+                truncated_texts.append(text)
+        
+        # Step 2: Check total length
+        total_length = sum(len(t) for t in truncated_texts)
+        
+        if total_length > max_total:
+            # Calculate proportional reduction needed
+            reduction_factor = max_total / total_length
+            logger.warning(
+                f"⚠️ [TEXT_TRUNCATION] Total length {total_length} exceeds {max_total}, "
+                f"applying {reduction_factor:.2%} reduction"
+            )
+            
+            final_texts = []
+            for i, text in enumerate(truncated_texts):
+                new_length = int(len(text) * reduction_factor)
+                if new_length < len(text):
+                    # Truncate proportionally
+                    truncated = text[:new_length]
+                    
+                    # Try to preserve sentence boundary
+                    last_sentence = max(
+                        truncated.rfind('.'),
+                        truncated.rfind('!'),
+                        truncated.rfind('?')
+                    )
+                    
+                    if last_sentence > new_length * 0.7:
+                        truncated = truncated[:last_sentence + 1]
+                    else:
+                        truncated = truncated.rstrip() + "..."
+                    
+                    final_texts.append(truncated)
+                    was_truncated = True
+                    logger.warning(
+                        f"⚠️ [TEXT_TRUNCATION] Text {i+1} further reduced from {len(text)} to {len(truncated)} chars"
+                    )
+                else:
+                    final_texts.append(text)
+            
+            truncated_texts = final_texts
+        
+        final_total = sum(len(t) for t in truncated_texts)
+        logger.info(f"📊 [TEXT_TRUNCATION] Final total length: {final_total:,} chars")
+        
+        return truncated_texts, was_truncated
     
     async def get_avatars(self) -> Dict[str, Any]:
         """
@@ -161,7 +398,7 @@ class ElaiVideoGenerationService:
                     "error": "No avatar code provided"
                 }
             
-            # Clean and validate voiceover texts
+            # ✅ ENHANCED: Clean and validate voiceover texts with payload size awareness
             cleaned_texts = []
             for i, text in enumerate(voiceover_texts):
                 if not text or not isinstance(text, str):
@@ -177,23 +414,28 @@ class ElaiVideoGenerationService:
                 cleaned_text = cleaned_text.replace(''', "'").replace(''', "'")
                 cleaned_text = cleaned_text.replace('…', '...')
                 
-                # Validate length
+                # Validate minimum length
                 if len(cleaned_text) < 5:
                     logger.warning(f"Voiceover text too short at index {i}: '{cleaned_text}'")
                     continue
                 
-                if len(cleaned_text) > 1000:
-                    logger.warning(f"Voiceover text too long at index {i}, truncating")
-                    cleaned_text = cleaned_text[:1000] + "..."
-                
                 cleaned_texts.append(cleaned_text)
-                logger.info(f"Cleaned voiceover text {i+1}: {cleaned_text[:100]}...")
+                logger.info(f"Cleaned voiceover text {i+1}: {cleaned_text[:100]}... (length: {len(cleaned_text)} chars)")
             
             if not cleaned_texts:
                 return {
                     "success": False,
                     "error": "No valid voiceover texts after cleaning"
                 }
+            
+            # ✅ NEW: Smart truncation if needed
+            truncated_texts, was_truncated = self._smart_truncate_texts(cleaned_texts)
+            if was_truncated:
+                logger.warning(
+                    f"⚠️ [PAYLOAD_VALIDATION] Voiceover texts were automatically truncated to fit API limits"
+                )
+            
+            cleaned_texts = truncated_texts
             
             # Get avatars to find the specified one
             avatars_response = await self.get_avatars()
@@ -311,7 +553,7 @@ class ElaiVideoGenerationService:
             # FIXED: Official Elai API structure with correct 1080x1080 dimensions
             # Use actual avatar data instead of hardcoded example values
             video_request = {
-                "name": project_name,
+                "name": project_name[:MAX_PROJECT_NAME_LENGTH],  # ✅ Enforce project name limit
                 "slides": [{
                     "id": 1,
                     "canvas": {
@@ -351,12 +593,32 @@ class ElaiVideoGenerationService:
                 "resolution": "1080p"  # CRITICAL FIX: Specify 1080p resolution
             }
             
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
-            logger.info(f"  {json.dumps(video_request, indent=2)}")
+            # ✅ NEW: Validate payload size before sending
+            validation = self._validate_payload_size(video_request, cleaned_texts)
+            
+            if not validation['valid']:
+                error_msg = "Payload validation failed: " + "; ".join(validation['issues'])
+                logger.error(f"❌ [ELAI_VIDEO_GENERATION] {error_msg}")
+                return {
+                    "success": False,
+                    "error": error_msg,
+                    "validation_details": validation
+                }
+            
+            # Log warnings (non-blocking)
+            if validation['warnings']:
+                for warning in validation['warnings']:
+                    logger.warning(f"⚠️ [ELAI_VIDEO_GENERATION] {warning}")
+            
+            # Log payload statistics
+            logger.info(f"📊 [ELAI_VIDEO_GENERATION] Payload statistics:")
+            logger.info(f"  - Size: {validation['payload_size']:,} bytes ({validation['payload_size'] / 1024:.2f} KB)")
+            logger.info(f"  - Texts: {validation['stats']['num_texts']}")
+            logger.info(f"  - Total text length: {validation['stats']['total_text_length']:,} chars")
+            logger.info(f"  - Slides: {validation['stats']['num_slides']}")
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Making API call to Elai")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API endpoint: {self.api_base}/videos")
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Headers: {self.headers}")
             
             # Create video
             response = await client.post(
