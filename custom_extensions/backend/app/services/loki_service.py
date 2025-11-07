@@ -137,27 +137,38 @@ class LokiService:
             Dictionary containing filtered log entries
         """
         # Build LogQL query
-        # Chain JSON filters - each | json | stage parses and filters
+        # Use line filters to search for JSON patterns in the raw log content
+        # This is more reliable than JSON field filtering which may fail
         base_query = '{job="custom_backend"}'
-        json_filters = []
+        line_filters = []
         
-        # Build JSON field filters - chain them together
-        # Each | json | stage parses JSON and filters by the specified field
+        # Use line filters to search for JSON field patterns
+        # This works even if JSON parsing fails in Promtail
         if level:
-            json_filters.append(f'| json | level="{level}"')
+            # Search for "level":"error" pattern in the JSON string
+            # LogQL line filter syntax: |= "pattern"
+            # We need to escape quotes in the pattern
+            # Pattern: "level":"error" -> we search for this exact string
+            line_filters.append(f'|= "\\"level\\":\\"{level}\\""')
         if user_id:
-            json_filters.append(f'| json | user_id="{user_id}"')
+            line_filters.append(f'|= "\\"user_id\\":\\"{user_id}\\""')
         if endpoint:
-            json_filters.append(f'| json | endpoint=~".*{endpoint}.*"')
+            # Use regex for partial endpoint matching in JSON
+            line_filters.append(f'|~ "\\"endpoint\\":\\"[^\\"]*{endpoint}[^\\"]*\\""')
         if event:
-            json_filters.append(f'| json | event="{event}"')
+            line_filters.append(f'|= "\\"event\\":\\"{event}\\""')
         
-        # Build the complete query by chaining filters
-        # LogQL requires spaces between pipeline stages
-        if json_filters:
-            query = base_query + " " + " ".join(json_filters)
+        # Build the complete query
+        # Format: {job="custom_backend"} |= "\"level\":\"error\""
+        if line_filters:
+            query = base_query + " " + " ".join(line_filters)
         else:
             query = base_query
+        
+        # Log the query for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("LogQL query: %s", query)
         
         # Calculate time range
         end_time = datetime.now(timezone.utc)
