@@ -474,7 +474,7 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Right Column - Visual Placeholder */}
-            <div className="w-full flex items-center justify-center">
+            <div className="w-full flex md:flex-col lg:flex-row items-center justify-center">
               <img 
                 src="/custom-projects-ui/images/aiPoweredSmartDriveMobile.svg"
                 alt="All-in-One AI Studio Interface"
