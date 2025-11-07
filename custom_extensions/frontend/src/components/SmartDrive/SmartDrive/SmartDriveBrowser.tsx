@@ -522,25 +522,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (!name || name === old) { setRenameOpen(false); return; }
 		setRenameSaving(true);
 		try {
-			for (const p of Array.from(selected)) {
-				const fileName = p.split('/').pop() || '';
-				const destinationPath = targetFolderPath.endsWith('/') ? `${targetFolderPath}${fileName}` : `${targetFolderPath}/${fileName}`;
-				
-				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					credentials: 'same-origin',
-					body: JSON.stringify({ from: renameFromPath, to: destinationPath })
-				});
-				if (!res.ok) throw new Error(await res.text());
-			}
+			const destinationPath = base === '/' ? `/${name}` : `${base}/${name}`;
+			
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'same-origin',
+				body: JSON.stringify({ from: renameFromPath, to: destinationPath })
+			});
+			if (!res.ok) throw new Error(await res.text());
+			
 			setRenameOpen(false);
 			setRenameSaving(false);
 			clearSel();
 			await fetchList(currentPath);
 		} catch (e) {
 			setRenameSaving(false);
-			alert('Move to folder failed');
+			alert('Rename failed');
 		}
 	};
 
