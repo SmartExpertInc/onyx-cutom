@@ -1965,6 +1965,25 @@ export const en = {
       yPosition: "Y",
       close: "Close"
     },
+    imageRightPanel: {
+      uploadedIcon: "Uploaded icon",
+      removeIcon: "Remove icon",
+      removeImage: "Remove image",
+      resetOriginalSize: "Reset original size"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Uploaded video",
+      removeVideo: "Remove video",
+      trim: "Trim",
+      duration: "Duration",
+      sound: "Sound"
+    },
+    musicRightPanel: {
+      music: "Music",
+      replaceMusic: "Replace music",
+      volume: "Volume",
+      playEverywhere: "Play everywhere"
+    },
     applyAvatarModal: {
       title: "Apply avatar to all scenes",
       addToAllScenes: "Add to all scenes",

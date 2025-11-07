@@ -52,7 +52,7 @@ export default function MusicRightPanel({
     <div className="space-y-3 flex-shrink-0">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
-          {t('rightPanel.music', 'Music')}
+          {t('panels.musicRightPanel.music', 'Music')}
         </h3>
         <button
           onClick={() => setIsMusicEnabled(!isMusicEnabled)}
@@ -264,7 +264,7 @@ export default function MusicRightPanel({
               strokeLinejoin="round"
             />
           </svg>
-          <span style={{ color: '#878787' }}>{t('rightPanel.replaceMusic', 'Replace music')}</span>
+          <span style={{ color: '#878787' }}>{t('panels.musicRightPanel.replaceMusic', 'Replace music')}</span>
         </button>
 
         
@@ -273,7 +273,7 @@ export default function MusicRightPanel({
       <div className={`space-y-2 mt-6 mb-4 ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="flex items-center justify-between">
           <span className="text-xs" style={{ color: '#878787' }}>
-            {t('rightPanel.volume', 'Volume')}
+            {t('panels.musicRightPanel.volume', 'Volume')}
           </span>
           <span className="text-xs" style={{ color: '#878787' }}>
             {musicVolume}%
@@ -294,7 +294,7 @@ export default function MusicRightPanel({
               event.target.style.background = `linear-gradient(to right, #1058F9 0%, #1058F9 ${percentage}, #18181B33 ${percentage}, #18181B33 100%)`;
             }}
             className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
-            title={`${t('rightPanel.volume', 'Volume')}: ${musicVolume}%`}
+            title={`${t('panels.musicRightPanel.volume', 'Volume')}: ${musicVolume}%`}
             style={{
               background: `linear-gradient(to right, #1058F9 0%, #1058F9 ${musicVolume}%, #18181B33 ${musicVolume}%, #18181B33 100%)`,
             }}
@@ -335,7 +335,7 @@ export default function MusicRightPanel({
 
         <div className="flex items-center justify-between pt-3">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
-            {t('rightPanel.playEverywhere', 'Play everywhere')}
+            {t('panels.musicRightPanel.playEverywhere', 'Play everywhere')}
           </h3>
           <button
             onClick={() => setIsPlayEverywhereEnabled(!isPlayEverywhereEnabled)}

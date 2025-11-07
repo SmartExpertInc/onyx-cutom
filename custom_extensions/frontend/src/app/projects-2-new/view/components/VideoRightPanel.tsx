@@ -49,9 +49,6 @@ interface VideoRightPanelProps {
   
   // Media context
   mediaType?: 'image' | 'icon' | 'video';
-
-  // Close handler
-  onClose: () => void;
   
   // Right panel ref for positioning
   rightPanelRef?: React.RefObject<HTMLDivElement | null>;
@@ -89,7 +86,6 @@ export default function VideoRightPanel({
   onStrokeColorChange,
   onColorPaletteContextChange,
   mediaType = 'image',
-  onClose,
   rightPanelRef,
 }: VideoRightPanelProps) {
   const { t } = useLanguage();
@@ -614,18 +610,6 @@ export default function VideoRightPanel({
         </div>
       </div>
 
-      {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="w-full mt-4 px-3 py-2 text-sm font-medium rounded-md border transition-colors hover:bg-gray-50 cursor-pointer"
-        style={{ 
-          backgroundColor: 'white',
-          borderColor: '#E0E0E0',
-          color: '#171718'
-        }}
-      >
-        {t('panels.shapeRightPanel.close', 'Close')}
-      </button>
     </>
   );
 }

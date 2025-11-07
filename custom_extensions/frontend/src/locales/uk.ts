@@ -2060,6 +2060,25 @@ export const uk = {
       yPosition: "Y",
       close: "Закрити"
     },
+    imageRightPanel: {
+      uploadedIcon: "Завантажена іконка",
+      removeIcon: "Видалити іконку",
+      removeImage: "Видалити зображення",
+      resetOriginalSize: "Скинути початковий розмір"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Завантажене відео",
+      removeVideo: "Видалити відео",
+      trim: "Обрізати",
+      duration: "Тривалість",
+      sound: "Звук"
+    },
+    musicRightPanel: {
+      music: "Музика",
+      replaceMusic: "Замінити музику",
+      volume: "Гучність",
+      playEverywhere: "Відтворювати всюди"
+    },
     applyAvatarModal: {
       title: "Застосувати аватар до всіх сцен",
       addToAllScenes: "Додати до всіх сцен",

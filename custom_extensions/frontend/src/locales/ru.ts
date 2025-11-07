@@ -2055,6 +2055,25 @@ export const ru = {
       yPosition: "Y",
       close: "Закрыть"
     },
+    imageRightPanel: {
+      uploadedIcon: "Загруженный значок",
+      removeIcon: "Удалить значок",
+      removeImage: "Удалить изображение",
+      resetOriginalSize: "Сбросить исходный размер"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Загруженное видео",
+      removeVideo: "Удалить видео",
+      trim: "Обрезать",
+      duration: "Длительность",
+      sound: "Звук"
+    },
+    musicRightPanel: {
+      music: "Музыка",
+      replaceMusic: "Заменить музыку",
+      volume: "Громкость",
+      playEverywhere: "Воспроизводить везде"
+    },
     applyAvatarModal: {
       title: "Применить аватар ко всем сценам",
       addToAllScenes: "Добавить ко всем сценам",

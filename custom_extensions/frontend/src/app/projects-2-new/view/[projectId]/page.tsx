@@ -1384,7 +1384,6 @@ function Projects2ViewPageContent() {
               strokeColor={strokeColor}
               onStrokeColorChange={setStrokeColor}
               onColorPaletteContextChange={setColorPaletteContext}
-              onClose={() => setShowVideoRightPanel(false)}
               mediaType="video"
               rightPanelRef={rightPanelRef}
             />
@@ -1423,7 +1422,6 @@ function Projects2ViewPageContent() {
               strokeColor={strokeColor}
               onStrokeColorChange={setStrokeColor}
               onColorPaletteContextChange={setColorPaletteContext}
-              onClose={() => setShowImageRightPanel(false)}
               mediaType={selectedMediaOption === 'icon' ? 'icon' : 'image'}
               rightPanelRef={rightPanelRef}
             />

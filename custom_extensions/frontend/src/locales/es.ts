@@ -2080,6 +2080,25 @@ export const es = {
       yPosition: "Y",
       close: "Cerrar"
     },
+    imageRightPanel: {
+      uploadedIcon: "Icono cargado",
+      removeIcon: "Eliminar icono",
+      removeImage: "Eliminar imagen",
+      resetOriginalSize: "Restablecer tamaño original"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Vídeo cargado",
+      removeVideo: "Eliminar vídeo",
+      trim: "Recortar",
+      duration: "Duración",
+      sound: "Sonido"
+    },
+    musicRightPanel: {
+      music: "Música",
+      replaceMusic: "Reemplazar música",
+      volume: "Volumen",
+      playEverywhere: "Reproducir en todas partes"
+    },
     applyAvatarModal: {
       title: "Aplicar avatar a todas las escenas",
       addToAllScenes: "Añadir a todas las escenas",
