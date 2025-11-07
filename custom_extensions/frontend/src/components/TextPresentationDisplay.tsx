@@ -309,7 +309,7 @@ const BlockSettingsModal = ({
           <select
             value={headlineBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
             <option value="info">{t('interface.blockSettings.infoIcon')}</option>
@@ -330,7 +330,7 @@ const BlockSettingsModal = ({
           <select
             value={headlineBlock.level || 1}
             onChange={e => onTextChange?.(fieldPath('level'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value={1}>{t('interface.blockSettings.large')} (H1)</option>
             <option value={2}>{t('interface.blockSettings.medium')} (H2)</option>
@@ -344,7 +344,7 @@ const BlockSettingsModal = ({
           <select
             value={headlineBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -379,7 +379,7 @@ const BlockSettingsModal = ({
           <select
             value={paragraphBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -401,7 +401,7 @@ const BlockSettingsModal = ({
           <select
             value={listBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
             <option value="none">{t('interface.blockSettings.noIcon')}</option>
@@ -423,7 +423,7 @@ const BlockSettingsModal = ({
           <select
             value={listBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -445,7 +445,7 @@ const BlockSettingsModal = ({
           <select
             value={alertBlock.alertType}
             onChange={e => onTextChange?.(fieldPath('alertType'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
             <option value="success">✅ {t('interface.blockSettings.success')}</option>
@@ -459,7 +459,7 @@ const BlockSettingsModal = ({
           <select
             value={alertBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.useDefaultForAlertType')}</option>
             <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
@@ -522,7 +522,7 @@ const BlockSettingsModal = ({
           <select
             value={alertBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -627,7 +627,7 @@ const BlockSettingsModal = ({
                   console.log('🔄 [LAYOUT CHANGE] Closing modal after successful change application.');
                 }, 50);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
             >
               <option value="standalone">📄 {t('interface.imageSettings.standalone', 'Standalone (full width)')}</option>
               <option value="inline-left">⬅️ {t('interface.imageSettings.inlineLeft', 'Inline (image left, text wraps)')}</option>
@@ -3068,7 +3068,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             value={card.title}
                             onChange={(e) => handlePurpleBoxChange(e.target.value)}
                             onBlur={closePurpleBoxEdit}
-                            className="w-full font-semibold text-gray-900 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full font-semibold text-gray-900 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400"
                             autoFocus
                           />
                         ) : (
@@ -3085,7 +3085,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             value={card.description}
                             onChange={(e) => handlePurpleBoxChange(e.target.value)}
                             onBlur={closePurpleBoxEdit}
-                            className="w-full text-sm text-gray-600 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px]"
+                            className="w-full text-sm text-gray-600 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 min-h-[60px]"
                             autoFocus
                           />
                         ) : (
@@ -3127,7 +3127,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                     <section className={`p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {(!item._skipRenderHeadline || isEditing) && (
                         <div 
-                          className={`relative group/section ${!isEditing ? `cursor-pointer border-2 ${isHeadlineEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
+                          className={`relative group/section ${!isEditing && !isHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                           onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                         >
                            <RenderBlock
@@ -3231,7 +3231,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   </div>
                                 )}
                                 <div 
-                                  className={`relative ${!isEditing ? `cursor-pointer border-2 ${isMiniHeadlineEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
+                                  className={`relative ${!isEditing && !isMiniHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniHeadlineIndex, e)}
                                 >
                                   <RenderBlock
@@ -3257,7 +3257,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   />
                                 </div>
                                 <div 
-                                  className={`relative ${!isEditing ? `cursor-pointer border-2 ${isMiniListEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1 mt-2` : ''}`}
+                                  className={`relative ${!isEditing && !isMiniListEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniListIndex, e)}
                                 >
                                   <RenderBlock
@@ -3289,7 +3289,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             return (
                               <div 
                                 key={subIndex} 
-                                className={`relative group/block ${!isEditing ? `cursor-pointer border-2 ${isSubBlockEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
+                                className={`relative group/block ${!isEditing && !isSubBlockEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                                 onClick={(e) => !isEditing && handleBlockClick(originalSubIndex, e)}
                               >
                                 <RenderBlock
@@ -3339,7 +3339,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
                     <div className="p-3 !bg-white border-l-3 border-[#0F58F9] text-left">
                       <div 
-                        className={`relative ${!isEditing ? `cursor-pointer border-2 ${isHeadlineEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1` : ''}`}
+                        className={`relative ${!isEditing && !isHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                       >
                         <RenderBlock
@@ -3359,7 +3359,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         />
                       </div>
                       <div 
-                        className={`relative ${!isEditing ? `cursor-pointer border-2 ${isListEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md transition-all duration-200 p-1 -m-1 mt-2` : ''}`}
+                        className={`relative ${!isEditing && !isListEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalListIndex, e)}
                       >
                         <RenderBlock
@@ -3394,7 +3394,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
                     <div 
-                      className={`relative ${!isEditing ? `cursor-pointer border-2 ${isBlockEditing ? 'border-blue-500' : 'border-transparent hover:border-blue-500'} rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2` : ''}`}
+                      className={`relative ${!isEditing && !isBlockEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''}`}
                       onClick={(e) => !isEditing && handleBlockClick(originalIndex, e)}
                     >
                       <RenderBlock
