@@ -1130,6 +1130,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					{/* Per-row actions now handle the rest */}
 				</div>
 			</div>
+			*/}
 
 			{/* Upload progress */}
 			{uploading.length > 0 && (
