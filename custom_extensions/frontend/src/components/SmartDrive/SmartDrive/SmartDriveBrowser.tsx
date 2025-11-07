@@ -1107,30 +1107,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	return (
 		<div className={`space-y-3 text-gray-900 ${className}`}>
-			{/* Toolbar */}
-			{/* <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 p-3 shadow-sm">
-				<div className="flex items-center gap-2 text-sm">
-					{breadcrumbs.map((b, idx) => (
-						<Button key={b.path} variant="link" className="px-0 h-auto text-slate-600 hover:text-blue-600" onClick={() => setCurrentPath(b.path)}>
-							{idx > 0 ? ' / ' : ''}{b.label}
-						</Button>
-					))}
-				</div>
-				<div className="flex items-center gap-2">
-					<div className="w-64">
-						<Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search files..." className="border-slate-200 focus:border-blue-400" />
-					</div>
-					<Button variant="outline" onClick={()=>{ trackSmartDrive('Upload'); onUploadClick(); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
-						<Upload className="w-4 h-4 mr-2"/>Upload
-					</Button>
-					<input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
-					<Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
-						<Plus className="w-4 h-4 mr-2"/>New Folder
-					</Button>
-					{/* Per-row actions now handle the rest */}
-				</div>
-			</div>
-			*/}
 
 			{/* Upload progress */}
 			{uploading.length > 0 && (
