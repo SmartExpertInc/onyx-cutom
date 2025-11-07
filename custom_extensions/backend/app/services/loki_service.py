@@ -136,30 +136,28 @@ class LokiService:
         Returns:
             Dictionary containing filtered log entries
         """
-        # Build LogQL query starting with label selectors
-        # Fields that are labels in Promtail should be filtered at the label level
-        label_filters = ['job="custom_backend"']
-        
-        if level:
-            label_filters.append(f'level="{level}"')
-        if user_id:
-            label_filters.append(f'user_id="{user_id}"')
-        if endpoint:
-            label_filters.append(f'endpoint=~".*{endpoint}.*"')
-        if event:
-            label_filters.append(f'event="{event}"')
-        
-        # Build the query with label filters
-        query = '{' + ', '.join(label_filters) + '}'
-        
-        # Add JSON field filters for fields that might not be labels
-        # (though most should be labels now)
+        # Build LogQL query
+        # Chain JSON filters - each | json | stage parses and filters
+        base_query = '{job="custom_backend"}'
         json_filters = []
-        # Note: If a field is a label, filtering by label is more efficient
-        # We only use JSON filtering as a fallback if needed
         
+        # Build JSON field filters - chain them together
+        # Each | json | stage parses JSON and filters by the specified field
+        if level:
+            json_filters.append(f'| json | level="{level}"')
+        if user_id:
+            json_filters.append(f'| json | user_id="{user_id}"')
+        if endpoint:
+            json_filters.append(f'| json | endpoint=~".*{endpoint}.*"')
+        if event:
+            json_filters.append(f'| json | event="{event}"')
+        
+        # Build the complete query by chaining filters
+        # LogQL requires spaces between pipeline stages
         if json_filters:
-            query += " " + " ".join(json_filters)
+            query = base_query + " " + " ".join(json_filters)
+        else:
+            query = base_query
         
         # Calculate time range
         end_time = datetime.now(timezone.utc)
