@@ -19,6 +19,7 @@ interface EventPosterProps {
   additionalSpeakers: string;
   ticketPrice: string;
   ticketType: string;
+  ticketLabel: string;
   freeAccessConditions: string;
   speakerImageSrc?: string;
   onSuccess?: (message: string) => void;
@@ -267,6 +268,7 @@ export default function EventPoster({
   additionalSpeakers: initialAdditionalSpeakers,
   ticketPrice: initialTicketPrice,
   ticketType: initialTicketType,
+  ticketLabel: initialTicketLabel,
   freeAccessConditions: initialFreeAccessConditions,
   speakerImageSrc,
   onSuccess,
@@ -285,6 +287,7 @@ export default function EventPoster({
   const [additionalSpeakers, setAdditionalSpeakers] = useState(initialAdditionalSpeakers);
   const [ticketPrice, setTicketPrice] = useState(initialTicketPrice);
   const [ticketType, setTicketType] = useState(initialTicketType);
+  const [ticketLabel, setTicketLabel] = useState(initialTicketLabel);
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
   const [localSpeakerImage, setLocalSpeakerImage] = useState<string | undefined>(speakerImageSrc);
@@ -342,6 +345,7 @@ export default function EventPoster({
         additionalSpeakers,
         ticketPrice,
         ticketType,
+        ticketLabel,
         freeAccessConditions,
         // Prefer explicit override (e.g., just-selected image), else current image
         speakerImageSrc: overrides?.speakerImageSrc ?? imageSrc // Use speakerImageSrc to match the prop name
@@ -447,6 +451,7 @@ export default function EventPoster({
         additionalSpeakers,
         ticketPrice,
         ticketType,
+        ticketLabel,
         freeAccessConditions,
         speakerImageSrc: imageSrc,
         format: 'poster',
@@ -858,17 +863,24 @@ export default function EventPoster({
               overflow: 'hidden', // Prevent content from expanding the container
             }}
           >
-            <div
+            <EditableText
+              value={ticketLabel}
+              onChange={setTicketLabel}
+              placeholder="Ticket"
+              onAutoSave={handleAutoSave}
               style={{
                 color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '600',
                 fontSize: '25px',
-                textAlign: 'center'
+                textAlign: 'center',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
               }}
-            >
-              Квиток
-            </div>
+            />
             <EditableText
               value={ticketType}
               onChange={setTicketType}

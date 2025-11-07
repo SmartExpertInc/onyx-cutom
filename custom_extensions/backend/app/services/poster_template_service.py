@@ -152,6 +152,7 @@ class PosterTemplateService:
                 "additionalSpeakers": poster_data.get('additionalSpeakers', ''),
                 "ticketPrice": poster_data.get('ticketPrice', ''),
                 "ticketType": poster_data.get('ticketType', ''),
+                "ticketLabel": poster_data.get('ticketLabel', 'Квиток'),
                 "freeAccessConditions": poster_data.get('freeAccessConditions', ''),
                 "speakerImageSrc": speaker_src,
                 "theme": "event-poster"  # Poster theme

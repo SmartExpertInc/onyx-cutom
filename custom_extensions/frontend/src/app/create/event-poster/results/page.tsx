@@ -43,6 +43,7 @@ function EventPosterResultsContent() {
     additionalSpeakers: '',
     ticketPrice: '',
     ticketType: '',
+    ticketLabel: 'Квиток',
     freeAccessConditions: '',
     speakerImage: null as string | null
   });
@@ -158,6 +159,7 @@ function EventPosterResultsContent() {
               additionalSpeakers={eventData.additionalSpeakers}
               ticketPrice={eventData.ticketPrice}
               ticketType={eventData.ticketType}
+              ticketLabel={eventData.ticketLabel}
               freeAccessConditions={eventData.freeAccessConditions}
               speakerImageSrc={eventData.speakerImage || undefined}
               onSuccess={handleSuccess}

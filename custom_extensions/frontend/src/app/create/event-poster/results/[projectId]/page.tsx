@@ -44,6 +44,7 @@ export default function EventPosterProjectResults() {
     additionalSpeakers: '',
     ticketPrice: '',
     ticketType: '',
+    ticketLabel: 'Квиток',
     freeAccessConditions: '',
     speakerImage: null as string | null
   });
@@ -214,6 +215,7 @@ export default function EventPosterProjectResults() {
               additionalSpeakers={eventData.additionalSpeakers}
               ticketPrice={eventData.ticketPrice}
               ticketType={eventData.ticketType}
+              ticketLabel={eventData.ticketLabel}
               freeAccessConditions={eventData.freeAccessConditions}
               speakerImageSrc={eventData.speakerImage || undefined}
               onSuccess={handleSuccess}
