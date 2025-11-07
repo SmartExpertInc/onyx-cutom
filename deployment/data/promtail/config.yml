@@ -102,9 +102,8 @@ scrape_configs:
             {{- end -}}
       
       # Add labels for filtering (only add if the field exists and is not empty)
-      # Labels are set AFTER we've ensured level is correctly extracted/set
+      # Note: level is NOT included as a label - it's searched in JSON content instead
       - labels:
-          level:
           user_id:
           endpoint:
           event:

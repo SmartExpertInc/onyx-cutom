@@ -137,16 +137,14 @@ class LokiService:
             Dictionary containing filtered log entries
         """
         # Build LogQL query
-        # Match Promtail config.yml: fields are extracted as labels
-        # Promtail extracts: level, user_id, endpoint, event, module, request_id as labels
-        # Use label filtering (most efficient) with JSON field filtering as fallback
+        # Match Promtail config.yml: level is NOT a label, it's in JSON content
+        # Other fields (user_id, endpoint, event) are still labels
+        # Use label filtering for labels, and line filters for JSON field content (like level)
         
         # Start with label filters (matching Promtail's label extraction)
         label_filters = ['job="custom_backend"']
         
-        # Add label filters for fields that Promtail extracts as labels
-        if level:
-            label_filters.append(f'level="{level}"')
+        # Add label filters for fields that Promtail extracts as labels (excluding level)
         if user_id:
             label_filters.append(f'user_id="{user_id}"')
         if endpoint:
@@ -155,9 +153,22 @@ class LokiService:
         if event:
             label_filters.append(f'event="{event}"')
         
-        # Build query with label selectors
-        # Format: {job="custom_backend", level="error", user_id="123"}
+        # Build base query with label selectors
+        # Format: {job="custom_backend", user_id="123"}
         query = '{' + ', '.join(label_filters) + '}'
+        
+        # Add line filters for JSON field content (level is in JSON, not labels)
+        line_filters = []
+        if level:
+            # Search for "level":"error" pattern in the JSON string
+            # LogQL line filter syntax: |= "pattern" for exact match
+            # We need to escape quotes in the pattern
+            line_filters.append(f'|= "\\"level\\":\\"{level}\\""')
+        
+        # Combine label selector with line filters
+        # Format: {job="custom_backend"} |= "\"level\":\"error\""
+        if line_filters:
+            query = query + " " + " ".join(line_filters)
         
         # Log the query for debugging
         import logging
