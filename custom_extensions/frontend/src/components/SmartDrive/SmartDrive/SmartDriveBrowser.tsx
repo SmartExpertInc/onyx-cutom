@@ -2095,35 +2095,46 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						// folderId null means root folder (/)
 						const targetPath = folderId === null ? '/' : idToPathMap[folderId] || '/';
 						
-						if (moveOperation === 'move') {
-							await moveToFolder(targetPath);
-						} else {
+						if (selected.size === 0) return;
+						setBusy(true);
+						try {
+							if (moveOperation === 'move') {
+								// For move operation
+								for (const p of Array.from(selected)) {
+									const fileName = p.split('/').pop() || '';
+									const destinationPath = targetPath === '/' ? `/${fileName}` : (targetPath.endsWith('/') ? `${targetPath}${fileName}` : `${targetPath}/${fileName}`);
+									const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
+										method: 'POST',
+										headers: { 'Content-Type': 'application/json' },
+										credentials: 'same-origin',
+										body: JSON.stringify({ from: p, to: destinationPath })
+									});
+									if (!res.ok) throw new Error(await res.text());
+								}
+							} else {
 								// For copy operation
-								if (selected.size === 0) return;
-								setBusy(true);
-								try {
-									for (const p of Array.from(selected)) {
-										const fileName = p.split('/').pop() || '';
-										const destinationPath = targetPath === '/' ? `/${fileName}` : (targetPath.endsWith('/') ? `${targetPath}${fileName}` : `${targetPath}/${fileName}`);
-										const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
-											method: 'POST',
-											headers: { 'Content-Type': 'application/json' },
-											credentials: 'same-origin',
-											body: JSON.stringify({ from: p, to: destinationPath })
-										});
-										if (!res.ok) throw new Error(await res.text());
-									}
-									clearSel();
-									await fetchList(currentPath);
-								} catch (e) {
-									alert('Copy failed');
-								} finally {
-									setBusy(false);
+								for (const p of Array.from(selected)) {
+									const fileName = p.split('/').pop() || '';
+									const destinationPath = targetPath === '/' ? `/${fileName}` : (targetPath.endsWith('/') ? `${targetPath}${fileName}` : `${targetPath}/${fileName}`);
+									const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
+										method: 'POST',
+										headers: { 'Content-Type': 'application/json' },
+										credentials: 'same-origin',
+										body: JSON.stringify({ from: p, to: destinationPath })
+									});
+									if (!res.ok) throw new Error(await res.text());
 								}
 							}
-							setShowFolderSelectionModal(false);
-							setMoveOperation(null);
-						}}
+							clearSel();
+							await fetchList(currentPath);
+						} catch (e) {
+							alert(moveOperation === 'move' ? 'Move failed' : 'Copy failed');
+						} finally {
+							setBusy(false);
+						}
+						setShowFolderSelectionModal(false);
+						setMoveOperation(null);
+					}}
 						folders={foldersForModal}
 						currentFolderId={currentFolderId}
 						title={moveOperation === 'move' ? 'Move to folder' : 'Copy to folder'}
