@@ -137,33 +137,27 @@ class LokiService:
             Dictionary containing filtered log entries
         """
         # Build LogQL query
-        # Use line filters to search for JSON patterns in the raw log content
-        # This is more reliable than JSON field filtering which may fail
-        base_query = '{job="custom_backend"}'
-        line_filters = []
+        # Match Promtail config.yml: fields are extracted as labels
+        # Promtail extracts: level, user_id, endpoint, event, module, request_id as labels
+        # Use label filtering (most efficient) with JSON field filtering as fallback
         
-        # Use line filters to search for JSON field patterns
-        # This works even if JSON parsing fails in Promtail
+        # Start with label filters (matching Promtail's label extraction)
+        label_filters = ['job="custom_backend"']
+        
+        # Add label filters for fields that Promtail extracts as labels
         if level:
-            # Search for "level":"error" pattern in the JSON string
-            # LogQL line filter syntax: |= "pattern"
-            # We need to escape quotes in the pattern
-            # Pattern: "level":"error" -> we search for this exact string
-            line_filters.append(f'|= "\\"level\\":\\"{level}\\""')
+            label_filters.append(f'level="{level}"')
         if user_id:
-            line_filters.append(f'|= "\\"user_id\\":\\"{user_id}\\""')
+            label_filters.append(f'user_id="{user_id}"')
         if endpoint:
-            # Use regex for partial endpoint matching in JSON
-            line_filters.append(f'|~ "\\"endpoint\\":\\"[^\\"]*{endpoint}[^\\"]*\\""')
+            # Use regex for partial matching in label
+            label_filters.append(f'endpoint=~".*{endpoint}.*"')
         if event:
-            line_filters.append(f'|= "\\"event\\":\\"{event}\\""')
+            label_filters.append(f'event="{event}"')
         
-        # Build the complete query
-        # Format: {job="custom_backend"} |= "\"level\":\"error\""
-        if line_filters:
-            query = base_query + " " + " ".join(line_filters)
-        else:
-            query = base_query
+        # Build query with label selectors
+        # Format: {job="custom_backend", level="error", user_id="123"}
+        query = '{' + ', '.join(label_filters) + '}'
         
         # Log the query for debugging
         import logging
