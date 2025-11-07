@@ -337,7 +337,7 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
                 />
               ) : (
                 <div
-                  onClick={() => isEditable && setEditingDefinitions(i)}
+                  onClick={() => isEditable && setEditingDefinitions(index)}
                   style={{ cursor: isEditable ? 'pointer' : 'default', wordBreak: 'break-word', lineHeight: 1.5 }}
                   dangerouslySetInnerHTML={{ __html: stripSpanTags(definition) }}
                 />
