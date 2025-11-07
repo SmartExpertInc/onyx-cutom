@@ -779,8 +779,18 @@ class ImageBlock(BaseContentBlock):
     layoutProportion: Optional[str] = None  # '50-50', '60-40', '40-60', '70-30', '30-70'
     float: Optional[str] = None  # Legacy field for backward compatibility: 'left', 'right'
 
+class ColumnContainerBlock(BaseContentBlock):
+    type: str = "column_container"
+    columnCount: int = 2
+    columns: List[List[AnyContentBlock]] = Field(default_factory=list)
+
+# CRITICAL: ColumnContainerBlock must come before SectionBreakBlock in Union order
+# to prevent Pydantic from misclassifying column_container blocks as section_break blocks
+# when nested validation fails
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, 
+    ColumnContainerBlock,  # Moved before SectionBreakBlock to prevent corruption
+    SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -3756,10 +3766,6 @@ class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock
-]
-
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
     # Optional: sequential number of the lesson inside the parent Training Plan
@@ -3865,6 +3871,7 @@ class TextPresentationDetails(BaseModel):
     textTitle: Optional[str] = None
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
     detectedLanguage: Optional[str] = None
+    purpleBoxContent: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 # --- End: Add New Quiz Models ---
@@ -4322,10 +4329,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -4889,10 +4892,6 @@ class TableBlock(BaseContentBlock):
     rows: List[List[str]]
     caption: Optional[str] = None
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
-
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
     # Optional: sequential number of the lesson inside the parent Training Plan
@@ -5443,9 +5442,6 @@ class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
 
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -5977,10 +5973,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -6727,10 +6719,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -8373,7 +8361,7 @@ class TrainingPlanDetails(BaseModel):
     theme: Optional[str] = "cherry"  # Default theme
     model_config = {"from_attributes": True}
 
-AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
+AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock", "ColumnContainerBlock"]
 ListItem = Union[str, AnyContentBlock, List[AnyContentBlock]]
 
 class BaseContentBlock(BaseModel):
@@ -8417,10 +8405,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
-]
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
@@ -30880,6 +30864,24 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
                 db_content = round_hours_in_content(db_content)
             
+            # 🔍 CRITICAL FIX: Preserve column_container blocks before validation
+            # Pydantic Union validation can corrupt column_container blocks if nested validation fails
+            if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and 'contentBlocks' in db_content:
+                content_blocks = db_content.get('contentBlocks', [])
+                sanitized_blocks = []
+                for block in content_blocks:
+                    if isinstance(block, dict) and block.get('type') == 'column_container':
+                        # Preserve column_container blocks with all their properties
+                        if 'columns' in block and 'columnCount' in block:
+                            sanitized_blocks.append(block)
+                            logger.info(f"🔧 [COLUMN CONTAINER PRESERVE] Project {project_id} - Preserving column_container block: {json.dumps(block, indent=2)}")
+                        else:
+                            logger.warning(f"⚠️ [COLUMN CONTAINER] Project {project_id} - Found corrupted column_container block, skipping: {json.dumps(block, indent=2)}")
+                            # Skip corrupted blocks
+                    else:
+                        sanitized_blocks.append(block)
+                db_content['contentBlocks'] = sanitized_blocks
+            
             try:
                 logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - About to validate with component: {current_component_name}")
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
@@ -30914,6 +30916,58 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 # 🔍 BACKEND VALIDATION RESULT LOGGING
                 if final_content_for_model and hasattr(final_content_for_model, 'contentBlocks'):
                     result_dict = final_content_for_model.model_dump(mode='json', exclude_none=True)
+                    
+                    # 🔍 CRITICAL FIX: Check and restore corrupted column_container blocks after validation
+                    if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and 'contentBlocks' in result_dict:
+                        original_blocks = db_content.get('contentBlocks', [])
+                        validated_blocks = result_dict.get('contentBlocks', [])
+                        restored_blocks = []
+                        column_container_index = 0  # Track position of column_container blocks
+                        
+                        for i, validated_block in enumerate(validated_blocks):
+                            if isinstance(validated_block, dict) and validated_block.get('type') == 'column_container':
+                                # Check if this block was corrupted during validation
+                                has_style = 'style' in validated_block
+                                missing_columns = 'columns' not in validated_block or not validated_block.get('columns')
+                                missing_columnCount = 'columnCount' not in validated_block
+                                
+                                if has_style or missing_columns or missing_columnCount:
+                                    # Find the original block by position (count column_container blocks)
+                                    original_block = None
+                                    found_count = 0
+                                    for orig_block in original_blocks:
+                                        if isinstance(orig_block, dict) and orig_block.get('type') == 'column_container':
+                                            if found_count == column_container_index:
+                                                if 'columns' in orig_block and 'columnCount' in orig_block:
+                                                    original_block = orig_block
+                                                    break
+                                            found_count += 1
+                                    
+                                    if original_block and 'columns' in original_block and 'columnCount' in original_block:
+                                        logger.warning(f"🔧 [COLUMN CONTAINER RESTORE] Project {project_id} - Restoring corrupted column_container block at index {i}")
+                                        logger.warning(f"🔧 [COLUMN CONTAINER RESTORE] Corrupted: {json.dumps(validated_block, indent=2)}")
+                                        logger.warning(f"🔧 [COLUMN CONTAINER RESTORE] Restored: {json.dumps(original_block, indent=2)}")
+                                        restored_blocks.append(original_block)
+                                    else:
+                                        logger.error(f"❌ [COLUMN CONTAINER RESTORE] Project {project_id} - Could not find original block to restore at position {column_container_index}, skipping corrupted block")
+                                        restored_blocks.append(validated_block)
+                                    column_container_index += 1
+                                else:
+                                    restored_blocks.append(validated_block)
+                                    column_container_index += 1
+                            else:
+                                restored_blocks.append(validated_block)
+                        
+                        if restored_blocks != validated_blocks:
+                            result_dict['contentBlocks'] = restored_blocks
+                            # Re-validate with restored blocks
+                            try:
+                                final_content_for_model = TextPresentationDetails(**result_dict)
+                                logger.info(f"✅ [COLUMN CONTAINER RESTORE] Project {project_id} - Successfully re-validated with restored blocks")
+                            except Exception as restore_error:
+                                logger.error(f"❌ [COLUMN CONTAINER RESTORE] Project {project_id} - Failed to re-validate with restored blocks: {restore_error}")
+                                # Fall back to original validation result
+                    
                     logger.info(f"✅ [BACKEND VALIDATION RESULT] Project {project_id} - Final validated content: {json.dumps(result_dict, indent=2)}")
                     if 'contentBlocks' in result_dict:
                         result_image_blocks = [block for block in result_dict['contentBlocks'] if block.get('type') == 'image']

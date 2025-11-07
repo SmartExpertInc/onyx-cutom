@@ -1003,23 +1003,60 @@ export default function TextPresentationClient() {
 
   // Handle editing additional section title
   const handleAdditionalSectionTitleEdit = (sectionId: string, newTitle: string) => {
-    setAdditionalSections(prev => prev.map(section => 
-      section.id === sectionId ? { ...section, title: newTitle } : section
-    ));
+    setAdditionalSections(prev => {
+      const updated = prev.map(section => {
+        if (section.id === sectionId) {
+          // Update the section title in content
+          const oldTitle = section.title;
+          const sectionPattern = new RegExp(`(##\\s*)${escapeRegExp(oldTitle)}(\\n\\n${escapeRegExp(section.content)})`, 'g');
+          setContent(prevContent => {
+            if (sectionPattern.test(prevContent)) {
+              return prevContent.replace(sectionPattern, `$1${newTitle}$2`);
+            }
+            return prevContent;
+          });
+          return { ...section, title: newTitle };
+        }
+        return section;
+      });
+      return updated;
+    });
     setHasUserEdits(true);
   };
 
   // Handle editing additional section content
   const handleAdditionalSectionContentEdit = (sectionId: string, newContent: string) => {
-    setAdditionalSections(prev => prev.map(section => 
-      section.id === sectionId ? { ...section, content: newContent } : section
-    ));
+    setAdditionalSections(prev => {
+      const updated = prev.map(section => {
+        if (section.id === sectionId) {
+          // Update the section content in content
+          const sectionPattern = new RegExp(`(##\\s*${escapeRegExp(section.title)}\\n\\n)${escapeRegExp(section.content)}(\\n\\n)`, 'g');
+          setContent(prevContent => {
+            if (sectionPattern.test(prevContent)) {
+              return prevContent.replace(sectionPattern, `$1${newContent}$2`);
+            }
+            return prevContent;
+          });
+          return { ...section, content: newContent };
+        }
+        return section;
+      });
+      return updated;
+    });
     setHasUserEdits(true);
   };
 
   // Handle deleting additional section
   const handleDeleteAdditionalSection = (sectionId: string) => {
-    setAdditionalSections(prev => prev.filter(section => section.id !== sectionId));
+    setAdditionalSections(prev => {
+      const sectionToDelete = prev.find(section => section.id === sectionId);
+      if (sectionToDelete) {
+        // Remove the section from content
+        const sectionPattern = new RegExp(`\\n\\n##\\s*${escapeRegExp(sectionToDelete.title)}\\n\\n${escapeRegExp(sectionToDelete.content)}\\n\\n`, 'g');
+        setContent(prevContent => prevContent.replace(sectionPattern, ''));
+      }
+      return prev.filter(section => section.id !== sectionId);
+    });
     setHasUserEdits(true);
   };
 
@@ -1146,12 +1183,18 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
 
-      if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
-        // If titles were changed, send only titles without context
+      // Use clean content if:
+      // 1. Titles were edited, OR
+      // 2. Additional sections were added/edited/deleted
+      const hasEditedTitles = editedTitleNames.size > 0 || editedTitleIds.size > 0;
+      const hasAdditionalSections = additionalSections.length > 0;
+
+      if (hasUserEdits && (hasEditedTitles || hasAdditionalSections)) {
+        // If titles were changed or additional sections exist, use clean content from UI
         contentToSend = createCleanTitlesContentFromUI();
         isCleanContent = true;
       } else {
-        // If no titles changed, send full content with context
+        // If no titles changed and no additional sections, send full content with context
         contentToSend = content;
         isCleanContent = false;
       }
@@ -1743,6 +1786,20 @@ export default function TextPresentationClient() {
       return;
     }
 
+    // Append all additional sections to content so they're included in lessonList
+    let updatedContent = content;
+    additionalSections.forEach((section) => {
+      // Check if section is already in content (by title)
+      const sectionPattern = new RegExp(`##\\s*${escapeRegExp(section.title)}`, 'g');
+      if (!sectionPattern.test(updatedContent)) {
+        const sectionMarkdown = `\n\n## ${section.title}\n\n${section.content}\n\n`;
+        updatedContent += sectionMarkdown;
+      }
+    });
+    if (updatedContent !== content) {
+      setContent(updatedContent);
+    }
+
     // Lightweight credits pre-check to avoid starting finalization when balance is 0
     try {
       const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
@@ -1777,20 +1834,27 @@ export default function TextPresentationClient() {
     try {
       console.log("DEBUG: handleFinalize - hasUserEdits:", hasUserEdits);
       console.log("DEBUG: handleFinalize - editedTitleNames:", Array.from(editedTitleNames));
+      console.log("DEBUG: handleFinalize - additionalSections:", additionalSections.length);
 
       // NEW: Determine what content to send based on user edits
       let contentToSend = content;
       let isCleanContent = false;
 
-      if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
+      // Use clean content if:
+      // 1. Titles were edited, OR
+      // 2. Additional sections were added/edited/deleted
+      const hasEditedTitles = editedTitleNames.size > 0 || editedTitleIds.size > 0;
+      const hasAdditionalSections = additionalSections.length > 0;
+
+      if (hasUserEdits && (hasEditedTitles || hasAdditionalSections)) {
         console.log("DEBUG: handleFinalize - using clean content from UI");
-        console.log("DEBUG: handleFinalize - edited section indices:", Array.from(editedTitleIds));
-        // If titles were changed, send only titles without context
+        console.log("DEBUG: handleFinalize - reason:", hasEditedTitles ? "edited titles" : "additional sections");
+        // If titles were changed or additional sections exist, use clean content from UI
         contentToSend = createCleanTitlesContentFromUI();
         isCleanContent = true;
       } else {
         console.log("DEBUG: handleFinalize - using full content");
-        // If no titles changed, send full content with context
+        // If no titles changed and no additional sections, send full content with context
         contentToSend = content;
         isCleanContent = false;
       }
@@ -2304,8 +2368,11 @@ export default function TextPresentationClient() {
                   </div>
                 ))}
 
-                {/* Additional sections */}
-                {additionalSections.map((section, idx: number) => (
+                {/* Additional sections - only show sections not already in lessonList */}
+                {additionalSections.filter(section => {
+                  // Check if this section is already in lessonList (by matching title)
+                  return !lessonList.some(lesson => lesson.title === section.title);
+                }).map((section, idx: number) => (
                   <div key={section.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
                     {/* Section header with title */}
                     <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
@@ -2340,14 +2407,16 @@ export default function TextPresentationClient() {
                 ))}
 
                 {/* Add Section Button */}
-                <button
-                  type="button"
-                  onClick={handleAddSection}
-                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
-                >
-                  <span className="text-lg">+</span>
-                  <span>{t('interface.generate.addSection', 'Add Section')}</span>
-                </button>
+                {streamDone && (
+                  <button
+                    type="button"
+                    onClick={handleAddSection}
+                    className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-lg">+</span>
+                    <span>{t('interface.generate.addSection', 'Add Section')}</span>
+                  </button>
+                )}
                 <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-2 rounded-b-[8px]">
                   <span className="select-none">{wordCount} {t('interface.generate.words', 'words')}</span>
                   <span className="flex items-center gap-1">
@@ -2372,8 +2441,8 @@ export default function TextPresentationClient() {
           {/* Theme section */}
           {streamDone && content && (
             <section className="flex flex-col gap-3 mb-8">
-              <div className="rounded-lg border border-[#CCCCCC] px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4 flex-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                   <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
                     <div className="flex flex-col">
                       <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.themes', 'Themes')}</h2>
@@ -2391,7 +2460,7 @@ export default function TextPresentationClient() {
                   <div className="flex flex-col gap-5 px-6">
                     {/* Themes grid */}
                     <div className="grid grid-cols-3 gap-5 justify-items-center">
-                      {themeOptions.map((theme) => {
+                      {themeOptions.slice(0, 1).map((theme) => {
                         const ThemeSvgComponent = getThemeSvg(theme.id);
                         const isSelected = selectedTheme === theme.id;
 
@@ -2449,8 +2518,6 @@ export default function TextPresentationClient() {
                         </SelectTrigger>
                         <SelectContent className="border-[#E0E0E0]" side="top">
                           <SelectItem value="ai">{t('interface.generate.aiImages', 'Ai images')}</SelectItem>
-                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
-                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

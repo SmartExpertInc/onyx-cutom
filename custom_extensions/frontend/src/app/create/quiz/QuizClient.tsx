@@ -1836,32 +1836,10 @@ export default function QuizClient() {
 
                       {/* Content preview */}
                       {question.content && (
-                        <div className="px-5 pb-4">
-                          {editingContentId === idx ? (
-                            <Textarea
-                              value={getContentForQuestion(question, idx)}
-                              onChange={(e) => handleContentEdit(idx, e.target.value)}
-                              className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
-                              autoFocus
-                              onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Escape') handleContentCancel(idx);
-                              }}
-                              disabled={!streamDone}
-                            />
-                          ) : (
-                            <div 
-                              className={`cursor-pointer rounded !text-sm p-2 pl-6 pt-4 -m-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
-                              onMouseDown={() => {
-                                nextEditingContentIdRef.current = idx;
-                              }}
-                              onClick={() => {
-                                if (streamDone) setEditingContentId(idx);
-                              }}
-                            >
-                              {renderQuestionContent(getContentForQuestion(question, idx))}
-                            </div>
-                          )}
+                        <div 
+                          className={`rounded !text-sm p-2 pl-6 pt-4 -m-2 ${!streamDone && 'opacity-50'}`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
+                        >
+                          {renderQuestionContent(getContentForQuestion(question, idx))}
                         </div>
                       )}
                      </div>
@@ -1903,15 +1881,17 @@ export default function QuizClient() {
                      </div>
                    ))}
 
-                   {/* Add Question Button */}
-                      <button
-                        type="button"
-                     onClick={handleAddQuestion}
-                     className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#719AF5] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
-                   >
-                     <span className="text-lg">+</span>
-                     <span>{t('interface.generate.addQuestion', 'Add Question')}</span>
-                   </button>
+                  {/* Add Question Button */}
+                  {streamDone && (
+                    <button
+                      type="button"
+                      onClick={handleAddQuestion}
+                      className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#719AF5] font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                    >
+                      <span className="text-lg">+</span>
+                      <span>{t('interface.generate.addQuestion', 'Add Question')}</span>
+                    </button>
+                  )}
                    
                   <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-2 rounded-b-[8px]">
                    <span className="select-none">{questionList.length + additionalQuestions.length} {t('interface.generate.questionTotal', 'question total')}</span>

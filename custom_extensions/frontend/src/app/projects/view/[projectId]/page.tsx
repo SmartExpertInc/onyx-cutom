@@ -270,6 +270,7 @@ export default function ProjectInstanceViewPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editableData, setEditableData] = useState<MicroProductContentData>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const lastSavedDataRef = useRef<MicroProductContentData | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -877,20 +878,23 @@ export default function ProjectInstanceViewPage() {
         } else {
           setEditableData(copiedDetails);
         }
+        // Initialize last saved data reference when data is first loaded
+        lastSavedDataRef.current = JSON.parse(JSON.stringify(copiedDetails));
       } else {
         const lang = instanceData.detectedLanguage || 'en';
+        let newData: MicroProductContentData = null;
         if (instanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-          setEditableData({ mainTitle: instanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
+          newData = { mainTitle: instanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang };
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
-          setEditableData({ lessonTitle: instanceData.name || t('interface.projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
+          newData = { lessonTitle: instanceData.name || t('interface.projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang };
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
-          setEditableData({ lessonTitle: instanceData.name || t('interface.projectView.newSlideDeckTitle', 'New Slide Deck'), slides: [], detectedLanguage: lang });
+          newData = { lessonTitle: instanceData.name || t('interface.projectView.newSlideDeckTitle', 'New Slide Deck'), slides: [], detectedLanguage: lang };
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
-          setEditableData({ mainPresentationTitle: instanceData.name || t('interface.projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
+          newData = { mainPresentationTitle: instanceData.name || t('interface.projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang };
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
-          setEditableData({ quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
+          newData = { quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang };
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
-          setEditableData({ textTitle: instanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
+          newData = { textTitle: instanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang };
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
           console.log('🎬 [VIDEO_PRODUCT_DATA] No details data, setting default video product data');
           setEditableData({ 
@@ -900,10 +904,10 @@ export default function ProjectInstanceViewPage() {
             generatedAt: new Date().toISOString(),
             sourceSlides: [],
             component_name: 'VideoProductDisplay'
-          } as any);
-        } else {
-          setEditableData(null);
-        }
+          } as any);}
+        setEditableData(newData);
+        // Initialize last saved data reference when creating new data
+        lastSavedDataRef.current = newData ? JSON.parse(JSON.stringify(newData)) : null;
       }
       setPageState(instanceData ? 'success' : 'nodata');
     } catch (err: any) {
@@ -916,8 +920,7 @@ export default function ProjectInstanceViewPage() {
   useEffect(() => {
     if (projectId) {
       const needsFetch = pageState === 'initial_loading' ||
-        (projectInstanceData && projectInstanceData.project_id?.toString() !== projectId) ||
-        (!projectInstanceData && (pageState === 'error' || pageState === 'nodata'));
+        (projectInstanceData && projectInstanceData.project_id?.toString() !== projectId);
 
       if (needsFetch) {
         fetchPageData(projectId);
@@ -1199,6 +1202,8 @@ export default function ProjectInstanceViewPage() {
       }
       console.log('💾 [SAVE SUCCESS] Save completed, refetching data...');
       setIsEditing(false);
+      // Update the last saved data reference after successful manual save
+      lastSavedDataRef.current = JSON.parse(JSON.stringify(processedEditableData));
       await fetchPageData(projectId);
       console.log('💾 [SAVE COMPLETE] Data refetched after save');
       alert(t('interface.projectView.contentSavedSuccessfully', 'Content saved successfully!'));
@@ -1218,6 +1223,15 @@ export default function ProjectInstanceViewPage() {
       return; // Silent fail for auto-save
     }
 
+    // Check if data has actually changed
+    const currentDataString = JSON.stringify(editableData);
+    const lastSavedDataString = lastSavedDataRef.current ? JSON.stringify(lastSavedDataRef.current) : null;
+    
+    if (currentDataString === lastSavedDataString) {
+      console.log('Auto-save: No changes detected, skipping save');
+      return; // No changes, skip save
+    }
+    
     const editableComponentTypes = [
       COMPONENT_NAME_PDF_LESSON,
       COMPONENT_NAME_TRAINING_PLAN,
@@ -1379,6 +1393,9 @@ export default function ProjectInstanceViewPage() {
         const responseData = await response.json();
         console.log('🔍 Auto-save response data:', JSON.stringify(responseData, null, 2));
 
+        // Update the last saved data reference after successful save
+        lastSavedDataRef.current = JSON.parse(JSON.stringify(editableData));
+
         // NEW: Refresh products list to update names after rename propagation
         try {
           const listRes = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store', headers: saveOperationHeaders });
@@ -1430,6 +1447,12 @@ export default function ProjectInstanceViewPage() {
       console.error('🔍 Auto-save error:', err.message);
     }
   };
+
+  useEffect(() => {
+    if (editableData == null) return;
+    console.log('Auto-save: Editable data changed, triggering auto-save');
+    handleAutoSave();
+  }, [editableData]);
 
   const handleToggleEdit = () => {
     if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }

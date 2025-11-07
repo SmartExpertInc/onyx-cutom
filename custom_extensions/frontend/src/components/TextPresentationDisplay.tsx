@@ -246,6 +246,7 @@ interface RenderBlockProps {
   onDrop?: (e: React.DragEvent, index: number) => void;
   onDragEnd?: () => void;
   isDraggedOver?: boolean;
+  onBlurComplete?: () => void;
 }
 
 // Modern Settings Modal Component
@@ -308,7 +309,7 @@ const BlockSettingsModal = ({
           <select
             value={headlineBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
             <option value="info">{t('interface.blockSettings.infoIcon')}</option>
@@ -329,7 +330,7 @@ const BlockSettingsModal = ({
           <select
             value={headlineBlock.level || 1}
             onChange={e => onTextChange?.(fieldPath('level'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value={1}>{t('interface.blockSettings.large')} (H1)</option>
             <option value={2}>{t('interface.blockSettings.medium')} (H2)</option>
@@ -343,7 +344,7 @@ const BlockSettingsModal = ({
           <select
             value={headlineBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -378,7 +379,7 @@ const BlockSettingsModal = ({
           <select
             value={paragraphBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -400,7 +401,7 @@ const BlockSettingsModal = ({
           <select
             value={listBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
             <option value="none">{t('interface.blockSettings.noIcon')}</option>
@@ -422,7 +423,7 @@ const BlockSettingsModal = ({
           <select
             value={listBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -444,7 +445,7 @@ const BlockSettingsModal = ({
           <select
             value={alertBlock.alertType}
             onChange={e => onTextChange?.(fieldPath('alertType'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
             <option value="success">✅ {t('interface.blockSettings.success')}</option>
@@ -458,7 +459,7 @@ const BlockSettingsModal = ({
           <select
             value={alertBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.useDefaultForAlertType')}</option>
             <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
@@ -521,7 +522,7 @@ const BlockSettingsModal = ({
           <select
             value={alertBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
           >
             <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
             <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
@@ -626,7 +627,7 @@ const BlockSettingsModal = ({
                   console.log('🔄 [LAYOUT CHANGE] Closing modal after successful change application.');
                 }, 50);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500 text-black"
             >
               <option value="standalone">📄 {t('interface.imageSettings.standalone', 'Standalone (full width)')}</option>
               <option value="inline-left">⬅️ {t('interface.imageSettings.inlineLeft', 'Inline (image left, text wraps)')}</option>
@@ -773,7 +774,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
-    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
+    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver,
+    onBlurComplete
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -781,6 +783,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
   const [isBulletPickerOpen, setIsBulletPickerOpen] = useState(false);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
@@ -798,13 +801,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return fieldKey ? [...path, fieldKey] : path;
   };
 
-  const handleInputChangeEvent = (
-    pathForData: (string | number)[], 
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> 
-  ) => {
+  const getFieldKey = (path: (string | number)[]): string => {
+    return path.join('-');
+  };
+
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    const fieldKey = getFieldKey(path);
+    setEditingValues(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+  };
+
+  const handleBlur = (path: (string | number)[], newValue: any) => {
+    const fieldKey = getFieldKey(path);
+    // Clear the temporary value
+    setEditingValues(prev => {
+      const updated = { ...prev };
+      delete updated[fieldKey];
+      return updated;
+    });
+    // Update the actual data
     if (onTextChange) {
-      onTextChange(pathForData, event.target.value);
+      onTextChange(path, newValue);
     }
+  };
+
+  const getInputValue = (path: (string | number)[], defaultValue: string): string => {
+    const fieldKey = getFieldKey(path);
+    return editingValues[fieldKey] !== undefined ? editingValues[fieldKey] : defaultValue;
   };
   
   switch (block.type) {
@@ -980,8 +1005,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {isEditing && onTextChange ? (
               <input 
                 type="text" 
-                value={text}
-                onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+                value={getInputValue(fieldPath('text'), text || '')}
+                onChange={(e) => handleInputChange(fieldPath('text'), e.target.value)}
+                onBlur={(e) => handleBlur(fieldPath('text'), e.target.value)}
                 className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '')} m-0 p-0`} 
                 style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1 }}
               />
@@ -1065,8 +1091,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
             
             <textarea 
-              value={currentRawText} 
-              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+              value={getInputValue(fieldPath('text'), currentRawText)} 
+              onChange={(e) => handleInputChange(fieldPath('text'), e.target.value)}
+              onBlur={(e) => handleBlur(fieldPath('text'), e.target.value)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} leading-normal text-black text-left`} 
               style={{ fontSize: fontSize || '16px' }}
             />
@@ -1236,8 +1263,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                           <div className="relative z-10">
                             <input
                               type="text"
-                              value={item}
-                              onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                              value={getInputValue(listItemPath(index), item)}
+                              onChange={(e) => handleInputChange(listItemPath(index), e.target.value)}
+                              onBlur={(e) => handleBlur(listItemPath(index), e.target.value)}
                               className={`${editingInputClass} w-full text-base`}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -1309,8 +1337,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                         <div className="relative z-10">
                           <input
                             type="text"
-                            value={item}
-                            onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                            value={getInputValue(listItemPath(index), item)}
+                            onChange={(e) => handleInputChange(listItemPath(index), e.target.value)}
+                            onBlur={(e) => handleBlur(listItemPath(index), e.target.value)}
                             className={`${editingInputClass} w-full text-base`}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
@@ -1449,16 +1478,18 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   {title && (
                     <input
                       type="text"
-                      value={title}
-                      onChange={e => handleInputChangeEvent(fieldPath('title'), e)}
+                      value={getInputValue(fieldPath('title'), title || '')}
+                      onChange={e => handleInputChange(fieldPath('title'), e.target.value)}
+                      onBlur={e => handleBlur(fieldPath('title'), e.target.value)}
                       className={`${editingInputClass} font-bold mb-1`}
                       placeholder="Alert title"
                       style={{ fontSize: fontSize || '10px' }}
                     />
                   )}
                   <textarea
-                    value={text}
-                    onChange={e => handleInputChangeEvent(fieldPath('text'), e)}
+                    value={getInputValue(fieldPath('text'), text || '')}
+                    onChange={e => handleInputChange(fieldPath('text'), e.target.value)}
+                    onBlur={e => handleBlur(fieldPath('text'), e.target.value)}
                     className={`${editingTextareaClass} mb-2`}
                     placeholder="Alert text"
                     style={{ fontSize: fontSize || '16px' }}
@@ -2072,8 +2103,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 {isEditing && onTextChange ? (
                   <input
                     type="text"
-                    value={caption}
-                    onChange={e => handleInputChangeEvent(fieldPath('caption'), e)}
+                    value={getInputValue(fieldPath('caption'), caption || '')}
+                    onChange={e => handleInputChange(fieldPath('caption'), e.target.value)}
+                    onBlur={e => handleBlur(fieldPath('caption'), e.target.value)}
                     className={`${editingInputClass} text-center italic`}
                     placeholder="Image caption"
                   />
@@ -2106,7 +2138,44 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     }
     
     case 'column_container': {
-      const { columnCount, columns } = block as ColumnContainerBlock;
+      const columnBlock = block as ColumnContainerBlock;
+      
+      // 🔍 SAFETY CHECK: Detect corrupted column_container blocks
+      const hasValidColumns = columnBlock.columns && Array.isArray(columnBlock.columns);
+      const hasValidColumnCount = columnBlock.columnCount === 2 || columnBlock.columnCount === 3;
+      const blockAny = block as any;
+      const hasInvalidProperties = 'style' in blockAny;
+      
+      if (!hasValidColumns || !hasValidColumnCount || hasInvalidProperties) {
+        console.warn('🚨 [COLUMN CONTAINER] Invalid column_container block detected:', {
+          block,
+          hasValidColumns,
+          hasValidColumnCount,
+          hasInvalidProperties,
+          columns: columnBlock.columns,
+          columnCount: columnBlock.columnCount,
+          suspiciousProperties: Object.keys(blockAny).filter(key => !['type', 'columnCount', 'columns'].includes(key))
+        });
+        
+        // If it has section break properties, render as section break
+        if (hasInvalidProperties && (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none')) {
+          console.log('🔄 [COLUMN CONTAINER] Converting corrupted column_container block to section break');
+          if (blockAny.style === 'none') return null;
+          const borderStyle = blockAny.style === 'dashed' ? 'border-dashed' : 'border-solid';
+          return <hr className={`my-3 border-t ${borderStyle} border-gray-300`} />;
+        }
+        
+        // Otherwise show error placeholder
+        return (
+          <div className="my-4 text-center">
+            <div className="inline-block p-4 border-2 border-red-300 rounded-lg bg-red-50 text-red-700">
+              <p className="font-semibold">⚠️ Invalid Column Container Block</p>
+            </div>
+          </div>
+        );
+      }
+      
+      const { columnCount, columns } = columnBlock;
       const columnClass = columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
       
       return (
@@ -2373,6 +2442,38 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
+
+  const getFieldKey = (path: (string | number)[]): string => {
+    return path.join('-');
+  };
+
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    const fieldKey = getFieldKey(path);
+    setEditingValues(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+  };
+
+  const handleBlur = (path: (string | number)[], newValue: any) => {
+    const fieldKey = getFieldKey(path);
+    // Clear the temporary value
+    setEditingValues(prev => {
+      const updated = { ...prev };
+      delete updated[fieldKey];
+      return updated;
+    });
+    // Update the actual data
+    if (onTextChange) {
+      onTextChange(path, newValue);
+    }
+  };
+
+  const getInputValue = (path: (string | number)[], defaultValue: string): string => {
+    const fieldKey = getFieldKey(path);
+    return editingValues[fieldKey] !== undefined ? editingValues[fieldKey] : defaultValue;
+  };
 
   // Drag & Drop handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -2723,12 +2824,21 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [fabOpen, setFabOpen] = useState(false);
   const [addSectionDropdownOpen, setAddSectionDropdownOpen] = useState(false);
   const [editingBlockIndex, setEditingBlockIndex] = useState<number | null>(null);
-  const [purpleBoxContent, setPurpleBoxContent] = useState(PURPLE_BOX_CONTENT);
+  const [purpleBoxContent, setPurpleBoxContent] = useState(() => {
+    return (dataToDisplay as any)?.purpleBoxContent || PURPLE_BOX_CONTENT;
+  });
   const [editingPurpleBox, setEditingPurpleBox] = useState<{
     type: 'title' | 'description' | 'card' | null;
     cardIndex?: number;
     field?: 'title' | 'description';
   }>({ type: null });
+
+  // Sync purpleBoxContent with dataToDisplay when it changes
+  useEffect(() => {
+    if ((dataToDisplay as any)?.purpleBoxContent) {
+      setPurpleBoxContent((dataToDisplay as any).purpleBoxContent);
+    }
+  }, [(dataToDisplay as any)?.purpleBoxContent]);
   
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
@@ -2756,47 +2866,61 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [isEditing]);
 
   const handlePurpleBoxChange = useCallback((value: string) => {
-    setPurpleBoxContent(prev => {
+    if (!onTextChange) return;
+    
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
+      let updated;
       if (editingPurpleBox.type === 'title') {
-        return { ...prev, title: value };
+        updated = { ...prev, title: value };
+        onTextChange(['purpleBoxContent', 'title'], value);
       } else if (editingPurpleBox.type === 'description') {
-        return { ...prev, description: value };
+        updated = { ...prev, description: value };
+        onTextChange(['purpleBoxContent', 'description'], value);
       } else if (editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex !== undefined && editingPurpleBox.field) {
         const newCards = [...prev.cards];
         newCards[editingPurpleBox.cardIndex] = {
           ...newCards[editingPurpleBox.cardIndex],
           [editingPurpleBox.field]: value
         };
-        return { ...prev, cards: newCards };
+        updated = { ...prev, cards: newCards };
+        onTextChange(['purpleBoxContent', 'cards'], newCards);
+      } else {
+        return prev;
       }
-      return prev;
+      return updated;
     });
-  }, [editingPurpleBox]);
+  }, [editingPurpleBox, onTextChange]);
 
   const closePurpleBoxEdit = useCallback(() => {
     setEditingPurpleBox({ type: null });
   }, []);
 
   const addPurpleBoxCard = useCallback(() => {
-    setPurpleBoxContent(prev => ({
-      ...prev,
-      cards: [
+    if (!onTextChange) return;
+    
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
+      const newCards = [
         ...prev.cards,
         {
           title: 'New Card',
           description: 'Card description',
           icon: 'drilling'
         }
-      ]
-    }));
-  }, []);
+      ];
+      onTextChange(['purpleBoxContent', 'cards'], newCards);
+      return { ...prev, cards: newCards };
+    });
+  }, [onTextChange]);
 
   const removePurpleBoxCard = useCallback((index: number) => {
-    setPurpleBoxContent(prev => ({
-      ...prev,
-      cards: prev.cards.filter((_, i) => i !== index)
-    }));
-  }, []);
+    if (!onTextChange) return;
+    
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
+      const newCards = prev.cards.filter((_: any, i: number) => i !== index);
+      onTextChange(['purpleBoxContent', 'cards'], newCards);
+      return { ...prev, cards: newCards };
+    });
+  }, [onTextChange]);
 
   const [draggedCardIndex, setDraggedCardIndex] = useState<number | null>(null);
   const [dragOverCardIndex, setDragOverCardIndex] = useState<number | null>(null);
@@ -2814,18 +2938,19 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   const handleCardDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    if (draggedCardIndex === null || draggedCardIndex === dropIndex) return;
+    if (draggedCardIndex === null || draggedCardIndex === dropIndex || !onTextChange) return;
     
-    setPurpleBoxContent(prev => {
+    setPurpleBoxContent((prev: typeof PURPLE_BOX_CONTENT) => {
       const newCards = [...prev.cards];
       const [draggedCard] = newCards.splice(draggedCardIndex, 1);
       newCards.splice(dropIndex, 0, draggedCard);
+      onTextChange(['purpleBoxContent', 'cards'], newCards);
       return { ...prev, cards: newCards };
     });
     
     setDraggedCardIndex(null);
     setDragOverCardIndex(null);
-  }, [draggedCardIndex]);
+  }, [draggedCardIndex, onTextChange]);
 
   const handleCardDragEnd = useCallback(() => {
     setDraggedCardIndex(null);
@@ -2849,8 +2974,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           {isEditing && onTextChange ? (
               <input 
                   type="text" 
-                  value={dataToDisplay.textTitle} 
-                  onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
+                  value={getInputValue(['textTitle'], dataToDisplay.textTitle || '')} 
+                  onChange={(e) => handleInputChange(['textTitle'], e.target.value)} 
+                  onBlur={(e) => handleBlur(['textTitle'], e.target.value)} 
                   className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold text-[#0F58F9] text-left`}
               />
           ) : (
@@ -2875,7 +3001,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       'md:grid-cols-4'
                     }`}
                   >
-                  {purpleBoxContent.cards.map((card, index) => {
+                  {purpleBoxContent.cards.map((card: { title: string; description: string; icon: string }, index: number) => {
                     const isCardTitleEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'title';
                     const isCardDescEditing = editingPurpleBox.type === 'card' && editingPurpleBox.cardIndex === index && editingPurpleBox.field === 'description';
                     
@@ -2934,7 +3060,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       )}
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardTitleEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing && !isCardTitleEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={() => handlePurpleBoxClick('card', index, 'title')}
                       >
                         {isCardTitleEditing ? (
@@ -2942,7 +3068,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             value={card.title}
                             onChange={(e) => handlePurpleBoxChange(e.target.value)}
                             onBlur={closePurpleBoxEdit}
-                            className="w-full font-semibold text-gray-900 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full font-semibold text-gray-900 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400"
                             autoFocus
                           />
                         ) : (
@@ -2951,7 +3077,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       </div>
                       
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isCardDescEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing && !isCardDescEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={() => handlePurpleBoxClick('card', index, 'description')}
                       >
                         {isCardDescEditing ? (
@@ -2959,7 +3085,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             value={card.description}
                             onChange={(e) => handlePurpleBoxChange(e.target.value)}
                             onBlur={closePurpleBoxEdit}
-                            className="w-full text-sm text-gray-600 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px]"
+                            className="w-full text-sm text-gray-600 p-1 border border-blue-500 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 min-h-[60px]"
                             autoFocus
                           />
                         ) : (
@@ -3001,7 +3127,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                     <section className={`p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {(!item._skipRenderHeadline || isEditing) && (
                         <div 
-                          className={`relative group/section ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                          className={`relative group/section ${!isEditing && !isHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                           onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                         >
                            <RenderBlock
@@ -3021,6 +3147,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                              onDragEnd={handleDragEnd}
                              isDraggedOver={dragOverIndex === originalHeadlineIndex}
                              documentContent={documentContent}
+                             onBlurComplete={() => !isEditing && editingBlockIndex === originalHeadlineIndex && setEditingBlockIndex(null)}
                            />
                            {isEditing && (
                              <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
@@ -3104,7 +3231,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   </div>
                                 )}
                                 <div 
-                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isMiniHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  className={`relative ${!isEditing && !isMiniHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniHeadlineIndex, e)}
                                 >
                                   <RenderBlock
@@ -3126,10 +3253,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     onDragEnd={handleDragEnd}
                                     isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                     documentContent={documentContent}
+                                    onBlurComplete={() => !isEditing && editingBlockIndex === originalMiniHeadlineIndex && setEditingBlockIndex(null)}
                                   />
                                 </div>
                                 <div 
-                                  className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isMiniListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                  className={`relative ${!isEditing && !isMiniListEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''}`}
                                   onClick={(e) => !isEditing && handleBlockClick(originalMiniListIndex, e)}
                                 >
                                   <RenderBlock
@@ -3150,6 +3278,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     onDragEnd={handleDragEnd}
                                     isDraggedOver={dragOverIndex === originalMiniListIndex}
                                     documentContent={documentContent}
+                                    onBlurComplete={() => !isEditing && editingBlockIndex === originalMiniListIndex && setEditingBlockIndex(null)}
                                   />
                                 </div>
                               </div>
@@ -3160,7 +3289,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             return (
                               <div 
                                 key={subIndex} 
-                                className={`relative group/block ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isSubBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                                className={`relative group/block ${!isEditing && !isSubBlockEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                                 onClick={(e) => !isEditing && handleBlockClick(originalSubIndex, e)}
                               >
                                 <RenderBlock
@@ -3181,6 +3310,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalSubIndex}
                                   documentContent={documentContent}
+                                  onBlurComplete={() => !isEditing && editingBlockIndex === originalSubIndex && setEditingBlockIndex(null)}
                                 />
                                 {isEditing && (
                                   <div className="absolute -bottom-3 -right-2 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200 z-50">
@@ -3209,7 +3339,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
                     <div className="p-3 !bg-white border-l-3 border-[#0F58F9] text-left">
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''} ${isHeadlineEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing && !isHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalHeadlineIndex, e)}
                       >
                         <RenderBlock
@@ -3225,10 +3355,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           isFirstBlock={originalHeadlineIndex === 0}
                           isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                           documentContent={documentContent}
+                          onBlurComplete={() => !isEditing && editingBlockIndex === originalHeadlineIndex && setEditingBlockIndex(null)}
                         />
                       </div>
                       <div 
-                        className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''} ${isListEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                        className={`relative ${!isEditing && !isListEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1 mt-2' : ''}`}
                         onClick={(e) => !isEditing && handleBlockClick(originalListIndex, e)}
                       >
                         <RenderBlock
@@ -3249,6 +3380,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onDragEnd={handleDragEnd}
                           isDraggedOver={dragOverIndex === originalListIndex}
                           documentContent={documentContent}
+                          onBlurComplete={() => !isEditing && editingBlockIndex === originalListIndex && setEditingBlockIndex(null)}
                         />
                       </div>
                     </div>
@@ -3262,7 +3394,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
                     <div 
-                      className={`relative ${!isEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''} ${isBlockEditing ? 'border-2 border-blue-500 rounded-md' : ''}`}
+                      className={`relative ${!isEditing && !isBlockEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md hover:shadow-sm transition-all duration-200 p-2 -m-2' : ''}`}
                       onClick={(e) => !isEditing && handleBlockClick(originalIndex, e)}
                     >
                       <RenderBlock
@@ -3283,6 +3415,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDrop={handleDrop}
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalIndex}
+                        onBlurComplete={() => !isEditing && editingBlockIndex === originalIndex && setEditingBlockIndex(null)}
                       />
                     </div>
                   </div>
