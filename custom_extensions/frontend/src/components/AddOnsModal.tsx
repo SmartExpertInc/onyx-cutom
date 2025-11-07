@@ -162,7 +162,6 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
               {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy now')}
             </Button>
           </div>
-        )}
         <Button
           className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
           variant="download"
