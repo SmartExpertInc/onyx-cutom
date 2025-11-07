@@ -459,6 +459,22 @@ Style Usage Guidelines:
 - Tables: Use to present structured data or comparisons (only if "tables" is in allowed styles)
 - The assistant should include as many of these styles as possible throughout the one-pager, not just a single instance of each. A rich mix of styles is expected for every output.
 
+**Purple Box Cards (purpleBoxContent):**
+- Use when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout
+- Ideal for: Essential frameworks, core tools, key methodologies, main categories, fundamental concepts
+- Structure: Include a title, description, and 2-4 cards with topic-appropriate titles, descriptions, and icons
+- Icons available: "globe", "chart", "boxes", "info", "goal", "star", "apple", "award", "calendar", "clock"
+- Cards must be topic-specific - adapt content to match the actual topic being taught (not generic woodworking content)
+- Example use cases: "Essential Frameworks for [Topic]", "Key Tools for [Topic]", "Core Concepts in [Topic]"
+
+**Column Container Blocks:**
+- Use in contentBlocks array when comparing concepts, showing parallel procedures, or presenting side-by-side information
+- Ideal for: Comparing two approaches, showing pros/cons side-by-side, parallel procedures, before/after comparisons
+- Structure: { "type": "column_container", "columnCount": 2|3, "columns": [[blocks for column 1], [blocks for column 2], ...] }
+- Each column can contain any content blocks (headlines, paragraphs, lists, etc.)
+- Use 2 columns for most comparisons, 3 columns for more complex multi-way comparisons
+- Example use cases: "Primary vs Secondary Research", "Approach A vs Approach B", "Before vs After", "Pros vs Cons"
+
 Formatting Rules:
 
 - Every section headline MUST include at least one emoji (e.g., `##  Results`, `###  Launch Steps`).

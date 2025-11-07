@@ -33852,6 +33852,33 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
     { "type": "paragraph", "text": "Before diving into the steps, let's establish a common vocabulary. Market Analysis is the process of gathering, interpreting, and utilizing information about a market, including trends, competitor behavior, and customer preferences. Understanding this concept helps stakeholders align on objectives and methodology. Market Size refers to the volume or value of a specific market, indicating potential sales opportunities. This metric helps businesses assess whether a market is worth entering and how much they can realistically capture. Market Growth is the rate at which a market's size is increasing over time, reflecting industry health and future potential. High-growth markets attract more investment but also more competition, making timing critical." },
     
+    { "type": "headline", "level": 2, "text": "📊 COMPARING APPROACHES" },
+    { "type": "paragraph", "text": "When analyzing markets, you'll encounter different methodological approaches. Understanding when to use each method helps you select the most appropriate framework for your specific situation. The following comparison highlights key differences between primary and secondary research approaches." },
+    {
+      "type": "column_container",
+      "columnCount": 2,
+      "columns": [
+        [
+          { "type": "headline", "level": 3, "text": "Primary Research" },
+          { "type": "paragraph", "text": "Primary research involves collecting data directly from the source through methods like surveys, interviews, and observations. This approach provides highly specific insights tailored to your exact questions and target audience." },
+          { "type": "bullet_list", "items": [
+            "**Direct customer feedback**: Get unfiltered insights from your target market about their needs, preferences, and pain points",
+            "**Customized data collection**: Design research questions specifically for your business objectives and decision-making needs",
+            "**Real-time information**: Capture current market conditions and emerging trends as they develop"
+          ]}
+        ],
+        [
+          { "type": "headline", "level": 3, "text": "Secondary Research" },
+          { "type": "paragraph", "text": "Secondary research uses existing data from industry reports, published studies, and public sources. This approach offers broader market context and benchmarking data at a lower cost." },
+          { "type": "bullet_list", "items": [
+            "**Industry benchmarks**: Compare your performance against market standards and competitor positioning",
+            "**Cost-effective insights**: Access comprehensive market data without the expense of primary research",
+            "**Historical trends**: Understand market evolution and long-term patterns from aggregated data sources"
+          ]}
+        ]
+      ]
+    },
+    
     { "type": "headline", "level": 3, "text": "Market Trends" },
     { "type": "paragraph", "text": "Market Trends are patterns of change in consumer behavior, technology, and regulations that shape how markets evolve. For example, the shift toward remote work created trends in collaboration software, home office equipment, and cybersecurity. Understanding trends allows businesses to anticipate changes rather than react to them. Trends can be short-term fads or long-term structural shifts—distinguishing between them is crucial for strategy. A common mistake is conflating a temporary spike in demand with a lasting trend, leading to overinvestment in capacity that won't be needed long-term." },
     
@@ -34056,7 +34083,28 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Effective market analysis is pivotal for making informed strategic decisions and staying competitive in today's dynamic business environment. By following a structured approach and avoiding common pitfalls, businesses can gain valuable insights into their competitive landscape, customer preferences, and the broader market environment. This isn't merely about collecting data—it's about transforming information into actionable intelligence that drives strategic decision-making." },
     { "type": "paragraph", "text": "Remember that market analysis is not a one-time event but an ongoing process of learning and adaptation. The most successful companies build market intelligence into their organizational DNA, continuously gathering signals, testing assumptions, and adjusting strategy. The frameworks and processes you've learned—PESTLE analysis, Five Forces, systematic data collection, synthesizing insights into decisions—provide a foundation for this continuous learning. Start by applying these methods to one specific market or decision, learn from the process, then expand to other areas of your business. With practice, rigorous market analysis becomes not just a planning exercise, but a competitive advantage that helps you see opportunities others miss and avoid risks others overlook." }
   ],
-  "detectedLanguage": "en"
+  "detectedLanguage": "en",
+  "purpleBoxContent": {
+    "title": "Essential Frameworks for Market Analysis",
+    "description": "These core frameworks provide structured approaches to understanding markets, competitors, and strategic positioning. Master these tools to conduct comprehensive market analysis effectively.",
+    "cards": [
+      {
+        "title": "PESTLE Analysis",
+        "description": "Evaluate external factors across Political, Economic, Social, Technological, Legal, and Environmental dimensions to understand macro-environmental forces shaping your market",
+        "icon": "globe"
+      },
+      {
+        "title": "Five Forces Model",
+        "description": "Assess industry attractiveness and competitive intensity by analyzing threat of new entrants, supplier power, buyer power, substitutes, and competitive rivalry",
+        "icon": "chart"
+      },
+      {
+        "title": "SWOT Framework",
+        "description": "Identify internal Strengths and Weaknesses alongside external Opportunities and Threats to develop strategic positioning and competitive advantage",
+        "icon": "boxes"
+      }
+    ]
+  }
 }
 """
 
@@ -34558,8 +34606,10 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
-- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, alert, etc.)
+- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table|column_container, alert, etc.)
 - Use "paragraph" type liberally (60% of content) - this is where deep learning happens
+- **purpleBoxContent** (optional): Include when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout. Structure: { "title": "Topic-specific title", "description": "Brief overview", "cards": [{ "title": "Card title", "description": "Card description", "icon": "globe|chart|boxes|info|goal|star|apple|award|calendar|clock" }] }
+- **column_container** blocks: Use in contentBlocks when comparing concepts, showing parallel procedures, or presenting side-by-side information. Structure: { "type": "column_container", "columnCount": 2|3, "columns": [[blocks for column 1], [blocks for column 2], ...] }
 - **LIST USAGE RULES (CRITICAL)**:
   - Use **numbered_list** for: Sequential steps, ranked priorities, ordered procedures, chronological events, hierarchical levels
   - Use **bullet_list** for: Related but non-sequential points, benefits/features, characteristics, recommendations
@@ -34584,6 +34634,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Skill practice: Detailed scenario + questions + expert analysis included?
 ✅ Bloom's Taxonomy: Progresses through Remember → Understand → Apply → Analyze?
 ✅ Decision frameworks: Specific criteria provided (not vague)?
+✅ **purpleBoxContent**: Included if topic has 2-4 key concepts/tools/frameworks that benefit from card layout? Cards are topic-appropriate (not generic woodworking content)?
+✅ **column_container**: Used when comparing concepts or showing parallel information? Properly structured with columnCount and columns array?
 ✅ JSON structure: Valid JSON with all required fields?
 
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
