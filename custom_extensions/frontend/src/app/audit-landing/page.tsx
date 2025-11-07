@@ -122,7 +122,7 @@ export default function AuditLandingPage() {
       </div>
 
       {/* Bottom-Right Gradient Background */}
-      <div className="absolute top-50 md:top-0 right-0 pointer-events-none" style={{ zIndex: 0 }}>
+      <div className="absolute top-50 blur-lg md:blur-none md:top-0 right-0 pointer-events-none" style={{ zIndex: 0 }}>
         <BottomRightGradient />
       </div>
 
@@ -137,7 +137,7 @@ export default function AuditLandingPage() {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-10 pr-25">
+        <nav className="hidden md:flex items-center gap-10 pr-35">
           <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
               Solutions
               <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -213,7 +213,7 @@ export default function AuditLandingPage() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden w-full px-6 py-6 bg-white absolute top-20 z-20" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
+        <div className="md:hidden w-full px-6 py-6 bg-white/70 backdrop-blur-sm absolute top-20 z-20" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
           <nav className="flex flex-col gap-4">
             <button className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
               Solutions
@@ -254,7 +254,7 @@ export default function AuditLandingPage() {
       )}
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col md:items-center justify-center px-6 md:px-8 py-8 md:py-13 pb-24 md:pb-30 relative z-10">
+      <main className="flex-1 flex flex-col md:items-center justify-center px-6 md:px-8 py-2 md:py-13 pb-24 md:pb-30 relative z-10">
         {/* Headline */}
         <h1 className="text-white text-[36px] md:text-5xl lg:text-[64px] font-bold text-left md:text-center mb-4 md:mb-6 max-w-4xl sora-font leading-tight">
           From idea to live course — all in one place
@@ -354,17 +354,17 @@ export default function AuditLandingPage() {
       </main>
 
       {/* AI Studio Section */}
-      <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10 bg-[#FCFDFF]">
+      <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10 bg-[#FCFDFF]">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-tight md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center sora-font">
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-tight md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center sora-font md:mb-5">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
             <span className="text-black"> for Learning Content</span> <br className="hidden md:block" />
             <span className="text-black">Create everything — </span>
             <span style={{ color: '#0F58F9' }}>in one place</span>
           </h2>
           {/* Description */}
-          <p className="text-black text-left md:text-center lg:text-center xl:text-center text-[16px] mb-8 max-w-3xl sora-font">
+          <p className="text-black text-left md:text-center lg:text-center xl:text-center text-[18px] mb-8 max-w-3xl sora-font">
             Generate videos, voices, images, text, and avatars with the world's top <br className="hidden lg:block xl:block" /> AI models — GPT-5.5, VEO3, 11Lab, NanBanana, AvatarCore, and SmartDrive.
           </p>
 
@@ -428,7 +428,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* SmartDrive Section */}
-      <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+      <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Header */}
           <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-6 md:12 sora-font">
@@ -504,7 +504,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Connect Tools Section */}
-      <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
+      <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
           <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
@@ -527,7 +527,7 @@ export default function AuditLandingPage() {
               />
           </div>
           <button 
-            className="w-full md:w-auto px-12 py-4 -mt-0 text-[18px] md:text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="w-full md:w-auto px-12 py-4 -mt-0 text-[18px] md:text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center items-center justify-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -541,10 +541,10 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Online Resources Section */}
-      <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+      <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center pr-15 md:pr-0 xl:text-center mb-16 sora-font">
             <span className="text-black">Use </span>
             <span style={{ color: '#0F58F9' }}>online resources</span>
             <span className="text-black"> to <br className="hidden xl:block lg:block"/> build smarter courses</span>
@@ -553,7 +553,7 @@ export default function AuditLandingPage() {
           {/* Two Column Layout */}
           <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-25 mb-12">
             {/* Left Column - Features & Platforms */}
-            <div className="flex flex-col gap-8 max-w-[450px]">
+            <div className="flex flex-col gap-8 max-w-[450px] border-t border-gray-200 md:border-t-0 pt-6 md:pt-0">
               {/* Feature 1 */}
               <div className="flex flex-col md:flex-row gap-4">
                 <div 
@@ -570,7 +570,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Feature 2 */}
-              <div className="flex flex-col md:flex-row gap-4 pb-6 border-b border-gray-200">
+              <div className="flex flex-col md:flex-row gap-4 pb-6 md:border-b border-gray-200">
                 <div 
                   className="w-13 h-13 p-2 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -624,7 +624,7 @@ export default function AuditLandingPage() {
             {/* Right Column - Import Form */}
             <div className="w-full">
               <div 
-                className="bg-white rounded-xl p-8 shadow-sm"
+                className="bg-white rounded-xl py-6 px-5 md:py-8 md:px-8 shadow-sm"
               >
                 <h3 className="text-xl font-semibold text-black mb-6 sora-font">Import from URL</h3>
                 
@@ -678,7 +678,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Update in minutes */}
-      <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
+      <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
           <h2 className="max-w-5xl text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
@@ -687,7 +687,7 @@ export default function AuditLandingPage() {
           </h2>
 
           {/* Description */}
-          <p className="text-black text-left md:text-center lg:text-center xl:text-center text-[16px] mb-8 max-w-xl px-0 md:px-10 lg:px-10 xl:px-10 pr-19 md:pr-0 lg:pr-0 xl:pr-0 sora-font">
+          <p className="text-black text-left md:text-center lg:text-center xl:text-center text-[18px] mb-8 max-w-[480px] px-0 md:px-10 lg:px-10 xl:px-10 pr-21 md:pr-0 lg:pr-0 xl:pr-0 sora-font">
             AI helps you rebuild outdated courses, lessons, or presentations instantly.
           </p>
 
@@ -707,7 +707,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="w-full md:w-auto px-12 py-4 -mt-0 lg:-mt-25 xl:-mt-28 text-[18px] md:text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 hover:scale-105 relative z-10"
+            className="w-full md:w-auto px-12 py-4 -mt-0 lg:-mt-25 xl:-mt-28 text-[18px] md:text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center justify-center gap-4 hover:scale-105 relative z-10"
             style={{
               backgroundColor: '#0F58F9',
               transition: 'transform 0.3s ease'
@@ -722,7 +722,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Share Your Knowledge Section */}
-      <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+      <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
           <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-10 md:mb-16 lg:mb-16 xl:mb-16 sora-font">
@@ -817,14 +817,14 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Trusted By Section */}
-      <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
+      <section className="w-full bg-[#FCFDFF] py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-center justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font gap-1 md:gap-3">
+          <h2 className="flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-start md:items-center justify-start md:justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font gap-1 md:gap-3">
             <span className="text-black">Trusted by</span>
             <span className="flex items-center text-[30px] md:hidden">
               <span className="text-[#0F58F9] font-bold">Deloitte</span>
-              <span className="ml-1 inline-block w-[10px] h-[10px] rounded-full bg-[#8DDE5E]"></span>
+              <span className="ml-1 mt-3 inline-block w-[10px] h-[10px] rounded-full bg-[#86BC25]"></span>
             </span>
             <img 
               src="/custom-projects-ui/images/deloitteIcoBlue.svg"
@@ -882,15 +882,15 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Professional Categories Section */}
-      <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+      <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-7xl mx-auto">
           {/* Cards Grid */}
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Card 1 - Red Placeholder */}
             <div 
               className="rounded-md overflow-hidden"
             >
-              <h2 className="text-4xl md:text-[42px] font-semibold text-left mb-5 md:mb-10 lg:mb-10 xl:mb-10 sora-font">
+              <h2 className="text-[30px] md:text-[42px] font-semibold text-left mb-5 md:mb-10 lg:mb-10 xl:mb-10 sora-font">
                 <span className="text-black">Built for </span>
                 <span style={{ color: '#0F58F9' }}> every team. </span>
                 <span className="text-black">For any workflow</span>
@@ -906,7 +906,7 @@ export default function AuditLandingPage() {
                 style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
               >
                 <img 
-                  src="/custom-projects-ui/images/HRfasterOnboarding.png"
+                  src="/custom-projects-ui/images/HRfasterOnboarding1.png"
                   alt="HR"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -935,7 +935,7 @@ export default function AuditLandingPage() {
                 style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
               >
                 <img 
-                  src="/custom-projects-ui/images/LDlaunchCourses.png"
+                  src="/custom-projects-ui/images/LDlaunchCourses1.png"
                   alt="L&D"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -964,7 +964,7 @@ export default function AuditLandingPage() {
                 style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
               >
                 <img 
-                  src="/custom-projects-ui/images/betterPreBoarding.png"
+                  src="/custom-projects-ui/images/betterPreBoarding1.png"
                   alt="Recruiting"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -993,7 +993,7 @@ export default function AuditLandingPage() {
                 style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
               >
                 <img 
-                  src="/custom-projects-ui/images/SMBEntrepreneurs.png"
+                  src="/custom-projects-ui/images/SMBEntrepreneurs1.png"
                   alt="SMB Entrepreneurs"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -1022,7 +1022,7 @@ export default function AuditLandingPage() {
                 style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
               >
                 <img 
-                  src="/custom-projects-ui/images/digitalCreators.png"
+                  src="/custom-projects-ui/images/digitalCreators1.png"
                   alt="Digital Creators"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -1048,10 +1048,10 @@ export default function AuditLandingPage() {
         </div>
       </section>
             {/* Measurable Impact Section */}
-      <section className="w-full bg-white py-20 relative z-10 overflow-hidden">
+      <section className="w-full bg-[#FCFDFF] py-14 md:py-20 relative z-10 overflow-hidden">
         {/* Background Ellipses */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="flex flex-col md:flex-row gap-20 opacity-20">
+          <div className="flex flex-col md:flex-row gap-30 md:gap-20 opacity-20">
             {/* Ellipse 1 - Blue */}
             <div 
               className="w-64 h-64 rounded-full"
@@ -1267,7 +1267,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+      <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-5xl mx-auto">
           {/* Heading */}
           <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
@@ -1308,7 +1308,7 @@ export default function AuditLandingPage() {
             ].map((faq, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden transition-all duration-200"
+                className="bg-white rounded-md border border-[#F3F3F3] overflow-hidden transition-all duration-200"
                 style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
               >
                 <button
@@ -1354,7 +1354,7 @@ export default function AuditLandingPage() {
       >
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           {/* Heading */}
-          <h2 className="text-[30px] md:text-[42px] leading-none md:leading-[1.2] font-bold text-white mb-10 sora-font">
+          <h2 className="text-[30px] md:text-[42px] max-w-[260px] md:max-w-auto leading-none md:leading-[1.2] font-bold text-white mb-10 sora-font">
             Start creating with AI today
           </h2>
 
@@ -1377,7 +1377,7 @@ export default function AuditLandingPage() {
       {/* Footer */}
       <footer className="w-full bg-black py-16 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10 md:mb-16 lg:mb-16 xl:mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1.2fr_1.6fr] gap-8 mb-10 md:mb-16 lg:mb-16 xl:mb-16">
             {/* Company Info */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
@@ -1390,46 +1390,46 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Links Group - Product, Company, Other Resources */}
-            <div className="lg:col-span-2 flex flex-wrap w-full justify-between gap-x-6 gap-y-6 md:gap-10 border-y md:border-y-0 lg:border-y-0 xl:border-y-0 border-[#FFFFFF4D] py-7 md:py-0 lg:py-0 xl:py-0">
+            <div className="lg:col-span-2 flex flex-wrap w-full justify-between gap-x-4 gap-y-6 md:gap-x-8 md:gap-y-6 border-y md:border-y-0 lg:border-y-0 xl:border-y-0 border-[#FFFFFF4D] py-7 md:py-0 lg:py-0 xl:py-0">
               {/* Product Links */}
-              <div className="flex-1 min-w-[160px]">
+              <div className="flex-1 min-w-[140px] max-w-[200px]">
                 <ul className="space-y-3">
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Product</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Features</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Integrations</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Roadmap</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">API</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Product</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Features</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Integrations</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Roadmap</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">API</a></li>
                 </ul>
               </div>
 
               {/* Company Links */}
-              <div className="flex-1 min-w-[160px]">
+              <div className="flex-1 min-w-[140px] max-w-[200px]">
                 <ul className="space-y-3">
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Company</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Our team</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Careers</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Community</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Company</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Our team</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Careers</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Community</a></li>
                 </ul>
               </div>
 
               {/* Other Resources */}
-              <div className="flex-1 min-w-[160px] mb-6">
+              <div className="flex-1 min-w-[140px] max-w-[200px] mb-6">
                 <ul className="space-y-3">
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Other resources</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Blog</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Changelog</a></li>
-                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Contact</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Other resources</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Blog</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Changelog</a></li>
+                  <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Contact</a></li>
                 </ul>
               </div>
             </div>
 
             {/* Newsletter */}
-            <div>
-              <h3 className="text-white font-semibold mb-2 sora-font">Join our newsletter</h3>
-              <p className="text-white text-sm mb-4 sora-font">Stay connected with AI based Analytics</p>
+            <div className="md:col-span-2 lg:col-span-1 max-w-[320px] md:max-w-none">
+              <h3 className="text-white text-[20px] md:text-[22px] uppercase md:normal-case font-semibold mb-3 sora-font">Join our newsletter</h3>
+              <p className="text-white text-sm mb-5 sora-font">Stay connected with AI based Analytics</p>
               
               {/* Email Input and Button */}
-              <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row gap-2">
+              <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row gap-3">
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -1456,14 +1456,14 @@ export default function AuditLandingPage() {
                 </a>
                 
                 {/* YouTube */}
-                <a href="#" className="text-white hover:text-gray-400 transition-colors">
+                <a href="#" className="p-2 md:p-0 rounded-lg border md:border-0 border-[#27272A] text-white hover:text-gray-400 transition-colors">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
                 </a>
                 
                 {/* LinkedIn */}
-                <a href="#" className="text-white hover:text-gray-400 transition-colors">
+                <a href="#" className="p-2 md:p-0 rounded-lg border md:border-0 border-[#27272A] text-white hover:text-gray-400 transition-colors">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                   </svg>
