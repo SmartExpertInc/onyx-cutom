@@ -28,6 +28,7 @@ interface AddOnCardProps {
   quantity: number;
   onQuantityChange: (delta: number) => void;
   showAmount?: boolean;
+  catalog?: Record<string, { unit_amount: number; currency: string; interval?: string }>;
 }
 
 const CoinsIcon: React.FC<{ size?: number }> = ({ size }) => (
