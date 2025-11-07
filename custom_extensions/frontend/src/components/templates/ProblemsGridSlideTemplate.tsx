@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/ProblemsGridSlideTemplate.tsx
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '../editors/ControlledWysiwygEditor';
@@ -18,28 +18,45 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   logoText?: string;
 }
 
-// Function to clean HTML from unnecessary span tags
+// Function to clean HTML from all span tags - removes spans and keeps only their text content
 const cleanHtmlFromSpans = (html: string): string => {
-  if (!html) return html;
-  // Remove span tags that contain color styling (especially black color)
-  // This handles cases like <span style="color: black;">text</span> -> text
+  if (!html || typeof html !== 'string') return html;
   let cleaned = html;
-  // Match and remove span tags with color: black in various formats
-  // Pattern: <span ... style="...color: black..." ...>content</span> -> content
-  const spanPatterns = [
-    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*black[^"']*["'][^>]*>(.*?)<\/span>/gi,
-    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*rgb\(0,\s*0,\s*0\)[^"']*["'][^>]*>(.*?)<\/span>/gi,
-    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*#000000[^"']*["'][^>]*>(.*?)<\/span>/gi,
-    /<span[^>]*style\s*=\s*["'][^"']*color\s*:\s*#000[^"']*["'][^>]*>(.*?)<\/span>/gi,
-  ];
   
-  spanPatterns.forEach(pattern => {
-    cleaned = cleaned.replace(pattern, '$1');
-  });
+  // Remove all span tags recursively, keeping only their text content
+  // This handles nested spans and all span attributes
+  // Pattern: <span ...>content</span> -> content
+  let previousLength = 0;
+  let iterations = 0;
+  const maxIterations = 20; // Prevent infinite loops
   
-  // Remove any remaining empty span tags
+  // Keep removing spans until no more are found or max iterations reached
+  while (iterations < maxIterations) {
+    previousLength = cleaned.length;
+    
+    // Remove all span tags (opening and closing), keeping the content inside
+    // Use non-greedy match to handle nested spans correctly
+    cleaned = cleaned.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi, '$1');
+    
+    // Also handle self-closing spans
+    cleaned = cleaned.replace(/<span[^>]*\/\s*>/gi, '');
+    
+    // Remove empty spans (with or without attributes)
+    cleaned = cleaned.replace(/<span[^>]*><\/span>/gi, '');
+    cleaned = cleaned.replace(/<span[^>]*>\s*<\/span>/gi, '');
+    
+    // If no changes were made, we're done
+    if (cleaned.length === previousLength) {
+      break;
+    }
+    iterations++;
+  }
+  
+  // Final cleanup: remove any remaining empty spans
   cleaned = cleaned.replace(/<span[^>]*><\/span>/gi, '');
-  return cleaned;
+  cleaned = cleaned.replace(/<span[^>]*\/\s*>/gi, '');
+  
+  return cleaned.trim();
 };
 
 export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { 
@@ -73,6 +90,14 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
   const [editRight, setEditRight] = useState(false);
   const [editPageNumber, setEditPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+
+  // Clean cards titles from span tags on mount and when cards change
+  const cleanedCards = useMemo(() => {
+    return cards.map(card => ({
+      ...card,
+      title: cleanHtmlFromSpans(card.title)
+    }));
+  }, [cards]);
 
   // Editor refs
   const tagEditorRef = useRef<ControlledWysiwygEditorRef>(null);
@@ -185,7 +210,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
       </div>
 
       <div style={grid}>
-        {cards.map((c, i)=> (
+        {cleanedCards.map((c, i)=> (
           <div key={i} style={card}>
             <div style={numBox}>{c.number}</div>
             <div className="card-title-wrapper title-element" style={cardTitle}>
@@ -197,7 +222,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
                   initialValue={c.title}
                   onSave={(v) => {
                     const next = [...cards];
-                    next[i] = { ...next[i], title: v };
+                    next[i] = { ...next[i], title: cleanHtmlFromSpans(v) };
                     onUpdate && onUpdate({ cards: next });
                     setEditCard(null);
                   }}
@@ -210,7 +235,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & {
                   }}
                 />
               ) : (
-                <div onClick={() => isEditable && setEditCard({ idx: i, field: 'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer' : 'default', fontSize: '24px' }} dangerouslySetInnerHTML={{ __html: cleanHtmlFromSpans(c.title) }} />
+                <div onClick={() => isEditable && setEditCard({ idx: i, field: 'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer' : 'default', fontSize: '24px' }} dangerouslySetInnerHTML={{ __html: c.title }} />
               )}
             </div>
             <div style={cardBody}>
