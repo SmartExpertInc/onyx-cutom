@@ -37,6 +37,7 @@ import BrandKitRightPanel from '../../view/components/BrandKitRightPanel';
 import AvatarRightPanel from '../components/AvatarRightPanel';
 import ShapeRightPanel from '../components/ShapeRightPanel';
 import ImageRightPanel from '../components/ImageRightPanel';
+import VideoRightPanel from '../components/VideoRightPanel';
 import MusicRightPanel from '../components/MusicRightPanel';
 import TextRightPanel from '../components/TextRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
@@ -58,6 +59,7 @@ function Projects2ViewPageContent() {
   const [showAvatarRightPanel, setShowAvatarRightPanel] = useState<boolean>(false);
   const [showShapeRightPanel, setShowShapeRightPanel] = useState<boolean>(false);
   const [showImageRightPanel, setShowImageRightPanel] = useState<boolean>(false);
+  const [showVideoRightPanel, setShowVideoRightPanel] = useState<boolean>(false);
   const [showMusicRightPanel, setShowMusicRightPanel] = useState<boolean>(false);
   const [selectedMediaOption, setSelectedMediaOption] = useState<MediaOption>('image');
   const [showTextRightPanel, setShowTextRightPanel] = useState<boolean>(false);
@@ -690,6 +692,14 @@ function Projects2ViewPageContent() {
 
     if (mediaOption === 'image' || mediaOption === 'icon') {
       setShowImageRightPanel(true);
+      setShowVideoRightPanel(false);
+      setShowMusicRightPanel(false);
+      setShowShapeRightPanel(false);
+      setShowAvatarRightPanel(false);
+      setShowTextRightPanel(false);
+    } else if (mediaOption === 'video') {
+      setShowVideoRightPanel(true);
+      setShowImageRightPanel(false);
       setShowMusicRightPanel(false);
       setShowShapeRightPanel(false);
       setShowAvatarRightPanel(false);
@@ -697,12 +707,14 @@ function Projects2ViewPageContent() {
     } else if (mediaOption === 'music') {
       setShowMusicRightPanel(true);
       setShowImageRightPanel(false);
+      setShowVideoRightPanel(false);
       setShowShapeRightPanel(false);
       setShowAvatarRightPanel(false);
       setShowTextRightPanel(false);
     } else {
       setShowImageRightPanel(false);
       setShowMusicRightPanel(false);
+      setShowVideoRightPanel(false);
     }
   };
 
@@ -742,6 +754,7 @@ function Projects2ViewPageContent() {
       setMediaPopupPosition({ x, y });
       setIsMediaPopupOpen(true);
       setShowImageRightPanel(true);
+      setShowVideoRightPanel(false);
       setShowMusicRightPanel(false);
       setSelectedMediaOption('image');
       setShowShapeRightPanel(false);
@@ -770,6 +783,7 @@ function Projects2ViewPageContent() {
     setShowTextRightPanel(false); // Close text panel when opening shape panel
     setShowImageRightPanel(false);
     setShowMusicRightPanel(false);
+    setShowVideoRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -786,6 +800,7 @@ function Projects2ViewPageContent() {
     setShowAvatarRightPanel(false); // Close avatar panel when opening text popup
     setShowImageRightPanel(false);
     setShowMusicRightPanel(false);
+    setShowVideoRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
@@ -801,6 +816,7 @@ function Projects2ViewPageContent() {
     setShowTextRightPanel(false); // Close text panel when opening avatar panel
     setShowImageRightPanel(false);
     setShowMusicRightPanel(false);
+    setShowVideoRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -1091,6 +1107,7 @@ function Projects2ViewPageContent() {
                       setShowShapeRightPanel(false);
                       setShowAvatarRightPanel(false);
                       setShowMusicRightPanel(false);
+                      setShowVideoRightPanel(false);
                       
                       // Update current text color
                       const inlineColor = editor?.getAttributes?.('textStyle')?.color;
@@ -1328,8 +1345,48 @@ function Projects2ViewPageContent() {
                 setShowShapeRightPanel(false);
                 setShowAvatarRightPanel(false);
                 setShowTextRightPanel(false);
+                setShowVideoRightPanel(false);
                 setShowMusicRightPanel(true);
               }}
+            />
+          ) : showVideoRightPanel ? (
+            <VideoRightPanel
+              isAppearanceEnabled={isAppearanceEnabled}
+              setIsAppearanceEnabled={setIsAppearanceEnabled}
+              showAppearanceDropdown={showAppearanceDropdown}
+              setShowAppearanceDropdown={setShowAppearanceDropdown}
+              selectedAppearance={selectedAppearance}
+              setSelectedAppearance={setSelectedAppearance}
+              appearanceVolume={appearanceVolume}
+              setAppearanceVolume={setAppearanceVolume}
+              isBackgroundEnabled={isBackgroundEnabled}
+              setIsBackgroundEnabled={setIsBackgroundEnabled}
+              backgroundColor={backgroundColor}
+              setMediaPopupPosition={setMediaPopupPosition}
+              setIsMediaPopupOpen={setIsMediaPopupOpen}
+              setColorPalettePosition={(pos) => {
+                setColorPalettePosition(pos);
+                setColorPaletteContext('shape');
+              }}
+              setIsColorPaletteOpen={setIsColorPaletteOpen}
+              isTransitionEnabled={isTransitionEnabled}
+              setIsTransitionEnabled={setIsTransitionEnabled}
+              showTransitionDropdown={showTransitionDropdown}
+              setShowTransitionDropdown={setShowTransitionDropdown}
+              selectedTransition={selectedTransition}
+              setSelectedTransition={setSelectedTransition}
+              activeSettingsPanel={activeSettingsPanel}
+              setActiveSettingsPanel={setActiveSettingsPanel}
+              componentBasedSlideDeck={componentBasedSlideDeck}
+              setActiveTransitionIndex={setActiveTransitionIndex}
+              shapeColor={shapeColor}
+              onShapeColorChange={setShapeColor}
+              strokeColor={strokeColor}
+              onStrokeColorChange={setStrokeColor}
+              onColorPaletteContextChange={setColorPaletteContext}
+              onClose={() => setShowVideoRightPanel(false)}
+              mediaType="video"
+              rightPanelRef={rightPanelRef}
             />
           ) : showImageRightPanel ? (
             <ImageRightPanel

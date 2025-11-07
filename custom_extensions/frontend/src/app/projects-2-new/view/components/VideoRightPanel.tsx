@@ -48,7 +48,7 @@ interface VideoRightPanelProps {
   onColorPaletteContextChange?: (context: 'shape' | 'stroke') => void;
   
   // Media context
-  mediaType?: 'image' | 'icon';
+  mediaType?: 'image' | 'icon' | 'video';
 
   // Close handler
   onClose: () => void;
@@ -104,8 +104,14 @@ export default function VideoRightPanel({
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const [currentColorContext, setCurrentColorContext] = useState<'shape' | 'stroke' | null>(null);
   const [transparencyValue, setTransparencyValue] = useState<string>('100%');
+  type DurationOption = 'Freeze' | 'Loop' | 'Adjust' | 'Hide';
+  const durationOptions: DurationOption[] = ['Freeze', 'Loop', 'Adjust', 'Hide'];
+  const [selectedDurationOption, setSelectedDurationOption] = useState<DurationOption>('Loop');
+  const [hoveredDurationOption, setHoveredDurationOption] = useState<DurationOption | null>(null);
+  const [isDurationMenuOpen, setIsDurationMenuOpen] = useState<boolean>(false);
   const [isImageMenuOpen, setIsImageMenuOpen] = useState<boolean>(false);
   const imageMenuRef = useRef<HTMLDivElement>(null);
+  const durationMenuRef = useRef<HTMLDivElement>(null);
 
   void _shapeColor;
   void _onShapeColorChange;
@@ -157,21 +163,31 @@ export default function VideoRightPanel({
       if (imageMenuRef.current && !imageMenuRef.current.contains(target)) {
         setIsImageMenuOpen(false);
       }
+
+      if (durationMenuRef.current && !durationMenuRef.current.contains(target)) {
+        setIsDurationMenuOpen(false);
+        setHoveredDurationOption(null);
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [setIsColorPaletteOpen]);
+  }, [setIsColorPaletteOpen, setIsDurationMenuOpen, setHoveredDurationOption]);
 
   const isIcon = mediaType === 'icon';
+  const isVideo = mediaType === 'video';
   const uploadedAssetLabel = isIcon
     ? t('panels.imageRightPanel.uploadedIcon', 'Uploaded icon')
-    : t('panels.shapeRightPanel.uploadedImage', 'Uploaded image');
+    : isVideo
+      ? t('panels.videoRightPanel.uploadedVideo', 'Uploaded video')
+      : t('panels.shapeRightPanel.uploadedImage', 'Uploaded image');
   const removeAssetLabel = isIcon
     ? t('panels.imageRightPanel.removeIcon', 'Remove icon')
-    : t('panels.imageRightPanel.removeImage', 'Remove image');
+    : isVideo
+      ? t('panels.videoRightPanel.removeVideo', 'Remove video')
+      : t('panels.imageRightPanel.removeImage', 'Remove image');
 
   return (
     <>
@@ -272,6 +288,83 @@ export default function VideoRightPanel({
             className="flex-1 bg-transparent border-none text-xs focus:outline-none text-left"
             style={{ color: '#878787', textAlign: 'left' }}
           />
+        </div>
+      </div>
+
+      {/* Duration Section */}
+      <div className="space-y-1 mb-4 flex-shrink-0" ref={durationMenuRef}>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.videoRightPanel.duration', 'Duration')}</h3>
+        </div>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() =>
+              setIsDurationMenuOpen((prev) => {
+                if (prev) {
+                  setHoveredDurationOption(null);
+                }
+                return !prev;
+              })
+            }
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 border rounded-md bg-white"
+            style={{ borderColor: '#E0E0E0' }}
+          >
+            <span className="text-xs" style={{ color: '#878787' }}>{selectedDurationOption}</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.33301 6.0026L7.99967 10.6693L12.6663 6.0026" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          {isDurationMenuOpen && (
+            <div
+              className="absolute left-0 right-0 mt-2 rounded border bg-white shadow-sm p-1 z-10"
+              style={{ borderColor: '#E0E0E0' }}
+            >
+              {durationOptions.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => {
+                    setSelectedDurationOption(option);
+                    setIsDurationMenuOpen(false);
+                    setHoveredDurationOption(null);
+                  }}
+                  className="flex w-full items-center justify-between rounded px-2 py-1"
+                  style={{
+                    color: '#878787',
+                    backgroundColor: hoveredDurationOption === option ? '#E0E0E0' : 'transparent',
+                  }}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onMouseEnter={() => setHoveredDurationOption(option)}
+                  onMouseLeave={() => setHoveredDurationOption(null)}
+                >
+                  <div className="flex items-center gap-2">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ visibility: option === selectedDurationOption ? 'visible' : 'hidden' }}
+                    >
+                      <path d="M3.5 8.3335L6.16667 11.0002L12.5 4.66683" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-xs">{option}</span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_2114_32588)">
+                      <path d="M7.99967 10.6654V7.9987M7.99967 5.33203H8.00634M14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_2114_32588">
+                        <rect width="16" height="16" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
