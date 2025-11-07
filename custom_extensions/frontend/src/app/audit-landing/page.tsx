@@ -122,7 +122,7 @@ export default function AuditLandingPage() {
       </div>
 
       {/* Bottom-Right Gradient Background */}
-      <div className="absolute top-50 right-0 pointer-events-none" style={{ zIndex: 0 }}>
+      <div className="absolute top-50 md:top-0 right-0 pointer-events-none" style={{ zIndex: 0 }}>
         <BottomRightGradient />
       </div>
 
@@ -137,7 +137,7 @@ export default function AuditLandingPage() {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-10 pr-15">
+        <nav className="hidden md:flex items-center gap-10 pr-25">
           <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
               Solutions
               <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -357,9 +357,9 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10 bg-[#FCFDFF]">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center sora-font">
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-tight md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center sora-font">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
-            <span className="text-black"> for Learning Content</span>
+            <span className="text-black"> for Learning Content</span> <br className="hidden md:block" />
             <span className="text-black">Create everything — </span>
             <span style={{ color: '#0F58F9' }}>in one place</span>
           </h2>
@@ -431,7 +431,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Header */}
-          <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-6 md:12 sora-font">
+          <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-6 md:12 sora-font">
             <span className="text-black">AI-powered SmartDrive — </span> <br className="hidden xl:block lg:block" />
             <span style={{ color: '#0F58F9' }}>store everything in one place.</span>
           </h2>
@@ -507,7 +507,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
             <span style={{ color: '#0F58F9' }}>Connect 42+ tools</span>
             <span className="text-black"> — and turn everything<br />your team does into learning. Build your<br />own living </span>
             <span style={{ color: '#0F58F9' }}>knowledge ecosystem</span>
@@ -544,7 +544,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-16 sora-font">
             <span className="text-black">Use </span>
             <span style={{ color: '#0F58F9' }}>online resources</span>
             <span className="text-black"> to <br className="hidden xl:block lg:block"/> build smarter courses</span>
@@ -681,7 +681,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="max-w-5xl text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
+          <h2 className="max-w-5xl text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
             <span className="text-black">Keep your content always up to date <br /> Knowledge changes — </span>
             <span style={{ color: '#0F58F9' }}>update in minutes</span>
           </h2>
@@ -725,7 +725,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-10 md:mb-16 lg:mb-16 xl:mb-16 sora-font">
+          <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-10 md:mb-16 lg:mb-16 xl:mb-16 sora-font">
             <span className="text-black">Share your knowledge — </span>
             <span style={{ color: '#0066FF' }}>anywhere</span>
           </h2>
@@ -820,11 +820,11 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-center justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal mb-16 sora-font gap-1 md:gap-3">
+          <h2 className="flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-center justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font gap-1 md:gap-3">
             <span className="text-black">Trusted by</span>
             <span className="flex items-center text-[30px] md:hidden">
-              <span className="text-[#0F58F9]">Deloitte</span>
-              <span className="text-[#8DDE5E] ml-1">&#8226;</span>
+              <span className="text-[#0F58F9] font-bold">Deloitte</span>
+              <span className="ml-1 inline-block w-[10px] h-[10px] rounded-full bg-[#8DDE5E]"></span>
             </span>
             <img 
               src="/custom-projects-ui/images/deloitteIcoBlue.svg"
@@ -885,7 +885,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-7xl mx-auto">
           {/* Cards Grid */}
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Card 1 - Red Placeholder */}
             <div 
               className="rounded-md overflow-hidden"
@@ -902,9 +902,14 @@ export default function AuditLandingPage() {
 
             {/* Card 2 - HR */}
               <div 
-                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/HRfasterOnboarding.png')" }}
-            >
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <img 
+                  src="/custom-projects-ui/images/HRfasterOnboarding.png"
+                  alt="HR"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -926,9 +931,14 @@ export default function AuditLandingPage() {
 
             {/* Card 3 - L&D */}
               <div 
-                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/LDlaunchCourses.png')" }}
-            >
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <img 
+                  src="/custom-projects-ui/images/LDlaunchCourses.png"
+                  alt="L&D"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -950,9 +960,14 @@ export default function AuditLandingPage() {
 
             {/* Card 4 - Recruiting */}
               <div 
-                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/betterPreBoarding.png')" }}
-            >
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <img 
+                  src="/custom-projects-ui/images/betterPreBoarding.png"
+                  alt="Recruiting"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -974,9 +989,14 @@ export default function AuditLandingPage() {
 
             {/* Card 5 - SMB Entrepreneurs */}
               <div 
-                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/SMBEntrepreneurs.png')" }}
-            >
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <img 
+                  src="/custom-projects-ui/images/SMBEntrepreneurs.png"
+                  alt="SMB Entrepreneurs"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -998,9 +1018,14 @@ export default function AuditLandingPage() {
 
             {/* Card 6 - Digital Creators */}
               <div 
-                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/digitalCreators.png')" }}
-            >
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              >
+                <img 
+                  src="/custom-projects-ui/images/digitalCreators.png"
+                  alt="Digital Creators"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -1025,8 +1050,8 @@ export default function AuditLandingPage() {
             {/* Measurable Impact Section */}
       <section className="w-full bg-white py-20 relative z-10 overflow-hidden">
         {/* Background Ellipses */}
-        <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-center pointer-events-none">
-          <div className="flex gap-20 opacity-20">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col md:flex-row gap-20 opacity-20">
             {/* Ellipse 1 - Blue */}
             <div 
               className="w-64 h-64 rounded-full"
@@ -1064,7 +1089,7 @@ export default function AuditLandingPage() {
 
         <div className="w-full relative z-10">
           {/* Heading */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center mb-16 px-8 sora-font">
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-16 px-8 sora-font">
             <span className="text-black">From </span>
             <span style={{ color: '#0F58F9' }}>minutes</span>
             <span className="text-black"> to measurable impact</span>
@@ -1213,27 +1238,27 @@ export default function AuditLandingPage() {
           </div>
 
           {/* Smaller Statistics Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-0 gap-y-0 md:gap-x-8 md:gap-y-0 max-w-5xl mx-auto px-8">
             {/* Stat 1 */}
-            <div className="text-center border-r border-[#0206171A]">
+            <div className="text-center border-b border-r border-[#0206171A] md:border-b-0 px-6 py-6">
               <p className="text-3xl font-semibold text-black mb-2 sora-font">+75%</p>
               <p className="text-base text-[#020617B2] sora-font">faster creation</p>
             </div>
 
             {/* Stat 2 */}
-            <div className="text-center pr-5 border-r border-[#0206171A]">
+            <div className="text-center border-b border-[#0206171A] md:border-b-0 md:border-r px-6 py-6">
               <p className="text-3xl font-semibold text-black mb-2 sora-font">35h</p>
               <p className="text-base text-[#020617B2] sora-font">saved per user monthly</p>
             </div>
-
+            
             {/* Stat 3 */}
-            <div className="text-center pr-5 border-r border-[#0206171A]">
+            <div className="text-center border-r border-[#0206171A] px-6 py-6">
               <p className="text-3xl font-semibold text-black mb-2 sora-font">93%</p>
               <p className="text-base text-[#020617B2] sora-font">retention</p>
             </div>
 
             {/* Stat 4 */}
-            <div className="text-center">
+            <div className="text-center px-6 py-6">
               <p className="text-3xl font-semibold text-black mb-2 sora-font">98%</p>
               <p className="text-base text-[#020617B2] sora-font">fewer mistakes</p>
             </div>
@@ -1243,9 +1268,9 @@ export default function AuditLandingPage() {
 
       {/* FAQ Section */}
       <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Heading */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
+          <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
             Frequently Asked Questions
           </h2>
 
@@ -1329,7 +1354,7 @@ export default function AuditLandingPage() {
       >
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           {/* Heading */}
-          <h2 className="text-[30px] md:text-[42px] leading-none md:leading-normal font-bold text-white mb-10 sora-font">
+          <h2 className="text-[30px] md:text-[42px] leading-none md:leading-[1.2] font-bold text-white mb-10 sora-font">
             Start creating with AI today
           </h2>
 
@@ -1365,9 +1390,9 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Links Group - Product, Company, Other Resources */}
-            <div className="lg:col-span-2 flex flex-wrap gap-x-10 gap-y-3 md:gap-10 border-y md:border-y-0 lg:border-y-0 xl:border-y-0 border-[#FFFFFF4D] py-7 md:py-0 lg:py-0 xl:py-0">
+            <div className="lg:col-span-2 flex flex-wrap w-full justify-between gap-x-6 gap-y-6 md:gap-10 border-y md:border-y-0 lg:border-y-0 xl:border-y-0 border-[#FFFFFF4D] py-7 md:py-0 lg:py-0 xl:py-0">
               {/* Product Links */}
-              <div>
+              <div className="flex-1 min-w-[160px]">
                 <ul className="space-y-3">
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Product</a></li>
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Features</a></li>
@@ -1378,7 +1403,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Company Links */}
-              <div>
+              <div className="flex-1 min-w-[160px]">
                 <ul className="space-y-3">
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Company</a></li>
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Our team</a></li>
@@ -1388,7 +1413,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Other Resources */}
-              <div className="mb-6">
+              <div className="flex-1 min-w-[160px] mb-6">
                 <ul className="space-y-3">
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Other resources</a></li>
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-sm sora-font">Blog</a></li>
@@ -1408,11 +1433,11 @@ export default function AuditLandingPage() {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 min-w-0 px-4 py-2 rounded-md text-sm focus:outline-none"
+                  className="flex-1 min-w-0 px-4 py-3 md:py-2 rounded-sm text-sm focus:outline-none"
                   style={{ backgroundColor: 'white', color: '#333' }}
                 />
                 <button
-                  className="px-4 py-2 rounded-md text-white text-sm font-semibold sora-font flex-shrink-0 whitespace-nowrap"
+                  className="px-4 py-3 md:py-2 rounded-sm text-white text-[16px] md:text-sm font-medium md:font-semibold sora-font flex-shrink-0 whitespace-nowrap"
                   style={{ backgroundColor: '#0F58F9' }}
                 >
                   Subscribe
@@ -1420,11 +1445,11 @@ export default function AuditLandingPage() {
               </div>
             </div>
           </div>
-          <div className="flex justify-between">
-            <p className="text-white text-xs sora-font">© CONTENT BUILDER, INC</p>
-            <div className="flex gap-4 justify-end">
+          <div className="flex flex-col-reverse md:flex-row justify-between">
+            <p className="md:text-[#FFFFFFCC] text-[#A1A1AA] text-xs sora-font">© CONTENT BUILDER, INC</p>
+            <div className="flex gap-4 pb-5 md:pb-0 justify-start md:justify-end">
                 {/* X (Twitter) */}
-                <a href="#" className="text-white hover:text-gray-400 transition-colors">
+                <a href="#" className="p-2 md:p-0 rounded-lg border md:border-0 border-[#27272A] text-white hover:text-gray-400 transition-colors">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
