@@ -154,9 +154,11 @@ class LokiService:
             label_filters.append(f'event="{event}"')
         
         if level:
-            label_filters.append(f'level="{level}"')
+            line_filter = f'|= "\\"level\\": \\"{level}\\""'
+        else:
+            line_filter = ""
 
-        query = '{' + ', '.join(label_filters) + '}'
+        query = '{' + ', '.join(label_filters) + '} ' + line_filter
         
         # Log the query for debugging
         import logging
