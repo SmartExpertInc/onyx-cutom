@@ -5,7 +5,7 @@ import { format, subHours } from 'date-fns';
 import { 
   RefreshCw, AlertTriangle, Filter, X, Calendar, Search, Download, 
   ChevronDown, ChevronUp, Copy, Eye, EyeOff, Clock, User, FileText, 
-  AlertCircle, Info, XCircle, ArrowRight, Settings
+  AlertCircle, Info, XCircle, ArrowRight, Settings, Terminal, LayoutGrid
 } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
@@ -68,6 +68,8 @@ const ErrorsTab: React.FC = () => {
   const [contextMinutesBefore, setContextMinutesBefore] = useState(5);
   const [contextMinutesAfter, setContextMinutesAfter] = useState(5);
   const [selectedErrorLog, setSelectedErrorLog] = useState<LogEntry | null>(null);
+  const [contextViewMode, setContextViewMode] = useState<'card' | 'terminal'>('card');
+  const [expandedTerminalLogs, setExpandedTerminalLogs] = useState<Set<number>>(new Set());
 
   // Debounced filter application
   useEffect(() => {
@@ -158,6 +160,26 @@ const ErrorsTab: React.FC = () => {
     } catch {
       return timestamp;
     }
+  };
+
+  const formatTimestampCompact = (timestamp: string) => {
+    try {
+      return format(new Date(timestamp), 'HH:mm:ss.SSS');
+    } catch {
+      return timestamp;
+    }
+  };
+
+  const toggleTerminalLogExpansion = (index: number) => {
+    setExpandedTerminalLogs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
   };
 
   const clearAllFilters = useCallback(() => {
@@ -591,6 +613,33 @@ const ErrorsTab: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-4">
+                {/* View Mode Toggle */}
+                <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setContextViewMode('card')}
+                    className={`flex items-center space-x-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                      contextViewMode === 'card'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                    title="Card View"
+                  >
+                    <LayoutGrid className="w-3 h-3" />
+                    <span>Card</span>
+                  </button>
+                  <button
+                    onClick={() => setContextViewMode('terminal')}
+                    className={`flex items-center space-x-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                      contextViewMode === 'terminal'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                    title="Terminal View"
+                  >
+                    <Terminal className="w-3 h-3" />
+                    <span>Terminal</span>
+                  </button>
+                </div>
                 {/* Time Range Configuration */}
                 <div className="flex items-center space-x-2">
                   <Settings className="w-4 h-4 text-gray-500" />
@@ -636,6 +685,8 @@ const ErrorsTab: React.FC = () => {
                     setContextModalOpen(false);
                     setContextLogs([]);
                     setSelectedErrorLog(null);
+                    setContextViewMode('card');
+                    setExpandedTerminalLogs(new Set());
                   }}
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                 >
@@ -661,6 +712,103 @@ const ErrorsTab: React.FC = () => {
                 <div className="text-center py-12">
                   <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                   <p className="text-gray-600">No logs found in the specified time range</p>
+                </div>
+              ) : contextViewMode === 'terminal' ? (
+                <div className="bg-gray-900 text-gray-100 font-mono text-xs rounded-lg p-4 overflow-x-auto">
+                  <div className="space-y-0.5">
+                    {contextLogs.map((log, index) => {
+                      const isErrorLog = log.timestamp === selectedErrorLog?.timestamp;
+                      const isExpanded = expandedTerminalLogs.has(index);
+                      const hasError = log.error || log.trace;
+                      const level = log.level?.toUpperCase() || 'UNKNOWN';
+                      
+                      // Color coding for terminal
+                      const getLevelColorTerminal = (level?: string) => {
+                        if (!level) return 'text-gray-400';
+                        const levelLower = level.toLowerCase();
+                        if (levelLower === 'error' || levelLower === 'critical') return 'text-red-400';
+                        if (levelLower === 'warning') return 'text-yellow-400';
+                        if (levelLower === 'info') return 'text-blue-400';
+                        if (levelLower === 'debug') return 'text-gray-500';
+                        return 'text-gray-400';
+                      };
+
+                      return (
+                        <div key={index} className="group">
+                          {/* Compact line view */}
+                          <div
+                            className={`flex items-start hover:bg-gray-800 px-2 py-1 rounded cursor-pointer transition-colors ${
+                              isErrorLog ? 'bg-blue-900/30 border-l-2 border-blue-500' : ''
+                            }`}
+                            onClick={() => toggleTerminalLogExpansion(index)}
+                          >
+                            <span className="text-gray-500 mr-3 min-w-[80px]">
+                              {formatTimestampCompact(log.timestamp)}
+                            </span>
+                            <span className={`font-semibold min-w-[60px] ${getLevelColorTerminal(log.level)}`}>
+                              [{level}]
+                            </span>
+                            {isErrorLog && (
+                              <span className="text-blue-400 mr-2">[TARGET]</span>
+                            )}
+                            <span className="flex-1 text-gray-300">
+                              {log.message || log.error || 'No message'}
+                            </span>
+                            {log.endpoint && (
+                              <span className="text-gray-500 ml-2 max-w-xs truncate">
+                                {log.endpoint}
+                              </span>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(JSON.stringify(log, null, 2));
+                              }}
+                              className="ml-2 opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-300 transition-opacity"
+                              title="Copy JSON"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </button>
+                            {isExpanded ? (
+                              <ChevronUp className="w-3 h-3 ml-2 text-gray-500" />
+                            ) : (
+                              <ChevronDown className="w-3 h-3 ml-2 text-gray-500" />
+                            )}
+                          </div>
+                          
+                          {/* Expanded JSON view */}
+                          {isExpanded && (
+                            <div className="ml-[140px] mb-2 mt-1 bg-gray-800 rounded p-3 border-l-2 border-gray-700">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-gray-400 text-xs">Full Log Entry</span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    copyToClipboard(JSON.stringify(log, null, 2));
+                                  }}
+                                  className="text-gray-500 hover:text-gray-300 text-xs flex items-center space-x-1"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                  <span>Copy</span>
+                                </button>
+                              </div>
+                              <pre className="text-xs overflow-x-auto">
+                                {JSON.stringify(log, null, 2)}
+                              </pre>
+                              {log.trace && (
+                                <div className="mt-3 pt-3 border-t border-gray-700">
+                                  <div className="text-red-400 text-xs font-semibold mb-1">Stack Trace:</div>
+                                  <pre className="text-xs text-red-300 whitespace-pre-wrap overflow-x-auto">
+                                    {log.trace}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">
