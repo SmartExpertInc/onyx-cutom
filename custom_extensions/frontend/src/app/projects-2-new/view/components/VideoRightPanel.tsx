@@ -198,7 +198,7 @@ export default function VideoRightPanel({
         <div className="flex flex-col">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{uploadedAssetLabel}</h3>
           {isVideo && (
-            <span className="text-[10px]" style={{ color: '#878787' }}>00:19</span>
+            <span className="text-xs" style={{ color: '#878787' }}>00:19</span>
           )}
         </div>
         <div ref={imageMenuRef} className="relative">
@@ -372,7 +372,7 @@ export default function VideoRightPanel({
             </div>
           )}
         </div>
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-4">
           <h4 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.videoRightPanel.sound', 'Sound')}</h4>
           <button
             type="button"
