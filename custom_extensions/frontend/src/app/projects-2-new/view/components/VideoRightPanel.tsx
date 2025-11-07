@@ -345,16 +345,17 @@ export default function VideoRightPanel({
                   onMouseLeave={() => setHoveredDurationOption(null)}
                 >
                   <div className="flex items-center gap-2">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      style={{ visibility: option === selectedDurationOption ? 'visible' : 'hidden' }}
-                    >
-                      <path d="M3.5 8.3335L6.16667 11.0002L12.5 4.66683" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    {option === selectedDurationOption && (
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M3.5 8.3335L6.16667 11.0002L12.5 4.66683" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
                     <span className="text-xs">{option}</span>
                   </div>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
