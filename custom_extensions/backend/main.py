@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Depends, Request, status, File, Uplo
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+import traceback
 
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
@@ -472,6 +473,64 @@ async def get_db_pool():
     return DB_POOL
 
 app = FastAPI(title="Custom Extension Backend")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Global exception handler for unhandled exceptions.
+    Captures all exceptions that aren't explicitly handled.
+    """
+    # Get request context
+    user_id = None
+    endpoint = request.url.path
+    request_id = str(uuid.uuid4())
+    
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Set context for logging
+    set_request_context(
+        user_id=user_id,
+        endpoint=endpoint,
+        request_id=request_id
+    )
+    
+    # Extract exception details
+    error_type = type(exc).__name__
+    error_message = str(exc)
+    error_trace = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    
+    # Log as structured error
+    logger.error(
+        f"Unhandled exception: {error_type}: {error_message}",
+        exc_info=True,
+        extra={
+            "event": "unhandled_exception",
+            "error": f"{error_type}: {error_message}",
+            "trace": error_trace,
+            "additional_context": {
+                "method": request.method,
+                "url": str(request.url),
+                "client": request.client.host if request.client else None
+            }
+        }
+    )
+    
+    # Clear context
+    clear_request_context()
+    
+    # Return JSON response
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Internal server error",
+            "error_type": error_type,
+            "request_id": request_id
+        }
+    )
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
 app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
@@ -19144,7 +19203,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
     # EXTENSIVE DEBUG LOGGING: Log all incoming parameters
     user_id = dev_is_retarded
-    
+
     logger.info(f"🔍 [STEP 6] Backend received request with payload attributes:")
     for attr in ['prompt', 'modules', 'lessonsPerModule', 'language', 'fromConnectors', 'connectorIds', 'connectorSources', 'selectedFiles', 'fromFiles', 'fileIds', 'folderIds', 'fromText', 'userText', 'fromKnowledgeBase']:
         value = getattr(payload, attr, 'NOT_SET')
