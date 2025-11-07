@@ -809,9 +809,262 @@ class ProfessionalPresentationService:
             logger.error(f"Multi-slide processing failed: {e}")
             raise
 
+    async def _get_video_properties(self, video_path: str) -> Dict[str, Any]:
+        """
+        Extract detailed video properties using FFprobe.
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            Dict with video properties: codec, width, height, fps, duration, has_audio
+        """
+        try:
+            cmd = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-print_format', 'json',
+                '-show_format',
+                '-show_streams',
+                video_path
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            
+            if result.returncode != 0:
+                logger.error(f"🔍 [VIDEO_PROPERTIES] FFprobe failed for {video_path}: {result.stderr}")
+                return None
+            
+            data = json.loads(result.stdout)
+            
+            # Extract video stream properties
+            video_stream = None
+            audio_stream = None
+            
+            for stream in data.get('streams', []):
+                if stream.get('codec_type') == 'video' and not video_stream:
+                    video_stream = stream
+                elif stream.get('codec_type') == 'audio' and not audio_stream:
+                    audio_stream = stream
+            
+            if not video_stream:
+                logger.error(f"🔍 [VIDEO_PROPERTIES] No video stream found in {video_path}")
+                return None
+            
+            # Parse frame rate
+            fps_str = video_stream.get('r_frame_rate', '25/1')
+            if '/' in fps_str:
+                num, den = fps_str.split('/')
+                fps = float(num) / float(den) if float(den) > 0 else 25.0
+            else:
+                fps = float(fps_str)
+            
+            # Get duration
+            duration = float(data.get('format', {}).get('duration', 
+                            video_stream.get('duration', 0)))
+            
+            properties = {
+                'codec_name': video_stream.get('codec_name', 'unknown'),
+                'codec_long_name': video_stream.get('codec_long_name', 'unknown'),
+                'width': int(video_stream.get('width', 0)),
+                'height': int(video_stream.get('height', 0)),
+                'fps': fps,
+                'duration': duration,
+                'pix_fmt': video_stream.get('pix_fmt', 'unknown'),
+                'bit_rate': int(data.get('format', {}).get('bit_rate', 0)),
+                'has_audio': audio_stream is not None,
+                'audio_codec': audio_stream.get('codec_name', 'none') if audio_stream else None,
+            }
+            
+            logger.info(f"🔍 [VIDEO_PROPERTIES] {os.path.basename(video_path)}:")
+            logger.info(f"  - Codec: {properties['codec_name']} ({properties['codec_long_name']})")
+            logger.info(f"  - Resolution: {properties['width']}x{properties['height']}")
+            logger.info(f"  - FPS: {properties['fps']:.2f}")
+            logger.info(f"  - Duration: {properties['duration']:.2f}s")
+            logger.info(f"  - Pixel Format: {properties['pix_fmt']}")
+            logger.info(f"  - Audio: {'Yes' if properties['has_audio'] else 'No'} ({properties['audio_codec']})")
+            
+            return properties
+            
+        except Exception as e:
+            logger.error(f"🔍 [VIDEO_PROPERTIES] Error extracting properties from {video_path}: {e}")
+            return None
+
+    async def _validate_video_compatibility(self, video_paths: List[str]) -> Dict[str, Any]:
+        """
+        Validate that all videos have compatible properties for concatenation.
+        
+        Args:
+            video_paths: List of video file paths
+            
+        Returns:
+            Dict with validation results:
+            - compatible: bool (True if all videos are compatible)
+            - issues: List of compatibility issues found
+            - properties: List of properties for each video
+            - recommendation: str (recommended action)
+        """
+        logger.info(f"🔍 [COMPATIBILITY_CHECK] Validating {len(video_paths)} videos for concatenation")
+        
+        if len(video_paths) < 2:
+            return {
+                'compatible': True,
+                'issues': [],
+                'properties': [],
+                'recommendation': 'single_video'
+            }
+        
+        # Extract properties for all videos
+        all_properties = []
+        for i, video_path in enumerate(video_paths):
+            props = await self._get_video_properties(video_path)
+            if props is None:
+                logger.error(f"🔍 [COMPATIBILITY_CHECK] Failed to read properties for video {i+1}")
+                return {
+                    'compatible': False,
+                    'issues': [f"Cannot read video {i+1} properties"],
+                    'properties': all_properties,
+                    'recommendation': 'fail'
+                }
+            all_properties.append(props)
+        
+        # Compare all videos against the first one
+        reference = all_properties[0]
+        issues = []
+        
+        for i, props in enumerate(all_properties[1:], start=2):
+            # Check codec compatibility
+            if props['codec_name'] != reference['codec_name']:
+                issues.append(f"Video {i} codec mismatch: {props['codec_name']} vs {reference['codec_name']}")
+            
+            # Check resolution
+            if props['width'] != reference['width'] or props['height'] != reference['height']:
+                issues.append(f"Video {i} resolution mismatch: {props['width']}x{props['height']} vs {reference['width']}x{reference['height']}")
+            
+            # Check frame rate (allow 0.1 fps tolerance)
+            if abs(props['fps'] - reference['fps']) > 0.1:
+                issues.append(f"Video {i} FPS mismatch: {props['fps']:.2f} vs {reference['fps']:.2f}")
+            
+            # Check pixel format
+            if props['pix_fmt'] != reference['pix_fmt']:
+                issues.append(f"Video {i} pixel format mismatch: {props['pix_fmt']} vs {reference['pix_fmt']}")
+            
+            # Check audio presence consistency
+            if props['has_audio'] != reference['has_audio']:
+                issues.append(f"Video {i} audio mismatch: {'has audio' if props['has_audio'] else 'no audio'} vs {'has audio' if reference['has_audio'] else 'no audio'}")
+        
+        # Determine recommendation
+        compatible = len(issues) == 0
+        
+        if compatible:
+            recommendation = 'copy'  # Safe to use -c copy
+            logger.info(f"✅ [COMPATIBILITY_CHECK] All videos compatible - can use stream copy")
+        else:
+            recommendation = 'reencode'  # Must re-encode
+            logger.warning(f"⚠️ [COMPATIBILITY_CHECK] Compatibility issues found:")
+            for issue in issues:
+                logger.warning(f"  - {issue}")
+            logger.warning(f"⚠️ [COMPATIBILITY_CHECK] Recommendation: Re-encode during concatenation")
+        
+        return {
+            'compatible': compatible,
+            'issues': issues,
+            'properties': all_properties,
+            'recommendation': recommendation
+        }
+
+    async def _verify_concatenated_video(
+        self, 
+        video_path: str, 
+        expected_duration: float,
+        source_properties: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Verify concatenated video integrity after creation.
+        
+        Args:
+            video_path: Path to concatenated video
+            expected_duration: Expected total duration (sum of input videos)
+            source_properties: List of properties from source videos
+            
+        Returns:
+            Dict with verification results:
+            - valid: bool
+            - issues: List of issues found
+            - properties: Properties of concatenated video
+        """
+        logger.info(f"🔍 [VERIFICATION] Verifying concatenated video: {video_path}")
+        
+        issues = []
+        
+        # Check file exists and has reasonable size
+        if not os.path.exists(video_path):
+            issues.append("Output file does not exist")
+            return {'valid': False, 'issues': issues, 'properties': None}
+        
+        file_size = os.path.getsize(video_path)
+        file_size_mb = file_size / (1024 * 1024)
+        
+        logger.info(f"🔍 [VERIFICATION] File size: {file_size_mb:.2f} MB")
+        
+        # Check for suspiciously small file
+        if file_size < 100_000:  # Less than 100KB
+            issues.append(f"Output file suspiciously small: {file_size} bytes")
+            logger.error(f"❌ [VERIFICATION] File too small - likely corrupted")
+        
+        # Extract properties of concatenated video
+        props = await self._get_video_properties(video_path)
+        if props is None:
+            issues.append("Cannot read output video properties")
+            return {'valid': False, 'issues': issues, 'properties': None}
+        
+        # Verify duration (allow 2-second tolerance)
+        duration_diff = abs(props['duration'] - expected_duration)
+        if duration_diff > 2.0:
+            issues.append(f"Duration mismatch: expected {expected_duration:.2f}s, got {props['duration']:.2f}s (diff: {duration_diff:.2f}s)")
+            logger.error(f"❌ [VERIFICATION] Duration mismatch detected")
+        
+        # Verify resolution matches source videos
+        if source_properties:
+            expected_width = source_properties[0]['width']
+            expected_height = source_properties[0]['height']
+            
+            if props['width'] != expected_width or props['height'] != expected_height:
+                issues.append(f"Resolution mismatch: expected {expected_width}x{expected_height}, got {props['width']}x{props['height']}")
+        
+        # Verify video has video stream
+        if props['width'] == 0 or props['height'] == 0:
+            issues.append("No valid video stream found")
+        
+        # Verify bitrate is reasonable (not suspiciously low)
+        if props['bit_rate'] > 0 and props['bit_rate'] < 500_000:  # Less than 500 kbps
+            issues.append(f"Bitrate very low: {props['bit_rate']} bps - may indicate corruption")
+            logger.warning(f"⚠️ [VERIFICATION] Low bitrate detected")
+        
+        valid = len(issues) == 0
+        
+        if valid:
+            logger.info(f"✅ [VERIFICATION] Video passed all integrity checks")
+        else:
+            logger.error(f"❌ [VERIFICATION] Video failed verification:")
+            for issue in issues:
+                logger.error(f"  - {issue}")
+        
+        return {
+            'valid': valid,
+            'issues': issues,
+            'properties': props
+        }
+
     async def _concatenate_videos(self, video_paths: List[str], job_id: str) -> str:
         """
-        Concatenate multiple videos into a single video using FFmpeg.
+        Concatenate multiple videos into a single video using FFmpeg with validation.
+        
+        This enhanced version:
+        1. Validates input video compatibility
+        2. Uses stream copy (-c copy) only if safe
+        3. Re-encodes if videos have incompatible properties
+        4. Verifies output integrity after concatenation
         
         Args:
             video_paths: List of video file paths to concatenate
@@ -821,9 +1074,9 @@ class ProfessionalPresentationService:
             Path to concatenated video
         """
         try:
-            logger.info(f"🎬 [VIDEO_CONCATENATION] Concatenating {len(video_paths)} videos")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Starting concatenation of {len(video_paths)} videos")
             
-            # Validate that all video files exist
+            # ✅ STEP 1: Validate that all video files exist
             for i, video_path in enumerate(video_paths):
                 if not os.path.exists(video_path):
                     logger.error(f"🎬 [VIDEO_CONCATENATION] Video file {i+1} not found: {video_path}")
@@ -832,18 +1085,30 @@ class ProfessionalPresentationService:
                     file_size = os.path.getsize(video_path)
                     logger.info(f"🎬 [VIDEO_CONCATENATION] Video file {i+1} exists: {video_path} ({file_size} bytes)")
             
+            # ✅ STEP 2: Validate video compatibility
+            compatibility = await self._validate_video_compatibility(video_paths)
+            
+            if compatibility['recommendation'] == 'fail':
+                raise Exception("Cannot concatenate videos - failed to read properties")
+            
+            use_stream_copy = compatibility['compatible']
+            source_properties = compatibility['properties']
+            
+            # Calculate expected duration
+            expected_duration = sum(props['duration'] for props in source_properties)
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Expected output duration: {expected_duration:.2f}s")
+            
             # Convert relative paths to absolute paths
             absolute_video_paths = []
             for video_path in video_paths:
                 if not os.path.isabs(video_path):
-                    # Convert relative path to absolute path
                     absolute_path = os.path.abspath(video_path)
                     logger.info(f"🎬 [VIDEO_CONCATENATION] Converting relative path '{video_path}' to absolute path '{absolute_path}'")
                     absolute_video_paths.append(absolute_path)
                 else:
                     absolute_video_paths.append(video_path)
             
-            # Create a temporary file list for FFmpeg
+            # ✅ STEP 3: Create temporary file list for FFmpeg
             import tempfile
             with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
                 for video_path in absolute_video_paths:
@@ -851,46 +1116,108 @@ class ProfessionalPresentationService:
                 concat_list_path = f.name
             
             logger.info(f"🎬 [VIDEO_CONCATENATION] Created concat list file: {concat_list_path}")
-            logger.info(f"🎬 [VIDEO_CONCATENATION] Video paths in concat list:")
-            for i, path in enumerate(absolute_video_paths):
-                logger.info(f"  {i+1}: {path}")
             
             # Output path for concatenated video
             output_filename = f"presentation_{job_id}.mp4"
             output_path = str(self.output_dir / output_filename)
             
-            # FFmpeg command to concatenate videos
+            # ✅ STEP 4: Build FFmpeg command based on compatibility
             import subprocess
-            cmd = [
-                'ffmpeg',
-                '-f', 'concat',
-                '-safe', '0',
-                '-i', concat_list_path,
-                '-c', 'copy',  # Copy streams without re-encoding for speed
-                '-y',  # Overwrite output file
-                output_path
-            ]
+            
+            if use_stream_copy:
+                # Videos are compatible - safe to use stream copy (fast)
+                logger.info(f"🎬 [VIDEO_CONCATENATION] Using STREAM COPY mode (fast) - all videos compatible")
+                cmd = [
+                    'ffmpeg',
+                    '-f', 'concat',
+                    '-safe', '0',
+                    '-i', concat_list_path,
+                    '-c', 'copy',  # ✅ Safe to copy streams
+                    '-y',
+                    output_path
+                ]
+            else:
+                # Videos have incompatible properties - must re-encode
+                logger.warning(f"🎬 [VIDEO_CONCATENATION] Using RE-ENCODE mode (slow) - videos have incompatible properties")
+                logger.warning(f"🎬 [VIDEO_CONCATENATION] Issues found: {compatibility['issues']}")
+                cmd = [
+                    'ffmpeg',
+                    '-f', 'concat',
+                    '-safe', '0',
+                    '-i', concat_list_path,
+                    '-c:v', 'libx264',           # Re-encode video to H.264
+                    '-profile:v', 'baseline',     # Browser-compatible profile
+                    '-level', '3.0',              # Compatibility level
+                    '-pix_fmt', 'yuv420p',        # Standard pixel format
+                    '-crf', '23',                 # Quality (lower = better, 23 is good)
+                    '-preset', 'medium',          # Encoding speed vs quality
+                    '-c:a', 'aac',                # Re-encode audio to AAC
+                    '-b:a', '128k',               # Audio bitrate
+                    '-movflags', '+faststart',    # Enable streaming
+                    '-y',
+                    output_path
+                ]
             
             logger.info(f"🎬 [VIDEO_CONCATENATION] Running FFmpeg command: {' '.join(cmd)}")
             
-            # Run FFmpeg
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            # ✅ STEP 5: Calculate dynamic timeout based on video count and mode
+            if use_stream_copy:
+                # Stream copy is fast: ~2 seconds per video + 60s buffer
+                timeout = max(120, len(video_paths) * 2 + 60)
+            else:
+                # Re-encoding is slow: ~30 seconds per minute of video
+                estimated_time = expected_duration * 0.5  # Rough estimate: 30s per minute
+                timeout = max(300, int(estimated_time) + 120)  # Add 2min buffer
+            
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Using dynamic timeout: {timeout}s (mode: {'copy' if use_stream_copy else 'reencode'})")
+            
+            # ✅ STEP 6: Run FFmpeg with enhanced error handling
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
             
             # Clean up temporary concat list file
             try:
                 os.unlink(concat_list_path)
-            except:
-                pass
+                logger.debug(f"🎬 [VIDEO_CONCATENATION] Cleaned up temp file: {concat_list_path}")
+            except Exception as cleanup_error:
+                logger.warning(f"🎬 [VIDEO_CONCATENATION] Could not remove temp file {concat_list_path}: {cleanup_error}")
             
             if result.returncode != 0:
-                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg failed: {result.stderr}")
+                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg failed with return code {result.returncode}")
+                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg stderr: {result.stderr}")
                 raise Exception(f"Video concatenation failed: {result.stderr}")
             
-            logger.info(f"🎬 [VIDEO_CONCATENATION] Successfully concatenated videos to: {output_path}")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] FFmpeg completed successfully")
+            
+            # ✅ STEP 7: Verify output video integrity
+            verification = await self._verify_concatenated_video(
+                output_path, 
+                expected_duration,
+                source_properties
+            )
+            
+            if not verification['valid']:
+                error_msg = f"Concatenated video failed validation: {', '.join(verification['issues'])}"
+                logger.error(f"❌ [VIDEO_CONCATENATION] {error_msg}")
+                
+                # Optionally: Delete corrupted output
+                try:
+                    os.remove(output_path)
+                    logger.info(f"🎬 [VIDEO_CONCATENATION] Deleted corrupted output: {output_path}")
+                except:
+                    pass
+                
+                raise Exception(error_msg)
+            
+            logger.info(f"✅ [VIDEO_CONCATENATION] Successfully concatenated and verified: {output_path}")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Output properties: {verification['properties']['width']}x{verification['properties']['height']}, {verification['properties']['duration']:.2f}s")
+            
             return output_path
             
+        except subprocess.TimeoutExpired:
+            logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg timeout after {timeout} seconds")
+            raise Exception(f"Video concatenation timeout after {timeout} seconds")
         except Exception as e:
-            logger.error(f"Video concatenation failed: {e}")
+            logger.error(f"❌ [VIDEO_CONCATENATION] Concatenation failed: {e}")
             raise
 
     async def _check_video_has_audio(self, video_path: str) -> bool:
