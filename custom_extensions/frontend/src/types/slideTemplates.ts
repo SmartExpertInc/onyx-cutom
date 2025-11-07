@@ -587,6 +587,7 @@ export interface CourseOverviewSlideProps extends BaseTemplateProps {
   imagePath?: string;
   imageAlt?: string;
   backgroundColor?: string;
+  containerColors?: Record<string, string>; // { leftPanel: color }
   titleColor?: string;
   subtitleColor?: string;
   accentColor?: string;

@@ -134,6 +134,7 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
   imagePath = '',
   imageAlt = 'Course overview image',
   backgroundColor,
+  containerColors,
   titleColor,
   subtitleColor,
   accentColor,
@@ -145,6 +146,28 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
   pageNumber = '01',
   onEditorActive
 }) => {
+  // Track selected container for visual feedback
+  const [selectedContainerId, setSelectedContainerId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleContainerSelect = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { containerId } = customEvent.detail;
+      setSelectedContainerId(containerId);
+    };
+
+    const handleClearSelection = () => {
+      setSelectedContainerId(null);
+    };
+
+    document.addEventListener('selectContainer', handleContainerSelect);
+    document.addEventListener('clearContainerSelection', handleClearSelection);
+    
+    return () => {
+      document.removeEventListener('selectContainer', handleContainerSelect);
+      document.removeEventListener('clearContainerSelection', handleClearSelection);
+    };
+  }, []);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
@@ -212,13 +235,41 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
   return (
     <div className="course-overview-slide-template inter-theme" style={slideStyles}>
       {/* Left Panel - Theme-based with rounded corners */}
-      <div style={{
-        width: '45%',
-        height: '100%',
-        background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
-        position: 'relative',
-        boxSizing: 'border-box'
-      }}>
+      <div 
+        data-container-id="leftPanel"
+        data-selectable-container="true"
+        style={{
+          width: '45%',
+          height: '100%',
+          background: containerColors?.leftPanel || 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+          position: 'relative',
+          boxSizing: 'border-box',
+          cursor: isEditable ? 'pointer' : 'default',
+          transition: 'outline 0.2s ease',
+          outline: isEditable && selectedContainerId === 'leftPanel' ? '3px solid #0F58F9' : 'none',
+          outlineOffset: isEditable && selectedContainerId === 'leftPanel' ? '-3px' : '0'
+        }}
+        onClick={(e) => {
+          if (isEditable) {
+            e.stopPropagation();
+            const event = new CustomEvent('selectContainer', {
+              detail: { containerId: 'leftPanel' },
+              bubbles: true
+            });
+            e.currentTarget.dispatchEvent(event);
+          }
+        }}
+        onMouseEnter={(e) => {
+          if (isEditable && selectedContainerId !== 'leftPanel') {
+            e.currentTarget.style.outline = '2px solid rgba(15, 88, 249, 0.5)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (isEditable && selectedContainerId !== 'leftPanel') {
+            e.currentTarget.style.outline = 'none';
+          }
+        }}
+      >
 
         {/* Logo in top-left corner - MATCHES HTML */}
         <div style={{
