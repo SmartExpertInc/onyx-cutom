@@ -74,19 +74,35 @@ scrape_configs:
             logger: logger
           source: output
       
-      # If JSON parsing succeeded, use the parsed fields
-      # If it failed, the output field will still contain the original log line
-      # Ensure we always have a level field (default to 'info' if not present)
-      - template:
-          source: level
-          template: '{{ if .level }}{{ .level }}{{ else }}info{{ end }}'
+      # Extract level from JSON string using regex as fallback
+      # This ensures we get the level even if JSON parsing didn't extract it properly
+      - regex:
+          expression: '"level"\s*:\s*"([^"]+)"'
+          source: output
       
       # Ensure message field exists
       - template:
           source: message
           template: '{{ if .message }}{{ .message }}{{ else }}{{ .output }}{{ end }}'
       
+      # Set level field - prioritize JSON-extracted level, then regex-extracted, then infer from error/trace, default to info
+      # The level should come from JSON parsing (first json stage) or regex extraction (above)
+      # We normalize it to lowercase and ensure it's set correctly for labeling
+      - template:
+          source: level
+          template: |
+            {{- if .level -}}
+              {{- .level | lower | trim -}}
+            {{- else if .error -}}
+              error
+            {{- else if .trace -}}
+              error
+            {{- else -}}
+              info
+            {{- end -}}
+      
       # Add labels for filtering (only add if the field exists and is not empty)
+      # Labels are set AFTER we've ensured level is correctly extracted/set
       - labels:
           level:
           user_id:
