@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import MusicRightPanel from '@/app/projects-2-new/view/components/MusicRightPanel';
 
 interface MediaProps {
   isOpen: boolean;
@@ -36,6 +35,11 @@ export default function Media({
   const [selectedMusic, setSelectedMusic] = useState<string>('East London');
   const [musicVolume, setMusicVolume] = useState<number>(65);
   const [isPlayEverywhereEnabled, setIsPlayEverywhereEnabled] = useState<boolean>(true);
+  const onOptionSelectRef = useRef<typeof onOptionSelect>(onOptionSelect);
+
+  useEffect(() => {
+    onOptionSelectRef.current = onOptionSelect;
+  }, [onOptionSelect]);
 
   const handleOptionClick = (option: string) => {
     setSelectedOption(option);
@@ -45,9 +49,9 @@ export default function Media({
   useEffect(() => {
     if (isOpen) {
       setSelectedOption('image');
-      onOptionSelect?.('image');
+      onOptionSelectRef.current?.('image');
     }
-  }, [isOpen, onOptionSelect]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (selectedOption !== 'music') {
