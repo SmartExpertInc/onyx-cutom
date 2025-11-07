@@ -851,7 +851,7 @@ export default function EventPoster({
               borderLeft: '1px solid #5416af',
               borderRight: '1px solid #5416af',
               borderRadius: '30px',
-              padding: '10px 14px',
+              padding: '4px 14px',
               width: '200px', // Fixed width instead of minWidth
               lineHeight: '1',
               height: '113px', // Match blue pill height
@@ -859,6 +859,7 @@ export default function EventPoster({
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '6px',
               boxSizing: 'border-box', // Include padding in width calculation
               overflow: 'hidden', // Prevent content from expanding the container
             }}
@@ -892,7 +893,6 @@ export default function EventPoster({
                 fontWeight: '600',
                 fontSize: '27px',
                 textAlign: 'center',
-                marginTop: '4px',
                 width: '100%',
                 maxWidth: '100%',
                 boxSizing: 'border-box',
@@ -911,7 +911,6 @@ export default function EventPoster({
                 fontWeight: '900',
                 fontSize: '41px',
                 textAlign: 'center',
-                marginTop: '2px',
                 width: '100%',
                 maxWidth: '100%',
                 boxSizing: 'border-box',
@@ -937,41 +936,41 @@ export default function EventPoster({
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden', // Prevent any overflow
-              position: 'relative', // For absolute positioning of text
             }}
           >
-            <EditableText
-              value={freeAccessConditions}
-              onChange={setFreeAccessConditions}
-              placeholder="Free Access Conditions"
-              multiline={true} // Enable multiline like topic section
-              onAutoSave={handleAutoSave}
+            <div
               style={{
-                color: '#E5E5E5',
-                fontWeight: '600',
-                fontSize: '37px',
-                textAlign: 'center',
-                lineHeight: '1.3',
-                background: 'transparent',
-                borderRadius: '30px',
-                padding: '0 22px',
                 width: '100%',
                 height: '100%',
-                boxSizing: 'border-box',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'hidden',
-                whiteSpace: 'normal',
-                wordWrap: 'break-word',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                textTransform: 'uppercase'
+                padding: '0 24px',
+                boxSizing: 'border-box'
               }}
-            />
+            >
+              <EditableText
+                value={freeAccessConditions}
+                onChange={setFreeAccessConditions}
+                placeholder="Free Access Conditions"
+                multiline={true} // Enable multiline like topic section
+                onAutoSave={handleAutoSave}
+                style={{
+                  color: '#E5E5E5',
+                  fontWeight: '600',
+                  fontSize: '37px',
+                  textAlign: 'center',
+                  lineHeight: '1.25',
+                  background: 'transparent',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
+                  whiteSpace: 'normal',
+                  wordWrap: 'break-word',
+                  textTransform: 'uppercase'
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
