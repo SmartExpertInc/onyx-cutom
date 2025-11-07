@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Users, BarChart3, Settings, FileChartPie, ChevronRight, Home } from 'lucide-react';
+import { Users, BarChart3, Settings, FileChartPie, ChevronRight, Home, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import CreditsTab from './components/CreditsTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import FeaturesTab from './components/FeaturesTab';
 import SlidesAnalyticsTab from './components/SlidesAnalyticsTab'
 import EntitlementsTab from './components/EntitlementsTab';
+import ErrorsTab from './components/ErrorsTab';
 
-type TabType = 'credits' | 'analytics' | 'features' | 'slides' | 'entitlements';
+type TabType = 'credits' | 'analytics' | 'features' | 'slides' | 'entitlements' | 'errors';
 
 const AdminMainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('credits');
@@ -45,6 +46,12 @@ const AdminMainPage: React.FC = () => {
       name: 'Entitlements',
       icon: Settings,
       description: 'Override user limits (connectors, storage, slides)'
+    },
+    {
+      id: 'errors' as TabType,
+      name: 'Errors & Logs',
+      icon: AlertTriangle,
+      description: 'View system logs and errors from Loki'
     }
   ];
 
@@ -60,6 +67,8 @@ const AdminMainPage: React.FC = () => {
         return <SlidesAnalyticsTab />;  
       case 'entitlements':
         return <EntitlementsTab />;
+      case 'errors':
+        return <ErrorsTab />;
       default:
         return <CreditsTab />;
     }

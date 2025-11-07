@@ -14150,49 +14150,6 @@ async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any]
 async def get_allowed_microproduct_types_list_for_design_templates():
     return ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS
 
-# --- Logs Endpoint ---
-from app.services.loki_service import get_loki_service
-
-@app.get("/api/custom/logs")
-async def get_logs(
-    request: Request,
-    user_id: Optional[str] = Query(None, description="Filter by user ID"),
-    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
-    level: Optional[str] = Query(None, description="Filter by log level (error, info, warning, etc.)"),
-    event: Optional[str] = Query(None, description="Filter by event type"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
-    hours: int = Query(1, ge=1, le=168, description="Number of hours to look back (max 168 = 7 days)")
-):
-    """
-    Fetch logs from Loki with optional filters.
-    
-    This endpoint allows the frontend to query structured logs with filters for:
-    - user_id: Track which user encountered an error
-    - endpoint: Which API endpoint caused the error
-    - level: Log level (error, info, warning, etc.)
-    - event: Event type (e.g., "unexpected_backend_error")
-    
-    Returns structured logs in JSON format with all context fields.
-    """
-    await verify_admin_user(request)
-    try:
-        loki_service = get_loki_service()
-        result = await loki_service.query_logs_by_filters(
-            user_id=user_id,
-            endpoint=endpoint,
-            level=level,
-            event=event,
-            limit=limit,
-            hours=hours
-        )
-        return result
-    except Exception as e:
-        logger.error(f"Failed to fetch logs from Loki: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch logs: {str(e)}"
-        )
-
 # --- Project and MicroProduct Endpoints ---
 def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     """
@@ -37848,6 +37805,49 @@ async def get_slides_errors_analytics(
     except Exception as e:
         logger.error(f"Error fetching slides errors analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch slides errors analytics")
+
+# --- Logs Endpoint ---
+from app.services.loki_service import get_loki_service
+
+@app.get("/api/custom/admin/analytics/logs")
+async def get_logs(
+    request: Request,
+    user_id: Optional[str] = Query(None, description="Filter by user ID"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    level: Optional[str] = Query(None, description="Filter by log level (error, info, warning, etc.)"),
+    event: Optional[str] = Query(None, description="Filter by event type"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
+    hours: int = Query(1, ge=1, le=168, description="Number of hours to look back (max 168 = 7 days)")
+):
+    """
+    Fetch logs from Loki with optional filters.
+    
+    This endpoint allows the frontend to query structured logs with filters for:
+    - user_id: Track which user encountered an error
+    - endpoint: Which API endpoint caused the error
+    - level: Log level (error, info, warning, etc.)
+    - event: Event type (e.g., "unexpected_backend_error")
+    
+    Returns structured logs in JSON format with all context fields.
+    """
+    await verify_admin_user(request)
+    try:
+        loki_service = get_loki_service()
+        result = await loki_service.query_logs_by_filters(
+            user_id=user_id,
+            endpoint=endpoint,
+            level=level,
+            event=event,
+            limit=limit,
+            hours=hours
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Failed to fetch logs from Loki: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch logs: {str(e)}"
+        )
 
 @app.post("/api/custom/admin/credits/migrate-users")
 async def migrate_onyx_users_to_credits(
