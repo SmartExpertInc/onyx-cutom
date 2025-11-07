@@ -213,7 +213,7 @@ export default function BrandKitRightPanel({
   return (
     <>
       <div className="flex items-center justify-between flex-shrink-0 pb-1.5">
-        <h3 className="text-md font-semibold" style={{ color: '#171718' }}>
+        <h3 className="text-md font-medium" style={{ color: '#171718' }}>
           Brand Kit
         </h3>
         <button
@@ -233,7 +233,7 @@ export default function BrandKitRightPanel({
           </svg>
         </button>
       </div>
-      <div className="flex items-center gap-2 text-xs pb-1.5" style={{ color: '#878787' }}>
+      <div className="flex items-center gap-2 text-xs pb-2.5" style={{ color: '#878787' }}>
         <span>Logos</span>
         <span>•</span>
         <span>Colors</span>
@@ -253,7 +253,7 @@ export default function BrandKitRightPanel({
           <button
             key={index}
             type="button"
-            className={`w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors cursor-pointer ${
+            className={`w-full flex items-center justify-between px-2 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors cursor-pointer ${
               draggedColorIndex === index ? 'opacity-60' : ''
             }`}
             style={{ borderColor: '#E0E0E0', backgroundColor: '#FFFFFF', color: '#848485' }}
@@ -353,7 +353,7 @@ export default function BrandKitRightPanel({
           </button>
         ))}
       </div>
-      <div className="mb-2 p-1 rounded-lg flex gap-1" style={{ backgroundColor: '#F4F4F5' }}>
+      <div className="mb-5 p-1 rounded-lg flex gap-1" style={{ backgroundColor: '#F4F4F5' }}>
         {colorToggleOptions.map((option) => {
           const isActive = activeColorToggle === option.id;
           return (
@@ -375,7 +375,7 @@ export default function BrandKitRightPanel({
       </div>
 
       {/* Scene Transition Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-3 flex-shrink-0 mb-5">
           {/* Scene Transition Title and Toggle */}
           <div className="flex items-center justify-between">
             <h3 
@@ -471,6 +471,66 @@ export default function BrandKitRightPanel({
               </div>
             )}
           </div>
+      </div>
+
+      <div className="mb-5">
+        <div className="flex items-center justify-between pb-1.5">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
+            Logos
+          </h3>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.2998 19.6445L11.9893 21.4326L10.4922 19.6133L11.1367 19.2236L11.2998 19.6445ZM13.5049 19.6133L12.0078 21.4326L12.6982 19.6445L12.8604 19.2236L13.5049 19.6133Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
+          </svg>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-3 p-3 rounded-md border" style={{ borderColor: '#E0E0E0', backgroundColor: '#F9FAFB' }}>
+          <div className="flex items-start gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mt-0.5">
+              <path d="M4.66667 7.33203V4.66536C4.66667 3.78131 5.01786 2.93346 5.64298 2.30834C6.2681 1.68322 7.11595 1.33203 8 1.33203C8.88406 1.33203 9.7319 1.68322 10.357 2.30834C10.9821 2.93346 11.3333 3.78131 11.3333 4.66536V7.33203M3.33333 7.33203H12.6667C13.403 7.33203 14 7.92898 14 8.66536V13.332C14 14.0684 13.403 14.6654 12.6667 14.6654H3.33333C2.59695 14.6654 2 14.0684 2 13.332V8.66536C2 7.92898 2.59695 7.33203 3.33333 7.33203Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium" style={{ color: '#171718' }}>Unlock with Team plan</span>
+              <span className="text-xs" style={{ color: '#878787' }}>Access advanced brand kit features with collaborative tools.</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="px-3 py-1.5 rounded-md text-xs font-medium text-white"
+            style={{ backgroundColor: '#0F58F9' }}
+          >
+            Upgrade plan
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between pb-1.5">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
+            Fonts
+          </h3>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.2998 19.6445L11.9893 21.4326L10.4922 19.6133L11.1367 19.2236L11.2998 19.6445ZM13.5049 19.6133L12.0078 21.4326L12.6982 19.6445L12.8604 19.2236L13.5049 19.6133Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
+          </svg>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-3 p-3 rounded-md border" style={{ borderColor: '#E0E0E0', backgroundColor: '#F9FAFB' }}>
+          <div className="flex items-start gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mt-0.5">
+              <path d="M4.66667 7.33203V4.66536C4.66667 3.78131 5.01786 2.93346 5.64298 2.30834C6.2681 1.68322 7.11595 1.33203 8 1.33203C8.88406 1.33203 9.7319 1.68322 10.357 2.30834C10.9821 2.93346 11.3333 3.78131 11.3333 4.66536V7.33203M3.33333 7.33203H12.6667C13.403 7.33203 14 7.92898 14 8.66536V13.332C14 14.0684 13.403 14.6654 12.6667 14.6654H3.33333C2.59695 14.6654 2 14.0684 2 13.332V8.66536C2 7.92898 2.59695 7.33203 3.33333 7.33203Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium" style={{ color: '#171718' }}>Unlock with Team plan</span>
+              <span className="text-xs" style={{ color: '#878787' }}>Upgrade to customize typography with brand-approved fonts.</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="px-3 py-1.5 rounded-md text-xs font-medium text-white"
+            style={{ backgroundColor: '#0F58F9' }}
+          >
+            Upgrade plan
+          </button>
+        </div>
       </div>
     </>
   );
