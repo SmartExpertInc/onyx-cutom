@@ -37833,17 +37833,10 @@ async def get_logs(
     await verify_admin_user(request)
     try:
         loki_service = get_loki_service()
-        result = await loki_service.query_logs_by_filters(
-            user_id=user_id,
-            endpoint=endpoint,
-            level=level,
-            event=event,
-            limit=limit,
-            hours=hours
-        )
+        result = await loki_service.query_logs()
         return result
     except Exception as e:
-        logger.error(f"Failed to fetch logs from Loki: {e}", exc_info=True)
+        logger.error(f"Failed to fetch logs from Loki: {e}")
         raise HTTPException(
             status_code=500,
             detail=f"Failed to fetch logs: {str(e)}"

@@ -53,7 +53,7 @@ Each log entry includes:
 
 ### 4. Backend Endpoint
 
-**Endpoint**: `GET /api/custom/logs`
+**Endpoint**: `GET /api/custom/admin/analytics/logs`
 
 **Query Parameters**:
 - `user_id` (optional): Filter by user ID
@@ -65,7 +65,7 @@ Each log entry includes:
 
 **Example**:
 ```bash
-GET /api/custom/logs?user_id=12345&level=error&hours=24&limit=50
+GET /api/custom/admin/analytics/logs?user_id=12345&level=error&hours=24&limit=50
 ```
 
 **Response**:
@@ -172,12 +172,12 @@ logger.info("Message")  # Now includes structured context
 
 ## Frontend Integration
 
-The frontend can query logs using the `/api/custom/logs` endpoint:
+The frontend can query logs using the `/api/custom/admin/analytics/logs` endpoint:
 
 ```typescript
 // Example: Fetch error logs for a specific user
 const response = await fetch(
-  `/api/custom/logs?user_id=${userId}&level=error&hours=24`
+  `/api/custom/admin/analytics/logs?user_id=${userId}&level=error&hours=24`
 );
 const data = await response.json();
 console.log(data.logs);
