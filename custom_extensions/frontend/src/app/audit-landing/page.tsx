@@ -357,7 +357,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10 bg-[#FCFDFF]">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-tight md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center sora-font mb-5">
+          <h2 className="text-[30px] lg:text-[42px] font-semibold leading-tight md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center sora-font mb-5">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
             <span className="text-black"> for Learning Content</span> <br className="hidden lg:block" />
             <span className="text-black">Create everything — </span>
@@ -513,7 +513,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
+          <h2 className="text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-bold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
             <span style={{ color: '#0F58F9' }}>Connect 42+ tools</span>
             <span className="text-black"> — and turn everything<br className="block md:hidden lg:block" />your team does into learning. Build your<br className="block md:hidden lg:block" />own living </span>
             <span style={{ color: '#0F58F9' }}>knowledge ecosystem</span>
@@ -555,7 +555,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Headline */}
-          <h2 className="text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center pr-15 md:pr-0 xl:text-center mb-10 md:mb-16 sora-font">
+          <h2 className="text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center pr-15 md:pr-0 xl:text-center mb-10 md:mb-16 sora-font">
             <span className="text-black">Use </span>
             <span style={{ color: '#0F58F9' }}>online resources</span>
             <span className="text-black"> to <br className="hidden xl:block lg:block"/> build smarter courses</span>
@@ -564,7 +564,7 @@ export default function AuditLandingPage() {
           {/* Two Column Layout */}
           <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-25 md:gap-15 lg:gap-25 mb-12">
             {/* Left Column - Features & Platforms */}
-            <div className="flex flex-col gap-8 max-w-[450px] border-t-0 border-gray-200 md:border-t-0 pt-6 md:pt-0">
+            <div className="flex flex-col gap-8 max-w-[450px] md:max-w-[300px] lg:max-w-[450px] border-t-0 border-gray-200 md:border-t pt-6 md:pt-6">
               {/* Feature 1 */}
               <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b border-[#0206171A] md:border-b-0 md:pb-0">
                 <div 
@@ -581,7 +581,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Feature 2 */}
-              <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b-0 border-[#0206171A] md:border-b md:border-gray-200 md:pb-6">
+              <div className="flex flex-col lg:flex-row gap-4 pb-5 border-b border-[#0206171A] md:border-b md:border-gray-200 md:pb-6">
                 <div 
                   className="w-13 h-13 p-2 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -635,7 +635,7 @@ export default function AuditLandingPage() {
             {/* Right Column - Import Form */}
             <div className="w-full">
               <div 
-                className="bg-white rounded-xl py-6 px-5 md:py-8 md:px-8 shadow-sm"
+                className="bg-white rounded-lg py-6 px-5 lg:py-8 lg:px-8 shadow-sm"
               >
                 <h3 className="text-xl font-semibold text-black mb-6 sora-font">Import from URL</h3>
                 
@@ -671,35 +671,36 @@ export default function AuditLandingPage() {
                 </div>
 
               </div>
-            </div>
-            <div className="hidden md:flex lg:hidden justify-between mt-6">
-              <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+              <div className="hidden md:flex lg:hidden justify-between mt-6">
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                    <img 
+                      src="/custom-projects-ui/images/youtubeImg.png"
+                      alt="YouTube"
+                      className="w-full h-auto"
+                    />
+                </div>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                    <img 
+                      src="/custom-projects-ui/images/GitBookLight.png"
+                      alt="Git Book"
+                      className="w-full h-auto"
+                    />
+                </div>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                   <img 
-                    src="/custom-projects-ui/images/youtubeImg.png"
-                    alt="YouTube"
+                    src="/custom-projects-ui/images/Wikipedia.png"
+                    alt="Wikipedia"
                     className="w-full h-auto"
                   />
-              </div>
-              <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
-                  <img 
-                    src="/custom-projects-ui/images/GitBookLight.png"
-                    alt="Git Book"
-                    className="w-full h-auto"
-                  />
-              </div>
-              <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
-                <img 
-                  src="/custom-projects-ui/images/Wikipedia.png"
-                  alt="Wikipedia"
-                  className="w-full h-auto"
-                />
-              </div>
-              <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
-                <svg width="47" height="40" viewBox="0 0 47 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M46.8593 9.25399C46.6493 13.7544 43.4624 19.918 37.2988 27.7431C30.9251 35.9131 25.5305 40 21.1188 40C18.3877 40 16.075 37.5078 14.1842 32.5216L10.4028 18.811C8.99973 13.823 7.49352 11.3308 5.88415 11.3308C5.53339 11.3308 4.30854 12.0577 2.20585 13.5114L0 10.7078C2.29214 8.71625 4.56739 6.70805 6.82951 4.68317C9.91133 2.05193 12.2222 0.666771 13.7641 0.529553C17.4067 0.182801 19.6482 2.64159 20.4885 7.90407C21.3983 13.5819 22.0304 17.1143 22.3793 18.4976C23.4297 23.2057 24.5851 25.5606 25.8456 25.5606C26.8266 25.5606 28.2972 24.0364 30.2592 20.9898C32.2212 17.9432 33.2716 15.6235 33.4104 14.0306C33.6899 11.3994 32.6395 10.0829 30.2592 10.0829C29.1394 10.0829 27.9821 10.3258 26.7928 10.8097C29.1037 3.4 33.5173 -0.199183 40.0317 0.00849733C44.8636 0.147569 47.1388 3.2294 46.8593 9.25399Z" fill="#1AB7EA"/>
-                </svg>
+                </div>
+                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                  <svg width="47" height="40" viewBox="0 0 47 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M46.8593 9.25399C46.6493 13.7544 43.4624 19.918 37.2988 27.7431C30.9251 35.9131 25.5305 40 21.1188 40C18.3877 40 16.075 37.5078 14.1842 32.5216L10.4028 18.811C8.99973 13.823 7.49352 11.3308 5.88415 11.3308C5.53339 11.3308 4.30854 12.0577 2.20585 13.5114L0 10.7078C2.29214 8.71625 4.56739 6.70805 6.82951 4.68317C9.91133 2.05193 12.2222 0.666771 13.7641 0.529553C17.4067 0.182801 19.6482 2.64159 20.4885 7.90407C21.3983 13.5819 22.0304 17.1143 22.3793 18.4976C23.4297 23.2057 24.5851 25.5606 25.8456 25.5606C26.8266 25.5606 28.2972 24.0364 30.2592 20.9898C32.2212 17.9432 33.2716 15.6235 33.4104 14.0306C33.6899 11.3994 32.6395 10.0829 30.2592 10.0829C29.1394 10.0829 27.9821 10.3258 26.7928 10.8097C29.1037 3.4 33.5173 -0.199183 40.0317 0.00849733C44.8636 0.147569 47.1388 3.2294 46.8593 9.25399Z" fill="#1AB7EA"/>
+                  </svg>
+                </div>
               </div>
             </div>
+            
           </div>
 
           {/* Add from Web Button */}
@@ -721,7 +722,7 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
-          <h2 className="max-w-5xl text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
+          <h2 className="max-w-5xl text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
             <span className="text-black">Keep your content always up to date <br className="block md:hidden lg:block" /> Knowledge changes — </span>
             <span style={{ color: '#0F58F9' }}>update in minutes</span>
           </h2>
@@ -860,13 +861,13 @@ export default function AuditLandingPage() {
       <section className="w-full bg-[#FCFDFF] py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="w-full flex flex-col md:flex-row items-start md:items-center text-left md:text-center text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font gap-2 md:gap-3 self-start md:self-center">
-            <span className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-black">Trusted by</span>
+          <h2 className="w-full text-left md:text-center text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font self-start md:self-center">
+            <span className="block md:inline">Trusted by </span>
+            <span className="inline-flex items-center gap-2">
               <span className="text-[#0F58F9] font-bold">Deloitte</span>
               <span className="inline-block w-[10px] h-[10px] rounded-full mt-3 bg-[#86BC25]"></span>
             </span>
-            <span className="text-black md:ml-3 whitespace-normal md:whitespace-nowrap">and global brands</span>
+            <span className="block md:inline md:ml-2">and global brands</span>
           </h2>
 
           {/* Statistics Cards */}
@@ -925,7 +926,7 @@ export default function AuditLandingPage() {
             <div 
               className="rounded-md overflow-hidden"
             >
-              <h2 className="text-[30px] md:text-[32px] lg:text-[42px] leading-none md:leading-[1.2] font-semibold text-left mb-5 md:mb-7 lg:mb-7 xl:mb-7 sora-font">
+              <h2 className="text-[30px] lg:text-[42px] leading-none md:leading-[1.2] font-semibold text-left mb-5 md:mb-7 lg:mb-7 xl:mb-7 sora-font">
                 <span className="text-black">Built for </span>
                 <span style={{ color: '#0F58F9' }}> every team. </span>
                 <span className="text-black">For any workflow</span>
@@ -1124,7 +1125,7 @@ export default function AuditLandingPage() {
 
         <div className="w-full relative z-10">
           {/* Heading */}
-          <h2 className="text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-16 px-8 sora-font">
+          <h2 className="text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-16 px-8 sora-font">
             <span className="text-black">From </span>
             <span style={{ color: '#0F58F9' }}>minutes</span>
             <span className="text-[#0F58F9]"> to measurable impact</span>
@@ -1305,7 +1306,7 @@ export default function AuditLandingPage() {
       <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-5xl mx-auto">
           {/* Heading */}
-          <h2 className="text-[30px] md:text-[32px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
+          <h2 className="text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
             Frequently Asked Questions
           </h2>
 
@@ -1425,9 +1426,9 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Links Group - Product, Company, Other Resources */}
-            <div className="md:col-start-2 md:col-span-1 lg:col-span-2 flex flex-wrap w-full justify-between md:justify-start items-start gap-x-4 gap-y-6 md:gap-x-10 md:gap-y-4 border-y md:border-y-0 lg:border-y-0 xl:border-y-0 border-[#FFFFFF4D] py-7 md:py-0 lg:py-0 md:pl-8 lg:pl-0">
+            <div className="md:col-start-2 md:col-span-1 lg:col-span-2 flex flex-wrap w-full justify-between md:justify-start items-start gap-x-4 gap-y-6 md:gap-x-2 lg:gap-x-10 md:gap-y-4 border-y md:border-y-0 lg:border-y-0 xl:border-y-0 border-[#FFFFFF4D] py-7 md:py-0 lg:py-0 md:pl-1 lg:pl-0">
               {/* Product Links */}
-              <div className="flex-1 min-w-[140px] max-w-[200px] md:w-1/2 md:pr-6">
+              <div className="flex-1 min-w-[140px] max-w-[200px] md:min-w-[110px] md:max-w-[150px] lg:w-1/2 lg:pr-6">
                 <ul className="space-y-3">
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Product</a></li>
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Features</a></li>
@@ -1438,7 +1439,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Company Links */}
-              <div className="flex-1 min-w-[140px] max-w-[200px] md:w-1/2 md:pr-6">
+              <div className="flex-1 min-w-[140px] max-w-[200px] md:min-w-[110px] md:max-w-[150px] lg:w-1/2 lg:pr-6">
                 <ul className="space-y-3">
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Company</a></li>
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Our team</a></li>
@@ -1448,7 +1449,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Other Resources */}
-              <div className="flex-1 min-w-[140px] max-w-[200px] mb-6 md:w-full md:pt-2">
+              <div className="flex-1 min-w-[140px] max-w-[200px] md:min-w-[110px] md:max-w-[150px] mb-6 lg:w-full lg:pt-2">
                 <ul className="space-y-3">
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Other resources</a></li>
                   <li><a href="#" className="hover:text-gray-400 text-white transition-colors text-[16px] md:text-sm sora-font">Blog</a></li>
