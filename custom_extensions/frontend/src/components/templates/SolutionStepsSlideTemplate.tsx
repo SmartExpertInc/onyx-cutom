@@ -506,8 +506,14 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
-              width: '30px',
-              height: 'auto'
+              width: 'auto',
+              minWidth: '30px',
+              height: 'auto',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 4px',
+              boxSizing: 'border-box'
             }}
             onEditorReady={(editor, computedStyles) => {
               if (onEditorActive) {
