@@ -820,11 +820,14 @@ export default function AuditLandingPage() {
       <section className="w-full bg-[#FCFDFF] py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-start md:items-center justify-start md:justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font gap-1 md:gap-3">
-            <span className="text-black flex">Trusted by <span className="flex items-center text-[30px] md:hidden">
+          <h2 className="w-full flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-start md:items-center justify-start md:justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font gap-1 md:gap-3 self-start md:self-center">
+            <span className="text-black md:mr-2">Trusted by</span>
+            <span className="flex items-center text-[30px] md:hidden whitespace-nowrap">
               <span className="text-[#0F58F9] font-bold">Deloitte</span>
-              <span className="ml-1 mt-3 inline-block w-[10px] h-[10px] rounded-full bg-[#86BC25]"></span>
-            </span></span>
+              <span className="ml-2 inline-block w-[10px] h-[10px] rounded-full bg-[#86BC25]"></span>
+              <span className="text-black ml-2">and global brands</span>
+            </span>
+            <span className="hidden md:inline text-black">and global brands</span>
             <img 
               src="/custom-projects-ui/images/deloitteIcoBlue.svg"
               alt="Deloitte"
@@ -889,7 +892,7 @@ export default function AuditLandingPage() {
             <div 
               className="rounded-md overflow-hidden"
             >
-              <h2 className="text-[30px] md:text-[42px] font-semibold text-left mb-5 md:mb-10 lg:mb-10 xl:mb-10 sora-font">
+              <h2 className="text-[30px] md:text-[42px] leading-none md:leading-[1.2] font-semibold text-left mb-5 md:mb-7 lg:mb-7 xl:mb-7 sora-font">
                 <span className="text-black">Built for </span>
                 <span style={{ color: '#0F58F9' }}> every team. </span>
                 <span className="text-black">For any workflow</span>
