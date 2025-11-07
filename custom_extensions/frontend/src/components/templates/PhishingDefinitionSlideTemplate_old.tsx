@@ -19,6 +19,11 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
+const stripSpanTags = (value: string): string => {
+  if (!value || typeof value !== 'string') return value;
+  return value.replace(/<\/?span[^>]*>/gi, '');
+};
+
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -156,8 +161,8 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDefinitions, setEditingDefinitions] = useState<number | null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(title);
-  const [currentDefinitions, setCurrentDefinitions] = useState(definitions);
+  const [currentTitle, setCurrentTitle] = useState(stripSpanTags(title));
+  const [currentDefinitions, setCurrentDefinitions] = useState(definitions.map(stripSpanTags));
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const titleEditorRef = useRef<any>(null);
   const definitionEditorRefs = useRef<(any | null)[]>([]);
@@ -177,16 +182,18 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   };
 
   const handleTitleSave = (newTitle: string) => {
-    setCurrentTitle(newTitle);
+    const sanitizedTitle = stripSpanTags(newTitle);
+    setCurrentTitle(sanitizedTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, title: newTitle });
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, title: sanitizedTitle });
     }
   };
 
   const handleDefinitionSave = (index: number, newDefinition: string) => {
+    const sanitizedDefinition = stripSpanTags(newDefinition);
     const newDefinitions = [...currentDefinitions];
-    newDefinitions[index] = newDefinition;
+    newDefinitions[index] = sanitizedDefinition;
     setCurrentDefinitions(newDefinitions);
     setEditingDefinitions(null);
     if (onUpdate) {
@@ -195,12 +202,12 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   };
 
   const handleTitleCancel = () => {
-    setCurrentTitle(title);
+    setCurrentTitle(stripSpanTags(title));
     setEditingTitle(false);
   };
 
   const handleDefinitionCancel = () => {
-    setCurrentDefinitions(definitions);
+    setCurrentDefinitions(definitions.map(stripSpanTags));
     setEditingDefinitions(null);
   };
 
@@ -277,11 +284,12 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
+              className="title-element"
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                wordWrap: 'break-word'
               }}
-              dangerouslySetInnerHTML={{ __html: currentTitle }}
+              dangerouslySetInnerHTML={{ __html: stripSpanTags(currentTitle) }}
             />
           )}
         </div>
@@ -329,12 +337,9 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
                 />
               ) : (
                 <div
-                  onClick={() => isEditable && setEditingDefinitions(index)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
-                  }}
-                  dangerouslySetInnerHTML={{ __html: definition }}
+                  onClick={() => isEditable && setEditingDefinitions(i)}
+                  style={{ cursor: isEditable ? 'pointer' : 'default', wordBreak: 'break-word', lineHeight: 1.5 }}
+                  dangerouslySetInnerHTML={{ __html: stripSpanTags(definition) }}
                 />
               )}
             </div>

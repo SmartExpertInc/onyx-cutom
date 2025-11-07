@@ -431,7 +431,9 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                           whiteSpace: 'pre-wrap',
                           boxSizing: 'border-box',
                           display: 'block',
-                          lineHeight: '1.2'
+                          lineHeight: '1.2',
+                          color: '#09090B',
+                          backgroundColor: '#FFFFFF'
                         }}
                       />
                     ) : (
@@ -473,7 +475,9 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                       boxSizing: 'border-box',
                       display: 'block',
                       lineHeight: '1.4',
-                      ...(isStringStep ? { width: '100%' } : {})
+                      ...(isStringStep ? { width: '100%' } : {}),
+                      color: '#09090B',
+                      backgroundColor: '#FFFFFF'
                     }}
                   />
                 ) : (

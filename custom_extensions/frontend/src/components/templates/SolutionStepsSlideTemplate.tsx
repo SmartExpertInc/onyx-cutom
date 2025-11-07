@@ -131,6 +131,10 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         .solution-steps-slide-template .step-title {
           font-weight: 600 !important;
         }
+        .solution-steps-slide-template .page-number-editor,
+        .solution-steps-slide-template .page-number-editor * {
+          color: #09090B !important;
+        }
       `}</style>
       {/* Subtitle chip (previous title) */}
       <div style={{
@@ -502,7 +506,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             onCancel={handlePageNumberCancel}
             className="page-number-editor"
             style={{
-              color: '#09090B99',
+              color: '#09090B',
               fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
@@ -525,7 +529,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           <div
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
-              color: '#09090B99',
+              color: '#09090B',
               fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
