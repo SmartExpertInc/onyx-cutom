@@ -7,6 +7,7 @@ interface MediaProps {
   title?: string;
   displayMode?: 'modal' | 'popup';
   className?: string;
+  onOptionSelect?: (option: string) => void;
 }
 
 export default function Media({ 
@@ -14,7 +15,8 @@ export default function Media({
   onClose, 
   title, 
   displayMode = 'modal',
-  className = ''
+  className = '',
+  onOptionSelect,
 }: MediaProps) {
   const { t } = useLanguage();
   const defaultTitle = t('panels.media.chooseMedia', 'Choose Media');
@@ -28,6 +30,19 @@ export default function Media({
   const [isLibraryEmpty, setIsLibraryEmpty] = useState<boolean>(true);
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
   const [promptText, setPromptText] = useState<string>('');
+  const [aiImagePercentage, setAiImagePercentage] = useState<string>('100%');
+
+  const handleOptionClick = (option: string) => {
+    setSelectedOption(option);
+    onOptionSelect?.(option);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedOption('image');
+      onOptionSelect?.('image');
+    }
+  }, [isOpen, onOptionSelect]);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -55,7 +70,7 @@ export default function Media({
         <div className="mb-5">
           <h4 className="font-medium text-[#878787] mb-2" style={{ fontSize: '10px' }}>{t('panels.media.myAssets', 'My assets')}</h4>
           <div 
-            onClick={() => setSelectedOption('library')}
+            onClick={() => handleOptionClick('library')}
             className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
             style={selectedOption === 'library' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
           >
@@ -73,7 +88,7 @@ export default function Media({
           <div className="flex flex-col gap-2">
           {/* Image option */}
             <div 
-              onClick={() => setSelectedOption('image')}
+              onClick={() => handleOptionClick('image')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
               style={selectedOption === 'image' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
             >
@@ -85,7 +100,7 @@ export default function Media({
 
                       {/* Video option */}
             <div 
-              onClick={() => setSelectedOption('video')}
+              onClick={() => handleOptionClick('video')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
               style={selectedOption === 'video' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
             >
@@ -98,7 +113,7 @@ export default function Media({
 
             {/* Music option */}
             <div 
-              onClick={() => setSelectedOption('music')}
+              onClick={() => handleOptionClick('music')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
               style={selectedOption === 'music' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
             >
@@ -110,7 +125,7 @@ export default function Media({
 
             {/* Icon option */}
             <div 
-              onClick={() => setSelectedOption('icon')}
+              onClick={() => handleOptionClick('icon')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
               style={selectedOption === 'icon' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
             >
@@ -122,14 +137,33 @@ export default function Media({
 
           {/* AI image option */}
             <div 
-              onClick={() => setSelectedOption('aiImage')}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+              onClick={() => handleOptionClick('aiImage')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-text transition-colors border" 
               style={selectedOption === 'aiImage' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.58594 2.75586C6.00911 4.12151 6.51585 5.07368 7.25879 5.81543C8.00135 6.55616 8.95431 7.06019 10.3203 7.4834C8.95426 7.90548 8.00221 8.41012 7.25879 9.15234C6.51626 9.89434 6.01008 10.8462 5.58594 12.2119C5.19223 10.941 4.72808 10.0286 4.06543 9.30957L3.91406 9.15234L3.75684 9.00098C3.0379 8.34124 2.1246 7.87724 0.853516 7.4834C2.21905 7.06141 3.1708 6.55738 3.91406 5.81543V5.81445C4.65643 5.07263 5.16185 4.12104 5.58594 2.75586ZM10.7627 1.35254C10.8794 1.54881 11.0138 1.72706 11.1738 1.88672C11.3327 2.0453 11.5101 2.17805 11.7051 2.29395C11.5093 2.41021 11.3322 2.54494 11.1729 2.7041C11.0136 2.86321 10.879 3.04001 10.7627 3.23535C10.6461 3.03958 10.5112 2.86245 10.3516 2.70312C10.1924 2.54428 10.0157 2.40997 9.82031 2.29395C10.0158 2.1778 10.1934 2.04467 10.3525 1.88574C10.5122 1.72632 10.6462 1.54833 10.7627 1.35254Z" stroke="#171718"/>
-              </svg>
-              <span className="text-xs text-black">{t('panels.media.aiImage', 'AI image')}</span>
+              <div className="flex items-center gap-2 w-full">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_2114_29818)">
+                    <path opacity="0.5" fillRule="evenodd" clipRule="evenodd" d="M0 0H3.2V3.2H0V0ZM6.4 3.2H3.2V6.4H0V9.6H3.2V12.8H0V16H3.2V12.8H6.4V16H9.6V12.8H12.8V16H16V12.8H12.8V9.6H16V6.4H12.8V3.2H16V0H12.8V3.2H9.6V0H6.4V3.2ZM6.4 6.4V3.2H9.6V6.4H6.4ZM6.4 9.6H3.2V6.4H6.4V9.6ZM9.6 9.6V6.4H12.8V9.6H9.6ZM9.6 9.6H6.4V12.8H9.6V9.6Z" fill="url(#paint0_linear_2114_29818)"/>
+                  </g>
+                  <defs>
+                    <linearGradient id="paint0_linear_2114_29818" x1="0.269531" y1="10.6673" x2="17.2695" y2="10.6673" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#09090B"/>
+                      <stop offset="1" stopColor="#434343"/>
+                    </linearGradient>
+                    <clipPath id="clip0_2114_29818">
+                      <rect width="16" height="16" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+                <input
+                  type="text"
+                  value={aiImagePercentage}
+                  onChange={(event) => setAiImagePercentage(event.target.value)}
+                  className="flex-1 bg-transparent border-none text-xs focus:outline-none"
+                  style={{ color: '#878787' }}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -36,6 +36,7 @@ import VideoPresentationRightPanel from '../../view/components/VideoPresentation
 import BrandKitRightPanel from '../../view/components/BrandKitRightPanel';
 import AvatarRightPanel from '../components/AvatarRightPanel';
 import ShapeRightPanel from '../components/ShapeRightPanel';
+import ImageRightPanel from '../components/ImageRightPanel';
 import TextRightPanel from '../components/TextRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -53,6 +54,7 @@ function Projects2ViewPageContent() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
   const [showAvatarRightPanel, setShowAvatarRightPanel] = useState<boolean>(false);
   const [showShapeRightPanel, setShowShapeRightPanel] = useState<boolean>(false);
+  const [showImageRightPanel, setShowImageRightPanel] = useState<boolean>(false);
   const [showTextRightPanel, setShowTextRightPanel] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
@@ -676,6 +678,17 @@ function Projects2ViewPageContent() {
 
 
   // NEW: Handler for video lesson settings buttons
+  const handleMediaOptionSelect = (option: string) => {
+    if (option === 'image') {
+      setShowImageRightPanel(true);
+      setShowShapeRightPanel(false);
+      setShowAvatarRightPanel(false);
+      setShowTextRightPanel(false);
+    } else {
+      setShowImageRightPanel(false);
+    }
+  };
+
   const handleSettingsButtonClick = (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => {
     if (settingsType === 'media' && event) {
       // Special handling for media button - open media popup centered under the button
@@ -711,6 +724,10 @@ function Projects2ViewPageContent() {
       
       setMediaPopupPosition({ x, y });
       setIsMediaPopupOpen(true);
+      setShowImageRightPanel(true);
+      setShowShapeRightPanel(false);
+      setShowAvatarRightPanel(false);
+      setShowTextRightPanel(false);
       // Close other popups if open
       setIsTextPopupOpen(false);
       setIsShapesPopupOpen(false);
@@ -732,6 +749,7 @@ function Projects2ViewPageContent() {
     setShowShapeRightPanel(true);
     setShowAvatarRightPanel(false); // Close avatar panel when opening shape panel
     setShowTextRightPanel(false); // Close text panel when opening shape panel
+    setShowImageRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -746,6 +764,7 @@ function Projects2ViewPageContent() {
     // setShowTextRightPanel(true); // REMOVED - panel opens automatically when text is clicked
     setShowShapeRightPanel(false); // Close shape panel when opening text popup
     setShowAvatarRightPanel(false); // Close avatar panel when opening text popup
+    setShowImageRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
@@ -759,6 +778,7 @@ function Projects2ViewPageContent() {
     setShowAvatarRightPanel(true);
     setShowShapeRightPanel(false); // Close shape panel when opening avatar panel
     setShowTextRightPanel(false); // Close text panel when opening avatar panel
+    setShowImageRightPanel(false);
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -1239,6 +1259,44 @@ function Projects2ViewPageContent() {
               setActiveTransitionIndex={setActiveTransitionIndex}
               onClose={() => setShowAvatarRightPanel(false)}
             />
+          ) : showImageRightPanel ? (
+            <ImageRightPanel
+              isAppearanceEnabled={isAppearanceEnabled}
+              setIsAppearanceEnabled={setIsAppearanceEnabled}
+              showAppearanceDropdown={showAppearanceDropdown}
+              setShowAppearanceDropdown={setShowAppearanceDropdown}
+              selectedAppearance={selectedAppearance}
+              setSelectedAppearance={setSelectedAppearance}
+              appearanceVolume={appearanceVolume}
+              setAppearanceVolume={setAppearanceVolume}
+              isBackgroundEnabled={isBackgroundEnabled}
+              setIsBackgroundEnabled={setIsBackgroundEnabled}
+              backgroundColor={backgroundColor}
+              setMediaPopupPosition={setMediaPopupPosition}
+              setIsMediaPopupOpen={setIsMediaPopupOpen}
+              setColorPalettePosition={(pos) => {
+                setColorPalettePosition(pos);
+                setColorPaletteContext('shape');
+              }}
+              setIsColorPaletteOpen={setIsColorPaletteOpen}
+              isTransitionEnabled={isTransitionEnabled}
+              setIsTransitionEnabled={setIsTransitionEnabled}
+              showTransitionDropdown={showTransitionDropdown}
+              setShowTransitionDropdown={setShowTransitionDropdown}
+              selectedTransition={selectedTransition}
+              setSelectedTransition={setSelectedTransition}
+              activeSettingsPanel={activeSettingsPanel}
+              setActiveSettingsPanel={setActiveSettingsPanel}
+              componentBasedSlideDeck={componentBasedSlideDeck}
+              setActiveTransitionIndex={setActiveTransitionIndex}
+              shapeColor={shapeColor}
+              onShapeColorChange={setShapeColor}
+              strokeColor={strokeColor}
+              onStrokeColorChange={setStrokeColor}
+              onColorPaletteContextChange={setColorPaletteContext}
+              onClose={() => setShowImageRightPanel(false)}
+              rightPanelRef={rightPanelRef}
+            />
           ) : (
             <BrandKitRightPanel
               setColorPalettePosition={(pos) => {
@@ -1281,6 +1339,7 @@ function Projects2ViewPageContent() {
             title={t('videoEditor.mediaLibrary', 'Media Library')}
             displayMode="popup"
             className="w-full h-full"
+            onOptionSelect={handleMediaOptionSelect}
           />
         </div>
       )}
