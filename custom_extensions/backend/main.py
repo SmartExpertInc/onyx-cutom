@@ -37812,12 +37812,12 @@ from app.services.loki_service import get_loki_service
 @app.get("/api/custom/admin/analytics/logs")
 async def get_logs(
     request: Request,
-    user_id: Optional[str] = Query(None, description="Filter by user ID"),
-    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
-    level: Optional[str] = Query(None, description="Filter by log level (error, info, warning, etc.)"),
-    event: Optional[str] = Query(None, description="Filter by event type"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
-    hours: int = Query(1, ge=1, le=168, description="Number of hours to look back (max 168 = 7 days)")
+    user_id: Optional[str] = Query(None),
+    endpoint: Optional[str] = Query(None),
+    level: Optional[str] = Query(None),
+    event: Optional[str] = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+    hours: int = Query(1, ge=1, le=168)
 ):
     """
     Fetch logs from Loki with optional filters.
@@ -37827,13 +37827,22 @@ async def get_logs(
     - endpoint: Which API endpoint caused the error
     - level: Log level (error, info, warning, etc.)
     - event: Event type (e.g., "unexpected_backend_error")
+    - limit: Maximum number of logs to return
+    - hours: Number of hours to look back (max 168 = 7 days)
     
     Returns structured logs in JSON format with all context fields.
     """
     await verify_admin_user(request)
     try:
         loki_service = get_loki_service()
-        result = await loki_service.query_logs()
+        result = await loki_service.query_logs_by_filters(
+            user_id=user_id,
+            endpoint=endpoint,
+            level=level,
+            event=event,
+            limit=limit,
+            hours=hours
+        )
         return result
     except Exception as e:
         logger.error(f"Failed to fetch logs from Loki: {e}")
