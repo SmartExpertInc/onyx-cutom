@@ -182,7 +182,7 @@ export default function MusicRightPanel({
         )}
       </div>
 
-      <div className={`space-y-2 ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className={`space-y-2 mt-6 mb-4 ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="flex items-center justify-between">
           <span className="text-xs" style={{ color: '#878787' }}>
             {t('rightPanel.volume', 'Volume')}
@@ -246,7 +246,7 @@ export default function MusicRightPanel({
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <h3 className="text-sm font-medium" style={{ color: '#878787' }}>
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
             {t('rightPanel.playEverywhere', 'Play everywhere')}
           </h3>
           <button

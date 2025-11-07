@@ -847,7 +847,7 @@ export default function TextRightPanel({
 
         {/* Stroke button */}
         <button
-          className={`w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${hasStroke && selectedStrokeColor ? 'justify-between' : 'justify-center'}`}
+          className={`w-full mt-2 px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${hasStroke && selectedStrokeColor ? 'justify-between' : 'justify-center'}`}
           style={{ 
             backgroundColor: 'white',
             borderColor: '#E0E0E0',
