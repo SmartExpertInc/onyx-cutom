@@ -956,11 +956,11 @@ export default function EventPoster({
                 multiline={true} // Enable multiline like topic section
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: '#E5E5E5',
+                  color: '#ebebeb',
                   fontWeight: '500',
-                  fontSize: '37px',
+                  fontSize: '38px',
                   textAlign: 'center',
-                  lineHeight: '1.25',
+                  lineHeight: '46px',
                   background: 'transparent',
                   width: '100%',
                   boxSizing: 'border-box',
@@ -968,7 +968,7 @@ export default function EventPoster({
                   whiteSpace: 'normal',
                   wordWrap: 'break-word',
                   textTransform: 'uppercase',
-                  letterSpacing: '2px'
+                  letterSpacing: '1px'
                 }}
               />
             </div>
