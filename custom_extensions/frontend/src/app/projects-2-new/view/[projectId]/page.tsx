@@ -32,7 +32,8 @@ import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import AvatarDataProvider, { useAvatarData } from '../../../projects-2/view/components/AvatarDataService';
 import { VoiceProvider } from '@/contexts/VoiceContext';
-import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
+import VideoPresentationRightPanel from '../../view/components/VideoPresentationRightPanel';
+import BrandKitRightPanel from '../../view/components/BrandKitRightPanel';
 import AvatarRightPanel from '../components/AvatarRightPanel';
 import ShapeRightPanel from '../components/ShapeRightPanel';
 import TextRightPanel from '../components/TextRightPanel';
@@ -123,7 +124,7 @@ function Projects2ViewPageContent() {
   const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF');
   const [colorPalettePosition, setColorPalettePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [mediaPopupPosition, setMediaPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [colorPaletteContext, setColorPaletteContext] = useState<'background' | 'shape' | 'stroke'>('background');
+  const [colorPaletteContext, setColorPaletteContext] = useState<string>('background');
   const [recentColors, setRecentColors] = useState<string[]>([]);
   
   // Shape color state
@@ -845,8 +846,6 @@ function Projects2ViewPageContent() {
         case 'shape':
           return <ShapeSettings />;
         case 'media':
-          return <ImageSettings />;
-        case 'music':
           return (
             <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
               <Music />
@@ -1241,23 +1240,10 @@ function Projects2ViewPageContent() {
               onClose={() => setShowAvatarRightPanel(false)}
             />
           ) : (
-            <VideoPresentationRightPanel
-              isMusicEnabled={isMusicEnabled}
-              setIsMusicEnabled={setIsMusicEnabled}
-              showMusicDropdown={showMusicDropdown}
-              setShowMusicDropdown={setShowMusicDropdown}
-              selectedMusic={selectedMusic}
-              setSelectedMusic={setSelectedMusic}
-              musicVolume={musicVolume}
-              setMusicVolume={setMusicVolume}
-              isBackgroundEnabled={isBackgroundEnabled}
-              setIsBackgroundEnabled={setIsBackgroundEnabled}
-              backgroundColor={backgroundColor}
-              setMediaPopupPosition={setMediaPopupPosition}
-              setIsMediaPopupOpen={setIsMediaPopupOpen}
+            <BrandKitRightPanel
               setColorPalettePosition={(pos) => {
                 setColorPalettePosition(pos);
-                setColorPaletteContext('background');
+                setColorPaletteContext('brand');
               }}
               setIsColorPaletteOpen={setIsColorPaletteOpen}
               isTransitionEnabled={isTransitionEnabled}
@@ -1271,6 +1257,7 @@ function Projects2ViewPageContent() {
               componentBasedSlideDeck={componentBasedSlideDeck}
               setActiveTransitionIndex={setActiveTransitionIndex}
               rightPanelRef={rightPanelRef}
+              onColorPaletteContextChange={(context) => setColorPaletteContext(context)}
             />
           )}
         </div>
@@ -1453,6 +1440,15 @@ function Projects2ViewPageContent() {
             setShapeColor(color);
           } else if (colorPaletteContext === 'stroke') {
             setStrokeColor(color);
+          } else if (
+            colorPaletteContext === 'brand' ||
+            (typeof colorPaletteContext === 'string' && colorPaletteContext.startsWith('brand-'))
+          ) {
+            window.dispatchEvent(
+              new CustomEvent('brand-color-selected', {
+                detail: { context: colorPaletteContext, color },
+              })
+            );
           } else {
             setBackgroundColor(color);
           }
