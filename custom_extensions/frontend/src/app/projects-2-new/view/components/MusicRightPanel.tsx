@@ -71,38 +71,174 @@ export default function MusicRightPanel({
         ref={musicDropdownRef}
         className={`relative ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
-        <button
-          onClick={() => setShowMusicDropdown(!showMusicDropdown)}
-          disabled={!isMusicEnabled}
-          className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
-          style={{ borderColor: '#E0E0E0' }}
-        >
-          <div className="flex items-center gap-2">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
-                stroke="#848485"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span style={{ color: '#878787' }}>{selectedMusic}</span>
-          </div>
-          <svg
-            className={`w-4 h-4 transition-transform ${showMusicDropdown ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="#848485"
-            viewBox="0 0 24 24"
+        <div className="relative">
+          <button
+            onClick={() => setShowMusicDropdown(!showMusicDropdown)}
+            disabled={!isMusicEnabled}
+            className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+            style={{ borderColor: '#E0E0E0' }}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+            <div className="flex items-center gap-2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
+                  stroke="#848485"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span style={{ color: '#878787' }}>{selectedMusic}</span>
+            </div>
+            <svg
+              className={`w-4 h-4 transition-transform ${showMusicDropdown ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="#848485"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {showMusicDropdown && isMusicEnabled && (
+            <div
+              className="absolute left-0 right-0 top-full mt-1 w-full bg-white border rounded-md shadow-lg z-10"
+              style={{ borderColor: '#E0E0E0' }}
+            >
+              <button
+                onClick={() => {
+                  setSelectedMusic('East London');
+                  setShowMusicDropdown(false);
+                }}
+                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
+                      stroke="#848485"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span style={{ color: '#878787' }}>East London</span>
+                </div>
+                {selectedMusic === 'East London' && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M13.3346 4L6.0013 11.3333L2.66797 8"
+                      stroke="#0F58F9"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedMusic('Ambient Flow');
+                  setShowMusicDropdown(false);
+                }}
+                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
+                      stroke="#848485"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span style={{ color: '#878787' }}>Ambient Flow</span>
+                </div>
+                {selectedMusic === 'Ambient Flow' && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M13.3346 4L6.0013 11.3333L2.66797 8"
+                      stroke="#0F58F9"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedMusic('Minimal Beat');
+                  setShowMusicDropdown(false);
+                }}
+                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
+                      stroke="#848485"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span style={{ color: '#878787' }}>Minimal Beat</span>
+                </div>
+                {selectedMusic === 'Minimal Beat' && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M13.3346 4L6.0013 11.3333L2.66797 8"
+                      stroke="#0F58F9"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
 
         <button
           onClick={() => {
@@ -111,7 +247,7 @@ export default function MusicRightPanel({
             }
           }}
           disabled={!isMusicEnabled}
-          className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+          className="w-full mt-2 flex items-center justify-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
           style={{ borderColor: '#E0E0E0' }}
         >
           <svg
@@ -131,55 +267,7 @@ export default function MusicRightPanel({
           <span style={{ color: '#878787' }}>{t('rightPanel.replaceMusic', 'Replace music')}</span>
         </button>
 
-        {showMusicDropdown && isMusicEnabled && (
-          <div
-            className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10"
-            style={{ borderColor: '#E0E0E0' }}
-          >
-            <button
-              onClick={() => {
-                setSelectedMusic('East London');
-                setShowMusicDropdown(false);
-              }}
-              className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
-                    stroke="#848485"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span style={{ color: '#878787' }}>East London</span>
-              </div>
-              {selectedMusic === 'East London' && (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M13.3346 4L6.0013 11.3333L2.66797 8"
-                    stroke="#0F58F9"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-        )}
+        
       </div>
 
       <div className={`space-y-2 mt-6 mb-4 ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -245,7 +333,7 @@ export default function MusicRightPanel({
           `}</style>
         </div>
 
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between pt-3">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
             {t('rightPanel.playEverywhere', 'Play everywhere')}
           </h3>
