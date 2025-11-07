@@ -538,7 +538,7 @@ export default function ShapeRightPanel({
         </div>
 
         {/* Appearance Dropdown */}
-        <div ref={appearanceDropdownRef} className="relative">
+        <div ref={appearanceDropdownRef} className="relative mb-3">
           <button
             onClick={() => setShowAppearanceDropdown(!showAppearanceDropdown)}
             className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
@@ -842,7 +842,7 @@ export default function ShapeRightPanel({
           </div>
 
           {/* Rotation Control */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-1">
             {/* Left column - Rotation Label */}
             <div className="flex-1 flex items-center">
               <span className="text-xs font-medium" style={{ color: '#171718' }}>

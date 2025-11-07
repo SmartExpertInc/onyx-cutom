@@ -135,7 +135,7 @@ export default function AvatarRightPanel({
         </div>
 
         {/* Appearance Dropdown */}
-        <div ref={appearanceDropdownRef} className="relative">
+        <div ref={appearanceDropdownRef} className="relative mb-3">
           <button
             onClick={() => setShowAppearanceDropdown(!showAppearanceDropdown)}
             className="w-full flex items-center justify-between px-3 py-2 text-xs border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"

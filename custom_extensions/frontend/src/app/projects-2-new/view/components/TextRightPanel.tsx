@@ -266,7 +266,7 @@ export default function TextRightPanel({
         </div>
 
         {/* Font Family Dropdown */}
-        <div ref={fontFamilyDropdownRef} className="relative">
+        <div ref={fontFamilyDropdownRef} className="relative mt-1">
           <button
             onMouseDown={(e) => e.preventDefault()} // Prevent focus loss from editor
             onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
@@ -382,7 +382,7 @@ export default function TextRightPanel({
         </div>
 
         {/* Text Style and Font Size Row */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-1">
           {/* Text Style Dropdown */}
           <div className="flex-1 relative" ref={textStyleDropdownRef}>
             <button
@@ -560,7 +560,7 @@ export default function TextRightPanel({
         </div>
 
         {/* Text Alignment and List Type Row */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-1">
           {/* Text Alignment Buttons */}
           <div className="flex-1 flex gap-1 px-1 py-1.5 rounded-md" style={{ backgroundColor: '#F4F4F5', height: '32px' }}>
             {/* Left Align */}
