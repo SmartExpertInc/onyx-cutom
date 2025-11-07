@@ -475,11 +475,11 @@ export default function BrandKitRightPanel({
 
       <div className="mb-5">
         <div className="flex items-center justify-between pb-1.5" style={{ height: '24px' }}>
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
+          <h3 className="text-md font-medium" style={{ color: '#171718' }}>
             Logos
           </h3>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.2998 19.6445L11.9893 21.4326L10.4922 19.6133L11.1367 19.2236L11.2998 19.6445ZM13.5049 19.6133L12.0078 21.4326L12.6982 19.6445L12.8604 19.2236L13.5049 19.6133Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
+          <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.3008 18.3242L10.9902 20.1123L9.49316 18.293L10.1377 17.9033L10.3008 18.3242ZM12.5059 18.293L11.0088 20.1123L11.6992 18.3242L11.8613 17.9033L12.5059 18.293Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
           </svg>
         </div>
 
@@ -500,11 +500,11 @@ export default function BrandKitRightPanel({
 
       <div>
         <div className="flex items-center justify-between pb-1.5" style={{ height: '24px' }}>
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
+          <h3 className="text-md font-medium" style={{ color: '#171718' }}>
             Fonts
           </h3>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.2998 19.6445L11.9893 21.4326L10.4922 19.6133L11.1367 19.2236L11.2998 19.6445ZM13.5049 19.6133L12.0078 21.4326L12.6982 19.6445L12.8604 19.2236L13.5049 19.6133Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
+          <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.3008 18.3242L10.9902 20.1123L9.49316 18.293L10.1377 17.9033L10.3008 18.3242ZM12.5059 18.293L11.0088 20.1123L11.6992 18.3242L11.8613 17.9033L12.5059 18.293Z" fill="#D60AFF" stroke="#D60AFF" strokeWidth="1.5"/>
           </svg>
         </div>
 
