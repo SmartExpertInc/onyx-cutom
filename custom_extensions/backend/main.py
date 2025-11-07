@@ -34385,7 +34385,8 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 
     # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
     try:
-        json_preview_instructions_text = f"""
+        # Build the instructions string without the JSON example first to avoid f-string format specifier issues
+        json_preview_instructions_text_template = """
 
 🎓 EDUCATIONAL CONTENT QUALITY REQUIREMENTS (TARGET: 90+/100 SCORE):
 
@@ -34607,8 +34608,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
 - contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table|column_container, alert, etc.)
 - Use "paragraph" type liberally (60% of content) - this is where deep learning happens
-- **purpleBoxContent** (optional): Include when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout. Structure: { "title": "Topic-specific title", "description": "Brief overview", "cards": [{ "title": "Card title", "description": "Card description", "icon": "globe|chart|boxes|info|goal|star|apple|award|calendar|clock" }] }
-- **column_container** blocks: Use in contentBlocks when comparing concepts, showing parallel procedures, or presenting side-by-side information. Structure: { "type": "column_container", "columnCount": 2|3, "columns": [[blocks for column 1], [blocks for column 2], ...] }
+- **purpleBoxContent** (optional): Include when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout. Structure: {{ "title": "Topic-specific title", "description": "Brief overview", "cards": [{{ "title": "Card title", "description": "Card description", "icon": "globe|chart|boxes|info|goal|star|apple|award|calendar|clock" }}] }}
+- **column_container** blocks: Use in contentBlocks when comparing concepts, showing parallel procedures, or presenting side-by-side information. Structure: {{ "type": "column_container", "columnCount": 2|3, "columns": [[blocks for column 1], [blocks for column 2], ...] }}
 - **LIST USAGE RULES (CRITICAL)**:
   - Use **numbered_list** for: Sequential steps, ranked priorities, ordered procedures, chronological events, hierarchical levels
   - Use **bullet_list** for: Related but non-sequential points, benefits/features, characteristics, recommendations
@@ -34639,10 +34640,13 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 
 IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
 """
-        # Insert the JSON example using string concatenation to avoid f-string format specifier issues
+        # Use the template as-is (it's already a string, no formatting needed)
+        json_preview_instructions_text = json_preview_instructions_text_template
+        # Insert the JSON example at the appropriate location
+        insertion_marker = "CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):\nYou MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:"
         json_preview_instructions_text = json_preview_instructions_text.replace(
-            "CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):\nYou MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:",
-            "CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):\nYou MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:\n" + DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+            insertion_marker,
+            insertion_marker + "\n" + DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
         # Prepend strict files-only guard to one-pager preview instructions when generating from files
         has_file_context_text = bool(
@@ -34668,9 +34672,15 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                 pass
 
         wizard_message = wizard_message + json_preview_instructions_text
-        logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions. Instructions length: {len(json_preview_instructions_text)}")
+        # Verify JSON example was inserted
+        if DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM[:50] in json_preview_instructions_text:
+            logger.info("[TEXT_PRESENTATION_PREVIEW] ✅ JSON example successfully inserted into instructions")
+        else:
+            logger.warning("[TEXT_PRESENTATION_PREVIEW] ⚠️ JSON example may not have been inserted correctly")
     except Exception as e:
-        logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+        logger.error(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}", exc_info=True)
+        # Continue without JSON instructions as fallback (AI will generate markdown, which will be parsed)
     
     # Onepager fidelity rules are now in product-specific txt files
 
