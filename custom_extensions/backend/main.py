@@ -18224,7 +18224,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
         return "\n".join(buf)
 
     lines_processed = 0
-    for raw_line in None:
+    for raw_line in md.splitlines():
         lines_processed += 1
         if not raw_line.strip():
             continue  # skip empty lines
