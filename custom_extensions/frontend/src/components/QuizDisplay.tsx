@@ -643,12 +643,12 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       <div
         ref={setNodeRef}
         style={style}
-        className="flex items-center p-2 border rounded bg-white"
+        className="flex items-center"
       >
         <span
           {...attributes}
           {...listeners}
-          className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab active:cursor-grabbing"
+          className="w-4 h-4 text-xs flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3 cursor-grab active:cursor-grabbing"
         >
           {orderIndex + 1}
         </span>
@@ -663,7 +663,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           />
         ) : (
           <span
-            className="flex-1 text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+            className="flex-1 text-[#171718] cursor-pointer"
             onClick={() => onTextChange && setEditingField({type: 'option', questionIndex, optionIndex: itemIndex})}
           >
             {item?.text}
@@ -761,7 +761,6 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
     return (
       <div className="mt-4">
-        <h4 className="font-medium mb-2 text-black">{t('quiz.itemsToSort', 'Items to Sort')}</h4>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
