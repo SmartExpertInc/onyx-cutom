@@ -24,7 +24,7 @@ const GenerateCard = ({ svg, label, active, onClick }: any) => {
           </div>
         )}
         <span 
-          className="leading-tight text-black text-left md:text-center lg:text-center xl:text-center font-bold text-[14px] md:text-[16px]"
+          className="leading-tight text-black text-left md:text-center lg:text-center xl:text-center font-medium md:font-bold text-[15px] md:text-[16px]"
         >
           {label}
         </span>
@@ -122,7 +122,7 @@ export default function AuditLandingPage() {
       </div>
 
       {/* Bottom-Right Gradient Background */}
-      <div className="absolute top-250 right-0 pointer-events-none" style={{ zIndex: 0 }}>
+      <div className="absolute top-50 right-0 pointer-events-none" style={{ zIndex: 0 }}>
         <BottomRightGradient />
       </div>
 
@@ -133,7 +133,7 @@ export default function AuditLandingPage() {
             <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.5052 15.6323L13.6767 13.7977C14.0397 12.7628 13.9578 11.6068 13.4318 10.6258L15.7518 8.55315C17.0263 9.34825 18.7248 9.19306 19.8327 8.08507C21.1224 6.79547 21.1224 4.70442 19.8327 3.41474C18.543 2.12507 16.4518 2.12507 15.1623 3.41474C14.1463 4.43071 13.9314 5.94335 14.5156 7.17045L12.1953 9.24347C11.0846 8.47479 9.66779 8.34042 8.4502 8.84192L5.77453 5.15987C6.73434 3.89973 6.63966 2.09303 5.4884 0.941636C4.23289 -0.313879 2.19727 -0.313879 0.941686 0.941636C-0.313895 2.19722 -0.313895 4.2329 0.941686 5.48842C1.84322 6.38995 3.14657 6.64398 4.27477 6.25115L6.95077 9.93353C5.62932 11.4835 5.69975 13.8135 7.16495 15.2786C7.1931 15.3068 7.22204 15.3332 7.25104 15.3604L4.65848 19.9106C3.58095 19.6558 2.40042 19.9479 1.56006 20.7883C0.270391 22.0781 0.270391 24.1693 1.56006 25.4588C2.84973 26.7485 4.94085 26.7485 6.23045 25.4588C7.50665 24.1827 7.51926 22.1223 6.26963 20.8296L8.86199 16.2799C10.1638 16.6537 11.6194 16.3445 12.6656 15.3528L15.4968 17.1887C15.3161 18.0282 15.5511 18.9394 16.2035 19.5917C17.2255 20.6137 18.8821 20.6137 19.904 19.5917C20.9259 18.5699 20.9259 16.9132 19.904 15.8913C18.9775 14.9651 17.5291 14.8786 16.5052 15.6323ZM2.67889 22.3901C2.61606 22.4613 2.55693 22.5286 2.49892 22.5865C2.42665 22.6587 2.32788 22.7467 2.20533 22.7846C2.05139 22.8321 1.89409 22.7903 1.77352 22.6697C1.45825 22.3545 1.57882 21.7581 2.05404 21.283C2.52938 20.8077 3.12556 20.6871 3.44096 21.0025C3.56146 21.1228 3.60328 21.2803 3.55571 21.4343C3.51792 21.5568 3.42992 21.6559 3.35771 21.7279C3.29971 21.7857 3.23245 21.8449 3.16117 21.9077C3.07892 21.9801 2.99369 22.055 2.90979 22.1387C2.82595 22.2226 2.75123 22.3078 2.67889 22.3901ZM15.6563 3.90911C16.1315 3.4339 16.7278 3.3132 17.043 3.62853C17.1635 3.74897 17.2054 3.90634 17.1578 4.06041C17.12 4.18302 17.0319 4.28199 16.9598 4.35413C16.9019 4.41194 16.8347 4.47107 16.7633 4.53383C16.681 4.60631 16.5959 4.68109 16.5119 4.76493C16.428 4.8489 16.3532 4.93419 16.2807 5.01651C16.2181 5.0876 16.1588 5.15505 16.101 5.21292C16.0288 5.28513 15.9298 5.37313 15.8073 5.41099C15.6532 5.45849 15.496 5.41667 15.3755 5.2961C15.0604 4.98077 15.181 4.38426 15.6563 3.90911ZM2.03098 2.50086C1.96967 2.57023 1.91213 2.63576 1.85604 2.69212C1.78581 2.76234 1.68948 2.8479 1.57004 2.88496C1.42013 2.93108 1.26699 2.89045 1.14959 2.77325C0.842653 2.46624 0.96025 1.88558 1.42298 1.42299C1.88563 0.960267 2.46602 0.842802 2.7731 1.14981C2.89043 1.26714 2.93132 1.42035 2.88488 1.57019C2.84782 1.68957 2.76239 1.78589 2.6921 1.85599C2.63568 1.91241 2.57014 1.97008 2.50077 2.03093C2.42064 2.10136 2.33766 2.17429 2.25607 2.25595C2.17434 2.33767 2.10134 2.42078 2.03098 2.50086ZM7.75525 10.2904C8.32296 9.72264 9.03501 9.57862 9.41172 9.95526C9.55574 10.0994 9.60576 10.2872 9.54901 10.4712C9.50355 10.6178 9.39857 10.7358 9.31229 10.8222C9.24312 10.8913 9.16265 10.9617 9.07756 11.0368C8.97939 11.1234 8.87765 11.2126 8.77736 11.3128C8.67707 11.4132 8.58775 11.5149 8.50133 11.6133C8.42628 11.6983 8.35566 11.7787 8.28655 11.8478C8.20027 11.9343 8.08221 12.0391 7.93568 12.0844C7.75175 12.1412 7.56386 12.0913 7.41964 11.9472C7.04319 11.5702 7.18755 10.8582 7.75525 10.2904ZM16.9478 17.3161C16.8905 17.3733 16.812 17.4431 16.715 17.473C16.5931 17.5106 16.4687 17.4775 16.3729 17.3821C16.123 17.1323 16.2185 16.6598 16.5953 16.2832C16.9716 15.9066 17.4441 15.8111 17.6941 16.0611C17.7894 16.1564 17.8226 16.2811 17.785 16.4032C17.755 16.5004 17.6852 16.5787 17.6281 16.6358C17.5822 16.6816 17.529 16.7285 17.4725 16.7782C17.4075 16.8354 17.3398 16.8949 17.2734 16.9613C17.2069 17.0277 17.1474 17.0951 17.0904 17.1605C17.0405 17.217 16.9936 17.2702 16.9478 17.3161Z" fill="white"/>
             </svg>
-            <span style={{fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important'}} className="text-white text-xl font-semibold">ContentBuilder</span>
+            <span style={{fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important'}} className="text-white text-[22px] md:text-[24px] font-semibold">ContentBuilder</span>
         </div>
 
         {/* Desktop Navigation */}
@@ -182,15 +182,30 @@ export default function AuditLandingPage() {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
+            <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_2094_22379)">
+            <rect width="21" height="2" rx="1" fill="white"/>
+            <rect x="4" y="9" width="17" height="2" rx="1" fill="white"/>
+            <rect y="18" width="21" height="2" rx="1" fill="white"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_2094_22379">
+            <rect width="21" height="20" fill="white"/>
+            </clipPath>
+            </defs>
+            </svg>            
           ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 12H21" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M3 6H21" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M3 18H21" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_2094_22379)">
+            <rect width="21" height="2" rx="1" fill="white"/>
+            <rect x="4" y="9" width="17" height="2" rx="1" fill="white"/>
+            <rect y="18" width="21" height="2" rx="1" fill="white"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_2094_22379">
+            <rect width="21" height="20" fill="white"/>
+            </clipPath>
+            </defs>
             </svg>
           )}
         </button>
@@ -198,7 +213,7 @@ export default function AuditLandingPage() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden w-full px-6 py-6 bg-white absolute top-0 z-20" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
+        <div className="md:hidden w-full px-6 py-6 bg-white absolute top-20 z-20" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
           <nav className="flex flex-col gap-4">
             <button className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
               Solutions
@@ -246,7 +261,7 @@ export default function AuditLandingPage() {
         </h1>
 
         {/* Sub-headline */}
-        <p className="text-[FFFFFF]/90 text-[16px] md:text-xl text-left md:text-center mb-8 md:mb-12 max-w-full md:max-w-2xl opacity-90">
+        <p className="text-[#FFFFFF]/90 text-[20px] md:text-xl text-left md:text-center mb-8 md:mb-12 max-w-full md:max-w-2xl opacity-90">
           Turn your concept into a ready-to-launch training program — complete with video lessons, quizzes, and LMS export — in just minutes
         </p>
 
@@ -265,7 +280,7 @@ export default function AuditLandingPage() {
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)',
             }}
           >
-          <div className="grid grid-cols-2 md:flex md:flex-wrap md:justify-center gap-3 md:gap-5">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap md:justify-center gap-2 md:gap-5">
             <GenerateCard
               label="Course"
               svg={
@@ -326,7 +341,7 @@ export default function AuditLandingPage() {
 
         {/* Try for Free Button */}
         <button 
-          className="w-full md:w-auto px-12 py-4 text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center justify-center gap-4 md:inline-flex transition-all hover:scale-105 md:static bottom-6 left-6 right-6 z-20"
+          className="w-full md:w-auto px-12 py-4 text-[18px] md:text-[15px] rounded-full text-shadow-md shadow-xl font-semibold text-white flex items-center justify-center gap-4 md:inline-flex transition-all hover:scale-105 md:static bottom-6 left-6 right-6 z-20"
           style={{
             backgroundColor: '#0F58F9',
           }}
@@ -345,14 +360,9 @@ export default function AuditLandingPage() {
           <h2 className="text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal text-left md:text-center lg:text-center xl:text-center sora-font">
             <span style={{ color: '#0F58F9' }}>All-in-One AI Studio</span>
             <span className="text-black"> for Learning Content</span>
-          </h2>
-
-          {/* Sub-heading */}
-          <h2 className="text-[30px] md:text-[42px] font-semibold text-left md:text-center lg:text-center xl:text-center mb-6 sora-font">
             <span className="text-black">Create everything — </span>
             <span style={{ color: '#0F58F9' }}>in one place</span>
           </h2>
-
           {/* Description */}
           <p className="text-black text-left md:text-center lg:text-center xl:text-center text-[16px] mb-8 max-w-3xl sora-font">
             Generate videos, voices, images, text, and avatars with the world's top <br className="hidden lg:block xl:block" /> AI models — GPT-5.5, VEO3, 11Lab, NanBanana, AvatarCore, and SmartDrive.
@@ -361,7 +371,7 @@ export default function AuditLandingPage() {
           {/* Feature Pills */}
           <div className="flex flex-wrap justify-left md:justify-center lg:justify-center xl:justify-center gap-4 mb-8">
             {/* Video Pill */}
-            <button className="flex items-center gap-2 px-3 pr-10 md:pr-3 lg:pr-3 xl:pr-3 py-1 rounded-full border border-[#E0E0E0] bg-white transition-colors">
+            <button className="flex w-40 md:w-auto lg:w-auto xl:w-auto items-center gap-2 px-3 pr-10 md:pr-3 lg:pr-3 xl:pr-3 py-1 rounded-full border border-[#E0E0E0] bg-white transition-colors">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5.48367e-05 7.97699C-0.0143451 3.53427 3.71843 -0.115505 8.22079 0.00279726C12.3808 0.114705 16.0175 3.54706 15.9999 8.03614C15.9921 10.1561 15.1417 12.1861 13.6359 13.6797C12.13 15.1732 10.0921 16.0078 7.9704 15.9999C5.84868 15.9921 3.81698 15.1424 2.32225 13.6378C0.827524 12.1332 -0.00779551 10.097 5.48367e-05 7.97699ZM11.8208 8.11767C11.7167 7.97334 11.5946 7.8428 11.4576 7.7292C9.85758 6.78065 8.25226 5.83956 6.64161 4.90594C6.24001 4.67093 5.92001 4.83559 5.92001 5.29441C5.90401 7.18511 5.90401 9.07581 5.92001 10.9665C5.92001 11.4285 6.24001 11.606 6.64001 11.371C8.26346 10.4331 9.88052 9.48454 11.4912 8.52534C11.6096 8.4502 11.68 8.28713 11.8224 8.11767H11.8208Z" fill="#020617"/>
                 </svg>
@@ -369,7 +379,7 @@ export default function AuditLandingPage() {
             </button>
 
             {/* Voice Pill */}
-            <button className="flex items-center gap-2 px-3 py-1 rounded-full border border-[#E0E0E0] bg-white transition-colors">
+            <button className="flex w-40 md:w-auto lg:w-auto xl:w-auto items-center gap-2 px-3 py-1 rounded-full border border-[#E0E0E0] bg-white transition-colors">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M8 16C12.418 16 16 12.418 16 8C16 3.582 12.418 0 8 0C3.582 0 0 3.582 0 8C0 12.418 3.582 16 8 16ZM3.5 8.25C3.5 8.52578 3.72422 8.75 4 8.75C4.27578 8.75 4.5 8.52578 4.5 8.25V7.75C4.5 7.47422 4.27578 7.25 4 7.25C3.72422 7.25 3.5 7.47422 3.5 7.75V8.25ZM6 5.5C6.27578 5.5 6.5 5.72422 6.5 6V10C6.5 10.2758 6.27578 10.5 6 10.5C5.72422 10.5 5.5 10.2758 5.5 10V6C5.5 5.72422 5.72422 5.5 6 5.5ZM7.5 11.5C7.5 11.7758 7.72422 12 8 12C8.27578 12 8.5 11.7758 8.5 11.5V4.5C8.5 4.22422 8.27578 4 8 4C7.72422 4 7.5 4.22422 7.5 4.5V11.5ZM10 5.5C10.2758 5.5 10.5 5.72422 10.5 6V10C10.5 10.2758 10.2758 10.5 10 10.5C9.72422 10.5 9.5 10.2758 9.5 10V6C9.5 5.72422 9.72422 5.5 10 5.5ZM12.5 7.75C12.5 7.47422 12.2758 7.25 12 7.25C11.7242 7.25 11.5 7.47422 11.5 7.75V8.25C11.5 8.52578 11.7242 8.75 12 8.75C12.2758 8.75 12.5 8.52578 12.5 8.25V7.75Z" fill="#020617"/>
                 </svg>
@@ -377,7 +387,7 @@ export default function AuditLandingPage() {
             </button>
 
             {/* Knowledge Pill */}
-            <button className="flex items-center gap-2 px-3 py-1 rounded-full border border-[#E0E0E0] bg-white transition-colors">
+            <button className="flex w-40 md:w-auto lg:w-auto xl:w-auto items-center gap-2 px-3 py-1 rounded-full border border-[#E0E0E0] bg-white transition-colors">
                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M9.56877 3.56076H11.8319L13.4983 1.89434C13.4182 1.72495 13.3731 1.53552 13.3731 1.33525C13.3731 0.610946 13.9623 0.0218194 14.6866 0.0218194C15.4109 0.0218194 16 0.610946 16 1.33525C16 2.05956 15.4109 2.64868 14.6866 2.64868C14.4863 2.64868 14.2969 2.60362 14.1275 2.52352L12.3317 4.32095C12.2474 4.40356 12.1348 4.45029 12.0163 4.45029H9.56883L9.56877 3.56076ZM9.56877 6.89861H11.0733L11.6182 5.80879C11.6933 5.65859 11.8477 5.56347 12.0163 5.56347H13.4499C13.6326 5.05695 14.1174 4.6948 14.6865 4.6948C15.4108 4.6948 16 5.28392 16 6.00823C16 6.73254 15.4108 7.32166 14.6865 7.32166C14.1174 7.32166 13.6326 6.95951 13.4499 6.45299H12.2916L11.7467 7.5428C11.6716 7.69301 11.5172 7.78813 11.3487 7.78813H9.56877V6.89861ZM9.56877 9.56888H13.4499C13.6326 9.06236 14.1174 8.70021 14.6865 8.70021C15.4108 8.70021 16 9.28933 16 10.0136C16 10.7379 15.4108 11.3271 14.6865 11.3271C14.1174 11.3271 13.6326 10.9649 13.4499 10.4584H9.56877V9.56888ZM9.56877 11.5716H12.0162C12.1347 11.5716 12.2474 11.6183 12.3317 11.7009L14.1274 13.4984C14.2968 13.4183 14.4862 13.3732 14.6865 13.3732C15.4108 13.3732 15.9999 13.9623 15.9999 14.6866C15.9999 15.4109 15.4108 16.0001 14.6865 16.0001C13.9622 16.0001 13.3731 15.4109 13.3731 14.6866C13.3731 14.4864 13.4181 14.2969 13.4982 14.1275L11.8318 12.4611H9.56872L9.56877 11.5716ZM8.6784 4.72906L8.64335 4.72739C8.08509 4.72739 7.55856 4.86341 7.09543 5.10456C6.90767 5.20386 6.83506 5.43502 6.93437 5.6211C7.03367 5.80802 7.26732 5.87894 7.45508 5.78132C7.81056 5.59607 8.21444 5.49092 8.64335 5.49092L8.6784 5.48925V10.5536L8.64335 10.5519C8.21444 10.5519 7.81056 10.4484 7.45508 10.2632C7.26732 10.1639 7.03366 10.2365 6.93437 10.4226C6.83507 10.6095 6.90767 10.8406 7.09543 10.9383C7.55856 11.1794 8.08509 11.3163 8.64335 11.3163L8.6784 11.3146V13.4391C8.6784 15.1648 7.62197 16.0434 6.39115 16.0434C5.75112 16.0434 5.17617 15.8198 4.75645 15.3692C4.60041 15.1998 4.46272 14.997 4.35591 14.7575C5.1186 14.6782 5.65768 14.3878 5.96976 14.1767C6.04987 14.1116 6.09993 14.0173 6.10661 13.9155C6.11495 13.8137 6.07991 13.7127 6.01148 13.636C6.00314 13.6268 5.99396 13.6168 5.98144 13.6093C5.85377 13.4691 5.63931 13.4457 5.48494 13.555C5.09942 13.8179 4.63881 13.9814 4.14229 14.0081C4.09472 14.0106 4.04632 14.0115 3.99709 14.0115C3.60321 14.0115 3.22854 13.9255 2.89309 13.7712C2.71952 13.691 2.55514 13.5934 2.40409 13.4799C1.77408 13.0034 1.36685 12.2524 1.36685 11.4071V11.3963C1.93344 11.6742 2.53258 11.8169 3.05579 11.8344C3.16677 11.8335 3.27274 11.7851 3.34618 11.7C3.41878 11.6166 3.453 11.5064 3.43714 11.3963L3.43297 11.3971C3.4071 11.206 3.24104 11.065 3.04661 11.0683C2.56513 11.0566 2.00354 10.9056 1.49452 10.6085C1.00971 10.324 0.573276 9.90845 0.298729 9.35352C0.110974 8.97468 0 8.53157 0 8.02172C0 7.51187 0.110983 7.06794 0.298729 6.68991C0.573276 6.13415 1.00968 5.7186 1.49452 5.43572C2.00437 5.13782 2.56679 4.98594 3.04911 4.97927C3.24437 4.98344 3.41043 4.84159 3.4363 4.65049C3.43713 4.64715 3.43713 4.64381 3.4338 4.6388C3.44798 4.53366 3.41627 4.42518 3.34618 4.34341C3.27441 4.26246 3.17261 4.21573 3.0633 4.21407C2.53843 4.22491 1.93679 4.36761 1.36684 4.64797V4.63546C1.36684 3.79182 1.77405 3.04081 2.40408 2.56433C2.55512 2.45084 2.71868 2.35154 2.89309 2.27227C3.22854 2.11789 3.60321 2.03111 3.99708 2.03111C4.04632 2.03111 4.09471 2.03278 4.14228 2.03528C4.63878 2.06198 5.09941 2.22637 5.48325 2.49173C5.63929 2.60271 5.85542 2.57935 5.98394 2.43749C5.98644 2.43415 5.98978 2.43081 5.99145 2.42664C6.06321 2.34736 6.09742 2.24055 6.08407 2.13374C6.07155 2.02693 6.01231 1.9318 5.92385 1.87088C5.75946 1.75906 5.55668 1.63389 5.35976 1.54961C5.04768 1.4136 4.70971 1.32264 4.35591 1.28592C4.46272 1.04559 4.6004 0.842824 4.75645 0.675088C5.17618 0.223641 5.75112 0 6.39115 0C7.62198 0 8.6784 0.879524 8.6784 2.60426L8.6784 4.72906ZM5.20704 8.02183C5.20704 7.72893 5.44737 7.49111 5.74276 7.49111C5.95555 7.49111 6.12912 7.31921 6.12912 7.10892C6.12912 6.89863 5.95555 6.72673 5.74276 6.72673C5.1553 6.72673 4.65797 7.11142 4.49357 7.63962H3.00823C2.79461 7.63962 2.62188 7.81068 2.62188 8.02181C2.62188 8.23293 2.79461 8.40317 3.00823 8.40317H4.49357C4.65795 8.93222 5.1553 9.31689 5.74276 9.31689C5.95555 9.31689 6.12912 9.14583 6.12912 8.9347C6.12912 8.72357 5.95555 8.55334 5.74276 8.55334C5.44737 8.55334 5.20704 8.31473 5.20704 8.02183Z" fill="#020617"/>
                 </svg>
@@ -403,7 +413,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-12 py-4 rounded-full text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
+            className="px-12 py-4 rounded-full text-[18px] md:text-[15px] font-semibold shadow-xl text-white flex items-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -421,13 +431,13 @@ export default function AuditLandingPage() {
       <section className="w-full py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           {/* Header */}
-          <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-12 sora-font">
+          <h2 className="text-[30px] pr-10 md:pr-0 lg:pr-0 xl:pr-0 md:text-[42px] font-semibold leading-none md:leading-normal font-semibold text-left md:text-center lg:text-center xl:text-center mb-6 md:12 sora-font">
             <span className="text-black">AI-powered SmartDrive — </span> <br className="hidden xl:block lg:block" />
             <span style={{ color: '#0F58F9' }}>store everything in one place.</span>
           </h2>
 
           {/* Two Column Layout */}
-          <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-15 mb-12">
+          <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-5 md:gap-15 mb-12">
             {/* Left Column - Features */}
             <div className="flex flex-col gap-8">
               {/* Feature 1 */}
@@ -446,7 +456,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Feature 2 */}
-              <div className="flex flex-col gap-4 py-7 border-0 lg:border-b lg:border-gray-200">
+              <div className="flex flex-col gap-4 pb-5 md:py-7 border-0 lg:border-b lg:border-gray-200">
                 <div 
                   className="w-13 h-13 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -480,7 +490,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="w-full md:w-auto px-10 py-4 rounded-full shadow-xl text-[15px] font-semibold text-white flex items-center justify-center md:justify-start gap-3 transition-all hover:scale-105"
+            className="w-full md:w-auto px-10 py-4 rounded-full shadow-xl text-[18px] md:text-[15px] font-semibold text-white flex items-center justify-center md:justify-start gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -517,7 +527,7 @@ export default function AuditLandingPage() {
               />
           </div>
           <button 
-            className="px-12 py-4 -mt-0 text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="w-full md:w-auto px-12 py-4 -mt-0 text-[18px] md:text-[15px] lg:-mt-17 xl:-mt-18 rounded-full shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -545,7 +555,7 @@ export default function AuditLandingPage() {
             {/* Left Column - Features & Platforms */}
             <div className="flex flex-col gap-8 max-w-[450px]">
               {/* Feature 1 */}
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div 
                   className="w-13 h-13 p-4 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -560,7 +570,7 @@ export default function AuditLandingPage() {
               </div>
 
               {/* Feature 2 */}
-              <div className="flex gap-4 pb-6 border-b border-gray-200">
+              <div className="flex flex-col md:flex-row gap-4 pb-6 border-b border-gray-200">
                 <div 
                   className="w-13 h-13 p-2 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
@@ -576,7 +586,7 @@ export default function AuditLandingPage() {
               {/* Platform Logos */}
               <div className="flex justify-between mt-4 order-first md:order-none">
                 {/* YouTube */}
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-19 md:w-15 h-19 md:w-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <img 
                       src="/custom-projects-ui/images/youtubeImg.png"
                       alt="YouTube"
@@ -585,7 +595,7 @@ export default function AuditLandingPage() {
                 </div>
 
                 {/* Git Book */}
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-19 md:w-15 h-19 md:w-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <img 
                       src="/custom-projects-ui/images/GitBookLight.png"
                       alt="Git Book"
@@ -594,7 +604,7 @@ export default function AuditLandingPage() {
                 </div>
 
                 {/* Wikipedia */}
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-19 md:w-15 h-19 md:w-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                   <img 
                     src="/custom-projects-ui/images/Wikipedia.png"
                     alt="Wikipedia"
@@ -603,7 +613,7 @@ export default function AuditLandingPage() {
                 </div>
 
                 {/* Vimeo */}
-                <div className="w-15 h-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+                <div className="w-19 md:w-15 h-19 md:w-15 p-3 bg-white rounded-sm flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
                     <svg width="47" height="40" viewBox="0 0 47 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M46.8593 9.25399C46.6493 13.7544 43.4624 19.918 37.2988 27.7431C30.9251 35.9131 25.5305 40 21.1188 40C18.3877 40 16.075 37.5078 14.1842 32.5216L10.4028 18.811C8.99973 13.823 7.49352 11.3308 5.88415 11.3308C5.53339 11.3308 4.30854 12.0577 2.20585 13.5114L0 10.7078C2.29214 8.71625 4.56739 6.70805 6.82951 4.68317C9.91133 2.05193 12.2222 0.666771 13.7641 0.529553C17.4067 0.182801 19.6482 2.64159 20.4885 7.90407C21.3983 13.5819 22.0304 17.1143 22.3793 18.4976C23.4297 23.2057 24.5851 25.5606 25.8456 25.5606C26.8266 25.5606 28.2972 24.0364 30.2592 20.9898C32.2212 17.9432 33.2716 15.6235 33.4104 14.0306C33.6899 11.3994 32.6395 10.0829 30.2592 10.0829C29.1394 10.0829 27.9821 10.3258 26.7928 10.8097C29.1037 3.4 33.5173 -0.199183 40.0317 0.00849733C44.8636 0.147569 47.1388 3.2294 46.8593 9.25399Z" fill="#1AB7EA"/>
                     </svg>
@@ -654,7 +664,7 @@ export default function AuditLandingPage() {
 
           {/* Add from Web Button */}
           <button 
-            className="w-full md:w-auto px-12 py-4 rounded-full text-[15px] shadow-xl font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="w-full md:w-auto px-12 py-4 rounded-full text-[18px] md:text-[15px] shadow-xl font-semibold text-white flex items-center justify-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0F58F9',
             }}
@@ -697,7 +707,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-12 py-4 -mt-0 lg:-mt-25 xl:-mt-28 text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 hover:scale-105 relative z-10"
+            className="w-full md:w-auto px-12 py-4 -mt-0 lg:-mt-25 xl:-mt-28 text-[18px] md:text-[15px] rounded-full font-semibold shadow-xl text-white flex items-center gap-4 hover:scale-105 relative z-10"
             style={{
               backgroundColor: '#0F58F9',
               transition: 'transform 0.3s ease'
@@ -793,7 +803,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-12 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="w-full md:w-auto px-12 py-4 rounded-full text-[18px] md:text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0066FF',
             }}
@@ -810,12 +820,11 @@ export default function AuditLandingPage() {
       <section className="w-full bg-white py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
-          <h2 className="flex flex-col md:flex-row items-center justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal mb-16 sora-font gap-1 md:gap-3">
+          <h2 className="flex flex-col md:flex-row text-left md:text-center lg:text-center xl:text-center items-center justify-center text-[30px] md:text-[42px] font-semibold leading-none md:leading-normal mb-16 sora-font gap-1 md:gap-3">
             <span className="text-black">Trusted by</span>
             <span className="flex items-center text-[30px] md:hidden">
               <span className="text-[#0F58F9]">Deloitte</span>
-              <span className="text-black">.</span>
-              <span className="text-[#8DDE5E] ml-1">•</span>
+              <span className="text-[#8DDE5E] ml-1">&#8226;</span>
             </span>
             <img 
               src="/custom-projects-ui/images/deloitteIcoBlue.svg"
@@ -892,15 +901,10 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Card 2 - HR */}
-            <div 
-              className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
-              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              <div 
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/HRfasterOnboarding.png')" }}
             >
-              <img 
-                src="/custom-projects-ui/images/HRfasterOnboarding.png"
-                alt="HR"
-                className="w-full h-full object-cover absolute inset-0"
-              />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -921,15 +925,10 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Card 3 - L&D */}
-            <div 
-              className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
-              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              <div 
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/LDlaunchCourses.png')" }}
             >
-              <img 
-                src="/custom-projects-ui/images/LDlaunchCourses.png"
-                alt="L&D"
-                className="w-full h-full object-cover absolute inset-0"
-              />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -950,15 +949,10 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Card 4 - Recruiting */}
-            <div 
-              className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
-              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              <div 
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/betterPreBoarding.png')" }}
             >
-              <img 
-                src="/custom-projects-ui/images/betterPreBoarding.png"
-                alt="Recruiting"
-                className="w-full h-full object-cover absolute inset-0"
-              />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -979,15 +973,10 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Card 5 - SMB Entrepreneurs */}
-            <div 
-              className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
-              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              <div 
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/SMBEntrepreneurs.png')" }}
             >
-              <img 
-                src="/custom-projects-ui/images/SMBEntrepreneurs.png"
-                alt="SMB Entrepreneurs"
-                className="w-full h-full object-cover absolute inset-0"
-              />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -1008,15 +997,10 @@ export default function AuditLandingPage() {
             </div>
 
             {/* Card 6 - Digital Creators */}
-            <div 
-              className="rounded-md overflow-hidden relative group cursor-pointer h-[320px]"
-              style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+              <div 
+                className="rounded-md overflow-hidden relative group cursor-pointer h-[320px] bg-cover bg-center bg-no-repeat"
+                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', backgroundImage: "url('/custom-projects-ui/images/digitalCreators.png')" }}
             >
-              <img 
-                src="/custom-projects-ui/images/digitalCreators.png"
-                alt="Digital Creators"
-                className="w-full h-full object-cover absolute inset-0"
-              />
               <div 
                 className="absolute inset-0"
                 style={{
@@ -1041,7 +1025,7 @@ export default function AuditLandingPage() {
             {/* Measurable Impact Section */}
       <section className="w-full bg-white py-20 relative z-10 overflow-hidden">
         {/* Background Ellipses */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-center pointer-events-none">
           <div className="flex gap-20 opacity-20">
             {/* Ellipse 1 - Blue */}
             <div 
@@ -1351,7 +1335,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="px-12 py-4 rounded-full text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
+            className="px-12 py-4 rounded-full text-[18px] md:text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105"
             style={{
               backgroundColor: '#0F58F9',
               boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
