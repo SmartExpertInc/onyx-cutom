@@ -485,14 +485,6 @@ except Exception:
 
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
     type: str = "unknown"
@@ -3408,14 +3400,6 @@ effective_origins = list(set(filter(None, [
 ])))
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
     type: str = "unknown"
@@ -3856,13 +3840,6 @@ effective_origins = list(set(filter(None, [
 ])))
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
@@ -4313,13 +4290,6 @@ effective_origins = list(set(filter(None, [
 ])))
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 class AiAuditQuestionnaireRequest(BaseModel):
     companyWebsite: str
@@ -4772,13 +4742,6 @@ effective_origins = list(set(filter(None, [
 ])))
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
@@ -5222,13 +5185,6 @@ effective_origins = list(set(filter(None, [
 ])))
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
@@ -5888,13 +5844,6 @@ effective_origins = list(set(filter(None, [
 ])))
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=effective_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
