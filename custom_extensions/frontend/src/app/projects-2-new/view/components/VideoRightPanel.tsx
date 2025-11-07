@@ -112,6 +112,7 @@ export default function VideoRightPanel({
   const [isImageMenuOpen, setIsImageMenuOpen] = useState<boolean>(false);
   const imageMenuRef = useRef<HTMLDivElement>(null);
   const durationMenuRef = useRef<HTMLDivElement>(null);
+  const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
 
   void _shapeColor;
   void _onShapeColorChange;
@@ -194,7 +195,12 @@ export default function VideoRightPanel({
       {/* Uploaded Image Title */}
       <div className="relative flex items-center gap-3 mb-2 flex-shrink-0">
         <div className="w-9 h-9 rounded-sm" style={{ backgroundColor: '#E6E6E6' }}></div>
-        <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{uploadedAssetLabel}</h3>
+        <div className="flex flex-col">
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{uploadedAssetLabel}</h3>
+          {isVideo && (
+            <span className="text-[10px]" style={{ color: '#878787' }}>00:19</span>
+          )}
+        </div>
         <div ref={imageMenuRef} className="relative">
           <button
             type="button"
@@ -246,9 +252,9 @@ export default function VideoRightPanel({
           style={{ borderColor: '#E0E0E0' }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.99967 1.33203V10.6654C3.99967 11.019 4.14015 11.3581 4.3902 11.6082C4.64025 11.8582 4.97939 11.9987 5.33301 11.9987H14.6663M11.9997 14.6654V5.33203C11.9997 4.97841 11.8592 4.63927 11.6091 4.38922C11.3591 4.13917 11.02 3.9987 10.6663 3.9987H1.33301" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M13.3333 2.66667L5.41333 10.5867M9.64667 9.65333L13.3333 13.3333M5.41333 5.41333L8 8M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4ZM6 12C6 13.1046 5.10457 14 4 14C2.89543 14 2 13.1046 2 12C2 10.8954 2.89543 10 4 10C5.10457 10 6 10.8954 6 12Z" stroke="#171718" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.crop', 'Crop')}</span>
+          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.videoRightPanel.trim', 'Trim')}</span>
         </button>
         <button
           className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
@@ -365,6 +371,21 @@ export default function VideoRightPanel({
               ))}
             </div>
           )}
+        </div>
+        <div className="flex items-center justify-between mt-3">
+          <h4 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.videoRightPanel.sound', 'Sound')}</h4>
+          <button
+            type="button"
+            onClick={() => setIsSoundEnabled((prev) => !prev)}
+            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+            style={{ backgroundColor: isSoundEnabled ? '#0F58F9' : '#E0E0E0' }}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                isSoundEnabled ? 'translate-x-5.5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
         </div>
       </div>
 
