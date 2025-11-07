@@ -246,7 +246,7 @@ export default function VideoRightPanel({
       </div>
 
       {/* Transparency Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-1 mb-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.transparency', 'Transparency')}</h3>
         </div>
@@ -276,7 +276,7 @@ export default function VideoRightPanel({
       </div>
 
       {/* Alignment Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-1 mb-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.alignment', 'Alignment')}</h3>
         </div>
@@ -342,7 +342,7 @@ export default function VideoRightPanel({
       </div>
 
       {/* Layer Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-1 mb-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.layer', 'Layer')}</h3>
         </div>

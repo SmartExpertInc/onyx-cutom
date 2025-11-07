@@ -1063,7 +1063,7 @@ export default function TextRightPanel({
       </div>
 
       {/* Alignment Section */}
-      <div className="space-y-3 flex-shrink-0 mt-4">
+      <div className="space-y-2 mb-4 flex-shrink-0 mt-4">
         {/* Alignment Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.alignment', 'Alignment')}</h3>
@@ -1137,7 +1137,7 @@ export default function TextRightPanel({
       </div>
 
       {/* Layer Section */}
-      <div className="space-y-3 flex-shrink-0">
+      <div className="space-y-2 mb-4 flex-shrink-0">
           {/* Layer Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.layer', 'Layer')}</h3>
@@ -1218,7 +1218,7 @@ export default function TextRightPanel({
       </div>
 
       {/* Position Section */}
-      <div className="space-y-2 flex-shrink-0">
+      <div className="space-y-2 mb-4 flex-shrink-0">
           {/* Position Title */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.position', 'Position')}</h3>
