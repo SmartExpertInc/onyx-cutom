@@ -136,19 +136,30 @@ class LokiService:
         Returns:
             Dictionary containing filtered log entries
         """
-        # Build LogQL query
-        query_parts = ['{job="custom_backend"}']
+        # Build LogQL query starting with label selectors
+        # Fields that are labels in Promtail should be filtered at the label level
+        label_filters = ['job="custom_backend"']
         
-        if user_id:
-            query_parts.append(f'| json | user_id="{user_id}"')
-        if endpoint:
-            query_parts.append(f'| json | endpoint=~".*{endpoint}.*"')
         if level:
-            query_parts.append(f'| json | level="{level}"')
+            label_filters.append(f'level="{level}"')
+        if user_id:
+            label_filters.append(f'user_id="{user_id}"')
+        if endpoint:
+            label_filters.append(f'endpoint=~".*{endpoint}.*"')
         if event:
-            query_parts.append(f'| json | event="{event}"')
+            label_filters.append(f'event="{event}"')
         
-        query = " ".join(query_parts)
+        # Build the query with label filters
+        query = '{' + ', '.join(label_filters) + '}'
+        
+        # Add JSON field filters for fields that might not be labels
+        # (though most should be labels now)
+        json_filters = []
+        # Note: If a field is a label, filtering by label is more efficient
+        # We only use JSON filtering as a fallback if needed
+        
+        if json_filters:
+            query += " " + " ".join(json_filters)
         
         # Calculate time range
         end_time = datetime.now(timezone.utc)
