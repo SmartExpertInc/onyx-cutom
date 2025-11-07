@@ -30,6 +30,7 @@ interface BrandKitRightPanelProps {
   onBrandColorChange?: (index: number, color: string) => void;
   onBrandColorRemove?: (index: number) => void;
   onColorPaletteContextChange?: (context: string) => void;
+  onBrandColorsReorder?: (colors: BrandColorValue[]) => void;
 }
 
 export default function BrandKitRightPanel({
@@ -50,6 +51,7 @@ export default function BrandKitRightPanel({
   onBrandColorChange,
   onBrandColorRemove,
   onColorPaletteContextChange,
+  onBrandColorsReorder,
 }: BrandKitRightPanelProps) {
   const { t } = useLanguage();
   const transitionDropdownRef = useRef<HTMLDivElement>(null);
@@ -59,10 +61,30 @@ export default function BrandKitRightPanel({
   const brandColors = controlledBrandColors ?? internalBrandColors;
   const [activeBrandColorIndex, setActiveBrandColorIndex] = useState<number | null>(null);
   const [activeColorToggle, setActiveColorToggle] = useState<'brand' | 'custom'>('brand');
+  const reopenTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [draggedColorIndex, setDraggedColorIndex] = useState<number | null>(null);
   const colorToggleOptions = [
-    { id: 'brand' as const, label: t('rightPanel.brandKit.brandColorsTab', 'Brand colors') },
-    { id: 'custom' as const, label: t('rightPanel.brandKit.customColorsTab', 'Custom colors') },
+    { id: 'brand' as const, label: t('rightPanel.brandKit.thisSlide', 'This slide') },
+    { id: 'custom' as const, label: t('rightPanel.brandKit.allSlides', 'All slides') },
   ];
+
+  const applyBrandColorsUpdate = (nextColors: BrandColorValue[]) => {
+    if (!controlledBrandColors) {
+      setInternalBrandColors(nextColors);
+    }
+    if (onBrandColorsReorder) {
+      onBrandColorsReorder(nextColors);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (reopenTimeoutRef.current) {
+        clearTimeout(reopenTimeoutRef.current);
+        reopenTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const handleBrandColorUpdate = (index: number, color: string) => {
     if (onBrandColorChange) {
@@ -105,8 +127,45 @@ export default function BrandKitRightPanel({
         onColorPaletteContextChange(`brand-${index}`);
       }
 
-      setIsColorPaletteOpen(true);
+      if (reopenTimeoutRef.current) {
+        clearTimeout(reopenTimeoutRef.current);
+      }
+
+      setIsColorPaletteOpen(false);
+
+      reopenTimeoutRef.current = setTimeout(() => {
+        setIsColorPaletteOpen(true);
+      }, 150);
     }
+  };
+
+  const handleColorDragStart = (index: number) => {
+    setDraggedColorIndex(index);
+  };
+
+  const handleColorDragOver = (event: React.DragEvent<HTMLButtonElement>, index: number) => {
+    if (draggedColorIndex === null || draggedColorIndex === index) return;
+    event.preventDefault();
+  };
+
+  const handleColorDrop = (event: React.DragEvent<HTMLButtonElement>, targetIndex: number) => {
+    event.preventDefault();
+    if (draggedColorIndex === null || draggedColorIndex === targetIndex) {
+      setDraggedColorIndex(null);
+      return;
+    }
+
+    const reordered = [...brandColors];
+    const [movedColor] = reordered.splice(draggedColorIndex, 1);
+    reordered.splice(targetIndex, 0, movedColor ?? null);
+
+    applyBrandColorsUpdate(reordered);
+    setActiveBrandColorIndex(targetIndex);
+    setDraggedColorIndex(null);
+  };
+
+  const handleColorDragEnd = () => {
+    setDraggedColorIndex(null);
   };
 
   useEffect(() => {
@@ -159,7 +218,7 @@ export default function BrandKitRightPanel({
         </h2>
         <button
           type="button"
-          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+          className="p-1 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
           aria-label="Brand kit info"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -189,19 +248,60 @@ export default function BrandKitRightPanel({
           Up to 5 brand colors.
         </p>
       </div>
-      <div ref={brandColorButtonsRef} className="space-y-2 pb-6">
+      <div ref={brandColorButtonsRef} className="space-y-2 pb-2">
         {brandColors.map((color, index) => (
           <button
             key={index}
             type="button"
-            className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+            className={`w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors cursor-pointer ${
+              draggedColorIndex === index ? 'opacity-60' : ''
+            }`}
             style={{ borderColor: '#E0E0E0', backgroundColor: '#FFFFFF', color: '#848485' }}
             onClick={() => openColorPaletteForBrandColor(index)}
             aria-label={`Brand color slot ${index + 1}`}
+            draggable
+            onDragStart={() => handleColorDragStart(index)}
+            onDragOver={(event) => handleColorDragOver(event, index)}
+            onDrop={(event) => handleColorDrop(event, index)}
+            onDragEnd={handleColorDragEnd}
           >
             <div className="flex items-center gap-2">
+              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="1" cy="1" r="1" fill="#A5A5A5" />
+                <circle cx="1" cy="5.5" r="1" fill="#A5A5A5" />
+                <circle cx="1" cy="10.5" r="1" fill="#A5A5A5" />
+                <circle cx="6" cy="1" r="1" fill="#A5A5A5" />
+                <circle cx="6" cy="5.5" r="1" fill="#A5A5A5" />
+                <circle cx="6" cy="10.5" r="1" fill="#A5A5A5" />
+                <rect
+                  x="0"
+                  y="0"
+                  width="7"
+                  height="12"
+                  fill="transparent"
+                  onMouseDown={(event) => {
+                    event.stopPropagation();
+                    const target = event.currentTarget as SVGRectElement;
+                    target.style.cursor = 'grabbing';
+                    target.parentElement?.setAttribute('draggable', 'true');
+                    handleColorDragStart(index);
+                  }}
+                  onMouseUp={(event) => {
+                    event.stopPropagation();
+                    const target = event.currentTarget as SVGRectElement;
+                    target.style.cursor = 'grab';
+                    target.parentElement?.setAttribute('draggable', 'false');
+                  }}
+                  onMouseLeave={(event) => {
+                    const target = event.currentTarget as SVGRectElement;
+                    target.style.cursor = 'grab';
+                    target.parentElement?.setAttribute('draggable', 'false');
+                  }}
+                  style={{ cursor: 'grab' }}
+                />
+              </svg>
               <div
-                className="w-5 h-5 rounded border flex items-center justify-center"
+                className="w-5 h-5 rounded border flex items-center justify-center cursor-pointer"
                 style={{
                   borderColor: '#D4D4D8',
                   backgroundColor: color ?? '#FFFFFF',
@@ -216,7 +316,7 @@ export default function BrandKitRightPanel({
                   openColorPaletteForBrandColor(index);
                 }}
               />
-              <span onClick={(e) => {
+              <span className="cursor-pointer" onClick={(e) => {
                 e.stopPropagation();
                 openColorPaletteForBrandColor(index);
               }}>
@@ -253,7 +353,7 @@ export default function BrandKitRightPanel({
           </button>
         ))}
       </div>
-      <div className="mt-4 p-1 rounded-lg flex gap-1" style={{ backgroundColor: '#F4F4F5' }}>
+      <div className="mt-2 p-1 rounded-lg flex gap-1" style={{ backgroundColor: '#F4F4F5' }}>
         {colorToggleOptions.map((option) => {
           const isActive = activeColorToggle === option.id;
           return (
@@ -261,7 +361,7 @@ export default function BrandKitRightPanel({
               key={option.id}
               type="button"
               onClick={() => setActiveColorToggle(option.id)}
-              className="flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors"
+              className="flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer"
               style={{
                 backgroundColor: isActive ? '#FFFFFF' : 'transparent',
                 color: isActive ? '#171718' : '#878787',
@@ -294,7 +394,7 @@ export default function BrandKitRightPanel({
             </h3>
             <button
               onClick={() => setIsTransitionEnabled(!isTransitionEnabled)}
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer"
               style={{ backgroundColor: isTransitionEnabled ? '#0F58F9' : '#E0E0E0' }}
             >
               <span
@@ -310,7 +410,7 @@ export default function BrandKitRightPanel({
             <button
               onClick={() => setShowTransitionDropdown(!showTransitionDropdown)}
               disabled={!isTransitionEnabled}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
               style={{ borderColor: '#E0E0E0' }}
             >
               <div className="flex items-center gap-2">
@@ -351,7 +451,7 @@ export default function BrandKitRightPanel({
                       setSelectedTransition(transition.value);
                       setShowTransitionDropdown(false);
                     }}
-                    className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
