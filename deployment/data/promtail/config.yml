@@ -1,0 +1,84 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Scrape Docker container logs
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      # Only scrape containers with specific labels or names
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.*custom.*backend.*|.*custom.*frontend.*|.*custom.*projects.*db.*'
+        action: keep
+      # Extract container name as label
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      # Extract container ID
+      - source_labels: ['__meta_docker_container_id']
+        target_label: 'container_id'
+      # Add job label
+      - target_label: 'job'
+        replacement: 'docker'
+
+  # Scrape custom backend logs specifically
+  - job_name: custom_backend
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.*custom.*backend.*'
+        action: keep
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_id']
+        target_label: 'container_id'
+      - target_label: 'job'
+        replacement: 'custom_backend'
+      - target_label: 'service'
+        replacement: 'custom_backend'
+    pipeline_stages:
+      # Extract log line from Docker JSON format
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            attrs: attrs
+      # Try to parse the log line as JSON (if it's structured)
+      - json:
+          expressions:
+            event: event
+            user_id: user_id
+            endpoint: endpoint
+            error: error
+            trace: trace
+            level: level
+            timestamp: timestamp
+            additional_context: additional_context
+            module: module
+            request_id: request_id
+            message: message
+          source: output
+      # Add labels for filtering
+      - labels:
+          level:
+          user_id:
+          endpoint:
+          event:
+          module:
+          request_id:
+      # Output the log message
+      - output:
+          source: output
+

@@ -78,12 +78,21 @@ from app.services.product_json_indexer import upload_product_json_to_onyx
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
 
+# --- Structured Logging Setup ---
+from app.utils.logging_config import (
+    setup_structured_logging,
+    get_structured_logger,
+    set_request_context,
+    clear_request_context,
+    add_log_context
+)
+
+# Setup structured logging (compatible with existing logger calls)
+setup_structured_logging(is_production=IS_PRODUCTION)
+
 # --- Logger ---
-logger = logging.getLogger(__name__)
-if IS_PRODUCTION:
-    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
-else:
-    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+# Use structured logger that's compatible with existing logging.getLogger() usage
+logger = get_structured_logger(__name__)
 
 
 # --- Constants & DB Setup ---
@@ -479,6 +488,13 @@ async def track_request_analytics(request: Request, call_next):
             user_id = request.state.user_id
     except:
         pass
+    
+    # Set request context for structured logging
+    set_request_context(
+        user_id=user_id,
+        endpoint=request.url.path,
+        request_id=request_id
+    )
     
     # Prepare email placeholder
     user_email = None
@@ -14133,6 +14149,49 @@ async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any]
 @app.get("/api/custom/microproduct_types", response_model=List[str])
 async def get_allowed_microproduct_types_list_for_design_templates():
     return ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS
+
+# --- Logs Endpoint ---
+from app.services.loki_service import get_loki_service
+
+@app.get("/api/custom/logs")
+async def get_logs(
+    request: Request,
+    user_id: Optional[str] = Query(None, description="Filter by user ID"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    level: Optional[str] = Query(None, description="Filter by log level (error, info, warning, etc.)"),
+    event: Optional[str] = Query(None, description="Filter by event type"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
+    hours: int = Query(1, ge=1, le=168, description="Number of hours to look back (max 168 = 7 days)")
+):
+    """
+    Fetch logs from Loki with optional filters.
+    
+    This endpoint allows the frontend to query structured logs with filters for:
+    - user_id: Track which user encountered an error
+    - endpoint: Which API endpoint caused the error
+    - level: Log level (error, info, warning, etc.)
+    - event: Event type (e.g., "unexpected_backend_error")
+    
+    Returns structured logs in JSON format with all context fields.
+    """
+    await verify_admin_user(request)
+    try:
+        loki_service = get_loki_service()
+        result = await loki_service.query_logs_by_filters(
+            user_id=user_id,
+            endpoint=endpoint,
+            level=level,
+            event=event,
+            limit=limit,
+            hours=hours
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Failed to fetch logs from Loki: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch logs: {str(e)}"
+        )
 
 # --- Project and MicroProduct Endpoints ---
 def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:

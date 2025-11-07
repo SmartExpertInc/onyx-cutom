@@ -1,0 +1,175 @@
+"""
+Service for querying logs from Loki.
+"""
+import httpx
+from typing import Dict, List, Optional, Any
+from datetime import datetime, timedelta, timezone
+import os
+
+
+LOKI_URL = os.getenv("LOKI_URL", "http://loki:3100")
+
+
+class LokiService:
+    """Service for querying logs from Loki."""
+    
+    def __init__(self, loki_url: str = LOKI_URL):
+        self.loki_url = loki_url.rstrip('/')
+        self.base_url = f"{self.loki_url}/loki/api/v1"
+    
+    async def query_logs(
+        self,
+        query: str = '{job="custom_backend"}',
+        limit: int = 100,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        direction: str = "backward"
+    ) -> Dict[str, Any]:
+        """
+        Query logs from Loki using LogQL.
+        
+        Args:
+            query: LogQL query string (e.g., '{job="custom_backend"} |= "error"')
+            limit: Maximum number of log entries to return
+            start_time: Start time for query (defaults to 1 hour ago)
+            end_time: End time for query (defaults to now)
+            direction: Query direction ("forward" or "backward")
+        
+        Returns:
+            Dictionary containing log entries and metadata
+        """
+        # Default time range: last hour
+        if end_time is None:
+            end_time = datetime.now(timezone.utc)
+        if start_time is None:
+            start_time = end_time - timedelta(hours=1)
+        
+        # Convert to nanoseconds (Loki uses nanoseconds)
+        start_ns = int(start_time.timestamp() * 1e9)
+        end_ns = int(end_time.timestamp() * 1e9)
+        
+        # Build query URL
+        query_url = f"{self.base_url}/query_range"
+        
+        params = {
+            "query": query,
+            "limit": limit,
+            "start": start_ns,
+            "end": end_ns,
+            "direction": direction
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(query_url, params=params)
+                response.raise_for_status()
+                data = response.json()
+                
+                # Parse Loki response
+                logs = []
+                if "data" in data and "result" in data["data"]:
+                    for stream_result in data["data"]["result"]:
+                        stream = stream_result.get("stream", {})
+                        values = stream_result.get("values", [])
+                        
+                        for timestamp_ns, log_line in values:
+                            # Parse timestamp (nanoseconds to datetime)
+                            timestamp = datetime.fromtimestamp(
+                                int(timestamp_ns) / 1e9,
+                                tz=timezone.utc
+                            )
+                            
+                            # Try to parse JSON log line
+                            log_entry = {
+                                "timestamp": timestamp.isoformat(),
+                                "labels": stream,
+                                "message": log_line
+                            }
+                            
+                            # Try to parse as JSON if it looks like JSON
+                            try:
+                                import json
+                                if log_line.strip().startswith('{'):
+                                    parsed = json.loads(log_line)
+                                    log_entry.update(parsed)
+                                    log_entry["raw_message"] = log_line
+                            except (json.JSONDecodeError, ValueError):
+                                pass
+                            
+                            logs.append(log_entry)
+                
+                return {
+                    "logs": logs,
+                    "total": len(logs),
+                    "query": query,
+                    "start_time": start_time.isoformat(),
+                    "end_time": end_time.isoformat()
+                }
+        
+        except httpx.HTTPStatusError as e:
+            raise Exception(f"Loki query failed with status {e.response.status_code}: {e.response.text}")
+        except httpx.RequestError as e:
+            raise Exception(f"Failed to connect to Loki: {str(e)}")
+        except Exception as e:
+            raise Exception(f"Unexpected error querying Loki: {str(e)}")
+    
+    async def query_logs_by_filters(
+        self,
+        user_id: Optional[str] = None,
+        endpoint: Optional[str] = None,
+        level: Optional[str] = None,
+        event: Optional[str] = None,
+        limit: int = 100,
+        hours: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Query logs with common filters.
+        
+        Args:
+            user_id: Filter by user ID
+            endpoint: Filter by endpoint
+            level: Filter by log level (error, info, warning, etc.)
+            event: Filter by event type
+            limit: Maximum number of logs to return
+            hours: Number of hours to look back
+        
+        Returns:
+            Dictionary containing filtered log entries
+        """
+        # Build LogQL query
+        query_parts = ['{job="custom_backend"}']
+        
+        if user_id:
+            query_parts.append(f'| json | user_id="{user_id}"')
+        if endpoint:
+            query_parts.append(f'| json | endpoint=~".*{endpoint}.*"')
+        if level:
+            query_parts.append(f'| json | level="{level}"')
+        if event:
+            query_parts.append(f'| json | event="{event}"')
+        
+        query = " ".join(query_parts)
+        
+        # Calculate time range
+        end_time = datetime.now(timezone.utc)
+        start_time = end_time - timedelta(hours=hours)
+        
+        return await self.query_logs(
+            query=query,
+            limit=limit,
+            start_time=start_time,
+            end_time=end_time
+        )
+
+
+# Singleton instance
+_loki_service: Optional[LokiService] = None
+
+
+def get_loki_service() -> LokiService:
+    """Get or create Loki service instance."""
+    global _loki_service
+    if _loki_service is None:
+        _loki_service = LokiService()
+    return _loki_service
+
