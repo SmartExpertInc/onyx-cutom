@@ -80,8 +80,8 @@ export default function ShapeRightPanel({
   setActiveSettingsPanel,
   componentBasedSlideDeck,
   setActiveTransitionIndex,
-  shapeColor,
-  onShapeColorChange,
+  shapeColor: _shapeColor,
+  onShapeColorChange: _onShapeColorChange,
   strokeColor,
   onStrokeColorChange,
   onColorPaletteContextChange,
@@ -95,8 +95,6 @@ export default function ShapeRightPanel({
   const [selectedLayer, setSelectedLayer] = useState<'toBack' | 'backward' | 'forward' | 'toFront'>('backward');
   const [positionX, setPositionX] = useState<string>('150');
   const [positionY, setPositionY] = useState<string>('150');
-  const [selectedColor, setSelectedColor] = useState<string | null>(shapeColor || null);
-  const [hasColor, setHasColor] = useState<boolean>(!!shapeColor);
   const [selectedStrokeColor, setSelectedStrokeColor] = useState<string | null>(null);
   const [hasStroke, setHasStroke] = useState<boolean>(false);
   const [strokeWidth, setStrokeWidth] = useState<number>(2);
@@ -104,17 +102,8 @@ export default function ShapeRightPanel({
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const [currentColorContext, setCurrentColorContext] = useState<'shape' | 'stroke' | null>(null);
 
-  // Update selectedColor when shapeColor prop changes
-  useEffect(() => {
-    if (shapeColor) {
-      setSelectedColor(shapeColor);
-      setHasColor(true);
-    } else if (shapeColor === '') {
-      // Empty string means color was removed
-      setSelectedColor(null);
-      setHasColor(false);
-    }
-  }, [shapeColor]);
+  void _shapeColor;
+  void _onShapeColorChange;
 
   // Update selectedStrokeColor when strokeColor prop changes
   useEffect(() => {
@@ -160,159 +149,6 @@ export default function ShapeRightPanel({
     <>
       {/* Shape Action Buttons */}
       <div ref={colorPickerRef} className="space-y-2 flex-shrink-0 mb-4">
-        {/* Color picker button */}
-        <button
-          className={`w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${hasColor && selectedColor ? 'justify-between' : 'justify-center'}`}
-          style={{ 
-            backgroundColor: 'white',
-            borderColor: '#E0E0E0',
-            color: '#848485'
-          }}
-          onClick={(e) => {
-            if (!hasColor) {
-              // If no color, open color palette
-              // Position the color palette 8px to the left of the right panel
-              if (rightPanelRef?.current) {
-                const targetContext = 'shape';
-                
-                // If switching context, close first, wait, then open
-                if (currentColorContext && currentColorContext !== targetContext) {
-                  setIsColorPaletteOpen(false);
-                  setTimeout(() => {
-                    const panelRect = rightPanelRef.current?.getBoundingClientRect();
-                    if (panelRect) {
-                      const paletteWidth = 336;
-                      const gap = 8;
-                      
-                      setColorPalettePosition({
-                        x: panelRect.left - paletteWidth - gap,
-                        y: panelRect.top
-                      });
-                      if (onColorPaletteContextChange) {
-                        onColorPaletteContextChange(targetContext);
-                      }
-                      setCurrentColorContext(targetContext);
-                      setIsColorPaletteOpen(true);
-                    }
-                  }, 150);
-                } else {
-                  // Same context or first open
-                  const panelRect = rightPanelRef.current.getBoundingClientRect();
-                  const paletteWidth = 336;
-                  const gap = 8;
-                  
-                  setColorPalettePosition({
-                    x: panelRect.left - paletteWidth - gap,
-                    y: panelRect.top
-                  });
-                  if (onColorPaletteContextChange) {
-                    onColorPaletteContextChange(targetContext);
-                  }
-                  setCurrentColorContext(targetContext);
-                  setIsColorPaletteOpen(true);
-                }
-              }
-            }
-            // If color exists, clicking on the square/text area should also open palette
-            // The delete icon has its own click handler below
-          }}
-        >
-          {hasColor && selectedColor ? (
-            <>
-              {/* Show color square and code when color is selected */}
-              <div 
-                className="flex items-center gap-2 flex-1"
-                onClick={(e) => {
-                  // Open color palette when clicking on color area
-                  e.stopPropagation();
-                  // Position the color palette 8px to the left of the right panel
-                  if (rightPanelRef?.current) {
-                    const targetContext = 'shape';
-                    
-                    // If switching context, close first, wait, then open
-                    if (currentColorContext && currentColorContext !== targetContext) {
-                      setIsColorPaletteOpen(false);
-                      setTimeout(() => {
-                        const panelRect = rightPanelRef.current?.getBoundingClientRect();
-                        if (panelRect) {
-                          const paletteWidth = 336;
-                          const gap = 8;
-                          
-                          setColorPalettePosition({
-                            x: panelRect.left - paletteWidth - gap,
-                            y: panelRect.top
-                          });
-                          if (onColorPaletteContextChange) {
-                            onColorPaletteContextChange(targetContext);
-                          }
-                          setCurrentColorContext(targetContext);
-                          setIsColorPaletteOpen(true);
-                        }
-                      }, 150);
-                    } else {
-                      // Same context or first open
-                      const panelRect = rightPanelRef.current.getBoundingClientRect();
-                      const paletteWidth = 336;
-                      const gap = 8;
-                      
-                      setColorPalettePosition({
-                        x: panelRect.left - paletteWidth - gap,
-                        y: panelRect.top
-                      });
-                      if (onColorPaletteContextChange) {
-                        onColorPaletteContextChange(targetContext);
-                      }
-                      setCurrentColorContext(targetContext);
-                      setIsColorPaletteOpen(true);
-                    }
-                  }
-                }}
-              >
-                {/* Color square */}
-                <div 
-                  className="w-5 h-5 rounded border"
-                  style={{ 
-                    backgroundColor: selectedColor,
-                    borderColor: '#E0E0E0'
-                  }}
-                />
-                {/* Color code */}
-                <span style={{ color: '#848485' }}>{selectedColor}</span>
-              </div>
-              {/* Delete icon */}
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 20 20" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Remove the color
-                  setSelectedColor(null);
-                  setHasColor(false);
-                  if (onShapeColorChange) {
-                    onShapeColorChange('');
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                <path d="M4 5.8H17M15.5556 5.8V15.6C15.5556 16.3 14.8333 17 14.1111 17H6.88889C6.16667 17 5.44444 16.3 5.44444 15.6V5.8M7.61111 5.8V4.4C7.61111 3.7 8.33333 3 9.05556 3H11.9444C12.6667 3 13.3889 3.7 13.3889 4.4V5.8M9.05556 9.3V13.5M11.9444 9.3V13.5" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </>
-          ) : (
-            <>
-              {/* Show "Add color" when no color is selected */}
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="7" cy="7" r="6.5" stroke="#878787"/>
-                <path d="M6.99414 4V10" stroke="#878787" strokeLinecap="round"/>
-                <path d="M10 6.99609L4 6.99609" stroke="#878787" strokeLinecap="round"/>
-              </svg>
-              {t('panels.shapeRightPanel.addColor', 'Add color')}
-            </>
-          )}
-        </button>
-
         {/* Stroke button */}
         <button
           className={`w-full px-3 py-2 text-sm rounded-md border transition-colors hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${hasStroke && selectedStrokeColor ? 'justify-between' : 'justify-center'}`}
@@ -532,7 +368,7 @@ export default function ShapeRightPanel({
 
       {/* Uploaded Image Title */}
       <div className="flex items-center gap-3 mb-2 flex-shrink-0">
-        <div className="w-9 h-9 rounded-md" style={{ backgroundColor: '#E6E6E6' }}></div>
+        <div className="w-9 h-9 rounded-sm" style={{ backgroundColor: '#E6E6E6' }}></div>
         <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.uploadedImage', 'Uploaded image')}</h3>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M7.99967 7.33073C7.63148 7.33073 7.33301 7.62921 7.33301 7.9974C7.33301 8.36559 7.63148 8.66406 7.99967 8.66406C8.36786 8.66406 8.66634 8.36559 8.66634 7.9974C8.66634 7.62921 8.36786 7.33073 7.99967 7.33073Z" stroke="#878787" strokeWidth="1.14286" strokeLinecap="round" strokeLinejoin="round"/>
@@ -543,22 +379,22 @@ export default function ShapeRightPanel({
 
       <div className="flex items-center gap-3 mb-4">
         <button
-          className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+          className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
           style={{ borderColor: '#E0E0E0' }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3.99967 1.33203V10.6654C3.99967 11.019 4.14015 11.3581 4.3902 11.6082C4.64025 11.8582 4.97939 11.9987 5.33301 11.9987H14.6663M11.9997 14.6654V5.33203C11.9997 4.97841 11.8592 4.63927 11.6091 4.38922C11.3591 4.13917 11.02 3.9987 10.6663 3.9987H1.33301" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-xs font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.crop', 'Crop')}</span>
+          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.crop', 'Crop')}</span>
         </button>
         <button
-          className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+          className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
           style={{ borderColor: '#E0E0E0' }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 8C2 6.4087 2.63214 4.88258 3.75736 3.75736C4.88258 2.63214 6.4087 2 8 2C9.67737 2.00631 11.2874 2.66082 12.4933 3.82667L14 5.33333M14 5.33333V2M14 5.33333H10.6667M14 8C14 9.5913 13.3679 11.1174 12.2426 12.2426C11.1174 13.3679 9.5913 14 8 14C6.32263 13.9937 4.71265 13.3392 3.50667 12.1733L2 10.6667M2 10.6667H5.33333M2 10.6667V14" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-xs font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.replace', 'Replace')}</span>
+          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.replace', 'Replace')}</span>
         </button>
       </div>
 
