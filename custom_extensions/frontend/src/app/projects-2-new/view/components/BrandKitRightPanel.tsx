@@ -212,10 +212,10 @@ export default function BrandKitRightPanel({
 
   return (
     <>
-      <div className="flex items-center justify-between flex-shrink-0 pb-2">
-        <h2 className="text-md font-semibold" style={{ color: '#171718' }}>
+      <div className="flex items-center justify-between flex-shrink-0 pb-1.5">
+        <h3 className="text-md font-semibold" style={{ color: '#171718' }}>
           Brand Kit
-        </h2>
+        </h3>
         <button
           type="button"
           className="p-1 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
@@ -233,15 +233,15 @@ export default function BrandKitRightPanel({
           </svg>
         </button>
       </div>
-      <div className="flex items-center gap-2 text-xs font-medium pb-3" style={{ color: '#878787' }}>
+      <div className="flex items-center gap-2 text-xs pb-1.5" style={{ color: '#878787' }}>
         <span>Logos</span>
         <span>•</span>
         <span>Colors</span>
         <span>•</span>
         <span>Fonts</span>
       </div>
-      <div className="pb-4">
-        <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
+      <div className="pb-1.5">
+        <h3 className="text-sm font-medium pb-1.5" style={{ color: '#171718' }}>
           Colors
         </h3>
         <p className="text-xs" style={{ color: '#878787' }}>
@@ -353,7 +353,7 @@ export default function BrandKitRightPanel({
           </button>
         ))}
       </div>
-      <div className="mt-2 p-1 rounded-lg flex gap-1" style={{ backgroundColor: '#F4F4F5' }}>
+      <div className="mb-2 p-1 rounded-lg flex gap-1" style={{ backgroundColor: '#F4F4F5' }}>
         {colorToggleOptions.map((option) => {
           const isActive = activeColorToggle === option.id;
           return (
