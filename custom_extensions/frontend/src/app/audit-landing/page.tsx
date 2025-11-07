@@ -562,7 +562,7 @@ export default function AuditLandingPage() {
           </h2>
 
           {/* Two Column Layout */}
-          <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-25 md:gap-15 lg:gap-25 mb-12">
+          <div className="w-full flex flex-col-reverse md:flex-row lg:flex-row xl:flex-row gap-5 md:gap-15 lg:gap-25 mb-12">
             {/* Left Column - Features & Platforms */}
             <div className="flex flex-col gap-8 max-w-[450px] md:max-w-[300px] lg:max-w-[450px] border-t-0 border-gray-200 md:border-t pt-6 md:pt-6">
               {/* Feature 1 */}
@@ -844,7 +844,7 @@ export default function AuditLandingPage() {
 
           {/* CTA Button */}
           <button 
-            className="w-full md:w-auto px-12 py-4 rounded-full text-[18px] md:text-[15px] font-semibold text-white flex items-center gap-3 transition-all hover:scale-105 sora-font"
+            className="w-full md:w-auto px-12 py-4 rounded-full text-[18px] md:text-[15px] font-semibold text-white flex items-center justify-center gap-3 transition-all hover:scale-105 sora-font"
             style={{
               backgroundColor: '#0066FF',
             }}
@@ -862,12 +862,12 @@ export default function AuditLandingPage() {
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
           <h2 className="w-full text-left md:text-center text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font self-start md:self-center">
-            <span className="block md:inline">Trusted by </span>
             <span className="inline-flex items-center gap-2">
+              <span className="text-black">Trusted by</span>
               <span className="text-[#0F58F9] font-bold">Deloitte</span>
               <span className="inline-block w-[10px] h-[10px] rounded-full mt-3 bg-[#86BC25]"></span>
             </span>
-            <span className="block md:inline md:ml-2">and global brands</span>
+            <span className="block md:inline text-black md:ml-2 mt-1 md:mt-0">and global brands</span>
           </h2>
 
           {/* Statistics Cards */}
