@@ -743,6 +743,10 @@ class ImageBlock(BaseContentBlock):
     layoutProportion: Optional[str] = None  # '50-50', '60-40', '40-60', '70-30', '30-70'
     float: Optional[str] = None  # Legacy field for backward compatibility: 'left', 'right'
 
+class ColumnContainerBlock(BaseContentBlock):
+    type: str = "column_container"
+    columnCount: int = 2
+    columns: List[List[AnyContentBlock]] = Field(default_factory=list)
 
 # CRITICAL: ColumnContainerBlock must come before SectionBreakBlock in Union order
 # to prevent Pydantic from misclassifying column_container blocks as section_break blocks
@@ -7091,11 +7095,6 @@ class AlertBlock(BaseContentBlock):
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
-
-class ColumnContainerBlock(BaseContentBlock):
-    type: str = "column_container"
-    columnCount: int = 2
-    columns: List[List[AnyContentBlock]] = Field(default_factory=list)
 
 class PdfLessonDetails(BaseModel):
     lessonTitle: str
