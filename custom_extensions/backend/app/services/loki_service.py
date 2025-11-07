@@ -160,10 +160,7 @@ class LokiService:
         # Add line filters for JSON field content (level is in JSON, not labels)
         line_filters = []
         if level:
-            # Search for "level":"error" pattern in the JSON string
-            # LogQL line filter syntax: |= "pattern" for exact match
-            # We need to escape quotes in the pattern
-            line_filters.append(f'|= "\\"level\\":\\"{level}\\""')
+            label_filters.append(f'level="{level}"')
         
         # Combine label selector with line filters
         # Format: {job="custom_backend"} |= "\"level\":\"error\""
