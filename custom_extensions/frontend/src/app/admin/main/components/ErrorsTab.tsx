@@ -5,7 +5,7 @@ import { format, subHours } from 'date-fns';
 import { 
   RefreshCw, AlertTriangle, Filter, X, Calendar, Search, Download, 
   ChevronDown, ChevronUp, Copy, Eye, EyeOff, Clock, User, FileText, 
-  AlertCircle, Info, XCircle
+  AlertCircle, Info, XCircle, ArrowRight, Settings
 } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
@@ -61,6 +61,13 @@ const ErrorsTab: React.FC = () => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [limit, setLimit] = useState(100);
+  const [contextModalOpen, setContextModalOpen] = useState(false);
+  const [contextLogs, setContextLogs] = useState<LogEntry[]>([]);
+  const [contextLoading, setContextLoading] = useState(false);
+  const [contextError, setContextError] = useState<string | null>(null);
+  const [contextMinutesBefore, setContextMinutesBefore] = useState(5);
+  const [contextMinutesAfter, setContextMinutesAfter] = useState(5);
+  const [selectedErrorLog, setSelectedErrorLog] = useState<LogEntry | null>(null);
 
   // Debounced filter application
   useEffect(() => {
@@ -169,6 +176,43 @@ const ErrorsTab: React.FC = () => {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  };
+
+  const fetchContextLogs = async (errorLog: LogEntry) => {
+    setContextLoading(true);
+    setContextError(null);
+    setSelectedErrorLog(errorLog);
+    setContextModalOpen(true);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const params = new URLSearchParams();
+      params.append('timestamp', errorLog.timestamp);
+      params.append('minutes_before', contextMinutesBefore.toString());
+      params.append('minutes_after', contextMinutesAfter.toString());
+      params.append('limit', '5000');
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/analytics/logs/around?${params}`, {
+        cache: 'no-store',
+        credentials: 'same-origin'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch context logs: ${response.status}`);
+      }
+
+      const data: LogsResponse = await response.json();
+      setContextLogs(data.logs || []);
+    } catch (err) {
+      console.error('Error fetching context logs:', err);
+      setContextError(err instanceof Error ? err.message : 'An error occurred while fetching context logs');
+    } finally {
+      setContextLoading(false);
+    }
+  };
+
+  const handleJumpToError = (log: LogEntry) => {
+    fetchContextLogs(log);
   };
 
   if (loading) {
@@ -476,6 +520,18 @@ const ErrorsTab: React.FC = () => {
                       >
                         <Copy className="w-4 h-4" />
                       </button>
+                      {(log.level?.toLowerCase() === 'error' || log.level?.toLowerCase() === 'critical' || log.error) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleJumpToError(log);
+                          }}
+                          className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
+                          title="Jump to error context"
+                        >
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      )}
                       {isExpanded ? (
                         <ChevronUp className="w-5 h-5 text-gray-400" />
                       ) : (
@@ -521,6 +577,198 @@ const ErrorsTab: React.FC = () => {
           })
         )}
       </div>
+
+      {/* Context Modal */}
+      {contextModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Error Context Logs</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Logs around error timestamp: {selectedErrorLog && formatTimestamp(selectedErrorLog.timestamp)}
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                {/* Time Range Configuration */}
+                <div className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4 text-gray-500" />
+                  <div className="flex items-center space-x-2">
+                    <label className="text-xs text-gray-600">Before:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={contextMinutesBefore}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 5;
+                        setContextMinutesBefore(val);
+                        if (selectedErrorLog) {
+                          fetchContextLogs(selectedErrorLog);
+                        }
+                      }}
+                      className="w-16 px-2 py-1 text-sm border border-gray-300 rounded"
+                    />
+                    <label className="text-xs text-gray-600">min</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <label className="text-xs text-gray-600">After:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={contextMinutesAfter}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 5;
+                        setContextMinutesAfter(val);
+                        if (selectedErrorLog) {
+                          fetchContextLogs(selectedErrorLog);
+                        }
+                      }}
+                      className="w-16 px-2 py-1 text-sm border border-gray-300 rounded"
+                    />
+                    <label className="text-xs text-gray-600">min</label>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setContextModalOpen(false);
+                    setContextLogs([]);
+                    setSelectedErrorLog(null);
+                  }}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {contextLoading ? (
+                <div className="text-center py-12">
+                  <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+                  <p className="text-gray-600">Loading context logs...</p>
+                </div>
+              ) : contextError ? (
+                <div className="text-center py-12">
+                  <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-red-600" />
+                  <p className="text-red-600 mb-4">Error loading context logs</p>
+                  <p className="text-gray-600 text-sm">{contextError}</p>
+                </div>
+              ) : contextLogs.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-gray-600">No logs found in the specified time range</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {contextLogs.map((log, index) => {
+                    const isErrorLog = log.timestamp === selectedErrorLog?.timestamp;
+                    const hasError = log.error || log.trace;
+                    const logJson = JSON.stringify(log, null, 2);
+
+                    return (
+                      <div
+                        key={index}
+                        className={`bg-white border rounded-lg shadow-sm transition-all ${
+                          isErrorLog
+                            ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                            : hasError
+                            ? 'border-red-200 bg-red-50'
+                            : 'border-gray-200'
+                        }`}
+                      >
+                        <div className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-2">
+                                {getLevelIcon(log.level)}
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${getLevelColor(log.level)}`}>
+                                  {log.level?.toUpperCase() || 'UNKNOWN'}
+                                </span>
+                                {isErrorLog && (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    TARGET ERROR
+                                  </span>
+                                )}
+                                {log.event && (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    {log.event}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-500 flex items-center">
+                                  <Clock className="w-3 h-3 mr-1" />
+                                  {formatTimestamp(log.timestamp)}
+                                </span>
+                              </div>
+                              
+                              {log.message && (
+                                <p className="text-sm text-gray-900 mb-2 font-medium">{log.message}</p>
+                              )}
+                              
+                              {log.error && (
+                                <p className="text-sm text-red-700 mb-2 font-medium">{log.error}</p>
+                              )}
+
+                              <div className="flex items-center space-x-4 text-xs text-gray-600 flex-wrap gap-2">
+                                {log.user_id && (
+                                  <span className="flex items-center">
+                                    <User className="w-3 h-3 mr-1" />
+                                    <span className="font-mono">{log.user_id.substring(0, 12)}...</span>
+                                  </span>
+                                )}
+                                {log.endpoint && (
+                                  <span className="flex items-center">
+                                    <FileText className="w-3 h-3 mr-1" />
+                                    <span className="truncate max-w-xs" title={log.endpoint}>{log.endpoint}</span>
+                                  </span>
+                                )}
+                                {log.module && (
+                                  <span className="text-gray-500">{log.module}</span>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(logJson);
+                              }}
+                              className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors ml-4"
+                              title="Copy JSON"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+              <div className="text-sm text-gray-600">
+                Showing {contextLogs.length} log entries around the error
+              </div>
+              <button
+                onClick={() => {
+                  setContextModalOpen(false);
+                  setContextLogs([]);
+                  setSelectedErrorLog(null);
+                }}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

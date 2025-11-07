@@ -37851,6 +37851,54 @@ async def get_logs(
             detail=f"Failed to fetch logs: {str(e)}"
         )
 
+@app.get("/api/custom/admin/analytics/logs/around")
+async def get_logs_around_timestamp(
+    request: Request,
+    timestamp: str = Query(..., description="ISO format timestamp to center the query around"),
+    minutes_before: int = Query(5, ge=1, le=60, description="Minutes before the timestamp"),
+    minutes_after: int = Query(5, ge=1, le=60, description="Minutes after the timestamp"),
+    limit: int = Query(1000, ge=1, le=5000, description="Maximum number of logs to return")
+):
+    """
+    Fetch logs around a specific timestamp.
+    
+    This endpoint returns all logs (of any level) within a time window around the specified timestamp.
+    Useful for debugging errors by seeing the context before and after an error occurred.
+    
+    Args:
+        timestamp: ISO format timestamp (e.g., "2025-01-07T12:34:56Z")
+        minutes_before: Number of minutes before the timestamp to include
+        minutes_after: Number of minutes after the timestamp to include
+        limit: Maximum number of logs to return
+    
+    Returns:
+        Dictionary containing log entries sorted by timestamp
+    """
+    await verify_admin_user(request)
+    try:
+        from datetime import datetime
+        target_timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        
+        loki_service = get_loki_service()
+        result = await loki_service.query_logs_around_timestamp(
+            target_timestamp=target_timestamp,
+            minutes_before=minutes_before,
+            minutes_after=minutes_after,
+            limit=limit
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid timestamp format: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to fetch logs around timestamp: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch logs: {str(e)}"
+        )
+
 @app.post("/api/custom/admin/credits/migrate-users")
 async def migrate_onyx_users_to_credits(
     request: Request,

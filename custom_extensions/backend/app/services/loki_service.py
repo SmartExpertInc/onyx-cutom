@@ -2,7 +2,7 @@
 Service for querying logs from Loki.
 """
 import httpx
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 from datetime import datetime, timedelta, timezone
 import os
 
@@ -160,6 +160,46 @@ class LokiService:
             start_time=start_time,
             end_time=end_time
         )
+    
+    async def query_logs_around_timestamp(
+        self,
+        target_timestamp: datetime,
+        minutes_before: int = 5,
+        minutes_after: int = 5,
+        limit: int = 1000
+    ) -> Dict[str, Any]:
+        """
+        Query logs around a specific timestamp.
+        
+        Args:
+            target_timestamp: The timestamp to center the query around
+            minutes_before: Number of minutes before the target timestamp to include
+            minutes_after: Number of minutes after the target timestamp to include
+            limit: Maximum number of log entries to return
+        
+        Returns:
+            Dictionary containing log entries and metadata, sorted by timestamp
+        """
+        # Calculate time range around the target timestamp
+        start_time = target_timestamp - timedelta(minutes=minutes_before)
+        end_time = target_timestamp + timedelta(minutes=minutes_after)
+        
+        # Query all logs in the time range (no level filter)
+        query = '{job="custom_backend"}'
+        
+        result = await self.query_logs(
+            query=query,
+            limit=limit,
+            start_time=start_time,
+            end_time=end_time,
+            direction="forward"  # Forward to get chronological order
+        )
+        
+        # Sort logs by timestamp
+        if result.get("logs"):
+            result["logs"].sort(key=lambda x: x.get("timestamp", ""))
+        
+        return result
 
 
 # Singleton instance
