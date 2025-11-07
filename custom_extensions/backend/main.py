@@ -7067,7 +7067,7 @@ class TrainingPlanDetails(BaseModel):
     theme: Optional[str] = "cherry"  # Default theme
     model_config = {"from_attributes": True}
 
-AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
+AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock", "ColumnContainerBlock"]
 ListItem = Union[str, AnyContentBlock, List[AnyContentBlock]]
 
 class BaseContentBlock(BaseModel):
@@ -7112,8 +7112,13 @@ class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
     style: Optional[str] = "solid"
 
+class ColumnContainerBlock(BaseContentBlock):
+    type: str = "column_container"
+    columnCount: int = 2
+    columns: List[List[AnyContentBlock]] = Field(default_factory=list)
+
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock, ColumnContainerBlock
 ]
 
 class PdfLessonDetails(BaseModel):
