@@ -967,7 +967,8 @@ export default function EventPoster({
                   overflow: 'hidden',
                   whiteSpace: 'normal',
                   wordWrap: 'break-word',
-                  textTransform: 'uppercase'
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px'
                 }}
               />
             </div>
