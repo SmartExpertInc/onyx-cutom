@@ -20,18 +20,35 @@
   - Updated poster generation endpoint to pass `width=1000, height=1000` to conversion service
 
 ### 2. Font Rendering Issue (Fonts incorrect in PNG vs frontend)
-**Root Cause**: The Google Fonts (Montserrat) were not loading fully before the PNG screenshot was taken, resulting in fallback fonts being used or incomplete font loading.
+**Root Cause**: 
+- **Backend**: The Google Fonts (Montserrat) were not loading fully before the PNG screenshot was taken, resulting in fallback fonts being used
+- **Frontend**: The Montserrat font was not being loaded at all on the results pages, causing the browser to use fallback sans-serif fonts
 
 **Solution**:
+
+**Backend (PNG Generation)**:
 - Increased font loading timeout from 5 seconds to 10 seconds for poster generation
 - Increased final render delay from 1 second to 2 seconds to ensure fonts are fully applied
 - Added better logging for font loading diagnostics
+
+**Frontend (Live Display)**:
+- Added dynamic font loading via useEffect hook in both results pages
+- Loads Montserrat font from Google Fonts CDN with preconnect optimization
+- Checks if font is already loaded to avoid duplicate loading
 
 **Files Changed**:
 - `custom_extensions/backend/app/services/html_to_image_service.py`:
   - Increased font loading timeout to 10 seconds
   - Increased final render delay to 2 seconds
   - Added comments explaining the increased timeouts for poster generation
+
+- `custom_extensions/frontend/src/app/create/event-poster/results/[projectId]/page.tsx`:
+  - Added useEffect hook to dynamically load Montserrat font
+  - Added preconnect links for faster font loading
+  
+- `custom_extensions/frontend/src/app/create/event-poster/results/page.tsx`:
+  - Added useEffect hook to dynamically load Montserrat font
+  - Added preconnect links for faster font loading
 
 ## Technical Details
 
@@ -79,11 +96,37 @@ To test the fixes:
    - The poster is centered and fills the entire image
    - No cropping or scaling artifacts
 
-## Frontend Remains Unchanged
-The frontend EventPoster component was already correctly using:
-- Inline styles with Montserrat font
+## Frontend Font Loading Fix
+The frontend EventPoster component was already correctly specifying Montserrat in inline styles:
+- `fontFamily: 'Montserrat, sans-serif'`
 - 1000x1000 container dimensions
-- Proper font weight specifications
+- Proper font weight specifications (300, 400, 600, 900)
 
-The issue was purely in the backend PNG generation service, which has now been corrected.
+However, the font file itself was not being loaded. The fix adds dynamic font loading:
+
+```typescript
+useEffect(() => {
+  // Check if font link already exists
+  if (!document.querySelector('link[href*="Montserrat"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap';
+    document.head.appendChild(link);
+    
+    // Preconnect for faster loading
+    const preconnect1 = document.createElement('link');
+    preconnect1.rel = 'preconnect';
+    preconnect1.href = 'https://fonts.googleapis.com';
+    document.head.appendChild(preconnect1);
+    
+    const preconnect2 = document.createElement('link');
+    preconnect2.rel = 'preconnect';
+    preconnect2.href = 'https://fonts.gstatic.com';
+    preconnect2.crossOrigin = 'anonymous';
+    document.head.appendChild(preconnect2);
+  }
+}, []);
+```
+
+Now both the frontend display and PNG download use the same Montserrat font with all weight variants (100-900).
 
