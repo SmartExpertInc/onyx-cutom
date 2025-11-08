@@ -89,17 +89,18 @@
         }
         .pdf-container { 
             width: 100%; 
-            padding: 0; 
-            background-color: white; 
+            padding: 24px; 
+            background-color: #F2F2F4; 
             min-height: 100vh; 
         }
         .content-wrapper { 
+            max-width: 80rem; /* max-w-5xl equivalent */
+            margin: 24px auto;
             background-color: white; 
             border: 2px solid #CCCCCC;
             border-radius: 10px; 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 1280px; /* max-w-5xl */
-            margin: 24px auto; 
+            overflow: hidden; 
         }
         
         /* Dynamic spacing classes for page optimization */
@@ -743,10 +744,10 @@
     </p>
   {% endif %}
 {% elif block_type == 'column_container' %}
-    <div class="column-container-block" style="display: grid; grid-template-columns: repeat({{ block_data.columnCount or 2 }}, 1fr); gap: 24px; margin-bottom: 24px;">
+    <div class="column-container-block" style="display: grid; grid-template-columns: repeat({{ block_data.columnCount or 2 }}, 1fr); gap: 24px; margin: 16px 0;">
         {% if block_data.columns is iterable and block_data.columns is not string %}
             {% for column in block_data.columns %}
-                <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
                     {% if column is iterable and column is not string %}
                         {% for col_block in column %}
                             {{ render_single_block_recursive_macro(col_block, depth, is_in_mini_section) }}
@@ -768,8 +769,8 @@
 <div class="pdf-container">
   <div class="content-wrapper">
     {% if text_data.textTitle %}
-      <header class="main-title-section">
-        <h1 class="main-title-text">
+      <header class="main-title-section" style="background-color: #FFFFFF; border-bottom: 1px solid #CCCCCC; padding: 16px 40px;">
+        <h1 class="main-title-text" style="font-size: 1.5rem; font-weight: 700; color: #0F58F9; padding: 16px 0; margin: 0; text-align: left;">
           {% set segments = text_data.textTitle.split('**') %}
           {% for segment in segments %}
             {% if loop.index0 is odd %}<strong>{{ segment }}</strong>{% else %}{{ segment }}{% endif %}
@@ -777,8 +778,9 @@
         </h1>
       </header>
     {% endif %}
+    <div style="background-color: #FFFFFF; padding: 16px 32px;">
     {% if text_data.purpleBoxContent and text_data.purpleBoxContent.cards and text_data.purpleBoxContent.cards|length > 0 %}
-      <div class="purple-box-section" style="margin-bottom: 24px; padding: 0 16px;">
+      <div class="purple-box-section" style="margin-bottom: 24px;">
         {% if text_data.purpleBoxContent.title %}
           <h2 style="font-size: 18px; font-weight: 600; color: #171718; margin-bottom: 12px;">{{ text_data.purpleBoxContent.title }}</h2>
         {% endif %}
@@ -795,7 +797,6 @@
         </div>
       </div>
     {% endif %}
-    <div class="grey-section">
     {% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}
         {% set blocks_to_render = text_data.contentBlocks %}
         {% if text_data.textTitle and blocks_to_render and blocks_to_render[0].type == 'headline' and blocks_to_render[0].level in [1, 2] and blocks_to_render[0].text | trim | lower == text_data.textTitle | trim | lower %}

@@ -646,13 +646,13 @@ const renderColumnContainer = async (block: ColumnContainerBlock): Promise<strin
     display: grid;
     grid-template-columns: repeat(${columnCount}, 1fr);
     gap: 24px;
-    margin-bottom: 24px;
+    margin: 16px 0;
   `.trim();
   
   const columnStyle = `
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   `.trim();
   
   let html = `<div style="${containerStyle}">`;
@@ -713,10 +713,45 @@ export const generateTextPresentationHtml = async (
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       line-height: 1.6;
       color: #171718;
-      background-color: #FFFFFF;
-      padding: 40px 3px;
-      max-width: 210mm; /* A4 width */
+      background-color: #F2F2F4;
+      padding: 24px;
       margin: 0 auto;
+    }
+    
+    .main-container {
+      max-width: 80rem; /* max-w-5xl equivalent */
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border: 2px solid #CCCCCC;
+      border-radius: 10px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    
+    .header-section {
+      background-color: #FFFFFF;
+      border-bottom: 1px solid #CCCCCC;
+      padding: 16px 40px;
+    }
+    
+    .content-section {
+      background-color: #FFFFFF;
+      padding: 16px 32px;
+    }
+    
+    h1 {
+      font-size: 1.5rem; /* text-2xl */
+      font-weight: 700;
+      color: #0F58F9;
+      padding: 16px 0;
+      margin: 0;
+      text-align: left;
+    }
+    
+    @media (min-width: 1024px) {
+      h1 {
+        font-size: 1.875rem; /* lg:text-3xl */
+      }
     }
     
     @media print {
@@ -725,24 +760,30 @@ export const generateTextPresentationHtml = async (
         background-color: white;
       }
       
+      .main-container {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+      }
+      
       @page {
         size: A4;
         margin: 8mm;
       }
     }
     
-    h1, h2, h3, h4, h5, h6 {
+    h2, h3, h4, h5, h6 {
       font-family: inherit;
     }
   </style>
 </head>
 <body>
-  <div style="max-width: 100%; margin: 0 auto;">
-    <h1 style="font-size: 24px; font-weight: 700; color: #0F58F9; margin-bottom: 16px; padding: 16px 0; border-bottom: 1px solid #CCCCCC;">
-      ${escapeHtml(data.textTitle)}
-    </h1>
-    ${purpleBoxesHtml}
-    ${contentHtml}
+  <div class="main-container">
+    ${data.textTitle ? `<div class="header-section"><h1>${escapeHtml(data.textTitle)}</h1></div>` : ''}
+    <div class="content-section">
+      ${purpleBoxesHtml}
+      ${contentHtml}
+    </div>
   </div>
 </body>
 </html>`;
