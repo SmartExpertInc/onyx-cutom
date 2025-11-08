@@ -742,6 +742,20 @@
       {% endfor %}
     </p>
   {% endif %}
+{% elif block_type == 'column_container' %}
+    <div class="column-container-block" style="display: grid; grid-template-columns: repeat({{ block_data.columnCount or 2 }}, 1fr); gap: 24px; margin-bottom: 24px;">
+        {% if block_data.columns is iterable and block_data.columns is not string %}
+            {% for column in block_data.columns %}
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% if column is iterable and column is not string %}
+                        {% for col_block in column %}
+                            {{ render_single_block_recursive_macro(col_block, depth, is_in_mini_section) }}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
 {% endif %}
@@ -762,6 +776,24 @@
           {% endfor %}
         </h1>
       </header>
+    {% endif %}
+    {% if text_data.purpleBoxContent and text_data.purpleBoxContent.cards and text_data.purpleBoxContent.cards|length > 0 %}
+      <div class="purple-box-section" style="margin-bottom: 24px; padding: 0 16px;">
+        {% if text_data.purpleBoxContent.title %}
+          <h2 style="font-size: 18px; font-weight: 600; color: #171718; margin-bottom: 12px;">{{ text_data.purpleBoxContent.title }}</h2>
+        {% endif %}
+        {% if text_data.purpleBoxContent.description %}
+          <p style="font-size: 14px; color: #4B5563; line-height: 1.5; margin-bottom: 16px;">{{ text_data.purpleBoxContent.description }}</p>
+        {% endif %}
+        <div style="display: grid; grid-template-columns: repeat({{ text_data.purpleBoxContent.cards|length if text_data.purpleBoxContent.cards|length <= 4 else 4 }}, 1fr); gap: 16px;">
+          {% for card in text_data.purpleBoxContent.cards %}
+            <div style="background-color: #CCDBFCCC; border: 1px solid #CCCCCC; border-radius: 8px; padding: 20px;">
+              <h3 style="font-weight: 600; color: #171718; margin-bottom: 8px; font-size: 16px;">{{ card.title }}</h3>
+              <p style="font-size: 14px; color: #4B5563; line-height: 1.5;">{{ card.description }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
     {% endif %}
     <div class="grey-section">
     {% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}

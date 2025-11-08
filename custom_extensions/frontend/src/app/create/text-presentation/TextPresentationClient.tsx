@@ -2280,7 +2280,7 @@ export default function TextPresentationClient() {
               
               {/* Lesson cards container */}
               <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
-                {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+                {loading && !loadingEdit && <LoadingAnimation message={thoughts[thoughtIdx]} />}
                 
                 {loadingEdit && (
                   <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">

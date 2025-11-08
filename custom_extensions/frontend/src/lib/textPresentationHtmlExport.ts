@@ -11,9 +11,9 @@ import {
   SectionBreakBlock,
   ImageBlock,
   TableBlock,
+  ColumnContainerBlock,
   ListItem,
 } from '@/types/textPresentation';
-import { PURPLE_BOX_CONTENT } from '@/constants/purpleBoxContent';
 
 /**
  * Escapes HTML special characters to prevent XSS
@@ -534,10 +534,14 @@ const renderTable = (block: TableBlock): string => {
 };
 
 /**
- * Generates HTML for purple boxes section
+ * Generates HTML for purple boxes section from data
  */
-const renderPurpleBoxes = (): string => {
-  const cards = PURPLE_BOX_CONTENT.cards;
+const renderPurpleBoxes = (purpleBoxContent: { title: string; description: string; cards: Array<{ title: string; description: string; icon?: string }> } | null | undefined): string => {
+  if (!purpleBoxContent || !purpleBoxContent.cards || purpleBoxContent.cards.length === 0) {
+    return '';
+  }
+  
+  const cards = purpleBoxContent.cards;
   const gridCols = cards.length === 1 ? '1' : cards.length === 2 ? '2' : cards.length === 3 ? '3' : '4';
   
   const containerStyle = `
@@ -567,14 +571,38 @@ const renderPurpleBoxes = (): string => {
     line-height: 1.5;
   `.trim();
   
-  let html = `<div style="${containerStyle}">`;
+  const sectionTitleStyle = `
+    font-size: 18px;
+    font-weight: 600;
+    color: #171718;
+    margin-bottom: 12px;
+  `.trim();
+  
+  const sectionDescStyle = `
+    font-size: 14px;
+    color: #4B5563;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  `.trim();
+  
+  let html = `<div style="margin-bottom: 24px;">`;
+  
+  // Add section title and description if present
+  if (purpleBoxContent.title) {
+    html += `<h2 style="${sectionTitleStyle}">${escapeHtml(purpleBoxContent.title)}</h2>`;
+  }
+  if (purpleBoxContent.description) {
+    html += `<p style="${sectionDescStyle}">${escapeHtml(purpleBoxContent.description)}</p>`;
+  }
+  
+  html += `<div style="${containerStyle}">`;
   cards.forEach((card) => {
     html += `<div style="${cardStyle}">`;
     html += `<h3 style="${titleStyle}">${escapeHtml(card.title)}</h3>`;
     html += `<p style="${descriptionStyle}">${escapeHtml(card.description)}</p>`;
     html += `</div>`;
   });
-  html += `</div>`;
+  html += `</div></div>`;
   
   return html;
 };
@@ -600,9 +628,47 @@ const renderContentBlock = async (block: AnyContentBlock): Promise<string> => {
       return await renderImage(block as ImageBlock);
     case 'table':
       return renderTable(block as TableBlock);
+    case 'column_container':
+      return await renderColumnContainer(block as ColumnContainerBlock);
     default:
       return '';
   }
+};
+
+/**
+ * Renders a column container block
+ */
+const renderColumnContainer = async (block: ColumnContainerBlock): Promise<string> => {
+  const columnCount = block.columnCount || 2;
+  const columns = block.columns || [];
+  
+  const containerStyle = `
+    display: grid;
+    grid-template-columns: repeat(${columnCount}, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+  `.trim();
+  
+  const columnStyle = `
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  `.trim();
+  
+  let html = `<div style="${containerStyle}">`;
+  
+  for (const column of columns) {
+    html += `<div style="${columnStyle}">`;
+    const columnBlocks = await Promise.all(
+      column.map((colBlock) => renderContentBlock(colBlock))
+    );
+    html += columnBlocks.join('\n');
+    html += `</div>`;
+  }
+  
+  html += `</div>`;
+  
+  return html;
 };
 
 /**
@@ -614,10 +680,11 @@ export const generateTextPresentationHtml = async (
 ): Promise<string> => {
   const documentTitle = title || data.textTitle || 'Text Presentation';
   
-  // Check if purple box section should be included
+  // Check if purple box section should be included and get purpleBoxContent from data
   const purpleBoxSection = (data as any)?.purpleBoxSection !== undefined 
     ? (data as any)?.purpleBoxSection 
     : true;
+  const purpleBoxContent = (data as any)?.purpleBoxContent || null;
   
   // Generate HTML for all content blocks (with image conversion)
   const contentBlocks = await Promise.all(
@@ -625,8 +692,8 @@ export const generateTextPresentationHtml = async (
   );
   const contentHtml = contentBlocks.join('\n');
   
-  // Generate purple boxes HTML if enabled
-  const purpleBoxesHtml = purpleBoxSection ? renderPurpleBoxes() : '';
+  // Generate purple boxes HTML if enabled and data exists
+  const purpleBoxesHtml = (purpleBoxSection && purpleBoxContent) ? renderPurpleBoxes(purpleBoxContent) : '';
   
   // Complete HTML document with styles
   const html = `<!DOCTYPE html>

@@ -2126,7 +2126,7 @@ export default function ProjectInstanceViewPage() {
             : 'max-w-7xl'
         }`}>
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            {canEditContent && (
+            {canEditContent && projectInstanceData?.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && (
               <button
                 onClick={handleToggleEdit}
                 disabled={isSaving}
@@ -2154,7 +2154,7 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
 
-            {projectInstanceData && typeof projectInstanceData.project_id === 'number' && (
+            {projectInstanceData && typeof projectInstanceData.project_id === 'number' && projectInstanceData.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && (
               projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
                 <VideoDownloadButton
                   projectName={projectInstanceData.name}
