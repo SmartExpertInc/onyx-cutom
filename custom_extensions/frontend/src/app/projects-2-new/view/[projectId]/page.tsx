@@ -43,6 +43,7 @@ import TextRightPanel from '../components/TextRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
+import AnimateButton from '@/components/ui/animate-button';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -113,6 +114,43 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
   const [textColorPickerPosition, setTextColorPickerPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [textRecentColors, setTextRecentColors] = useState<string[]>([]);
   const [currentTextColor, setCurrentTextColor] = useState<string>('#000000');
+  const [isAnimateButtonVisible, setIsAnimateButtonVisible] = useState<boolean>(false);
+  const [animateButtonPosition, setAnimateButtonPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const updateAnimateButtonPosition = () => {
+      if (!isAnimateButtonVisible || !activeTextEditor) {
+        return;
+      }
+
+      try {
+        const editorElement = activeTextEditor?.view?.dom as HTMLElement | null;
+        if (editorElement) {
+          const rect = editorElement.getBoundingClientRect();
+          setAnimateButtonPosition({
+            x: rect.left + rect.width / 2,
+            y: rect.top,
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to recalculate animate button position:', error);
+      }
+    };
+
+    window.addEventListener('resize', updateAnimateButtonPosition);
+    window.addEventListener('scroll', updateAnimateButtonPosition, true);
+
+    updateAnimateButtonPosition();
+
+    return () => {
+      window.removeEventListener('resize', updateAnimateButtonPosition);
+      window.removeEventListener('scroll', updateAnimateButtonPosition, true);
+    };
+  }, [isAnimateButtonVisible, activeTextEditor]);
   
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
@@ -919,6 +957,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
               });
               setIsTextToolbarVisible(false);
               setIsTextColorPickerOpen(false);
+              setIsAnimateButtonVisible(false);
             } else {
               console.log('🔍 MAIN CONTAINER ONCLICK - PROTECTED AREA, KEEPING OPEN', {
                 isColorPalette: !!isColorPalette,
@@ -1055,6 +1094,23 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
                         }
                       }
                       setCurrentTextColor(hexColor);
+
+                      try {
+                        const editorElement = editor?.view?.dom as HTMLElement | null;
+                        if (editorElement) {
+                          const rect = editorElement.getBoundingClientRect();
+                          setAnimateButtonPosition({
+                            x: rect.left + rect.width / 2,
+                            y: rect.top,
+                          });
+                          setIsAnimateButtonVisible(true);
+                        } else {
+                          setIsAnimateButtonVisible(false);
+                        }
+                      } catch (error) {
+                        console.warn('Failed to calculate animate button position:', error);
+                        setIsAnimateButtonVisible(false);
+                      }
                       
                       // Listen for editor blur to close the panel
                       const handleBlur = () => {
@@ -1069,6 +1125,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
                             setShowTextRightPanel(false);
                             setActiveTextEditor(null);
                             setComputedTextStyles(null);
+                            setIsAnimateButtonVisible(false);
                           }
                         }, 150);
                       };
@@ -1086,6 +1143,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
                       setShowTextRightPanel(false);
                       setActiveTextEditor(null);
                       setComputedTextStyles(null);
+                      setIsAnimateButtonVisible(false);
                     }
                   }}
                   theme="default"
@@ -1587,6 +1645,16 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
       <TariffPlanModal
         open={isTariffPlanModalOpen}
         onOpenChange={setIsTariffPlanModalOpen}
+      />
+
+      <AnimateButton
+        isVisible={isAnimateButtonVisible}
+        position={animateButtonPosition}
+        onClick={() => {
+          console.log('Animate button clicked', {
+            activeEditorField: activeTextEditor ? activeTextEditor.storage?.fieldName : null,
+          });
+        }}
       />
 
       {/* Text Editing Toolbar - Hidden since we're using TextRightPanel instead */}

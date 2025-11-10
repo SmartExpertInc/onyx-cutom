@@ -20,7 +20,7 @@ export function UpgradePlanBlock({ onUpgradeClick }: UpgradePlanBlockProps) {
       </span>
       <button
         type="button"
-        className="w-full px-3 py-1.5 rounded-md text-xs font-medium text-white"
+        className="w-full px-3 py-1.5 rounded-md text-xs font-medium text-white cursor-pointer"
         style={{ backgroundColor: '#0F58F9' }}
         onClick={onUpgradeClick}
       >
