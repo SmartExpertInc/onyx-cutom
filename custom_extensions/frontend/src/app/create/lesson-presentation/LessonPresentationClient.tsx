@@ -1512,7 +1512,7 @@ export default function LessonPresentationClient() {
       // Clean up temporary file context after successful creation
       if (isFromTempFiles && tempFileContextId) {
         try {
-          await fetch(`/api/custom/files/temp-context/${tempFileContextId}`, {
+          await fetch(`/api/custom-projects-backend/files/temp-context/${tempFileContextId}`, {
             method: 'DELETE',
           });
           console.log(`[TEMP_FILE_CLEANUP] Deleted temporary context ${tempFileContextId}`);

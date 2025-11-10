@@ -411,7 +411,7 @@ export default function UploadFilesPage() {
           }
         }
         
-        const response = await fetch('/api/custom/files/upload-for-context', {
+        const response = await fetch('/api/custom-projects-backend/files/upload-for-context', {
           method: 'POST',
           body: formData,
         });
