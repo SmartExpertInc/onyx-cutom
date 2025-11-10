@@ -152,7 +152,7 @@ export function EmailPasswordForm({
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 placeholder="**************"
-                className="!bg-[#ffffff] hover:shadow-md transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
                 labelClassName="!font-normal"
                 rightElement={
                   <button

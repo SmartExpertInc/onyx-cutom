@@ -35,7 +35,10 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="mb-6 text-center text-3xl font-bold text-[#0F58F9] font-public-sans">
+          <h2
+            className="mb-6 text-center text-3xl font-bold text-[#0F58F9]"
+            style={{ fontFamily: "'Public Sans', sans-serif" }}
+          >
               <LoginText />
             </h2>
             <p className="text-center text-[15px] text-gray-900">Enter your email below to create your account</p>
@@ -48,7 +51,10 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="mb-0 text-center text-[26px] font-bold text-[#0F58F9] font-public-sans">
+        <h2
+          className="mb-0 text-center text-[26px] font-bold text-[#0F58F9]"
+          style={{ fontFamily: "'Public Sans', sans-serif" }}
+        >
             <LoginText />
           </h2>
           <p className="text-center mb-6 text-[15px] text-gray-900">Enter your email below to create your account</p>

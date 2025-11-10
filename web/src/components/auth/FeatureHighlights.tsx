@@ -54,8 +54,8 @@ export default function FeatureHighlights() {
   return (
     <div className="relative flex-1 w-full overflow-hidden bg-[#FFFFFF] h-full flex items-center justify-start px-6 sm:px-12 py-10">
       <div className="absolute inset-0">
-        <BgTopLeft className="absolute top-0 left-0 blur-xl" />
-        <BgBottomRight className="absolute bottom-0 right-0 blur-xl" />
+        <BgTopLeft className="absolute -top-10 -left-10 blur-xl" />
+        <BgBottomRight className="absolute -bottom-10 -right-10 blur-xl" />
       </div>
 
       <div className="relative z-10 flex flex-col items-start gap-8 text-left text-white max-w-[420px]">
