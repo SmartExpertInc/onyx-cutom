@@ -250,6 +250,10 @@ export default function LessonPresentationClient() {
   const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
 
+  // Temp file context for one-time uploads (bypassing SmartDrive)
+  const isFromTempFiles = params?.get("fromTempFiles") === "true";
+  const tempFileContextId = params?.get("tempFileContextId") || null;
+
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
@@ -1450,6 +1454,11 @@ export default function LessonPresentationClient() {
               selectedFiles: selectedFiles.join(','),
             }),
           }),
+          // Add temp file context if creating from one-time uploads
+          ...(isFromTempFiles && tempFileContextId && {
+            fromTempFiles: true,
+            tempFileContextId: tempFileContextId,
+          }),
         }),
         signal: abortController.signal
       });
@@ -1498,6 +1507,23 @@ export default function LessonPresentationClient() {
         }
       } catch (error) {
         console.error('Error clearing failed state:', error);
+      }
+      
+      // Clean up temporary file context after successful creation
+      if (isFromTempFiles && tempFileContextId) {
+        try {
+          await fetch(`/api/custom/files/temp-context/${tempFileContextId}`, {
+            method: 'DELETE',
+          });
+          console.log(`[TEMP_FILE_CLEANUP] Deleted temporary context ${tempFileContextId}`);
+          
+          // Also clean up session storage
+          sessionStorage.removeItem('tempFileContextId');
+          sessionStorage.removeItem('tempFileContextSummary');
+        } catch (cleanupError) {
+          // Non-critical error, just log it
+          console.error('[TEMP_FILE_CLEANUP] Failed to delete temporary context:', cleanupError);
+        }
       }
 
       // Navigate immediately without delay to prevent cancellation

@@ -365,7 +365,8 @@ export default function UploadFilesPage() {
     setUploadedFiles((prev) => prev.filter((file) => file.id !== item.id));
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Handle knowledge base selection (connectors/smartdrive files)
     if (
       knowledgeBaseSelection &&
       (knowledgeBaseSelection.filePaths.length > 0 ||
@@ -393,24 +394,64 @@ export default function UploadFilesPage() {
       return;
     }
 
-    // Store files metadata in localStorage
-    const filesMetadata = uploadedFiles.map(file => ({
-      id: file.id,
-      name: file.name,
-      extension: file.extension,
-    }));
-    localStorage.setItem('generatedFromFiles', JSON.stringify(filesMetadata));
-    
-    // Store actual files in a temporary location
-    if (typeof window !== 'undefined') {
-      (window as any).generatedFiles = uploadedFiles;
+    // Handle one-time uploaded files
+    if (uploadedFiles.length > 0) {
+      try {
+        // Show loading state
+        const loadingToast = document.createElement('div');
+        loadingToast.textContent = 'Processing files...';
+        loadingToast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #0F58F9; color: white; padding: 12px 24px; border-radius: 8px; z-index: 9999;';
+        document.body.appendChild(loadingToast);
+        
+        // Upload files to backend for context extraction
+        const formData = new FormData();
+        for (const uploadedFile of uploadedFiles) {
+          if (uploadedFile.file) {
+            formData.append('files', uploadedFile.file);
+          }
+        }
+        
+        const response = await fetch('/api/custom/files/upload-for-context', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.detail || 'Failed to upload files');
+        }
+        
+        const result = await response.json();
+        
+        // Remove loading toast
+        document.body.removeChild(loadingToast);
+        
+        if (!result.success || !result.context_id) {
+          throw new Error('No context ID returned from server');
+        }
+        
+        // Store context ID for use in generation
+        sessionStorage.setItem('tempFileContextId', result.context_id);
+        sessionStorage.setItem('tempFileContextSummary', JSON.stringify(result.summary));
+        
+        // Clean up local storage
+        localStorage.removeItem('currentUploadedFiles');
+        if (typeof window !== 'undefined') {
+          delete (window as any).generatedFiles;
+        }
+        
+        // Navigate to generate page with temp context parameter
+        router.push('/create/generate?fromTempFiles=true');
+        
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        alert(`Failed to process files: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+      return;
     }
     
-    // Clean up persisted files since we're navigating away
-    localStorage.removeItem('currentUploadedFiles');
-    
-    // Navigate to generate page with fromUploadedFiles parameter
-    router.push('/create/generate?fromUploadedFiles=true');
+    // No files or selections - shouldn't happen, but handle gracefully
+    alert('Please upload files or select from knowledge base');
   };
 
   const handleSmartDriveImport = () => {

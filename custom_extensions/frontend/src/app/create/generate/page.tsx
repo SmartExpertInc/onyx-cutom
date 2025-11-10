@@ -65,6 +65,7 @@ function GenerateProductPicker() {
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
   const isFromUploadedFiles = searchParams?.get('fromUploadedFiles') === 'true';
+  const isFromTempFiles = searchParams?.get('fromTempFiles') === 'true'; // NEW: One-time file uploads
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
@@ -142,19 +143,48 @@ function GenerateProductPicker() {
 
   // NEW: Load files from upload flow
   const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, name: string, extension: string}>>([]);
+  const [tempFileContextId, setTempFileContextId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try {
-      const storedFiles = localStorage.getItem('generatedFromFiles');
-      if (storedFiles) {
-        const files = JSON.parse(storedFiles);
-        setUploadedFiles(files);
+    // Load files for legacy uploaded files mode
+    if (isFromUploadedFiles) {
+      try {
+        const storedFiles = localStorage.getItem('generatedFromFiles');
+        if (storedFiles) {
+          const files = JSON.parse(storedFiles);
+          setUploadedFiles(files);
+        }
+      } catch (error) {
+        console.error('Failed to parse uploaded files from localStorage', error);
       }
-    } catch (error) {
-      console.error('Failed to parse uploaded files from localStorage', error);
     }
-  }, []);
+    
+    // Load context ID for new temp files mode
+    if (isFromTempFiles) {
+      try {
+        const contextId = sessionStorage.getItem('tempFileContextId');
+        const contextSummary = sessionStorage.getItem('tempFileContextSummary');
+        
+        if (contextId) {
+          setTempFileContextId(contextId);
+          
+          // Load summary to show file list
+          if (contextSummary) {
+            const summary = JSON.parse(contextSummary);
+            // Create display files from summary
+            setUploadedFiles([{
+              id: 'temp-files',
+              name: `${summary.files_processed} file${summary.files_processed !== 1 ? 's' : ''} uploaded`,
+              extension: `${summary.total_topics || 0} topics`
+            }]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load temp file context:', error);
+      }
+    }
+  }, [isFromUploadedFiles, isFromTempFiles]);
 
   const handleAddMaterial = () => {
     fileInputRef.current?.click();
@@ -329,6 +359,11 @@ function GenerateProductPicker() {
     // Add uploaded files context if coming from uploaded files
     if (isFromUploadedFiles) {
       params.set("fromUploadedFiles", "true");
+    }
+    
+    // Add temp files context if coming from one-time uploads
+    if (isFromTempFiles) {
+      params.set("fromTempFiles", "true");
     }
     
     // Add text context if coming from text
@@ -774,8 +809,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone lesson, check if prompt entered or coming from files/text/knowledge base/temp files
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase && !isFromTempFiles) return;
     }
 
     const params = new URLSearchParams();
@@ -820,6 +855,17 @@ function GenerateProductPicker() {
     } else if (isFromKnowledgeBase) {
       params.set("prompt", prompt.trim() || "Create lesson content from the Knowledge Base");
       params.set("fromKnowledgeBase", "true");
+    } else if (isFromTempFiles) {
+      const finalPrompt = prompt.trim() || "Create lesson content from the uploaded files";
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
+      params.set("fromTempFiles", "true");
+      if (tempFileContextId) params.set("tempFileContextId", tempFileContextId);
     } else if (prompt.trim()) {
       const finalPrompt = prompt.trim();
       // Store prompt in sessionStorage if it's long
@@ -858,8 +904,8 @@ function GenerateProductPicker() {
     if (useExistingQuizOutline === true) {
       if (!selectedQuizOutlineId || !selectedQuizLesson) return;
     } else {
-      // If standalone quiz, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone quiz, check if prompt entered or coming from files/text/knowledge base/temp files
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase && !isFromTempFiles) return;
     }
 
     const params = new URLSearchParams();
@@ -912,6 +958,17 @@ function GenerateProductPicker() {
     } else if (isFromKnowledgeBase) {
       params.set("prompt", prompt.trim() || "Create quiz content from the Knowledge Base");
       params.set("fromKnowledgeBase", "true");
+    } else if (isFromTempFiles) {
+      const finalPrompt = prompt.trim() || "Create quiz content from the uploaded files";
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
+      params.set("fromTempFiles", "true");
+      if (tempFileContextId) params.set("tempFileContextId", tempFileContextId);
     } else if (prompt.trim()) {
       const finalPrompt = prompt.trim();
       // Store prompt in sessionStorage if it's long
@@ -1080,8 +1137,8 @@ function GenerateProductPicker() {
     if (useExistingTextOutline === true) {
       if (!selectedTextOutlineId || !selectedTextLesson) return;
     } else {
-      // If standalone text presentation, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone text presentation, check if prompt entered or coming from files/text/knowledge base/temp files
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase && !isFromTempFiles) return;
     }
 
     const params = new URLSearchParams();
@@ -1134,6 +1191,17 @@ function GenerateProductPicker() {
     } else if (isFromKnowledgeBase) {
       params.set("prompt", prompt.trim() || "Create text presentation content from the Knowledge Base");
       params.set("fromKnowledgeBase", "true");
+    } else if (isFromTempFiles) {
+      const finalPrompt = prompt.trim() || "Create text presentation content from the uploaded files";
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
+      params.set("fromTempFiles", "true");
+      if (tempFileContextId) params.set("tempFileContextId", tempFileContextId);
     } else if (prompt.trim()) {
       const finalPrompt = prompt.trim(); 
       // Store prompt in sessionStorage if it's long
@@ -1172,8 +1240,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone video lesson, check if prompt entered or coming from files/text/knowledge base
-    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone video lesson, check if prompt entered or coming from files/text/knowledge base/temp files
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase && !isFromTempFiles) return;
     }
 
     const params = new URLSearchParams();
@@ -1222,6 +1290,17 @@ function GenerateProductPicker() {
     } else if (isFromKnowledgeBase) {
       params.set("prompt", prompt.trim() || "Create video lesson content from the Knowledge Base");
       params.set("fromKnowledgeBase", "true");
+    } else if (isFromTempFiles) {
+      const finalPrompt = prompt.trim() || "Create video lesson content from the uploaded files";
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
+      params.set("fromTempFiles", "true");
+      if (tempFileContextId) params.set("tempFileContextId", tempFileContextId);
     } else if (prompt.trim()) {
       const finalPrompt = prompt.trim();
       // Store prompt in sessionStorage if it's long
@@ -1278,7 +1357,7 @@ function GenerateProductPicker() {
 
       <div className="w-full max-w-5xl flex flex-col gap-3 items-center relative z-10">
 
-        {!isFromUploadedFiles && (
+        {!isFromUploadedFiles && !isFromTempFiles && (
           <>
             <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#4D4D4D] mt-8">{t('interface.generate.title', 'Generate')}</h1>
             <p className="text-center text-[#878787] text-lg -mt-1">
@@ -1432,7 +1511,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Title for uploaded files */}
-        {isFromUploadedFiles && uploadedFiles.length > 0 && (
+        {(isFromUploadedFiles || isFromTempFiles) && uploadedFiles.length > 0 && (
           <h3 className="text-xl font-semibold text-[#4D4D4D]">
             {t('interface.generate.selectWhatToGenerate', 'Select what you\'d like to generate')}
           </h3>

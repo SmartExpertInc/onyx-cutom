@@ -11118,6 +11118,310 @@ async def upload_onepager_image(file: UploadFile = File(...)):
     web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
     return {"file_path": web_accessible_path}
 
+# ============================
+# ONE-TIME FILE UPLOAD FOR CONTEXT (Bypass SmartDrive)
+# ============================
+
+# In-memory temporary storage for one-time file contexts
+# Structure: {context_id: {context: dict, file_ids: list, created_at: float, user_id: str}}
+TEMPORARY_FILE_CONTEXTS: Dict[str, Dict[str, Any]] = {}
+TEMPORARY_CONTEXT_TTL = 3600  # 1 hour
+
+async def cleanup_expired_contexts():
+    """Remove expired temporary contexts and their associated files"""
+    current_time = time.time()
+    expired_ids = [
+        ctx_id for ctx_id, ctx_data in TEMPORARY_FILE_CONTEXTS.items()
+        if current_time - ctx_data['created_at'] > TEMPORARY_CONTEXT_TTL
+    ]
+    
+    if expired_ids:
+        # Clean up file records from database
+        try:
+            import sys
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
+            from onyx.db.engine import get_session_context_manager
+            from onyx.db.models import UserFile
+            
+            with get_session_context_manager() as db_session:
+                for ctx_id in expired_ids:
+                    ctx_data = TEMPORARY_FILE_CONTEXTS[ctx_id]
+                    file_ids = ctx_data.get('file_ids', [])
+                    
+                    # Delete user file records
+                    if file_ids:
+                        db_session.query(UserFile).filter(UserFile.id.in_(file_ids)).delete(synchronize_session=False)
+                
+                db_session.commit()
+        except Exception as e:
+            logger.warning(f"[TEMP_FILE_CLEANUP] Error cleaning up file records: {e}")
+        
+        # Remove from memory
+        for ctx_id in expired_ids:
+            del TEMPORARY_FILE_CONTEXTS[ctx_id]
+        
+        logger.info(f"[TEMP_FILE_CLEANUP] Cleaned up {len(expired_ids)} expired temporary file contexts")
+
+@app.post("/api/custom/files/upload-for-context")
+async def upload_files_for_immediate_context(
+    files: List[UploadFile] = File(...),
+    request: Request = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Upload files for one-time use with FULL context extraction pipeline.
+    
+    Process:
+    1. Upload files to Onyx's FileStore (temporary)
+    2. Create temporary user file records
+    3. Use existing context extraction pipeline (same as SmartDrive)
+    4. Store assembled context with summaries, topics, key info
+    5. Return context IDs for immediate use
+    
+    Files are automatically cleaned up after 1 hour.
+    
+    This bypasses SmartDrive/Nextcloud - files are only stored in Onyx temporarily.
+    """
+    try:
+        await cleanup_expired_contexts()
+        
+        # Import Onyx utilities
+        import sys
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
+        from onyx.db.engine import get_session_context_manager
+        from onyx.file_store.file_store import get_default_file_store
+        from onyx.configs.constants import FileOrigin
+        from onyx.server.query_and_chat.models import mime_type_to_chat_file_type
+        from onyx.db.models import User, UserFile
+        from onyx.file_processing.extract_file_text import extract_file_text
+        
+        # Get current user
+        onyx_user_id = await get_current_onyx_user_id(request)
+        cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+        
+        uploaded_file_ids = []
+        errors = []
+        file_details = []
+        
+        logger.info(f"[TEMP_FILE] Starting upload of {len(files)} files for user {onyx_user_id}")
+        
+        with get_session_context_manager() as db_session:
+            file_store = get_default_file_store(db_session)
+            user = db_session.query(User).filter(User.id == onyx_user_id).first()
+            
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found")
+            
+            # Step 1: Upload all files to Onyx FileStore
+            for file in files:
+                try:
+                    file_content = await file.read()
+                    file_size = len(file_content)
+                    filename = file.filename or "unknown"
+                    
+                    logger.info(f"[TEMP_FILE] Processing {filename} ({file_size} bytes)")
+                    
+                    # Check size (max 50MB per file)
+                    if file_size > 50 * 1024 * 1024:
+                        errors.append({"filename": filename, "error": "File too large (max 50MB)"})
+                        await file.close()
+                        continue
+                    
+                    # Upload to Onyx FileStore
+                    file_id = str(uuid.uuid4())
+                    file_io = io.BytesIO(file_content)
+                    
+                    file_store.save_file(
+                        file_name=file_id,
+                        content=file_io,
+                        display_name=filename,
+                        file_origin=FileOrigin.CHAT_UPLOAD,
+                        file_type=file.content_type or "application/octet-stream",
+                    )
+                    
+                    # Create temporary user file (not in any folder, marked for cleanup)
+                    user_file = UserFile(
+                        user_id=user.id,
+                        file_id=file_id,
+                        file_name=filename,
+                        display_name=filename,
+                        file_type=file.content_type or "application/octet-stream",
+                        file_size=file_size,
+                        folder_id=None  # Not in any folder - marks it as temporary
+                    )
+                    db_session.add(user_file)
+                    db_session.flush()
+                    
+                    uploaded_file_ids.append(user_file.id)
+                    file_details.append({
+                        "user_file_id": user_file.id,
+                        "file_id": file_id,
+                        "filename": filename,
+                        "size": file_size
+                    })
+                    
+                    logger.info(f"[TEMP_FILE] Uploaded {filename} -> file_id: {file_id}, user_file_id: {user_file.id}")
+                    
+                except Exception as e:
+                    logger.error(f"[TEMP_FILE] Error uploading {filename}: {e}", exc_info=True)
+                    errors.append({"filename": file.filename or "unknown", "error": str(e)})
+                finally:
+                    await file.close()
+            
+            db_session.commit()
+        
+        if not uploaded_file_ids:
+            raise HTTPException(status_code=400, detail=f"No files were uploaded successfully. Errors: {errors}")
+        
+        # Step 2: Extract context using the SAME pipeline as SmartDrive files
+        logger.info(f"[TEMP_FILE] Extracting context from {len(uploaded_file_ids)} files using full pipeline")
+        
+        # Use the existing extract_single_file_context function (with parallel processing)
+        extraction_tasks = [
+            extract_single_file_context(file_id, cookies) 
+            for file_id in uploaded_file_ids
+        ]
+        file_contexts = await asyncio.gather(*extraction_tasks, return_exceptions=True)
+        
+        # Step 3: Assemble the context (same format as SmartDrive)
+        assembled_context = {
+            "file_summaries": [],
+            "file_contents": [],
+            "key_topics": [],
+            "metadata": {
+                "total_files": len(uploaded_file_ids),
+                "extraction_time": time.time(),
+                "source": "temp_upload"
+            }
+        }
+        
+        successful_extractions = 0
+        for idx, (file_id, context) in enumerate(zip(uploaded_file_ids, file_contexts)):
+            if isinstance(context, Exception):
+                logger.error(f"[TEMP_FILE] Context extraction failed for file {file_id}: {context}")
+                errors.append({
+                    "filename": file_details[idx]["filename"],
+                    "error": f"Context extraction failed: {str(context)}"
+                })
+                continue
+            
+            if context and context.get("summary"):
+                assembled_context["file_summaries"].append(context["summary"])
+                assembled_context["file_contents"].append(context.get("content", ""))
+                assembled_context["key_topics"].extend(context.get("topics", []))
+                successful_extractions += 1
+                logger.info(f"[TEMP_FILE] Successfully extracted context from file {file_id}")
+            else:
+                logger.warning(f"[TEMP_FILE] No valid context extracted from file {file_id}")
+        
+        # Remove duplicate topics
+        assembled_context["key_topics"] = list(set(assembled_context["key_topics"]))
+        
+        if successful_extractions == 0:
+            # Cleanup files if no context was extracted
+            with get_session_context_manager() as db_session:
+                db_session.query(UserFile).filter(UserFile.id.in_(uploaded_file_ids)).delete(synchronize_session=False)
+                db_session.commit()
+            
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Failed to extract context from any files. Please ensure files contain readable text. Errors: {errors}"
+            )
+        
+        # Step 4: Store in temporary memory with unique context ID
+        context_id = f"temp_ctx_{uuid.uuid4().hex[:16]}"
+        TEMPORARY_FILE_CONTEXTS[context_id] = {
+            "type": "assembled_context",
+            "context": assembled_context,
+            "file_ids": uploaded_file_ids,
+            "file_details": file_details,
+            "created_at": time.time(),
+            "user_id": onyx_user_id
+        }
+        
+        logger.info(f"[TEMP_FILE] Created temporary context {context_id} with {successful_extractions} files")
+        
+        return {
+            "success": True,
+            "context_id": context_id,
+            "file_count": len(uploaded_file_ids),
+            "summary": {
+                "files_processed": successful_extractions,
+                "files_uploaded": len(uploaded_file_ids),
+                "total_topics": len(assembled_context["key_topics"]),
+                "topics_preview": assembled_context["key_topics"][:10] if assembled_context["key_topics"] else []
+            },
+            "errors": errors if errors else None,
+            "ttl_seconds": TEMPORARY_CONTEXT_TTL
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[TEMP_FILE] Unexpected error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/custom/files/temp-context/{context_id}")
+async def get_temporary_context(context_id: str, request: Request = None):
+    """Get the fully assembled context for content generation"""
+    await cleanup_expired_contexts()
+    
+    if context_id not in TEMPORARY_FILE_CONTEXTS:
+        raise HTTPException(status_code=404, detail="Context not found or expired")
+    
+    ctx_data = TEMPORARY_FILE_CONTEXTS[context_id]
+    
+    # Verify user owns this context
+    onyx_user_id = await get_current_onyx_user_id(request)
+    if ctx_data.get("user_id") != onyx_user_id:
+        raise HTTPException(status_code=403, detail="Access denied to this context")
+    
+    # Return in the same format as extract_file_context_from_onyx_with_progress
+    return {
+        "context": ctx_data["context"],
+        "metadata": {
+            "context_id": context_id,
+            "created_at": ctx_data["created_at"],
+            "ttl_remaining": max(0, TEMPORARY_CONTEXT_TTL - (time.time() - ctx_data["created_at"])),
+            "file_count": len(ctx_data.get("file_ids", []))
+        }
+    }
+
+@app.delete("/api/custom/files/temp-context/{context_id}")
+async def delete_temporary_context(context_id: str, request: Request = None):
+    """Delete a temporary context (cleanup after use)"""
+    if context_id not in TEMPORARY_FILE_CONTEXTS:
+        raise HTTPException(status_code=404, detail="Context not found")
+    
+    ctx_data = TEMPORARY_FILE_CONTEXTS[context_id]
+    
+    # Verify user owns this context
+    onyx_user_id = await get_current_onyx_user_id(request)
+    if ctx_data.get("user_id") != onyx_user_id:
+        raise HTTPException(status_code=403, detail="Access denied to this context")
+    
+    # Delete file records from database
+    try:
+        import sys
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
+        from onyx.db.engine import get_session_context_manager
+        from onyx.db.models import UserFile
+        
+        file_ids = ctx_data.get('file_ids', [])
+        if file_ids:
+            with get_session_context_manager() as db_session:
+                db_session.query(UserFile).filter(UserFile.id.in_(file_ids)).delete(synchronize_session=False)
+                db_session.commit()
+            logger.info(f"[TEMP_FILE_CLEANUP] Deleted {len(file_ids)} file records for context {context_id}")
+    except Exception as e:
+        logger.warning(f"[TEMP_FILE_CLEANUP] Error deleting file records: {e}")
+    
+    # Remove from memory
+    del TEMPORARY_FILE_CONTEXTS[context_id]
+    logger.info(f"[TEMP_FILE_CLEANUP] Deleted context {context_id}")
+    
+    return {"success": True, "message": "Context and associated files deleted"}
+
 @app.post("/api/custom/presentation/upload_image", responses={200: {"description": "Image uploaded successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/your_image_name.png"}}}},400: {"description": "Invalid file type or other error", "model": ErrorDetail},413: {"description": "File too large", "model": ErrorDetail}})
 async def upload_presentation_image(file: UploadFile = File(...)):
     """Upload an image for use in presentations"""
@@ -14138,6 +14442,12 @@ def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     elif hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase:
         context_type = 'knowledge_base'
         context_data = {'search_query': payload.prompt if hasattr(payload, 'prompt') else None}
+    # Check for temp file context (one-time uploads)
+    elif hasattr(payload, 'fromTempFiles') and payload.fromTempFiles:
+        context_type = 'temp_files'
+        context_data = {
+            'temp_file_context_id': payload.tempFileContextId if hasattr(payload, 'tempFileContextId') else None
+        }
     # Check for file context
     elif hasattr(payload, 'fromFiles') and payload.fromFiles:
         context_type = 'files'
@@ -26395,6 +26705,9 @@ class LessonWizardFinalize(BaseModel):
     connectorSources: Optional[str] = None  # comma-separated connector sources
     # NEW: SmartDrive file paths for combined connector + file context
     selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
+    # NEW: temp file context for one-time uploads (bypassing SmartDrive)
+    fromTempFiles: Optional[bool] = None
+    tempFileContextId: Optional[str] = None  # ID for retrieving temporary file context
 
 
 @app.post("/api/custom/lesson-presentation/preview")
