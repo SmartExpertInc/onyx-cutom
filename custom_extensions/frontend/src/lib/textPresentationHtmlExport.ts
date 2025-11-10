@@ -112,32 +112,41 @@ const parseStyledText = (text: string | undefined | null, applyBlueColon: boolea
  */
 const renderHeadline = (block: HeadlineBlock): string => {
   const levelMap: { [key: number]: string } = {
-    1: '20px',
-    2: '20px',
-    3: '18px',
-    4: '16px',
+    1: '1.25rem', // text-xl = 20px = 1.25rem
+    2: '1.25rem', // text-xl = 20px = 1.25rem
+    3: '1.125rem', // text-lg = 18px = 1.125rem
+    4: '1rem', // text-base = 16px = 1rem
   };
   
-  const fontSize = block.fontSize || levelMap[block.level] || '20px';
+  const fontSize = block.fontSize || levelMap[block.level] || '1.25rem';
   const backgroundColor = block.backgroundColor || 'transparent';
   
   // Match TextPresentationDisplay colors exactly:
-  // Level 1 & 2: #171718 (dark gray)
-  // Level 3 & 4: #0F58F9 (blue)
+  // Level 1 & 2: #171718 (dark gray), font-bold (700) or font-semibold (600)
+  // Level 3: #0F58F9 (blue), font-medium (500)
+  // Level 4: #0F58F9 (blue), font-bold (700)
   let textColor = block.textColor;
+  let fontWeight = 700;
   if (!textColor) {
-    if (block.level === 1 || block.level === 2) {
+    if (block.level === 1) {
       textColor = '#171718';
-    } else if (block.level === 3 || block.level === 4) {
+      fontWeight = 700; // font-bold
+    } else if (block.level === 2) {
+      textColor = '#171718';
+      fontWeight = 600; // font-semibold
+    } else if (block.level === 3) {
       textColor = '#0F58F9';
+      fontWeight = 500; // font-medium
+    } else if (block.level === 4) {
+      textColor = '#0F58F9';
+      fontWeight = 700; // font-bold
     } else {
       textColor = '#171718';
     }
   }
   
-  const fontWeight = (block.level === 1 || block.level === 3 || block.level === 4) ? 700 : 600;
-  const marginTop = block.level === 1 ? '16px' : block.level === 2 ? '20px' : '10px';
-  const marginBottom = block.level === 1 ? '8px' : block.level === 2 ? '12px' : '6px';
+  const marginTop = block.level === 1 ? '0' : block.level === 2 ? '1.25rem' : '0.625rem';
+  const marginBottom = block.level === 1 ? '0.5rem' : block.level === 2 ? '0.75rem' : '0.375rem';
   
   const style = `
     font-size: ${fontSize};
@@ -157,23 +166,25 @@ const renderHeadline = (block: HeadlineBlock): string => {
  * Generates HTML for a paragraph block
  */
 const renderParagraph = (block: ParagraphBlock): string => {
-  const fontSize = block.fontSize || '16px';
+  const fontSize = block.fontSize || '1rem'; // text-base = 16px = 1rem
   const isRecommendation = block.isRecommendation || false;
   
   let style = `
     font-size: ${fontSize};
-    line-height: 1.6;
-    color: #171718;
-    margin-bottom: 16px;
+    font-weight: 300; /* font-light */
+    line-height: 1.5; /* leading-normal */
+    color: #000000; /* text-black */
+    margin-bottom: 1rem; /* mb-2 = 8px, but frontend uses mb-2 which is 0.5rem, but actual spacing is more */
+    text-align: left;
   `.trim();
   
   // Add blue left border for recommendations
   if (isRecommendation) {
     style += `
-      padding-left: 16px;
+      padding-left: 1rem;
       border-left: 4px solid #0F58F9;
-      padding-top: 8px;
-      padding-bottom: 8px;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
       background-color: rgba(243, 244, 246, 0.3);
     `.trim();
   }
@@ -244,9 +255,10 @@ const renderBulletList = (block: BulletListBlock): string => {
   
   const itemStyle = `
     font-size: ${fontSize};
+    font-weight: 300; /* font-light to match paragraphs */
     line-height: 1.6;
-    color: #171718;
-    margin-bottom: 8px;
+    color: #000000; /* text-black */
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: flex-start;
   `.trim();
