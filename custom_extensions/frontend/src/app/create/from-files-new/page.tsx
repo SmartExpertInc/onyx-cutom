@@ -14,6 +14,8 @@ import { FeedbackButton } from "@/components/ui/feedback-button";
 import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
 import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
 import { BackButton } from "../components/BackButton";
+import { buildKnowledgeBaseContext, KnowledgeBaseSelection } from "@/lib/knowledgeBaseSelection";
+import { trackImportFiles } from "@/lib/mixpanelClient";
 
 // StepCard component for the old step-based interface
 interface StepCardProps {
@@ -126,6 +128,7 @@ export default function FromFilesNew() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSmartDriveModalOpen, setIsSmartDriveModalOpen] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [knowledgeBaseSelection, setKnowledgeBaseSelection] = useState<KnowledgeBaseSelection | null>(null);
 
   const handleUrlImport = (urls: string[]) => {
     console.log('Importing URLs:', urls);
@@ -135,6 +138,53 @@ export default function FromFilesNew() {
   const handleSmartDriveImport = () => {
     // TODO: Add import logic here
     console.log('Importing from Smart Drive');
+  };
+
+  const handleKnowledgeBaseConfirm = (payload: {
+    selection: KnowledgeBaseSelection;
+    connectorSources: string[];
+    connectorIds: number[];
+  }) => {
+    const { selection, connectorSources } = payload;
+
+    const uniqueConnectorSources = Array.from(new Set(connectorSources.filter(Boolean)));
+    const { combinedContext, searchParams } = buildKnowledgeBaseContext(selection);
+
+    try {
+      sessionStorage.setItem('knowledgeBaseSelection', JSON.stringify(selection));
+      sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
+      sessionStorage.setItem('knowledgeBaseSearchParams', searchParams.toString());
+    } catch (error) {
+      console.error('[FromFilesNew] Failed to persist knowledge base selection:', error);
+    }
+
+    setKnowledgeBaseSelection(selection);
+
+    if (uniqueConnectorSources.length > 0) {
+      trackImportFiles('Connectors', uniqueConnectorSources);
+    } else if (selection.filePaths.length > 0) {
+      const fileExtensionsForTracking: string[] = Array.from(
+        new Set(
+          selection.filePaths
+            .map((filePath) => {
+              try {
+                const name = (filePath.split('/').pop() || filePath).split('?')[0];
+                const parts = name.split('.');
+                return parts.length > 1 ? parts.pop()?.toLowerCase() : undefined;
+              } catch {
+                return undefined;
+              }
+            })
+            .filter((ext): ext is string => !!ext)
+        )
+      );
+      if (fileExtensionsForTracking.length > 0) {
+        trackImportFiles('Files', fileExtensionsForTracking);
+      }
+    }
+
+    setIsSmartDriveModalOpen(false);
+    router.push('/create/from-files-new/upload');
   };
 
   const handleFileSelect = (files: FileList | null) => {
@@ -258,6 +308,9 @@ export default function FromFilesNew() {
         onClose={() => setIsSmartDriveModalOpen(false)}
         onImport={handleSmartDriveImport}
         mode="knowledgeBase"
+        onKnowledgeBaseConfirm={handleKnowledgeBaseConfirm}
+        selectedKnowledgeBaseFilePaths={knowledgeBaseSelection?.filePaths}
+        selectedConnectorSources={knowledgeBaseSelection?.connectors.map((connector) => connector.source)}
       />
 
       <div className="relative z-[60]">

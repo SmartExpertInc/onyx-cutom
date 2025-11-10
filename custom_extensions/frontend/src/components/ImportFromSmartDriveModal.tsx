@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "../contexts/LanguageContext";
 import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
 import { trackImportFiles } from "@/lib/mixpanelClient";
+import {
+  KnowledgeBaseConnector,
+  KnowledgeBaseSelection,
+  buildKnowledgeBaseContext,
+} from "@/lib/knowledgeBaseSelection";
 
 interface Connector {
   id: number;
@@ -23,6 +28,13 @@ interface ImportFromSmartDriveModalProps {
   onImport?: () => void;
   selectedFiles?: any[]; // Files selected from SmartDrive
   mode?: "upload" | "knowledgeBase";
+  selectedKnowledgeBaseFilePaths?: string[];
+  selectedConnectorSources?: string[];
+  onKnowledgeBaseConfirm?: (payload: {
+    selection: KnowledgeBaseSelection;
+    connectorSources: string[];
+    connectorIds: number[];
+  }) => void;
 }
 
 export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps> = ({
@@ -31,6 +43,9 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   onImport,
   selectedFiles,
   mode = "upload",
+  selectedKnowledgeBaseFilePaths,
+  selectedConnectorSources: externalConnectorSources,
+  onKnowledgeBaseConfirm,
 }) => {
   const { t } = useLanguage();
   const router = useRouter();
@@ -39,7 +54,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   const [selectedFilePaths, setSelectedFilePaths] = useState<string[]>([]);
   const [selectedConnectorSources, setSelectedConnectorSources] = useState<string[]>([]);
   const [connectors, setConnectors] = useState<Connector[]>([]);
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const isKnowledgeBaseMode = mode === "knowledgeBase";
 
@@ -62,42 +76,21 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     setActiveTab(tab);
   }, []);
 
-  const selectedConnectorRecords = useMemo(() => {
-    if (!isKnowledgeBaseMode) return [];
-    const sourceSet = new Set(selectedConnectorSources);
-    return connectors.filter((connector) => sourceSet.has(connector.source));
-  }, [connectors, isKnowledgeBaseMode, selectedConnectorSources]);
-
-  const selectedConnectorIds = useMemo(() => {
-    if (!isKnowledgeBaseMode) return [];
-    return selectedConnectorRecords.map((connector) => connector.id);
-  }, [isKnowledgeBaseMode, selectedConnectorRecords]);
-
   const hasUploadSelection = useMemo(() => {
     const providedCount = Array.isArray(selectedFiles) ? selectedFiles.length : 0;
     return providedCount > 0 || localSelectedFileObjects.length > 0;
   }, [localSelectedFileObjects, selectedFiles]);
 
+  const selectedConnectorIds = useMemo(() => {
+    if (!isKnowledgeBaseMode) return [];
+    return connectors
+      .filter((connector) => selectedConnectorSources.includes(connector.source))
+      .map((connector) => connector.id);
+  }, [connectors, isKnowledgeBaseMode, selectedConnectorSources]);
+
   const hasKnowledgeBaseSelection = useMemo(() => {
     return selectedFilePaths.length > 0 || selectedConnectorIds.length > 0;
   }, [selectedConnectorIds, selectedFilePaths]);
-
-  const knowledgeBaseFiles = useMemo(() => {
-    if (!isKnowledgeBaseMode) return [];
-    if (localSelectedFileObjects.length > 0) {
-      return localSelectedFileObjects.map((file) => ({
-        id: file.id || file.path || file.name,
-        name: file.name || (file.path ? file.path.split('/').pop() : '') || 'File',
-        path: file.path || file.id || file.name,
-      }));
-    }
-
-    return selectedFilePaths.map((path) => ({
-      id: path,
-      name: (path.split('/').pop() || path) || 'File',
-      path,
-    }));
-  }, [isKnowledgeBaseMode, localSelectedFileObjects, selectedFilePaths]);
 
   const loadConnectors = useCallback(async () => {
     if (!isKnowledgeBaseMode || !isOpen) return;
@@ -143,20 +136,32 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   }, [isKnowledgeBaseMode, loadConnectors]);
 
   useEffect(() => {
+    if (isKnowledgeBaseMode && Array.isArray(selectedKnowledgeBaseFilePaths)) {
+      setSelectedFilePaths(selectedKnowledgeBaseFilePaths);
+      setLocalSelectedFileObjects(
+        selectedKnowledgeBaseFilePaths.map((path) => ({
+          path,
+          id: path,
+          name: path.split("/").pop() || path,
+        }))
+      );
+    }
+  }, [isKnowledgeBaseMode, selectedKnowledgeBaseFilePaths]);
+
+  useEffect(() => {
+    if (isKnowledgeBaseMode && Array.isArray(externalConnectorSources)) {
+      setSelectedConnectorSources(externalConnectorSources);
+    }
+  }, [externalConnectorSources, isKnowledgeBaseMode]);
+
+  useEffect(() => {
     if (!isOpen) {
       setLocalSelectedFileObjects([]);
       setSelectedFilePaths([]);
       setSelectedConnectorSources([]);
-      setShowConfirmation(false);
       setActiveTab('smart-drive');
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (showConfirmation && !hasKnowledgeBaseSelection) {
-      setShowConfirmation(false);
-    }
-  }, [showConfirmation, hasKnowledgeBaseSelection]);
 
   const handleKnowledgeBaseImport = () => {
     if (!hasKnowledgeBaseSelection) {
@@ -173,12 +178,37 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       return;
     }
 
-    if (hasConnectors) {
-      const connectorSourcesForTracking: string[] = Array.from(
-        new Set(selectedConnectorRecords.map((connector) => connector.source).filter(Boolean))
-      );
-      trackImportFiles('Connectors', connectorSourcesForTracking);
-    } else if (hasFiles) {
+    const selectedConnectorRecords = connectors.filter((connector) =>
+      selectedConnectorIds.includes(connector.id)
+    );
+
+    const selection: KnowledgeBaseSelection = {
+      filePaths: filesToImport,
+      connectors: selectedConnectorRecords.map(
+        (connector): KnowledgeBaseConnector => ({
+          id: connector.id,
+          name: connector.name,
+          source: connector.source,
+        })
+      ),
+    };
+
+    if (onKnowledgeBaseConfirm) {
+      onKnowledgeBaseConfirm({
+        selection,
+        connectorSources: selectedConnectorRecords.map((connector) => connector.source || "unknown"),
+        connectorIds: selectedConnectorIds,
+      });
+      onImport?.();
+      onClose();
+      return;
+    }
+
+    const { combinedContext, searchParams, connectorSources } = buildKnowledgeBaseContext(selection);
+
+    if (connectorSources.length > 0) {
+      trackImportFiles('Connectors', Array.from(new Set(connectorSources)));
+    } else if (filesToImport.length > 0) {
       const fileExtensionsForTracking: string[] = Array.from(
         new Set(
           filesToImport
@@ -194,38 +224,9 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
             .filter((ext): ext is string => !!ext)
         )
       );
-      trackImportFiles('Files', fileExtensionsForTracking);
-    }
-
-    const combinedContext: any = { timestamp: Date.now() };
-    const searchParams = new URLSearchParams();
-
-    if (hasConnectors && hasFiles) {
-      combinedContext.fromConnectors = true;
-      combinedContext.connectorIds = selectedConnectorIds;
-      combinedContext.connectorSources = selectedConnectorRecords.map((connector) => connector.source || 'unknown');
-      combinedContext.selectedFiles = filesToImport;
-
-      searchParams.set('fromConnectors', 'true');
-      searchParams.set('connectorIds', selectedConnectorIds.join(','));
-      searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-      searchParams.set('selectedFiles', filesToImport.join(','));
-    } else if (hasConnectors) {
-      combinedContext.fromConnectors = true;
-      combinedContext.connectorIds = selectedConnectorIds;
-      combinedContext.connectorSources = selectedConnectorRecords.map((connector) => connector.source || 'unknown');
-
-      searchParams.set('fromConnectors', 'true');
-      searchParams.set('connectorIds', selectedConnectorIds.join(','));
-      searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-    } else if (hasFiles) {
-      combinedContext.fromConnectors = true;
-      combinedContext.selectedFiles = filesToImport;
-      combinedContext.connectorIds = [];
-      combinedContext.connectorSources = [];
-
-      searchParams.set('fromConnectors', 'true');
-      searchParams.set('selectedFiles', filesToImport.join(','));
+      if (fileExtensionsForTracking.length > 0) {
+        trackImportFiles('Files', fileExtensionsForTracking);
+      }
     }
 
     try {
@@ -302,13 +303,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
 
   const handleImport = () => {
     if (isKnowledgeBaseMode) {
-      if (!showConfirmation) {
-        if (!hasKnowledgeBaseSelection) return;
-        setShowConfirmation(true);
-        return;
-      }
       handleKnowledgeBaseImport();
-      return;
     } else {
       handleUploadImport();
     }
@@ -320,10 +315,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     if (!isKnowledgeBaseMode) return undefined;
     return selectedConnectorSources;
   }, [isKnowledgeBaseMode, selectedConnectorSources]);
-
-  const handleAddMore = () => {
-    setShowConfirmation(false);
-  };
 
   if (!isOpen) return null;
 
@@ -350,116 +341,26 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       >
         {/* Title */}
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">
-          {showConfirmation
-            ? t('interface.fromFiles.upload.addMoreOrContinue', 'Would you like to add more files or continue?')
-            : activeTab === 'connectors' 
+          {activeTab === 'connectors' 
             ? t('interface.importFromSmartDrive.selectConnector', 'Select a connector') 
             : t('interface.importFromSmartDrive.selectFile', 'Select a file')}
         </h2>
 
         {/* SmartDrive Connectors Component */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          {showConfirmation ? (
-            <div className="space-y-6">
-              {selectedConnectorRecords.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                    {t('interface.fromFiles.selectedConnectors', 'Selected connectors')}
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedConnectorRecords.map((connector) => (
-                      <div
-                        key={connector.id}
-                        className="flex items-center justify-between text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2 bg-white"
-                      >
-                        <span className="font-medium truncate mr-3">{connector.name}</span>
-                        <span className="text-xs text-gray-500 uppercase">{connector.source}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {knowledgeBaseFiles.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                    {t('interface.fromFiles.selectedFiles', 'Selected files')}
-                  </h3>
-                  <div className="space-y-2">
-                    {knowledgeBaseFiles.map((file) => (
-                      <div
-                        key={file.id}
-                        className="flex items-center justify-between text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2 bg-white"
-                      >
-                        <span className="font-medium truncate mr-3" title={file.name}>
-                          {file.name}
-                        </span>
-                        <span className="text-xs text-gray-500 truncate max-w-[45%]" title={file.path}>
-                          {file.path}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedConnectorRecords.length === 0 && knowledgeBaseFiles.length === 0 && (
-                <div className="text-sm text-gray-500">
-                  {t('interface.fromFiles.noSelections', 'No selections yet.')}
-                </div>
-              )}
-            </div>
-          ) : (
           <SmartDriveConnectors 
             mode="select" 
             onTabChange={handleTabChange} 
             hideStatsBar={true}
             onFileSelect={handleFileSelection}
-              onConnectorSelectionChange={isKnowledgeBaseMode ? setSelectedConnectorSources : undefined}
-              selectedConnectorSources={selectedSourcesForChild}
-              selectionMode={isKnowledgeBaseMode ? 'connectors' : 'none'}
+            onConnectorSelectionChange={isKnowledgeBaseMode ? setSelectedConnectorSources : undefined}
+            selectedConnectorSources={selectedSourcesForChild}
+            selectionMode={isKnowledgeBaseMode ? 'connectors' : 'none'}
           />
-          )}
         </div>
 
         {/* Action buttons */}
         <div className="flex justify-end gap-3 mt-6 flex-shrink-0">
-          {showConfirmation ? (
-            <>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 rounded-md text-sm font-medium"
-                style={{
-                  color: '#0F58F9',
-                  backgroundColor: 'white',
-                  border: '1px solid #0F58F9',
-                }}
-              >
-                {t('interface.importFromSmartDrive.cancel', 'Cancel')}
-              </button>
-              <button
-                onClick={handleAddMore}
-                className="px-4 py-2 rounded-md text-sm font-medium"
-                style={{
-                  color: '#0F58F9',
-                  backgroundColor: 'white',
-                  border: '1px solid #0F58F9',
-                }}
-              >
-                {t('interface.fromFiles.upload.addMoreFiles', 'Add more files')}
-              </button>
-              <button
-                onClick={handleImport}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white"
-                style={{
-                  backgroundColor: '#0F58F9',
-                }}
-              >
-                {t('interface.continue', 'Continue')}
-              </button>
-            </>
-          ) : (
-            <>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-md text-sm font-medium"
@@ -471,7 +372,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
           >
             {t('interface.importFromSmartDrive.cancel', 'Cancel')}
           </button>
-              {showImportButton && (
+          {showImportButton && (
             <button
               onClick={handleImport}
               className="px-4 py-2 rounded-md text-sm font-medium text-white"
@@ -481,8 +382,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
             >
               {t('interface.importFromSmartDrive.import', 'Import')}
             </button>
-              )}
-            </>
           )}
         </div>
       </div>

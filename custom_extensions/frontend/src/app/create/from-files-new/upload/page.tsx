@@ -8,12 +8,24 @@ import { FeedbackButton } from "@/components/ui/feedback-button";
 import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
 import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
 import { BackButton } from "../../components/BackButton";
+import { buildKnowledgeBaseContext, KnowledgeBaseSelection, KnowledgeBaseConnector } from "@/lib/knowledgeBaseSelection";
+import { trackImportFiles } from "@/lib/mixpanelClient";
 
 interface UploadedFile {
   id: string;
   name: string;
   extension: string;
   file: File;
+}
+
+type ReviewItemKind = "knowledge-file" | "knowledge-connector" | "uploaded";
+
+interface ReviewItem {
+  id: string;
+  name: string;
+  extension: string;
+  kind: ReviewItemKind;
+  metadata?: Record<string, any>;
 }
 
 // Delete icon component
@@ -34,6 +46,7 @@ export default function UploadFilesPage() {
   const [showImportOptions, setShowImportOptions] = useState(false);
   const [isSmartDriveModalOpen, setIsSmartDriveModalOpen] = useState(false);
   const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
+  const [knowledgeBaseSelection, setKnowledgeBaseSelection] = useState<KnowledgeBaseSelection | null>(null);
 
   // Load files from previous step on mount
   React.useEffect(() => {
@@ -142,11 +155,244 @@ export default function UploadFilesPage() {
     fileInputRef.current?.click();
   };
 
-  const handleDeleteFile = (id: string) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.id !== id));
+  const saveKnowledgeBaseSelection = React.useCallback(
+    (
+      selection: KnowledgeBaseSelection | null,
+      options?: { track?: boolean }
+    ) => {
+      if (typeof window === "undefined") return;
+
+      if (
+        !selection ||
+        ((selection.filePaths?.length ?? 0) === 0 &&
+          (selection.connectors?.length ?? 0) === 0)
+      ) {
+        setKnowledgeBaseSelection(null);
+        sessionStorage.removeItem("knowledgeBaseSelection");
+        sessionStorage.removeItem("knowledgeBaseSearchParams");
+        sessionStorage.removeItem("combinedContext");
+        return;
+      }
+
+      const connectorMap = new Map<number, KnowledgeBaseConnector>();
+      (selection.connectors || []).forEach((connector) => {
+        if (
+          connector &&
+          typeof connector.id === "number" &&
+          Number.isFinite(connector.id) &&
+          connector.source
+        ) {
+          if (!connectorMap.has(connector.id)) {
+            connectorMap.set(connector.id, connector);
+          }
+        }
+      });
+
+      const context = buildKnowledgeBaseContext({
+        filePaths: selection.filePaths || [],
+        connectors: Array.from(connectorMap.values()),
+      });
+
+      const normalizedConnectors = context.connectorIds
+        .map((id) => connectorMap.get(id))
+        .filter(
+          (connector): connector is KnowledgeBaseConnector => connector !== undefined
+        );
+
+      const normalizedSelection: KnowledgeBaseSelection = {
+        filePaths: context.selectedFiles,
+        connectors: normalizedConnectors,
+      };
+
+      try {
+        sessionStorage.setItem(
+          "knowledgeBaseSelection",
+          JSON.stringify(normalizedSelection)
+        );
+        sessionStorage.setItem(
+          "combinedContext",
+          JSON.stringify(context.combinedContext)
+        );
+        sessionStorage.setItem(
+          "knowledgeBaseSearchParams",
+          context.searchParams.toString()
+        );
+      } catch (error) {
+        console.error("Failed to persist knowledge base selection:", error);
+      }
+
+      if (options?.track) {
+        if (context.connectorSources.length > 0) {
+          trackImportFiles(
+            "Connectors",
+            Array.from(new Set(context.connectorSources))
+          );
+        } else if (context.selectedFiles.length > 0) {
+          const fileExtensionsForTracking: string[] = Array.from(
+            new Set(
+              context.selectedFiles
+                .map((filePath) => {
+                  try {
+                    const name = (filePath.split("/").pop() || filePath).split("?")[0];
+                    const parts = name.split(".");
+                    return parts.length > 1 ? parts.pop()?.toLowerCase() : undefined;
+                  } catch {
+                    return undefined;
+                  }
+                })
+                .filter((ext): ext is string => !!ext)
+            )
+          );
+
+          if (fileExtensionsForTracking.length > 0) {
+            trackImportFiles("Files", fileExtensionsForTracking);
+          }
+        }
+      }
+
+      setKnowledgeBaseSelection(normalizedSelection);
+    },
+    []
+  );
+
+  const reviewItems = React.useMemo<ReviewItem[]>(() => {
+    const items: ReviewItem[] = [];
+
+    if (knowledgeBaseSelection) {
+      knowledgeBaseSelection.filePaths.forEach((path, index) => {
+        const fileName = (path?.split("/")?.pop() || path || "").trim();
+        const hasExtension = fileName.includes(".");
+        const extension = hasExtension
+          ? `.${fileName.split(".").pop()}`
+          : ".file";
+
+        items.push({
+          id: `kb-file-${index}-${path}`,
+          name: fileName || path,
+          extension,
+          kind: "knowledge-file",
+          metadata: { path },
+        });
+      });
+
+      knowledgeBaseSelection.connectors.forEach((connector) => {
+        items.push({
+          id: `kb-connector-${connector.id}`,
+          name: connector.name || connector.source,
+          extension: ".connector",
+          kind: "knowledge-connector",
+          metadata: { connectorId: connector.id },
+        });
+      });
+    }
+
+    uploadedFiles.forEach((file) => {
+      items.push({
+        id: file.id,
+        name: file.name,
+        extension: file.extension,
+        kind: "uploaded",
+        metadata: { fileId: file.id },
+      });
+    });
+
+    return items;
+  }, [knowledgeBaseSelection, uploadedFiles]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const storedSelection = sessionStorage.getItem("knowledgeBaseSelection");
+      if (storedSelection) {
+        const parsed: KnowledgeBaseSelection = JSON.parse(storedSelection);
+        if (parsed) {
+          saveKnowledgeBaseSelection(
+            {
+              filePaths: Array.isArray(parsed.filePaths) ? parsed.filePaths : [],
+              connectors: Array.isArray(parsed.connectors) ? parsed.connectors : [],
+            },
+            { track: false }
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Failed to restore knowledge base selection:", error);
+    }
+  }, [saveKnowledgeBaseSelection]);
+
+  const handleKnowledgeBaseModalConfirm = React.useCallback(
+    (payload: {
+      selection: KnowledgeBaseSelection;
+      connectorSources: string[];
+      connectorIds: number[];
+    }) => {
+      saveKnowledgeBaseSelection(payload.selection, { track: true });
+      setShowImportOptions(false);
+      setIsSmartDriveModalOpen(false);
+    },
+    [saveKnowledgeBaseSelection]
+  );
+
+  const handleDeleteItem = (item: ReviewItem) => {
+    if (item.kind === "knowledge-file" && knowledgeBaseSelection) {
+      const remainingFilePaths = knowledgeBaseSelection.filePaths.filter(
+        (path) => path !== item.metadata?.path
+      );
+      saveKnowledgeBaseSelection(
+        {
+          filePaths: remainingFilePaths,
+          connectors: knowledgeBaseSelection.connectors,
+        },
+        { track: false }
+      );
+      return;
+    }
+
+    if (item.kind === "knowledge-connector" && knowledgeBaseSelection) {
+      const remainingConnectors = knowledgeBaseSelection.connectors.filter(
+        (connector) => connector.id !== item.metadata?.connectorId
+      );
+      saveKnowledgeBaseSelection(
+        {
+          filePaths: knowledgeBaseSelection.filePaths,
+          connectors: remainingConnectors,
+        },
+        { track: false }
+      );
+      return;
+    }
+
+    setUploadedFiles((prev) => prev.filter((file) => file.id !== item.id));
   };
 
   const handleContinue = () => {
+    if (
+      knowledgeBaseSelection &&
+      (knowledgeBaseSelection.filePaths.length > 0 ||
+        knowledgeBaseSelection.connectors.length > 0)
+    ) {
+      const { combinedContext, searchParams } = buildKnowledgeBaseContext(
+        knowledgeBaseSelection
+      );
+
+      try {
+        sessionStorage.setItem("combinedContext", JSON.stringify(combinedContext));
+        sessionStorage.setItem(
+          "knowledgeBaseSelection",
+          JSON.stringify(knowledgeBaseSelection)
+        );
+        sessionStorage.setItem(
+          "knowledgeBaseSearchParams",
+          searchParams.toString()
+        );
+      } catch (error) {
+        console.error("Failed to persist knowledge base context:", error);
+      }
+
+      router.push(`/create/generate?${searchParams.toString()}`);
+      return;
+    }
+
     // Store files metadata in localStorage
     const filesMetadata = uploadedFiles.map(file => ({
       id: file.id,
@@ -268,30 +514,30 @@ export default function UploadFilesPage() {
         <div 
           className={`w-full bg-white rounded-sm border border-[#E0E0E0] shadow-lg flex flex-col min-h-[45px] transition-colors ${
             isDragging ? 'border-[#0F58F9] bg-blue-50' : 'border-gray-300'
-          } ${uploadedFiles.length === 0 ? 'items-center justify-center cursor-pointer' : 'max-h-[150px] overflow-y-auto'}`}
+          } ${reviewItems.length === 0 ? 'items-center justify-center cursor-pointer' : 'max-h-[150px] overflow-y-auto'}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={uploadedFiles.length === 0 ? handleUploadAreaClick : undefined}
+          onClick={reviewItems.length === 0 ? handleUploadAreaClick : undefined}
         >
-          {uploadedFiles.length === 0 ? (
+          {reviewItems.length === 0 ? (
             <p className="text-gray-400 text-lg">
               {t('interface.fromFiles.upload.addYourFiles', 'Add your files')}
             </p>
           ) : (
-            uploadedFiles.map((file, index) => (
+            reviewItems.map((item, index) => (
               <div
-                key={file.id}
+                key={item.id}
                 className={`flex items-center justify-between px-8 py-3 ${
-                  index < uploadedFiles.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
+                  index < reviewItems.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
                 }`}
               >
-                <span className="text-gray-700 font-medium truncate overflow-hidden max-w-[400px]" title={file.name}>
-                  {file.name}
+                <span className="text-gray-700 font-medium truncate overflow-hidden max-w-[400px]" title={item.name}>
+                  {item.name}
                 </span>
                 <div className="flex items-center gap-6 flex-shrink-0">
-                  <span className="text-gray-500 font-medium">{file.extension}</span>
-                  <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
+                  <span className="text-gray-500 font-medium">{item.extension}</span>
+                  <DeleteIcon onClick={() => handleDeleteItem(item)} />
                 </div>
               </div>
             ))
@@ -392,6 +638,10 @@ export default function UploadFilesPage() {
         isOpen={isSmartDriveModalOpen}
         onClose={() => setIsSmartDriveModalOpen(false)}
         onImport={handleSmartDriveImport}
+        mode={knowledgeBaseSelection ? "knowledgeBase" : "upload"}
+        selectedKnowledgeBaseFilePaths={knowledgeBaseSelection?.filePaths}
+        selectedConnectorSources={knowledgeBaseSelection?.connectors.map((connector) => connector.source)}
+        onKnowledgeBaseConfirm={handleKnowledgeBaseModalConfirm}
       />
 
       {/* Import from URL Modal */}
