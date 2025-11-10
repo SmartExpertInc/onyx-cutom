@@ -14,7 +14,7 @@ import {
   FileText,
   ClipboardList
 } from 'lucide-react';
-import { ComponentBasedSlide } from '@/types/slideTemplates';
+import { ComponentBasedSlide, TemplateComponentInfo } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
 
 interface TemplateSelectorProps {
@@ -23,28 +23,6 @@ interface TemplateSelectorProps {
 }
 
 export default function TemplateSelector({ currentSlideCount, onAddSlide }: TemplateSelectorProps) {
-  // Whitelist of template IDs allowed for Video Lessons only
-  const allowedVideoTemplateIds = [
-    'course-overview-slide',
-    'work-life-balance-slide',
-    'phishing-definition-slide',
-    'culture-values-three-columns',  // ✅ Fixed: removed -slide suffix (registry ID)
-    'percent-circles',               // ✅ Fixed: removed -slide suffix (registry ID)
-    'benefits-list-slide',
-    'impact-statements-slide',
-    'dei-methods',                   // ✅ Fixed: removed -slide suffix (registry ID)
-    'company-tools-resources-slide',
-    'ai-pharma-market-growth-slide',
-    'critical-thinking-slide',
-    'benefits-tags-slide',
-    'kpi-update-slide',
-    'phishing-rise-slide',
-    'soft-skills-assessment-slide',
-    'problems-grid',                 // ✅ Fixed: removed -slide suffix (registry ID)
-    'solution-steps-slide',
-    'hybrid-work-best-practices-slide'
-  ];
-
   // Override names for UI to reflect structural layout (Video Lesson only)
   const nameOverrides: Record<string, string> = {
     'course-overview-slide': 'Title + Bullets',
@@ -67,10 +45,21 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'hybrid-work-best-practices-slide': 'Tips List + Illustration'
   };
 
-  // Source all templates, then filter to video-allowed list only
+  const hasAvatarImageField = (template: TemplateComponentInfo) => {
+    const schemaEntries = Object.entries(template.propSchema || {});
+    return schemaEntries.some(([key, def]) => {
+      if (!def || def.type !== 'image') return false;
+      const lowerKey = key.toLowerCase();
+      return lowerKey.includes('avatar') || lowerKey.includes('profile') || lowerKey.includes('actor');
+    });
+  };
+
+  // Source all templates that support avatars (avatarPosition, avatar fields, or explicit avatar templates)
   const availableTemplates = getAllTemplates()
-    .filter(t => allowedVideoTemplateIds.includes(t.id))
-    .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }));
+    .filter(t => !t.id.endsWith('_old'))
+    .filter(t => Boolean(t.avatarPosition) || t.id.startsWith('avatar-') || hasAvatarImageField(t))
+    .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   // Lucide icon overrides to better visualize structure
   const iconOverrides: Record<string, React.ReactNode> = {
