@@ -52,7 +52,6 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                 className="flex h-[70px] w-full gap-1 bg-transparent"
                 style={{
                   borderRadius: '6px',
-                  border: '1px solid #E0E0E0',
                   paddingLeft: '4px',
                   paddingRight: '4px',
                 }}
@@ -60,7 +59,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                 {Array.from({ length: 10 }).map((_, index) => (
                   <div
                     key={index}
-                    className="flex-1 h-full rounded-[4px]"
+                    className="flex-1 h-full rounded-[6px]"
                     style={{
                       background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
                       border: '1px solid #E0E0E0',
