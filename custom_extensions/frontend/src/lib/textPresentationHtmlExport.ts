@@ -628,12 +628,6 @@ const renderPurpleBoxes = (
   `.trim();
 
   let html = `<div style="margin: 16px 0;">`;
-  if ('title' in (purpleBoxContent as Record<string, unknown>) && (purpleBoxContent as any)?.title) {
-    html += `<h2 style="font-size: 18px; font-weight: 600; color: #171718; margin: 0 0 8px 0;">${escapeHtml((purpleBoxContent as any).title)}</h2>`;
-  }
-  if ('description' in (purpleBoxContent as Record<string, unknown>) && (purpleBoxContent as any)?.description) {
-    html += `<p style="font-size: 14px; color: #4B5563; line-height: 1.5; margin: 0 0 16px 0;">${escapeHtml((purpleBoxContent as any).description)}</p>`;
-  }
   html += `<div style="${containerStyle}">`;
   cards.forEach((card) => {
     const titleStyle = `
