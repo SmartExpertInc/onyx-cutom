@@ -155,7 +155,7 @@ export function EmailPasswordForm({
               variant="default"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto !py-3 !px-4 !h-auto w-full shadow-md hover:shadow-xl transition-shadow mt-4 !bg-[#1d4ed8] !text-[#ffffff] !rounded-md"
+              className="mx-auto !py-3 !px-4 !h-auto w-full shadow-md hover:shadow-xl transition-shadow mt-0 !bg-[#1d4ed8] !text-[#ffffff] !rounded-md"
             >
               {isJoin ? "Join" : isSignup ? "Sign Up" : "Sign In"}
             </Button>

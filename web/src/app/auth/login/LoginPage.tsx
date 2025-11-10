@@ -35,7 +35,7 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="mb-6 text-center text-3xl font-bold text-[#0F58F9]">
+            <h2 className="mb-6 text-center text-3xl font-bold text-[#0F58F9] public-sans-font">
               <LoginText />
             </h2>
             <p className="text-center text-[15px] text-gray-900">Enter your email below to create your account</p>
@@ -48,7 +48,7 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="mb-6 text-center text-3xl font-bold text-[#0F58F9]">
+          <h2 className="mb-1 text-center text-3xl font-bold text-[#0F58F9] public-sans-font">
             <LoginText />
           </h2>
           <p className="text-center text-[15px] text-gray-900">Enter your email below to create your account</p>
@@ -66,9 +66,9 @@ export default function LoginPage({
           {authUrl && authTypeMetadata && (
             <>
               <div className="flex items-center w-full my-4">
-                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
-                <span className="px-4 text-gray-900">OR CONTINUE WITH</span>
-                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
+                <div className="flex-grow border-t-2 border-[#E4E4E7]"></div>
+                <span className="px-4 text-[17px] text-gray-900">OR CONTINUE WITH</span>
+                <div className="flex-grow border-t-2 border-[#E4E4E7]"></div>
               </div>
 
               <SignInButton
