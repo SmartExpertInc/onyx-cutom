@@ -112,6 +112,27 @@ export default function VideoRightPanel({
     }),
     [t]
   );
+  const durationOptionTooltips = useMemo<Record<DurationOption, string>>(
+    () => ({
+      Freeze: t(
+        'panels.videoRightPanel.durationFreezeTooltip',
+        'Freeze the last frame of the video until the scene ends'
+      ),
+      Loop: t(
+        'panels.videoRightPanel.durationLoopTooltip',
+        'Loop the video if it ends earlier than the scene'
+      ),
+      Adjust: t(
+        'panels.videoRightPanel.durationAdjustTooltip',
+        'Adjust the video to match the duration of the scene'
+      ),
+      Hide: t(
+        'panels.videoRightPanel.durationHideTooltip',
+        'Hide the video if it ends earlier than the scene'
+      ),
+    }),
+    [t]
+  );
   const [selectedDurationOption, setSelectedDurationOption] = useState<DurationOption>('Loop');
   const [hoveredDurationOption, setHoveredDurationOption] = useState<DurationOption | null>(null);
   const [isDurationMenuOpen, setIsDurationMenuOpen] = useState<boolean>(false);
@@ -347,48 +368,62 @@ export default function VideoRightPanel({
               style={{ borderColor: '#E0E0E0' }}
             >
               {durationOptions.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => {
-                    setSelectedDurationOption(option);
-                    setIsDurationMenuOpen(false);
-                    setHoveredDurationOption(null);
-                  }}
-                  className="flex w-full items-center justify-between rounded px-2 py-1"
-                  style={{
-                    color: '#878787',
-                    backgroundColor: hoveredDurationOption === option ? '#E0E0E0' : 'transparent',
-                  }}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onMouseEnter={() => setHoveredDurationOption(option)}
-                  onMouseLeave={() => setHoveredDurationOption(null)}
-                >
-                  <div className="flex items-center gap-2">
-                    {option === selectedDurationOption && (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M3.5 8.3335L6.16667 11.0002L12.5 4.66683" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                    <span className="text-xs">{durationOptionLabels[option]}</span>
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clipPath="url(#clip0_2114_32588)">
-                      <path d="M7.99967 10.6654V7.9987M7.99967 5.33203H8.00634M14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_2114_32588">
-                        <rect width="16" height="16" fill="white"/>
-                      </clipPath>
-                    </defs>
-                  </svg>
-                </button>
+                <div key={option} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDurationOption(option);
+                      setIsDurationMenuOpen(false);
+                      setHoveredDurationOption(null);
+                    }}
+                    className="flex w-full items-center justify-between rounded px-2 py-1"
+                    style={{
+                      color: '#878787',
+                      backgroundColor: hoveredDurationOption === option ? '#E0E0E0' : 'transparent',
+                    }}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseEnter={() => setHoveredDurationOption(option)}
+                    onMouseLeave={() => setHoveredDurationOption(null)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {option === selectedDurationOption && (
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M3.5 8.3335L6.16667 11.0002L12.5 4.66683" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                      <span className="text-xs">{durationOptionLabels[option]}</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clipPath="url(#clip0_2114_32588)">
+                        <path d="M7.99967 10.6654V7.9987M7.99967 5.33203H8.00634M14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_2114_32588">
+                          <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </button>
+                  {hoveredDurationOption === option && (
+                    <div
+                      className="absolute left-full top-1/2 z-20 ml-2 -translate-y-1/2 rounded px-2 py-1 text-xs"
+                      style={{
+                        backgroundColor: '#878787',
+                        color: '#FFFFFF',
+                        maxWidth: '220px',
+                        whiteSpace: 'normal',
+                      }}
+                    >
+                      {durationOptionTooltips[option]}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}

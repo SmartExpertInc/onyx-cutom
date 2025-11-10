@@ -2025,9 +2025,13 @@ export const en = {
       transparency: "Transparency",
       duration: "Duration",
       durationFreeze: "Freeze",
+      durationFreezeTooltip: "Freeze the last frame of the video until the scene ends",
       durationLoop: "Loop",
+      durationLoopTooltip: "Loop the video if it ends earlier than the scene",
       durationAdjust: "Adjust",
+      durationAdjustTooltip: "Adjust the video to match the duration of the scene",
       durationHide: "Hide",
+      durationHideTooltip: "Hide the video if it ends earlier than the scene",
       sound: "Sound"
     },
     musicRightPanel: {

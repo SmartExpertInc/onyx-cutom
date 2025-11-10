@@ -2140,9 +2140,13 @@ export const es = {
       transparency: "Transparencia",
       duration: "Duración",
       durationFreeze: "Congelar",
+      durationFreezeTooltip: "Congela el último fotograma del vídeo hasta que termine la escena",
       durationLoop: "Repetir",
+      durationLoopTooltip: "Repite el vídeo si termina antes que la escena",
       durationAdjust: "Ajustar",
+      durationAdjustTooltip: "Ajusta el vídeo para que coincida con la duración de la escena",
       durationHide: "Ocultar",
+      durationHideTooltip: "Oculta el vídeo si termina antes que la escena",
       sound: "Sonido"
     },
     musicRightPanel: {

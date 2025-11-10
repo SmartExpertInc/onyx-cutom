@@ -2125,9 +2125,13 @@ export const uk = {
       transparency: "Прозорість",
       duration: "Тривалість",
       durationFreeze: "Зафіксувати",
+      durationFreezeTooltip: "Заморозьте останній кадр відео до завершення сцени",
       durationLoop: "Зациклити",
+      durationLoopTooltip: "Зацикліть відео, якщо воно завершується раніше сцени",
       durationAdjust: "Налаштувати",
+      durationAdjustTooltip: "Підлаштуйте відео під тривалість сцени",
       durationHide: "Приховати",
+      durationHideTooltip: "Приховуйте відео, якщо воно завершується раніше сцени",
       sound: "Звук"
     },
     musicRightPanel: {

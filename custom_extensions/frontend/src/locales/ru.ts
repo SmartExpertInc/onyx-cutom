@@ -2120,9 +2120,13 @@ export const ru = {
       transparency: "Прозрачность",
       duration: "Длительность",
       durationFreeze: "Заморозить",
+      durationFreezeTooltip: "Зафиксируйте последний кадр видео до конца сцены",
       durationLoop: "Зациклить",
+      durationLoopTooltip: "Зациклите видео, если оно заканчивается раньше сцены",
       durationAdjust: "Настроить",
+      durationAdjustTooltip: "Подгоните видео под длительность сцены",
       durationHide: "Скрыть",
+      durationHideTooltip: "Скрывайте видео, если оно заканчивается раньше сцены",
       sound: "Звук"
     },
     musicRightPanel: {
