@@ -47,6 +47,15 @@ export default function SceneTimeline({
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>('');
 
+  // Helper function to strip HTML tags from rich-text titles
+  const stripHtmlTags = (html: string): string => {
+    if (!html) return '';
+    // Create a temporary div to parse HTML and extract plain text
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   // Function to get scene rectangle dimensions based on aspect ratio
   const getSceneRectangleStyles = () => {
     const baseHeight = 64; // 16 * 4 (h-16)
@@ -107,7 +116,8 @@ export default function SceneTimeline({
       // Handle component-based slide deck
       return componentBasedSlideDeck.slides.map((slide, index) => ({
         id: slide.slideId,
-        name: slide.props?.title || '',
+        // ✅ Use slideTitle if available (plain text), otherwise strip HTML from props.title
+        name: slide.slideTitle || stripHtmlTags(slide.props?.title as string || '') || `Slide ${slide.slideNumber}`,
         order: slide.slideNumber,
         slideData: slide
       }));

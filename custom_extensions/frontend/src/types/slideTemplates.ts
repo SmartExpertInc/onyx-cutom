@@ -63,6 +63,7 @@ export type TemplateRegistry = Record<string, TemplateComponentInfo>;
 export interface ComponentBasedSlide {
   slideId: string;
   slideNumber: number;
+  slideTitle?: string; // Plain-text title for timeline/navigation (independent from props.title)
   templateId: string;
   props: Record<string, unknown>;
   voiceoverText?: string; // Optional voiceover text for video lessons

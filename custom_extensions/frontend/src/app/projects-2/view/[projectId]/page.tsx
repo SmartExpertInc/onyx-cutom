@@ -87,6 +87,35 @@ export default function Projects2ViewPage() {
 
   // Debug v1/v2 toggle removed; always using v2
 
+  // ✅ NEW: Initialize slideTitle for all slides on load (decouple from props.title)
+  useEffect(() => {
+    if (componentBasedSlideDeck) {
+      let needsUpdate = false;
+      const stripHtmlTags = (html: string): string => {
+        if (!html) return '';
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+
+      const updatedSlides = componentBasedSlideDeck.slides.map(slide => {
+        if (!slide.slideTitle) {
+          needsUpdate = true;
+          const plainTitle = stripHtmlTags(slide.props?.title as string || '') || `Slide ${slide.slideNumber}`;
+          console.log(`🔧 Initializing slideTitle for ${slide.slideId}: "${plainTitle}"`);
+          return { ...slide, slideTitle: plainTitle };
+        }
+        return slide;
+      });
+
+      if (needsUpdate) {
+        const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+        setComponentBasedSlideDeck(updatedDeck);
+        saveVideoLessonData(updatedDeck);
+      }
+    }
+  }, [componentBasedSlideDeck?.slides?.length]); // Only run when slide count changes or initial load
+
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     console.log('🔍 handleAddSlide called with:', {
@@ -97,11 +126,19 @@ export default function Projects2ViewPage() {
     });
 
     if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
-      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility
+      // ✅ Helper to strip HTML for plain-text slideTitle
+      const stripHtmlTags = (html: string): string => {
+        if (!html) return '';
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+
+      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility (plain text, no HTML)
       // This matches the golden reference implementation in SmartSlideDeckViewer
       const slideWithBackendCompat: any = {
         ...newSlide,
-        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
+        slideTitle: stripHtmlTags((typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`),
         slideNumber: componentBasedSlideDeck.slides.length + 1
       };
 
@@ -226,6 +263,21 @@ export default function Projects2ViewPage() {
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
     setActiveComponent('templates');
+  };
+
+  // ✅ NEW: Function to handle scene/slide title rename (independent from props.title)
+  const handleSceneRename = (sceneId: string, newName: string) => {
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      const updatedSlides = componentBasedSlideDeck.slides.map(slide => 
+        slide.slideId === sceneId 
+          ? { ...slide, slideTitle: newName } // Only update slideTitle, not props.title
+          : slide
+      );
+      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+      setComponentBasedSlideDeck(updatedDeck);
+      saveVideoLessonData(updatedDeck);
+      console.log(`✏️ Scene title renamed: ${sceneId} → "${newName}"`);
+    }
   };
 
   // NEW: Function to handle text changes (for Script component)
@@ -968,6 +1020,7 @@ export default function Projects2ViewPage() {
             aspectRatio={aspectRatio}
             onAddScene={() => {}} // Disabled for now
             onMenuClick={handleMenuClick}
+            onSceneRename={handleSceneRename}
             videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             onSlideSelect={handleSlideSelect}
