@@ -131,7 +131,7 @@ export const ProblemsGridSlideTemplate_old: React.FC<ProblemsGridSlideProps & { 
               {isEditable && editCard && editCard.idx===i && editCard.field==='body' ? (
                 <ImprovedInlineEditor initialValue={c.body} multiline={true} onSave={(v)=>{ const next=[...cards]; next[i]={ ...next[i], body:v }; onUpdate&&onUpdate({ cards: next }); setEditCard(null); }} onCancel={()=>setEditCard(null)} style={inline(cardBody)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'body' })} style={{ ...cardBody, cursor: isEditable ? 'pointer':'default' }}>{c.body}</div>
+                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'body' })} style={{ ...cardoByd, cursor: isEditable ? 'pointer':'default' }}>{c.body}</div>
               )}
             </div>
           </div>

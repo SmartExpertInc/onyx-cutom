@@ -250,6 +250,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           {/* Main title */}
           <div style={{
             fontSize: '48px',
+            width: '75%',
             color: '#FFFFFF',
             marginBottom: '10px',
             lineHeight: '1.1',
@@ -273,8 +274,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   fontFamily: "'Lora', serif",
                   width: '100%',
                   height: '100%',
-                  minHeight: '65px',
-                  maxHeight: '65px'
                 }}
               />
             ) : (
@@ -292,8 +291,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   color: '#FFFFFF',
                   lineHeight: '1.1',
                   fontFamily: "'Lora', serif",
-                  minHeight: '65px',
-                  maxHeight: '65px',
                   overflow: 'hidden'
                 }}
               >
