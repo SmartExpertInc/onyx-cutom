@@ -88,7 +88,7 @@ export default function ShapeRightPanel({
   mediaType = 'image',
   rightPanelRef,
 }: ShapeRightPanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedAlignment, setSelectedAlignment] = useState<'left' | 'center' | 'right'>('center');
   const [selectedLayer, setSelectedLayer] = useState<'toBack' | 'backward' | 'forward' | 'toFront'>('backward');
   const [positionX, setPositionX] = useState<string>('150');
@@ -228,7 +228,12 @@ export default function ShapeRightPanel({
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3.99967 1.33203V10.6654C3.99967 11.019 4.14015 11.3581 4.3902 11.6082C4.64025 11.8582 4.97939 11.9987 5.33301 11.9987H14.6663M11.9997 14.6654V5.33203C11.9997 4.97841 11.8592 4.63927 11.6091 4.38922C11.3591 4.13917 11.02 3.9987 10.6663 3.9987H1.33301" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.imageRightPanel.crop', 'Crop')}</span>
+          <span
+            className="text-xs"
+            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '10px' }}
+          >
+            {t('panels.imageRightPanel.crop', 'Crop')}
+          </span>
         </button>
         <button
           className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
@@ -237,7 +242,12 @@ export default function ShapeRightPanel({
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 8C2 6.4087 2.63214 4.88258 3.75736 3.75736C4.88258 2.63214 6.4087 2 8 2C9.67737 2.00631 11.2874 2.66082 12.4933 3.82667L14 5.33333M14 5.33333V2M14 5.33333H10.6667M14 8C14 9.5913 13.3679 11.1174 12.2426 12.2426C11.1174 13.3679 9.5913 14 8 14C6.32263 13.9937 4.71265 13.3392 3.50667 12.1733L2 10.6667M2 10.6667H5.33333M2 10.6667V14" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.imageRightPanel.replace', 'Replace')}</span>
+          <span
+            className="text-xs"
+            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '10px' }}
+          >
+            {t('panels.imageRightPanel.replace', 'Replace')}
+          </span>
         </button>
       </div>
 
