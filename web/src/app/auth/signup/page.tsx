@@ -70,8 +70,8 @@ const Page = async (props: {
 
       <div className="absolute top-10x w-full"></div>
       <div className="flex w-full flex-col justify-center">
-        <h2 className="text-center text-3xl font-bold text-gray-900 mb-6">
-          {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
+        <h2 className="text-center text-3xl font-bold text-[#0F58F9] mb-6 font-public-sans">
+          {cloud ? "Create an account" : "Sign Up for Contentbuilder"}
         </h2>
         {/* {cloud && (
           <>
@@ -91,7 +91,7 @@ const Page = async (props: {
           <div className="w-full justify-center">
             <div className="flex items-center w-full my-4">
               <div className="flex-grow border-t-2 !border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
-              <span className="px-4 text-gray-900 dark:text-gray-900">or</span>
+              <span className="px-4 text-gray-900 dark:text-gray-900 text-[13px]">OR CONTINUE WITH</span>
               <div className="flex-grow border-t-2 border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
             </div>
             <SignInButton authorizeUrl={authUrl} authType="cloud" />

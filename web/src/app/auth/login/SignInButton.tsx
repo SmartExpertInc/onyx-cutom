@@ -46,7 +46,7 @@ export function SignInButton({
 
   return (
       <a
-        className="mx-auto mb-4 mt-6 py-3 px-4 w-full flex rounded-md cursor-pointer hover:shadow-md transition-all border border-[#0F58F9] bg-[#ffffff] text-gray-900"
+        className="mx-auto mb-4 mt-6 py-2 px-4 w-full flex rounded-md cursor-pointer hover:shadow-md transition-all border border-[#0F58F9] bg-[#ffffff] text-gray-900"
         href={finalAuthorizeUrl}
       >
       {button}

@@ -16,14 +16,16 @@ export default function AuthFlowContainer({
       </div>
       
       {/* Right side - Auth Form */}
-      <div className="flex items-center justify-center">
-        {authState === "login" && (
-          <Link href="/auth/signup" className="p-2 !bg-white text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign up</Link>
-        )}
-        {authState === "signup" && (
-          <Link href="/auth/login" className="p-2 !bg-white text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign in</Link>
-        )}
-        <div className="flex-1 flex items-center justify-center pl-4 pr-[120px] py-8">
+      <div className="flex-1 flex flex-col pr-[120px] py-8">
+        <div className="flex justify-end mb-6">
+          {authState === "login" && (
+            <Link href="/auth/signup" className="px-4 py-2 text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign up</Link>
+          )}
+          {authState === "signup" && (
+            <Link href="/auth/login" className="px-4 py-2 text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign in</Link>
+          )}
+        </div>
+        <div className="flex-1 flex items-center justify-center pl-4">
           <div className="w-full max-w-md gap-y-4 flex items-center flex-col gap-y-2 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
             <div className="w-full">{children}</div>
             <p className="text-[15px] text-[#4D4D4D]">By clicking continue, you agree to our <br />
