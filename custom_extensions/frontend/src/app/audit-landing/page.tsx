@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Sparkles, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,6 +78,36 @@ export default function AuditLandingPage() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const carouselRef = React.useRef<HTMLDivElement>(null);
+  const mobileMenuRef = React.useRef<HTMLDivElement>(null);
+  const toggleButtonRef = React.useRef<HTMLButtonElement>(null);
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return;
+    }
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        mobileMenuRef.current?.contains(target) ||
+        toggleButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIsMobileMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!carouselRef.current) return;
@@ -138,29 +168,23 @@ export default function AuditLandingPage() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-10 pr-35">
-          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
-              Solutions
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
-              </svg>
+          <button
+            className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font"
+            onClick={() => scrollToSection("ai-studio")}
+          >
+             How It Works
           </button>
           <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
-              Product
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
-              </svg>
+             AI Agent
           </button>
           <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
-              Customers
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="white" fill-opacity="0.6"/>
-              </svg>
+             Results
           </button>
           <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
-              Enterprise
+            FAQ
           </button>
           <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
-              Pricing
+            Pricing
           </button>
         </nav>
 
@@ -180,6 +204,7 @@ export default function AuditLandingPage() {
         <button 
           className="lg:hidden text-white"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          ref={toggleButtonRef}
         >
           {isMobileMenuOpen ? (
             <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -213,28 +238,35 @@ export default function AuditLandingPage() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden w-full px-6 py-6 bg-white/70 backdrop-blur-sm absolute top-20 z-20" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
+        <div
+          ref={mobileMenuRef}
+          className="lg:hidden w-full px-6 py-6 bg-white/70 backdrop-blur-sm absolute top-20 z-20"
+          style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
+        >
           <nav className="flex flex-col gap-4">
-            <button className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
-              Solutions
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="currentColor" fill-opacity="0.6"/>
-              </svg>
+            <button
+              className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100"
+              onClick={() => scrollToSection("ai-studio")}
+            >
+              How It Works
             </button>
-            <button className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
-              Product
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="currentColor" fill-opacity="0.6"/>
-              </svg>
+            <button 
+              className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100"
+              onClick={() => scrollToSection("ai-agent")}
+            >
+              AI Agent
             </button>
-            <button className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
-              Customers
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.02547 4.74069C3.75201 5.08644 3.24799 5.08644 2.97453 4.74069L0.159847 1.18204C-0.211416 0.712643 0.105389 -5.55122e-08 0.68532 0L6.31468 5.38854e-07C6.89461 5.94366e-07 7.21142 0.712645 6.84015 1.18204L4.02547 4.74069Z" fill="currentColor" fill-opacity="0.6"/>
-              </svg>
+            <button 
+              className="text-black text-sm flex items-center justify-between hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100"
+              onClick={() => scrollToSection("results")}
+            >
+              Results
             </button>
-            <button className="text-black text-sm text-left hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
-              Enterprise
+            <button 
+              className="text-black text-sm text-left hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100"
+              onClick={() => scrollToSection("faq")}
+            >
+              FAQ
             </button>
             <button className="text-black text-sm text-left hover:text-[#0F58F9] transition-colors sora-font py-2 border-b border-gray-100">
               Pricing
@@ -354,7 +386,7 @@ export default function AuditLandingPage() {
       </main>
 
       {/* AI Studio Section */}
-      <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10 bg-[#FCFDFF]">
+      <section id="ai-studio" className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10 bg-[#FCFDFF]">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
           <h2 className="text-[30px] lg:text-[42px] font-semibold leading-tight md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center sora-font mb-5">
@@ -721,7 +753,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Update in minutes */}
-      <section className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
+      <section id="ai-agent" className="w-full bg-white py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Main Heading */}
           <h2 className="max-w-5xl text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] font-semibold text-left md:text-center lg:text-center xl:text-center mb-4 sora-font">
@@ -860,7 +892,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* Trusted By Section */}
-      <section className="w-full bg-[#FCFDFF] py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
+      <section id="results" className="w-full bg-[#FCFDFF] py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           {/* Heading */}
           <h2 className="w-full text-left md:text-center text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] mb-16 sora-font self-start md:self-center">
@@ -1309,7 +1341,7 @@ export default function AuditLandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
+      <section id="faq" className="w-full py-14 md:py-20 px-5 md:px-8 lg:px-8 xl:px-8 relative z-10" style={{ backgroundColor: '#F5F8FF' }}>
         <div className="max-w-5xl mx-auto">
           {/* Heading */}
           <h2 className="text-[30px] lg:text-[42px] font-semibold leading-none md:leading-[1.2] text-left md:text-center lg:text-center xl:text-center mb-12 sora-font" style={{ color: '#020617' }}>
