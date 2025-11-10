@@ -125,7 +125,6 @@ export default function FromFilesNew() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSmartDriveModalOpen, setIsSmartDriveModalOpen] = useState(false);
-  const [knowledgeBaseMode, setKnowledgeBaseMode] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleUrlImport = (urls: string[]) => {
@@ -230,10 +229,7 @@ export default function FromFilesNew() {
               t('interface.fromFiles.anyFileFromSmartdrive', 'Any file from smartdrive'),
               t('interface.fromFiles.allFilesFromConnectors', 'All files from connectors')
             ]}
-            onClick={() => {
-              setKnowledgeBaseMode(true);
-              setIsSmartDriveModalOpen(true);
-            }}
+            onClick={() => setIsSmartDriveModalOpen(true)}
           />
 
           <ImportCard
@@ -259,12 +255,8 @@ export default function FromFilesNew() {
       {/* Import from SmartDrive Modal */}
       <ImportFromSmartDriveModal
         isOpen={isSmartDriveModalOpen}
-        onClose={() => {
-          setIsSmartDriveModalOpen(false);
-          setKnowledgeBaseMode(false);
-        }}
+        onClose={() => setIsSmartDriveModalOpen(false)}
         onImport={handleSmartDriveImport}
-        enableKnowledgeBaseFlow={knowledgeBaseMode}
       />
 
       <div className="relative z-[60]">
