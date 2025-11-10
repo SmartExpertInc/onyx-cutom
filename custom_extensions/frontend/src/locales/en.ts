@@ -2069,6 +2069,19 @@ export const en = {
       libraryFullToggle: "Library full",
       noFilesYet: "No files yet",
       dragAndDrop: "Drag and drop files here or click \"Upload\" to add them.",
+      aiAgent: {
+        badge: "AI Agent",
+        description: "Agent uses credits to deliver advanced AI editing.",
+        learnMore: "Learn more",
+        promptTitle: "Get started with a prompt",
+        prompts: {
+          modernOffice: "Modern office setting",
+          pharmaceuticalLaboratory: "Pharmaceutical laboratory",
+          constructionSite: "Construction site"
+        },
+        promptPlaceholder: "Describe your image...",
+        send: "Send"
+      },
       uploadFiles: "Upload files"
     }
   },

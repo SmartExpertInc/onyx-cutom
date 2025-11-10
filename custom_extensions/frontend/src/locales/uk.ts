@@ -2169,6 +2169,19 @@ export const uk = {
       libraryFullToggle: "Бібліотека заповнена",
       noFilesYet: "Файлів ще немає",
       dragAndDrop: "Перетягніть файли сюди або натисніть \"Завантажити\", щоб додати їх.",
+      aiAgent: {
+        badge: "AI-агент",
+        description: "Агент використовує кредити для розширеного AI-редагування.",
+        learnMore: "Докладніше",
+        promptTitle: "Почніть з підказки",
+        prompts: {
+          modernOffice: "Сучасний офіс",
+          pharmaceuticalLaboratory: "Фармацевтична лабораторія",
+          constructionSite: "Будівельний майданчик"
+        },
+        promptPlaceholder: "Опишіть своє зображення...",
+        send: "Надіслати"
+      },
       uploadFiles: "Завантажити файли"
     }
   },

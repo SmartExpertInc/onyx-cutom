@@ -2164,6 +2164,19 @@ export const ru = {
       libraryFullToggle: "Библиотека полная",
       noFilesYet: "Файлов пока нет",
       dragAndDrop: "Перетащите файлы сюда или нажмите \"Загрузить\", чтобы добавить их.",
+      aiAgent: {
+        badge: "AI-агент",
+        description: "Агент использует кредиты для расширенного AI-редактирования.",
+        learnMore: "Узнать больше",
+        promptTitle: "Начните с подсказки",
+        prompts: {
+          modernOffice: "Современный офис",
+          pharmaceuticalLaboratory: "Фармацевтическая лаборатория",
+          constructionSite: "Строительная площадка"
+        },
+        promptPlaceholder: "Опишите ваше изображение...",
+        send: "Отправить"
+      },
       uploadFiles: "Загрузить файлы"
     }
   },

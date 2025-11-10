@@ -37,6 +37,36 @@ export default function Media({
   const [isPlayEverywhereEnabled, setIsPlayEverywhereEnabled] = useState<boolean>(true);
   const onOptionSelectRef = useRef<typeof onOptionSelect>(onOptionSelect);
 
+  const aiAgentBadge = t('panels.media.aiAgent.badge', 'AI Agent');
+  const aiAgentDescription = t(
+    'panels.media.aiAgent.description',
+    'Agent uses credits to deliver advanced AI editing.'
+  );
+  const aiAgentLearnMore = t('panels.media.aiAgent.learnMore', 'Learn more');
+  const aiAgentPromptTitle = t(
+    'panels.media.aiAgent.promptTitle',
+    'Get started with a prompt'
+  );
+  const aiAgentPromptPlaceholder = t(
+    'panels.media.aiAgent.promptPlaceholder',
+    'Describe your image...'
+  );
+  const aiAgentSend = t('panels.media.aiAgent.send', 'Send');
+  const aiAgentPrompts = {
+    modernOffice: t(
+      'panels.media.aiAgent.prompts.modernOffice',
+      'Modern office setting'
+    ),
+    pharmaceuticalLaboratory: t(
+      'panels.media.aiAgent.prompts.pharmaceuticalLaboratory',
+      'Pharmaceutical laboratory'
+    ),
+    constructionSite: t(
+      'panels.media.aiAgent.prompts.constructionSite',
+      'Construction site'
+    ),
+  };
+
   useEffect(() => {
     onOptionSelectRef.current = onOptionSelect;
   }, [onOptionSelect]);
@@ -795,16 +825,16 @@ export default function Media({
                 className="inline-flex items-center px-2.5 py-0.5 rounded-sm w-fit"
                 style={{ backgroundColor: '#F2CCFA', fontSize: '12px', color: '#D60AFF' }}
               >
-                AI Agent
+                {aiAgentBadge}
               </div>
               
               {/* Text rows with reduced spacing */}
               <div className="mt-2 flex flex-col gap-0.5">
                 <p style={{ fontSize: '8px', color: '#878787', lineHeight: '1.2' }}>
-                  Agent uses credits to deliver advanced AI editing.
+                  {aiAgentDescription}
                 </p>
                 <p className="cursor-pointer" style={{ fontSize: '8px', color: '#719AF5', lineHeight: '1.2' }}>
-                  Learn more
+                  {aiAgentLearnMore}
                 </p>
               </div>
               
@@ -812,7 +842,7 @@ export default function Media({
               <div className="flex-1 flex flex-col items-center justify-center">
                 {/* Title */}
                 <h3 className="mb-5 font-semibold" style={{ fontSize: '16px', color: '#171718' }}>
-                  Get started with a prompt
+                  {aiAgentPromptTitle}
                 </h3>
                 
                 {/* Prompt buttons */}
@@ -820,7 +850,7 @@ export default function Media({
                   {/* Button 1 */}
                   <button 
                     onClick={() => {
-                      const text = 'Modern office setting';
+                      const text = aiAgentPrompts.modernOffice;
                       let newPrompts;
                       if (selectedPrompts.includes(text)) {
                         newPrompts = selectedPrompts.filter(p => p !== text);
@@ -831,21 +861,21 @@ export default function Media({
                       setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
                     }}
                     className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
-                    style={{ 
+                    style={{
                       borderColor: '#878787',
-                      backgroundColor: selectedPrompts.includes('Modern office setting') ? '#FCE7FE' : 'transparent'
+                      backgroundColor: selectedPrompts.includes(aiAgentPrompts.modernOffice) ? '#FCE7FE' : 'transparent'
                     }}
                   >
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.4209 1.6875C3.68006 2.52398 3.99032 3.1072 4.44531 3.56152H4.44629C4.90081 4.01483 5.48355 4.32394 6.31934 4.58301C5.59903 4.80567 5.06709 5.0662 4.64258 5.4248L4.44531 5.60547C3.99066 6.05989 3.6816 6.64318 3.42188 7.47949C3.16282 6.64304 2.85308 6.06044 2.39746 5.60547C1.94251 5.15164 1.35858 4.84226 0.521484 4.58301C1.3585 4.32446 1.94203 4.01623 2.39746 3.56152C2.85218 3.10715 3.16115 2.52374 3.4209 1.6875ZM6.59082 0.828125C6.6624 0.948534 6.74563 1.05735 6.84375 1.15527C6.94083 1.25214 7.04891 1.33345 7.16797 1.4043C7.04821 1.47546 6.94029 1.55886 6.84277 1.65625C6.74517 1.75376 6.66209 1.86172 6.59082 1.98145C6.51947 1.86169 6.43752 1.75275 6.33984 1.65527C6.24227 1.55792 6.13344 1.47637 6.01367 1.40527C6.13368 1.33403 6.24314 1.25282 6.34082 1.15527C6.43853 1.05768 6.5195 0.947973 6.59082 0.828125Z" stroke="#878787" strokeWidth="0.612448"/>
                     </svg>
-                    <span style={{ fontSize: '12px', color: '#878787' }}>Modern office setting</span>
+                    <span style={{ fontSize: '12px', color: '#878787' }}>{aiAgentPrompts.modernOffice}</span>
                   </button>
                   
                   {/* Button 2 */}
                   <button 
                     onClick={() => {
-                      const text = 'Pharmaceutical laboratory';
+                      const text = aiAgentPrompts.pharmaceuticalLaboratory;
                       let newPrompts;
                       if (selectedPrompts.includes(text)) {
                         newPrompts = selectedPrompts.filter(p => p !== text);
@@ -856,21 +886,21 @@ export default function Media({
                       setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
                     }}
                     className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
-                    style={{ 
+                    style={{
                       borderColor: '#878787',
-                      backgroundColor: selectedPrompts.includes('Pharmaceutical laboratory') ? '#FCE7FE' : 'transparent'
+                      backgroundColor: selectedPrompts.includes(aiAgentPrompts.pharmaceuticalLaboratory) ? '#FCE7FE' : 'transparent'
                     }}
                   >
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.4209 1.6875C3.68006 2.52398 3.99032 3.1072 4.44531 3.56152H4.44629C4.90081 4.01483 5.48355 4.32394 6.31934 4.58301C5.59903 4.80567 5.06709 5.0662 4.64258 5.4248L4.44531 5.60547C3.99066 6.05989 3.6816 6.64318 3.42188 7.47949C3.16282 6.64304 2.85308 6.06044 2.39746 5.60547C1.94251 5.15164 1.35858 4.84226 0.521484 4.58301C1.3585 4.32446 1.94203 4.01623 2.39746 3.56152C2.85218 3.10715 3.16115 2.52374 3.4209 1.6875ZM6.59082 0.828125C6.6624 0.948534 6.74563 1.05735 6.84375 1.15527C6.94083 1.25214 7.04891 1.33345 7.16797 1.4043C7.04821 1.47546 6.94029 1.55886 6.84277 1.65625C6.74517 1.75376 6.66209 1.86172 6.59082 1.98145C6.51947 1.86169 6.43752 1.75275 6.33984 1.65527C6.24227 1.55792 6.13344 1.47637 6.01367 1.40527C6.13368 1.33403 6.24314 1.25282 6.34082 1.15527C6.43853 1.05768 6.5195 0.947973 6.59082 0.828125Z" stroke="#878787" strokeWidth="0.612448"/>
                     </svg>
-                    <span style={{ fontSize: '12px', color: '#878787' }}>Pharmaceutical laboratory</span>
+                    <span style={{ fontSize: '12px', color: '#878787' }}>{aiAgentPrompts.pharmaceuticalLaboratory}</span>
                   </button>
                   
                   {/* Button 3 */}
                   <button 
                     onClick={() => {
-                      const text = 'Construction site';
+                      const text = aiAgentPrompts.constructionSite;
                       let newPrompts;
                       if (selectedPrompts.includes(text)) {
                         newPrompts = selectedPrompts.filter(p => p !== text);
@@ -881,15 +911,15 @@ export default function Media({
                       setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
                     }}
                     className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
-                    style={{ 
+                    style={{
                       borderColor: '#878787',
-                      backgroundColor: selectedPrompts.includes('Construction site') ? '#FCE7FE' : 'transparent'
+                      backgroundColor: selectedPrompts.includes(aiAgentPrompts.constructionSite) ? '#FCE7FE' : 'transparent'
                     }}
                   >
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.4209 1.6875C3.68006 2.52398 3.99032 3.1072 4.44531 3.56152H4.44629C4.90081 4.01483 5.48355 4.32394 6.31934 4.58301C5.59903 4.80567 5.06709 5.0662 4.64258 5.4248L4.44531 5.60547C3.99066 6.05989 3.6816 6.64318 3.42188 7.47949C3.16282 6.64304 2.85308 6.06044 2.39746 5.60547C1.94251 5.15164 1.35858 4.84226 0.521484 4.58301C1.3585 4.32446 1.94203 4.01623 2.39746 3.56152C2.85218 3.10715 3.16115 2.52374 3.4209 1.6875ZM6.59082 0.828125C6.6624 0.948534 6.74563 1.05735 6.84375 1.15527C6.94083 1.25214 7.04891 1.33345 7.16797 1.4043C7.04821 1.47546 6.94029 1.55886 6.84277 1.65625C6.74517 1.75376 6.66209 1.86172 6.59082 1.98145C6.51947 1.86169 6.43752 1.75275 6.33984 1.65527C6.24227 1.55792 6.13344 1.47637 6.01367 1.40527C6.13368 1.33403 6.24314 1.25282 6.34082 1.15527C6.43853 1.05768 6.5195 0.947973 6.59082 0.828125Z" stroke="#878787" strokeWidth="0.612448"/>
                     </svg>
-                    <span style={{ fontSize: '12px', color: '#878787' }}>Construction site</span>
+                    <span style={{ fontSize: '12px', color: '#878787' }}>{aiAgentPrompts.constructionSite}</span>
                   </button>
                 </div>
               </div>
@@ -907,8 +937,8 @@ export default function Media({
                       setSelectedPrompts([]);
                     }}
                     className="w-full px-3 mt-3 mb-4 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
-                    placeholder="Describe your image..."
-                    style={{ fontSize: '12px', color: '#171718', height: '50px', paddingBottom: '32px' }}
+                  placeholder={aiAgentPromptPlaceholder}
+                  style={{ fontSize: '12px', color: '#171718', height: '50px', paddingBottom: '32px' }}
                   />
                   <style jsx>{`
                     textarea::placeholder {
@@ -929,7 +959,7 @@ export default function Media({
                     className="absolute bottom-2 right-2 flex items-center gap-1.5 px-1.5 py-0.5 border rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 disabled:hover:bg-transparent"
                     style={{ borderColor: '#D60AFF', boxShadow: '0px 1px 2px 0px #0000000D' }}
                   >
-                    <span style={{ fontSize: '10px', color: '#D60AFF' }}>Send</span>
+                  <span style={{ fontSize: '10px', color: '#D60AFF' }}>{aiAgentSend}</span>
                     <svg width="10" height="10" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <g clipPath="url(#clip0_2048_69344)">
                         <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="#D60AFF" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
