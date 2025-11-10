@@ -32,6 +32,21 @@ export default function MusicRightPanel({
 }: MusicRightPanelProps) {
   const { t } = useLanguage();
   const musicDropdownRef = useRef<HTMLDivElement>(null);
+  const musicOptions = [
+    {
+      value: 'East London',
+      label: 'East London',
+    },
+    {
+      value: 'Ambient Flow',
+      label: 'Ambient Flow',
+    },
+    {
+      value: 'Minimal Beat',
+      label: 'Minimal Beat',
+    },
+  ];
+  const selectedMusicOption = musicOptions.find((option) => option.value === selectedMusic);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -93,7 +108,7 @@ export default function MusicRightPanel({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span style={{ color: '#878787' }}>{selectedMusic}</span>
+              <span style={{ color: '#878787' }}>{selectedMusicOption?.label ?? selectedMusic}</span>
             </div>
             <svg
               className={`w-4 h-4 transition-transform ${showMusicDropdown ? 'rotate-180' : ''}`}
@@ -110,9 +125,11 @@ export default function MusicRightPanel({
               className="absolute left-0 right-0 top-full mt-1 w-full bg-white border rounded-md shadow-lg z-10"
               style={{ borderColor: '#E0E0E0' }}
             >
+              {musicOptions.map((option) => (
               <button
+                  key={option.value}
                 onClick={() => {
-                  setSelectedMusic('East London');
+                    setSelectedMusic(option.value);
                   setShowMusicDropdown(false);
                 }}
                 className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
@@ -132,9 +149,9 @@ export default function MusicRightPanel({
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <span style={{ color: '#878787' }}>East London</span>
+                    <span style={{ color: '#878787' }}>{option.label}</span>
                 </div>
-                {selectedMusic === 'East London' && (
+                  {selectedMusic === option.value && (
                   <svg
                     width="16"
                     height="16"
@@ -152,90 +169,7 @@ export default function MusicRightPanel({
                   </svg>
                 )}
               </button>
-              <button
-                onClick={() => {
-                  setSelectedMusic('Ambient Flow');
-                  setShowMusicDropdown(false);
-                }}
-                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
-                      stroke="#848485"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span style={{ color: '#878787' }}>Ambient Flow</span>
-                </div>
-                {selectedMusic === 'Ambient Flow' && (
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M13.3346 4L6.0013 11.3333L2.66797 8"
-                      stroke="#0F58F9"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedMusic('Minimal Beat');
-                  setShowMusicDropdown(false);
-                }}
-                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987"
-                      stroke="#848485"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span style={{ color: '#878787' }}>Minimal Beat</span>
-                </div>
-                {selectedMusic === 'Minimal Beat' && (
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M13.3346 4L6.0013 11.3333L2.66797 8"
-                      stroke="#0F58F9"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </button>
+              ))}
             </div>
           )}
         </div>
@@ -334,7 +268,10 @@ export default function MusicRightPanel({
         </div>
 
         <div className="flex items-center justify-between pt-3">
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>
+          <h3
+            className="text-sm font-medium text-right leading-snug max-w-[130px]"
+            style={{ color: '#171718' }}
+          >
             {t('panels.musicRightPanel.playEverywhere', 'Play everywhere')}
           </h3>
           <button
