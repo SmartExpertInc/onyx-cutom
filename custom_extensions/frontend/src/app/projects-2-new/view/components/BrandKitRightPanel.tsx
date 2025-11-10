@@ -211,6 +211,21 @@ export default function BrandKitRightPanel({
     };
   }, [showTransitionDropdown, setShowTransitionDropdown, setIsColorPaletteOpen]);
 
+  const transitionOptions = [
+    { value: 'None', label: t('rightPanel.transitions.none', 'None') },
+    { value: 'Fade', label: t('rightPanel.transitions.fade', 'Fade') },
+    { value: 'Close', label: t('rightPanel.transitions.close', 'Close') },
+    { value: 'Crop', label: t('rightPanel.transitions.crop', 'Crop') },
+    { value: 'Blur', label: t('rightPanel.transitions.blur', 'Blur') },
+    { value: 'Open', label: t('rightPanel.transitions.open', 'Open') },
+    { value: 'Slide', label: t('rightPanel.transitions.slide', 'Slide') },
+    { value: 'Wipe', label: t('rightPanel.transitions.wipe', 'Wipe') },
+    { value: 'Smooth wipe', label: t('rightPanel.transitions.smoothWipe', 'Smooth wipe') },
+  ];
+
+  const selectedTransitionLabel =
+    transitionOptions.find((option) => option.value === selectedTransition)?.label ?? selectedTransition;
+
   return (
     <>
       <div className="flex items-center justify-between flex-shrink-0 pb-1.5">
@@ -423,7 +438,7 @@ export default function BrandKitRightPanel({
                   <path d="M8.27148 3.79297L12.7662 8.28768L8.27148 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M10.5195 3.79297L15.0142 8.28768L10.5195 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span style={{ color: '#848485' }}>{selectedTransition}</span>
+                <span style={{ color: '#848485' }}>{selectedTransitionLabel}</span>
               </div>
               <svg 
                 className={`w-4 h-4 transition-transform ${showTransitionDropdown ? 'rotate-180' : ''}`} 
@@ -438,17 +453,7 @@ export default function BrandKitRightPanel({
             {/* Dropdown menu */}
             {showTransitionDropdown && isTransitionEnabled && (
               <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 max-h-64 overflow-y-auto" style={{ borderColor: '#E0E0E0' }}>
-                {[
-                  { value: 'None', label: t('rightPanel.transitions.none', 'None') },
-                  { value: 'Fade', label: t('rightPanel.transitions.fade', 'Fade') },
-                  { value: 'Close', label: t('rightPanel.transitions.close', 'Close') },
-                  { value: 'Crop', label: t('rightPanel.transitions.crop', 'Crop') },
-                  { value: 'Blur', label: t('rightPanel.transitions.blur', 'Blur') },
-                  { value: 'Open', label: t('rightPanel.transitions.open', 'Open') },
-                  { value: 'Slide', label: t('rightPanel.transitions.slide', 'Slide') },
-                  { value: 'Wipe', label: t('rightPanel.transitions.wipe', 'Wipe') },
-                  { value: 'Smooth wipe', label: t('rightPanel.transitions.smoothWipe', 'Smooth wipe') }
-                ].map((transition) => (
+                {transitionOptions.map((transition) => (
                   <button
                     key={transition.value}
                     onClick={() => {
