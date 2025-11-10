@@ -1952,6 +1952,41 @@ export const ru = {
       generate: "Сгенерировать"
     }
   },
+  avatarPopup: {
+    searchPlaceholder: "Поиск...",
+    filters: {
+      gender: {
+        label: "Пол",
+        options: {
+          all: "Все",
+          female: "Женский",
+          male: "Мужской"
+        }
+      },
+      age: {
+        label: "Возраст",
+        options: {
+          young: "Молодой",
+          middleAged: "Средний возраст",
+          senior: "Пожилой"
+        }
+      },
+      look: {
+        label: "Образ",
+        options: {
+          business: "Бизнес",
+          casual: "Повседневный",
+          callCentre: "Колл-центр",
+          doctor: "Доктор",
+          construction: "Строитель",
+          fitness: "Фитнес",
+          chef: "Шеф-повар",
+          thobe: "Thobe",
+          casualWhite: "Повседневный белый"
+        }
+      }
+    }
+  },
   productViewHeader: {
     aiImprove: "AI Улучшить",
     export: "Экспорт",

@@ -1977,6 +1977,41 @@ export const es = {
       generate: "Generar"
     }
   },
+  avatarPopup: {
+    searchPlaceholder: "Buscar...",
+    filters: {
+      gender: {
+        label: "Género",
+        options: {
+          all: "Todos",
+          female: "Femenino",
+          male: "Masculino"
+        }
+      },
+      age: {
+        label: "Edad",
+        options: {
+          young: "Joven",
+          middleAged: "Mediana edad",
+          senior: "Mayor"
+        }
+      },
+      look: {
+        label: "Aspecto",
+        options: {
+          business: "Negocios",
+          casual: "Casual",
+          callCentre: "Centro de llamadas",
+          doctor: "Doctor",
+          construction: "Construcción",
+          fitness: "Fitness",
+          chef: "Chef",
+          thobe: "Thobe",
+          casualWhite: "Casual blanco"
+        }
+      }
+    }
+  },
   productViewHeader: {
     aiImprove: "Mejorar con IA",
     export: "Exportar",

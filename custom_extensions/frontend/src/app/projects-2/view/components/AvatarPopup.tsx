@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Avatar data interfaces
 interface AvatarVariant {
@@ -60,6 +61,7 @@ export default function AvatarPopup({
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
   const genderDropdownRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
   const [selectedFilters, setSelectedFilters] = useState({
     gender: 'All',
     age: [] as string[],
@@ -68,6 +70,40 @@ export default function AvatarPopup({
   });
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const genderOptions = useMemo(
+    () => [
+      { value: 'All', label: t('avatarPopup.filters.gender.options.all', 'All') },
+      { value: 'Female', label: t('avatarPopup.filters.gender.options.female', 'Female') },
+      { value: 'Male', label: t('avatarPopup.filters.gender.options.male', 'Male') }
+    ],
+    [t]
+  );
+  const ageOptions = useMemo(
+    () => [
+      { value: 'Young', label: t('avatarPopup.filters.age.options.young', 'Young') },
+      { value: 'Middle-aged', label: t('avatarPopup.filters.age.options.middleAged', 'Middle-aged') },
+      { value: 'Senior', label: t('avatarPopup.filters.age.options.senior', 'Senior') }
+    ],
+    [t]
+  );
+  const lookOptions = useMemo(
+    () => [
+      { value: 'Business', label: t('avatarPopup.filters.look.options.business', 'Business') },
+      { value: 'Casual', label: t('avatarPopup.filters.look.options.casual', 'Casual') },
+      { value: 'Call Centre', label: t('avatarPopup.filters.look.options.callCentre', 'Call Centre') },
+      { value: 'Doctor', label: t('avatarPopup.filters.look.options.doctor', 'Doctor') },
+      { value: 'Construction', label: t('avatarPopup.filters.look.options.construction', 'Construction') },
+      { value: 'Fitness', label: t('avatarPopup.filters.look.options.fitness', 'Fitness') },
+      { value: 'Chef', label: t('avatarPopup.filters.look.options.chef', 'Chef') },
+      { value: 'Thobe', label: t('avatarPopup.filters.look.options.thobe', 'Thobe') },
+      { value: 'Casual White', label: t('avatarPopup.filters.look.options.casualWhite', 'Casual White') }
+    ],
+    [t]
+  );
+  const selectedGenderLabel = useMemo(
+    () => genderOptions.find((option) => option.value === selectedFilters.gender)?.label ?? selectedFilters.gender,
+    [genderOptions, selectedFilters.gender]
+  );
   
   // Integrate with global avatar system
   const { updateSelectedAvatar } = useAvatarDisplay();
@@ -331,7 +367,7 @@ export default function AvatarPopup({
                 </div>
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder={t('avatarPopup.searchPlaceholder', 'Search...')}
                   className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-[#878787] focus:outline-none focus:ring-0"
                 />
               </div>
@@ -341,14 +377,16 @@ export default function AvatarPopup({
             <div className="flex-1 overflow-y-auto pb-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
               {/* Gender */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Gender</h4>
+                <h4 className="text-xs font-medium text-gray-500 mb-2">
+                  {t('avatarPopup.filters.gender.label', 'Gender')}
+                </h4>
                 <div className="relative" ref={genderDropdownRef}>
                   <button
                     type="button"
                     onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
                     className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-[#878787] bg-white focus:outline-none text-left flex items-center justify-between"
                   >
-                    <span>{selectedFilters.gender}</span>
+                    <span>{selectedGenderLabel}</span>
                     <svg 
                       className={`w-4 h-4 transition-transform ${isGenderDropdownOpen ? 'rotate-180' : ''}`} 
                       fill="none" 
@@ -360,19 +398,19 @@ export default function AvatarPopup({
                   </button>
                   {isGenderDropdownOpen && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-[#E0E0E0] rounded-md shadow-lg">
-                      {['All', 'Female', 'Male'].map((option) => (
+                      {genderOptions.map((option) => (
                         <div
-                          key={option}
+                          key={option.value}
                           onClick={() => {
-                            handleFilterChange('gender', option);
+                            handleFilterChange('gender', option.value);
                             setIsGenderDropdownOpen(false);
                           }}
                           className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#171718] flex items-center justify-between ${
-                            selectedFilters.gender === option ? 'bg-gray-50' : ''
-                          } ${option === 'All' ? 'rounded-t-md' : ''} ${option === 'Male' ? 'rounded-b-md' : ''}`}
+                            selectedFilters.gender === option.value ? 'bg-gray-50' : ''
+                          } ${option.value === 'All' ? 'rounded-t-md' : ''} ${option.value === 'Male' ? 'rounded-b-md' : ''}`}
                         >
-                          <span>{option}</span>
-                          {selectedFilters.gender === option && (
+                          <span>{option.label}</span>
+                          {selectedFilters.gender === option.value && (
                             <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M8.22461 0.527344C8.3016 0.577768 8.32278 0.68085 8.27246 0.757812L3.73926 7.69141C3.71263 7.73204 3.66962 7.75942 3.62109 7.76562C3.57295 7.77178 3.52442 7.75629 3.48828 7.72363L0.554688 5.05664C0.486645 4.99478 0.481227 4.88941 0.542969 4.82129C0.604886 4.75318 0.71022 4.74865 0.77832 4.81055L3.13379 6.95117L3.56738 7.3457L3.88867 6.85449L7.99414 0.575195C8.04461 0.49844 8.1477 0.47706 8.22461 0.527344Z" fill="#171718" stroke="#171718"/>
                             </svg>
@@ -386,24 +424,26 @@ export default function AvatarPopup({
 
               {/* Age */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-[#171718] mb-2">Age</h4>
+                <h4 className="text-xs font-medium text-[#171718] mb-2">
+                  {t('avatarPopup.filters.age.label', 'Age')}
+                </h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
-                  {['Young', 'Middle-aged', 'Senior'].map((age) => (
-                    <label key={age} className="flex items-center cursor-pointer">
+                  {ageOptions.map((option) => (
+                    <label key={option.value} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedFilters.age.includes(age)}
-                        onChange={() => handleCheckboxChange('age', age)}
+                        checked={selectedFilters.age.includes(option.value)}
+                        onChange={() => handleCheckboxChange('age', option.value)}
                         className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
-                          backgroundImage: selectedFilters.age.includes(age) 
+                          backgroundImage: selectedFilters.age.includes(option.value) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
                             : 'none',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat'
                         }}
                       />
-                      <span className="text-sm text-[#171718]">{age}</span>
+                      <span className="text-sm text-[#171718]">{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -436,24 +476,26 @@ export default function AvatarPopup({
 
               {/* Look (Avatar Variants) */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-[#171718] mb-2">Look</h4>
+                <h4 className="text-xs font-medium text-[#171718] mb-2">
+                  {t('avatarPopup.filters.look.label', 'Look')}
+                </h4>
                 <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
-                  {['Business', 'Casual', 'Call Centre', 'Doctor', 'Construction', 'Fitness', 'Chef', 'Thobe', 'Casual White'].map((look) => (
-                    <label key={look} className="flex items-center cursor-pointer">
+                  {lookOptions.map((option) => (
+                    <label key={option.value} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedFilters.look.includes(look)}
-                        onChange={() => handleCheckboxChange('look', look)}
+                        checked={selectedFilters.look.includes(option.value)}
+                        onChange={() => handleCheckboxChange('look', option.value)}
                         className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
                         style={{
-                          backgroundImage: selectedFilters.look.includes(look) 
+                          backgroundImage: selectedFilters.look.includes(option.value) 
                             ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
                             : 'none',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat'
                         }}
                       />
-                      <span className="text-sm text-[#171718]">{look}</span>
+                      <span className="text-sm text-[#171718]">{option.label}</span>
                     </label>
                   ))}
                 </div>

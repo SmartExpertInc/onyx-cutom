@@ -1957,6 +1957,41 @@ export const uk = {
       generate: "Згенерувати"
     }
   },
+  avatarPopup: {
+    searchPlaceholder: "Пошук...",
+    filters: {
+      gender: {
+        label: "Стать",
+        options: {
+          all: "Усі",
+          female: "Жіноча",
+          male: "Чоловіча"
+        }
+      },
+      age: {
+        label: "Вік",
+        options: {
+          young: "Молодий",
+          middleAged: "Середній вік",
+          senior: "Похилого віку"
+        }
+      },
+      look: {
+        label: "Образ",
+        options: {
+          business: "Бізнес",
+          casual: "Повсякденний",
+          callCentre: "Кол-центр",
+          doctor: "Лікар",
+          construction: "Будівельник",
+          fitness: "Фітнес",
+          chef: "Шеф-кухар",
+          thobe: "Thobe",
+          casualWhite: "Повсякденний білий"
+        }
+      }
+    }
+  },
   productViewHeader: {
     aiImprove: "AI Покращити",
     export: "Експорт",

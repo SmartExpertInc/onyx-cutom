@@ -1862,6 +1862,41 @@ export const en = {
       generate: "Generate"
     }
   },
+  avatarPopup: {
+    searchPlaceholder: "Search...",
+    filters: {
+      gender: {
+        label: "Gender",
+        options: {
+          all: "All",
+          female: "Female",
+          male: "Male"
+        }
+      },
+      age: {
+        label: "Age",
+        options: {
+          young: "Young",
+          middleAged: "Middle-aged",
+          senior: "Senior"
+        }
+      },
+      look: {
+        label: "Look",
+        options: {
+          business: "Business",
+          casual: "Casual",
+          callCentre: "Call Centre",
+          doctor: "Doctor",
+          construction: "Construction",
+          fitness: "Fitness",
+          chef: "Chef",
+          thobe: "Thobe",
+          casualWhite: "Casual White"
+        }
+      }
+    }
+  },
   productViewHeader: {
     aiImprove: "AI Improve",
     export: "Export",
