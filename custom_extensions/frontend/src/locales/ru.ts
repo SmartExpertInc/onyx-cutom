@@ -2062,9 +2062,13 @@ export const ru = {
     },
     imageRightPanel: {
       uploadedIcon: "Загруженный значок",
+      uploadedImage: "Загруженное изображение",
       removeIcon: "Удалить значок",
       removeImage: "Удалить изображение",
-      resetOriginalSize: "Сбросить исходный размер"
+      resetOriginalSize: "Сбросить исходный размер",
+      crop: "Обрезать",
+      replace: "Заменить",
+      transparency: "Прозрачность"
     },
     videoRightPanel: {
       uploadedVideo: "Загруженное видео",

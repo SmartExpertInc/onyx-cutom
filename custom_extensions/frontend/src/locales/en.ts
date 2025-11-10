@@ -1967,9 +1967,13 @@ export const en = {
     },
     imageRightPanel: {
       uploadedIcon: "Uploaded icon",
+      uploadedImage: "Uploaded image",
       removeIcon: "Remove icon",
       removeImage: "Remove image",
-      resetOriginalSize: "Reset original size"
+      resetOriginalSize: "Reset original size",
+      crop: "Crop",
+      replace: "Replace",
+      transparency: "Transparency"
     },
     videoRightPanel: {
       uploadedVideo: "Uploaded video",

@@ -2082,9 +2082,13 @@ export const es = {
     },
     imageRightPanel: {
       uploadedIcon: "Icono cargado",
+      uploadedImage: "Imagen cargada",
       removeIcon: "Eliminar icono",
       removeImage: "Eliminar imagen",
-      resetOriginalSize: "Restablecer tamaño original"
+      resetOriginalSize: "Restablecer tamaño original",
+      crop: "Recortar",
+      replace: "Reemplazar",
+      transparency: "Transparencia"
     },
     videoRightPanel: {
       uploadedVideo: "Vídeo cargado",

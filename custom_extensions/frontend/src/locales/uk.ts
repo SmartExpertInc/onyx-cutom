@@ -2067,9 +2067,13 @@ export const uk = {
     },
     imageRightPanel: {
       uploadedIcon: "Завантажена іконка",
+      uploadedImage: "Завантажене зображення",
       removeIcon: "Видалити іконку",
       removeImage: "Видалити зображення",
-      resetOriginalSize: "Скинути початковий розмір"
+      resetOriginalSize: "Скинути початковий розмір",
+      crop: "Обрізати",
+      replace: "Замінити",
+      transparency: "Прозорість"
     },
     videoRightPanel: {
       uploadedVideo: "Завантажене відео",
