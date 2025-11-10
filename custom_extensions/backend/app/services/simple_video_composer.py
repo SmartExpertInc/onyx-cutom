@@ -24,7 +24,7 @@ import logging
 import os
 import subprocess
 import json
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 from pathlib import Path
 from datetime import datetime
 
