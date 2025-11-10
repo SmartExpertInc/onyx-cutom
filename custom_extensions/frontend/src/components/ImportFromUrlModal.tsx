@@ -157,7 +157,13 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
     }
   };
 
-  const checkIndexingStatus = async (connectorId: number): Promise<boolean> => {
+  const checkIndexingStatus = async (connectorId: number): Promise<{
+    isComplete: boolean;
+    status: string | null;
+    docsIndexed: number;
+    inProgress: boolean;
+    errorMsg?: string;
+  }> => {
     try {
       const response = await fetch('/api/manage/admin/connector/indexing-status');
       if (!response.ok) {
@@ -169,31 +175,92 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
 
       if (!connectorStatus) {
         // Connector not found in status yet, still initializing
-        return false;
+        return {
+          isComplete: false,
+          status: 'initializing',
+          docsIndexed: 0,
+          inProgress: true,
+        };
       }
 
+      const lastStatus = connectorStatus.last_status;
+      const inProgress = connectorStatus.in_progress || false;
+      const docsIndexed = connectorStatus.docs_indexed || 0;
+
       // Check if indexing is complete
-      return connectorStatus.last_status === 'success' && !connectorStatus.in_progress;
+      const isComplete = lastStatus === 'success' && !inProgress && docsIndexed > 0;
+      
+      // Check for errors
+      const hasError = lastStatus === 'failed' || lastStatus === 'error';
+      const errorMsg = hasError ? connectorStatus.error_msg : undefined;
+
+      return {
+        isComplete,
+        status: lastStatus,
+        docsIndexed,
+        inProgress,
+        errorMsg,
+      };
     } catch (error) {
       console.error('Error checking indexing status:', error);
-      return false;
+      return {
+        isComplete: false,
+        status: 'unknown',
+        docsIndexed: 0,
+        inProgress: true,
+      };
     }
   };
 
-  const waitForIndexing = async (connectorId: number, maxWaitTime = 120000): Promise<void> => {
+  const waitForIndexing = async (connectorId: number, maxWaitTime = 300000): Promise<void> => {
     const startTime = Date.now();
     const pollInterval = 3000; // 3 seconds
+    let lastDocsCount = 0;
 
     while (Date.now() - startTime < maxWaitTime) {
-      setProcessingStatus(t('interface.importFromUrl.indexing', 'Indexing URL... This may take a moment.'));
+      const statusInfo = await checkIndexingStatus(connectorId);
       
-      const isComplete = await checkIndexingStatus(connectorId);
-      if (isComplete) {
-        setProcessingStatus(t('interface.importFromUrl.indexingComplete', 'Indexing complete!'));
+      // Update status message based on progress
+      if (statusInfo.status === 'initializing' || statusInfo.status === 'not_started') {
+        setProcessingStatus(t('interface.importFromUrl.initializing', 'Initializing indexing...'));
+      } else if (statusInfo.inProgress) {
+        if (statusInfo.docsIndexed > 0) {
+          setProcessingStatus(
+            t('interface.importFromUrl.indexingProgress', `Indexing in progress... ${statusInfo.docsIndexed} documents indexed.`)
+          );
+        } else {
+          setProcessingStatus(t('interface.importFromUrl.indexing', 'Indexing URL... This may take a moment.'));
+        }
+        lastDocsCount = statusInfo.docsIndexed;
+      }
+
+      // Check for completion
+      if (statusInfo.isComplete) {
+        setProcessingStatus(
+          t('interface.importFromUrl.indexingComplete', `Indexing complete! ${statusInfo.docsIndexed} documents indexed.`)
+        );
         return;
       }
 
+      // Check for errors
+      if (statusInfo.status === 'failed' || statusInfo.status === 'error') {
+        throw new Error(
+          statusInfo.errorMsg || 'Indexing failed - please check the connector status manually'
+        );
+      }
+
       await new Promise(resolve => setTimeout(resolve, pollInterval));
+    }
+
+    // Timeout - but check if we indexed anything
+    if (lastDocsCount > 0) {
+      console.warn(`Indexing timeout reached, but ${lastDocsCount} documents were indexed`);
+      setProcessingStatus(
+        t('interface.importFromUrl.partialSuccess', `Indexing still in progress (${lastDocsCount} documents indexed). You can proceed, but more content may be indexed later.`)
+      );
+      // Give user a moment to read the message
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return;
     }
 
     throw new Error('Indexing timeout - please check the connector status manually');

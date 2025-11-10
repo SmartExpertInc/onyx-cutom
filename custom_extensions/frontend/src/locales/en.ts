@@ -1621,8 +1621,11 @@ export const en = {
       invalidUrls: "Please enter valid URLs (e.g., https://example.com)",
       creatingConnector: "Creating connector for URL {0} of {1}...",
       indexingUrl: "Indexing URL {0} of {1}...",
+      initializing: "Initializing indexing...",
       indexing: "Indexing URL... This may take a moment.",
-      indexingComplete: "Indexing complete!",
+      indexingProgress: "Indexing in progress... {0} documents indexed.",
+      indexingComplete: "Indexing complete! {0} documents indexed.",
+      partialSuccess: "Indexing still in progress ({0} documents indexed). You can proceed, but more content may be indexed later.",
       error: "Failed to process URLs. Please try again.",
     },
 
