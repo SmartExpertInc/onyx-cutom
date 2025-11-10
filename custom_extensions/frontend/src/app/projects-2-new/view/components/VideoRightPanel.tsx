@@ -425,7 +425,7 @@ export default function VideoRightPanel({
                             backgroundColor: '#878787',
                             color: '#FFFFFF',
                             top: '100%',
-                            right: 4,
+                            right: 0,
                             width: '220px',
                             whiteSpace: 'normal',
                             fontSize: '10px',
