@@ -266,6 +266,13 @@ export const ru = {
       createQuizAndOnePager: "Создать тест или одностраничник",
       createAll: "Создать презентацию, тест или одностраничник",
     },
+    trimVideo: {
+      previewPlaceholder: "Предпросмотр видео",
+      adjustTrimStart: "Настроить начало обрезки",
+      adjustTrimEnd: "Настроить конец обрезки",
+      trimmedLengthLabel: "Длительность обрезанного видео",
+      confirm: "Обрезать",
+    },
     folderSettings: {
       title: "Настройки папки",
       subtitle: "Настройка качества производства для",

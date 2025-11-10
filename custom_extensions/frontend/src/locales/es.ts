@@ -240,6 +240,13 @@ export const es = {
       createQuizAndOnePager: "Crear cuestionario o resumen",
       createAll: "Crear presentación, cuestionario o resumen",
     },
+    trimVideo: {
+      previewPlaceholder: "Vista previa del vídeo",
+      adjustTrimStart: "Ajustar inicio del recorte",
+      adjustTrimEnd: "Ajustar fin del recorte",
+      trimmedLengthLabel: "Duración del vídeo recortado",
+      confirm: "Recortar",
+    },
     folderSettings: {
       title: "Configuración de carpeta",
       subtitle: "Configurar calidad de producción para",

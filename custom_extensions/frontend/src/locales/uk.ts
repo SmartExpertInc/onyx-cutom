@@ -265,6 +265,13 @@ export const uk = {
       createQuizAndOnePager: "Створити тест або односторінку",
       createAll: "Створити презентацію, тест або односторінку",
     },
+    trimVideo: {
+      previewPlaceholder: "Попередній перегляд відео",
+      adjustTrimStart: "Налаштувати початок обрізання",
+      adjustTrimEnd: "Налаштувати кінець обрізання",
+      trimmedLengthLabel: "Тривалість обрізаного відео",
+      confirm: "Обрізати",
+    },
     folderSettings: {
       title: "Налаштування папки",
       subtitle: "Налаштування якості виробництва для",

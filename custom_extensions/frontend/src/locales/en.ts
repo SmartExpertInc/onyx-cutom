@@ -276,6 +276,13 @@ export const en = {
       createQuizAndOnePager: "Create quiz or one-pager",
       createAll: "Create presentation, quiz, or one-pager",
     },
+    trimVideo: {
+      previewPlaceholder: "Video preview placeholder",
+      adjustTrimStart: "Adjust trim start",
+      adjustTrimEnd: "Adjust trim end",
+      trimmedLengthLabel: "Trimmed video length",
+      confirm: "Trim",
+    },
     folderSettings: {
       title: "Folder Settings",
       subtitle: "Configure production quality for",

@@ -8,6 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TrimVideoModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface TrimVideoModalProps {
 const MIN_SELECTION_GAP = 0.05;
 
 export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps) {
+  const { t } = useLanguage();
   const railRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<{ start: number; end: number }>({
     start: 0,
@@ -122,7 +124,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
             <div
               className="w-full max-w-[900px] mx-auto rounded-lg border border-dashed border-[#B0B0B0] bg-white/40 aspect-video flex items-center justify-center text-sm text-[#878787]"
             >
-              Video preview placeholder
+              {t('modals.trimVideo.previewPlaceholder', 'Video preview placeholder')}
             </div>
 
             <div className="relative w-full">
@@ -141,11 +143,17 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
 
                 <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[6px]">
                   <div
-                    className="absolute inset-y-0 bg-white/30"
+                    className="absolute inset-y-0 bg-white/40"
                     style={{
-                      left: `${startPercent}%`,
-                      width: `${endPercent - startPercent}%`,
-                      borderRadius: '6px',
+                      left: 0,
+                      width: `${startPercent}%`,
+                    }}
+                  />
+                  <div
+                    className="absolute inset-y-0 bg-white/40"
+                    style={{
+                      left: `${endPercent}%`,
+                      right: 0,
                     }}
                   />
                 </div>
@@ -154,7 +162,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                   type="button"
                   className="absolute top-1/2 z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-l-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
                   style={{ left: `${startPercent}%`, transform: 'translateY(-50%)' }}
-                  aria-label="Adjust trim start"
+                  aria-label={t('modals.trimVideo.adjustTrimStart', 'Adjust trim start')}
                   onPointerDown={handlePointerDown('start')}
                 >
                   <span
@@ -166,7 +174,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                   type="button"
                   className="absolute top-1/2 z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-r-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
                   style={{ left: `${endPercent}%`, transform: 'translate(-100%, -50%)' }}
-                  aria-label="Adjust trim end"
+                  aria-label={t('modals.trimVideo.adjustTrimEnd', 'Adjust trim end')}
                   onPointerDown={handlePointerDown('end')}
                 >
                   <span
@@ -185,7 +193,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
           <div className="w-full max-w-[1100px] mx-auto flex items-center justify-between">
             <div className="space-y-2">
               <div className="text-sm font-medium" style={{ color: '#171718' }}>
-                Trimmed video length
+                {t('modals.trimVideo.trimmedLengthLabel', 'Trimmed video length')}
               </div>
               <div className="text-xs" style={{ color: '#878787' }}>
                 00:19:95
@@ -203,7 +211,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                   border: '1px solid #171718',
                 }}
               >
-                Cancel
+                {t('actions.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -217,7 +225,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M11.8333 1.16667L3.91333 9.08667M8.14667 8.15333L11.8333 11.8333M3.91333 3.91333L6.5 6.5M4.5 2.5C4.5 3.60457 3.60457 4.5 2.5 4.5C1.39543 4.5 0.5 3.60457 0.5 2.5C0.5 1.39543 1.39543 0.5 2.5 0.5C3.60457 0.5 4.5 1.39543 4.5 2.5ZM4.5 10.5C4.5 11.6046 3.60457 12.5 2.5 12.5C1.39543 12.5 0.5 11.6046 0.5 10.5C0.5 9.39543 1.39543 8.5 2.5 8.5C3.60457 8.5 4.5 9.39543 4.5 10.5Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Trim
+                {t('modals.trimVideo.confirm', 'Trim')}
               </button>
             </div>
           </div>
