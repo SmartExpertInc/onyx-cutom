@@ -43,16 +43,16 @@ const getPurpleBoxIconHtml = (icon?: string | null): string => {
     customToolIconSvgs[key];
   if (!iconSvg) return '';
   const wrapperStyle = `
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
     background-color: #0F58F9;
     color: #FFFFFF;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   `.trim();
-  return `<span style="${wrapperStyle}"><span style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;">${iconSvg}</span></span>`;
+  return `<span style="${wrapperStyle}"><span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;">${iconSvg}</span></span>`;
 };
 
 /**
