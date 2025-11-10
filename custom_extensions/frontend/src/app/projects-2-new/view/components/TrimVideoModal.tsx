@@ -134,7 +134,6 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                       className="flex-1 h-full rounded-[4px]"
                       style={{
                         backgroundColor: '#878787',
-                        border: '1px solid #E0E0E0',
                       }}
                     />
                   ))}
@@ -143,11 +142,11 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                 <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[6px]">
                   <div
                     className="absolute inset-y-0 left-0 bg-white/30"
-                    style={{ width: `${startPercent}%` }}
+                    style={{ width: `${startPercent}%`, borderRadius: '6px 0 0 6px' }}
                   />
                   <div
                     className="absolute inset-y-0 right-0 bg-white/30"
-                    style={{ width: `${100 - endPercent}%` }}
+                    style={{ width: `${100 - endPercent}%`, borderRadius: '0 6px 6px 0' }}
                   />
                 </div>
 
@@ -159,7 +158,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                   onPointerDown={handlePointerDown('start')}
                 >
                   <span
-                    style={{ width: '2px', height: '20px', backgroundColor: '#878787', borderRadius: '2px' }}
+                    style={{ width: '2px', height: '20px', backgroundColor: '#FFFFFF', borderRadius: '2px' }}
                   />
                 </button>
 
@@ -171,7 +170,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                   onPointerDown={handlePointerDown('end')}
                 >
                   <span
-                    style={{ width: '2px', height: '20px', backgroundColor: '#878787', borderRadius: '2px' }}
+                    style={{ width: '2px', height: '20px', backgroundColor: '#FFFFFF', borderRadius: '2px' }}
                   />
                 </button>
               </div>
