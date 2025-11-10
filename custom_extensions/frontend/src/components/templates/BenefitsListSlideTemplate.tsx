@@ -254,8 +254,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             color: '#FFFFFF',
             marginBottom: '10px',
             lineHeight: '1.1',
-            minHeight: '65px',
-            maxHeight: '65px',
             display: 'flex',
             fontFamily: "'Lora', serif",
             alignItems: 'center',

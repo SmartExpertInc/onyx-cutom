@@ -39,6 +39,11 @@ const editingInputClass = (baseClasses: string = "", type: 'input' | 'textarea' 
 
 // Using Lucide React Presentation icon instead of custom SVG
 
+const stripSpanTags = (value: string | undefined | null): string => {
+  if (!value || typeof value !== 'string') return value || '';
+  return value.replace(/<\/?span[^>]*>/gi, '');
+};
+
 const DisplayedTextIcon = () => (
   <svg width="14" height="14" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1.5 flex-shrink-0 h-3.5 w-3.5">
     <g clipPath="url(#clip0_VideoLesson_19)">
@@ -213,7 +218,7 @@ const VideoLessonDisplay = ({
                     `}
                   >
                     <span className={`mr-2 font-medium ${slide.slideId === activeSlideId ? THEME_COLORS.accentRed : 'text-gray-500 group-hover:text-gray-600'}`}>№{slide.slideNumber}</span>
-                    <span className="truncate" title={slide.slideTitle}>{slide.slideTitle}</span>
+                    <span className="truncate" title={stripSpanTags(slide.slideTitle)}>{stripSpanTags(slide.slideTitle)}</span>
                   </button>
                 </li>
               ))}
@@ -233,14 +238,14 @@ const VideoLessonDisplay = ({
                 {isEditing && onTextChange ? (
                     <input
                       type="text"
-                      value={currentSlide.slideTitle}
+                      value={stripSpanTags(currentSlide.slideTitle)}
                       onChange={(e) => handleSlideTitleChange(currentSlide.slideId, e.target.value)}
                       placeholder={tLocal.videoLesson.editSlideTitlePlaceholder}
                       className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText} ${editingInputClass()}`}
                     />
                 ) : (
                     <h2 className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText}`}>
-                     {currentSlide.slideTitle}
+                     {stripSpanTags(currentSlide.slideTitle)}
                     </h2>
                 )}
               </header>

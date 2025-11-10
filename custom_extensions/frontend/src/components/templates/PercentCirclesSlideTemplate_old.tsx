@@ -88,6 +88,7 @@ export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & {
     fontWeight:1100, 
     color:'#000000',
     whiteSpace:'pre-line',
+    width: '70%',
     lineHeight:1.2,
     fontFamily:'serif'
   };

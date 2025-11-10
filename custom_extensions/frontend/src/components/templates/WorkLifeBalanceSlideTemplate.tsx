@@ -18,6 +18,11 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
+const stripSpanTags = (value: string): string => {
+  if (!value || typeof value !== 'string') return value;
+  return value.replace(/<\/?span[^>]*>/gi, '');
+};
+
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -149,7 +154,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentTitle, setCurrentTitle] = useState(stripSpanTags(title));
   const [currentContent, setCurrentContent] = useState(content);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
@@ -172,12 +177,17 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     fontFamily: currentTheme.fonts.titleFont,
   };
 
+  useEffect(() => {
+    setCurrentTitle(stripSpanTags(title));
+  }, [title]);
+
   const handleTitleSave = (newTitle: string) => {
-    setCurrentTitle(newTitle);
+    const sanitizedTitle = stripSpanTags(newTitle);
+    setCurrentTitle(sanitizedTitle);
     setEditingTitle(false);
     onEditorActive?.(null as any, 'title');
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, title: newTitle });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, title: sanitizedTitle });
     }
   };
 
@@ -191,7 +201,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   };
 
   const handleTitleCancel = () => {
-    setCurrentTitle(title);
+    setCurrentTitle(stripSpanTags(title));
     setEditingTitle(false);
     onEditorActive?.(null as any, 'title');
   };

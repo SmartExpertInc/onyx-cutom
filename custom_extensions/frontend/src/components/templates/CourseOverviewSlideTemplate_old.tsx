@@ -18,6 +18,11 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
+const stripSpanTags = (value: string): string => {
+  if (!value || typeof value !== 'string') return value;
+  return value.replace(/<\/?span[^>]*>/gi, '');
+};
+
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -147,7 +152,7 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentTitle, setCurrentTitle] = useState(stripSpanTags(title));
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   
   // Editor refs
@@ -169,17 +174,22 @@ export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps 
 
 
 
+  useEffect(() => {
+    setCurrentTitle(stripSpanTags(title));
+  }, [title]);
+
   const handleTitleSave = (newTitle: string) => {
-    setCurrentTitle(newTitle);
+    const sanitizedTitle = stripSpanTags(newTitle);
+    setCurrentTitle(sanitizedTitle);
     setEditingTitle(false);
     onEditorActive?.(null as any, 'title');
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, title: sanitizedTitle });
     }
   };
 
   const handleTitleCancel = () => {
-    setCurrentTitle(title);
+    setCurrentTitle(stripSpanTags(title));
     setEditingTitle(false);
     onEditorActive?.(null as any, 'title');
   };
