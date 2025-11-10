@@ -192,7 +192,7 @@ export default function Media({
               onChange={(e) => setIsLibraryEmpty(e.target.checked)}
               className="w-3 h-3"
             />
-            <span style={{ color: '#878787' }}>Library empty</span>
+            <span style={{ color: '#878787' }}>{t('panels.media.libraryEmptyToggle', 'Library empty')}</span>
           </label>
           <span style={{ color: '#878787' }}>/</span>
           <label className="flex items-center gap-1 cursor-pointer">
@@ -202,7 +202,7 @@ export default function Media({
               onChange={(e) => setIsLibraryEmpty(!e.target.checked)}
               className="w-3 h-3"
             />
-            <span style={{ color: '#878787' }}>Library full</span>
+            <span style={{ color: '#878787' }}>{t('panels.media.libraryFullToggle', 'Library full')}</span>
           </label>
         </div>
         )}
@@ -220,7 +220,7 @@ export default function Media({
             </div>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t('panels.media.searchPlaceholder', 'Search...')}
               className="w-full pl-[30px] pr-4 py-1.5 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-[34px]"
               style={{ 
                 borderColor: '#E0E0E0',
@@ -492,16 +492,16 @@ export default function Media({
                   </defs>
                 </svg>
                 
-                <h3 className="font-semibold mb-2" style={{ color: '#171718', fontSize: '14px' }}>No files yet</h3>
+                <h3 className="font-semibold mb-2" style={{ color: '#171718', fontSize: '14px' }}>{t('panels.media.noFilesYet', 'No files yet')}</h3>
                 <p className="mb-3 text-center" style={{ color: '#878787', fontSize: '12px' }}>
-                  Drag and drop files here or click "Upload" to add them.
+                  {t('panels.media.dragAndDrop', 'Drag and drop files here or click "Upload" to add them.')}
                 </p>
                 
                 <button className="flex items-center gap-2 px-4 py-2 rounded-md hover:opacity-90 transition-opacity cursor-pointer" style={{ backgroundColor: '#0F58F9' }}>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.1378 7.57364V9.94975C11.1378 10.2648 11.0126 10.567 10.7898 10.7898C10.567 11.0126 10.2648 11.1378 9.94975 11.1378H1.63337C1.31828 11.1378 1.01609 11.0126 0.793286 10.7898C0.570482 10.567 0.445313 10.2648 0.445312 9.94975V7.57364M8.7617 3.41545L5.79156 0.445312M5.79156 0.445312L2.82142 3.41545M5.79156 0.445312V7.57364" stroke="white" strokeWidth="0.891041" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span style={{ color: 'white', fontSize: '12px', fontWeight: 600 }}>Upload files</span>
+                  <span style={{ color: 'white', fontSize: '12px', fontWeight: 600 }}>{t('panels.media.uploadFiles', 'Upload files')}</span>
                 </button>
               </div>
             ) : (

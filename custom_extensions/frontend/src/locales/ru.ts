@@ -2075,6 +2075,7 @@ export const ru = {
       removeVideo: "Удалить видео",
       replace: "Заменить",
       trim: "Обрезать",
+      transparency: "Прозрачность",
       duration: "Длительность",
       sound: "Звук"
     },
@@ -2153,8 +2154,13 @@ export const ru = {
       record: "Записать",
       mediaLibrary: "Медиатека",
       brandKit: "Брендовый набор",
-      searchPlaceholder: "Поиск в медиатеке",
-      uploadToLibrary: "Загрузить в библиотеку"
+      searchPlaceholder: "Поиск...",
+      uploadToLibrary: "Загрузить в библиотеку",
+      libraryEmptyToggle: "Библиотека пустая",
+      libraryFullToggle: "Библиотека полная",
+      noFilesYet: "Файлов пока нет",
+      dragAndDrop: "Перетащите файлы сюда или нажмите \"Загрузить\", чтобы добавить их.",
+      uploadFiles: "Загрузить файлы"
     }
   },
   rightPanel: {

@@ -276,7 +276,7 @@ export default function VideoRightPanel({
       {/* Transparency Section */}
       <div className="space-y-1 mb-4 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.transparency', 'Transparency')}</h3>
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.videoRightPanel.transparency', 'Transparency')}</h3>
         </div>
         <div className="flex items-center px-3 py-2 border rounded-md bg-white" style={{ borderColor: '#E0E0E0', gap: '8px' }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

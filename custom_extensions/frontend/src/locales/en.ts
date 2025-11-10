@@ -1980,6 +1980,7 @@ export const en = {
       removeVideo: "Remove video",
       replace: "Replace",
       trim: "Trim",
+      transparency: "Transparency",
       duration: "Duration",
       sound: "Sound"
     },
@@ -2058,8 +2059,13 @@ export const en = {
       record: "Record",
       mediaLibrary: "Media library",
       brandKit: "Brand kit",
-      searchPlaceholder: "Search media library",
-      uploadToLibrary: "Upload to Library"
+      searchPlaceholder: "Search...",
+      uploadToLibrary: "Upload to Library",
+      libraryEmptyToggle: "Library empty",
+      libraryFullToggle: "Library full",
+      noFilesYet: "No files yet",
+      dragAndDrop: "Drag and drop files here or click \"Upload\" to add them.",
+      uploadFiles: "Upload files"
     }
   },
   rightPanel: {

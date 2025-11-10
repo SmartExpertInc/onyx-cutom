@@ -2080,6 +2080,7 @@ export const uk = {
       removeVideo: "Видалити відео",
       replace: "Замінити",
       trim: "Обрізати",
+      transparency: "Прозорість",
       duration: "Тривалість",
       sound: "Звук"
     },
@@ -2158,8 +2159,13 @@ export const uk = {
       record: "Записати",
       mediaLibrary: "Медіатека",
       brandKit: "Брендовий набір",
-      searchPlaceholder: "Пошук у медіатеці",
-      uploadToLibrary: "Завантажити до бібліотеки"
+      searchPlaceholder: "Пошук...",
+      uploadToLibrary: "Завантажити до бібліотеки",
+      libraryEmptyToggle: "Бібліотека порожня",
+      libraryFullToggle: "Бібліотека заповнена",
+      noFilesYet: "Файлів ще немає",
+      dragAndDrop: "Перетягніть файли сюди або натисніть \"Завантажити\", щоб додати їх.",
+      uploadFiles: "Завантажити файли"
     }
   },
   rightPanel: {

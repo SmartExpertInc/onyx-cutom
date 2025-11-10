@@ -2095,6 +2095,7 @@ export const es = {
       removeVideo: "Eliminar vídeo",
       replace: "Reemplazar",
       trim: "Recortar",
+      transparency: "Transparencia",
       duration: "Duración",
       sound: "Sonido"
     },
@@ -2173,8 +2174,13 @@ export const es = {
       record: "Grabar",
       mediaLibrary: "Biblioteca de medios",
       brandKit: "Kit de marca",
-      searchPlaceholder: "Buscar en biblioteca de medios",
-      uploadToLibrary: "Subir a biblioteca"
+      searchPlaceholder: "Buscar...",
+      uploadToLibrary: "Subir a biblioteca",
+      libraryEmptyToggle: "Biblioteca vacía",
+      libraryFullToggle: "Biblioteca llena",
+      noFilesYet: "Aún no hay archivos",
+      dragAndDrop: "Arrastra y suelta archivos aquí o haz clic en \"Subir\" para agregarlos.",
+      uploadFiles: "Subir archivos"
     }
   },
   rightPanel: {
