@@ -2216,6 +2216,10 @@ export const es = {
     none: "Ninguno",
     sceneTransition: "Transición de escena",
     clickToEditTransitions: "Haga clic para editar transiciones",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Desbloquea con el plan Team",
+      upgradePlan: "Actualizar plan"
+    },
     brandKit: {
       title: "Kit de marca",
       infoAriaLabel: "Información del kit de marca",

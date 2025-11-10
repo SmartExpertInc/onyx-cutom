@@ -2201,6 +2201,10 @@ export const uk = {
     none: "Немає",
     sceneTransition: "Перехід між сценами",
     clickToEditTransitions: "Натисніть, щоб редагувати переходи",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Розблокуйте з тарифом Team",
+      upgradePlan: "Оновити тариф"
+    },
     brandKit: {
       title: "Брендбук",
       infoAriaLabel: "Інформація про брендбук",

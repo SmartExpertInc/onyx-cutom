@@ -2101,6 +2101,10 @@ export const en = {
     none: "None",
     sceneTransition: "Scene transition",
     clickToEditTransitions: "Click to edit transitions",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Unlock with Team plan",
+      upgradePlan: "Upgrade plan"
+    },
     brandKit: {
       title: "Brand kit",
       infoAriaLabel: "Brand kit info",

@@ -2196,6 +2196,10 @@ export const ru = {
     none: "Нет",
     sceneTransition: "Переход между сценами",
     clickToEditTransitions: "Нажмите, чтобы редактировать переходы",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Разблокируйте с тарифом Team",
+      upgradePlan: "Обновить тариф"
+    },
     brandKit: {
       title: "Брендбук",
       infoAriaLabel: "Информация о брендбуке",

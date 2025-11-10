@@ -881,86 +881,15 @@ function Projects2ViewPageContent() {
     setIsShapesPopupOpen(false);
   };
 
-  const renderSidebarComponent = () => {
-    // If video lesson settings panel is active, show the corresponding settings
-    if (activeSettingsPanel) {
-      switch (activeSettingsPanel) {
-        case 'script':
-          return (
-            <Script 
-              onAiButtonClick={handleAiButtonClick} 
-              videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-              componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-              currentSlideId={currentSlideId}
-              onTextChange={handleTextChange}
-            />
-          );
-        case 'text':
-          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
-        case 'image':
-          return <ImageSettings />;
-        case 'avatar':
-          return <AvatarSettings />;
-        case 'shape':
-          return <ShapeSettings />;
-        case 'media':
-          return (
-            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
-              <Music />
-            </div>
-          );
-        case 'background':
-          return (
-            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
-              <Background />
-            </div>
-          );
-        case 'transition':
-          const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
-          return (
-            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
-              <Transition 
-                transitionIndex={activeTransitionIndex}
-                currentTransition={currentTransition}
-                onTransitionChange={handleTransitionChange}
-              />
-            </div>
-          );
-        case 'templates':
-          return <TemplateSelector 
-            currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
-            onAddSlide={handleAddSlide}
-          />;
-        default:
-          break;
-      }
-    }
-
-    // If an element is selected, show its settings
-    if (selectedElement) {
-      switch (selectedElement) {
-        case 'text':
-          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
-        case 'image':
-          return <ImageSettings />;
-        case 'avatar':
-          return <AvatarSettings />;
-        case 'shape':
-          return <ShapeSettings />;
-        default:
-          break;
-      }
-    }
-
-    // Default to script panel
-    return <Script 
+  const renderSidebarComponent = () => (
+    <Script 
       onAiButtonClick={handleAiButtonClick} 
       videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
       componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
       currentSlideId={currentSlideId}
       onTextChange={handleTextChange}
-    />;
-  };
+    />
+  );
 
   return (
         <div 
