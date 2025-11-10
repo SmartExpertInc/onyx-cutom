@@ -34496,7 +34496,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - Use for 4-6 main sections that organize the entire document
 - Each level 2 section should contain 300-500+ words of content
 - Examples: "Introduction", "Core Concepts", "Application Strategies", "Common Mistakes", "Conclusion"
-- Should have emoji icons for visual appeal
+- Do not decorate headers with emojis.
 
 **Level 3 Headers (### or "level": 3)** - For subsections within major sections:
 - Use to organize content WITHIN a level 2 section

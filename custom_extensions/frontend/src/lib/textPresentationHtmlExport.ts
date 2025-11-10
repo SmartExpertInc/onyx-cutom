@@ -221,11 +221,10 @@ const renderParagraph = (block: ParagraphBlock): string => {
   // Add blue left border for recommendations
   if (isRecommendation) {
     style += `
-      padding-left: 1rem;
+      padding: 0.75rem 1rem;
       border-left: 4px solid #0F58F9;
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-      background-color: rgba(243, 244, 246, 0.3);
+      background-color: rgba(15, 88, 249, 0.08);
+      border-radius: 8px;
     `.trim();
   }
   
@@ -315,10 +314,9 @@ const renderBulletList = (block: BulletListBlock): string => {
   
   const recommendationStyle = `
     border-left: 4px solid #0F58F9;
-    padding-left: 16px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    background-color: rgba(243, 244, 246, 0.3);
+    padding: 12px 16px;
+    background-color: rgba(15, 88, 249, 0.08);
+    border-radius: 8px;
   `.trim();
   
   let html = `<ul style="${listStyle}">`;
@@ -376,10 +374,9 @@ const renderNumberedList = (block: NumberedListBlock): string => {
   
   const recommendationStyle = `
     border-left: 4px solid #0F58F9;
-    padding-left: 16px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    background-color: rgba(243, 244, 246, 0.3);
+    padding: 12px 16px;
+    background-color: rgba(15, 88, 249, 0.08);
+    border-radius: 8px;
   `.trim();
   
   let html = `<ol style="${listStyle}">`;

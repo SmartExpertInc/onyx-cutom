@@ -274,7 +274,7 @@ Determine Allowed Styles: Use the "styles" parameter if provided (comma-separate
 
 **MANDATORY ENGAGEMENT & DENSITY REQUIREMENTS FOR ONE-PAGERS:**
 - All Text Presentations (One-Pagers) must be structured as comprehensive educational lessons with rich narrative flow.
-- Use emojis (such as , , , etc.) thoughtfully in headlines and section titles to add visual interest and highlight key learning moments.
+       - Do NOT use emojis in any headings, lists, or body content. Keep tone professional and text-only.
 - **CRITICAL: Prioritize flowing paragraphs that tell a story and build understanding progressively.** Each section should read like a mini-lesson with clear explanations, examples, and connections to the next topic.
 - Use paragraphs extensively for explanations, concepts, examples, and teaching moments. Build a narrative that flows naturally from one idea to the next.
 - Use lists (bulleted or numbered) strategically to highlight key points, steps, or summaries within the narrative, but always support them with explanatory paragraphs before and after.
@@ -482,10 +482,9 @@ Style Usage Guidelines:
 
 Formatting Rules:
 
-- Every section headline MUST include at least one emoji (e.g., `##  Results`, `###  Launch Steps`).
-- Every list item SHOULD include an emoji (e.g., `-  Key benefit`, `-  Timeline`).
-- Table headers and/or cells SHOULD include emojis where appropriate.
-- A one-pager without visible emojis in every major block is considered non-compliant.
+       - Headlines must be clear, text-only (no emoji prefixes).
+       - List items should use strong language and bolding for emphasis instead of emoji bullets.
+       - Tables, cards, alerts, and all other blocks should remain emoji-free.
 - Emojis must be contextually relevant and varied throughout the document.
 
 Main Title (Optional): The entire document can have a main title. If the user provides one, or if it's sensible to create one from the topic, it should be the first line of the document, formatted as a Level 1 Headline (`#`). This title should only appear if it is distinct from the first actual headline in the content. If the main title would be identical to the first headline, the main title should be omitted.

@@ -56,21 +56,21 @@
 
             --space-xxs: 2px; --space-xs: 4px; --space-sm: 8px; --space-md: 12px;
             --space-lg: 18px; --space-xl: 24px; --space-2xl: 32px; --space-3xl: 48px;
-            --content-max-width-constrained: 75%;
+            --content-max-width-constrained: 100%;
             
             /* Dynamic spacing variables for page optimization */
             --dynamic-spacing-multiplier: 1;
             --dynamic-font-size-multiplier: 1;
             
             --color-alert-text: #4B5563;
-            --letter-spacing-increased: 0.02em; 
+            --letter-spacing-increased: 0; 
         }
 
         @page { margin-top: 0mm; margin-bottom: 0mm; margin-left: 5mm; margin-right: 5mm; size: A4; }
         @page :first { margin-top: 0mm; }
         /* Removed non-standard @page :not(:first) rule to satisfy linter while keeping consistent margins */
         body {
-            font-family: var(--font-primary), var(--font-emoji); margin: 0; padding: 0;
+            font-family: var(--font-primary); margin: 0; padding: 0;
             background-color: var(--color-background-page); color: #4B5563;
             font-size: var(--font-size-base); font-weight: 300;
             line-height: var(--line-height-base); widows: 3; orphans: 3;
@@ -79,14 +79,9 @@
         
         /* Ensure emoji characters are properly rendered */
         * {
-            font-family: var(--font-primary), var(--font-emoji) !important;
+            font-family: var(--font-primary) !important;
         }
         
-        /* Force emoji rendering for specific Unicode ranges */
-        .emoji, [data-emoji="true"] {
-            font-family: var(--font-emoji) !important;
-            font-feature-settings: "liga" 1, "dlig" 1;
-        }
         .pdf-container { 
             width: 100%; 
             padding: 16px; 
@@ -94,7 +89,7 @@
             min-height: 100vh; 
         }
         .content-wrapper { 
-            max-width: 80rem; /* max-w-5xl equivalent */
+            max-width: 64rem; /* match frontend max-w-5xl */
             margin: 24px auto;
             background-color: white; 
             border: 2px solid #CCCCCC;
@@ -169,7 +164,7 @@
             margin-bottom: 0;
         }
         .main-title-text {
-            font-family: var(--font-primary), var(--font-emoji);
+            font-family: var(--font-primary);
             font-size: 24px; /* text-2xl */
             font-weight: 700; /* font-bold */
             color: #0F58F9; /* text-[#0F58F9] */
@@ -188,7 +183,7 @@
         .content-block-wrapper:last-child { margin-bottom: 0; }
 
         .headline-block { 
-            font-family: var(--font-primary), var(--font-emoji);
+            font-family: var(--font-primary);
             display: flex; align-items: center; line-height: 1.5; max-width: 100%; text-align: left; 
         }
         .headline-block .icon-svg { 
@@ -238,7 +233,7 @@
         }
         
         .paragraph-block { 
-            font-family: var(--font-primary), var(--font-emoji); 
+            font-family: var(--font-primary); 
             font-size: 1rem; /* text-base = 16px = 1rem */
             line-height: 1.5; /* leading-normal */
             font-weight: 300; /* font-light */
@@ -262,7 +257,7 @@
         }
         .list-block-wrapper li { 
             margin-bottom: 0; /* Remove individual margins since we use gap */
-            font-family: var(--font-primary), var(--font-emoji);
+            font-family: var(--font-primary);
             font-size: 16px; /* Match paragraph size */
             font-weight: 300; /* font-light to match paragraphs */
             line-height: 1.6; 
@@ -350,12 +345,12 @@
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li .list-content-column .list-block-wrapper.type-bullet_list .headline-block .icon-svg { display: none; }
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li .list-content-column .list-block-wrapper.type-bullet_list .paragraph-block { font-size: var(--font-size-mini-title-text); font-weight: var(--font-weight-normal); color: var(--color-text-muted); max-width: 100%; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); }
 
-        .alert-block { display: flex; padding: var(--space-md); border-left: 4px solid; border-radius: 3px; margin-bottom: var(--space-md); font-size: var(--font-size-paragraph-small); page-break-inside: avoid; color: var(--color-alert-text) !important; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-family: var(--font-primary), var(--font-emoji); }
+        .alert-block { display: flex; padding: var(--space-md); border-left: 4px solid; border-radius: 6px; margin-bottom: var(--space-md); font-size: var(--font-size-paragraph-small); page-break-inside: avoid; color: var(--color-alert-text) !important; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-family: var(--font-primary); background-color: #F8FAFF; }
         .alert-block .icon-container { margin-right: var(--space-sm); flex-shrink: 0; padding-top: 0.1em; }
         .alert-block .icon-container .icon-svg { width: 2.4em; height: 2.4em; display: block; }
         .alert-block .text-container { flex-grow: 1; }
-        .alert-block .alert-title { font-family: var(--font-primary), var(--font-emoji); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-xs); font-size: 11pt; color: #171718; } 
-        .alert-block .alert-text { font-family: var(--font-primary), var(--font-emoji); font-size: 8pt; color: #4B5563; }
+        .alert-block .alert-title { font-family: var(--font-primary); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-xs); font-size: 11pt; color: #171718; } 
+        .alert-block .alert-text { font-family: var(--font-primary); font-size: 8pt; color: #4B5563; }
         .alert-block.alert-info { background-color: #eff6ff; border-color: #3b82f6; }
         .alert-block.alert-info .icon-container { color: #3b82f6; }
         .alert-block.alert-success { background-color: #f0fdf4; border-color: #22c55e; }
@@ -383,16 +378,18 @@
             fill: currentColor;
         }
 
-        .paragraph-block.recommendation { font-size: 8pt; color: var(--color-text-muted); margin-top: var(--space-sm); margin-bottom:0; font-weight: var(--font-weight-medium); padding-left: 13px; position: relative; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); }
-        .paragraph-block.recommendation::before { 
-            content: ""; 
-            position: absolute; 
-            left: 0; 
-            top: 0.1em; 
-            height: calc(100% - 0.2em); 
-            width: 3px; 
-            background-color: var(--color-primary-accent); 
-            border-radius: 2px;
+        .paragraph-block.recommendation {
+            font-size: 16px;
+            color: #4B5563;
+            margin-top: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            font-weight: 300;
+            padding: 12px 16px;
+            border-left: 4px solid #0F58F9;
+            background-color: rgba(15, 88, 249, 0.08);
+            border-radius: 8px;
+            line-height: 1.6;
+            letter-spacing: 0;
         }
         
         li .paragraph-block.recommendation {
@@ -401,16 +398,8 @@
         }
 
         .list-block-wrapper.has-recommendation {
-            border-left: 3px solid var(--color-primary-accent);
-            padding-left: 10px;
-            border-radius: 2px;
-        }
-
-        .list-block-wrapper.has-recommendation .paragraph-block.recommendation {
+            border-left: none;
             padding-left: 0;
-        }
-        .list-block-wrapper.has-recommendation .paragraph-block.recommendation::before {
-            display: none;
         }
         .section-break-block.solid, .section-break-block.dashed { border: none; border-top: 0.5pt solid var(--color-border-light); margin: var(--space-xl) 0; } 
         .section-break-block.none { height: var(--space-lg); border:none; }
@@ -607,14 +596,14 @@
                         </div>
                     {% elif block_type == 'table' %}
                         <div class="table-block-wrapper" style="overflow-x:auto; margin: 16px 0;">
-                          <table style="border-collapse:collapse; width:100%; font-size:13px; border-radius: 8px; overflow: hidden; font-family: var(--font-primary), var(--font-emoji);">
+                          <table style="border-collapse:collapse; width:100%; font-size:13px; border-radius: 8px; overflow: hidden; font-family: var(--font-primary);">
                             {% if block_data.caption %}
-                                                              <caption style="caption-side:bottom; text-align:left; color:#888; font-size:11px; padding:4px 0; font-family: var(--font-primary), var(--font-emoji);">{{ block_data.caption }}</caption>
+                                                              <caption style="caption-side:bottom; text-align:left; color:#888; font-size:11px; padding:4px 0; font-family: var(--font-primary);">{{ block_data.caption }}</caption>
                             {% endif %}
                             <thead>
                               <tr>
                                 {% for header in block_data.headers %}
-                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:16px 24px; font-weight:600; text-align:left; vertical-align:middle; font-family: var(--font-primary), var(--font-emoji);">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
+                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:16px 24px; font-weight:600; text-align:left; vertical-align:middle; font-family: var(--font-primary);">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
                                 {% endfor %}
                               </tr>
                             </thead>
@@ -622,7 +611,7 @@
                               {% for row in block_data.rows %}
                                 <tr style="background-color: {% if loop.index0 % 2 == 0 %}#FFFFFF{% else %}#F7F8FA{% endif %};">
                                   {% for cell in row %}
-                                    <td style="border:1px solid #E5E7EB; padding:16px 24px; vertical-align:middle; color:#000000; font-family: var(--font-primary), var(--font-emoji);">
+                                    <td style="border:1px solid #E5E7EB; padding:16px 24px; vertical-align:middle; color:#000000; font-family: var(--font-primary);">
                   {% set segments = cell.split('**') %}
                   {% for segment in segments %}
                     {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
@@ -762,7 +751,7 @@
     {{ block_data.alt or 'Image not available' }}
   </div>
   {% if block_data.caption %}
-    <p style="font-size: 10px; color: #666; text-align: {{ block_data.alignment or 'center' }}; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
+    <p style="font-size: 10px; color: #666; text-align: {{ block_data.alignment or 'center' }}; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary);">
       {% set segments = block_data.caption.split('**') %}
       {% for segment in segments %}
         {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
@@ -812,7 +801,7 @@
                 </div>
             {% endfor %}
         </div>
-    {% endif %}
+  {% endif %}
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
 {% endif %}
