@@ -735,7 +735,8 @@ class ProfessionalPresentationService:
                     job_id=job_id,
                     slide_index=slide_index,
                     start_progress=base_progress + 10,
-                    end_progress=base_progress + 30
+                    end_progress=base_progress + 30,
+                    total_slides=len(slides_data)
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
                 job.created_files.append(avatar_video_path)  # Track for cleanup
@@ -1771,9 +1772,9 @@ class ProfessionalPresentationService:
             await self._update_job_status(job_id, progress=render_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Rendering started - Progress: {render_progress}%")
             
-            # Wait for completion with progress updates
+            # Wait for completion with progress updates (single slide, so slide_count=1)
             avatar_video_path = await self._wait_for_avatar_completion_with_progress(
-                video_id, job_id, render_progress, end_progress
+                video_id, job_id, render_progress, end_progress, slide_count=1
             )
             
             # Final progress update
@@ -1917,7 +1918,8 @@ class ProfessionalPresentationService:
         job_id: str,
         slide_index: int,
         start_progress: float,
-        end_progress: float
+        end_progress: float,
+        total_slides: int = 1
     ) -> str:
         """
         Wait for a specific avatar video to complete and download it.
@@ -1928,15 +1930,16 @@ class ProfessionalPresentationService:
             slide_index: Slide index for logging
             start_progress: Starting progress percentage
             end_progress: Ending progress percentage
+            total_slides: Total number of slides for dynamic timeout
             
         Returns:
             Path to downloaded avatar video
         """
-        logger.info(f"🎬 [BATCH_AVATAR_WAIT] Waiting for avatar video {video_id} (slide {slide_index + 1})")
+        logger.info(f"🎬 [BATCH_AVATAR_WAIT] Waiting for avatar video {video_id} (slide {slide_index + 1}/{total_slides})")
         
-        # Wait for completion with progress updates
+        # Wait for completion with progress updates and dynamic timeout
         avatar_video_path = await self._wait_for_avatar_completion_with_progress(
-            video_id, job_id, start_progress, end_progress
+            video_id, job_id, start_progress, end_progress, slide_count=total_slides
         )
         
         logger.info(f"🎬 [BATCH_AVATAR_WAIT] Avatar video ready: {avatar_video_path} (slide {slide_index + 1})")
@@ -2165,16 +2168,19 @@ class ProfessionalPresentationService:
         video_id: str, 
         job_id: str, 
         start_progress: float, 
-        end_progress: float
+        end_progress: float,
+        slide_count: int = 1
     ) -> str:
         """
         Wait for avatar video to complete rendering with progress updates and adaptive polling.
+        Uses dynamic timeout based on slide count.
         
         Args:
             video_id: Elai video ID
             job_id: Job ID for progress updates
             start_progress: Starting progress percentage
             end_progress: Ending progress percentage
+            slide_count: Number of slides for dynamic timeout calculation
             
         Returns:
             Path to downloaded avatar video
@@ -2183,7 +2189,8 @@ class ProfessionalPresentationService:
             logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Waiting for avatar video: {video_id}")
             logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Progress range: {start_progress}% → {end_progress}%")
             
-            max_wait_time = 15 * 60  # 15 minutes
+            # Use dynamic timeout based on slide count
+            max_wait_time = video_generation_service.calculate_timeout(slide_count)
             
             # ✅ NEW: Adaptive polling configuration
             current_interval = 10  # Start with 10 seconds

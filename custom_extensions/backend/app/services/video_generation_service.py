@@ -28,9 +28,14 @@ class ElaiVideoGenerationService:
     def __init__(self):
         self.api_base = "https://apis.elai.io/api/v1"
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
-        self.max_wait_time = 15 * 60  # 15 minutes
         
-        # ✅ NEW: Adaptive polling configuration
+        # ✅ NEW: Dynamic timeout configuration
+        self.base_wait_time = 10 * 60   # 10 minutes base
+        self.per_slide_time = 2 * 60    # 2 minutes per additional slide
+        self.min_wait_time = 5 * 60     # Minimum 5 minutes
+        self.max_wait_time = 60 * 60    # Maximum 60 minutes (safety cap)
+        
+        # Adaptive polling configuration
         self.initial_poll_interval = 10      # Start with 10 seconds
         self.max_poll_interval = 60          # Cap at 60 seconds
         self.poll_backoff_multiplier = 1.5   # Increase by 50% each time
@@ -38,6 +43,39 @@ class ElaiVideoGenerationService:
         
         # Deprecated: kept for backward compatibility
         self.poll_interval = 30  # 30 seconds (deprecated, use adaptive polling)
+    
+    def calculate_timeout(self, slide_count: int = 1) -> int:
+        """
+        Calculate dynamic timeout based on number of slides.
+        
+        Args:
+            slide_count: Number of slides in presentation
+            
+        Returns:
+            Timeout in seconds
+            
+        Formula:
+            timeout = base_time + (slide_count × per_slide_time)
+            capped between min_wait_time and max_wait_time
+            
+        Examples:
+            1 slide  → 12 min (10 + 1×2)
+            5 slides → 20 min (10 + 5×2)
+            10 slides → 30 min (10 + 10×2)
+            15 slides → 40 min (10 + 15×2)
+        """
+        timeout = self.base_wait_time + (slide_count * self.per_slide_time)
+        
+        # Apply min/max constraints
+        timeout = max(self.min_wait_time, timeout)
+        timeout = min(self.max_wait_time, timeout)
+        
+        logger.info(
+            f"⏱️ [DYNAMIC_TIMEOUT] Calculated timeout: {timeout}s ({timeout/60:.1f} min) "
+            f"for {slide_count} slide(s)"
+        )
+        
+        return timeout
     
     def _get_client(self):
         """Get or create HTTP client in the current event loop."""
@@ -1157,18 +1195,20 @@ class ElaiVideoGenerationService:
         finally:
             await client.aclose()
     
-    async def wait_for_completion(self, video_id: str) -> Optional[str]:
+    async def wait_for_completion(self, video_id: str, slide_count: int = 1) -> Optional[str]:
         """
-        Wait for video rendering to complete with adaptive exponential backoff.
+        Wait for video rendering to complete with adaptive exponential backoff and dynamic timeout.
         
         Enhanced polling strategy:
         - Starts with fast polling (10s) when video just started
         - Gradually increases interval using exponential backoff
         - Resets to fast polling when status changes (activity detected)
         - Caps at 60 seconds to avoid excessive delays
+        - Dynamic timeout based on number of slides
         
         Args:
             video_id: The ID of the video to monitor
+            slide_count: Number of slides in presentation (for dynamic timeout calculation)
             
         Returns:
             Download URL if successful, None if failed or timeout
@@ -1178,14 +1218,17 @@ class ElaiVideoGenerationService:
         last_status = None
         poll_count = 0
         
+        # Calculate dynamic timeout based on slide count
+        max_wait = self.calculate_timeout(slide_count)
+        
         logger.info(f"⏱️ [ADAPTIVE_POLLING] Starting adaptive polling for video {video_id}")
         logger.info(f"⏱️ [ADAPTIVE_POLLING] Configuration:")
         logger.info(f"  - Initial interval: {self.initial_poll_interval}s")
         logger.info(f"  - Max interval: {self.max_poll_interval}s")
         logger.info(f"  - Backoff multiplier: {self.poll_backoff_multiplier}x")
-        logger.info(f"  - Max wait time: {self.max_wait_time}s")
+        logger.info(f"  - Timeout: {max_wait}s ({max_wait/60:.1f} min) for {slide_count} slide(s)")
         
-        while (datetime.now() - start_time).total_seconds() < self.max_wait_time:
+        while (datetime.now() - start_time).total_seconds() < max_wait:
             try:
                 poll_count += 1
                 elapsed_time = (datetime.now() - start_time).total_seconds()
@@ -1271,8 +1314,8 @@ class ElaiVideoGenerationService:
                 await asyncio.sleep(current_interval)
         
         logger.error(
-            f"❌ [ADAPTIVE_POLLING] Video {video_id} generation timeout after {self.max_wait_time}s "
-            f"(polls: {poll_count})"
+            f"❌ [ADAPTIVE_POLLING] Video {video_id} generation timeout after {max_wait}s "
+            f"({max_wait/60:.1f} min) for {slide_count} slide(s) (polls: {poll_count})"
         )
         return None
     
