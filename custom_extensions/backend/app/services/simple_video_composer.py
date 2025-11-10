@@ -132,10 +132,7 @@ class SimpleVideoComposer:
             success = await self._add_audio(temp_video_path, avatar_video_path, output_path)
             
             # Cleanup temporary file
-            try:
-                os.remove(temp_video_path)
-            except Exception as e:
-                logger.warning(f"Could not remove temp file: {e}")
+            self._cleanup_temp_files([temp_video_path])
             
             if success:
                 logger.info(f"🎬 [SIMPLE_COMPOSER] Video composition completed successfully: {output_path}")
@@ -765,6 +762,24 @@ class SimpleVideoComposer:
             if avatar_config is None:
                 avatar_config = self.avatar_template
             return cv2.resize(avatar_frame, (avatar_config['width'], avatar_config['height']))
+    
+    def _cleanup_temp_files(self, file_paths: List[str]):
+        """
+        Simple cleanup with proper logging and error handling.
+        
+        Args:
+            file_paths: List of file paths to clean up
+        """
+        for file_path in file_paths:
+            try:
+                if os.path.exists(file_path):
+                    size_mb = os.path.getsize(file_path) / (1024*1024)
+                    os.remove(file_path)
+                    logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+            except PermissionError:
+                logger.warning(f"🧹 Файл заблоковано (повторити пізніше): {file_path}")
+            except Exception as e:
+                logger.error(f"🧹 Помилка видалення {file_path}: {e}")
     
     def cleanup(self):
         """Cleanup temporary files and resources."""

@@ -1199,12 +1199,8 @@ class ProfessionalPresentationService:
                 error_msg = f"Concatenated video failed validation: {', '.join(verification['issues'])}"
                 logger.error(f"❌ [VIDEO_CONCATENATION] {error_msg}")
                 
-                # Optionally: Delete corrupted output
-                try:
-                    os.remove(output_path)
-                    logger.info(f"🎬 [VIDEO_CONCATENATION] Deleted corrupted output: {output_path}")
-                except:
-                    pass
+                # Delete corrupted output
+                await self._cleanup_temp_files([output_path])
                 
                 raise Exception(error_msg)
             
@@ -2359,18 +2355,21 @@ class ProfessionalPresentationService:
     
     async def _cleanup_temp_files(self, file_paths: List[str]):
         """
-        Clean up temporary files.
+        Simple cleanup with proper logging and error handling.
         
         Args:
             file_paths: List of file paths to clean up
         """
-        try:
-            for file_path in file_paths:
+        for file_path in file_paths:
+            try:
                 if os.path.exists(file_path):
+                    size_mb = os.path.getsize(file_path) / (1024*1024)
                     os.remove(file_path)
-                    logger.info(f"Cleaned up temporary file: {file_path}")
-        except Exception as e:
-            logger.warning(f"Cleanup failed: {e}")
+                    logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+            except PermissionError:
+                logger.warning(f"🧹 Файл заблоковано (повторити пізніше): {file_path}")
+            except Exception as e:
+                logger.error(f"🧹 Помилка видалення {file_path}: {e}")
     
     async def get_presentation_video(self, job_id: str) -> Optional[str]:
         """
