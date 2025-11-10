@@ -269,7 +269,7 @@ export default function MusicRightPanel({
 
         <div className="flex items-center justify-between pt-3">
           <h3
-            className="text-sm font-medium text-right leading-snug max-w-[130px]"
+            className="text-sm font-medium text-left leading-snug max-w-[130px]"
             style={{ color: '#171718' }}
           >
             {t('panels.musicRightPanel.playEverywhere', 'Play everywhere')}
