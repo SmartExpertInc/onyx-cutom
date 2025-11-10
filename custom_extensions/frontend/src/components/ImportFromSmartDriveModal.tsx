@@ -828,5 +828,3 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     </div>
   );
 };
-
-*** End Patch
