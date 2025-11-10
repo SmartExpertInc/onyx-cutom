@@ -29,7 +29,15 @@ class ElaiVideoGenerationService:
         self.api_base = "https://apis.elai.io/api/v1"
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
         self.max_wait_time = 15 * 60  # 15 minutes
-        self.poll_interval = 30  # 30 seconds
+        
+        # ✅ NEW: Adaptive polling configuration
+        self.initial_poll_interval = 10      # Start with 10 seconds
+        self.max_poll_interval = 60          # Cap at 60 seconds
+        self.poll_backoff_multiplier = 1.5   # Increase by 50% each time
+        self.poll_reset_on_change = True     # Reset to initial on status change
+        
+        # Deprecated: kept for backward compatibility
+        self.poll_interval = 30  # 30 seconds (deprecated, use adaptive polling)
     
     def _get_client(self):
         """Get or create HTTP client in the current event loop."""
@@ -276,6 +284,51 @@ class ElaiVideoGenerationService:
         logger.info(f"📊 [TEXT_TRUNCATION] Final total length: {final_total:,} chars")
         
         return truncated_texts, was_truncated
+    
+    def _get_adaptive_poll_interval(
+        self,
+        elapsed_time: float,
+        current_interval: float,
+        status_changed: bool = False
+    ) -> float:
+        """
+        Calculate adaptive polling interval using exponential backoff.
+        
+        Strategy:
+        - Start with fast polling (10s)
+        - Gradually increase interval (exponential backoff)
+        - Cap at maximum (60s)
+        - Reset to initial on status change
+        
+        Args:
+            elapsed_time: Time elapsed since start (seconds)
+            current_interval: Current polling interval (seconds)
+            status_changed: Whether status changed since last poll
+            
+        Returns:
+            Next polling interval in seconds
+        """
+        # Reset to initial interval if status changed
+        if status_changed and self.poll_reset_on_change:
+            logger.info(
+                f"⏱️ [ADAPTIVE_POLLING] Status changed - resetting to initial interval: {self.initial_poll_interval}s"
+            )
+            return self.initial_poll_interval
+        
+        # Exponential backoff: multiply current interval
+        next_interval = current_interval * self.poll_backoff_multiplier
+        
+        # Apply cap
+        next_interval = min(next_interval, self.max_poll_interval)
+        
+        # Log interval changes
+        if next_interval != current_interval:
+            logger.info(
+                f"⏱️ [ADAPTIVE_POLLING] Increasing interval: {current_interval:.1f}s → {next_interval:.1f}s "
+                f"(elapsed: {elapsed_time:.1f}s)"
+            )
+        
+        return next_interval
     
     async def get_avatars(self) -> Dict[str, Any]:
         """
@@ -1106,7 +1159,13 @@ class ElaiVideoGenerationService:
     
     async def wait_for_completion(self, video_id: str) -> Optional[str]:
         """
-        Wait for video rendering to complete and return the download URL.
+        Wait for video rendering to complete with adaptive exponential backoff.
+        
+        Enhanced polling strategy:
+        - Starts with fast polling (10s) when video just started
+        - Gradually increases interval using exponential backoff
+        - Resets to fast polling when status changes (activity detected)
+        - Caps at 60 seconds to avoid excessive delays
         
         Args:
             video_id: The ID of the video to monitor
@@ -1115,18 +1174,36 @@ class ElaiVideoGenerationService:
             Download URL if successful, None if failed or timeout
         """
         start_time = datetime.now()
+        current_interval = self.initial_poll_interval
+        last_status = None
+        poll_count = 0
+        
+        logger.info(f"⏱️ [ADAPTIVE_POLLING] Starting adaptive polling for video {video_id}")
+        logger.info(f"⏱️ [ADAPTIVE_POLLING] Configuration:")
+        logger.info(f"  - Initial interval: {self.initial_poll_interval}s")
+        logger.info(f"  - Max interval: {self.max_poll_interval}s")
+        logger.info(f"  - Backoff multiplier: {self.poll_backoff_multiplier}x")
+        logger.info(f"  - Max wait time: {self.max_wait_time}s")
         
         while (datetime.now() - start_time).total_seconds() < self.max_wait_time:
             try:
+                poll_count += 1
+                elapsed_time = (datetime.now() - start_time).total_seconds()
+                
                 status_data = await self.check_video_status(video_id)
                 
                 if not status_data:
-                    logger.warning("Failed to get video status, retrying...")
-                    await asyncio.sleep(self.poll_interval)
+                    logger.warning(f"⏱️ [ADAPTIVE_POLLING] Failed to get video status, retrying...")
+                    await asyncio.sleep(current_interval)
                     continue
                 
                 status = status_data.get("status", "unknown")
-                logger.info(f"Video {video_id} status: {status}")
+                status_changed = (status != last_status)
+                
+                logger.info(
+                    f"⏱️ [ADAPTIVE_POLLING] Poll #{poll_count}: status={status}, "
+                    f"elapsed={elapsed_time:.1f}s, next_interval={current_interval:.1f}s"
+                )
                 
                 if status in ["rendered", "ready"]:
                     # Try different possible URL fields
@@ -1137,7 +1214,10 @@ class ElaiVideoGenerationService:
                     )
                     
                     if download_url:
-                        logger.info(f"Video {video_id} completed successfully")
+                        logger.info(
+                            f"✅ [ADAPTIVE_POLLING] Video {video_id} completed successfully "
+                            f"(polls: {poll_count}, time: {elapsed_time:.1f}s)"
+                        )
                         return download_url
                     else:
                         logger.error(f"Video {video_id} rendered but no download URL found")
@@ -1146,6 +1226,7 @@ class ElaiVideoGenerationService:
                 elif status == "failed":
                     logger.error(f"Video {video_id} rendering failed permanently")
                     return None
+                    
                 elif status == "error":
                     # Check if this is a permanent error or temporary issue
                     error_details = status_data.get("data", {}).get("error", {})
@@ -1165,21 +1246,34 @@ class ElaiVideoGenerationService:
                         return None
                     else:
                         logger.warning(f"Video {video_id} reported temporary error status, continuing to wait...")
-                        await asyncio.sleep(self.poll_interval)
+                        # Don't change interval for temporary errors
+                        await asyncio.sleep(current_interval)
                     
                 elif status in ["rendering", "queued", "draft", "validating"]:
-                    # Still processing, continue waiting
-                    await asyncio.sleep(self.poll_interval)
+                    # Normal processing states - apply adaptive interval
+                    last_status = status
+                    
+                    # Calculate next interval
+                    current_interval = self._get_adaptive_poll_interval(
+                        elapsed_time,
+                        current_interval,
+                        status_changed
+                    )
+                    
+                    await asyncio.sleep(current_interval)
                     
                 else:
                     logger.warning(f"Unknown status for video {video_id}: {status}")
-                    await asyncio.sleep(self.poll_interval)
+                    await asyncio.sleep(current_interval)
                     
             except Exception as e:
                 logger.error(f"Error monitoring video {video_id}: {str(e)}")
-                await asyncio.sleep(self.poll_interval)
+                await asyncio.sleep(current_interval)
         
-        logger.error(f"Video {video_id} generation timeout after {self.max_wait_time} seconds")
+        logger.error(
+            f"❌ [ADAPTIVE_POLLING] Video {video_id} generation timeout after {self.max_wait_time}s "
+            f"(polls: {poll_count})"
+        )
         return None
     
     async def download_video(self, download_url: str, output_path: str) -> bool:

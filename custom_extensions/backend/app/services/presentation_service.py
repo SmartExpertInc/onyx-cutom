@@ -2135,9 +2135,15 @@ class ProfessionalPresentationService:
             logger.error(f"Avatar video generation failed: {e}")
             raise
     
-    async def _wait_for_avatar_completion_with_progress(self, video_id: str, job_id: str, start_progress: float, end_progress: float) -> str:
+    async def _wait_for_avatar_completion_with_progress(
+        self, 
+        video_id: str, 
+        job_id: str, 
+        start_progress: float, 
+        end_progress: float
+    ) -> str:
         """
-        Wait for avatar video to complete rendering with progress updates.
+        Wait for avatar video to complete rendering with progress updates and adaptive polling.
         
         Args:
             video_id: Elai video ID
@@ -2153,28 +2159,43 @@ class ProfessionalPresentationService:
             logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Progress range: {start_progress}% → {end_progress}%")
             
             max_wait_time = 15 * 60  # 15 minutes
-            check_interval = 30  # 30 seconds
+            
+            # ✅ NEW: Adaptive polling configuration
+            current_interval = 10  # Start with 10 seconds
+            max_interval = 60      # Cap at 60 seconds
+            backoff_multiplier = 1.5
+            
             start_time = datetime.now()
             consecutive_errors = 0
             max_consecutive_errors = 5
+            last_status = None
+            poll_count = 0
+            
+            logger.info(f"⏱️ [ADAPTIVE_POLLING] Using adaptive polling: {current_interval}s → {max_interval}s")
             
             while (datetime.now() - start_time).total_seconds() < max_wait_time:
+                poll_count += 1
+                elapsed_time = (datetime.now() - start_time).total_seconds()
+                
                 status_result = await video_generation_service.check_video_status(video_id)
                 
                 if not status_result["success"]:
                     logger.warning(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Failed to check video status: {status_result['error']}")
-                    await asyncio.sleep(check_interval)
+                    await asyncio.sleep(current_interval)
                     continue
                 
                 status = status_result["status"]
                 elai_progress = status_result["progress"]
-                elapsed_time = (datetime.now() - start_time).total_seconds()
+                status_changed = (status != last_status)
                 
                 # Calculate our progress based on Elai's progress
                 our_progress = start_progress + ((end_progress - start_progress) * (elai_progress / 100))
                 
-                logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Status: {status}, Elai Progress: {elai_progress}%, Our Progress: {our_progress:.1f}%")
-                logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Elapsed: {elapsed_time:.1f}s")
+                logger.info(
+                    f"⏱️ [ADAPTIVE_POLLING] Poll #{poll_count}: status={status}, "
+                    f"elai_progress={elai_progress}%, our_progress={our_progress:.1f}%, "
+                    f"elapsed={elapsed_time:.1f}s, next_interval={current_interval:.1f}s"
+                )
                 
                 # Update our job progress based on Elai progress
                 if elai_progress > 0:
@@ -2185,25 +2206,47 @@ class ProfessionalPresentationService:
                     if download_url:
                         # Download the video
                         avatar_video_path = await self._download_avatar_video(download_url, video_id)
-                        logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Avatar video downloaded: {avatar_video_path}")
+                        logger.info(
+                            f"✅ [ADAPTIVE_POLLING] Avatar video downloaded: {avatar_video_path} "
+                            f"(polls: {poll_count}, time: {elapsed_time:.1f}s)"
+                        )
                         return avatar_video_path
                     else:
                         raise Exception("Video rendered but no download URL available")
                 
                 elif status == "failed":
                     raise Exception(f"Avatar video rendering failed: {status}")
+                    
                 elif status == "error":
                     consecutive_errors += 1
-                    logger.warning(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Error status (consecutive: {consecutive_errors}/{max_consecutive_errors})")
+                    logger.warning(
+                        f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Error status "
+                        f"(consecutive: {consecutive_errors}/{max_consecutive_errors})"
+                    )
                     
                     if consecutive_errors >= max_consecutive_errors:
-                        raise Exception(f"Avatar video rendering failed after {consecutive_errors} consecutive errors")
+                        raise Exception(
+                            f"Avatar video rendering failed after {consecutive_errors} consecutive errors"
+                        )
+                    # Don't change interval for errors
+                    await asyncio.sleep(current_interval)
                 else:
+                    # Normal processing - apply adaptive polling
                     consecutive_errors = 0
-                
-                await asyncio.sleep(check_interval)
+                    last_status = status
+                    
+                    # Reset to fast polling on status change
+                    if status_changed:
+                        logger.info(f"⏱️ [ADAPTIVE_POLLING] Status changed - resetting to 10s interval")
+                        current_interval = 10
+                    else:
+                        # Exponential backoff
+                        new_interval = current_interval * backoff_multiplier
+                        current_interval = min(new_interval, max_interval)
+                    
+                    await asyncio.sleep(current_interval)
             
-            raise Exception("Avatar video rendering timeout")
+            raise Exception(f"Avatar video rendering timeout after {max_wait_time}s (polls: {poll_count})")
             
         except Exception as e:
             logger.error(f"Avatar video completion with progress failed: {e}")
