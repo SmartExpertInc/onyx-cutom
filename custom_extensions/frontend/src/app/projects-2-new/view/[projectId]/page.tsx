@@ -41,6 +41,7 @@ import VideoRightPanel from '../components/VideoRightPanel';
 import MusicRightPanel from '../components/MusicRightPanel';
 import TextRightPanel from '../components/TextRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
+import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -68,6 +69,7 @@ function Projects2ViewPageContent() {
   const [isPlayModalOpen, setIsPlayModalOpen] = useState<boolean>(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState<boolean>(false);
   const [isGenerationCompletedModalOpen, setIsGenerationCompletedModalOpen] = useState<boolean>(false);
+const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(false);
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -1373,6 +1375,7 @@ function Projects2ViewPageContent() {
               setActiveTransitionIndex={setActiveTransitionIndex}
               rightPanelRef={rightPanelRef}
               onColorPaletteContextChange={(context) => setColorPaletteContext(context)}
+              onUpgradeClick={() => setIsTariffPlanModalOpen(true)}
             />
           )}
         </div>
@@ -1579,6 +1582,11 @@ function Projects2ViewPageContent() {
         position={colorPalettePosition}
         recentColors={recentColors}
         onRecentColorChange={setRecentColors}
+      />
+
+      <TariffPlanModal
+        open={isTariffPlanModalOpen}
+        onOpenChange={setIsTariffPlanModalOpen}
       />
 
       {/* Text Editing Toolbar - Hidden since we're using TextRightPanel instead */}

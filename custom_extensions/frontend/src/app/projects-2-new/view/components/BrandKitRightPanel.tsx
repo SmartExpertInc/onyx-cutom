@@ -32,6 +32,7 @@ interface BrandKitRightPanelProps {
   onBrandColorRemove?: (index: number) => void;
   onColorPaletteContextChange?: (context: string) => void;
   onBrandColorsReorder?: (colors: BrandColorValue[]) => void;
+  onUpgradeClick?: () => void;
 }
 
 export default function BrandKitRightPanel({
@@ -53,6 +54,7 @@ export default function BrandKitRightPanel({
   onBrandColorRemove,
   onColorPaletteContextChange,
   onBrandColorsReorder,
+  onUpgradeClick,
 }: BrandKitRightPanelProps) {
   const { t, language } = useLanguage();
   const transitionDropdownRef = useRef<HTMLDivElement>(null);
@@ -505,7 +507,7 @@ export default function BrandKitRightPanel({
           </svg>
         </div>
 
-        <UpgradePlanBlock />
+        <UpgradePlanBlock onUpgradeClick={onUpgradeClick} />
       </div>
 
       <div>
@@ -518,7 +520,7 @@ export default function BrandKitRightPanel({
           </svg>
         </div>
 
-        <UpgradePlanBlock />
+        <UpgradePlanBlock onUpgradeClick={onUpgradeClick} />
       </div>
     </>
   );

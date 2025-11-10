@@ -3,7 +3,11 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-export function UpgradePlanBlock() {
+interface UpgradePlanBlockProps {
+  onUpgradeClick?: () => void;
+}
+
+export function UpgradePlanBlock({ onUpgradeClick }: UpgradePlanBlockProps) {
   const { t } = useLanguage();
 
   return (
@@ -18,6 +22,7 @@ export function UpgradePlanBlock() {
         type="button"
         className="w-full px-3 py-1.5 rounded-md text-xs font-medium text-white"
         style={{ backgroundColor: '#0F58F9' }}
+        onClick={onUpgradeClick}
       >
         {t('rightPanel.upgradePlanBlock.upgradePlan', 'Upgrade plan')}
       </button>
