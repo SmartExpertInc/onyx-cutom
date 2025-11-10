@@ -41,6 +41,12 @@ class ElaiVideoGenerationService:
         self.poll_backoff_multiplier = 1.5   # Increase by 50% each time
         self.poll_reset_on_change = True     # Reset to initial on status change
         
+        # ✅ NEW: Dynamic download timeout configuration
+        self.min_download_timeout = 60           # Minimum 1 minute
+        self.base_download_timeout = 5 * 60      # Base 5 minutes
+        self.timeout_per_mb = 2                  # 2 seconds per MB
+        self.max_download_timeout = 30 * 60      # Maximum 30 minutes (safety cap)
+        
         # Deprecated: kept for backward compatibility
         self.poll_interval = 30  # 30 seconds (deprecated, use adaptive polling)
     
@@ -73,6 +79,45 @@ class ElaiVideoGenerationService:
         logger.info(
             f"⏱️ [DYNAMIC_TIMEOUT] Calculated timeout: {timeout}s ({timeout/60:.1f} min) "
             f"for {slide_count} slide(s)"
+        )
+        
+        return timeout
+    
+    def calculate_download_timeout(self, file_size_bytes: int) -> float:
+        """
+        Calculate dynamic download timeout based on expected file size.
+        
+        Args:
+            file_size_bytes: Expected file size in bytes
+            
+        Returns:
+            Timeout in seconds
+            
+        Formula:
+            timeout = base_timeout + (file_size_mb × timeout_per_mb)
+            capped between min_download_timeout and max_download_timeout
+            
+        Examples:
+            10 MB  → 320 seconds (5.3 min)
+            50 MB  → 400 seconds (6.7 min)
+            200 MB → 700 seconds (11.7 min)
+            500 MB → 1300 seconds (21.7 min)
+        """
+        if file_size_bytes <= 0:
+            # If size unknown, use base timeout
+            logger.warning("📥 [DOWNLOAD_TIMEOUT] File size unknown, using base timeout")
+            return self.base_download_timeout
+        
+        file_size_mb = file_size_bytes / (1024 * 1024)
+        timeout = self.base_download_timeout + (file_size_mb * self.timeout_per_mb)
+        
+        # Apply min/max constraints
+        timeout = max(self.min_download_timeout, timeout)
+        timeout = min(self.max_download_timeout, timeout)
+        
+        logger.info(
+            f"⏱️ [DOWNLOAD_TIMEOUT] Calculated timeout: {timeout}s ({timeout/60:.1f} min) "
+            f"for {file_size_mb:.1f} MB file"
         )
         
         return timeout
@@ -1321,7 +1366,7 @@ class ElaiVideoGenerationService:
     
     async def download_video(self, download_url: str, output_path: str) -> bool:
         """
-        Download the rendered video to local storage.
+        Download the rendered video to local storage with dynamic timeout.
         
         Args:
             download_url: The URL to download the video from
@@ -1336,21 +1381,46 @@ class ElaiVideoGenerationService:
             return False
         
         try:
-            logger.info(f"Downloading video from: {download_url}")
-            logger.info(f"Downloading to: {output_path}")
+            logger.info(f"📥 [DOWNLOAD] Starting video download")
+            logger.info(f"📥 [DOWNLOAD] URL: {download_url}")
+            logger.info(f"📥 [DOWNLOAD] Output: {output_path}")
             
-            # Use httpx to download the video
-            response = await client.get(download_url, timeout=300)
+            # ✅ STEP 1: HEAD request to get file size (with short timeout)
+            expected_size = 0
+            download_timeout = self.base_download_timeout
+            
+            try:
+                head_response = await client.head(download_url, timeout=30)
+                expected_size = int(head_response.headers.get('content-length', 0))
+                
+                if expected_size > 0:
+                    logger.info(f"📥 [DOWNLOAD] Expected file size: {expected_size / (1024*1024):.2f} MB")
+                    
+                    # Calculate dynamic timeout based on file size
+                    download_timeout = self.calculate_download_timeout(expected_size)
+                else:
+                    logger.warning("📥 [DOWNLOAD] File size not available from headers, using base timeout")
+                    
+            except Exception as e:
+                logger.warning(f"📥 [DOWNLOAD] HEAD request failed: {e}, using base timeout")
+            
+            # ✅ STEP 2: Download with dynamic timeout
+            logger.info(f"⏱️ [DOWNLOAD] Using timeout: {download_timeout}s ({download_timeout/60:.1f} min)")
+            
+            start_time = datetime.now()
+            response = await client.get(download_url, timeout=download_timeout)  # ✅ Dynamic!
             response.raise_for_status()
             
             # Get total size for progress tracking
             total_size = int(response.headers.get('content-length', 0))
             downloaded_size = 0
+            last_log_progress = 0
             
             # Create output directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             
-            # Download the video
+            # Download the video with progress logging
+            logger.info(f"📥 [DOWNLOAD] Starting file transfer...")
             with open(output_path, 'wb') as f:
                 async for chunk in response.aiter_bytes(chunk_size=8192):
                     f.write(chunk)
@@ -1358,42 +1428,62 @@ class ElaiVideoGenerationService:
                     
                     if total_size > 0:
                         progress = (downloaded_size / total_size) * 100
-                        if downloaded_size % (1024 * 1024) == 0:  # Log every MB
-                            logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
+                        # Log every 10% progress
+                        if progress - last_log_progress >= 10:
+                            elapsed = (datetime.now() - start_time).total_seconds()
+                            if elapsed > 0:
+                                speed_mbps = (downloaded_size / (1024*1024)) / elapsed
+                                logger.info(
+                                    f"📥 [DOWNLOAD] Progress: {progress:.1f}% "
+                                    f"({downloaded_size/(1024*1024):.1f}/{total_size/(1024*1024):.1f} MB) "
+                                    f"Speed: {speed_mbps:.2f} MB/s"
+                                )
+                                last_log_progress = progress
             
-            # CRITICAL DEBUG: Comprehensive avatar video analysis
-            logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Download completed")
-            logger.info(f"  - Total size downloaded: {downloaded_size} bytes ({downloaded_size / (1024*1024):.2f} MB)")
-            logger.info(f"  - Expected size: {total_size} bytes ({total_size / (1024*1024):.2f} MB)")
+            # Calculate final statistics
+            elapsed_total = (datetime.now() - start_time).total_seconds()
+            final_size_mb = downloaded_size / (1024*1024)
+            avg_speed = final_size_mb / elapsed_total if elapsed_total > 0 else 0
+            
+            logger.info(f"✅ [DOWNLOAD] Video downloaded successfully")
+            logger.info(f"✅ [DOWNLOAD] File: {output_path}")
+            logger.info(f"✅ [DOWNLOAD] Size: {final_size_mb:.2f} MB")
+            logger.info(f"✅ [DOWNLOAD] Time: {elapsed_total:.1f}s ({elapsed_total/60:.1f} min)")
+            logger.info(f"✅ [DOWNLOAD] Avg speed: {avg_speed:.2f} MB/s")
             
             # Verify file was downloaded
             if os.path.exists(output_path):
                 file_size_bytes = os.path.getsize(output_path)
                 file_size_mb = file_size_bytes / (1024 * 1024)
-                logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Video downloaded successfully!")
-                logger.info(f"  - File path: {output_path}")
-                logger.info(f"  - File size: {file_size_mb:.2f} MB ({file_size_bytes} bytes)")
                 
-                # CRITICAL DEBUG: Check if file is suspiciously small (might be blank/error)
+                # Check if file is suspiciously small (might be blank/error)
                 if file_size_bytes < 100000:  # Less than 100KB is suspicious for a video
-                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is very small ({file_size_bytes} bytes)")
+                    logger.warning(f"⚠️ [DOWNLOAD] WARNING: Downloaded video is very small ({file_size_bytes} bytes)")
                     logger.warning(f"  - This might indicate a blank or error video")
                 elif file_size_bytes < 1000000:  # Less than 1MB is concerning
-                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is small ({file_size_mb:.2f} MB)")
+                    logger.warning(f"⚠️ [DOWNLOAD] WARNING: Downloaded video is small ({file_size_mb:.2f} MB)")
                     logger.warning(f"  - Avatar might not be visible or video might be very short")
                 else:
-                    logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] File size looks normal for video content")
+                    logger.info(f"✅ [DOWNLOAD] File size looks normal for video content")
                 
-                # CRITICAL DEBUG: Analyze video properties to detect blank videos
+                # Analyze video properties to detect blank videos
                 await self._analyze_downloaded_video(output_path)
                 
                 return True
             else:
-                logger.error("Download completed but file not found")
+                logger.error("❌ [DOWNLOAD] Download completed but file not found")
                 return False
                 
         except Exception as e:
-            logger.error(f"Download failed: {str(e)}")
+            # Enhanced error handling with timeout specifics
+            import httpx
+            if isinstance(e, httpx.TimeoutException):
+                logger.error(
+                    f"❌ [DOWNLOAD] Timeout after {download_timeout}s "
+                    f"({download_timeout/60:.1f} min): {str(e)}"
+                )
+            else:
+                logger.error(f"❌ [DOWNLOAD] Error: {str(e)}")
             return False
         finally:
             await client.aclose()
