@@ -442,7 +442,7 @@ export default function AuditLandingPage() {
             {/* Left Column - Features */}
             <div className="flex flex-col md:flex-row lg:flex-col gap-8">
               {/* Feature 1 */}
-              <div className="flex flex-col gap-4 py-7 border-b border-gray-200 md:border-b-0 md:border-r md:border-gray-200 lg:border-y lg:border-gray-200">
+              <div className="flex flex-col gap-4 py-7 border-b border-gray-200 md:border-b-0 md:border-r md:border-gray-200 lg:border-r-0 lg:border-y lg:border-gray-200">
                 <div 
                   className="w-13 h-13 rounded-sm flex items-center justify-center flex-shrink-0 bg-white border border-[#E4E4E7]"
                 >
