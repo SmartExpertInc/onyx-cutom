@@ -63,7 +63,7 @@ export default function ForgotPasswordForm() {
                 variant="default"
                 type="submit"
                 disabled={isSubmitting}
-                className="mx-auto !py-3 !px-4 !h-auto w-full rounded-md shadow-md hover:shadow-xl transition-shadow -mt-2 !bg-[#1d4ed8] !text-[#ffffff]"
+                className="mx-auto !py-2 !px-4 !h-auto w-full rounded-md shadow-md hover:shadow-xl transition-shadow -mt-2 !bg-[#1d4ed8] !text-[#ffffff]"
               >
                 Reset Password
               </Button>

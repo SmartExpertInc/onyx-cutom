@@ -185,7 +185,7 @@ export function EmailPasswordForm({
                   label={multiStep ? "" : "Password"}
                   type={showPassword ? "text" : "password"}
                   placeholder={multiStep ? "Password" : "**************"}
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:[font-family:'Public Sans'] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button
@@ -224,7 +224,7 @@ export function EmailPasswordForm({
                   label=""
                   type={showPassword ? "text" : "password"}
                   placeholder="Confirm password"
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md -mt-2 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                   className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:[font-family:'Public Sans'] !rounded-md -mt-2 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button
