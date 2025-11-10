@@ -19,8 +19,8 @@ const MIN_SELECTION_GAP = 0.05;
 export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps) {
   const railRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<{ start: number; end: number }>({
-    start: 0.1,
-    end: 0.9,
+    start: 0,
+    end: 1,
   });
   const [activeHandle, setActiveHandle] = useState<'start' | 'end' | null>(null);
 
@@ -127,13 +127,13 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
 
             <div className="relative w-full">
               <div ref={railRef} className="relative h-[70px] w-full">
-                <div className="absolute inset-0 flex h-full w-full overflow-hidden rounded-[6px] border border-[#E0E0E0] bg-white/40 gap-1">
+                <div className="absolute inset-0 flex h-full w-full overflow-hidden rounded-[6px] bg-white/40 gap-1">
                   {Array.from({ length: 10 }).map((_, index) => (
                     <div
                       key={index}
                       className="flex-1 h-full rounded-[4px]"
                       style={{
-                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                        backgroundColor: '#878787',
                         border: '1px solid #E0E0E0',
                       }}
                     />
@@ -142,19 +142,19 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
 
                 <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[6px]">
                   <div
-                    className="absolute inset-y-0 left-0 bg-[#0F58F9]/20"
+                    className="absolute inset-y-0 left-0 bg-white/30"
                     style={{ width: `${startPercent}%` }}
                   />
                   <div
-                    className="absolute inset-y-0 right-0 bg-[#0F58F9]/20"
+                    className="absolute inset-y-0 right-0 bg-white/30"
                     style={{ width: `${100 - endPercent}%` }}
                   />
                 </div>
 
                 <button
                   type="button"
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-full z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-l-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
-                  style={{ left: `${startPercent}%` }}
+                  className="absolute top-1/2 z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-l-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
+                  style={{ left: `${startPercent}%`, transform: 'translateY(-50%)' }}
                   aria-label="Adjust trim start"
                   onPointerDown={handlePointerDown('start')}
                 >
@@ -165,8 +165,8 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
 
                 <button
                   type="button"
-                  className="absolute top-1/2 -translate-y-1/2 z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-r-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
-                  style={{ left: `${endPercent}%` }}
+                  className="absolute top-1/2 z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-r-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
+                  style={{ left: `${endPercent}%`, transform: 'translate(-100%, -50%)' }}
                   aria-label="Adjust trim end"
                   onPointerDown={handlePointerDown('end')}
                 >
@@ -197,7 +197,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <button
                 type="button"
                 onClick={onClose}
-                className="w-[70px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                className="w-[75px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
                 style={{
                   backgroundColor: '#FFFFFF',
                   color: '#171718',
@@ -208,7 +208,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               </button>
               <button
                 type="button"
-                className="w-[70px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-[75px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
