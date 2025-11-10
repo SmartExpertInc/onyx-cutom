@@ -50,7 +50,12 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
             <div className="relative w-full">
               <div
                 className="flex h-[70px] w-full gap-1 bg-transparent"
-                style={{ borderRadius: '6px', border: '1px solid #E0E0E0', padding: '4px' }}
+                style={{
+                  borderRadius: '6px',
+                  border: '1px solid #E0E0E0',
+                  paddingLeft: '4px',
+                  paddingRight: '4px',
+                }}
               >
                 {Array.from({ length: 10 }).map((_, index) => (
                   <div
@@ -114,7 +119,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <button
                 type="button"
                 onClick={onClose}
-                className="w-[90px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                className="w-[80px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
                 style={{
                   backgroundColor: '#FFFFFF',
                   color: '#171718',
@@ -125,7 +130,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               </button>
               <button
                 type="button"
-                className="w-[90px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-[80px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
