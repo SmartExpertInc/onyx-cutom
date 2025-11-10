@@ -39,14 +39,14 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
           <X className="w-5 h-5 text-gray-500" />
         </button>
 
-        <div className="flex-1 w-full flex flex-col items-center justify-center gap-8 px-10">
+        <div className="flex-1 w-full flex flex-col items-center justify-center gap-8 px-10 py-4">
           <div
             className="w-[800px] max-w-full rounded-lg border border-dashed border-[#B0B0B0] bg-white/40 aspect-video flex items-center justify-center text-sm text-[#878787]"
           >
             Video preview placeholder
           </div>
 
-          <div className="w-full max-w-[1100px] px-[8%]">
+          <div className="w-full max-w-[1100px] px-10">
             <div
               className="relative w-full h-[58px] bg-white/60 border border-[#E0E0E0]"
               style={{ borderRadius: '6px' }}
@@ -84,8 +84,8 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
         </div>
 
         <div
-          className="w-full py-4 px-[8%] flex items-center justify-between"
-          style={{ borderTop: '1px solid #E0E0E0' }}
+          className="w-full px-10 flex items-center justify-between"
+          style={{ borderTop: '1px solid #E0E0E0', paddingTop: '20px', paddingBottom: '20px' }}
         >
           <div>
             <div className="text-sm font-medium" style={{ color: '#171718' }}>
@@ -100,7 +100,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer"
+              className="w-32 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
               style={{
                 backgroundColor: '#FFFFFF',
                 color: '#171718',
@@ -111,7 +111,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
             </button>
             <button
               type="button"
-              className="px-4 py-2 text-xs font-medium rounded-md flex items-center gap-2 transition-colors cursor-pointer"
+              className="w-32 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
               style={{
                 backgroundColor: '#0F58F9',
                 color: '#FFFFFF',
