@@ -117,6 +117,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   const [selectedConnectorSourcesState, setSelectedConnectorSourcesState] = useState<string[]>(selectedConnectorSources || []);
   const allowConnectorSelection = selectionMode === 'connectors';
 
+  const getConnectorsBySource = useCallback((source: string) => {
+    return userConnectors.filter(connector => connector.source === source);
+  }, [userConnectors]);
+
   useEffect(() => {
     if (allowConnectorSelection && Array.isArray(selectedConnectorSources)) {
       setSelectedConnectorSourcesState(selectedConnectorSources);
@@ -819,10 +823,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
     }
-  };
-
-  const getConnectorsBySource = (source: string) => {
-    return userConnectors.filter(connector => connector.source === source);
   };
 
   const getCreateUrl = (connectorId: string) => {
