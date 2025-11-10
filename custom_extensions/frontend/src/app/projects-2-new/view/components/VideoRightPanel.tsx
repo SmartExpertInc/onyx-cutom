@@ -135,6 +135,7 @@ export default function VideoRightPanel({
   );
   const [selectedDurationOption, setSelectedDurationOption] = useState<DurationOption>('Loop');
   const [hoveredDurationOption, setHoveredDurationOption] = useState<DurationOption | null>(null);
+  const [tooltipDurationOption, setTooltipDurationOption] = useState<DurationOption | null>(null);
   const [isDurationMenuOpen, setIsDurationMenuOpen] = useState<boolean>(false);
   const [isImageMenuOpen, setIsImageMenuOpen] = useState<boolean>(false);
   const imageMenuRef = useRef<HTMLDivElement>(null);
@@ -196,6 +197,7 @@ export default function VideoRightPanel({
       if (durationMenuRef.current && !durationMenuRef.current.contains(target)) {
         setIsDurationMenuOpen(false);
         setHoveredDurationOption(null);
+        setTooltipDurationOption(null);
       }
     }
 
@@ -348,6 +350,7 @@ export default function VideoRightPanel({
               setIsDurationMenuOpen((prev) => {
                 if (prev) {
                   setHoveredDurationOption(null);
+                  setTooltipDurationOption(null);
                 }
                 return !prev;
               })
@@ -375,6 +378,7 @@ export default function VideoRightPanel({
                       setSelectedDurationOption(option);
                       setIsDurationMenuOpen(false);
                       setHoveredDurationOption(null);
+                    setTooltipDurationOption(null);
                     }}
                     className="flex w-full items-center justify-between rounded px-2 py-1"
                     style={{
@@ -399,33 +403,39 @@ export default function VideoRightPanel({
                       )}
                       <span className="text-xs">{durationOptionLabels[option]}</span>
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <g clipPath="url(#clip0_2114_32588)">
-                        <path d="M7.99967 10.6654V7.9987M7.99967 5.33203H8.00634M14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_2114_32588">
-                          <rect width="16" height="16" fill="white"/>
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </button>
-                  {hoveredDurationOption === option && (
                     <div
-                      className="pointer-events-none absolute z-20 mt-2 rounded px-2 py-1"
-                      style={{
-                        backgroundColor: '#878787',
-                        color: '#FFFFFF',
-                        top: '100%',
-                        right: 4,
-                        maxWidth: '220px',
-                        whiteSpace: 'normal',
-                        fontSize: '10px',
-                      }}
+                      className="relative"
+                      onMouseEnter={() => setTooltipDurationOption(option)}
+                      onMouseLeave={() => setTooltipDurationOption(null)}
                     >
-                      {durationOptionTooltips[option]}
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clipPath="url(#clip0_2114_32588)">
+                          <path d="M7.99967 10.6654V7.9987M7.99967 5.33203H8.00634M14.6663 7.9987C14.6663 11.6806 11.6816 14.6654 7.99967 14.6654C4.31778 14.6654 1.33301 11.6806 1.33301 7.9987C1.33301 4.3168 4.31778 1.33203 7.99967 1.33203C11.6816 1.33203 14.6663 4.3168 14.6663 7.9987Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_2114_32588">
+                            <rect width="16" height="16" fill="white"/>
+                          </clipPath>
+                        </defs>
+                      </svg>
+                      {tooltipDurationOption === option && (
+                        <div
+                          className="pointer-events-none absolute z-20 mt-2 rounded px-2 py-1"
+                          style={{
+                            backgroundColor: '#878787',
+                            color: '#FFFFFF',
+                            top: '100%',
+                            right: 4,
+                            maxWidth: '220px',
+                            whiteSpace: 'normal',
+                            fontSize: '10px',
+                          }}
+                        >
+                          {durationOptionTooltips[option]}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </button>
                 </div>
               ))}
             </div>
