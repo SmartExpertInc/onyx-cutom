@@ -25,10 +25,10 @@ export default function AuthFlowContainer({
             <Link href="/auth/login" className="px-4 py-2 text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign in</Link>
           )}
         </div>
-        <div className="flex-1 flex items-center justify-center pl-4">
+        <div className="flex-1 flex items-center justify-center pl-14">
           <div className="w-full max-w-md gap-y-4 flex items-center flex-col gap-y-2 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
             <div className="w-full">{children}</div>
-            <p className="text-[15px] text-[#4D4D4D]">By clicking continue, you agree to our <br />
+            <p className="text-[15px] text-[#4D4D4D] text-center">By clicking continue, you agree to our <br />
             <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.</p>
             {/* {authState === "login" && (
               <div className="text-sm mt-4 text-center w-full text-gray-900 font-medium">

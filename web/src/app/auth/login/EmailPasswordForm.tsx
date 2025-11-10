@@ -145,7 +145,7 @@ export function EmailPasswordForm({
               className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280] !rounded-md"
             />
 
-            {!shouldVerify && (
+            {shouldVerify && (
               <TextFormField
                 name="password"
                 label="Password"
@@ -189,7 +189,7 @@ export function EmailPasswordForm({
             >
               {isJoin ? "Join" : isSignup ? "Sign Up" : "Sign In"}
             </Button>
-            {!shouldVerify && ( <p className="text-[15px] text-[#0F58F9] cursor-pointer text-left w-full text-link font-medium">Forgot password?</p>)}
+            {shouldVerify && ( <p className="text-[15px] text-[#0F58F9] cursor-pointer text-left w-full text-link font-medium">Forgot password?</p>)}
             {user?.is_anonymous_user && (
               <Link
                 href="/custom-projects-ui/projects"
