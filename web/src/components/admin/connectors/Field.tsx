@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import ReactMarkdown from "react-markdown";
 import { FaMarkdown } from "react-icons/fa";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, ReactNode } from "react";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -206,6 +206,7 @@ export function TextFormField({
   vertical,
   className,
   style,
+  rightElement,
 }: {
   name: string;
   removeLabel?: boolean;
@@ -234,6 +235,7 @@ export function TextFormField({
   vertical?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  rightElement?: ReactNode;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -336,6 +338,9 @@ export function TextFormField({
           placeholder={placeholder}
           autoComplete={autoCompleteDisabled ? "off" : undefined}
         />
+        {rightElement && (
+          <div className="absolute inset-y-0 right-3 flex items-center">{rightElement}</div>
+        )}
       </div>
 
       {explanationText && (
