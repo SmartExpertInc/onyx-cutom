@@ -8045,6 +8045,27 @@ async def startup_event():
             
             logger.info("'user_features' table ensured.")
 
+            # --- ✅ NEW: Ensure presentation_jobs table for persistent video job storage ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS presentation_jobs (
+                    job_id TEXT PRIMARY KEY,
+                    status TEXT NOT NULL,
+                    progress REAL DEFAULT 0.0,
+                    error TEXT,
+                    video_url TEXT,
+                    thumbnail_url TEXT,
+                    slide_image_path TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    completed_at TIMESTAMPTZ,
+                    last_heartbeat TIMESTAMPTZ,
+                    created_files JSONB DEFAULT '[]'::jsonb
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_presentation_jobs_status ON presentation_jobs(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_presentation_jobs_created_at ON presentation_jobs(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_presentation_jobs_status_created ON presentation_jobs(status, created_at);")
+            logger.info("'presentation_jobs' table ensured - video jobs will persist across restarts ✅")
+
             # Seed initial feature definitions
             try:
                 initial_features = [

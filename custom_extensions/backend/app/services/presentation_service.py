@@ -70,26 +70,99 @@ class PresentationJob:
             self.created_files = []
 
 class ProfessionalPresentationService:
-    """Professional presentation generation service."""
+    """Professional presentation generation service with database persistence."""
     
-    def __init__(self):
+    def __init__(self, db_pool=None):
         self.output_dir = Path("output/presentations")
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Job tracking
-        self.jobs: Dict[str, PresentationJob] = {}
+        # ✅ NEW: Store database pool reference for persistent storage
+        self.db_pool = db_pool
+        if self.db_pool:
+            logger.info("✅ [DATABASE] PresentationService initialized with database persistence")
+        else:
+            logger.warning("⚠️ [DATABASE] PresentationService running without persistence (memory only)")
+        
+        # Job tracking (DUAL-WRITE: Keep memory for backward compatibility during transition)
+        self.jobs: Dict[str, PresentationJob] = {}  # ⚠️ Transitional: Will be removed after migration
         self.job_lock = asyncio.Lock()  # Protect job dictionary from race conditions
         
         # Heartbeat configuration
         self.heartbeat_interval = 30  # Send heartbeat every 30 seconds
         self.heartbeat_tasks: Dict[str, asyncio.Task] = {}  # Track heartbeat tasks per job
         
-        logger.info("Professional Presentation Service initialized")
+        logger.info("✅ Professional Presentation Service initialized")
+    
+    async def _save_job_to_db(self, job: PresentationJob):
+        """
+        Save job to database (following existing asyncpg pattern).
+        Uses UPSERT to create or update job records.
+        """
+        if not self.db_pool:
+            return
+        
+        try:
+            async with self.db_pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO presentation_jobs (
+                        job_id, status, progress, error, video_url, thumbnail_url,
+                        slide_image_path, created_at, completed_at, last_heartbeat, created_files
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                    ON CONFLICT (job_id) DO UPDATE SET
+                        status = EXCLUDED.status,
+                        progress = EXCLUDED.progress,
+                        error = EXCLUDED.error,
+                        video_url = EXCLUDED.video_url,
+                        thumbnail_url = EXCLUDED.thumbnail_url,
+                        slide_image_path = EXCLUDED.slide_image_path,
+                        completed_at = EXCLUDED.completed_at,
+                        last_heartbeat = EXCLUDED.last_heartbeat,
+                        created_files = EXCLUDED.created_files
+                """, job.job_id, job.status, job.progress, job.error, job.video_url,
+                     job.thumbnail_url, job.slide_image_path, job.created_at,
+                     job.completed_at, job.last_heartbeat, json.dumps(job.created_files))
+            logger.debug(f"💾 [DB] Saved job {job.job_id} to database")
+        except Exception as e:
+            logger.error(f"❌ [DB] Failed to save job {job.job_id}: {e}")
+    
+    async def _get_job_from_db(self, job_id: str) -> Optional[PresentationJob]:
+        """
+        Get job from database (following existing asyncpg pattern).
+        Returns None if job not found or database unavailable.
+        """
+        if not self.db_pool:
+            return None
+        
+        try:
+            async with self.db_pool.acquire() as conn:
+                row = await conn.fetchrow(
+                    "SELECT * FROM presentation_jobs WHERE job_id = $1",
+                    job_id
+                )
+                if row:
+                    return PresentationJob(
+                        job_id=row['job_id'],
+                        status=row['status'],
+                        progress=row['progress'],
+                        error=row['error'],
+                        video_url=row['video_url'],
+                        thumbnail_url=row['thumbnail_url'],
+                        slide_image_path=row['slide_image_path'],
+                        created_at=row['created_at'],
+                        completed_at=row['completed_at'],
+                        last_heartbeat=row['last_heartbeat'],
+                        created_files=json.loads(row['created_files']) if row['created_files'] else []
+                    )
+                logger.debug(f"💾 [DB] Job {job_id} not found in database")
+        except Exception as e:
+            logger.error(f"❌ [DB] Failed to get job {job_id}: {e}")
+        return None
     
     async def _update_job_status(self, job_id: str, **kwargs):
         """
         Update job status with detailed logging to prevent connection timeouts.
         Thread-safe using asyncio.Lock.
+        NOW WITH DATABASE PERSISTENCE: Updates both memory and database.
         
         Args:
             job_id: Job ID to update
@@ -113,6 +186,10 @@ class ProfessionalPresentationService:
                     logger.info(f"🎬 [JOB_STATUS_UPDATE] Status changed: {old_status} → {kwargs['status']}")
                 if 'progress' in kwargs:
                     logger.info(f"🎬 [JOB_STATUS_UPDATE] Progress updated: {old_progress}% → {kwargs['progress']}%")
+            
+            # ✅ NEW: Also save to database (persistent storage)
+            if job_id in self.jobs:
+                await self._save_job_to_db(self.jobs[job_id])
     
     async def _start_heartbeat(self, job_id: str):
         """
