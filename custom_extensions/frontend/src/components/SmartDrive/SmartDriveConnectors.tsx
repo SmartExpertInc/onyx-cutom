@@ -62,6 +62,9 @@ interface SmartDriveConnectorsProps {
   onFileSelect?: (files: any[]) => void; // Callback when files are selected
   onTabChange?: (tab: 'smart-drive' | 'connectors') => void; // Callback when tab changes
   hideStatsBar?: boolean; // Hide the "Available files/connectors" bar
+  onConnectorSelectionChange?: (selectedSources: string[]) => void; // Callback when connector selection changes (select mode only)
+  selectedConnectorSources?: string[]; // Controlled list of selected connector sources
+  selectionMode?: 'none' | 'connectors'; // Enable connector selection instead of connect/disconnect flow
 }
 
 // Helper function to determine actual connector status (based on Onyx's logic)
@@ -78,7 +81,16 @@ const getActualConnectorStatus = (connectorStatus: any): string => {
   }
 };
 
-const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '', mode = 'full', onFileSelect, onTabChange, hideStatsBar = false }) => {
+const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
+  className = '',
+  mode = 'full',
+  onFileSelect,
+  onTabChange,
+  hideStatsBar = false,
+  onConnectorSelectionChange,
+  selectedConnectorSources,
+  selectionMode = 'none'
+}) => {
   console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
   
   const { t } = useLanguage();
@@ -102,6 +114,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [hasFiles, setHasFiles] = useState(false);
+  const [selectedConnectorSourcesState, setSelectedConnectorSourcesState] = useState<string[]>(selectedConnectorSources || []);
+  const allowConnectorSelection = selectionMode === 'connectors';
+
+  useEffect(() => {
+    if (allowConnectorSelection && Array.isArray(selectedConnectorSources)) {
+      setSelectedConnectorSourcesState(selectedConnectorSources);
+    }
+  }, [allowConnectorSelection, selectedConnectorSources]);
+
 
   // Notify parent when tab changes
   useEffect(() => {
@@ -121,6 +142,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       onFileSelect(fileObjects);
     }
   }, [onFileSelect]);
+
+  const toggleConnectorSelection = useCallback((sourceId: string) => {
+    if (!allowConnectorSelection) return;
+    const availableConnectors = getConnectorsBySource(sourceId);
+    if (availableConnectors.length === 0) return;
+
+    setSelectedConnectorSourcesState(prev => {
+      const exists = prev.includes(sourceId);
+      const updated = exists ? prev.filter(id => id !== sourceId) : [...prev, sourceId];
+      onConnectorSelectionChange?.(updated);
+      return updated;
+    });
+  }, [allowConnectorSelection, getConnectorsBySource, onConnectorSelectionChange]);
   
   // Handle files loaded callback from SmartDriveBrowser
   const handleFilesLoaded = useCallback((filesExist: boolean) => {
@@ -1183,6 +1217,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       const userConnectorsForSource = getConnectorsBySource(connector.id);
                       const hasConnectors = true; // We know it has connectors
                       const isActive = true;
+                      const isSourceSelected = allowConnectorSelection ? selectedConnectorSourcesState.includes(connector.id) : isActive;
                       const accountCount = userConnectorsForSource.length;
 
                       return (
@@ -1239,12 +1274,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                 <label className="switch">
                                   <input 
                                     type="checkbox" 
-                                    checked={isActive}
+                                    checked={isSourceSelected}
                                     onChange={(e) => {
-                                      handleConnectClick(connector.id, connector.name);
+                                      e.stopPropagation();
+                                      if (allowConnectorSelection) {
+                                        toggleConnectorSelection(connector.id);
+                                      } else {
+                                        handleConnectClick(connector.id, connector.name);
+                                      }
                                     }}
                                   />
-                                  <span className={`slider round checked`}></span>
+                                  <span className={`slider round ${isSourceSelected ? 'checked' : ''}`}></span>
                                 </label>
                               </div>
 

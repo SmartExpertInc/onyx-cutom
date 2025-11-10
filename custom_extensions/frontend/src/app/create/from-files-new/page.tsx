@@ -257,6 +257,7 @@ export default function FromFilesNew() {
         isOpen={isSmartDriveModalOpen}
         onClose={() => setIsSmartDriveModalOpen(false)}
         onImport={handleSmartDriveImport}
+        mode="knowledgeBase"
       />
 
       <div className="relative z-[60]">
