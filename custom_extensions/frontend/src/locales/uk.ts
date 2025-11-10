@@ -2229,6 +2229,11 @@ export const uk = {
       smoothWipe: "Плавне стирання"
     }
   },
+  colorPalettePopup: {
+    title: "Вибір кольору",
+    lastUsed: "Нещодавно використані",
+    noRecentColor: "Немає нещодавнього кольору",
+  },
   voicePicker: {
     title: "Оберіть голос",
     search: "Пошук",

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
@@ -400,6 +401,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   recentColors = [],
   onRecentColorChange,
 }) => {
+  const { t } = useLanguage();
   // Single consolidated color state
   const [colorState, setColorState] = useState<ColorState>(() => 
     colorUtils.updateFromHex(selectedColor, 1)
@@ -763,7 +765,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#E0E0E0' }}>
-          <span className="text-md font-medium text-gray-800">Color Picker</span>
+          <span className="text-md font-medium text-gray-800">
+            {t('colorPalettePopup.title', 'Color Picker')}
+          </span>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -1132,8 +1136,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             e.preventDefault(); // Prevent focus loss from editor
           }}>
           <div className="text-[#171718] mb-3 block text-xs font-medium">
-            Last Used
-            </div>
+            {t('colorPalettePopup.lastUsed', 'Last used')}
+          </div>
           <div className="flex gap-1.5 flex-wrap">
             {Array.from({ length: 9 }, (_, index) => {
                 const color = recentColors[index];
@@ -1164,7 +1168,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       e.currentTarget.style.border = '1px solid #ccc';
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
-                    title={color || 'No recent color'}
+                    title={color || t('colorPalettePopup.noRecentColor', 'No recent color')}
                   >
                     {!color && (
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 bg-gray-400 rounded-full" />

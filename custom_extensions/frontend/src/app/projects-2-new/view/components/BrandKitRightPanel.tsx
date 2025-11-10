@@ -69,6 +69,18 @@ export default function BrandKitRightPanel({
     { id: 'custom' as const, label: t('rightPanel.brandKit.allSlides', 'All slides') },
   ];
 
+  const normalizeHexColor = (value: string) => {
+    if (typeof value !== 'string') {
+      return value;
+    }
+    const hexMatch = /^#([0-9a-fA-F]{3,8})$/;
+    if (!hexMatch.test(value)) {
+      return value;
+    }
+    const [, hex] = hexMatch.exec(value) ?? [];
+    return `#${hex?.toUpperCase() ?? ''}`;
+  };
+
   const applyBrandColorsUpdate = (nextColors: BrandColorValue[]) => {
     if (!controlledBrandColors) {
       setInternalBrandColors(nextColors);
@@ -88,12 +100,13 @@ export default function BrandKitRightPanel({
   }, []);
 
   const handleBrandColorUpdate = (index: number, color: string) => {
+    const normalizedColor = normalizeHexColor(color);
     if (onBrandColorChange) {
-      onBrandColorChange(index, color);
+      onBrandColorChange(index, normalizedColor);
     } else {
       setInternalBrandColors((prev) => {
         const next = [...prev];
-        next[index] = color;
+        next[index] = normalizedColor;
         return next;
       });
     }

@@ -2244,6 +2244,11 @@ export const es = {
       smoothWipe: "Limpiado suave"
     }
   },
+  colorPalettePopup: {
+    title: "Selector de color",
+    lastUsed: "Usados recientemente",
+    noRecentColor: "Sin color reciente",
+  },
   voicePicker: {
     title: "Elegir una voz",
     search: "Buscar",

@@ -2129,6 +2129,11 @@ export const en = {
       smoothWipe: "Smooth wipe"
     }
   },
+  colorPalettePopup: {
+    title: "Color Picker",
+    lastUsed: "Last used",
+    noRecentColor: "No recent color",
+  },
   voicePicker: {
     title: "Pick a voice",
     search: "Search",

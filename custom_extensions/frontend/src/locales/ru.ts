@@ -2224,6 +2224,11 @@ export const ru = {
       smoothWipe: "Плавное стирание"
     }
   },
+  colorPalettePopup: {
+    title: "Выбор цвета",
+    lastUsed: "Недавно использованные",
+    noRecentColor: "Нет недавнего цвета",
+  },
   voicePicker: {
     title: "Выберите голос",
     search: "Поиск",
