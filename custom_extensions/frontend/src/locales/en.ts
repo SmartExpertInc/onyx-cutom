@@ -1611,11 +1611,18 @@ export const en = {
     importFromUrl: {
       title: "Import from URL",
       description: "This will extract the text from the webpage you enter.",
+      processingDescription: "Please wait while we process and index your URLs...",
       urlLabel: "URL",
       urlPlaceholder: "https://example.com/",
       addAnotherUrl: "Add another URL",
       cancel: "Cancel",
       import: "Import",
+      noUrls: "Please enter at least one URL",
+      invalidUrls: "Please enter valid URLs (e.g., https://example.com)",
+      creatingConnector: "Creating connector for URL {0} of {1}...",
+      indexing: "Indexing URL... This may take a moment.",
+      indexingComplete: "Indexing complete!",
+      error: "Failed to process URLs. Please try again.",
     },
 
     // Smart Drive Page

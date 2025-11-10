@@ -649,6 +649,8 @@ export default function UploadFilesPage() {
         isOpen={isUrlModalOpen}
         onClose={() => setIsUrlModalOpen(false)}
         onImport={handleUrlImport}
+        mode="knowledgeBase"
+        onKnowledgeBaseConfirm={handleKnowledgeBaseModalConfirm}
       />
     </main>
   );

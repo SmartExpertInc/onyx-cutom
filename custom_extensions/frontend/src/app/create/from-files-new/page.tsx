@@ -132,7 +132,6 @@ export default function FromFilesNew() {
 
   const handleUrlImport = (urls: string[]) => {
     console.log('Importing URLs:', urls);
-    // TODO: Add your import logic here
   };
 
   const handleSmartDriveImport = () => {
@@ -300,6 +299,8 @@ export default function FromFilesNew() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onImport={handleUrlImport}
+        mode="knowledgeBase"
+        onKnowledgeBaseConfirm={handleKnowledgeBaseConfirm}
       />
 
       {/* Import from SmartDrive Modal */}
