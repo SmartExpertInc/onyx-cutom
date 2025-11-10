@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TextPopupProps {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface TextPopupProps {
 }
 
 export default function TextPopup({ isOpen, onClose, position }: TextPopupProps) {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
@@ -39,7 +42,7 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               }}
             >
-              Title
+              {t('textPopup.options.title', 'Title')}
             </span>
           </div>
 
@@ -54,7 +57,7 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               }}
             >
-              Subtitle
+              {t('textPopup.options.subtitle', 'Subtitle')}
             </span>
           </div>
 
@@ -69,7 +72,7 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               }}
             >
-              Body text
+              {t('textPopup.options.body', 'Body text')}
             </span>
           </div>
         </div>

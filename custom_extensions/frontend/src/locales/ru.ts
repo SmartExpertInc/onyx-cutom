@@ -1987,6 +1987,13 @@ export const ru = {
       }
     }
   },
+  textPopup: {
+    options: {
+      title: "Заголовок",
+      subtitle: "Подзаголовок",
+      body: "Основной текст"
+    }
+  },
   productViewHeader: {
     aiImprove: "AI Улучшить",
     export: "Экспорт",

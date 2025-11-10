@@ -1992,6 +1992,13 @@ export const uk = {
       }
     }
   },
+  textPopup: {
+    options: {
+      title: "Заголовок",
+      subtitle: "Підзаголовок",
+      body: "Основний текст"
+    }
+  },
   productViewHeader: {
     aiImprove: "AI Покращити",
     export: "Експорт",

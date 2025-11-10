@@ -2012,6 +2012,13 @@ export const es = {
       }
     }
   },
+  textPopup: {
+    options: {
+      title: "Título",
+      subtitle: "Subtítulo",
+      body: "Texto principal"
+    }
+  },
   productViewHeader: {
     aiImprove: "Mejorar con IA",
     export: "Exportar",

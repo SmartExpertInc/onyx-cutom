@@ -1897,6 +1897,13 @@ export const en = {
       }
     }
   },
+  textPopup: {
+    options: {
+      title: "Title",
+      subtitle: "Subtitle",
+      body: "Body text"
+    }
+  },
   productViewHeader: {
     aiImprove: "AI Improve",
     export: "Export",
