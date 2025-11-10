@@ -18,7 +18,7 @@ interface TrimVideoModalProps {
 const MIN_SELECTION_GAP = 0.05;
 
 export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const railRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<{ start: number; end: number }>({
     start: 0,
@@ -91,6 +91,8 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
   if (!isOpen) {
     return null;
   }
+
+  const actionButtonWidth = language === 'en' ? '75px' : '85px';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -204,22 +206,24 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <button
                 type="button"
                 onClick={onClose}
-                className="w-[75px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                className="px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
                 style={{
                   backgroundColor: '#FFFFFF',
                   color: '#171718',
                   border: '1px solid #171718',
+                  width: actionButtonWidth,
                 }}
               >
                 {t('actions.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
-                className="w-[75px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
                   borderRadius: '8px',
+                  width: actionButtonWidth,
                 }}
               >
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
