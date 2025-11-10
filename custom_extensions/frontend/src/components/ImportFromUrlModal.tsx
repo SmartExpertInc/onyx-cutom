@@ -68,6 +68,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           name: `Web - ${urlObj.hostname}`,
           source: 'web',
           input_type: 'load_state',
+          access_type: 'private',
           connector_specific_config: {
             base_url: baseUrl,
             web_connector_type: 'single',
@@ -221,7 +222,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
       setError(t('interface.importFromUrl.invalidUrls', 'Please enter valid URLs (e.g., https://example.com)'));
       return;
     }
-
+    
     if (mode === "knowledgeBase" && onKnowledgeBaseConfirm) {
       setIsProcessing(true);
       setError(null);
@@ -279,46 +280,46 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
       }
     } else {
       // Legacy upload mode (fallback)
-      if (onImport) {
-        onImport(validUrls);
-      }
-      
-      // Create placeholder files for URLs
-      const urlFiles = validUrls.map((url) => {
-        try {
-          const urlObj = new URL(url);
-          const fileName = urlObj.hostname + urlObj.pathname;
-          
-          return {
-            id: Math.random().toString(36).substr(2, 9),
-            name: fileName,
-            extension: '.url',
+    if (onImport) {
+      onImport(validUrls);
+    }
+    
+    // Create placeholder files for URLs
+    const urlFiles = validUrls.map((url) => {
+      try {
+        const urlObj = new URL(url);
+        const fileName = urlObj.hostname + urlObj.pathname;
+        
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          name: fileName,
+          extension: '.url',
             url: url,
-          };
-        } catch (error) {
-          return {
-            id: Math.random().toString(36).substr(2, 9),
-            name: url,
-            extension: '.url',
-            url: url,
-          };
-        }
-      });
-      
-      localStorage.setItem('uploadedFiles', JSON.stringify(urlFiles));
-      
-      if (typeof window !== 'undefined') {
-        (window as any).pendingUploadFiles = urlFiles.map(file => ({
-          name: file.name + file.extension,
-          size: 0,
-          type: 'text/uri-list',
-          lastModified: Date.now(),
-          url: file.url,
-        }));
+        };
+      } catch (error) {
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          name: url,
+          extension: '.url',
+          url: url,
+        };
       }
-      
-      onClose();
-      router.push('/create/from-files-new/upload');
+    });
+    
+    localStorage.setItem('uploadedFiles', JSON.stringify(urlFiles));
+    
+    if (typeof window !== 'undefined') {
+      (window as any).pendingUploadFiles = urlFiles.map(file => ({
+        name: file.name + file.extension,
+        size: 0,
+        type: 'text/uri-list',
+        lastModified: Date.now(),
+        url: file.url,
+      }));
+    }
+    
+    onClose();
+    router.push('/create/from-files-new/upload');
     }
   };
 
@@ -379,38 +380,38 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
         {/* URL inputs */}
         {!isProcessing && (
           <>
-            <div className="space-y-3 mb-6">
-              {urls.map((url, index) => (
-                <div key={index}>
-                  <label className="block text-md font-semibolld text-[#171718] mb-2">
-                    {t('interface.importFromUrl.urlLabel', 'URL')}
-                  </label>
-                  <input
-                    type="text"
-                    value={url}
-                    onChange={(e) => handleUrlChange(index, e.target.value)}
-                    placeholder={t('interface.importFromUrl.urlPlaceholder', 'https://example.com/')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-[#5D5D7980] text-[#09090B]"
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                    }}
+        <div className="space-y-3 mb-6">
+          {urls.map((url, index) => (
+            <div key={index}>
+              <label className="block text-md font-semibolld text-[#171718] mb-2">
+                {t('interface.importFromUrl.urlLabel', 'URL')}
+              </label>
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => handleUrlChange(index, e.target.value)}
+                placeholder={t('interface.importFromUrl.urlPlaceholder', 'https://example.com/')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-[#5D5D7980] text-[#09090B]"
+                style={{
+                  backgroundColor: '#FFFFFF',
+                }}
                     disabled={isProcessing}
-                  />
-                </div>
-              ))}
+              />
             </div>
+          ))}
+        </div>
 
-            {/* Add another URL button */}
-            <button
-              onClick={handleAddUrl}
+        {/* Add another URL button */}
+        <button
+          onClick={handleAddUrl}
               className="text-xs text-[#498FFF] mb-6 flex items-center gap-2 tracking-tight disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isProcessing}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M6.99961 2.09961C7.38621 2.09961 7.69961 2.41301 7.69961 2.79961V6.29961H11.1996C11.5862 6.29961 11.8996 6.61301 11.8996 6.99961C11.8996 7.38621 11.5862 7.69961 11.1996 7.69961H7.69961V11.1996C7.69961 11.5862 7.38621 11.8996 6.99961 11.8996C6.61301 11.8996 6.29961 11.5862 6.29961 11.1996V7.69961H2.79961C2.41301 7.69961 2.09961 7.38621 2.09961 6.99961C2.09961 6.61301 2.41301 6.29961 2.79961 6.29961L6.29961 6.29961V2.79961C6.29961 2.41301 6.61301 2.09961 6.99961 2.09961Z" fill="#498FFF"/>
-              </svg>
-              {t('interface.importFromUrl.addAnotherUrl', 'Add another URL')}
-            </button>
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M6.99961 2.09961C7.38621 2.09961 7.69961 2.41301 7.69961 2.79961V6.29961H11.1996C11.5862 6.29961 11.8996 6.61301 11.8996 6.99961C11.8996 7.38621 11.5862 7.69961 11.1996 7.69961H7.69961V11.1996C7.69961 11.5862 7.38621 11.8996 6.99961 11.8996C6.61301 11.8996 6.29961 11.5862 6.29961 11.1996V7.69961H2.79961C2.41301 7.69961 2.09961 7.38621 2.09961 6.99961C2.09961 6.61301 2.41301 6.29961 2.79961 6.29961L6.29961 6.29961V2.79961C6.29961 2.41301 6.61301 2.09961 6.99961 2.09961Z" fill="#498FFF"/>
+          </svg>
+          {t('interface.importFromUrl.addAnotherUrl', 'Add another URL')}
+        </button>
           </>
         )}
 
@@ -418,28 +419,28 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
         <div className="flex justify-end gap-3">
           {!isProcessing && (
             <>
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 rounded-md text-sm font-medium"
-                style={{
-                  color: '#0F58F9',
-                  backgroundColor: 'white',
-                  border: '1px solid #0F58F9',
-                }}
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 rounded-md text-sm font-medium"
+            style={{
+              color: '#0F58F9',
+              backgroundColor: 'white',
+              border: '1px solid #0F58F9',
+            }}
                 disabled={isProcessing}
-              >
-                {t('interface.importFromUrl.cancel', 'Cancel')}
-              </button>
-              <button
-                onClick={handleImport}
+          >
+            {t('interface.importFromUrl.cancel', 'Cancel')}
+          </button>
+          <button
+            onClick={handleImport}
                 className="px-4 py-2 rounded-md text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: '#0F58F9',
-                }}
+            style={{
+              backgroundColor: '#0F58F9',
+            }}
                 disabled={isProcessing}
-              >
-                {t('interface.importFromUrl.import', 'Import')}
-              </button>
+          >
+            {t('interface.importFromUrl.import', 'Import')}
+          </button>
             </>
           )}
         </div>
