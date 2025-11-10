@@ -1,5 +1,12 @@
 'use client';
 
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { X } from 'lucide-react';
 
 interface TrimVideoModalProps {
@@ -7,7 +14,78 @@ interface TrimVideoModalProps {
   onClose: () => void;
 }
 
+const MIN_SELECTION_GAP = 0.05;
+
 export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const [selection, setSelection] = useState<{ start: number; end: number }>({
+    start: 0.1,
+    end: 0.9,
+  });
+  const [activeHandle, setActiveHandle] = useState<'start' | 'end' | null>(null);
+
+  const updateFromClientX = useCallback((clientX: number, handle: 'start' | 'end') => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const rect = rail.getBoundingClientRect();
+    if (rect.width === 0) return;
+
+    const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
+    const percent = clamp((clientX - rect.left) / rect.width);
+
+    setSelection((prev) => {
+      if (handle === 'start') {
+        const nextStart = Math.min(percent, prev.end - MIN_SELECTION_GAP);
+        return {
+          start: clamp(nextStart),
+          end: prev.end,
+        };
+      }
+      const nextEnd = Math.max(percent, prev.start + MIN_SELECTION_GAP);
+      return {
+        start: prev.start,
+        end: clamp(nextEnd),
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!activeHandle) {
+      return;
+    }
+
+    const handlePointerMove = (event: PointerEvent) => {
+      event.preventDefault();
+      updateFromClientX(event.clientX, activeHandle);
+    };
+
+    const handlePointerUp = () => {
+      setActiveHandle(null);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [activeHandle, updateFromClientX]);
+
+  const handlePointerDown = useCallback(
+    (handle: 'start' | 'end') => (event: ReactPointerEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setActiveHandle(handle);
+      updateFromClientX(event.clientX, handle);
+    },
+    [updateFromClientX]
+  );
+
+  const startPercent = selection.start * 100;
+  const endPercent = selection.end * 100;
+
   if (!isOpen) {
     return null;
   }
@@ -48,53 +126,54 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
             </div>
 
             <div className="relative w-full">
-              <div
-                className="flex h-[70px] w-full gap-1 bg-transparent"
-                style={{
-                  borderRadius: '6px',
-                  paddingLeft: '4px',
-                  paddingRight: '4px',
-                }}
-              >
-                {Array.from({ length: 10 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="flex-1 h-full rounded-[6px]"
-                    style={{
-                      background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
-                      border: '1px solid #E0E0E0',
-                    }}
-                  />
-                ))}
-              </div>
+              <div ref={railRef} className="relative h-[70px] w-full">
+                <div className="absolute inset-0 flex h-full w-full overflow-hidden rounded-[6px] border border-[#E0E0E0] bg-white/40 gap-1">
+                  {Array.from({ length: 10 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="flex-1 h-full rounded-[4px]"
+                      style={{
+                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                        border: '1px solid #E0E0E0',
+                      }}
+                    />
+                  ))}
+                </div>
 
-              <div
-                className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
-                style={{
-                  left: '0px',
-                  width: '12px',
-                  height: '70px',
-                  backgroundColor: '#0F58F9',
-                  borderRadius: '6px 0px 0px 6px',
-                }}
-              >
-                <div
-                  style={{ width: '2px', height: '20px', backgroundColor: '#FFFFFF', borderRadius: '2px' }}
-                />
-              </div>
-              <div
-                className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
-                style={{
-                  right: '0px',
-                  width: '12px',
-                  height: '70px',
-                  backgroundColor: '#0F58F9',
-                  borderRadius: '0px 6px 6px 0px',
-                }}
-              >
-                <div
-                  style={{ width: '2px', height: '20px', backgroundColor: '#FFFFFF', borderRadius: '2px' }}
-                />
+                <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[6px]">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-[#0F58F9]/20"
+                    style={{ width: `${startPercent}%` }}
+                  />
+                  <div
+                    className="absolute inset-y-0 right-0 bg-[#0F58F9]/20"
+                    style={{ width: `${100 - endPercent}%` }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-full z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-l-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
+                  style={{ left: `${startPercent}%` }}
+                  aria-label="Adjust trim start"
+                  onPointerDown={handlePointerDown('start')}
+                >
+                  <span
+                    style={{ width: '2px', height: '20px', backgroundColor: '#878787', borderRadius: '2px' }}
+                  />
+                </button>
+
+                <button
+                  type="button"
+                  className="absolute top-1/2 -translate-y-1/2 z-20 flex h-[70px] w-3 cursor-ew-resize items-center justify-center rounded-r-[6px] bg-[#0F58F9] shadow-sm transition-opacity"
+                  style={{ left: `${endPercent}%` }}
+                  aria-label="Adjust trim end"
+                  onPointerDown={handlePointerDown('end')}
+                >
+                  <span
+                    style={{ width: '2px', height: '20px', backgroundColor: '#878787', borderRadius: '2px' }}
+                  />
+                </button>
               </div>
             </div>
           </div>
@@ -118,7 +197,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <button
                 type="button"
                 onClick={onClose}
-                className="w-[80px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                className="w-[70px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
                 style={{
                   backgroundColor: '#FFFFFF',
                   color: '#171718',
@@ -129,7 +208,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               </button>
               <button
                 type="button"
-                className="w-[80px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-[70px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
