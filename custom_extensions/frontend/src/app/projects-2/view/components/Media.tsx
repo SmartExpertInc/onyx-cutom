@@ -642,7 +642,7 @@ export default function Media({
             <div className="flex flex-col gap-4 pb-4">
               {/* Outlined Category */}
               <div>
-                <h3 className="text-xs font-medium text-[#171718] mb-2">Outlined</h3>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">{t('panels.media.outlined', 'Outlined')}</h3>
                 <div className="grid grid-cols-7 gap-3">
                   {/* First 6 squares */}
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -663,7 +663,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">See more</span>
+                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeMore', 'See more')}</span>
                     </div>
                   ) : (
                     <div 
@@ -693,7 +693,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">See less</span>
+                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeLess', 'See less')}</span>
                     </div>
                   </div>
                 )}
@@ -701,7 +701,7 @@ export default function Media({
 
               {/* Filled Category */}
               <div>
-                <h3 className="text-xs font-medium text-[#171718] mb-2">Filled</h3>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">{t('panels.media.filled', 'Filled')}</h3>
                 <div className="grid grid-cols-7 gap-3">
                   {/* First 6 squares */}
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -722,7 +722,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">See more</span>
+                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeMore', 'See more')}</span>
                     </div>
                   ) : (
                     <div 
@@ -752,7 +752,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">See less</span>
+                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeLess', 'See less')}</span>
                     </div>
                   </div>
                 )}
@@ -760,7 +760,7 @@ export default function Media({
 
               {/* Colored Category */}
               <div>
-                <h3 className="text-xs font-medium text-[#171718] mb-2">Colored</h3>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">{t('panels.media.colored', 'Colored')}</h3>
                 <div className="grid grid-cols-7 gap-3">
                   {/* First 6 squares */}
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -781,7 +781,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">See more</span>
+                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeMore', 'See more')}</span>
                     </div>
                   ) : (
                     <div 
@@ -811,7 +811,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">See less</span>
+                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeLess', 'See less')}</span>
                     </div>
                   </div>
                 )}
