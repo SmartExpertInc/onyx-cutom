@@ -88,7 +88,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
           style={{ borderTop: '1px solid #E0E0E0', paddingTop: '20px', paddingBottom: '20px' }}
         >
           <div className="w-full max-w-[1100px] mx-auto flex items-center justify-between">
-            <div>
+            <div className="space-y-2">
               <div className="text-sm font-medium" style={{ color: '#171718' }}>
                 Trimmed video length
               </div>
@@ -101,7 +101,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <button
                 type="button"
                 onClick={onClose}
-                className="w-28 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                className="min-w-[110px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
                 style={{
                   backgroundColor: '#FFFFFF',
                   color: '#171718',
@@ -112,7 +112,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               </button>
               <button
                 type="button"
-                className="w-28 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="min-w-[110px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
