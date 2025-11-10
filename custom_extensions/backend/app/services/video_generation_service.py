@@ -773,7 +773,7 @@ class ElaiVideoGenerationService:
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response successful")
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video data received:")
                 logger.info(f"  - Video ID: {video_id}")
-                logger.info(f"  - Full response: {json.dumps(result, indent=2)}")
+                # logger.info(f"  - Full response: {json.dumps(result, indent=2)}")
                 
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video created successfully: {video_id}")
                 return {
