@@ -47,10 +47,23 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               Video preview placeholder
             </div>
 
-            <div
-              className="relative w-full h-[70px] bg-white/60 border border-[#E0E0E0]"
-              style={{ borderRadius: '6px' }}
-            >
+            <div className="relative w-full">
+              <div
+                className="flex h-[70px] w-full gap-1 bg-transparent"
+                style={{ borderRadius: '6px', border: '1px solid #E0E0E0', padding: '4px' }}
+              >
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex-1 h-full rounded-[4px]"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                      border: '1px solid #E0E0E0',
+                    }}
+                  />
+                ))}
+              </div>
+
               <div
                 className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
                 style={{
@@ -101,7 +114,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <button
                 type="button"
                 onClick={onClose}
-                className="min-w-[110px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                className="w-[90px] px-4 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center justify-center"
                 style={{
                   backgroundColor: '#FFFFFF',
                   color: '#171718',
@@ -112,7 +125,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               </button>
               <button
                 type="button"
-                className="min-w-[110px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-[90px] px-4 py-2 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
