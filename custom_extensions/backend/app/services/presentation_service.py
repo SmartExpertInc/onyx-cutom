@@ -78,6 +78,7 @@ class ProfessionalPresentationService:
         
         # Job tracking
         self.jobs: Dict[str, PresentationJob] = {}
+        self.job_lock = asyncio.Lock()  # Protect job dictionary from race conditions
         
         # Heartbeat configuration
         self.heartbeat_interval = 30  # Send heartbeat every 30 seconds
@@ -85,31 +86,33 @@ class ProfessionalPresentationService:
         
         logger.info("Professional Presentation Service initialized")
     
-    def _update_job_status(self, job_id: str, **kwargs):
+    async def _update_job_status(self, job_id: str, **kwargs):
         """
         Update job status with detailed logging to prevent connection timeouts.
+        Thread-safe using asyncio.Lock.
         
         Args:
             job_id: Job ID to update
             **kwargs: Status fields to update (status, progress, error, etc.)
         """
-        if job_id in self.jobs:
-            job = self.jobs[job_id]
-            old_status = job.status
-            old_progress = job.progress
-            
-            for key, value in kwargs.items():
-                setattr(job, key, value)
-            
-            # Log every status update with timestamp
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id}: {old_status}→{job.status}, {old_progress}%→{job.progress}%")
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Timestamp: {datetime.now().isoformat()}")
-            
-            # Log specific updates
-            if 'status' in kwargs:
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Status changed: {old_status} → {kwargs['status']}")
-            if 'progress' in kwargs:
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Progress updated: {old_progress}% → {kwargs['progress']}%")
+        async with self.job_lock:
+            if job_id in self.jobs:
+                job = self.jobs[job_id]
+                old_status = job.status
+                old_progress = job.progress
+                
+                for key, value in kwargs.items():
+                    setattr(job, key, value)
+                
+                # Log every status update with timestamp
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id}: {old_status}→{job.status}, {old_progress}%→{job.progress}%")
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Timestamp: {datetime.now().isoformat()}")
+                
+                # Log specific updates
+                if 'status' in kwargs:
+                    logger.info(f"🎬 [JOB_STATUS_UPDATE] Status changed: {old_status} → {kwargs['status']}")
+                if 'progress' in kwargs:
+                    logger.info(f"🎬 [JOB_STATUS_UPDATE] Progress updated: {old_progress}% → {kwargs['progress']}%")
     
     async def _start_heartbeat(self, job_id: str):
         """
@@ -126,24 +129,31 @@ class ProfessionalPresentationService:
             logger.info(f"💓 [HEARTBEAT] Heartbeat task started for job {job_id}")
             try:
                 heartbeat_count = 0
-                while job_id in self.jobs:
-                    job = self.jobs[job_id]
-                    heartbeat_count += 1
-                    
-                    # Only send heartbeats for active jobs
-                    if job.status in ["processing"]:
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}% (beat #{heartbeat_count})")
-                        logger.info(f"💓 [HEARTBEAT] Keeping connection alive - {datetime.now().isoformat()}")
+                while True:
+                    async with self.job_lock:
+                        # Check if job still exists
+                        if job_id not in self.jobs:
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id} removed, stopping heartbeat")
+                            break
                         
-                        # Update last activity timestamp to show we're alive
-                        job.last_heartbeat = datetime.now()
-                    elif job.status in ["completed", "failed"]:
-                        # Job is done, stop heartbeat
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat after {heartbeat_count} beats")
-                        break
-                    else:
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id} status is {job.status}, continuing heartbeat")
+                        job = self.jobs[job_id]
+                        heartbeat_count += 1
+                        
+                        # Only send heartbeats for active jobs
+                        if job.status in ["processing"]:
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}% (beat #{heartbeat_count})")
+                            logger.info(f"💓 [HEARTBEAT] Keeping connection alive - {datetime.now().isoformat()}")
+                            
+                            # Update last activity timestamp to show we're alive
+                            job.last_heartbeat = datetime.now()
+                        elif job.status in ["completed", "failed"]:
+                            # Job is done, stop heartbeat
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat after {heartbeat_count} beats")
+                            break
+                        else:
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id} status is {job.status}, continuing heartbeat")
                     
+                    # Sleep outside the lock
                     await asyncio.sleep(self.heartbeat_interval)
                     
             except asyncio.CancelledError:
@@ -221,7 +231,7 @@ class ProfessionalPresentationService:
     
     async def get_job_status(self, job_id: str) -> Optional[PresentationJob]:
         """
-        Get the status of a presentation job.
+        Get the status of a presentation job (thread-safe).
         
         Args:
             job_id: Job ID to check
@@ -229,7 +239,8 @@ class ProfessionalPresentationService:
         Returns:
             Job status or None if not found
         """
-        return self.jobs.get(job_id)
+        async with self.job_lock:
+            return self.jobs.get(job_id)
     
     async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
@@ -251,13 +262,18 @@ class ProfessionalPresentationService:
                 
             except Exception as e:
                 logger.error(f"Thread processing failed for {job_id}: {e}")
-                if job_id in self.jobs:
-                    self.jobs[job_id].status = "failed"
-                    self.jobs[job_id].error = str(e)
-                    self.jobs[job_id].completed_at = datetime.now()
-                    
+                
+                # Thread-safe status update
+                async def update_failed_status():
+                    async with self.job_lock:
+                        if job_id in self.jobs:
+                            self.jobs[job_id].status = "failed"
+                            self.jobs[job_id].error = str(e)
+                            self.jobs[job_id].completed_at = datetime.now()
+                
                 # Stop heartbeat for failed job (run in the main event loop)
                 main_loop = asyncio.new_event_loop()
+                main_loop.run_until_complete(update_failed_status())
                 main_loop.run_until_complete(self._stop_heartbeat(job_id))
                 # CRITICAL FIX: Schedule cleanup for failed jobs too
                 main_loop.run_until_complete(
@@ -320,12 +336,12 @@ class ProfessionalPresentationService:
                     logger.info(f"  Text {i+1}: {text[:100]}...")
             
             # Start processing with heartbeat
-            self._update_job_status(job_id, status="processing", progress=5.0)
+            await self._update_job_status(job_id, status="processing", progress=5.0)
             await self._start_heartbeat(job_id)
             
             # Step 1: Generate clean slide video
             logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
-            self._update_job_status(job_id, progress=10.0)
+            await self._update_job_status(job_id, progress=10.0)
             
             # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
@@ -422,7 +438,7 @@ class ProfessionalPresentationService:
                     logger.info(f"🎬 [FINAL_COMPLETION] Updating job status to completed for job {job_id}")
                     logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] About to send FINAL 100% status to frontend...")
                     
-                    self._update_job_status(
+                    await self._update_job_status(
                         job_id,
                         status="completed",
                         progress=100.0,
@@ -462,7 +478,7 @@ class ProfessionalPresentationService:
             logger.error(f"🎬 [PRESENTATION_FAILED] Presentation {job_id} failed: {e}")
             
             # Update job status with failure details
-            self._update_job_status(
+            await self._update_job_status(
                 job_id,
                 status="failed",
                 error=str(e),
@@ -519,7 +535,7 @@ class ProfessionalPresentationService:
                 shutil.copy2(slide_video_path, output_path)
                 final_video_path = str(output_path)
                 job.created_files.append(final_video_path)  # Track final video for cleanup
-                self._update_job_status(job_id, progress=90.0)
+                await self._update_job_status(job_id, progress=90.0)
                 
                 # Cleanup temporary files
                 await self._cleanup_temp_files([slide_video_path])
@@ -547,7 +563,7 @@ class ProfessionalPresentationService:
                 voice_provider=request.voice_provider,
                 elai_background_color=elai_background_color
             )
-            self._update_job_status(job_id, progress=40.0)
+            await self._update_job_status(job_id, progress=40.0)
             
             job.created_files.append(avatar_video_path)  # Track for cleanup
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
@@ -578,7 +594,7 @@ class ProfessionalPresentationService:
             if slide_image_paths and len(slide_image_paths) > 0:
                 job.slide_image_path = slide_image_paths[0]
             
-            self._update_job_status(job_id, progress=70.0)
+            await self._update_job_status(job_id, progress=70.0)
             
             # Compose final video
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Composing final video")
@@ -606,7 +622,7 @@ class ProfessionalPresentationService:
                 composition_config
             )
             job.created_files.append(final_video_path)  # Track final video for cleanup
-            self._update_job_status(job_id, progress=90.0)
+            await self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: {final_video_path}")
             
@@ -667,7 +683,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress based on slide processing (more granular)
                 base_progress = 10 + (slide_index * 70 // len(slides_data))
-                self._update_job_status(job_id, progress=base_progress)
+                await self._update_job_status(job_id, progress=base_progress)
                 
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Starting processing for slide {slide_index + 1} - Progress: {base_progress}%")
                 
@@ -710,7 +726,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress to show avatar wait started
                 avatar_start_progress = base_progress + 10
-                self._update_job_status(job_id, progress=avatar_start_progress)
+                await self._update_job_status(job_id, progress=avatar_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Waiting for avatar for slide {slide_index + 1} - Progress: {avatar_start_progress}%")
                 
                 # Wait for the pre-initiated avatar video
@@ -753,7 +769,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress for composition start
                 composition_start_progress = base_progress + 30
-                self._update_job_status(job_id, progress=composition_start_progress)
+                await self._update_job_status(job_id, progress=composition_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition started for slide {slide_index + 1} - Progress: {composition_start_progress}%")
                 
                 # Extract avatar position from slide data if available
@@ -779,7 +795,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress for composition complete
                 composition_end_progress = base_progress + 50
-                self._update_job_status(job_id, progress=composition_end_progress)
+                await self._update_job_status(job_id, progress=composition_end_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition completed for slide {slide_index + 1} - Progress: {composition_end_progress}%")
                 
                 individual_videos.append(individual_video_path)
@@ -787,7 +803,7 @@ class ProfessionalPresentationService:
                 job.created_files.append(individual_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
             
-            self._update_job_status(job_id, progress=80.0)
+            await self._update_job_status(job_id, progress=80.0)
             
             # Concatenate all individual videos into final presentation
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
@@ -809,7 +825,7 @@ class ProfessionalPresentationService:
                 final_video_path = await self._concatenate_videos(individual_videos, job_id)
             
             job.created_files.append(final_video_path)  # Track final video for cleanup
-            self._update_job_status(job_id, progress=90.0)
+            await self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
             
@@ -1742,7 +1758,7 @@ class ProfessionalPresentationService:
             
             # Update progress - video creation started
             creation_progress = start_progress + ((end_progress - start_progress) * 0.2)
-            self._update_job_status(job_id, progress=creation_progress)
+            await self._update_job_status(job_id, progress=creation_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Video creation started - Progress: {creation_progress}%")
             
             # Start rendering
@@ -1752,7 +1768,7 @@ class ProfessionalPresentationService:
             
             # Update progress - rendering started
             render_progress = start_progress + ((end_progress - start_progress) * 0.4)
-            self._update_job_status(job_id, progress=render_progress)
+            await self._update_job_status(job_id, progress=render_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Rendering started - Progress: {render_progress}%")
             
             # Wait for completion with progress updates
@@ -1761,7 +1777,7 @@ class ProfessionalPresentationService:
             )
             
             # Final progress update
-            self._update_job_status(job_id, progress=end_progress)
+            await self._update_job_status(job_id, progress=end_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Avatar generation completed - Progress: {end_progress}%")
             
             return avatar_video_path
@@ -2208,7 +2224,7 @@ class ProfessionalPresentationService:
                 
                 # Update our job progress based on Elai progress
                 if elai_progress > 0:
-                    self._update_job_status(job_id, progress=our_progress)
+                    await self._update_job_status(job_id, progress=our_progress)
                 
                 if status in ["rendered", "ready"]:
                     download_url = status_result["downloadUrl"]
@@ -2509,30 +2525,36 @@ class ProfessionalPresentationService:
             # Wait for the specified delay
             await asyncio.sleep(delay_minutes * 60)
             
-            # Check if job still exists and is completed
-            if job_id in self.jobs:
+            # Thread-safe cleanup
+            async with self.job_lock:
+                # Check if job still exists and is completed
+                if job_id not in self.jobs:
+                    return
+                
                 job = self.jobs[job_id]
-                if job.status in ["completed", "failed"]:
-                    logger.info(f"🧹 [CLEANUP] Starting cleanup for job: {job_id}")
-                    
-                    # Clean up all tracked files
-                    for file_path in job.created_files:
-                        try:
-                            if os.path.exists(file_path):
-                                size_mb = os.path.getsize(file_path) / (1024*1024)
-                                os.remove(file_path)
-                                logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
-                        except Exception as e:
-                            logger.error(f"🧹 Не вдалося видалити {file_path}: {e}")
-                    
-                    # Stop any remaining heartbeat tasks
-                    if job_id in self.heartbeat_tasks:
-                        self.heartbeat_tasks[job_id].cancel()
-                        del self.heartbeat_tasks[job_id]
-                    
-                    # Remove job from memory
-                    del self.jobs[job_id]
-                    logger.info(f"🧹 [CLEANUP] Job {job_id} видалено з пам'яті (активних: {len(self.jobs)})")
+                if job.status not in ["completed", "failed"]:
+                    return
+                
+                logger.info(f"🧹 [CLEANUP] Starting cleanup for job: {job_id}")
+                
+                # Clean up all tracked files
+                for file_path in job.created_files:
+                    try:
+                        if os.path.exists(file_path):
+                            size_mb = os.path.getsize(file_path) / (1024*1024)
+                            os.remove(file_path)
+                            logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+                    except Exception as e:
+                        logger.error(f"🧹 Не вдалося видалити {file_path}: {e}")
+                
+                # Stop any remaining heartbeat tasks
+                if job_id in self.heartbeat_tasks:
+                    self.heartbeat_tasks[job_id].cancel()
+                    del self.heartbeat_tasks[job_id]
+                
+                # Remove job from memory
+                del self.jobs[job_id]
+                logger.info(f"🧹 [CLEANUP] Job {job_id} видалено з пам'яті (активних: {len(self.jobs)})")
                     
         except Exception as e:
             logger.error(f"🧹 [CLEANUP] Помилка очищення {job_id}: {e}")
