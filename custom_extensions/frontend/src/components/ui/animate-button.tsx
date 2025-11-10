@@ -24,7 +24,7 @@ export default function AnimateButton({ isVisible, position, onClick }: AnimateB
         transform: 'translate(-50%, -120%)',
         zIndex: 9999,
       }}
-      className="flex items-center gap-1.5 px-1 py-3 text-xs font-medium text-[#4D4D4D] bg-white border border-[#E0E0E0] rounded-md shadow-sm hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4D4D4D]/40"
+      className="flex items-center gap-1.5 px-1.5 py-3 text-xs font-medium text-[#4D4D4D] bg-white border border-[#E0E0E0] rounded-md shadow-sm hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4D4D4D]/40"
     >
       <svg
         width="16"
