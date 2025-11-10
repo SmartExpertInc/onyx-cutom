@@ -662,6 +662,7 @@ export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
   profileImageAlt?: string;
   teamImagePath?: string;
   teamImageAlt?: string;
+  teamImagePrompt?: string; // AI prompt for team image generation
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

@@ -189,6 +189,29 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           }
           break;
 
+        case 'hybrid-work-best-practices-slide':
+          // Handle team image
+          const teamImageElementId = `${slideId}-team-image`;
+          console.log(`[AutoImageGen] Checking hybrid-work-best-practices-slide:`, {
+            slideId,
+            hasPrompt: !!slide.props.teamImagePrompt,
+            hasImage: !!slide.props.teamImagePath,
+            prompt: slide.props.teamImagePrompt?.substring(0, 50)
+          });
+          if (slide.props.teamImagePrompt && !slide.props.teamImagePath) {
+            console.log(`[AutoImageGen] ✅ Adding hybrid-work-best-practices-slide team image to generation queue`);
+            extractedPlaceholders.push({
+              elementId: teamImageElementId,
+              slideId,
+              templateId,
+              imagePrompt: slide.props.teamImagePrompt,
+              imagePath: slide.props.teamImagePath,
+              placeholderDimensions: { width: 600, height: 400 }, // Team meeting image dimensions
+              isGenerating: false
+            });
+          }
+          break;
+
         default:
           // Check for generic image properties
           if (slide.props.imagePrompt && !slide.props.imagePath) {

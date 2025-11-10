@@ -42,6 +42,7 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
   profileImageAlt = 'Profile image',
   teamImagePath = '',
   teamImageAlt = 'Team meeting',
+  teamImagePrompt,
   backgroundColor,
   titleColor,
   contentColor,
@@ -515,7 +516,9 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
               size="LARGE"
               position="CENTER"
               description="Team meeting"
+              prompt={teamImagePrompt || teamImageAlt || "Team meeting in a modern office"}
               isEditable={isEditable}
+              elementId={`${slideId}-team-image`}
               style={{
                 width: '100%',
                 height: '100%',

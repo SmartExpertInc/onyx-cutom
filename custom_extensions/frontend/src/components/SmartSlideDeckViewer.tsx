@@ -232,6 +232,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               rightImagePath: imagePath,
               rightObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
             };
+          } else if (elementId === `${slideId}-team-image`) {
+            // Hybrid work best practices template - team image
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              teamImagePath: imagePath
+            };
           }
           
           updatedSlides[slideIndex] = updatedSlide;
