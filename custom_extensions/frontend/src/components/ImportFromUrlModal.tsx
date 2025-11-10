@@ -58,6 +58,13 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
       const urlObj = new URL(url);
       const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
       
+      // Create a unique name by including a timestamp and path info
+      const timestamp = Date.now();
+      const pathPart = urlObj.pathname.length > 1 
+        ? urlObj.pathname.substring(0, 30).replace(/[^a-zA-Z0-9-]/g, '-') 
+        : '';
+      const uniqueName = `Web - ${urlObj.hostname}${pathPart} (${timestamp})`;
+      
       // Step 1: Create the connector using the Onyx connector creation endpoint
       const connectorResponse = await fetch('/api/manage/admin/connector', {
         method: 'POST',
@@ -65,7 +72,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: `Web - ${urlObj.hostname}`,
+          name: uniqueName,
           source: 'web',
           input_type: 'load_state',
           access_type: 'private',
@@ -101,7 +108,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           credential_json: {},
           admin_public: false,
           curator_public: false,
-          name: `Web Credential - ${urlObj.hostname}`,
+          name: `${uniqueName} - Credential`,
           source: 'web',
         }),
       });
@@ -126,7 +133,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: `Web - ${urlObj.hostname}`,
+          name: uniqueName,
           access_type: 'private',
           groups: [],
           auto_sync_options: {
