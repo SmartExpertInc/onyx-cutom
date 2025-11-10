@@ -1,95 +1,69 @@
-import { Sparkles, Users, TrendingUp, User, Star } from "lucide-react";
+const BgTopLeft: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    className={className}
+    width="683"
+    height="696"
+    viewBox="0 0 683 696"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+  <g filter="url(#filter0_f_1121_42132)">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M132.833 -274.746C243.343 -298.521 372.355 -263.422 443.659 -175.814C511.772 -92.1272 472.055 26.932 466.005 134.608C460.506 232.484 477.227 340.03 410.63 412.045C342.469 485.751 233.13 500.64 132.833 494.884C38.6543 489.479 -43.21 443.274 -114.774 381.893C-194.094 313.86 -298.105 238.461 -287.21 134.608C-276.474 32.2778 -141.546 6.08551 -67.8103 -65.7736C4.08658 -135.841 34.6296 -253.618 132.833 -274.746Z" fill="url(#paint0_linear_1121_42132)" fill-opacity="0.9"/>
+  </g>
+  <defs>
+  <filter id="filter0_f_1121_42132" x="-488" y="-482" width="1171" height="1178" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+  <feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_1121_42132"/>
+  </filter>
+  <linearGradient id="paint0_linear_1121_42132" x1="97.5" y1="-282" x2="97.5" y2="496" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#90EDE5"/>
+  <stop offset="1" stop-color="#D817FF"/>
+  </linearGradient>
+  </defs>
+  </svg>
+);
+
+const BgBottomRight: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    className={className}
+    width="720"
+    height="513"
+    viewBox="0 0 720 513"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+  <g filter="url(#filter0_f_1121_42133)">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M839.397 271.34C907.002 357.591 838.871 478.789 822.441 587.14C809.571 672.015 818.427 767.389 755.347 825.614C693.181 882.997 599.899 866.883 515.379 870.573C422.259 874.637 315.409 911.487 247.364 847.788C178.453 783.278 201.433 673.254 203.796 578.889C206.117 486.236 200.175 387.775 260.644 317.537C325.293 242.444 425.46 214.57 524.233 206.686C635.365 197.815 770.621 183.596 839.397 271.34Z" fill="url(#paint0_linear_1121_42133)" fill-opacity="0.9"/>
+  </g>
+  <defs>
+  <filter id="filter0_f_1121_42133" x="-1.75684" y="0" width="1070.5" height="1084.85" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+  <feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_1121_42133"/>
+  </filter>
+  <linearGradient id="paint0_linear_1121_42133" x1="828.511" y1="258.844" x2="235.715" y2="836.036" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#90EDE5"/>
+  <stop offset="1" stop-color="#3817FF"/>
+  </linearGradient>
+  </defs>
+  </svg>
+);
 
 export default function FeatureHighlights() {
-  const features = [
-    {
-      icon: Sparkles,
-      color: "bg-purple-500",
-      title: "Rich content creation",
-      description: "We produce video lessons, presentations, one-pagers, quizzes, and course outlines."
-    },
-    {
-      icon: Users,
-      color: "bg-pink-500",
-      title: "For everyone",
-      description: "Perfect for corporate and individual clients seeking quality educational content."
-    },
-    {
-      icon: TrendingUp,
-      color: "bg-blue-500",
-      title: "Growing community",
-      description: "Join our thriving community of active users and educators worldwide."
-    }
-  ];
-
   return (
-    <div className="flex-1 max-w-lg">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6">
-        Why choose our platform?
-      </h2>
-      <div className="space-y-6">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-start gap-4">
-            <div className={`${feature.color} rounded-full p-3 flex-shrink-0`}>
-              <feature.icon className="w-4 h-4 text-[#FFFFFF]" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {feature.title}
-              </h3>
-              <p className="text-gray-900 text-sm leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          </div>
-        ))}
+    <div className="relative flex-1 w-full overflow-hidden bg-[#FFFFFF] min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex items-center justify-center">
+      <div className="absolute inset-0">
+        <BgTopLeft className="absolute -top-40 -left-32 w-[520px] opacity-90" />
+        <BgBottomRight className="absolute -bottom-40 -right-48 w-[560px] opacity-80" />
       </div>
 
-      <div className="mt-8 space-y-6">
-        {/* Review 1 */}
-        <div className="shadow-md hover:shadow-xl backdrop-blur-md border border-white/30 rounded-2xl p-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-[#FFFFFF]" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">Sara Johnson</h4>
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className="w-4 h-4 text-[#facc15] fill-[#facc15]"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          <p className="text-gray-700 text-sm">
-            &ldquo;This platform transformed how our team creates training materials. The quality is outstanding!&rdquo;
-          </p>
-        </div>
-
-        {/* Review 2 */}
-        <div className="shadow-md hover:shadow-xl backdrop-blur-md border border-white/30 rounded-2xl p-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-[#FFFFFF]" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">Michael Chen</h4>
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className="w-4 h-4 text-[#facc15] fill-[#facc15]" 
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          <p className="text-gray-700 text-sm">
-            &ldquo;Incredible value and ease of use. I&rsquo;ve created more content in a month than I did all last year.&rdquo;
-          </p>
+      <div className="relative z-10 flex flex-col items-center gap-12 px-10 text-center text-white">
+        <div className="flex items-center text-white gap-3 text-4xl font-medium tracking-tight">
+          <svg width="39" height="49" viewBox="0 0 39 49" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30.2362 28.6371L25.0546 25.2763C25.7196 23.3804 25.5695 21.2628 24.6059 19.4657L28.856 15.6687C31.1909 17.1253 34.3024 16.841 36.332 14.8112C38.6946 12.4488 38.6946 8.61812 36.332 6.25554C33.9693 3.89297 30.1385 3.89297 27.7761 6.25554C25.915 8.1167 25.5211 10.8877 26.5915 13.1357L22.3409 16.9333C20.3062 15.5251 17.7106 15.279 15.4801 16.1977L10.5785 9.45248C12.3368 7.144 12.1633 3.83427 10.0543 1.725C7.75431 -0.575001 4.02522 -0.575001 1.72509 1.725C-0.575031 4.02513 -0.575031 7.75434 1.72509 10.0543C3.37663 11.7059 5.76426 12.1712 7.83105 11.4516L12.7333 18.1974C10.3125 21.0369 10.4415 25.3053 13.1256 27.9893C13.1772 28.0408 13.2302 28.0891 13.2833 28.139L8.53397 36.4746C6.56002 36.0078 4.39738 36.5429 2.85791 38.0826C0.495335 40.4453 0.495335 44.2762 2.85791 46.6385C5.22049 49.0011 9.05124 49.0011 11.4137 46.6385C13.7516 44.3009 13.7747 40.5263 11.4855 38.1582L16.2345 29.8234C18.6193 30.5082 21.2858 29.9418 23.2024 28.1251L28.389 31.4884C28.0579 33.0262 28.4884 34.6954 29.6835 35.8904C31.5557 37.7626 34.5904 37.7626 36.4625 35.8904C38.3345 34.0186 38.3345 30.9836 36.4625 29.1116C34.7652 27.4149 32.1119 27.2565 30.2362 28.6371ZM4.90751 41.0169C4.79241 41.1474 4.68409 41.2706 4.57783 41.3767C4.44543 41.509 4.26449 41.6702 4.03998 41.7396C3.75799 41.8266 3.46983 41.75 3.24895 41.5291C2.67141 40.9517 2.89228 39.859 3.76283 38.9888C4.63362 38.1181 5.72578 37.8971 6.30356 38.4748C6.52431 38.6954 6.60092 38.9838 6.51378 39.2659C6.44456 39.4904 6.28335 39.6718 6.15107 39.8037C6.0448 39.9097 5.9216 40.0181 5.79101 40.1332C5.64033 40.2658 5.4842 40.4029 5.3305 40.5564C5.17692 40.71 5.04003 40.8661 4.90751 41.0169ZM28.681 7.16119C29.5516 6.29064 30.644 6.06952 31.2215 6.64719C31.4422 6.86782 31.519 7.15611 31.4317 7.43834C31.3625 7.66297 31.2012 7.84427 31.069 7.97643C30.963 8.08233 30.8398 8.19065 30.7091 8.30562C30.5583 8.43839 30.4024 8.57539 30.2486 8.72898C30.0948 8.8828 29.9578 9.03905 29.825 9.18985C29.7103 9.32008 29.6016 9.44364 29.4958 9.54966C29.3635 9.68195 29.1822 9.84316 28.9577 9.91251C28.6755 9.99952 28.3874 9.92291 28.1667 9.70204C27.5895 9.12438 27.8104 8.03162 28.681 7.16119ZM3.72059 4.58137C3.60828 4.70845 3.50287 4.82851 3.40011 4.93174C3.27146 5.0604 3.095 5.21713 2.87619 5.28502C2.60157 5.3695 2.32103 5.29507 2.10597 5.08037C1.54367 4.51795 1.7591 3.45424 2.60678 2.60681C3.45433 1.75913 4.51756 1.54395 5.08009 2.10636C5.29504 2.32131 5.36996 2.60197 5.28487 2.87646C5.21698 3.09515 5.06049 3.27161 4.93172 3.40002C4.82836 3.50338 4.7083 3.60904 4.58122 3.7205C4.43441 3.84952 4.2824 3.98313 4.13293 4.13272C3.98322 4.28243 3.84949 4.43469 3.72059 4.58137ZM14.207 18.8512C15.247 17.8111 16.5514 17.5473 17.2415 18.2373C17.5054 18.5012 17.597 18.8453 17.493 19.1825C17.4098 19.4509 17.2174 19.6672 17.0594 19.8254C16.9327 19.9521 16.7853 20.081 16.6294 20.2185C16.4495 20.3771 16.2631 20.5406 16.0794 20.7242C15.8957 20.9081 15.7321 21.0943 15.5738 21.2746C15.4363 21.4303 15.3069 21.5777 15.1803 21.7042C15.0223 21.8627 14.806 22.0547 14.5375 22.1377C14.2006 22.2417 13.8564 22.1503 13.5922 21.8863C12.9026 21.1958 13.167 19.8913 14.207 18.8512ZM31.0471 31.7216C30.9421 31.8264 30.7983 31.9544 30.6206 32.0092C30.3972 32.0781 30.1693 32.0174 29.9939 31.8425C29.5361 31.3849 29.711 30.5194 30.4012 29.8295C31.0907 29.1396 31.9563 28.9646 32.4141 29.4226C32.5888 29.5972 32.6495 29.8256 32.5807 30.0494C32.5258 30.2274 32.3979 30.3709 32.2932 30.4755C32.2092 30.5593 32.1117 30.6452 32.0082 30.7364C31.8891 30.8412 31.7652 30.9501 31.6435 31.0717C31.5217 31.1935 31.4127 31.3169 31.3082 31.4367C31.2168 31.5402 31.1309 31.6376 31.0471 31.7216Z" fill="white"/>
+          </svg>
+          <span>ContentBuilder</span>
         </div>
       </div>
     </div>
