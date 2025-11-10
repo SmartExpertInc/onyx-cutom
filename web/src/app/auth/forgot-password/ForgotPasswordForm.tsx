@@ -54,7 +54,8 @@ export default function ForgotPasswordForm() {
               name="email"
               label="Email"
               type="email"
-              placeholder="email@yourcompany.com"
+              placeholder="name@example.com"
+              className="!bg-[#ffffff] hover:shadow-md transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280] !rounded-md"
             />
 
             <div className="flex">
