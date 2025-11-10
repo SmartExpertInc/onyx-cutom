@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -102,6 +102,15 @@ export default function VideoRightPanel({
   const [transparencyValue, setTransparencyValue] = useState<string>('100%');
   type DurationOption = 'Freeze' | 'Loop' | 'Adjust' | 'Hide';
   const durationOptions: DurationOption[] = ['Freeze', 'Loop', 'Adjust', 'Hide'];
+  const durationOptionLabels = useMemo<Record<DurationOption, string>>(
+    () => ({
+      Freeze: t('panels.videoRightPanel.durationFreeze', 'Freeze'),
+      Loop: t('panels.videoRightPanel.durationLoop', 'Loop'),
+      Adjust: t('panels.videoRightPanel.durationAdjust', 'Adjust'),
+      Hide: t('panels.videoRightPanel.durationHide', 'Hide'),
+    }),
+    [t]
+  );
   const [selectedDurationOption, setSelectedDurationOption] = useState<DurationOption>('Loop');
   const [hoveredDurationOption, setHoveredDurationOption] = useState<DurationOption | null>(null);
   const [isDurationMenuOpen, setIsDurationMenuOpen] = useState<boolean>(false);
@@ -322,7 +331,9 @@ export default function VideoRightPanel({
             className="w-full flex items-center justify-between gap-2 px-3 py-2 border rounded-md bg-white"
             style={{ borderColor: '#E0E0E0' }}
           >
-            <span className="text-xs" style={{ color: '#878787' }}>{selectedDurationOption}</span>
+            <span className="text-xs" style={{ color: '#878787' }}>
+              {durationOptionLabels[selectedDurationOption]}
+            </span>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3.33301 6.0026L7.99967 10.6693L12.6663 6.0026" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -362,7 +373,7 @@ export default function VideoRightPanel({
                         <path d="M3.5 8.3335L6.16667 11.0002L12.5 4.66683" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     )}
-                    <span className="text-xs">{option}</span>
+                    <span className="text-xs">{durationOptionLabels[option]}</span>
                   </div>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clipPath="url(#clip0_2114_32588)">

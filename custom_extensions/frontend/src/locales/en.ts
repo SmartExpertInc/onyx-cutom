@@ -1982,6 +1982,10 @@ export const en = {
       trim: "Trim",
       transparency: "Transparency",
       duration: "Duration",
+      durationFreeze: "Freeze",
+      durationLoop: "Loop",
+      durationAdjust: "Adjust",
+      durationHide: "Hide",
       sound: "Sound"
     },
     musicRightPanel: {

@@ -2077,6 +2077,10 @@ export const ru = {
       trim: "Обрезать",
       transparency: "Прозрачность",
       duration: "Длительность",
+      durationFreeze: "Заморозить",
+      durationLoop: "Зациклить",
+      durationAdjust: "Настроить",
+      durationHide: "Скрыть",
       sound: "Звук"
     },
     musicRightPanel: {

@@ -2082,6 +2082,10 @@ export const uk = {
       trim: "Обрізати",
       transparency: "Прозорість",
       duration: "Тривалість",
+      durationFreeze: "Зафіксувати",
+      durationLoop: "Зациклити",
+      durationAdjust: "Налаштувати",
+      durationHide: "Приховати",
       sound: "Звук"
     },
     musicRightPanel: {

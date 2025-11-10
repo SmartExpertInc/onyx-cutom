@@ -2097,6 +2097,10 @@ export const es = {
       trim: "Recortar",
       transparency: "Transparencia",
       duration: "Duración",
+      durationFreeze: "Congelar",
+      durationLoop: "Repetir",
+      durationAdjust: "Ajustar",
+      durationHide: "Ocultar",
       sound: "Sonido"
     },
     musicRightPanel: {
