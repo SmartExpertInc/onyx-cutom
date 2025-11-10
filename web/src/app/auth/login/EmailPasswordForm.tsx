@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { requestEmailVerification } from "../lib";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Spinner } from "@/components/Spinner";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export function EmailPasswordForm({
   nextUrl,
   defaultEmail,
   isJoin = false,
+  onStepChange,
 }: {
   isSignup?: boolean;
   shouldVerify?: boolean;
@@ -29,6 +30,7 @@ export function EmailPasswordForm({
   nextUrl?: string | null;
   defaultEmail?: string | null;
   isJoin?: boolean;
+  onStepChange?: (step: number) => void;
 }) {
   const { user } = useUser();
   const { popup, setPopup } = usePopup();
@@ -36,6 +38,11 @@ export function EmailPasswordForm({
   const [showPassword, setShowPassword] = useState(false);
   const multiStep = isSignup;
   const [step, setStep] = useState(multiStep ? 1 : 2);
+  useEffect(() => {
+    if (multiStep && onStepChange) {
+      onStepChange(step);
+    }
+  }, [multiStep, onStepChange, step]);
   const validationSchema = useMemo(() => {
     const shape: Record<string, Yup.AnySchema> = {
       email: Yup.string()
@@ -185,7 +192,7 @@ export function EmailPasswordForm({
                   label={multiStep ? "" : "Password"}
                   type={showPassword ? "text" : "password"}
                   placeholder={multiStep ? "Password" : "**************"}
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:[font-family:'Public Sans'] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md !pr-12 !font-['Public Sans'] [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button
@@ -224,7 +231,7 @@ export function EmailPasswordForm({
                   label=""
                   type={showPassword ? "text" : "password"}
                   placeholder="Confirm password"
-                   className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:[font-family:'Public Sans'] !rounded-md -mt-2 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                   className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md -mt-2 !font-['Public Sans'] [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button

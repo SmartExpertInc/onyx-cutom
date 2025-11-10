@@ -7,11 +7,9 @@ import {
   getAuthUrlSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { EmailPasswordForm } from "../login/EmailPasswordForm";
-import { SignInButton } from "../login/SignInButton";
 import AuthFlowContainer from "@/components/auth/AuthFlowContainer";
-import ReferralSourceSelector from "./ReferralSourceSelector";
 import AuthErrorDisplay from "@/components/auth/AuthErrorDisplay";
+import { SignupFormContent } from "./SignupFormContent";
 
 const Page = async (props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -69,36 +67,13 @@ const Page = async (props: {
       <AuthErrorDisplay searchParams={searchParams} />
 
       <div className="absolute top-10x w-full"></div>
-      <div className="flex w-full flex-col justify-center">
-        <h2 className="text-center text-[26px] font-semibold text-[#0F58F9] mb-0 font-public-sans">
-          {cloud ? "Create an account" : "Sign Up for Contentbuilder"}
-        </h2>
-        <p className="text-center mb-6 text-[15px] text-gray-900">Enter your email below to create your account</p>
-        {/* {cloud && (
-          <>
-            <div className="w-full flex flex-col items-center space-y-4 mb-4 mt-4">
-              <ReferralSourceSelector />
-            </div>
-          </>
-        )} */}
-
-        <EmailPasswordForm
-          isSignup
-          shouldVerify={authTypeMetadata?.requiresVerification}
-          nextUrl={nextUrl}
-          defaultEmail={defaultEmail}
-        />
-        {cloud && authUrl && (
-          <div className="w-full justify-center">
-            <div className="flex items-center w-full my-10">
-              <div className="flex-grow border-t-2 !border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
-              <span className="px-4 text-gray-900 dark:text-gray-900 text-[13px]">OR CONTINUE WITH</span>
-              <div className="flex-grow border-t-2 border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
-            </div>
-            <SignInButton authorizeUrl={authUrl} authType="cloud" />
-          </div>
-        )}
-      </div>
+      <SignupFormContent
+        cloud={cloud}
+        shouldVerify={authTypeMetadata?.requiresVerification}
+        nextUrl={nextUrl}
+        defaultEmail={defaultEmail}
+        authUrl={authUrl}
+      />
     </AuthFlowContainer>
   );
 };

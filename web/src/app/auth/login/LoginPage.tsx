@@ -8,6 +8,7 @@ import { EmailPasswordForm } from "./EmailPasswordForm";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Title from "@/components/ui/title";
 import { useSendAuthRequiredMessage } from "@/lib/extension/utils";
+import { useState } from "react";
 
 export default function LoginPage({
   authUrl,
@@ -27,6 +28,7 @@ export default function LoginPage({
   hidePageRedirect?: boolean;
 }) {
   useSendAuthRequiredMessage();
+  const [formStep, setFormStep] = useState(1);
   return (
     <div className="flex flex-col w-full justify-center">
       {authUrl &&
@@ -58,7 +60,11 @@ export default function LoginPage({
             <LoginText />
           </h2>
           <p className="text-center mb-6 text-[15px] text-gray-900">Enter your email below to create your account</p>
-          <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
+          <EmailPasswordForm
+            shouldVerify={true}
+            nextUrl={nextUrl}
+            onStepChange={setFormStep}
+          />
           {NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED && (
             <div className="flex mt-4 justify-center">
               <Link
@@ -69,7 +75,7 @@ export default function LoginPage({
               </Link>
             </div>
           )}
-          {authUrl && authTypeMetadata && (
+          {formStep === 1 && authUrl && authTypeMetadata && (
             <>
               <div className="flex items-center w-full my-10">
                 <div className="flex-grow border-t-2 border-[#E4E4E7]"></div>
