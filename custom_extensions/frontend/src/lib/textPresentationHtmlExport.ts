@@ -16,6 +16,45 @@ import {
   ListItem,
 } from '@/types/textPresentation';
 
+const purpleBoxIconSvgs: Record<string, string> = {
+  globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15 15 0 0 0 0 20"></path><path d="M12 2a15 15 0 0 1 0 20"></path></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><line x1="7" y1="13" x2="7" y2="21"></line><line x1="12" y1="9" x2="12" y2="21"></line><line x1="17" y1="5" x2="17" y2="21"></line></svg>`,
+  boxes: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"></path><path d="M3 7v10l9 5 9-5V7"></path><path d="M12 12v10"></path></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="8"></line></svg>`,
+  goal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line></svg>`,
+  star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 14.9 8.62 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 9.1 8.62 12 2"></polygon></svg>`,
+  apple: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 13c-1.13 3.7-.43 7.2 1 9-4 .67-8-1.33-10-5-2-3.65-1.19-8.52 2-10 1.18-.63 3 .5 4 0 .83-.38 1.5-2.27 1-4 2.67.67 4 4 2 6 2 .5 3 3 0 4Z"></path><path d="M12 7s-1-1-2-1-2 .5-2 .5"></path></svg>`,
+  award: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M9 14l-3 7 6-3 6 3-3-7"></path></svg>`,
+  calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+};
+
+const customToolIconSvgs: Record<string, string> = {
+  drilling: `<svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="currentColor"/><path d="M18.9988 29.1841C19.1531 29.1841 19.3016 29.1247 19.4203 29.0059L21.825 26.6013C21.9378 26.4944 21.9972 26.34 21.9972 26.1856V25.7344L17.3125 27.7413L18.5772 29.0059C18.6959 29.1247 18.8444 29.1841 18.9988 29.1841Z" fill="currentColor"/><path d="M16.002 8.11719V11.8756L15.5091 12.0834C15.2063 12.2141 15.0698 12.5644 15.1945 12.8672C15.3319 13.1743 15.7048 13.3135 16.002 13.1641L22.0048 10.605L22.4916 10.3972C23.2186 10.068 22.7236 8.98124 22.0047 9.31659C22.0048 9.31657 22.0048 8.11719 22.0048 8.11719H16.002Z" fill="currentColor"/><path d="M22.8052 14.2319C22.6785 13.921 22.3068 13.7779 22.0037 13.9291V11.8984C19.7415 12.818 16.5389 14.3141 16.0009 14.3863C16.0009 14.3863 16.0009 16.4763 16.0009 16.4763L15.5021 16.69C14.7774 17.0265 15.2782 18.1042 16.0009 17.7706C16.0009 17.7706 22.0037 15.2175 22.0037 15.2175L22.4906 15.0097C22.7934 14.885 22.9359 14.5347 22.8052 14.2319Z" fill="currentColor"/><path d="M22.806 18.8472C22.6771 18.5317 22.3056 18.3965 21.9985 18.5444L22.0044 16.5078L16.4647 18.865C16.3163 18.9303 16.1619 18.9778 16.0016 18.9956V21.0915L15.5029 21.3053C15.206 21.43 15.0635 21.7803 15.1941 22.0831C15.3265 22.4012 15.7007 22.5293 16.0016 22.3859C16.0016 22.386 21.9985 19.8328 21.9985 19.8328L22.4913 19.625C22.7941 19.4944 22.9366 19.15 22.806 18.8472Z" fill="currentColor"/><path d="M22.4895 24.2383C23.2167 23.907 22.7339 22.8259 21.9966 23.1517L21.9966 21.1211C19.8318 22.0204 16.391 23.5734 15.9998 23.6149L15.9998 25.7108L15.5545 25.9008C14.9618 26.1419 15.1566 27.052 15.7861 27.0408C15.9377 27.0576 16.2607 26.8825 16.4035 26.833L21.9966 24.4461L22.4895 24.2383Z" fill="currentColor"/><path d="M13.6543 14.8438C13.6543 14.5172 13.3871 14.25 13.0605 14.25H2.9668C2.64024 14.25 2.37305 14.5172 2.37305 14.8438V17.8125H13.6543V14.8438Z" fill="currentColor"/><path d="M4.19587 23.7916C4.55413 24.0002 5.42014 24.0001 5.77522 23.7915C6.04836 23.6847 6.3868 23.5481 7.01024 23.5481C8.08021 23.5346 8.11102 23.9306 9.02899 23.9519C9.93919 23.9296 9.97634 23.5341 11.0418 23.5482C12.1217 23.5345 12.1395 23.9308 13.0605 23.9519C13.0606 23.9519 13.6543 23.9519 13.6543 23.9519V19H2.37305V23.5481C2.99299 23.5137 3.83458 23.5907 4.19587 23.7916Z" fill="currentColor"/><path d="M15.2218 29.3063C14.1062 28.2068 13.5778 26.6901 13.6543 25.1382C13.0357 25.1726 12.1918 25.0955 11.8315 24.8947C11.4779 24.6871 10.6149 24.6851 10.2581 24.8948C9.98493 25.0016 9.64648 25.1382 9.029 25.1382C7.95384 25.1527 7.92784 24.7575 7.01024 24.7344C6.08863 24.7563 6.06338 25.1521 4.98555 25.1381C3.91648 25.1517 3.88407 24.7557 2.96681 24.7344C2.9668 24.7344 2.37305 24.7344 2.37305 24.7344V29.6863H15.6433C15.4949 29.5676 15.3584 29.4428 15.2218 29.3063Z" fill="currentColor"/><path d="M35.0293 14.25H24.9355C24.609 14.25 24.3418 14.5172 24.3418 14.8438V17.8125H35.623V14.8438C35.623 14.5172 35.3559 14.25 35.0293 14.25Z" fill="currentColor"/><path d="M24.3418 23.5481H24.9355C26.0032 23.5346 26.0406 23.9309 26.9543 23.9519C27.8748 23.9299 27.902 23.5342 28.979 23.5481C29.5965 23.5481 29.9349 23.6847 30.208 23.7916C30.5617 23.9991 31.4245 24.0011 31.7815 23.7915C32.0546 23.6847 32.393 23.5481 33.0105 23.5481C33.634 23.5481 33.9724 23.6847 34.2396 23.7916C34.5375 23.9715 35.2111 23.9602 35.6231 23.9518L35.623 19H24.3418V23.5481Z" fill="currentColor"/><path d="M33.8012 24.8947C33.4476 24.6871 32.5846 24.6851 32.2277 24.8948C31.9546 25.0016 31.6162 25.1382 30.9987 25.1382C29.9233 25.1526 29.8977 24.7575 28.9799 24.7344C28.0586 24.7563 28.0328 25.1521 26.9552 25.1381C25.8859 25.1517 25.8539 24.7557 24.9365 24.7344C24.9365 24.7344 24.3427 24.7344 24.3427 24.7344C24.4898 26.6531 23.8234 28.5456 22.3477 29.6863C22.3477 29.6863 35.624 29.6863 35.624 29.6863V25.1382C35.0034 25.1725 34.1629 25.0957 33.8012 24.8947ZM27.5371 28.196C26.7572 28.1852 26.7565 27.0231 27.5371 27.0085C28.3178 27.0232 28.3169 28.1853 27.5371 28.196ZM30.874 27.6022C30.094 27.5914 30.0933 26.4294 30.874 26.4147C31.6547 26.4295 31.6538 27.5915 30.874 27.6022Z" fill="currentColor"/><path d="M2.37305 35.0312C2.37305 35.3578 2.64024 35.625 2.9668 35.625H35.0293C35.3559 35.625 35.6231 35.3578 35.6231 35.0312V30.875H2.37305V35.0312Z" fill="currentColor"/></svg>`,
+  sawing: `<svg viewBox="0 0 34 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.98869 0.936214C7.7403 -0.312104 5.70909 -0.312039 4.46077 0.936214L0.939119 4.45793C-0.309133 5.70625 -0.309133 7.73747 0.939119 8.98585L5.7164 13.7631L13.766 5.7135L8.98869 0.936214ZM5.46704 7.97958L3.95773 6.47027L6.47318 3.95483L7.98248 5.46413L5.46704 7.97958Z" fill="currentColor"/><path d="M33.4429 25.6133H0.00292969V29.8822H33.4429V25.6133Z" fill="currentColor"/><path d="M15.2743 7.42188L9.1875 13.5087L10.0213 17.3441L13.8784 18.1828L14.7169 22.0398L18.6397 22.8926L18.8239 23.4762H29.9987L15.2743 7.42188Z" fill="currentColor"/></svg>`,
+  finishing: `<svg viewBox="0 0 34 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M33.4411 21.6254V17.6914H26.5567V18.6749C26.5567 21.3864 24.3507 22.6089 21.6392 22.6089H19.6722C17.5031 22.6089 15.7383 24.3736 15.7383 26.5428H33.4411V23.5924H27.5402V21.6254H33.4411Z" fill="currentColor"/><path d="M21.6378 20.6419C23.2647 20.6419 24.5882 20.3019 24.5882 18.6749V17.6914H0.000976562V20.6419H8.85239V22.6089H0.000976562V26.5428H13.7698C13.7698 23.289 16.417 20.6419 19.6708 20.6419H21.6378ZM12.7864 22.6089H10.8194V20.6419H12.7864V22.6089Z" fill="currentColor"/><path d="M27.5394 1.95454C27.4427 -0.652497 23.7013 -0.65053 23.6055 1.95454V5.8885H27.5394V1.95454Z" fill="currentColor"/><path d="M26.5556 15.7234C28.7283 15.7234 30.4896 13.9621 30.4896 11.7894V7.85547H20.6547V11.7894C20.6547 13.9621 18.8934 15.7234 16.7207 15.7234H26.5556Z" fill="currentColor"/></svg>`,
+};
+
+const getPurpleBoxIconHtml = (icon?: string | null): string => {
+  if (!icon) return '';
+  const key = icon.toLowerCase();
+  const iconSvg =
+    purpleBoxIconSvgs[key] ||
+    customToolIconSvgs[key];
+  if (!iconSvg) return '';
+  const wrapperStyle = `
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #0F58F9;
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  `.trim();
+  return `<span style="${wrapperStyle}"><span style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;">${iconSvg}</span></span>`;
+};
+
 /**
  * Escapes HTML special characters to prevent XSS
  */
@@ -584,8 +623,20 @@ const renderPurpleBoxes = (
     flex-direction: column;
     gap: 8px;
   `.trim();
-  
+
+  const iconRowStyle = `
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  `.trim();
+
   let html = `<div style="margin: 16px 0;">`;
+  if ('title' in (purpleBoxContent as Record<string, unknown>) && (purpleBoxContent as any)?.title) {
+    html += `<h2 style="font-size: 18px; font-weight: 600; color: #171718; margin: 0 0 8px 0;">${escapeHtml((purpleBoxContent as any).title)}</h2>`;
+  }
+  if ('description' in (purpleBoxContent as Record<string, unknown>) && (purpleBoxContent as any)?.description) {
+    html += `<p style="font-size: 14px; color: #4B5563; line-height: 1.5; margin: 0 0 16px 0;">${escapeHtml((purpleBoxContent as any).description)}</p>`;
+  }
   html += `<div style="${containerStyle}">`;
   cards.forEach((card) => {
     const titleStyle = `
@@ -593,9 +644,6 @@ const renderPurpleBoxes = (
       color: #171718;
       font-size: 16px;
       margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     `.trim();
     
     const descriptionStyle = `
@@ -605,26 +653,13 @@ const renderPurpleBoxes = (
       margin: 0;
     `.trim();
 
-    const iconCircleStyle = `
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: #0F58F9;
-      color: #FFFFFF;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 600;
-    `.trim();
-
     html += `<div style="${cardStyle}">`;
-    html += `<div style="${titleStyle}">`;
-    if (card.icon) {
-      html += `<span style="${iconCircleStyle}">${escapeHtml(card.icon.slice(0, 2).toUpperCase())}</span>`;
+    const iconHtml = getPurpleBoxIconHtml(card.icon);
+    if (iconHtml) {
+      html += `<div style="${iconRowStyle}">${iconHtml}<h3 style="${titleStyle}">${escapeHtml(card.title)}</h3></div>`;
+    } else {
+      html += `<h3 style="${titleStyle}">${escapeHtml(card.title)}</h3>`;
     }
-    html += `<span>${escapeHtml(card.title)}</span>`;
-    html += `</div>`;
     html += `<p style="${descriptionStyle}">${escapeHtml(card.description)}</p>`;
     html += `</div>`;
   });

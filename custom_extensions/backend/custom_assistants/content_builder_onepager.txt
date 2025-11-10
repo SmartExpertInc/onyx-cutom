@@ -400,10 +400,12 @@ Failure to include these components is non-compliant. Expand content instead of 
     DO NOT CREATE: Market entry scenarios, GlobalSensors examples unless topic is market strategy
    Format: Situation  Analysis  Decision  Outcome  Lesson
 
-3. COMMON MISTAKES: List 3-5 frequent errors with:
+3. COMMON MISTAKES: Present 3-5 frequent errors in a multi-column layout (max 3 columns). Each column = one mistake with:
+    Headline naming the mistake
     Why people make this mistake (mental trap)
+    Real consequence or impact example
     How to recognize you're making it
-    How to correct it
+    How to correct it with actionable steps
     Mistakes must be specific to THIS topic, not generic business mistakes
 
 4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria

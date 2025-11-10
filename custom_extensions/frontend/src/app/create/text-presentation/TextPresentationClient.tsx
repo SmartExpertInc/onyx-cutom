@@ -2244,7 +2244,6 @@ export default function TextPresentationClient() {
                 </span>
               )}
             </div>
-            {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
                 <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
