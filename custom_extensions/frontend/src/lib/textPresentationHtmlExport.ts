@@ -12,6 +12,7 @@ import {
   ImageBlock,
   TableBlock,
   ColumnContainerBlock,
+  PurpleBoxBlock,
   ListItem,
 } from '@/types/textPresentation';
 
@@ -173,7 +174,7 @@ const renderParagraph = (block: ParagraphBlock): string => {
     font-size: ${fontSize};
     font-weight: 300; /* font-light */
     line-height: 1.5; /* leading-normal */
-    color: #000000; /* text-black */
+    color: #4B5563; /* text-gray-600 */
     margin-bottom: 1rem; /* mb-2 = 8px, but frontend uses mb-2 which is 0.5rem, but actual spacing is more */
     text-align: left;
   `.trim();
@@ -257,7 +258,7 @@ const renderBulletList = (block: BulletListBlock): string => {
     font-size: ${fontSize};
     font-weight: 300; /* font-light to match paragraphs */
     line-height: 1.6;
-    color: #000000; /* text-black */
+    color: #4B5563; /* text-gray-600 */
     margin-bottom: 0.5rem;
     display: flex;
     align-items: flex-start;
@@ -318,7 +319,8 @@ const renderNumberedList = (block: NumberedListBlock): string => {
   const itemStyle = `
     font-size: ${fontSize};
     line-height: 1.6;
-    color: #171718;
+    color: #4B5563;
+    font-weight: 300;
     margin-bottom: 8px;
     display: flex;
     align-items: flex-start;
@@ -548,7 +550,7 @@ const renderTable = (block: TableBlock): string => {
 /**
  * Generates HTML for purple boxes section from data
  */
-const renderPurpleBoxes = (purpleBoxContent: { title: string; description: string; cards: Array<{ title: string; description: string; icon?: string }> } | null | undefined): string => {
+const renderPurpleBoxes = (purpleBoxContent: { title?: string; description?: string; cards: Array<{ title: string; description: string; icon?: string | null }> } | null | undefined): string => {
   if (!purpleBoxContent || !purpleBoxContent.cards || purpleBoxContent.cards.length === 0) {
     return '';
   }
@@ -568,49 +570,51 @@ const renderPurpleBoxes = (purpleBoxContent: { title: string; description: strin
     border: 1px solid #CCCCCC;
     border-radius: 8px;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   `.trim();
   
-  const titleStyle = `
-    font-weight: 600;
-    color: #171718;
-    margin-bottom: 8px;
-    font-size: 16px;
-  `.trim();
-  
-  const descriptionStyle = `
-    font-size: 14px;
-    color: #4B5563;
-    line-height: 1.5;
-  `.trim();
-  
-  const sectionTitleStyle = `
-    font-size: 18px;
-    font-weight: 600;
-    color: #171718;
-    margin-bottom: 12px;
-  `.trim();
-  
-  const sectionDescStyle = `
-    font-size: 14px;
-    color: #4B5563;
-    line-height: 1.5;
-    margin-bottom: 16px;
-  `.trim();
-  
-  let html = `<div style="margin-bottom: 24px;">`;
-  
-  // Add section title and description if present
-  if (purpleBoxContent.title) {
-    html += `<h2 style="${sectionTitleStyle}">${escapeHtml(purpleBoxContent.title)}</h2>`;
-  }
-  if (purpleBoxContent.description) {
-    html += `<p style="${sectionDescStyle}">${escapeHtml(purpleBoxContent.description)}</p>`;
-  }
-  
+  let html = `<div style="margin: 16px 0;">`;
   html += `<div style="${containerStyle}">`;
   cards.forEach((card) => {
+    const titleStyle = `
+      font-weight: 600;
+      color: #171718;
+      font-size: 16px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    `.trim();
+    
+    const descriptionStyle = `
+      font-size: 14px;
+      color: #4B5563;
+      line-height: 1.5;
+      margin: 0;
+    `.trim();
+
+    const iconCircleStyle = `
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #0F58F9;
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+    `.trim();
+
     html += `<div style="${cardStyle}">`;
-    html += `<h3 style="${titleStyle}">${escapeHtml(card.title)}</h3>`;
+    html += `<div style="${titleStyle}">`;
+    if (card.icon) {
+      html += `<span style="${iconCircleStyle}">${escapeHtml(card.icon.slice(0, 2).toUpperCase())}</span>`;
+    }
+    html += `<span>${escapeHtml(card.title)}</span>`;
+    html += `</div>`;
     html += `<p style="${descriptionStyle}">${escapeHtml(card.description)}</p>`;
     html += `</div>`;
   });
@@ -642,6 +646,8 @@ const renderContentBlock = async (block: AnyContentBlock): Promise<string> => {
       return renderTable(block as TableBlock);
     case 'column_container':
       return await renderColumnContainer(block as ColumnContainerBlock);
+    case 'purple_box':
+      return renderPurpleBoxes(block as PurpleBoxBlock);
     default:
       return '';
   }

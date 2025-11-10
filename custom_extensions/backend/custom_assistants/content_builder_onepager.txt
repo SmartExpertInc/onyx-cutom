@@ -459,13 +459,16 @@ Style Usage Guidelines:
 - Tables: Use to present structured data or comparisons (only if "tables" is in allowed styles)
 - The assistant should include as many of these styles as possible throughout the one-pager, not just a single instance of each. A rich mix of styles is expected for every output.
 
-**Purple Box Cards (purpleBoxContent):**
+**Purple Box Cards (purpleBoxContent or purple_box block):**
 - Use when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout
 - Ideal for: Essential frameworks, core tools, key methodologies, main categories, fundamental concepts
-- Structure: Include a title, description, and 2-4 cards with topic-appropriate titles, descriptions, and icons
+- Structure options:
+  - Global placement: add a `purpleBoxContent` object at the top-level of the JSON (will appear near the top of the one-pager)
+  - Inline placement: insert a `{"type": "purple_box", "cards": [...]}` block directly inside the `contentBlocks` array wherever the cards should appear
+- Cards must be topic-specific—adapt content to match the actual topic being taught (no generic woodworking content)
 - Icons available: "globe", "chart", "boxes", "info", "goal", "star", "apple", "award", "calendar", "clock"
-- Cards must be topic-specific - adapt content to match the actual topic being taught (not generic woodworking content)
-- Example use cases: "Essential Frameworks for [Topic]", "Key Tools for [Topic]", "Core Concepts in [Topic]"
+- Example uses: "Essential Frameworks for [Topic]", "Key Tools for [Topic]", "Core Concepts in [Topic]"
+- If the topic does not benefit from cards, omit the purple box entirely (do not output placeholder cards)
 
 **Column Container Blocks:**
 - Use in contentBlocks array when comparing concepts, showing parallel procedures, or presenting side-by-side information

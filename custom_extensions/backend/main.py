@@ -33878,6 +33878,26 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
         ]
       ]
     },
+    {
+      "type": "purple_box",
+      "cards": [
+        {
+          "title": "Market Sizing Toolkit",
+          "description": "Use TAM → SAM → SOM calculations to quantify opportunity layers and align stakeholders on realistic revenue goals.",
+          "icon": "goal"
+        },
+        {
+          "title": "Voice-of-Customer Loop",
+          "description": "Combine structured interviews, surveys, and product analytics to capture continuous customer feedback and close insight gaps.",
+          "icon": "info"
+        },
+        {
+          "title": "Competitive Radar",
+          "description": "Maintain an always-on view of competitor launches, pricing moves, and positioning shifts to inform defensive plays.",
+          "icon": "chart"
+        }
+      ]
+    },
     
     { "type": "headline", "level": 3, "text": "Market Trends" },
     { "type": "paragraph", "text": "Market Trends are patterns of change in consumer behavior, technology, and regulations that shape how markets evolve. For example, the shift toward remote work created trends in collaboration software, home office equipment, and cybersecurity. Understanding trends allows businesses to anticipate changes rather than react to them. Trends can be short-term fads or long-term structural shifts—distinguishing between them is crucial for strategy. A common mistake is conflating a temporary spike in demand with a lasting trend, leading to overinvestment in capacity that won't be needed long-term." },
@@ -34608,7 +34628,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
 - contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table|column_container, alert, etc.)
 - Use "paragraph" type liberally (60% of content) - this is where deep learning happens
-- **purpleBoxContent** (optional): Include when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout. Structure: {{ "title": "Topic-specific title", "description": "Brief overview", "cards": [{{ "title": "Card title", "description": "Card description", "icon": "globe|chart|boxes|info|goal|star|apple|award|calendar|clock" }}] }}
+- **purpleBoxContent** or inline **purple_box** block (optional): Include when your topic has 2-4 key concepts, tools, frameworks, or categories that benefit from visual card layout. Global structure: {{ "title": "Topic-specific title", "description": "Brief overview", "cards": [{{ "title": "Card title", "description": "Card description", "icon": "globe|chart|boxes|info|goal|star|apple|award|calendar|clock" }}] }}. Inline structure: {{ "type": "purple_box", "cards": [...] }} placed inside `contentBlocks` where it adds the most value. Skip entirely if the topic doesn't warrant cards.
 - **column_container** blocks: Use in contentBlocks when comparing concepts, showing parallel procedures, or presenting side-by-side information. Structure: {{ "type": "column_container", "columnCount": 2|3, "columns": [[blocks for column 1], [blocks for column 2], ...] }}
 - **LIST USAGE RULES (CRITICAL)**:
   - Use **numbered_list** for: Sequential steps, ranked priorities, ordered procedures, chronological events, hierarchical levels

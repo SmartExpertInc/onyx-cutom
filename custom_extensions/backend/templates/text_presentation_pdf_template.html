@@ -243,7 +243,7 @@
             line-height: 1.5; /* leading-normal */
             font-weight: 300; /* font-light */
             margin-bottom: 1rem; 
-            color: #000000; /* text-black */
+            color: #4B5563; /* text-gray-600 */
             text-align: left; 
             width: 100%; 
         }
@@ -266,7 +266,7 @@
             font-size: 16px; /* Match paragraph size */
             font-weight: 300; /* font-light to match paragraphs */
             line-height: 1.6; 
-            color: #000000; /* text-black */
+            color: #4B5563; /* text-gray-600 */
             display: flex; 
             align-items: flex-start;
         }
@@ -615,7 +615,7 @@
       </table>
     </div>
 {% elif block_type == 'paragraph' %}
-    <p class="paragraph-block {{ 'recommendation' if block_data.isRecommendation else '' }}" style="font-size: {{ block_data.fontSize if block_data.fontSize else '1rem' }}; font-weight: 300; line-height: 1.5; color: #000000; margin-bottom: 1rem; text-align: left; {% if block_data.isRecommendation %}padding-left: 1rem; border-left: 4px solid #0F58F9; padding-top: 0.5rem; padding-bottom: 0.5rem; background-color: rgba(243, 244, 246, 0.3);{% endif %}">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: 600; color: #0F58F9;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
+    <p class="paragraph-block {{ 'recommendation' if block_data.isRecommendation else '' }}" style="font-size: {{ block_data.fontSize if block_data.fontSize else '1rem' }}; font-weight: 300; line-height: 1.5; color: #4B5563; margin-bottom: 1rem; text-align: left; {% if block_data.isRecommendation %}padding-left: 1rem; border-left: 4px solid #0F58F9; padding-top: 0.5rem; padding-bottom: 0.5rem; background-color: rgba(243, 244, 246, 0.3);{% endif %}">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: 600; color: #0F58F9;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
 {% elif block_type == 'bullet_list' or block_type == 'numbered_list' %}
     {% set has_recommendation = false %}
     {% if block_type == 'bullet_list' and block_data.get('items') is iterable and block_data.get('items') is not string %}
@@ -763,6 +763,26 @@
             {% endfor %}
         {% endif %}
     </div>
+{% elif block_type == 'purple_box' %}
+    {% set purple_cards = block_data.cards if block_data.cards else [] %}
+    {% if purple_cards %}
+        {% set grid_columns = purple_cards|length %}
+        <div class="column-container-block" style="display: grid; grid-template-columns: repeat({{ grid_columns if grid_columns <= 4 else 4 }}, 1fr); gap: 16px; margin: 16px 0;">
+            {% for card in purple_cards %}
+                <div style="background-color: #CCDBFCCC; border: 1px solid #CCCCCC; border-radius: 8px; padding: 20px; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        {% if card.icon %}
+                            <span style="width: 40px; height: 40px; border-radius: 50%; background-color: #0F58F9; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600;">
+                                {{ card.icon[:2]|upper }}
+                            </span>
+                        {% endif %}
+                        <h3 style="font-weight: 600; color: #171718; font-size: 16px; margin:0;">{{ card.title }}</h3>
+                    </div>
+                    <p style="font-size: 14px; color: #4B5563; line-height: 1.5; margin:0;">{{ card.description }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
 {% endif %}
@@ -786,18 +806,19 @@
     {% endif %}
     <div style="background-color: #FFFFFF; padding: 16px 32px;">
     {% if text_data.purpleBoxContent and text_data.purpleBoxContent.cards and text_data.purpleBoxContent.cards|length > 0 %}
-      <div class="purple-box-section" style="margin-bottom: 24px;">
-        {% if text_data.purpleBoxContent.title %}
-          <h2 style="font-size: 18px; font-weight: 600; color: #171718; margin-bottom: 12px;">{{ text_data.purpleBoxContent.title }}</h2>
-        {% endif %}
-        {% if text_data.purpleBoxContent.description %}
-          <p style="font-size: 14px; color: #4B5563; line-height: 1.5; margin-bottom: 16px;">{{ text_data.purpleBoxContent.description }}</p>
-        {% endif %}
+      <div class="purple-box-section" style="margin: 16px 0;">
         <div style="display: grid; grid-template-columns: repeat({{ text_data.purpleBoxContent.cards|length if text_data.purpleBoxContent.cards|length <= 4 else 4 }}, 1fr); gap: 16px;">
           {% for card in text_data.purpleBoxContent.cards %}
-            <div style="background-color: #CCDBFCCC; border: 1px solid #CCCCCC; border-radius: 8px; padding: 20px;">
-              <h3 style="font-weight: 600; color: #171718; margin-bottom: 8px; font-size: 16px;">{{ card.title }}</h3>
-              <p style="font-size: 14px; color: #4B5563; line-height: 1.5;">{{ card.description }}</p>
+            <div style="background-color: #CCDBFCCC; border: 1px solid #CCCCCC; border-radius: 8px; padding: 20px; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                {% if card.icon %}
+                  <span style="width: 40px; height: 40px; border-radius: 50%; background-color: #0F58F9; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600;">
+                    {{ card.icon[:2]|upper }}
+                  </span>
+                {% endif %}
+                <h3 style="font-weight: 600; color: #171718; font-size: 16px; margin:0;">{{ card.title }}</h3>
+              </div>
+              <p style="font-size: 14px; color: #4B5563; line-height: 1.5; margin:0;">{{ card.description }}</p>
             </div>
           {% endfor %}
         </div>

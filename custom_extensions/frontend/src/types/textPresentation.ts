@@ -67,19 +67,6 @@ export interface TableBlock {
   caption?: string;
 }
 
-export type AnyContentBlock =
-  | HeadlineBlock
-  | ParagraphBlock
-  | AlertBlock
-  | SectionBreakBlock
-  | BulletListBlock
-  | NumberedListBlock
-  | TableBlock
-  | ImageBlock
-  | ColumnContainerBlock
-  | MiniSection
-  | StandaloneBlock;
-
 export type ListItem = string | AnyContentBlock;
 
 export interface BulletListBlock {
@@ -96,12 +83,39 @@ export interface NumberedListBlock {
   // NumberedListBlock does not have its own iconName in the Pydantic model.
 }
 
+export interface PurpleBoxCard {
+  title: string;
+  description: string;
+  icon?: string | null;
+}
+
+export interface PurpleBoxBlock {
+  type: 'purple_box';
+  title?: string | null;
+  description?: string | null;
+  cards: PurpleBoxCard[];
+}
+
 // Container block for column layouts
 export interface ColumnContainerBlock {
   type: 'column_container';
   columnCount: 2 | 3; // Number of columns
   columns: AnyContentBlock[][]; // Array of columns, each containing blocks
 }
+
+export type AnyContentBlock =
+  | HeadlineBlock
+  | ParagraphBlock
+  | AlertBlock
+  | SectionBreakBlock
+  | BulletListBlock
+  | NumberedListBlock
+  | TableBlock
+  | ImageBlock
+  | PurpleBoxBlock
+  | ColumnContainerBlock
+  | MiniSection
+  | StandaloneBlock;
 
 // --- Composite Types for Rendering ---
 export interface MiniSection {
@@ -121,4 +135,9 @@ export interface TextPresentationData {
   contentBlocks: AnyContentBlock[];
   detectedLanguage?: string | null;
   purpleBoxSection?: boolean;
+  purpleBoxContent?: {
+    title?: string | null;
+    description?: string | null;
+    cards: PurpleBoxCard[];
+  } | null;
 } 
