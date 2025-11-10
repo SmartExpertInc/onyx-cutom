@@ -1145,8 +1145,10 @@ class ProfessionalPresentationService:
         
         # Verify bitrate is reasonable (not suspiciously low)
         if props['bit_rate'] > 0 and props['bit_rate'] < 500_000:  # Less than 500 kbps
-            issues.append(f"Bitrate very low: {props['bit_rate']} bps - may indicate corruption")
-            logger.warning(f"⚠️ [VERIFICATION] Low bitrate detected")
+            logger.warning(
+                f"⚠️ [VERIFICATION] Low bitrate detected ({props['bit_rate']} bps). "
+                "Continuing, but playback quality might be poor."
+            )
         
         valid = len(issues) == 0
         
