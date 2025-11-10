@@ -61,10 +61,13 @@ class PresentationJob:
     created_at: datetime = None
     completed_at: Optional[datetime] = None
     last_heartbeat: Optional[datetime] = None  # Track last heartbeat to prevent timeouts
+    created_files: List[str] = None  # Track all files created during job for cleanup
     
     def __post_init__(self):
         if self.created_at is None:
             self.created_at = datetime.now()
+        if self.created_files is None:
+            self.created_files = []
 
 class ProfessionalPresentationService:
     """Professional presentation generation service."""
@@ -508,12 +511,14 @@ class ProfessionalPresentationService:
                     raise Exception(f"Slide video generation failed: {result['error']}")
                 
                 slide_video_path = result["video_path"]
+                job.created_files.append(slide_video_path)  # Track for cleanup
                 output_filename = f"presentation_{job_id}.mp4"
                 output_path = self.output_dir / output_filename
                 
                 import shutil
                 shutil.copy2(slide_video_path, output_path)
                 final_video_path = str(output_path)
+                job.created_files.append(final_video_path)  # Track final video for cleanup
                 self._update_job_status(job_id, progress=90.0)
                 
                 # Cleanup temporary files
@@ -544,6 +549,7 @@ class ProfessionalPresentationService:
             )
             self._update_job_status(job_id, progress=40.0)
             
+            job.created_files.append(avatar_video_path)  # Track for cleanup
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
             
             # OPTIMIZATION: Extract actual duration from avatar video
@@ -565,6 +571,7 @@ class ProfessionalPresentationService:
             
             slide_video_path = result["video_path"]
             slide_image_paths = result.get("slide_image_paths", [])
+            job.created_files.append(slide_video_path)  # Track for cleanup
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Slide video generated: {slide_video_path}")
             
             # Store the slide image path for debugging
@@ -598,6 +605,7 @@ class ProfessionalPresentationService:
                 avatar_video_path,
                 composition_config
             )
+            job.created_files.append(final_video_path)  # Track final video for cleanup
             self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: {final_video_path}")
@@ -692,6 +700,7 @@ class ProfessionalPresentationService:
                     
                     slide_video_path = slide_result["video_path"]
                     temp_files_to_cleanup.append(slide_video_path)
+                    job.created_files.append(slide_video_path)  # Track for cleanup
                     individual_videos.append(slide_video_path)
                     logger.info(f"🐛 [DEBUG_MODE] Slide {slide_index + 1} video generated (no avatar): {slide_video_path}")
                     continue
@@ -713,6 +722,7 @@ class ProfessionalPresentationService:
                     end_progress=base_progress + 30
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
+                job.created_files.append(avatar_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} ready: {avatar_video_path}")
                 
                 # OPTIMIZATION: Extract actual duration from avatar video
@@ -734,6 +744,7 @@ class ProfessionalPresentationService:
                 
                 slide_video_path = slide_result["video_path"]
                 temp_files_to_cleanup.append(slide_video_path)
+                job.created_files.append(slide_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} video generated: {slide_video_path}")
                 
                 # Compose individual slide + avatar video with progress updates
@@ -773,6 +784,7 @@ class ProfessionalPresentationService:
                 
                 individual_videos.append(individual_video_path)
                 temp_files_to_cleanup.append(individual_video_path)
+                job.created_files.append(individual_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
             
             self._update_job_status(job_id, progress=80.0)
@@ -796,6 +808,7 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Using simple concatenation (no transitions)")
                 final_video_path = await self._concatenate_videos(individual_videos, job_id)
             
+            job.created_files.append(final_video_path)  # Track final video for cleanup
             self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
@@ -2483,13 +2496,14 @@ class ProfessionalPresentationService:
         except Exception as e:
             logger.error(f"Job cleanup failed: {e}")
     
-    async def _schedule_job_cleanup(self, job_id: str, delay_minutes: int = 30):
+    async def _schedule_job_cleanup(self, job_id: str, delay_minutes: int = 5):
         """
         Schedule cleanup of a completed job after a delay.
+        Simple cleanup: delete all tracked files and remove from memory.
         
         Args:
             job_id: Job ID to clean up
-            delay_minutes: Minutes to wait before cleanup (default: 30)
+            delay_minutes: Minutes to wait before cleanup (default: 5)
         """
         try:
             # Wait for the specified delay
@@ -2499,29 +2513,29 @@ class ProfessionalPresentationService:
             if job_id in self.jobs:
                 job = self.jobs[job_id]
                 if job.status in ["completed", "failed"]:
-                    logger.info(f"🧹 [CLEANUP] Starting scheduled cleanup for completed job: {job_id}")
+                    logger.info(f"🧹 [CLEANUP] Starting cleanup for job: {job_id}")
+                    
+                    # Clean up all tracked files
+                    for file_path in job.created_files:
+                        try:
+                            if os.path.exists(file_path):
+                                size_mb = os.path.getsize(file_path) / (1024*1024)
+                                os.remove(file_path)
+                                logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+                        except Exception as e:
+                            logger.error(f"🧹 Не вдалося видалити {file_path}: {e}")
                     
                     # Stop any remaining heartbeat tasks
                     if job_id in self.heartbeat_tasks:
                         self.heartbeat_tasks[job_id].cancel()
                         del self.heartbeat_tasks[job_id]
-                        logger.info(f"🧹 [CLEANUP] Cleaned up heartbeat task for job {job_id}")
                     
                     # Remove job from memory
                     del self.jobs[job_id]
-                    logger.info(f"🧹 [CLEANUP] Job {job_id} removed from memory after {delay_minutes} minutes")
+                    logger.info(f"🧹 [CLEANUP] Job {job_id} видалено з пам'яті (активних: {len(self.jobs)})")
                     
-                    # Log current memory usage
-                    active_jobs = len(self.jobs)
-                    active_heartbeats = len(self.heartbeat_tasks)
-                    logger.info(f"🧹 [CLEANUP] Memory state: {active_jobs} active jobs, {active_heartbeats} heartbeat tasks")
-                else:
-                    logger.info(f"🧹 [CLEANUP] Job {job_id} is still {job.status}, skipping cleanup")
-            else:
-                logger.info(f"🧹 [CLEANUP] Job {job_id} already cleaned up")
-                
         except Exception as e:
-            logger.error(f"🧹 [CLEANUP] Failed to clean up job {job_id}: {e}")
+            logger.error(f"🧹 [CLEANUP] Помилка очищення {job_id}: {e}")
 
 # Global instance
 presentation_service = ProfessionalPresentationService()
