@@ -169,14 +169,14 @@ function GenerateProductPicker() {
         if (contextId) {
           setTempFileContextId(contextId);
           
-          // Load summary to show file list
+          // Load summary to show file list (simplified display)
           if (contextSummary) {
             const summary = JSON.parse(contextSummary);
-            // Create display files from summary
+            // Create display files from summary - just show file count, no topics
             setUploadedFiles([{
               id: 'temp-files',
-              name: `${summary.files_processed} file${summary.files_processed !== 1 ? 's' : ''} uploaded`,
-              extension: `${summary.total_topics || 0} topics`
+              name: `${summary.files_processed} file${summary.files_processed !== 1 ? 's' : ''} ready`,
+              extension: 'FILE'
             }]);
           }
         }

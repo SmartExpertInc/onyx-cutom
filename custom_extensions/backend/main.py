@@ -11178,214 +11178,231 @@ async def upload_files_for_immediate_context(
     
     Process:
     1. Upload files to Onyx via API (temporary folder)
-    2. Use existing context extraction pipeline (same as SmartDrive)
-    3. Store assembled context with summaries, topics, key info
-    4. Return context IDs for immediate use
+    2. Wait for indexing with progress updates
+    3. Extract context using existing pipeline (same as SmartDrive)
+    4. Store assembled context with summaries, topics, key info
+    5. Return context IDs for immediate use
     
     Files are automatically cleaned up after 1 hour.
     
     This bypasses SmartDrive/Nextcloud - files are only uploaded to Onyx temporarily.
+    
+    Returns streaming response with progress updates.
     """
-    try:
-        await cleanup_expired_contexts()
+    async def process_and_stream():
+        try:
+            await cleanup_expired_contexts()
+            
+            # Get current user
+            onyx_user_id = await get_current_onyx_user_id(request)
+            cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+            
+            uploaded_file_ids = []
+            errors = []
+            file_details = []
+            
+            logger.info(f"[TEMP_FILE] Starting upload of {len(files)} files for user {onyx_user_id}")
+            yield json.dumps({"type": "progress", "message": f"Uploading {len(files)} file(s)...", "step": "upload"}) + "\n"
         
-        # Get current user
-        onyx_user_id = await get_current_onyx_user_id(request)
-        cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-        
-        uploaded_file_ids = []
-        errors = []
-        file_details = []
-        
-        logger.info(f"[TEMP_FILE] Starting upload of {len(files)} files for user {onyx_user_id}")
-        
-        # Step 1: Upload all files to Onyx via API
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            for file in files:
-                try:
-                    file_content = await file.read()
-                    file_size = len(file_content)
-                    filename = file.filename or "unknown"
-                    mime_type = file.content_type or "application/octet-stream"
-                    
-                    logger.info(f"[TEMP_FILE] Processing {filename} ({file_size} bytes, {mime_type})")
-                    
-                    # Check size (max 50MB per file)
-                    if file_size > 50 * 1024 * 1024:
-                        errors.append({"filename": filename, "error": "File too large (max 50MB)"})
-                        continue
-                    
-                    # Upload to Onyx via API
-                    onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
-                    files_dict = {
-                        'files': (filename, file_content, mime_type)
-                    }
-                    data = {
-                        'folder_id': '-1'  # Recent Documents folder
-                    }
-                    
-                    logger.info(f"[TEMP_FILE] Uploading to Onyx: {onyx_upload_url}")
-                    upload_response = await client.post(
-                        onyx_upload_url,
-                        files=files_dict,
-                        data=data,
-                        cookies=cookies,
-                        timeout=60.0
-                    )
-                    
-                    if upload_response.status_code in [200, 201]:
-                        response_data = upload_response.json()
-                        logger.info(f"[TEMP_FILE] Onyx upload response: {response_data}")
-                        # Extract file ID from Onyx response
-                        if isinstance(response_data, list) and len(response_data) > 0:
-                            onyx_file_id = int(response_data[0].get('id'))
-                            uploaded_file_ids.append(onyx_file_id)
-                            file_details.append({
-                                "file_id": onyx_file_id,
-                                "filename": filename,
-                                "size": file_size
-                            })
-                            logger.info(f"[TEMP_FILE] Uploaded {filename} -> file_id: {onyx_file_id}")
-                        else:
-                            logger.warning(f"[TEMP_FILE] Unexpected response format: {response_data}")
-                            errors.append({"filename": filename, "error": "Unexpected API response format"})
-                    else:
-                        logger.error(f"[TEMP_FILE] Onyx upload failed: {upload_response.status_code} - {upload_response.text}")
-                        errors.append({"filename": filename, "error": f"Upload failed: {upload_response.status_code}"})
-                    
-                except Exception as e:
-                    logger.error(f"[TEMP_FILE] Error uploading {filename}: {e}", exc_info=True)
-                    errors.append({"filename": file.filename or "unknown", "error": str(e)})
-        
-        if not uploaded_file_ids:
-            raise HTTPException(status_code=400, detail=f"No files were uploaded successfully. Errors: {errors}")
-        
-        # Step 2: Wait for files to be indexed by Onyx
-        logger.info(f"[TEMP_FILE] Waiting for {len(uploaded_file_ids)} files to be indexed...")
-        max_wait_time = 120  # 2 minutes max wait
-        check_interval = 2  # Check every 2 seconds
-        elapsed_time = 0
-        
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            while elapsed_time < max_wait_time:
-                # Check indexing status
-                file_ids_str = ",".join(map(str, uploaded_file_ids))
-                status_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status?file_ids={file_ids_str}"
-                
-                try:
-                    status_response = await client.get(status_url, cookies=cookies)
-                    if status_response.status_code == 200:
-                        status_data = status_response.json()
+            # Step 1: Upload all files to Onyx via API
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                for file in files:
+                    try:
+                        file_content = await file.read()
+                        file_size = len(file_content)
+                        filename = file.filename or "unknown"
+                        mime_type = file.content_type or "application/octet-stream"
                         
-                        # Check if all files are indexed
-                        all_indexed = all(
-                            status_data.get(str(file_id), False) 
-                            for file_id in uploaded_file_ids
+                        logger.info(f"[TEMP_FILE] Processing {filename} ({file_size} bytes, {mime_type})")
+                        yield json.dumps({"type": "progress", "message": f"Uploading {filename}...", "step": "upload"}) + "\n"
+                        
+                        # Check size (max 50MB per file)
+                        if file_size > 50 * 1024 * 1024:
+                            errors.append({"filename": filename, "error": "File too large (max 50MB)"})
+                            continue
+                    
+                        # Upload to Onyx via API
+                        onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
+                        files_dict = {
+                            'files': (filename, file_content, mime_type)
+                        }
+                        data = {
+                            'folder_id': '-1'  # Recent Documents folder
+                        }
+                        
+                        logger.info(f"[TEMP_FILE] Uploading to Onyx: {onyx_upload_url}")
+                        upload_response = await client.post(
+                            onyx_upload_url,
+                            files=files_dict,
+                            data=data,
+                            cookies=cookies,
+                            timeout=60.0
                         )
                         
-                        if all_indexed:
-                            logger.info(f"[TEMP_FILE] All files indexed successfully after {elapsed_time}s")
-                            break
+                        if upload_response.status_code in [200, 201]:
+                            response_data = upload_response.json()
+                            logger.info(f"[TEMP_FILE] Onyx upload response: {response_data}")
+                            # Extract file ID from Onyx response
+                            if isinstance(response_data, list) and len(response_data) > 0:
+                                onyx_file_id = int(response_data[0].get('id'))
+                                uploaded_file_ids.append(onyx_file_id)
+                                file_details.append({
+                                    "file_id": onyx_file_id,
+                                    "filename": filename,
+                                    "size": file_size
+                                })
+                                logger.info(f"[TEMP_FILE] Uploaded {filename} -> file_id: {onyx_file_id}")
+                                yield json.dumps({"type": "progress", "message": f"Uploaded {filename}", "step": "upload"}) + "\n"
+                            else:
+                                logger.warning(f"[TEMP_FILE] Unexpected response format: {response_data}")
+                                errors.append({"filename": filename, "error": "Unexpected API response format"})
                         else:
-                            indexed_count = sum(
-                                1 for file_id in uploaded_file_ids 
-                                if status_data.get(str(file_id), False)
-                            )
-                            logger.info(f"[TEMP_FILE] Indexing progress: {indexed_count}/{len(uploaded_file_ids)} files indexed")
-                    
-                    await asyncio.sleep(check_interval)
-                    elapsed_time += check_interval
-                    
-                except Exception as e:
-                    logger.warning(f"[TEMP_FILE] Error checking indexing status: {e}")
-                    await asyncio.sleep(check_interval)
-                    elapsed_time += check_interval
+                            logger.error(f"[TEMP_FILE] Onyx upload failed: {upload_response.status_code} - {upload_response.text}")
+                            errors.append({"filename": filename, "error": f"Upload failed: {upload_response.status_code}"})
+                        
+                    except Exception as e:
+                        logger.error(f"[TEMP_FILE] Error uploading {filename}: {e}", exc_info=True)
+                        errors.append({"filename": file.filename or "unknown", "error": str(e)})
         
-        if elapsed_time >= max_wait_time:
-            logger.warning(f"[TEMP_FILE] Indexing timeout after {max_wait_time}s, proceeding with extraction anyway")
-        
-        # Step 3: Extract context using the SAME pipeline as SmartDrive files
-        logger.info(f"[TEMP_FILE] Extracting context from {len(uploaded_file_ids)} files using full pipeline")
-        
-        # Use the existing extract_single_file_context function (with parallel processing)
-        extraction_tasks = [
-            extract_single_file_context(file_id, cookies) 
-            for file_id in uploaded_file_ids
-        ]
-        file_contexts = await asyncio.gather(*extraction_tasks, return_exceptions=True)
-        
-        # Step 4: Assemble the context (same format as SmartDrive)
-        assembled_context = {
-            "file_summaries": [],
-            "file_contents": [],
-            "key_topics": [],
-            "metadata": {
-                "total_files": len(uploaded_file_ids),
-                "extraction_time": time.time(),
-                "source": "temp_upload"
-            }
-        }
-        
-        successful_extractions = 0
-        for idx, (file_id, context) in enumerate(zip(uploaded_file_ids, file_contexts)):
-            if isinstance(context, Exception):
-                logger.error(f"[TEMP_FILE] Context extraction failed for file {file_id}: {context}")
-                errors.append({
-                    "filename": file_details[idx]["filename"],
-                    "error": f"Context extraction failed: {str(context)}"
-                })
-                continue
+            if not uploaded_file_ids:
+                yield json.dumps({"type": "error", "message": f"No files were uploaded successfully. Errors: {errors}"}) + "\n"
+                return
             
-            if context and context.get("summary"):
-                assembled_context["file_summaries"].append(context["summary"])
-                assembled_context["file_contents"].append(context.get("content", ""))
-                assembled_context["key_topics"].extend(context.get("topics", []))
-                successful_extractions += 1
-                logger.info(f"[TEMP_FILE] Successfully extracted context from file {file_id}")
-            else:
-                logger.warning(f"[TEMP_FILE] No valid context extracted from file {file_id}")
+            # Step 2: Wait for files to be indexed by Onyx
+            logger.info(f"[TEMP_FILE] Waiting for {len(uploaded_file_ids)} files to be indexed...")
+            yield json.dumps({"type": "progress", "message": "Indexing files...", "step": "indexing"}) + "\n"
+            
+            max_wait_time = 120  # 2 minutes max wait
+            check_interval = 2  # Check every 2 seconds
+            elapsed_time = 0
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                while elapsed_time < max_wait_time:
+                    # Check indexing status
+                    file_ids_str = ",".join(map(str, uploaded_file_ids))
+                    status_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status?file_ids={file_ids_str}"
+                    
+                    try:
+                        status_response = await client.get(status_url, cookies=cookies)
+                        if status_response.status_code == 200:
+                            status_data = status_response.json()
+                            
+                            # Check if all files are indexed
+                            all_indexed = all(
+                                status_data.get(str(file_id), False) 
+                                for file_id in uploaded_file_ids
+                            )
+                            
+                            if all_indexed:
+                                logger.info(f"[TEMP_FILE] All files indexed successfully after {elapsed_time}s")
+                                yield json.dumps({"type": "progress", "message": "Files indexed successfully", "step": "indexing"}) + "\n"
+                                break
+                            else:
+                                indexed_count = sum(
+                                    1 for file_id in uploaded_file_ids 
+                                    if status_data.get(str(file_id), False)
+                                )
+                                logger.info(f"[TEMP_FILE] Indexing progress: {indexed_count}/{len(uploaded_file_ids)} files indexed")
+                                yield json.dumps({"type": "progress", "message": f"Indexing: {indexed_count}/{len(uploaded_file_ids)} files ready", "step": "indexing"}) + "\n"
+                        
+                        await asyncio.sleep(check_interval)
+                        elapsed_time += check_interval
+                        
+                    except Exception as e:
+                        logger.warning(f"[TEMP_FILE] Error checking indexing status: {e}")
+                        await asyncio.sleep(check_interval)
+                        elapsed_time += check_interval
+            
+            if elapsed_time >= max_wait_time:
+                logger.warning(f"[TEMP_FILE] Indexing timeout after {max_wait_time}s, proceeding with extraction anyway")
+                yield json.dumps({"type": "progress", "message": "Indexing timeout, proceeding anyway...", "step": "indexing"}) + "\n"
         
-        # Remove duplicate topics
-        assembled_context["key_topics"] = list(set(assembled_context["key_topics"]))
+            # Step 3: Extract context using the SAME pipeline as SmartDrive files
+            logger.info(f"[TEMP_FILE] Extracting context from {len(uploaded_file_ids)} files using full pipeline")
+            yield json.dumps({"type": "progress", "message": "Extracting file content...", "step": "extraction"}) + "\n"
+            
+            # Use the existing extract_single_file_context function (with parallel processing)
+            extraction_tasks = [
+                extract_single_file_context(file_id, cookies) 
+                for file_id in uploaded_file_ids
+            ]
+            file_contexts = await asyncio.gather(*extraction_tasks, return_exceptions=True)
         
-        if successful_extractions == 0:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Failed to extract context from any files. Please ensure files contain readable text. Errors: {errors}"
-            )
+            # Step 4: Assemble the context (same format as SmartDrive)
+            assembled_context = {
+                "file_summaries": [],
+                "file_contents": [],
+                "key_topics": [],
+                "metadata": {
+                    "total_files": len(uploaded_file_ids),
+                    "extraction_time": time.time(),
+                    "source": "temp_upload"
+                }
+            }
         
-        # Step 5: Store in temporary memory with unique context ID
-        context_id = f"temp_ctx_{uuid.uuid4().hex[:16]}"
-        TEMPORARY_FILE_CONTEXTS[context_id] = {
-            "type": "assembled_context",
-            "context": assembled_context,
-            "file_ids": uploaded_file_ids,
-            "file_details": file_details,
-            "created_at": time.time(),
-            "user_id": onyx_user_id
-        }
+            successful_extractions = 0
+            for idx, (file_id, context) in enumerate(zip(uploaded_file_ids, file_contexts)):
+                if isinstance(context, Exception):
+                    logger.error(f"[TEMP_FILE] Context extraction failed for file {file_id}: {context}")
+                    errors.append({
+                        "filename": file_details[idx]["filename"],
+                        "error": f"Context extraction failed: {str(context)}"
+                    })
+                    continue
+                
+                if context and context.get("summary"):
+                    assembled_context["file_summaries"].append(context["summary"])
+                    assembled_context["file_contents"].append(context.get("content", ""))
+                    assembled_context["key_topics"].extend(context.get("topics", []))
+                    successful_extractions += 1
+                    logger.info(f"[TEMP_FILE] Successfully extracted context from file {file_id}")
+                else:
+                    logger.warning(f"[TEMP_FILE] No valid context extracted from file {file_id}")
+            
+            # Remove duplicate topics
+            assembled_context["key_topics"] = list(set(assembled_context["key_topics"]))
+            
+            if successful_extractions == 0:
+                yield json.dumps({"type": "error", "message": f"Failed to extract context from files. Please ensure files contain readable text."}) + "\n"
+                return
         
-        logger.info(f"[TEMP_FILE] Created temporary context {context_id} with {successful_extractions} files")
-        
-        return {
-            "success": True,
-            "context_id": context_id,
-            "file_count": len(uploaded_file_ids),
-            "summary": {
-                "files_processed": successful_extractions,
-                "files_uploaded": len(uploaded_file_ids),
-                "total_topics": len(assembled_context["key_topics"]),
-                "topics_preview": assembled_context["key_topics"][:10] if assembled_context["key_topics"] else []
-            },
-            "errors": errors if errors else None,
-            "ttl_seconds": TEMPORARY_CONTEXT_TTL
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"[TEMP_FILE] Unexpected error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+            # Step 5: Store in temporary memory with unique context ID
+            context_id = f"temp_ctx_{uuid.uuid4().hex[:16]}"
+            TEMPORARY_FILE_CONTEXTS[context_id] = {
+                "type": "assembled_context",
+                "context": assembled_context,
+                "file_ids": uploaded_file_ids,
+                "file_details": file_details,
+                "created_at": time.time(),
+                "user_id": onyx_user_id
+            }
+            
+            logger.info(f"[TEMP_FILE] Created temporary context {context_id} with {successful_extractions} files")
+            
+            result = {
+                "type": "complete",
+                "success": True,
+                "context_id": context_id,
+                "file_count": len(uploaded_file_ids),
+                "summary": {
+                    "files_processed": successful_extractions,
+                    "files_uploaded": len(uploaded_file_ids),
+                    "total_topics": len(assembled_context["key_topics"]),
+                    "topics_preview": assembled_context["key_topics"][:10] if assembled_context["key_topics"] else []
+                },
+                "errors": errors if errors else None,
+                "ttl_seconds": TEMPORARY_CONTEXT_TTL
+            }
+            
+            yield json.dumps(result) + "\n"
+            
+        except HTTPException as e:
+            yield json.dumps({"type": "error", "message": str(e.detail)}) + "\n"
+        except Exception as e:
+            logger.error(f"[TEMP_FILE] Unexpected error: {e}", exc_info=True)
+            yield json.dumps({"type": "error", "message": str(e)}) + "\n"
+    
+    return StreamingResponse(process_and_stream(), media_type="text/plain")
 
 @app.get("/api/custom/files/temp-context/{context_id}")
 async def get_temporary_context(context_id: str, request: Request = None):

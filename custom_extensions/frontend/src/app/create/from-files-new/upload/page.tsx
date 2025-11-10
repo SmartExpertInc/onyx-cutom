@@ -47,6 +47,8 @@ export default function UploadFilesPage() {
   const [isSmartDriveModalOpen, setIsSmartDriveModalOpen] = useState(false);
   const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
   const [knowledgeBaseSelection, setKnowledgeBaseSelection] = useState<KnowledgeBaseSelection | null>(null);
+  const [showProcessingModal, setShowProcessingModal] = useState(false);
+  const [processingMessage, setProcessingMessage] = useState('');
 
   // Load files from previous step on mount
   React.useEffect(() => {
@@ -397,11 +399,9 @@ export default function UploadFilesPage() {
     // Handle one-time uploaded files
     if (uploadedFiles.length > 0) {
       try {
-        // Show loading state
-        const loadingToast = document.createElement('div');
-        loadingToast.textContent = 'Processing files...';
-        loadingToast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #0F58F9; color: white; padding: 12px 24px; border-radius: 8px; z-index: 9999;';
-        document.body.appendChild(loadingToast);
+        // Show loading modal
+        setShowProcessingModal(true);
+        setProcessingMessage('Uploading files...');
         
         // Upload files to backend for context extraction
         const formData = new FormData();
@@ -417,16 +417,46 @@ export default function UploadFilesPage() {
         });
         
         if (!response.ok) {
-          const error = await response.json().catch(() => ({}));
-          throw new Error(error.detail || 'Failed to upload files');
+          setShowProcessingModal(false);
+          const error = await response.text();
+          throw new Error(error || 'Failed to upload files');
         }
         
-        const result = await response.json();
+        // Handle streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let result: any = null;
         
-        // Remove loading toast
-        document.body.removeChild(loadingToast);
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim());
+            
+            for (const line of lines) {
+              try {
+                const data = JSON.parse(line);
+                
+                if (data.type === 'progress') {
+                  setProcessingMessage(data.message);
+                } else if (data.type === 'complete') {
+                  result = data;
+                } else if (data.type === 'error') {
+                  setShowProcessingModal(false);
+                  throw new Error(data.message);
+                }
+              } catch (e) {
+                console.error('Error parsing line:', e);
+              }
+            }
+          }
+        }
         
-        if (!result.success || !result.context_id) {
+        setShowProcessingModal(false);
+        
+        if (!result || !result.success || !result.context_id) {
           throw new Error('No context ID returned from server');
         }
         
@@ -445,6 +475,7 @@ export default function UploadFilesPage() {
         
       } catch (error) {
         console.error('Error uploading files:', error);
+        setShowProcessingModal(false);
         alert(`Failed to process files: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
       return;
@@ -693,6 +724,19 @@ export default function UploadFilesPage() {
         mode="knowledgeBase"
         onKnowledgeBaseConfirm={handleKnowledgeBaseModalConfirm}
       />
+
+      {/* Processing Modal */}
+      {showProcessingModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-[#0F58F9] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-lg font-medium text-[#171718]">{processingMessage}</p>
+              <p className="text-sm text-[#878787]">Please wait...</p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
