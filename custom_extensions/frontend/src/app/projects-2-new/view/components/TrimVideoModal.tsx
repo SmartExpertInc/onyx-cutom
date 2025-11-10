@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -16,6 +17,7 @@ interface TrimVideoModalProps {
 }
 
 const MIN_SELECTION_GAP = 0.05;
+const HANDLE_OVERLAP_PX = 4;
 
 export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps) {
   const { t, language } = useLanguage();
@@ -25,6 +27,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
     end: 1,
   });
   const [activeHandle, setActiveHandle] = useState<'start' | 'end' | null>(null);
+  const [railWidth, setRailWidth] = useState<number>(0);
 
   const updateFromClientX = useCallback((clientX: number, handle: 'start' | 'end') => {
     const rail = railRef.current;
@@ -87,6 +90,38 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
 
   const startPercent = selection.start * 100;
   const endPercent = selection.end * 100;
+  const leftOverlayWidthPercent = useMemo(() => {
+    if (!railWidth) {
+      return startPercent;
+    }
+    const widthWithOverlap = selection.start * railWidth + HANDLE_OVERLAP_PX;
+    const percent = (widthWithOverlap / railWidth) * 100;
+    return Math.min(100, Math.max(0, percent));
+  }, [railWidth, selection.start, startPercent]);
+
+  const rightOverlayLeftPercent = useMemo(() => {
+    if (!railWidth) {
+      return endPercent;
+    }
+    const leftWithOverlap = selection.end * railWidth - HANDLE_OVERLAP_PX;
+    const percent = (leftWithOverlap / railWidth) * 100;
+    return Math.max(0, Math.min(100, percent));
+  }, [railWidth, selection.end, endPercent]);
+
+  useEffect(() => {
+    const updateRailWidth = () => {
+      if (railRef.current) {
+        setRailWidth(railRef.current.offsetWidth);
+      }
+    };
+
+    updateRailWidth();
+    window.addEventListener('resize', updateRailWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateRailWidth);
+    };
+  }, []);
 
   if (!isOpen) {
     return null;
@@ -148,13 +183,13 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
                     className="absolute inset-y-0 bg-white/40"
                     style={{
                       left: 0,
-                      width: `${startPercent}%`,
+                      width: `${leftOverlayWidthPercent}%`,
                     }}
                   />
                   <div
                     className="absolute inset-y-0 bg-white/40"
                     style={{
-                      left: `${endPercent}%`,
+                      left: `${rightOverlayLeftPercent}%`,
                       right: 0,
                     }}
                   />
