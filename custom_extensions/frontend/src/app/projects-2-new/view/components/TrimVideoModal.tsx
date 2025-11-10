@@ -129,24 +129,24 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
               <div ref={railRef} className="relative h-[70px] w-full">
                 <div className="absolute inset-0 flex h-full w-full overflow-hidden rounded-[6px] bg-white/40 gap-1">
                   {Array.from({ length: 10 }).map((_, index) => (
-                    <div
-                      key={index}
-                      className="flex-1 h-full rounded-[4px]"
-                      style={{
-                        backgroundColor: '#878787',
-                      }}
-                    />
+                  <div
+                    key={index}
+                    className="flex-1 h-full rounded-[6px]"
+                    style={{
+                      backgroundColor: '#878787',
+                    }}
+                  />
                   ))}
                 </div>
 
                 <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[6px]">
                   <div
-                    className="absolute inset-y-0 left-0 bg-white/30"
-                    style={{ width: `${startPercent}%`, borderRadius: '6px 0 0 6px' }}
-                  />
-                  <div
-                    className="absolute inset-y-0 right-0 bg-white/30"
-                    style={{ width: `${100 - endPercent}%`, borderRadius: '0 6px 6px 0' }}
+                    className="absolute inset-y-0 bg-white/30"
+                    style={{
+                      left: `${startPercent}%`,
+                      width: `${endPercent - startPercent}%`,
+                      borderRadius: '6px',
+                    }}
                   />
                 </div>
 
