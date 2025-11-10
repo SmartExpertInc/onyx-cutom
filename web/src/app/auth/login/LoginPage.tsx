@@ -35,9 +35,10 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
+            <h2 className="mb-6 text-center text-3xl font-bold text-[#0F58F9]">
               <LoginText />
             </h2>
+            <p className="text-center text-[15px] text-gray-900">Enter your email below to create your account</p>
             <SignInButton
               authorizeUrl={authUrl}
               authType={authTypeMetadata?.authType}
@@ -47,9 +48,10 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-6 text-center text-3xl font-bold text-[#0F58F9]">
             <LoginText />
           </h2>
+          <p className="text-center text-[15px] text-gray-900">Enter your email below to create your account</p>
           <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
           {NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED && (
             <div className="flex mt-4 justify-center">
@@ -65,7 +67,7 @@ export default function LoginPage({
             <>
               <div className="flex items-center w-full my-4">
                 <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
-                <span className="px-4 text-gray-900">or</span>
+                <span className="px-4 text-gray-900">OR CONTINUE WITH</span>
                 <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
               </div>
 

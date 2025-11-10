@@ -9,15 +9,15 @@ export default function AuthFlowContainer({
   authState?: "signup" | "login" | "join";
 }) {
   return (
-    <div className="min-h-screen flex" style={{ background: 'linear-gradient(135deg, oklch(0.8576 0.0809 315.9) 0%, oklch(0.8341 0.071 266.01) 50%, oklch(0.9529 0.0286 329.29) 100%)' }}>
+    <div className="min-h-screen flex" style={{ background: 'white' }}>
       {/* Left side - Feature Highlights */}
-      <div className="flex-1 flex items-center justify-center pl-[120px] pr-4 py-8">
+      <div className="flex-1 flex items-center justify-center">
         <FeatureHighlights />
       </div>
       
       {/* Right side - Auth Form */}
       <div className="flex-1 flex items-center justify-center pl-4 pr-[120px] py-8">
-        <div className="w-full max-w-md pt-8 pb-6 px-8 gap-y-4 flex items-center flex-col rounded-2xl shadow-md hover:shadow-xl backdrop-blur-md border border-white/30 gap-y-2 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
+        <div className="w-full max-w-md gap-y-4 flex items-center flex-col gap-y-2 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           <div className="w-full">{children}</div>
           {authState === "login" && (
             <div className="text-sm mt-4 text-center w-full text-gray-900 font-medium">

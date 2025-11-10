@@ -140,7 +140,7 @@ export function EmailPasswordForm({
               label="Email"
               type="email"
               placeholder="email@yourcompany.com"
-              className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280]"
+              className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280] !rounded-md"
             />
 
             <TextFormField
@@ -148,17 +148,18 @@ export function EmailPasswordForm({
               label="Password"
               type="password"
               placeholder="**************"
-              className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280]"
+              className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280] !rounded-md"
             />
 
             <Button
               variant="default"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full shadow-md hover:shadow-xl transition-shadow mt-4 !bg-[#1d4ed8] !text-[#ffffff]"
+              className="mx-auto !py-3 !px-4 !h-auto w-full shadow-md hover:shadow-xl transition-shadow mt-4 !bg-[#1d4ed8] !text-[#ffffff] !rounded-md"
             >
-              {isJoin ? "Join" : isSignup ? "Sign Up" : "Log In"}
+              {isJoin ? "Join" : isSignup ? "Sign Up" : "Sign In"}
             </Button>
+            <p className="text-[15px] text-[#0F58F9] cursor-pointer text-left w-full text-link font-medium">Forgot password?</p>
             {user?.is_anonymous_user && (
               <Link
                 href="/custom-projects-ui/projects"
