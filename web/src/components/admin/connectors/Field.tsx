@@ -140,6 +140,7 @@ const FieldLabel = ({
   label,
   removeLabel,
   vertical,
+  labelClassName,
 }: {
   subtext?: string | JSX.Element;
   error?: string;
@@ -150,6 +151,7 @@ const FieldLabel = ({
   label: string;
   removeLabel?: boolean;
   vertical?: boolean;
+  labelClassName?: string;
 }) => (
   <>
     <div
@@ -158,7 +160,11 @@ const FieldLabel = ({
       } gap-x-2 items-start`}
     >
       <div className="flex gap-x-2 items-center">
-        {!removeLabel && <Label small={false}>{label}</Label>}
+        {!removeLabel && (
+          <Label small={false} className={labelClassName}>
+            {label}
+          </Label>
+        )}
         {optional ? <span>(optional) </span> : ""}
         {tooltip && <ToolTipDetails>{tooltip}</ToolTipDetails>}
       </div>
@@ -207,6 +213,7 @@ export function TextFormField({
   className,
   style,
   rightElement,
+  labelClassName,
 }: {
   name: string;
   removeLabel?: boolean;
@@ -236,6 +243,7 @@ export function TextFormField({
   className?: string;
   style?: React.CSSProperties;
   rightElement?: ReactNode;
+  labelClassName?: string;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -285,6 +293,7 @@ export function TextFormField({
         label={label}
         removeLabel={removeLabel}
         vertical={vertical}
+        labelClassName={labelClassName}
       />
       <div className={`w-full flex ${includeRevert && "gap-x-2"} relative`}>
         <Field
