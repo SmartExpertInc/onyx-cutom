@@ -550,7 +550,17 @@ const renderTable = (block: TableBlock): string => {
 /**
  * Generates HTML for purple boxes section from data
  */
-const renderPurpleBoxes = (purpleBoxContent: { title?: string; description?: string; cards: Array<{ title: string; description: string; icon?: string | null }> } | null | undefined): string => {
+const renderPurpleBoxes = (
+  purpleBoxContent:
+    | PurpleBoxBlock
+    | {
+        title?: string;
+        description?: string;
+        cards: Array<{ title: string; description: string; icon?: string | null }>;
+      }
+    | null
+    | undefined,
+): string => {
   if (!purpleBoxContent || !purpleBoxContent.cards || purpleBoxContent.cards.length === 0) {
     return '';
   }
