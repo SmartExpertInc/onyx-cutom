@@ -412,10 +412,12 @@ export default function VideoRightPanel({
                   </button>
                   {hoveredDurationOption === option && (
                     <div
-                      className="absolute left-full top-1/2 z-20 ml-2 -translate-y-1/2 rounded px-2 py-1 text-xs"
+                      className="pointer-events-none absolute z-20 mt-2 rounded px-2 py-1 text-xs"
                       style={{
                         backgroundColor: '#878787',
                         color: '#FFFFFF',
+                        top: '100%',
+                        right: 4,
                         maxWidth: '220px',
                         whiteSpace: 'normal',
                       }}
