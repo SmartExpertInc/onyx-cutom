@@ -173,31 +173,19 @@ export function EmailPasswordForm({
                 label="Email"
                 type="email"
                 placeholder="name@example.com"
-                className="!bg-[#ffffff] hover:shadow-md transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md"
+                className="!bg-[#ffffff] hover:shadow-md transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] !rounded-md"
                 labelClassName="!font-normal"
               />
             )}
 
             {(!multiStep || step === 2) && (
               <>
-                {multiStep && (
-                  <div className="text-sm text-gray-900 mb-4">
-                    Using <span className="font-medium">{values.email}</span>{" "}
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="text-[#0F58F9] font-medium ml-2"
-                    >
-                      Change
-                    </button>
-                  </div>
-                )}
                 <TextFormField
                   name="password"
-                  label="Password"
+                  label={multiStep ? "" : "Password"}
                   type={showPassword ? "text" : "password"}
-                  placeholder="**************"
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                  placeholder={multiStep ? "Password" : "**************"}
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] !rounded-md !pr-12 !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button
@@ -233,26 +221,52 @@ export function EmailPasswordForm({
               <>
                 <TextFormField
                   name="confirmPassword"
-                  label="Confirm password"
+                  label=""
                   type="password"
-                  placeholder="**************"
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
+                  placeholder="Confirm password"
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] !rounded-md !font-mono [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
+                  rightElement={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="text-neutral-400 hover:text-neutral-600 focus:outline-none"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <Eye className="h-4 w-4 text-[#E4E4E7]" strokeWidth={1.5} />
+                      ) : (
+                        <svg
+                          width="16"
+                          height="13"
+                          viewBox="0 0 16 13"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M13.8906 0.509766C13.9033 0.522692 13.9032 0.54366 13.8906 0.556641L11.5938 2.85352L12.1719 3.17578C13.4354 3.88074 14.5118 4.89997 15.334 6.13281L15.4951 6.38281C15.5016 6.39359 15.5018 6.4073 15.4951 6.41797C13.8897 8.98655 11.2126 10.7002 8 10.7002C6.85106 10.7002 5.77421 10.4817 4.79199 10.0859L4.48535 9.96191L2.15723 12.29C2.1442 12.3031 2.1224 12.3031 2.10938 12.29C2.09675 12.277 2.0967 12.2561 2.10938 12.2432L3.93848 10.415L4.40625 9.94727L3.82812 9.62402C2.48048 8.87208 1.34544 7.76282 0.504883 6.41797C0.498223 6.40731 0.498383 6.39357 0.504883 6.38281C2.11031 3.81412 4.78731 2.09961 8 2.09961C9.14902 2.09961 10.2257 2.319 11.208 2.71484L11.5146 2.83789L11.749 2.60449L13.8428 0.509766C13.8492 0.503351 13.8578 0.500114 13.8662 0.5L13.8906 0.509766ZM4.51172 9.93555L5.27637 10.1924C6.1288 10.479 7.04188 10.6338 8 10.6338C11.0606 10.6338 13.6336 9.06538 15.2451 6.67969L15.4346 6.40039L15.2451 6.12012C14.3729 4.82889 13.2185 3.77623 11.8535 3.08203L11.5303 2.91699L4.51172 9.93555ZM8 2.16699C4.93938 2.16699 2.36643 3.73439 0.754883 6.12012L0.56543 6.40039L0.754883 6.67969C1.62711 7.97092 2.78136 9.0246 4.14648 9.71875L4.46973 9.88281L11.4883 2.86426L10.7236 2.60742C9.87121 2.32082 8.95809 2.16699 8 2.16699Z"
+                            fill="#E4E4E7"
+                            stroke="#E4E4E7"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  }
                 />
                 <TextFormField
                   name="firstName"
-                  label="First name"
+                  label=""
                   type="text"
-                  placeholder="John"
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md"
+                  placeholder="First name"
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] !rounded-md"
                   labelClassName="!font-normal"
                 />
                 <TextFormField
                   name="lastName"
-                  label="Last name"
+                  label=""
                   type="text"
-                  placeholder="Doe"
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#4D4D4D] !rounded-md"
+                  placeholder="Last name"
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] !rounded-md"
                   labelClassName="!font-normal"
                 />
               </>
