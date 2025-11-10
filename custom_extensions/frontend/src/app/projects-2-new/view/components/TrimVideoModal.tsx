@@ -25,7 +25,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
       />
 
       <div
-        className="relative flex flex-col w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh] shadow-xl"
+        className="relative flex flex-col w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh] shadow-xl overflow-y-auto"
         style={{
           borderRadius: '12px',
           background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
@@ -42,7 +42,7 @@ export default function TrimVideoModal({ isOpen, onClose }: TrimVideoModalProps)
         <div className="flex-1 w-full flex flex-col justify-center gap-10 px-10 py-4">
           <div className="w-full max-w-[1100px] mx-auto flex flex-col gap-6">
             <div
-              className="w-full max-w-[900px] rounded-lg border border-dashed border-[#B0B0B0] bg-white/40 aspect-video flex items-center justify-center text-sm text-[#878787]"
+              className="w-full max-w-[900px] mx-auto rounded-lg border border-dashed border-[#B0B0B0] bg-white/40 aspect-video flex items-center justify-center text-sm text-[#878787]"
             >
               Video preview placeholder
             </div>
