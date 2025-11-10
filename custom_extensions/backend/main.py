@@ -232,7 +232,8 @@ def should_use_openai_direct(payload) -> bool:
     has_files = (
         (hasattr(payload, 'fromFiles') and payload.fromFiles) or
         (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
+        (hasattr(payload, 'fileIds') and payload.fileIds) or
+        (hasattr(payload, 'fromTempFiles') and payload.fromTempFiles)
     )
     
     # Check if text context is provided (this still uses file system in some cases)
@@ -285,7 +286,8 @@ def should_use_hybrid_approach(payload) -> bool:
     has_files = (
         (hasattr(payload, 'fromFiles') and payload.fromFiles) or
         (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
+        (hasattr(payload, 'fileIds') and payload.fileIds) or
+        (hasattr(payload, 'fromTempFiles') and payload.fromTempFiles)
     )
     
     # For text-only scenarios, use direct approach (send text directly in wizard request)
@@ -3971,7 +3973,8 @@ def should_use_openai_direct(payload) -> bool:
     has_files = (
         (hasattr(payload, 'fromFiles') and payload.fromFiles) or
         (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
+        (hasattr(payload, 'fileIds') and payload.fileIds) or
+        (hasattr(payload, 'fromTempFiles') and payload.fromTempFiles)
     )
     
     # Check if text context is provided (this still uses file system in some cases)
@@ -5083,7 +5086,8 @@ def should_use_openai_direct(payload) -> bool:
     has_files = (
         (hasattr(payload, 'fromFiles') and payload.fromFiles) or
         (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
+        (hasattr(payload, 'fileIds') and payload.fileIds) or
+        (hasattr(payload, 'fromTempFiles') and payload.fromTempFiles)
     )
     
     # Check if text context is provided (this still uses file system in some cases)
@@ -6361,7 +6365,8 @@ def should_use_openai_direct(payload) -> bool:
     has_files = (
         (hasattr(payload, 'fromFiles') and payload.fromFiles) or
         (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
+        (hasattr(payload, 'fileIds') and payload.fileIds) or
+        (hasattr(payload, 'fromTempFiles') and payload.fromTempFiles)
     )
     
     # Check if text context is provided (this still uses file system in some cases)
@@ -19966,6 +19971,37 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                elif hasattr(payload, 'fromTempFiles') and payload.fromTempFiles and hasattr(payload, 'tempFileContextId') and payload.tempFileContextId:
+                    # For temp file uploads, retrieve pre-extracted context
+                    logger.info(f"[HYBRID_CONTEXT] Retrieving temporary file context: {payload.tempFileContextId}")
+                    try:
+                        # Retrieve the temporary context
+                        if payload.tempFileContextId not in TEMPORARY_FILE_CONTEXTS:
+                            raise HTTPException(status_code=404, detail="Temporary file context not found or expired")
+                        
+                        ctx_data = TEMPORARY_FILE_CONTEXTS[payload.tempFileContextId]
+                        assembled_context = ctx_data["context"]
+                        
+                        # Format context in the same way as file extraction
+                        file_summaries = "\n\n".join(assembled_context["file_summaries"])
+                        file_contents = "\n\n---\n\n".join(assembled_context["file_contents"])
+                        key_topics = ", ".join(assembled_context["key_topics"][:20])  # Limit to top 20 topics
+                        
+                        file_context = f"""
+FILE CONTEXT SUMMARY:
+{file_summaries}
+
+KEY TOPICS: {key_topics}
+
+FULL FILE CONTENT:
+{file_contents}
+"""
+                        logger.info(f"[HYBRID_CONTEXT] Retrieved temp file context: {len(file_context)} chars, {len(assembled_context['file_summaries'])} files")
+                    except HTTPException:
+                        raise
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Error retrieving temp file context: {e}")
+                        file_context = ""
                 else:
                     # For file-based searches, extract context from specific files/folders
                     folder_ids_list = []
@@ -27836,6 +27872,37 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                elif hasattr(payload, 'fromTempFiles') and payload.fromTempFiles and hasattr(payload, 'tempFileContextId') and payload.tempFileContextId:
+                    # For temp file uploads, retrieve pre-extracted context
+                    logger.info(f"[HYBRID_CONTEXT] Retrieving temporary file context: {payload.tempFileContextId}")
+                    try:
+                        # Retrieve the temporary context
+                        if payload.tempFileContextId not in TEMPORARY_FILE_CONTEXTS:
+                            raise HTTPException(status_code=404, detail="Temporary file context not found or expired")
+                        
+                        ctx_data = TEMPORARY_FILE_CONTEXTS[payload.tempFileContextId]
+                        assembled_context = ctx_data["context"]
+                        
+                        # Format context in the same way as file extraction
+                        file_summaries = "\n\n".join(assembled_context["file_summaries"])
+                        file_contents = "\n\n---\n\n".join(assembled_context["file_contents"])
+                        key_topics = ", ".join(assembled_context["key_topics"][:20])  # Limit to top 20 topics
+                        
+                        file_context = f"""
+FILE CONTEXT SUMMARY:
+{file_summaries}
+
+KEY TOPICS: {key_topics}
+
+FULL FILE CONTENT:
+{file_contents}
+"""
+                        logger.info(f"[HYBRID_CONTEXT] Retrieved temp file context: {len(file_context)} chars, {len(assembled_context['file_summaries'])} files")
+                    except HTTPException:
+                        raise
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Error retrieving temp file context: {e}")
+                        file_context = ""
                 else:
                     # For file-based searches, extract context from specific files/folders
                     folder_ids_list = []
@@ -33312,6 +33379,37 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                elif hasattr(payload, 'fromTempFiles') and payload.fromTempFiles and hasattr(payload, 'tempFileContextId') and payload.tempFileContextId:
+                    # For temp file uploads, retrieve pre-extracted context
+                    logger.info(f"[HYBRID_CONTEXT] Retrieving temporary file context: {payload.tempFileContextId}")
+                    try:
+                        # Retrieve the temporary context
+                        if payload.tempFileContextId not in TEMPORARY_FILE_CONTEXTS:
+                            raise HTTPException(status_code=404, detail="Temporary file context not found or expired")
+                        
+                        ctx_data = TEMPORARY_FILE_CONTEXTS[payload.tempFileContextId]
+                        assembled_context = ctx_data["context"]
+                        
+                        # Format context in the same way as file extraction
+                        file_summaries = "\n\n".join(assembled_context["file_summaries"])
+                        file_contents = "\n\n---\n\n".join(assembled_context["file_contents"])
+                        key_topics = ", ".join(assembled_context["key_topics"][:20])  # Limit to top 20 topics
+                        
+                        file_context = f"""
+FILE CONTEXT SUMMARY:
+{file_summaries}
+
+KEY TOPICS: {key_topics}
+
+FULL FILE CONTENT:
+{file_contents}
+"""
+                        logger.info(f"[HYBRID_CONTEXT] Retrieved temp file context: {len(file_context)} chars, {len(assembled_context['file_summaries'])} files")
+                    except HTTPException:
+                        raise
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Error retrieving temp file context: {e}")
+                        file_context = ""
                 else:
                     # For file-based searches, extract context from specific files/folders
                     folder_ids_list = []
@@ -34448,6 +34546,9 @@ class TextPresentationWizardPreview(BaseModel):
     connectorSources: Optional[str] = None  # comma-separated connector sources
     # NEW: SmartDrive file paths for combined connector + file context
     selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
+    # NEW: temp file context for one-time uploads (bypassing SmartDrive)
+    fromTempFiles: Optional[bool] = None
+    tempFileContextId: Optional[str] = None
     chatSessionId: Optional[str] = None
 
 class TextPresentationWizardFinalize(BaseModel):
@@ -34470,6 +34571,9 @@ class TextPresentationWizardFinalize(BaseModel):
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None
     connectorSources: Optional[str] = None
+    # NEW: temp file context for one-time uploads (bypassing SmartDrive)
+    fromTempFiles: Optional[bool] = None
+    tempFileContextId: Optional[str] = None
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -34605,6 +34709,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             wiz_payload["folderIds"] = payload.folderIds
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
+    
+    # Add temp file context if provided (one-time uploads)
+    if payload.fromTempFiles and payload.tempFileContextId:
+        wiz_payload["fromTempFiles"] = True
+        wiz_payload["tempFileContextId"] = payload.tempFileContextId
+        logger.info(f"[TEXT_PRESENTATION] Using temp file context: {payload.tempFileContextId}")
 
     # Add text context if provided - send directly in wizard request (no file conversion)
     if payload.fromText and payload.userText:
@@ -35123,6 +35233,37 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                elif hasattr(payload, 'fromTempFiles') and payload.fromTempFiles and hasattr(payload, 'tempFileContextId') and payload.tempFileContextId:
+                    # For temp file uploads, retrieve pre-extracted context
+                    logger.info(f"[HYBRID_CONTEXT] Retrieving temporary file context: {payload.tempFileContextId}")
+                    try:
+                        # Retrieve the temporary context
+                        if payload.tempFileContextId not in TEMPORARY_FILE_CONTEXTS:
+                            raise HTTPException(status_code=404, detail="Temporary file context not found or expired")
+                        
+                        ctx_data = TEMPORARY_FILE_CONTEXTS[payload.tempFileContextId]
+                        assembled_context = ctx_data["context"]
+                        
+                        # Format context in the same way as file extraction
+                        file_summaries = "\n\n".join(assembled_context["file_summaries"])
+                        file_contents = "\n\n---\n\n".join(assembled_context["file_contents"])
+                        key_topics = ", ".join(assembled_context["key_topics"][:20])  # Limit to top 20 topics
+                        
+                        file_context = f"""
+FILE CONTEXT SUMMARY:
+{file_summaries}
+
+KEY TOPICS: {key_topics}
+
+FULL FILE CONTENT:
+{file_contents}
+"""
+                        logger.info(f"[HYBRID_CONTEXT] Retrieved temp file context: {len(file_context)} chars, {len(assembled_context['file_summaries'])} files")
+                    except HTTPException:
+                        raise
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Error retrieving temp file context: {e}")
+                        file_context = ""
                 else:
                     # For file-based searches, extract context from specific files/folders
                     folder_ids_list = []
