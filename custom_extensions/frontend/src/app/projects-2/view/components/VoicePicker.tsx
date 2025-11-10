@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
 import { useVoice } from '@/contexts/VoiceContext';
+import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
 
 // Custom Radio Wave Icon
 const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
@@ -98,10 +99,12 @@ interface ElaiVoice {
   premium?: boolean;
   name?: string;
   url?: string;
+  gender?: 'male' | 'female';
 }
 
 export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps) {
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
+  const { defaultAvatar } = useAvatarDisplay();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
@@ -183,11 +186,21 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         
         data.forEach((languageGroup: any) => {
           if (languageGroup.male && Array.isArray(languageGroup.male)) {
-            allVoices.push(...languageGroup.male);
+            allVoices.push(
+              ...languageGroup.male.map((voice: ElaiVoice) => ({
+                ...voice,
+                gender: voice.gender || 'male'
+              }))
+            );
             maleCount += languageGroup.male.length;
           }
           if (languageGroup.female && Array.isArray(languageGroup.female)) {
-            allVoices.push(...languageGroup.female);
+            allVoices.push(
+              ...languageGroup.female.map((voice: ElaiVoice) => ({
+                ...voice,
+                gender: voice.gender || 'female'
+              }))
+            );
             femaleCount += languageGroup.female.length;
           }
         });
@@ -200,6 +213,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         console.log('🎤 [VOICE_PICKER] - ElevenLabs voices:', allVoices.filter(v => v.voiceProvider === 'elevenlabs').length);
         console.log('🎤 [VOICE_PICKER] - Premium voices:', allVoices.filter(v => v.premium).length);
         console.log('🎤 [VOICE_PICKER] ========== VOICE FETCH COMPLETED ==========');
+        if (defaultAvatar?.avatar?.gender) {
+          console.log('🎤 [VOICE_PICKER] Preferred avatar gender detected:', defaultAvatar.avatar.gender);
+        }
 
         setVoices(allVoices);
       } catch (error) {
@@ -213,7 +229,31 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
     if (isOpen) {
       fetchVoices();
     }
-  }, [isOpen]);
+  }, [isOpen, defaultAvatar?.avatar?.gender]);
+
+  const sortedVoices = useMemo(() => {
+    if (!voices.length) return voices;
+    const preferredGender = defaultAvatar?.avatar?.gender;
+    if (!preferredGender) return voices;
+
+    const preferred: ElaiVoice[] = [];
+    const others: ElaiVoice[] = [];
+
+    voices.forEach((voice) => {
+      if (voice.gender === preferredGender) {
+        preferred.push(voice);
+      } else {
+        others.push(voice);
+      }
+    });
+
+    console.log('🎤 [VOICE_PICKER] Voice list sorted based on avatar gender:', preferredGender, {
+      preferredCount: preferred.length,
+      otherCount: others.length
+    });
+
+    return [...preferred, ...others];
+  }, [voices, defaultAvatar?.avatar?.gender]);
 
   // Handle voice preview playback
   const handlePlayVoice = (e: React.MouseEvent, voice: ElaiVoice) => {
@@ -766,10 +806,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Dynamically rendered voice items from Elai API */}
             {loading ? (
               <div className="text-center py-8 text-gray-500">Loading voices...</div>
-            ) : voices.length === 0 ? (
+            ) : sortedVoices.length === 0 ? (
               <div className="text-center py-8 text-gray-500">No voices found</div>
             ) : (
-               voices.map((voice, index) => (
+               sortedVoices.map((voice, index) => (
                  <div 
                    key={voice.voice || index} 
                    className="mb-4 group"
