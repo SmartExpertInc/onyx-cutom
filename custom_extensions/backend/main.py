@@ -3446,6 +3446,12 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('teamImagePath'):
                     normalized_props['teamImagePath'] = 'https://via.placeholder.com/400x200?text=Team'
+            if not normalized_props.get('teamImagePrompt'):
+                normalized_props['teamImagePrompt'] = (
+                    "Professional team meeting in a modern hybrid office environment, "
+                    "diverse group collaborating around a conference table with laptops and digital displays, "
+                    "natural lighting, bright and positive atmosphere — cinematic composition, soft focus background, warm lighting"
+                )
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Your Logo'
                 if not normalized_props.get('pageNumber'):
