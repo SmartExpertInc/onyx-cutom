@@ -11260,7 +11260,51 @@ async def upload_files_for_immediate_context(
         if not uploaded_file_ids:
             raise HTTPException(status_code=400, detail=f"No files were uploaded successfully. Errors: {errors}")
         
-        # Step 2: Extract context using the SAME pipeline as SmartDrive files
+        # Step 2: Wait for files to be indexed by Onyx
+        logger.info(f"[TEMP_FILE] Waiting for {len(uploaded_file_ids)} files to be indexed...")
+        max_wait_time = 120  # 2 minutes max wait
+        check_interval = 2  # Check every 2 seconds
+        elapsed_time = 0
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            while elapsed_time < max_wait_time:
+                # Check indexing status
+                file_ids_str = ",".join(map(str, uploaded_file_ids))
+                status_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status?file_ids={file_ids_str}"
+                
+                try:
+                    status_response = await client.get(status_url, cookies=cookies)
+                    if status_response.status_code == 200:
+                        status_data = status_response.json()
+                        
+                        # Check if all files are indexed
+                        all_indexed = all(
+                            status_data.get(str(file_id), False) 
+                            for file_id in uploaded_file_ids
+                        )
+                        
+                        if all_indexed:
+                            logger.info(f"[TEMP_FILE] All files indexed successfully after {elapsed_time}s")
+                            break
+                        else:
+                            indexed_count = sum(
+                                1 for file_id in uploaded_file_ids 
+                                if status_data.get(str(file_id), False)
+                            )
+                            logger.info(f"[TEMP_FILE] Indexing progress: {indexed_count}/{len(uploaded_file_ids)} files indexed")
+                    
+                    await asyncio.sleep(check_interval)
+                    elapsed_time += check_interval
+                    
+                except Exception as e:
+                    logger.warning(f"[TEMP_FILE] Error checking indexing status: {e}")
+                    await asyncio.sleep(check_interval)
+                    elapsed_time += check_interval
+        
+        if elapsed_time >= max_wait_time:
+            logger.warning(f"[TEMP_FILE] Indexing timeout after {max_wait_time}s, proceeding with extraction anyway")
+        
+        # Step 3: Extract context using the SAME pipeline as SmartDrive files
         logger.info(f"[TEMP_FILE] Extracting context from {len(uploaded_file_ids)} files using full pipeline")
         
         # Use the existing extract_single_file_context function (with parallel processing)
@@ -11270,7 +11314,7 @@ async def upload_files_for_immediate_context(
         ]
         file_contexts = await asyncio.gather(*extraction_tasks, return_exceptions=True)
         
-        # Step 3: Assemble the context (same format as SmartDrive)
+        # Step 4: Assemble the context (same format as SmartDrive)
         assembled_context = {
             "file_summaries": [],
             "file_contents": [],
@@ -11310,7 +11354,7 @@ async def upload_files_for_immediate_context(
                 detail=f"Failed to extract context from any files. Please ensure files contain readable text. Errors: {errors}"
             )
         
-        # Step 4: Store in temporary memory with unique context ID
+        # Step 5: Store in temporary memory with unique context ID
         context_id = f"temp_ctx_{uuid.uuid4().hex[:16]}"
         TEMPORARY_FILE_CONTEXTS[context_id] = {
             "type": "assembled_context",
