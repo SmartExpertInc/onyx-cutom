@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import TrimVideoModal from '@/app/projects-2-new/view/components/TrimVideoModal';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -136,6 +137,7 @@ export default function VideoRightPanel({
   const [selectedDurationOption, setSelectedDurationOption] = useState<DurationOption>('Loop');
   const [hoveredDurationOption, setHoveredDurationOption] = useState<DurationOption | null>(null);
   const [tooltipDurationOption, setTooltipDurationOption] = useState<DurationOption | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
   const [isDurationMenuOpen, setIsDurationMenuOpen] = useState<boolean>(false);
   const [isImageMenuOpen, setIsImageMenuOpen] = useState<boolean>(false);
   const imageMenuRef = useRef<HTMLDivElement>(null);
@@ -198,6 +200,7 @@ export default function VideoRightPanel({
         setIsDurationMenuOpen(false);
         setHoveredDurationOption(null);
         setTooltipDurationOption(null);
+        setTooltipPosition(null);
       }
     }
 
@@ -219,6 +222,35 @@ export default function VideoRightPanel({
     : isVideo
       ? t('panels.videoRightPanel.removeVideo', 'Remove video')
       : t('panels.imageRightPanel.removeImage', 'Remove image');
+
+  const durationTooltip = useMemo(() => {
+    if (typeof document === 'undefined') {
+      return null;
+    }
+
+    if (!tooltipDurationOption || !tooltipPosition) {
+      return null;
+    }
+
+    return createPortal(
+      <div
+        className="pointer-events-none fixed z-[1000] rounded px-2 py-1"
+        style={{
+          backgroundColor: '#878787',
+          color: '#FFFFFF',
+          fontSize: '10px',
+          width: '220px',
+          whiteSpace: 'normal',
+          top: `${tooltipPosition.top}px`,
+          left: `${tooltipPosition.left}px`,
+          boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.12)',
+        }}
+      >
+        {durationOptionTooltips[tooltipDurationOption]}
+      </div>,
+      document.body
+    );
+  }, [durationOptionTooltips, tooltipDurationOption, tooltipPosition]);
 
   return (
     <>
@@ -351,6 +383,7 @@ export default function VideoRightPanel({
                 if (prev) {
                   setHoveredDurationOption(null);
                   setTooltipDurationOption(null);
+                  setTooltipPosition(null);
                 }
                 return !prev;
               })
@@ -379,6 +412,7 @@ export default function VideoRightPanel({
                       setIsDurationMenuOpen(false);
                       setHoveredDurationOption(null);
                     setTooltipDurationOption(null);
+                    setTooltipPosition(null);
                     }}
                     className="flex w-full items-center justify-between rounded px-2 py-1"
                     style={{
@@ -405,8 +439,23 @@ export default function VideoRightPanel({
                     </div>
                     <div
                       className="relative"
-                      onMouseEnter={() => setTooltipDurationOption(option)}
-                      onMouseLeave={() => setTooltipDurationOption(null)}
+                      onMouseEnter={(event) => {
+                        const iconElement = event.currentTarget as HTMLDivElement;
+                        const rect = iconElement.getBoundingClientRect();
+                        const tooltipWidth = 220;
+                        const margin = 8;
+                        const top = rect.bottom + margin;
+                        const left = Math.min(
+                          Math.max(rect.right - tooltipWidth, margin),
+                          window.innerWidth - tooltipWidth - margin
+                        );
+                        setTooltipDurationOption(option);
+                        setTooltipPosition({ top, left });
+                      }}
+                      onMouseLeave={() => {
+                        setTooltipDurationOption(null);
+                        setTooltipPosition(null);
+                      }}
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clipPath="url(#clip0_2114_32588)">
@@ -418,22 +467,6 @@ export default function VideoRightPanel({
                           </clipPath>
                         </defs>
                       </svg>
-                      {tooltipDurationOption === option && (
-                        <div
-                          className="pointer-events-none absolute z-20 mt-2 rounded px-2 py-1"
-                          style={{
-                            backgroundColor: '#878787',
-                            color: '#FFFFFF',
-                            top: '100%',
-                            right: 0,
-                            width: '220px',
-                            whiteSpace: 'normal',
-                            fontSize: '10px',
-                          }}
-                        >
-                          {durationOptionTooltips[option]}
-                        </div>
-                      )}
                     </div>
                   </button>
                 </div>
@@ -681,6 +714,8 @@ export default function VideoRightPanel({
           </div>
         </div>
       </div>
+
+      {durationTooltip}
 
       <TrimVideoModal
         isOpen={isTrimModalOpen}
