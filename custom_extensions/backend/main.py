@@ -2200,6 +2200,11 @@ def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
             props['teamImagePrompt'] = "Professional team meeting in a modern hybrid office environment, diverse group collaborating around a conference table with laptops and digital displays, natural lighting, bright and positive atmosphere — cinematic composition, soft focus background, warm lighting"
             logger.info(f"Fixed hybrid-work-best-practices-slide slide {slide_num}: Added default teamImagePrompt")
         
+        # Fix phishing-definition-slide missing rightImagePrompt
+        if template_id == 'phishing-definition-slide' and ('rightImagePrompt' not in props or not props.get('rightImagePrompt', '').strip()):
+            props['rightImagePrompt'] = "Realistic cinematic photograph of cybersecurity professionals monitoring a large wall of screens displaying network security dashboards and threat detection systems in a modern Security Operations Center (SOC). The scene features diverse professionals in business casual attire analyzing data on multiple monitors showing threat maps, firewall status, and intrusion detection alerts — cinematic 35mm lens, wide angle shot, professional lighting, depth of field"
+            logger.info(f"Fixed phishing-definition-slide slide {slide_num}: Added default rightImagePrompt")
+        
         # Fix challenges-solutions count
         if template_id == 'challenges-solutions':
             challenges = props.get('challenges', [])
