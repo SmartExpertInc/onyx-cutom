@@ -11172,28 +11172,17 @@ async def upload_files_for_immediate_context(
     Upload files for one-time use with FULL context extraction pipeline.
     
     Process:
-    1. Upload files to Onyx's FileStore (temporary)
-    2. Create temporary user file records
-    3. Use existing context extraction pipeline (same as SmartDrive)
-    4. Store assembled context with summaries, topics, key info
-    5. Return context IDs for immediate use
+    1. Upload files to Onyx via API (temporary folder)
+    2. Use existing context extraction pipeline (same as SmartDrive)
+    3. Store assembled context with summaries, topics, key info
+    4. Return context IDs for immediate use
     
     Files are automatically cleaned up after 1 hour.
     
-    This bypasses SmartDrive/Nextcloud - files are only stored in Onyx temporarily.
+    This bypasses SmartDrive/Nextcloud - files are only uploaded to Onyx temporarily.
     """
     try:
         await cleanup_expired_contexts()
-        
-        # Import Onyx utilities
-        import sys
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
-        from onyx.db.engine import get_session_context_manager
-        from onyx.file_store.file_store import get_default_file_store
-        from onyx.configs.constants import FileOrigin
-        from onyx.server.query_and_chat.models import mime_type_to_chat_file_type
-        from onyx.db.models import User, UserFile
-        from onyx.file_processing.extract_file_text import extract_file_text
         
         # Get current user
         onyx_user_id = await get_current_onyx_user_id(request)
@@ -11205,70 +11194,63 @@ async def upload_files_for_immediate_context(
         
         logger.info(f"[TEMP_FILE] Starting upload of {len(files)} files for user {onyx_user_id}")
         
-        with get_session_context_manager() as db_session:
-            file_store = get_default_file_store(db_session)
-            user = db_session.query(User).filter(User.id == onyx_user_id).first()
-            
-            if not user:
-                raise HTTPException(status_code=401, detail="User not found")
-            
-            # Step 1: Upload all files to Onyx FileStore
+        # Step 1: Upload all files to Onyx via API
+        async with httpx.AsyncClient(timeout=60.0) as client:
             for file in files:
                 try:
                     file_content = await file.read()
                     file_size = len(file_content)
                     filename = file.filename or "unknown"
+                    mime_type = file.content_type or "application/octet-stream"
                     
-                    logger.info(f"[TEMP_FILE] Processing {filename} ({file_size} bytes)")
+                    logger.info(f"[TEMP_FILE] Processing {filename} ({file_size} bytes, {mime_type})")
                     
                     # Check size (max 50MB per file)
                     if file_size > 50 * 1024 * 1024:
                         errors.append({"filename": filename, "error": "File too large (max 50MB)"})
-                        await file.close()
                         continue
                     
-                    # Upload to Onyx FileStore
-                    file_id = str(uuid.uuid4())
-                    file_io = io.BytesIO(file_content)
+                    # Upload to Onyx via API
+                    onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
+                    files_dict = {
+                        'files': (filename, file_content, mime_type)
+                    }
+                    data = {
+                        'folder_id': '-1'  # Recent Documents folder
+                    }
                     
-                    file_store.save_file(
-                        file_name=file_id,
-                        content=file_io,
-                        display_name=filename,
-                        file_origin=FileOrigin.CHAT_UPLOAD,
-                        file_type=file.content_type or "application/octet-stream",
+                    logger.info(f"[TEMP_FILE] Uploading to Onyx: {onyx_upload_url}")
+                    upload_response = await client.post(
+                        onyx_upload_url,
+                        files=files_dict,
+                        data=data,
+                        cookies=cookies,
+                        timeout=60.0
                     )
                     
-                    # Create temporary user file (not in any folder, marked for cleanup)
-                    user_file = UserFile(
-                        user_id=user.id,
-                        file_id=file_id,
-                        file_name=filename,
-                        display_name=filename,
-                        file_type=file.content_type or "application/octet-stream",
-                        file_size=file_size,
-                        folder_id=None  # Not in any folder - marks it as temporary
-                    )
-                    db_session.add(user_file)
-                    db_session.flush()
-                    
-                    uploaded_file_ids.append(user_file.id)
-                    file_details.append({
-                        "user_file_id": user_file.id,
-                        "file_id": file_id,
-                        "filename": filename,
-                        "size": file_size
-                    })
-                    
-                    logger.info(f"[TEMP_FILE] Uploaded {filename} -> file_id: {file_id}, user_file_id: {user_file.id}")
+                    if upload_response.status_code in [200, 201]:
+                        response_data = upload_response.json()
+                        logger.info(f"[TEMP_FILE] Onyx upload response: {response_data}")
+                        # Extract file ID from Onyx response
+                        if isinstance(response_data, list) and len(response_data) > 0:
+                            onyx_file_id = int(response_data[0].get('id'))
+                            uploaded_file_ids.append(onyx_file_id)
+                            file_details.append({
+                                "file_id": onyx_file_id,
+                                "filename": filename,
+                                "size": file_size
+                            })
+                            logger.info(f"[TEMP_FILE] Uploaded {filename} -> file_id: {onyx_file_id}")
+                        else:
+                            logger.warning(f"[TEMP_FILE] Unexpected response format: {response_data}")
+                            errors.append({"filename": filename, "error": "Unexpected API response format"})
+                    else:
+                        logger.error(f"[TEMP_FILE] Onyx upload failed: {upload_response.status_code} - {upload_response.text}")
+                        errors.append({"filename": filename, "error": f"Upload failed: {upload_response.status_code}"})
                     
                 except Exception as e:
                     logger.error(f"[TEMP_FILE] Error uploading {filename}: {e}", exc_info=True)
                     errors.append({"filename": file.filename or "unknown", "error": str(e)})
-                finally:
-                    await file.close()
-            
-            db_session.commit()
         
         if not uploaded_file_ids:
             raise HTTPException(status_code=400, detail=f"No files were uploaded successfully. Errors: {errors}")
@@ -11318,11 +11300,6 @@ async def upload_files_for_immediate_context(
         assembled_context["key_topics"] = list(set(assembled_context["key_topics"]))
         
         if successful_extractions == 0:
-            # Cleanup files if no context was extracted
-            with get_session_context_manager() as db_session:
-                db_session.query(UserFile).filter(UserFile.id.in_(uploaded_file_ids)).delete(synchronize_session=False)
-                db_session.commit()
-            
             raise HTTPException(
                 status_code=400, 
                 detail=f"Failed to extract context from any files. Please ensure files contain readable text. Errors: {errors}"
