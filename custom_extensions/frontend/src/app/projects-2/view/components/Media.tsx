@@ -663,7 +663,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeMore', 'See more')}</span>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeMore', 'See more')}</span>
                     </div>
                   ) : (
                     <div 
@@ -693,7 +693,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeLess', 'See less')}</span>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeLess', 'See less')}</span>
                     </div>
                   </div>
                 )}
@@ -722,7 +722,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeMore', 'See more')}</span>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeMore', 'See more')}</span>
                     </div>
                   ) : (
                     <div 
@@ -752,7 +752,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeLess', 'See less')}</span>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeLess', 'See less')}</span>
                     </div>
                   </div>
                 )}
@@ -781,7 +781,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeMore', 'See more')}</span>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeMore', 'See more')}</span>
                     </div>
                   ) : (
                     <div 
@@ -811,7 +811,7 @@ export default function Media({
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className="text-xs text-[#09090B] mt-1">{t('panels.media.seeLess', 'See less')}</span>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeLess', 'See less')}</span>
                     </div>
                   </div>
                 )}
