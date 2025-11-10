@@ -2201,6 +2201,18 @@ export const uk = {
     none: "Немає",
     sceneTransition: "Перехід між сценами",
     clickToEditTransitions: "Натисніть, щоб редагувати переходи",
+    brandKit: {
+      title: "Брендбук",
+      infoAriaLabel: "Інформація про брендбук",
+      logos: "Логотипи",
+      colors: "Кольори",
+      fonts: "Шрифти",
+      colorsLimit: "До 5 брендованих кольорів.",
+      colorSlot: "Комірка кольору бренду",
+      thisSlide: "Цей слайд",
+      allSlides: "Усі слайди",
+      addColor: "Додати колір"
+    },
     transitions: {
       none: "Немає",
       fade: "Затухання",

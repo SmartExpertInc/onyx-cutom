@@ -2101,6 +2101,18 @@ export const en = {
     none: "None",
     sceneTransition: "Scene transition",
     clickToEditTransitions: "Click to edit transitions",
+    brandKit: {
+      title: "Brand kit",
+      infoAriaLabel: "Brand kit info",
+      logos: "Logos",
+      colors: "Colors",
+      fonts: "Fonts",
+      colorsLimit: "Up to 5 brand colors.",
+      colorSlot: "Brand color slot",
+      thisSlide: "This slide",
+      allSlides: "All slides",
+      addColor: "Add color"
+    },
     transitions: {
       none: "None",
       fade: "Fade",

@@ -2196,6 +2196,18 @@ export const ru = {
     none: "Нет",
     sceneTransition: "Переход между сценами",
     clickToEditTransitions: "Нажмите, чтобы редактировать переходы",
+    brandKit: {
+      title: "Брендбук",
+      infoAriaLabel: "Информация о брендбуке",
+      logos: "Логотипы",
+      colors: "Цвета",
+      fonts: "Шрифты",
+      colorsLimit: "До 5 фирменных цветов.",
+      colorSlot: "Слот фирменного цвета",
+      thisSlide: "Этот слайд",
+      allSlides: "Все слайды",
+      addColor: "Добавить цвет"
+    },
     transitions: {
       none: "Нет",
       fade: "Затухание",

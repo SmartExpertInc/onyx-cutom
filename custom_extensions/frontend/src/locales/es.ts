@@ -2216,6 +2216,18 @@ export const es = {
     none: "Ninguno",
     sceneTransition: "Transición de escena",
     clickToEditTransitions: "Haga clic para editar transiciones",
+    brandKit: {
+      title: "Kit de marca",
+      infoAriaLabel: "Información del kit de marca",
+      logos: "Logotipos",
+      colors: "Colores",
+      fonts: "Fuentes",
+      colorsLimit: "Hasta 5 colores de marca.",
+      colorSlot: "Espacio de color de marca",
+      thisSlide: "Esta diapositiva",
+      allSlides: "Todas las diapositivas",
+      addColor: "Agregar color"
+    },
     transitions: {
       none: "Ninguno",
       fade: "Desvanecer",
