@@ -174,13 +174,21 @@ export default function AuditLandingPage() {
           >
              How It Works
           </button>
-          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
+          <button 
+            className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font"
+            onClick={() => scrollToSection("ai-agent")}
+          >
              AI Agent
           </button>
-          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font">
+          <button className="text-white text-sm flex items-center gap-2 hover:opacity-80 transition-opacity sora-font"
+            onClick={() => scrollToSection("results")}
+          >
              Results
           </button>
-          <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
+          <button 
+            className="text-white text-sm hover:opacity-80 transition-opacity sora-font"
+            onClick={() => scrollToSection("faq")}
+          >
             FAQ
           </button>
           <button className="text-white text-sm hover:opacity-80 transition-opacity sora-font">
