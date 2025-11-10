@@ -58,31 +58,97 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
       const urlObj = new URL(url);
       const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
       
-      // Create the web connector
-      const response = await fetch('/api/custom-projects-backend/smartdrive/connectors/create', {
+      // Step 1: Create the connector using the Onyx connector creation endpoint
+      const connectorResponse = await fetch('/api/manage/admin/connector', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          source: 'web',
           name: `Web - ${urlObj.hostname}`,
+          source: 'web',
+          input_type: 'load_state',
           connector_specific_config: {
             base_url: baseUrl,
             web_connector_type: 'single',
           },
+          refresh_freq: 3600,
+          prune_freq: 86400,
+          indexing_start: null,
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Failed to create connector: ${response.statusText}`);
+      if (!connectorResponse.ok) {
+        const errorData = await connectorResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.message || `Failed to create connector: ${connectorResponse.statusText}`);
       }
 
-      const data = await response.json();
+      const connectorData = await connectorResponse.json();
+      const connectorId = connectorData.id;
+
+      if (!connectorId) {
+        throw new Error('Failed to get connector ID from response');
+      }
+
+      // Step 2: Create a mock credential for the web connector (web connectors don't need real credentials)
+      const credentialResponse = await fetch('/api/manage/credential', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          credential_json: {},
+          admin_public: false,
+          curator_public: false,
+          name: `Web Credential - ${urlObj.hostname}`,
+          source: 'web',
+        }),
+      });
+
+      if (!credentialResponse.ok) {
+        // If credential creation fails, try to clean up the connector
+        try {
+          await fetch(`/api/manage/admin/connector/${connectorId}`, { method: 'DELETE' });
+        } catch {}
+        
+        const errorData = await credentialResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.message || `Failed to create credential: ${credentialResponse.statusText}`);
+      }
+
+      const credentialData = await credentialResponse.json();
+      const credentialId = credentialData.id;
+
+      // Step 3: Link the connector and credential
+      const linkResponse = await fetch(`/api/manage/connector/${connectorId}/credential/${credentialId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `Web - ${urlObj.hostname}`,
+          access_type: 'private',
+          groups: [],
+          auto_sync_options: {
+            enabled: true,
+            frequency: 3600,
+          },
+        }),
+      });
+
+      if (!linkResponse.ok) {
+        // If linking fails, try to clean up both connector and credential
+        try {
+          await fetch(`/api/manage/admin/connector/${connectorId}`, { method: 'DELETE' });
+          await fetch(`/api/manage/credential/${credentialId}`, { method: 'DELETE' });
+        } catch {}
+        
+        const errorData = await linkResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.message || `Failed to link connector: ${linkResponse.statusText}`);
+      }
+
       return {
-        connector: data.connector,
-        connectorId: data.connector.id,
+        connector: connectorData,
+        connectorId: connectorId,
       };
     } catch (error) {
       console.error('Error creating web connector:', error);
@@ -165,8 +231,11 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
         
         for (let i = 0; i < validUrls.length; i++) {
           const url = validUrls[i];
+          const urlNumber = i + 1;
+          const totalUrls = validUrls.length;
+          
           setProcessingStatus(
-            t('interface.importFromUrl.creatingConnector', `Creating connector for URL ${i + 1} of ${validUrls.length}...`)
+            t('interface.importFromUrl.creatingConnector', `Creating connector for URL ${urlNumber} of ${totalUrls}...`)
           );
 
           const result = await createWebConnector(url);
@@ -178,6 +247,9 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
             });
 
             // Wait for indexing to complete
+            setProcessingStatus(
+              t('interface.importFromUrl.indexingUrl', `Indexing URL ${urlNumber} of ${totalUrls}...`)
+            );
             await waitForIndexing(result.connectorId);
           }
         }

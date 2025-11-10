@@ -1620,6 +1620,7 @@ export const en = {
       noUrls: "Please enter at least one URL",
       invalidUrls: "Please enter valid URLs (e.g., https://example.com)",
       creatingConnector: "Creating connector for URL {0} of {1}...",
+      indexingUrl: "Indexing URL {0} of {1}...",
       indexing: "Indexing URL... This may take a moment.",
       indexingComplete: "Indexing complete!",
       error: "Failed to process URLs. Please try again.",
