@@ -2093,6 +2093,7 @@ export const es = {
     videoRightPanel: {
       uploadedVideo: "Vídeo cargado",
       removeVideo: "Eliminar vídeo",
+      replace: "Reemplazar",
       trim: "Recortar",
       duration: "Duración",
       sound: "Sonido"

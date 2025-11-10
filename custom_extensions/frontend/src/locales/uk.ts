@@ -2078,6 +2078,7 @@ export const uk = {
     videoRightPanel: {
       uploadedVideo: "Завантажене відео",
       removeVideo: "Видалити відео",
+      replace: "Замінити",
       trim: "Обрізати",
       duration: "Тривалість",
       sound: "Звук"

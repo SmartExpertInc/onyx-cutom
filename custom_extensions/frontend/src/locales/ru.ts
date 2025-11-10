@@ -2073,6 +2073,7 @@ export const ru = {
     videoRightPanel: {
       uploadedVideo: "Загруженное видео",
       removeVideo: "Удалить видео",
+      replace: "Заменить",
       trim: "Обрезать",
       duration: "Длительность",
       sound: "Звук"

@@ -88,7 +88,7 @@ export default function VideoRightPanel({
   mediaType = 'image',
   rightPanelRef,
 }: VideoRightPanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedAlignment, setSelectedAlignment] = useState<'left' | 'center' | 'right'>('center');
   const [selectedLayer, setSelectedLayer] = useState<'toBack' | 'backward' | 'forward' | 'toFront'>('backward');
   const [positionX, setPositionX] = useState<string>('150');
@@ -250,7 +250,12 @@ export default function VideoRightPanel({
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M13.3333 2.66667L5.41333 10.5867M9.64667 9.65333L13.3333 13.3333M5.41333 5.41333L8 8M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4ZM6 12C6 13.1046 5.10457 14 4 14C2.89543 14 2 13.1046 2 12C2 10.8954 2.89543 10 4 10C5.10457 10 6 10.8954 6 12Z" stroke="#171718" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.videoRightPanel.trim', 'Trim')}</span>
+          <span
+            className="text-xs"
+            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '9px' }}
+          >
+            {t('panels.videoRightPanel.trim', 'Trim')}
+          </span>
         </button>
         <button
           className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
@@ -259,7 +264,12 @@ export default function VideoRightPanel({
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 8C2 6.4087 2.63214 4.88258 3.75736 3.75736C4.88258 2.63214 6.4087 2 8 2C9.67737 2.00631 11.2874 2.66082 12.4933 3.82667L14 5.33333M14 5.33333V2M14 5.33333H10.6667M14 8C14 9.5913 13.3679 11.1174 12.2426 12.2426C11.1174 13.3679 9.5913 14 8 14C6.32263 13.9937 4.71265 13.3392 3.50667 12.1733L2 10.6667M2 10.6667H5.33333M2 10.6667V14" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-xs" style={{ color: '#171718' }}>{t('panels.shapeRightPanel.replace', 'Replace')}</span>
+          <span
+            className="text-xs"
+            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '9px' }}
+          >
+            {t('panels.videoRightPanel.replace', 'Replace')}
+          </span>
         </button>
       </div>
 

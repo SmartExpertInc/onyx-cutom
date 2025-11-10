@@ -1978,6 +1978,7 @@ export const en = {
     videoRightPanel: {
       uploadedVideo: "Uploaded video",
       removeVideo: "Remove video",
+      replace: "Replace",
       trim: "Trim",
       duration: "Duration",
       sound: "Sound"

@@ -230,7 +230,7 @@ export default function ShapeRightPanel({
           </svg>
           <span
             className="text-xs"
-            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '10px' }}
+            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '9px' }}
           >
             {t('panels.imageRightPanel.crop', 'Crop')}
           </span>
@@ -244,7 +244,7 @@ export default function ShapeRightPanel({
           </svg>
           <span
             className="text-xs"
-            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '10px' }}
+            style={{ color: '#171718', fontSize: language === 'en' ? undefined : '9px' }}
           >
             {t('panels.imageRightPanel.replace', 'Replace')}
           </span>
