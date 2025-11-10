@@ -145,6 +145,10 @@ export default function TextPresentationClient() {
   const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
 
+  // Temp file context for one-time uploads (bypassing SmartDrive)
+  const isFromTempFiles = params?.get("fromTempFiles") === "true";
+  const tempFileContextId = params?.get("tempFileContextId") || null;
+
   // Connector context for creation from selected connectors
   const isFromConnectors = params?.get("fromConnectors") === "true";
   const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
@@ -1399,6 +1403,12 @@ export default function TextPresentationClient() {
             if (selectedFiles.length > 0) {
               requestBody.selectedFiles = selectedFiles.join(',');
             }
+          }
+
+          // Add temp file context if creating from one-time uploads
+          if (isFromTempFiles && tempFileContextId) {
+            requestBody.fromTempFiles = true;
+            requestBody.tempFileContextId = tempFileContextId;
           }
 
           const res = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {

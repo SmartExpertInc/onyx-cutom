@@ -34652,6 +34652,7 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] fromTempFiles={payload.fromTempFiles} tempFileContextId={payload.tempFileContextId}")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
     
