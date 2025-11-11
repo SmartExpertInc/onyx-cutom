@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Video, Loader, CheckCircle, AlertTriangle } from 'lucide-react';
+import { applyDefaultAvatarToSlides } from '@/utils/slideAvatarUtils';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -22,7 +23,7 @@ const SlideVideoButton: React.FC<SlideVideoButtonProps> = ({
   const [jobId, setJobId] = useState<string | null>(null);
 
   // Function to extract actual slide data from current project
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, defaultAvatarImage?: string | null, defaultAvatarAlt?: string | null }> => {
     console.log('🎬 [SLIDE_VIDEO] Extracting slide data from current project...');
     
     try {
@@ -30,9 +31,18 @@ const SlideVideoButton: React.FC<SlideVideoButtonProps> = ({
       const slideViewerData = (window as any).currentSlideData;
       if (slideViewerData?.deck?.slides) {
         console.log('🎬 [SLIDE_VIDEO] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        const defaultAvatarImage = slideViewerData.defaultAvatarImage ?? null;
+        const defaultAvatarAlt = slideViewerData.defaultAvatarAlt ?? null;
+        const slidesWithAvatar = applyDefaultAvatarToSlides(
+          slideViewerData.deck.slides,
+          defaultAvatarImage,
+          defaultAvatarAlt
+        );
         return {
-          slides: slideViewerData.deck.slides,
-          theme: slideViewerData.deck.theme || 'dark-purple'
+          slides: slidesWithAvatar,
+          theme: slideViewerData.deck.theme || 'dark-purple',
+          defaultAvatarImage,
+          defaultAvatarAlt
         };
       }
 
@@ -51,20 +61,29 @@ const SlideVideoButton: React.FC<SlideVideoButtonProps> = ({
           console.log('🎬 [SLIDE_VIDEO] Fetched project data:', projectData);
           
           if (projectData.details?.slides) {
+            const defaultAvatarImage = projectData.details?.defaultAvatarImage ?? null;
+            const defaultAvatarAlt = projectData.details?.defaultAvatarAlt ?? null;
+            const slidesWithAvatar = applyDefaultAvatarToSlides(
+              projectData.details.slides,
+              defaultAvatarImage,
+              defaultAvatarAlt
+            );
             return {
-              slides: projectData.details.slides,
-              theme: projectData.details.theme || 'dark-purple'
+              slides: slidesWithAvatar,
+              theme: projectData.details.theme || 'dark-purple',
+              defaultAvatarImage,
+              defaultAvatarAlt
             };
           }
         }
       }
 
       console.log('🎬 [SLIDE_VIDEO] Could not extract slide data');
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', defaultAvatarImage: null, defaultAvatarAlt: null };
       
     } catch (error) {
       console.error('🎬 [SLIDE_VIDEO] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', defaultAvatarImage: null, defaultAvatarAlt: null };
     }
   };
 
@@ -155,7 +174,9 @@ const SlideVideoButton: React.FC<SlideVideoButtonProps> = ({
       // Prepare request payload
       const requestPayload = {
         slides: slideData.slides,
-        theme: slideData.theme
+        theme: slideData.theme,
+        defaultAvatarImage: slideData.defaultAvatarImage,
+        defaultAvatarAlt: slideData.defaultAvatarAlt
       };
 
       console.log('🎬 [SLIDE_VIDEO] Request payload:', requestPayload);

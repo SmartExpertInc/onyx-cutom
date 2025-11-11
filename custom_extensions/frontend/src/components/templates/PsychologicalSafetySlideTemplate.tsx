@@ -123,9 +123,12 @@ function InlineEditor({
   );
 }
 
-export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlideProps & {
+type PsychologicalSafetySlideTemplateProps = PsychologicalSafetySlideProps & {
   theme?: SlideTheme | string;
-}> = ({
+  onUpdate?: (props: Partial<PsychologicalSafetySlideProps>) => void;
+};
+
+export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlideTemplateProps> = ({
   slideId,
   title = 'Fostering Psychological Safety',
   content = 'Studies indicate that teams with a high level of psychological safety have a 21% higher chance of delivering high-quality results.',
@@ -142,7 +145,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   onUpdate,
   theme,
   voiceoverText
-}) => {
+}: PsychologicalSafetySlideTemplateProps) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
@@ -234,7 +237,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
       {/* Logo */}
       <YourLogo
         logoPath={logoPath}
-        onLogoUploaded={(p) => onUpdate && onUpdate({
+        onLogoUploaded={(p: string) => onUpdate && onUpdate({
           ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoText, pageNumber },
           logoPath: p
         })}

@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
 import { Plus, ChevronDown, X, Volume2, Palette } from 'lucide-react';
 import AutomaticImageGenerationManager from './AutomaticImageGenerationManager';
+import { useAvatarDisplay } from './AvatarDisplayManager';
 
 
 interface SmartSlideDeckViewerProps {
@@ -107,6 +108,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       }
     }
   });
+  
+  const { defaultAvatar } = useAvatarDisplay();
   
   // Get the current theme data - ensure we always have a valid theme
   const effectiveTheme = currentTheme && currentTheme.trim() !== '' ? currentTheme : DEFAULT_SLIDE_THEME;
@@ -401,8 +404,15 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
         // Expose slide data to window object for video generation
+        const defaultAvatarImage = defaultAvatar?.selectedVariant?.canvas || null;
+        const defaultAvatarAlt = defaultAvatar
+          ? `${defaultAvatar.avatar.name} - ${defaultAvatar.selectedVariant.name}`
+          : null;
+
         (window as any).currentSlideData = {
-          deck: deckWithTheme
+          deck: deckWithTheme,
+          defaultAvatarImage,
+          defaultAvatarAlt
         };
         
         console.log('✅ Component-based slides loaded with theme:', {
@@ -424,7 +434,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     };
 
       processDeck();
-  }, [deck, theme, currentThemeData.colors]);
+  }, [deck, theme, currentThemeData.colors, defaultAvatar]);
 
   // Improved synchronized scrolling with voiceover panel
   useEffect(() => {

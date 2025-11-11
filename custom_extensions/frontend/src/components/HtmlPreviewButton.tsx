@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Code, Loader, ExternalLink } from 'lucide-react';
+import { applyDefaultAvatarToSlides } from '@/utils/slideAvatarUtils';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -21,7 +22,7 @@ const HtmlPreviewButton: React.FC<HtmlPreviewButtonProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Function to extract actual slide data from current project
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, defaultAvatarImage?: string | null, defaultAvatarAlt?: string | null }> => {
     console.log('🔍 [HTML_PREVIEW] Extracting slide data from current project...');
     
     try {
@@ -29,9 +30,18 @@ const HtmlPreviewButton: React.FC<HtmlPreviewButtonProps> = ({
       const slideViewerData = (window as any).currentSlideData;
       if (slideViewerData?.deck?.slides) {
         console.log('🔍 [HTML_PREVIEW] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        const defaultAvatarImage = slideViewerData.defaultAvatarImage ?? null;
+        const defaultAvatarAlt = slideViewerData.defaultAvatarAlt ?? null;
+        const slidesWithAvatar = applyDefaultAvatarToSlides(
+          slideViewerData.deck.slides,
+          defaultAvatarImage,
+          defaultAvatarAlt
+        );
         return {
-          slides: slideViewerData.deck.slides,
-          theme: slideViewerData.deck.theme || 'dark-purple'
+          slides: slidesWithAvatar,
+          theme: slideViewerData.deck.theme || 'dark-purple',
+          defaultAvatarImage,
+          defaultAvatarAlt
         };
       }
 
@@ -50,20 +60,29 @@ const HtmlPreviewButton: React.FC<HtmlPreviewButtonProps> = ({
           console.log('🔍 [HTML_PREVIEW] Fetched project data:', projectData);
           
           if (projectData.details?.slides) {
+            const defaultAvatarImage = projectData.details?.defaultAvatarImage ?? null;
+            const defaultAvatarAlt = projectData.details?.defaultAvatarAlt ?? null;
+            const slidesWithAvatar = applyDefaultAvatarToSlides(
+              projectData.details.slides,
+              defaultAvatarImage,
+              defaultAvatarAlt
+            );
             return {
-              slides: projectData.details.slides,
-              theme: projectData.details.theme || 'dark-purple'
+              slides: slidesWithAvatar,
+              theme: projectData.details.theme || 'dark-purple',
+              defaultAvatarImage,
+              defaultAvatarAlt
             };
           }
         }
       }
 
       console.log('🔍 [HTML_PREVIEW] Could not extract slide data');
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', defaultAvatarImage: null, defaultAvatarAlt: null };
       
     } catch (error) {
       console.error('🔍 [HTML_PREVIEW] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', defaultAvatarImage: null, defaultAvatarAlt: null };
     }
   };
 
@@ -89,7 +108,9 @@ const HtmlPreviewButton: React.FC<HtmlPreviewButtonProps> = ({
       // Prepare request payload
       const requestPayload = {
         slides: slideData.slides,
-        theme: slideData.theme
+        theme: slideData.theme,
+        defaultAvatarImage: slideData.defaultAvatarImage,
+        defaultAvatarAlt: slideData.defaultAvatarAlt
       };
 
       console.log('🔍 [HTML_PREVIEW] Request payload:', requestPayload);
