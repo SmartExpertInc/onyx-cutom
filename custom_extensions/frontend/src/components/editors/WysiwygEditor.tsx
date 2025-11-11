@@ -134,16 +134,36 @@ export function WysiwygEditor({
         setCurrentTextStyle('Normal text');
       }
     },
+    onBlur: ({ editor: editorInstance }: { editor: any }) => {
+      // Handle blur directly from TipTap editor
+      // Save content when editor loses focus (click outside)
+      if (editorInstance) {
+        const html = editorInstance.getHTML();
+        const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');
+        onSave(cleanHtml);
+      }
+      setShowToolbar(false);
+      setShowColorPicker(false);
+      setShowTextStyleDropdown(false);
+    },
   });
 
   useEffect(() => {
     if (editor) {
-      editor.commands.focus('end');
-      editor.commands.selectAll();
+      // Use setTimeout to ensure the editor DOM is ready before focusing
+      // This prevents issues with cursor positioning
+      const timeoutId = setTimeout(() => {
+        // Focus the editor and place cursor at the end (not selecting all text)
+        // This allows normal text editing with visible cursor
+        // If user clicks in the middle of text, TipTap will handle cursor positioning correctly
+        editor.commands.focus('end');
+        
+        // Set initial color from editor content or CSS styles
+        const initialColor = getCurrentTextColor();
+        setSelectedColor(initialColor);
+      }, 0);
       
-      // Set initial color from editor content or CSS styles
-      const initialColor = getCurrentTextColor();
-      setSelectedColor(initialColor);
+      return () => clearTimeout(timeoutId);
     }
   }, [editor, style, cleanedStyle]);
 
@@ -189,16 +209,6 @@ export function WysiwygEditor({
     }
   }, [showColorPicker, showTextStyleDropdown]);
 
-  const handleBlur = () => {
-    if (editor) {
-      const html = editor.getHTML();
-      const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');
-      onSave(cleanHtml);
-    }
-    setShowToolbar(false);
-    setShowColorPicker(false);
-    setShowTextStyleDropdown(false);
-  };
 
   const applyColor = (color: string) => {
     if (editor) {
@@ -676,7 +686,7 @@ export function WysiwygEditor({
         </div>
       )}
 
-      <div onBlur={handleBlur}>
+      <div>
         <EditorContent editor={editor} />
       </div>
     </div>
