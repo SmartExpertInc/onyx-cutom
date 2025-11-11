@@ -212,17 +212,41 @@ export default function Projects2ViewPage() {
   };
 
   // NEW: Function to save Video Lesson data
+  const summarizeSlideImages = (rawSlides: Array<any>) => {
+    return rawSlides.map((slide) => {
+      const props = slide?.props ?? {};
+      return {
+        slideId: slide?.slideId,
+        templateId: slide?.templateId,
+        imagePath: props?.imagePath ?? null,
+        rightImagePath: props?.rightImagePath ?? null,
+        teamImagePath: props?.teamImagePath ?? null,
+        leftImagePath: props?.leftImagePath ?? null,
+        prompts: {
+          imagePrompt: !!props?.imagePrompt,
+          rightImagePrompt: !!props?.rightImagePrompt,
+          teamImagePrompt: !!props?.teamImagePrompt,
+          leftImagePrompt: !!props?.leftImagePrompt
+        }
+      };
+    });
+  };
+
   const saveVideoLessonData = async (data: VideoLessonData | ComponentBasedSlideDeck) => {
     try {
       if (!projectId) {
         console.error('❌ saveVideoLessonData: No projectId provided');
         return;
       }
+
+      const slideArray = 'slides' in data ? data.slides : [];
+      const slideSummaries = Array.isArray(slideArray) ? summarizeSlideImages(slideArray).slice(0, 20) : [];
       
       console.log('💾 Saving video lesson data:', {
         projectId,
         dataType: data.constructor.name,
-        slideCount: 'slides' in data ? data.slides.length : 'N/A'
+        slideCount: Array.isArray(slideArray) ? slideArray.length : 'N/A',
+        imageSummary: slideSummaries
       });
 
       // 🔧 CRITICAL FIX: Add dev user header to match old UI's golden reference pattern
@@ -248,7 +272,11 @@ export default function Projects2ViewPage() {
         throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
       }
       
-      console.log('✅ Video lesson data saved successfully');
+      console.log('✅ Video lesson data saved successfully', {
+        projectId,
+        slideCount: Array.isArray(slideArray) ? slideArray.length : 'N/A',
+        imageSummary: slideSummaries
+      });
     } catch (error) {
       console.error('❌ Error saving video lesson data:', error);
       // TODO: Show user notification for save errors
@@ -566,6 +594,11 @@ export default function Projects2ViewPage() {
               if (isComponentBasedVideoLesson) {
                 // Handle component-based video lesson structure
                 const componentData = instanceData.details as ComponentBasedSlideDeck;
+                console.log('🎬 [VIDEO LESSON LOAD] Loaded component-based deck from backend:', {
+                  projectId,
+                  slideCount: componentData.slides?.length ?? 0,
+                  imageSummary: summarizeSlideImages(componentData.slides ?? []).slice(0, 20)
+                });
                 setComponentBasedSlideDeck(componentData);
                 setCurrentSlideId(componentData.currentSlideId || componentData.slides[0]?.slideId);
               } else {

@@ -358,6 +358,15 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         hasPrompt: !!p.imagePrompt
       }))
     });
+    console.log('🧮 [AutoImageGen] Processing placeholder queue', {
+      totalPlaceholders: placeholders.length,
+      placeholders: placeholders.map(p => ({
+        elementId: p.elementId,
+        templateId: p.templateId,
+        hasPrompt: !!p.imagePrompt,
+        hasImage: !!p.imagePath
+      }))
+    });
 
     // Process placeholders concurrently with rate limiting
     const batchSize = 3; // Process 3 at a time to avoid API rate limits
@@ -374,6 +383,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         batchIndex,
         batchSize: batch.length,
         batchPlaceholders: batch.map(p => p.elementId)
+      });
+      console.log('🧵 [AutoImageGen] Processing batch', {
+        batchIndex,
+        batchSize: batch.length,
+        elements: batch.map(p => p.elementId)
       });
 
       // Process batch concurrently
@@ -423,6 +437,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           onGenerationFailed?.(placeholder.elementId, result.error);
         }
 
+        console.log(result.success
+          ? `✅ [AutoImageGen] Generated image for ${placeholder.elementId}: ${result.imagePath}`
+          : `❌ [AutoImageGen] Failed to generate image for ${placeholder.elementId}: ${result.error}`
+        );
+
         return resultEntry;
       });
 
@@ -449,6 +468,12 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         hasError: !!r.error
       }))
     });
+    console.log('🏁 [AutoImageGen] Batch processing complete', {
+      totalResults: results.length,
+      successfulResults: results.filter(r => r.success).length,
+      failedResults: results.filter(r => !r.success).length,
+      results
+    });
 
     // Notify parent that all generations are complete
     onAllGenerationsComplete?.(results);
@@ -464,6 +489,15 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         hasDeck: !!deck,
         extractedPlaceholders: extractedPlaceholders.length,
         enabled
+      });
+      console.log('🗂️ [AutoImageGen] Deck changed', {
+        slideCount: deck.slides?.length ?? 0,
+        extractedPlaceholders: extractedPlaceholders.map(p => ({
+          elementId: p.elementId,
+          templateId: p.templateId,
+          hasPrompt: !!p.imagePrompt,
+          hasImage: !!p.imagePath
+        }))
       });
     }
   }, [deck, extractImagePlaceholders, enabled]);
