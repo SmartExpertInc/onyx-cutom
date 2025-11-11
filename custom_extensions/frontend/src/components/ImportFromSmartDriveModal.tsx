@@ -72,7 +72,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     }
   }, [mode]);
 
-  const handleTabChange = useCallback((tab: 'smart-drive' | 'connectors') => {
+  const handleTabChange = useCallback((tab: 'smart-drive' | 'connectors' | 'my-products') => {
     setActiveTab(tab);
   }, []);
 
