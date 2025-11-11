@@ -8,7 +8,6 @@ import { trackImportFiles } from "@/lib/mixpanelClient";
 import {
   KnowledgeBaseConnector,
   KnowledgeBaseSelection,
-  KnowledgeBaseProduct,
   buildKnowledgeBaseContext,
 } from "@/lib/knowledgeBaseSelection";
 
@@ -55,7 +54,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   const [selectedFilePaths, setSelectedFilePaths] = useState<string[]>([]);
   const [selectedConnectorSources, setSelectedConnectorSources] = useState<string[]>([]);
   const [connectors, setConnectors] = useState<Connector[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<KnowledgeBaseProduct[]>([]);
 
   const isKnowledgeBaseMode = mode === "knowledgeBase";
 
@@ -74,7 +72,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     }
   }, [mode]);
 
-  const handleTabChange = useCallback((tab: 'smart-drive' | 'connectors' | 'my-products') => {
+  const handleTabChange = useCallback((tab: 'smart-drive' | 'connectors') => {
     setActiveTab(tab);
   }, []);
 
@@ -91,12 +89,8 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   }, [connectors, isKnowledgeBaseMode, selectedConnectorSources]);
 
   const hasKnowledgeBaseSelection = useMemo(() => {
-    return (
-      selectedFilePaths.length > 0 ||
-      selectedConnectorIds.length > 0 ||
-      selectedProducts.length > 0
-    );
-  }, [selectedConnectorIds, selectedFilePaths, selectedProducts]);
+    return selectedFilePaths.length > 0 || selectedConnectorIds.length > 0;
+  }, [selectedConnectorIds, selectedFilePaths]);
 
   const loadConnectors = useCallback(async () => {
     if (!isKnowledgeBaseMode || !isOpen) return;
@@ -165,14 +159,9 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       setLocalSelectedFileObjects([]);
       setSelectedFilePaths([]);
       setSelectedConnectorSources([]);
-      setSelectedProducts([]);
       setActiveTab('smart-drive');
     }
   }, [isOpen]);
-
-  const handleProductSelectionChange = useCallback((products: KnowledgeBaseProduct[]) => {
-    setSelectedProducts(products);
-  }, []);
 
   const handleKnowledgeBaseImport = () => {
     if (!hasKnowledgeBaseSelection) {
@@ -183,9 +172,8 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     const filesToImport = selectedFilePaths;
     const hasFiles = filesToImport.length > 0;
     const hasConnectors = selectedConnectorIds.length > 0;
-    const hasProducts = selectedProducts.length > 0;
 
-    if (!hasFiles && !hasConnectors && !hasProducts) {
+    if (!hasFiles && !hasConnectors) {
       onClose();
       return;
     }
@@ -203,7 +191,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
           source: connector.source,
         })
       ),
-      products: selectedProducts,
     };
 
     if (onKnowledgeBaseConfirm) {
@@ -239,17 +226,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       );
       if (fileExtensionsForTracking.length > 0) {
         trackImportFiles('Files', fileExtensionsForTracking);
-      }
-    } else if (selectedProducts.length > 0) {
-      const productTypesForTracking = Array.from(
-        new Set(
-          selectedProducts
-            .map((product) => (product?.type ? product.type.toString() : 'product'))
-            .filter((type) => typeof type === 'string' && type.length > 0)
-        )
-      );
-      if (productTypesForTracking.length > 0) {
-        trackImportFiles('Products', productTypesForTracking);
       }
     }
 
@@ -365,11 +341,9 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       >
         {/* Title */}
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">
-          {activeTab === 'connectors' 
+          {activeTab === 'connectors' || activeTab === 'my-products'
             ? t('interface.importFromSmartDrive.selectConnector', 'Select a connector') 
-            : activeTab === 'my-products'
-              ? t('interface.importFromSmartDrive.selectProduct', 'Select a product')
-              : t('interface.importFromSmartDrive.selectFile', 'Select a file')}
+            : t('interface.importFromSmartDrive.selectFile', 'Select a file')}
         </h2>
 
         {/* SmartDrive Connectors Component */}
@@ -382,8 +356,6 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
             onConnectorSelectionChange={isKnowledgeBaseMode ? setSelectedConnectorSources : undefined}
             selectedConnectorSources={selectedSourcesForChild}
             selectionMode={isKnowledgeBaseMode ? 'connectors' : 'none'}
-            enableMyProductsTab={isKnowledgeBaseMode}
-            onProductSelectionChange={isKnowledgeBaseMode ? handleProductSelectionChange : undefined}
           />
         </div>
 

@@ -21,6 +21,7 @@ import { EmptySmartDrive } from '../EmptySmartDrive';
 import { EmptyConnectors } from '../EmptyConnectors';
 import { KnowledgeBaseProduct } from '@/lib/knowledgeBaseSelection';
 import MyProductsModalContent, { ModalProduct } from './MyProductsModalContent';
+import MyProductsTable from '../MyProductsTable';
 
 interface ConnectorConfig {
   id: string;
@@ -151,13 +152,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     onTabChange?.(activeTab);
   }, [activeTab, onTabChange]);
   const handleProductsSelectionChange = useCallback(
-    (ids: number[], products: ModalProduct[]) => {
+    (ids: number[], projects: any[]) => {
       setSelectedProductIds(ids);
       if (!onProductSelectionChange) return;
-      const mappedProducts: KnowledgeBaseProduct[] = products.map((product) => ({
-        id: product.id,
-        title: product.title,
-        type: product.type,
+      const mappedProducts: KnowledgeBaseProduct[] = projects.map((project) => ({
+        id: project.id,
+        title: project.title,
+        type: project.designMicroproductType,
       }));
       onProductSelectionChange(mappedProducts);
     },
@@ -1500,21 +1501,20 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       {enableMyProductsTab && (activeTab as TabKey) === MY_PRODUCTS_TAB && (
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
-            <MyProductsModalContent
-              selectedIds={selectedProductIds}
-              onSelectionChange={handleProductsSelectionChange}
-            />
-            {selectedProductIds.length === 0 && (
-              <p className="mt-4 text-sm text-gray-500">
-                Select products to import into your knowledge base.
-              </p>
-            )}
+            <MyProductsTable selectionMode="select" onSelectionChange={handleProductsSelectionChange} />
           </div>
         </div>
       )}
         </div>
       )}
-
+      {activeTab === 'my-products' && (
+        <div className="flex-1 overflow-x-hidden overflow-y-auto">
+          <p>My products</p>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
+            <MyProductsModalContent onSelectionChange={handleProductsSelectionChange} />
+          </div>
+        </div>
+      )}
       {/* Connector Creation Modal */}
       {showConnectorModal && selectedConnector && (
         <div className="fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">

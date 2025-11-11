@@ -201,66 +201,60 @@ const MyProductsModalContent: React.FC<MyProductsModalContentProps> = ({
           ? await foldersResponse.json()
           : [];
 
-      const projectArray: any[] = Array.isArray(projectsJson)
-        ? projectsJson
-        : Array.isArray(projectsJson?.projects)
-        ? projectsJson.projects
-        : [];
-
-      const folderArray: any[] = Array.isArray(foldersJson)
-        ? foldersJson
-        : Array.isArray(foldersJson?.folders)
-        ? foldersJson.folders
-        : [];
-
       const foldersMap: Record<number, string> = {};
-      folderArray.forEach((folder: any) => {
-        if (folder && typeof folder.id === "number") {
-          foldersMap[folder.id] = folder.name;
-        }
-      });
-      setFolders(
-        folderArray
-          .filter((folder: any) => folder && typeof folder.id === "number")
-          .map(
-            (folder: any): ModalFolder => ({
-              id: folder.id,
-              name:
-                folder.name || t("interface.untitledFolder", "Untitled"),
-              parent_id:
-                typeof folder.parent_id === "number"
-                  ? folder.parent_id
-                  : null,
-            })
-          )
-      );
-
-      const mappedProducts: ModalProduct[] = projectArray
-        .filter((project) => typeof project?.id === "number")
-        .map(
-          (project): ModalProduct => ({
-            id: project.id,
-            title: computeDisplayTitle(project),
-            type:
-              project?.design_microproduct_type ||
-              project?.microproduct_type ||
-              project?.type ||
-              undefined,
-            createdAt: project?.created_at,
-            folderId:
-              typeof project?.folder_id === "number"
-                ? project.folder_id
-                : null,
-            folderName:
-              typeof project?.folder_id === "number"
-                ? foldersMap[project.folder_id] || null
-                : null,
-            url:
-              typeof project?.id === "number"
-                ? `/projects/${project.id}`
-                : undefined,
-          })
+      if (Array.isArray(foldersJson)) {
+        foldersJson.forEach((folder: any) => {
+          if (folder && typeof folder.id === "number") {
+            foldersMap[folder.id] = folder.name;
+          }
+        });
+        setFolders(
+          foldersJson
+            .filter((folder: any) => folder && typeof folder.id === "number")
+            .map(
+              (folder: any): ModalFolder => ({
+                id: folder.id,
+                name:
+                  folder.name || t("interface.untitledFolder", "Untitled"),
+                parent_id:
+                  typeof folder.parent_id === "number"
+                    ? folder.parent_id
+                    : null,
+              })
+            )
         );
+      } else {
+        setFolders([]);
+      }
+
+      const mappedProducts: ModalProduct[] = Array.isArray(projectsJson)
+        ? projectsJson
+            .filter((project) => typeof project?.id === "number")
+            .map(
+              (project): ModalProduct => ({
+                id: project.id,
+                title: computeDisplayTitle(project),
+                type:
+                  project?.design_microproduct_type ||
+                  project?.microproduct_type ||
+                  project?.type ||
+                  undefined,
+                createdAt: project?.created_at,
+                folderId:
+                  typeof project?.folder_id === "number"
+                    ? project.folder_id
+                    : null,
+                folderName:
+                  typeof project?.folder_id === "number"
+                    ? foldersMap[project.folder_id] || null
+                    : null,
+                url:
+                  typeof project?.id === "number"
+                    ? `/projects/${project.id}`
+                    : undefined,
+              })
+            )
+        : [];
 
       setProducts(mappedProducts);
     } catch (err: any) {
@@ -348,7 +342,7 @@ const MyProductsModalContent: React.FC<MyProductsModalContentProps> = ({
   }
 
   return (
-    <div className={className ? `flex flex-col gap-6 ${className}` : "flex flex-col gap-6"}>
+    <div className={`flex flex-col gap-6 ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
@@ -356,7 +350,7 @@ const MyProductsModalContent: React.FC<MyProductsModalContentProps> = ({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t("interface.searchProducts", "Search products")}
-            className={"pl-10"}
+            className="pl-10"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -404,12 +398,6 @@ const MyProductsModalContent: React.FC<MyProductsModalContentProps> = ({
               {folder.name}
             </Button>
           ))}
-        </div>
-      )}
-
-      {folders.length === 0 && products.length === 0 && (
-        <div className="text-center text-sm text-gray-500">
-          {t("interface.noProductsAvailable", "No products available yet.")}
         </div>
       )}
 
