@@ -2193,6 +2193,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
   const isSelectMode = selectionMode === 'select';
   const isExternalToolbar = toolbarPlacement === 'external';
+  const [hideInternalToolbar, setHideInternalToolbar] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -2247,6 +2248,24 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
     type: 5,
   });
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    const eventName = 'smartdriveModalStateChange';
+    const updateModalState = () => {
+      setHideInternalToolbar(document.body.classList.contains('smartdrive-modal-open'));
+    };
+
+    updateModalState();
+    window.addEventListener(eventName, updateModalState);
+
+    return () => {
+      window.removeEventListener(eventName, updateModalState);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isSelectMode) {
@@ -3964,6 +3983,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   
   const navigationPanel = useMemo(() => {
     if (trashMode) return null;
+    if (!isExternalToolbar && hideInternalToolbar) return null;
 
     const showFolderButton = !isSelectMode || showFolderButtonInSelectionMode;
     const alignmentClasses = isExternalToolbar
@@ -4078,6 +4098,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   }, [
     trashMode,
     isExternalToolbar,
+    hideInternalToolbar,
     isSelectMode,
     t,
     searchTerm,

@@ -320,6 +320,28 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     return selectedConnectorSources;
   }, [isKnowledgeBaseMode, selectedConnectorSources]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    const modalClass = 'smartdrive-modal-open';
+    const eventName = 'smartdriveModalStateChange';
+
+    if (isOpen) {
+      document.body.classList.add(modalClass);
+    } else {
+      document.body.classList.remove(modalClass);
+    }
+
+    window.dispatchEvent(new Event(eventName));
+
+    return () => {
+      document.body.classList.remove(modalClass);
+      window.dispatchEvent(new Event(eventName));
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
