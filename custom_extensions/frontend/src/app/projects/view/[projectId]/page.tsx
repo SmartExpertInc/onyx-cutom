@@ -293,6 +293,7 @@ export default function ProjectInstanceViewPage() {
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(true);
 
 
   // State for the absolute chat URL
@@ -2074,6 +2075,7 @@ export default function ProjectInstanceViewPage() {
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
+            isAuthorized={isAuthorized}
           />
         );
       default:
@@ -2108,19 +2110,26 @@ export default function ProjectInstanceViewPage() {
         onPdfExport={handlePdfDownload}
         isEditing={isEditing}
         onEditOrSave={handleToggleEdit}
+        isAuthorized={isAuthorized}
+        setIsAuthorized={setIsAuthorized}
       />
       
       <main 
-        className={`min-h-screen font-inter ${
-          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || 
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+        className={`font-inter ${
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? 'bg-[#F2F2F4] p-0'
-            : 'bg-[#F2F2F4] p-4 md:p-8'
+            ? 'bg-[#F2F2F4] px-12 py-0'
+            : projectInstanceData?.component_name === COMPONENT_NAME_QUIZ || 
+              projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+            ? 'min-h-screen bg-[#F2F2F4] p-0'
+            : 'min-h-screen bg-[#F2F2F4] p-4 md:p-8'
         }`}
       >
         <div className={`mx-auto ${
           projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'max-w-[1920px]'
             : 'max-w-7xl'
@@ -2154,7 +2163,7 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
 
-            {projectInstanceData && typeof projectInstanceData.project_id === 'number' && projectInstanceData.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && (
+            {projectInstanceData && typeof projectInstanceData.project_id === 'number' && projectInstanceData.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && projectInstanceData.component_name !== COMPONENT_NAME_VIDEO_PRODUCT && (
               projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
                 <VideoDownloadButton
                   projectName={projectInstanceData.name}

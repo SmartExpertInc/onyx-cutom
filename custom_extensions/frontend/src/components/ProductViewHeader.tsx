@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProductViewHeader.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -40,6 +40,25 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   isAuthorized = true,
   setIsAuthorized
 }) => {
+
+  const [localIsAuthorized, setLocalIsAuthorized] = useState(isAuthorized);
+
+  useEffect(() => {
+    if (!setIsAuthorized) {
+      setLocalIsAuthorized(isAuthorized);
+    }
+  }, [isAuthorized, setIsAuthorized]);
+
+  const currentIsAuthorized = setIsAuthorized ? isAuthorized : localIsAuthorized;
+
+  const handleAuthToggle = (value: boolean) => {
+    if (value === currentIsAuthorized) return;
+    if (setIsAuthorized) {
+      setIsAuthorized(value);
+    } else {
+      setLocalIsAuthorized(value);
+    }
+  };
 
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
@@ -145,9 +164,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {/* Auth Toggle Switch */}
           <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
             <button
-              onClick={() => setIsAuthorized?.(true)}
+              onClick={() => handleAuthToggle(true)}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                isAuthorized 
+                currentIsAuthorized 
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
@@ -155,9 +174,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               Authorized
             </button>
             <button
-              onClick={() => setIsAuthorized?.(false)}
+              onClick={() => handleAuthToggle(false)}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                !isAuthorized 
+                !currentIsAuthorized 
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
@@ -264,7 +283,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           )}
 
           {/* Conditional rendering based on auth state */}
-          {isAuthorized ? (
+          {currentIsAuthorized ? (
             <UserDropdown />
           ) : (
             <>
