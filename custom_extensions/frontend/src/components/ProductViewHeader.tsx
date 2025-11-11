@@ -211,6 +211,30 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
+          {/* Auth Toggle Switch */}
+          <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
+            <button
+              onClick={() => handleAuthToggle(true)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                currentIsAuthorized 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Authorized
+            </button>
+            <button
+              onClick={() => handleAuthToggle(false)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                !currentIsAuthorized 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Unauthorized
+            </button>
+          </div>
+
           {shouldShowLinkButtons && (
             <div className="flex items-center space-x-2">
               {isPresentation && currentIsAuthorized && (
@@ -271,30 +295,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               </button>
             </div>
           )}
-          {/* Auth Toggle Switch */}
-          <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
-            <button
-              onClick={() => handleAuthToggle(true)}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                currentIsAuthorized 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Authorized
-            </button>
-            <button
-              onClick={() => handleAuthToggle(false)}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                !currentIsAuthorized 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Unauthorized
-            </button>
-          </div>
-
         {isOnePager && onEditOrSave && (
             <button
               onClick={onEditOrSave}

@@ -15,7 +15,6 @@ import {
 import { VideoLessonData } from '@/types/videoLessonTypes';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { ProjectListItem } from '@/types/products';
-import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
@@ -24,6 +23,7 @@ import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { LessonPlanView } from '@/components/LessonPlanView';
+import CourseDisplay, { LessonContentStatusMap } from '@/components/CourseDisplay';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import workspaceService, { 
   Workspace, 
@@ -1848,6 +1848,114 @@ export default function ProjectInstanceViewPage() {
     </div>
   );
 
+  const trainingPlanContent = editableData as TrainingPlanData | null;
+
+  const totalModules = trainingPlanContent?.sections?.length ?? 0;
+  const totalLessons =
+    trainingPlanContent?.sections?.reduce((acc, section) => acc + (section.lessons?.length || 0), 0) ?? 0;
+
+  const courseMetrics = useMemo(() => {
+    const completedLessons = 0;
+    if (totalLessons === 0) {
+      return {
+        completed: completedLessons,
+        estimatedDuration: '0h 0m',
+        estimatedCompletionTime: '0h 0m',
+        creditsUsed: 5,
+        creditsTotal: 100,
+        progress: 0,
+        totalModules,
+        totalLessons
+      };
+    }
+
+    const hours = Math.ceil(totalLessons * 0.5);
+    const minutes = Math.ceil((totalLessons * 0.5 % 1) * 60);
+    const duration = `${hours}h ${minutes}m`;
+
+    return {
+      completed: completedLessons,
+      estimatedDuration: duration,
+      estimatedCompletionTime: duration,
+      creditsUsed: 5,
+      creditsTotal: 100,
+      progress: Math.round((completedLessons / totalLessons) * 100),
+      totalModules,
+      totalLessons
+    };
+  }, [totalLessons, totalModules]);
+
+  const lessonContentStatus: LessonContentStatusMap = useMemo(() => {
+    const status: LessonContentStatusMap = {};
+
+    if (!trainingPlanContent?.sections || !projectInstanceData) {
+      return status;
+    }
+
+    const outlineName = (trainingPlanContent.mainTitle || projectInstanceData.name || '').trim();
+    if (!outlineName) {
+      return status;
+    }
+
+    const projects = allUserMicroproducts ?? [];
+
+    trainingPlanContent.sections.forEach((section) => {
+      section.lessons?.forEach((lesson) => {
+        const lessonKey = lesson.id || lesson.title;
+        if (!lessonKey) {
+          return;
+        }
+
+        status[lessonKey] = {
+          presentation: { exists: false },
+          onePager: { exists: false },
+          quiz: { exists: false },
+          videoLesson: { exists: false }
+        };
+
+        const expectedProjectName = `${outlineName}: ${lesson.title}`;
+        const legacyQuizPattern = `Quiz - ${outlineName}: ${lesson.title}`;
+        const legacyTextPresentationPattern = `Text Presentation - ${outlineName}: ${lesson.title}`;
+
+        projects.forEach((project) => {
+          const projectName = project.projectName?.trim();
+          if (!projectName) return;
+
+          if (
+            projectName !== expectedProjectName &&
+            projectName !== legacyQuizPattern &&
+            projectName !== legacyTextPresentationPattern
+          ) {
+            return;
+          }
+
+          const microproductType = project.design_microproduct_type || '';
+
+          switch (microproductType) {
+            case 'Slide Deck':
+            case 'Lesson Presentation':
+              status[lessonKey].presentation = { exists: true, productId: project.id };
+              break;
+            case 'Text Presentation':
+              status[lessonKey].onePager = { exists: true, productId: project.id };
+              break;
+            case 'Quiz':
+              status[lessonKey].quiz = { exists: true, productId: project.id };
+              break;
+            case 'Video Lesson':
+            case 'Video Lesson Presentation':
+              status[lessonKey].videoLesson = { exists: true, productId: project.id };
+              break;
+            default:
+              break;
+          }
+        });
+      });
+    });
+
+    return status;
+  }, [trainingPlanContent, allUserMicroproducts, projectInstanceData]);
+
   const displayContent = () => {
     if (!projectInstanceData || pageState !== 'success') {
       return null;
@@ -1863,25 +1971,16 @@ export default function ProjectInstanceViewPage() {
 
     switch (projectInstanceData.component_name) {
       case COMPONENT_NAME_TRAINING_PLAN:
-        const trainingPlanData = editableData as TrainingPlanData | null;
         return (
-          <div>
-            <TrainingPlanTableComponent
-              dataToDisplay={trainingPlanData}
-              onTextChange={handleTextChange}
-              onAutoSave={handleAutoSave}
-              sourceChatSessionId={projectInstanceData.sourceChatSessionId}
-              allUserMicroproducts={allUserMicroproducts}
-              parentProjectName={parentProjectNameForCurrentView}
-              theme={trainingPlanData?.theme || 'cherry'}
-              projectId={projectId ? parseInt(projectId) : undefined}
-              projectCustomRate={projectInstanceData.custom_rate}
-              projectQualityTier={projectInstanceData.quality_tier}
-              projectIsAdvanced={projectInstanceData.is_advanced}
-              projectAdvancedRates={projectInstanceData.advanced_rates}
-              columnVisibility={effectiveColumnVisibility}
-            />
-          </div>
+          <CourseDisplay
+            t={t}
+            trainingPlanData={trainingPlanContent}
+            columnVideoLessonEnabled={colVideoPresentationEnabled}
+            lessonContentStatus={lessonContentStatus}
+            productId={projectId}
+            metrics={courseMetrics}
+            isReadOnly
+          />
         );
       case COMPONENT_NAME_PDF_LESSON:
         const pdfLessonData = editableData as PdfLessonData | null;
