@@ -35,7 +35,8 @@ import {
   LayoutTemplate,
   BookOpen,
   MonitorPlay,
-  FolderPlus
+  FolderPlus,
+  Check
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -78,6 +79,9 @@ interface ProjectCardProps {
   language?: string;
   onTierChange?: (tier: string) => void;
   className?: string;
+  selectionMode?: "default" | "select";
+  isSelected?: boolean;
+  onToggleSelect?: (projectId: number) => void;
 }
 
 // Helper function to get project type icon
@@ -189,6 +193,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   t = (key: string, fallback?: string) => fallback || key,
   language = "en",
   onTierChange,
+  selectionMode = "default",
+  isSelected = false,
+  onToggleSelect,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
@@ -227,6 +234,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
+  const isSelectMode = selectionMode === "select";
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -371,6 +379,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
+    if (isSelectMode) {
+      e.preventDefault();
+      e.stopPropagation();
+      onToggleSelect?.(project.id);
+      return;
+    }
+
     if (isTrashMode) {
       e.preventDefault();
       setShowRestorePrompt(true);
@@ -520,10 +535,26 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <Card className={`group rounded-md shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
-      !getModalState()
-        ? "cursor-grab active:cursor-grabbing"
-        : "cursor-default"
+      isSelectMode
+        ? `${isSelected ? "ring-2 ring-blue-500 border-blue-500 bg-blue-50" : "hover:border-blue-400"} cursor-pointer`
+        : (!getModalState()
+            ? "cursor-grab active:cursor-grabbing"
+            : "cursor-default")
     }`}>
+      {isSelectMode && (
+        <div className="absolute top-3 left-3 z-20 pointer-events-none">
+          <div
+            className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+              isSelected ? "bg-blue-600 border-blue-600" : "bg-white border-gray-300"
+            }`}
+          >
+            <Check
+              size={12}
+              className={isSelected ? "text-white" : "text-transparent"}
+            />
+          </div>
+        </div>
+      )}
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 

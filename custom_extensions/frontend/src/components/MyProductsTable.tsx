@@ -883,6 +883,8 @@ interface ProjectsTableProps {
   auditMode?: boolean;
   selectionMode?: 'default' | 'select';
   onSelectionChange?: (projectIds: number[], projects: Project[]) => void;
+  toolbarPlacement?: 'internal' | 'external';
+  onToolbarRender?: (toolbar: React.ReactNode | null) => void;
 }
 
 interface ColumnVisibility {
@@ -2181,10 +2183,14 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   auditMode = false,
   selectionMode = 'default',
   onSelectionChange,
+  toolbarPlacement = 'internal',
+  onToolbarRender,
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
   const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
+  const isSelectMode = selectionMode === 'select';
+  const isExternalToolbar = toolbarPlacement === 'external';
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -2240,6 +2246,12 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   });
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!isSelectMode) {
+      setSelectedProjects(new Set());
+    }
+  }, [isSelectMode]);
+
   const allProjectsFlattened = useMemo(() => {
     const aggregated: Project[] = Array.isArray(projects) ? [...projects] : [];
     Object.values(folderProjects || {}).forEach((list) => {
@@ -2249,6 +2261,18 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
     });
     return aggregated;
   }, [projects, folderProjects]);
+
+  const toggleProjectSelection = useCallback((projectId: number) => {
+    setSelectedProjects((prev) => {
+      const next = new Set(prev);
+      if (next.has(projectId)) {
+        next.delete(projectId);
+      } else {
+        next.add(projectId);
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (!onSelectionChange || selectionMode !== 'select') return;
@@ -3935,6 +3959,137 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
           ])
         )
       : folderProjects;
+  
+  const navigationPanel = useMemo(() => {
+    if (trashMode) {
+      return null;
+    }
+
+    return (
+      <div className={`flex justify-between gap-4 ${isExternalToolbar ? 'items-center w-full' : 'mb-12'}`}>
+        <div className="flex">
+          <Button 
+            className="flex cursor-pointer items-center gap-2 border border-[var(--border-light)] text-gray-900 px-4 py-2 shadow-sm rounded-md"
+            onClick={() => setShowFolderModal(true)}
+          >
+            <FolderPlus size={16} strokeWidth={1.5} className="text-gray-900" /> Add folder
+          </Button>
+        </div>
+        <div className="flex gap-2 items-center">
+          <div className="relative w-75 h-9">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+            <Input
+              type="text"
+              variant="shadow"
+              placeholder={t('interface.searchPlaceholderProjects', 'Search...')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 placeholder:text-[#71717A] placeholder:text-sm"
+            />
+          </div>
+          <div 
+            className="flex items-center px-3 h-9 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+            onClick={() => {
+              setSortBy('created');
+              setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+            }}
+            title="Sort by creation date"
+          >
+            <ArrowDownUp size={16} className="text-[#71717A]" />
+          </div>
+          <div className="flex items-center gap-2 -mt-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  type="button"
+                  variant="sort" 
+                  className="flex border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10.1328 9.03369C11.1811 9.03369 12.0569 9.77835 12.2568 10.7681L12.3438 11.1997L12.2568 11.6313C12.0569 12.6211 11.1812 13.3667 10.1328 13.3667C9.08455 13.3666 8.20964 12.621 8.00977 11.6313L7.92188 11.1997L8.00977 10.7681C8.20972 9.77847 9.08462 9.03382 10.1328 9.03369ZM10.1328 9.1001C8.97322 9.10024 8.03334 10.0401 8.0332 11.1997C8.0332 12.3594 8.97312 13.3002 10.1328 13.3003C11.2926 13.3003 12.2334 12.3595 12.2334 11.1997C12.2333 10.04 11.2925 9.1001 10.1328 9.1001ZM1.59961 11.1665H7.4707L7.80566 11.1997L7.4707 11.2329H1.59961C1.58129 11.2328 1.56641 11.2181 1.56641 11.1997C1.56655 11.1815 1.58138 11.1666 1.59961 11.1665ZM12.7959 11.1665H14.3994C14.4177 11.1665 14.4325 11.1815 14.4326 11.1997C14.4326 11.2181 14.4178 11.2329 14.3994 11.2329H12.7959L12.46 11.1997L12.7959 11.1665ZM5.86621 2.6333C6.91458 2.6333 7.79034 3.37885 7.99023 4.36865L8.07617 4.79932L7.99023 5.23193C7.79027 6.22164 6.91452 6.96631 5.86621 6.96631C4.81796 6.96622 3.94211 6.22162 3.74219 5.23193L3.65527 4.79932L3.74219 4.36865C3.94207 3.37891 4.81792 2.63339 5.86621 2.6333ZM5.86621 2.69971C4.7065 2.69981 3.7666 3.64056 3.7666 4.80029C3.76678 5.95988 4.70661 6.8998 5.86621 6.8999C7.0259 6.8999 7.96662 5.95994 7.9668 4.80029C7.9668 3.64049 7.02601 2.69971 5.86621 2.69971ZM1.59961 4.76709H3.2041L3.53906 4.79932L3.2041 4.8335H1.59961C1.58137 4.83343 1.56658 4.81851 1.56641 4.80029C1.56641 4.78193 1.58126 4.76716 1.59961 4.76709ZM8.5293 4.76709H14.3994C14.4178 4.76709 14.4326 4.78191 14.4326 4.80029C14.4324 4.81852 14.4177 4.8335 14.3994 4.8335H8.5293L8.19238 4.79932L8.5293 4.76709Z" fill="#09090B" stroke="#18181B"/>
+                  </svg>
+                  {contentTypeFilterLabels[contentTypeFilter] || contentTypeFilter}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 bg-white rounded-lg shadow-lg border border-[#E4E4E7]">
+                <DropdownMenuLabel className="px-3 py-2 border-b border-[#E4E4E7] bg-white">
+                  <p className="font-semibold text-sm text-gray-900">
+                    {t("interface.filterBy", "Filter by")}
+                  </p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="border-[#E4E4E7] text-[#E4E4E7] bg-[#E4E4E7]" />
+                {contentTypeFilterKeys.map((filterKey) => {
+                  const Icon = contentTypeFilterIcons[filterKey];
+                  const isSelected = contentTypeFilter === filterKey;
+                  const filterLabel = contentTypeFilterLabels[filterKey];
+                  return (
+                    <DropdownMenuItem
+                      key={filterKey}
+                      onClick={() => setContentTypeFilter(filterKey)}
+                      className={`flex items-center justify-between px-2 py-2 text-sm transition-colors bg-white ${
+                        isSelected 
+                          ? "!bg-[#CCDBFC] text-[#0F58F9] font-medium" 
+                          : "text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className={`flex items-center gap-3 ${isSelected ? "text-[#0F58F9]" : "text-gray-900"}`}>
+                        <Icon 
+                          size={16} 
+                          stroke={isSelected ? "#3366FF" : "#09090B"}
+                          className={isSelected ? "text-[#3366FF]" : "text-gray-900"} 
+                          strokeWidth={1.5}
+                        />
+                        <span className={isSelected ? "text-[#3366FF]" : "text-gray-900"}>{filterLabel}</span>
+                      </div>
+                      {isSelected && (
+                        <Check size={16} className="text-[#3366FF]" />
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200 ml-2">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
+              >
+                <LayoutGrid strokeWidth={1} className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
+              >
+                <List strokeWidth={1.5} className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }, [
+    trashMode,
+    isExternalToolbar,
+    t,
+    searchTerm,
+    sortOrder,
+    contentTypeFilter,
+    viewMode,
+    contentTypeFilterLabels,
+    contentTypeFilterKeys,
+    contentTypeFilterIcons,
+  ]);
+
+  useEffect(() => {
+    if (isExternalToolbar && onToolbarRender) {
+      onToolbarRender(navigationPanel);
+      return () => {
+        onToolbarRender(null);
+      };
+    }
+    return;
+  }, [isExternalToolbar, onToolbarRender, navigationPanel]);
 
   if (loading) {
     return <div className="text-center p-8">Loading projects...</div>;
@@ -3946,168 +4101,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
 
   return (
     <div>
-      {/* Navigation Panel */}
-
-      {!trashMode && (
-        <div className="flex justify-between gap-4 mb-12">
-          <div className="flex">
-            <Button 
-              className="flex cursor-pointer items-center gap-2 border border-[var(--border-light)] text-gray-900 px-4 py-2 shadow-sm rounded-md"
-              onClick={() => setShowFolderModal(true)}
-            >
-              <FolderPlus size={16} strokeWidth={1.5} className="text-gray-900" /> Add folder
-            </Button>
-          </div>
-          <div className="flex gap-2">
-            <div className="relative w-75 h-9">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
-              <Input
-                type="text"
-                variant="shadow"
-                placeholder={t('interface.searchPlaceholderProjects', 'Search...')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 placeholder:text-[#71717A] placeholder:text-sm"
-              />
-            </div>
-            <div 
-              className="flex items-center px-3 h-9 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
-              onClick={() => {
-                setSortBy('created');
-                setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
-              }}
-              title="Sort by creation date"
-            >
-              <ArrowDownUp size={16} className="text-[#71717A]" />
-            </div>
-            <div className="flex items-center gap-2 -mt-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    type="button"
-                    variant="sort" 
-                    className="flex border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.1328 9.03369C11.1811 9.03369 12.0569 9.77835 12.2568 10.7681L12.3438 11.1997L12.2568 11.6313C12.0569 12.6211 11.1812 13.3667 10.1328 13.3667C9.08455 13.3666 8.20964 12.621 8.00977 11.6313L7.92188 11.1997L8.00977 10.7681C8.20972 9.77847 9.08462 9.03382 10.1328 9.03369ZM10.1328 9.1001C8.97322 9.10024 8.03334 10.0401 8.0332 11.1997C8.0332 12.3594 8.97312 13.3002 10.1328 13.3003C11.2926 13.3003 12.2334 12.3595 12.2334 11.1997C12.2333 10.04 11.2925 9.1001 10.1328 9.1001ZM1.59961 11.1665H7.4707L7.80566 11.1997L7.4707 11.2329H1.59961C1.58129 11.2328 1.56641 11.2181 1.56641 11.1997C1.56655 11.1815 1.58138 11.1666 1.59961 11.1665ZM12.7959 11.1665H14.3994C14.4177 11.1665 14.4325 11.1815 14.4326 11.1997C14.4326 11.2181 14.4178 11.2329 14.3994 11.2329H12.7959L12.46 11.1997L12.7959 11.1665ZM5.86621 2.6333C6.91458 2.6333 7.79034 3.37885 7.99023 4.36865L8.07617 4.79932L7.99023 5.23193C7.79027 6.22164 6.91452 6.96631 5.86621 6.96631C4.81796 6.96622 3.94211 6.22162 3.74219 5.23193L3.65527 4.79932L3.74219 4.36865C3.94207 3.37891 4.81792 2.63339 5.86621 2.6333ZM5.86621 2.69971C4.7065 2.69981 3.7666 3.64056 3.7666 4.80029C3.76678 5.95988 4.70661 6.8998 5.86621 6.8999C7.0259 6.8999 7.96662 5.95994 7.9668 4.80029C7.9668 3.64049 7.02601 2.69971 5.86621 2.69971ZM1.59961 4.76709H3.2041L3.53906 4.79932L3.2041 4.8335H1.59961C1.58137 4.83343 1.56658 4.81851 1.56641 4.80029C1.56641 4.78193 1.58126 4.76716 1.59961 4.76709ZM8.5293 4.76709H14.3994C14.4178 4.76709 14.4326 4.78191 14.4326 4.80029C14.4324 4.81852 14.4177 4.8335 14.3994 4.8335H8.5293L8.19238 4.79932L8.5293 4.76709Z" fill="#09090B" stroke="#18181B"/>
-                    </svg>
-                    {contentTypeFilterLabels[contentTypeFilter] || contentTypeFilter}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 bg-white rounded-lg shadow-lg border border-[#E4E4E7]">
-                  <DropdownMenuLabel className="px-3 py-2 border-b border-[#E4E4E7] bg-white">
-                    <p className="font-semibold text-sm text-gray-900">
-                      {t("interface.filterBy", "Filter by")}
-                    </p>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="border-[#E4E4E7] text-[#E4E4E7] bg-[#E4E4E7]" />
-                  {contentTypeFilterKeys.map((filterKey) => {
-                    const Icon = contentTypeFilterIcons[filterKey];
-                    const isSelected = contentTypeFilter === filterKey;
-                    const filterLabel = contentTypeFilterLabels[filterKey];
-                    return (
-                      <DropdownMenuItem
-                        key={filterKey}
-                        onClick={() => setContentTypeFilter(filterKey)}
-                        className={`flex items-center justify-between px-2 py-2 text-sm transition-colors bg-white ${
-                          isSelected 
-                            ? "!bg-[#CCDBFC] text-[#0F58F9] font-medium" 
-                            : "text-gray-900 hover:bg-gray-50"
-                        }`}
-                      >
-                        <div className={`flex items-center gap-3 ${isSelected ? "text-[#0F58F9]" : "text-gray-900"}`}>
-                          <Icon 
-                            size={16} 
-                            stroke={isSelected ? "#3366FF" : "#09090B"}
-                            className={isSelected ? "text-[#3366FF]" : "text-gray-900"} 
-                            strokeWidth={1.5}
-                          />
-                          <span className={isSelected ? "text-[#3366FF]" : "text-gray-900"}>{filterLabel}</span>
-                        </div>
-                        {isSelected && (
-                          <Check size={16} className="text-[#3366FF]" />
-                        )}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Content Type Filter - only show in list view */}
-              {/* {viewMode === "list" && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="columns"
-                    className="flex items-center gap-2 text-sm font-semibold"
-                  >
-                      <ListFilter size={16} className="text-gray-800" />
-                      {contentTypeFilter}
-                    <ChevronDown size={14} className="text-gray-600" />
-                  </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-48">
-                    <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
-                      <p className="font-semibold text-sm text-gray-900">
-                        {t("interface.filterBy", "Filter by")}
-                      </p>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {contentTypeFilters.map((filter) => {
-                      const Icon = contentTypeFilterIcons[filter];
-                      return (
-                        <DropdownMenuItem
-                          key={filter}
-                          onClick={() => setContentTypeFilter(filter)}
-                          className={`flex items-center gap-2 px-3 py-2 text-sm ${
-                            contentTypeFilter === filter 
-                              ? "bg-blue-50 text-blue-700 font-semibold" 
-                              : "text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          <Icon size={16} />
-                          {filter}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )} */}
-
-              {/* PDF Download Button - only show in list view */}
-              {/* {viewMode === "list" && (
-                <Button
-                  onClick={handlePdfDownload}
-                  variant="download"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
-                  title={t(
-                    "interface.downloadPDF",
-                    "Download projects list as PDF"
-                  )}
-                >
-                  <ArrowDownToLine size={16} />
-                  {t("common.downloadPdf", "Download PDF")}
-                </Button>
-              )} */}
-
-              <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
-                >
-                  <LayoutGrid strokeWidth={1} className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
-                >
-                  <List strokeWidth={1.5} className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {toolbarPlacement !== 'external' && navigationPanel}
 
       {/* Folders Section - Only show in grid view mode */}
       {!trashMode && folders.length > 0 && viewMode === "grid" && (
@@ -4221,6 +4215,9 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                 folderId={folderId}
                 t={t}
                 language={language}
+                selectionMode={selectionMode}
+                isSelected={selectedProjects.has(p.id)}
+                onToggleSelect={toggleProjectSelection}
               />
             ))}
           </div>
@@ -4396,20 +4393,35 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
 
                   if (row.type === 'project') {
                     const p = (row as { type: 'project'; project: Project }).project;
+                    const isProjectSelected = selectedProjects.has(p.id);
+                    const modalStateNow = getModalState();
                     return (
                       <TableRow
                         key={p.id}
-                        className={`hover:bg-gray-50 transition group ${
-                          !getModalState()
-                            ? "cursor-grab active:cursor-grabbing"
-                            : "cursor-default"
+                        className={`${isSelectMode ? (isProjectSelected ? "bg-blue-50 border-l-4 border-blue-500" : "hover:bg-blue-50") : "hover:bg-gray-50"} transition group ${
+                          isSelectMode
+                            ? "cursor-pointer"
+                            : (!modalStateNow
+                                ? "cursor-grab active:cursor-grabbing"
+                                : "cursor-default")
                         } ${
                           dragOverIndex === index
                             ? "bg-blue-50 border-t-2 border-blue-300"
                             : ""
                         } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-                        draggable={!trashMode && !getModalState()}
+                        draggable={!trashMode && !modalStateNow && !isSelectMode}
+                        onClick={(e) => {
+                          if (isSelectMode) {
+                            e.preventDefault();
+                            toggleProjectSelection(p.id);
+                          }
+                        }}
                         onDragStart={(e) => {
+                          if (isSelectMode) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return;
+                          }
                           if (getModalState()) {
                             e.preventDefault();
                             e.stopPropagation();
@@ -4418,6 +4430,10 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           handleDragStart(e, p, "project");
                         }}
                         onDragOver={(e) => {
+                          if (isSelectMode) {
+                            e.preventDefault();
+                            return;
+                          }
                           if (getModalState()) {
                             e.preventDefault();
                             return;
@@ -4425,6 +4441,10 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           handleDragOver(e, index);
                         }}
                         onDragLeave={(e) => {
+                          if (isSelectMode) {
+                            e.preventDefault();
+                            return;
+                          }
                           if (getModalState()) {
                             e.preventDefault();
                             return;
@@ -4432,6 +4452,10 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           handleDragLeave(e);
                         }}
                         onDrop={(e) => {
+                          if (isSelectMode) {
+                            e.preventDefault();
+                            return;
+                          }
                           if (getModalState()) {
                             e.preventDefault();
                             return;
@@ -4439,6 +4463,10 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           handleDrop(e, index);
                         }}
                         onDragEnd={(e) => {
+                          if (isSelectMode) {
+                            e.preventDefault();
+                            return;
+                          }
                           if (getModalState()) {
                             e.preventDefault();
                             return;
@@ -4480,13 +4508,17 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                               <DynamicText
                                 text={p.title}
                                 columnWidthPercent={columnWidths.title}
-                                href={trashMode ? "#" : (
-                                  p.designMicroproductType === "Video" 
-                                    ? `/projects-2/view/${p.id}`
-                                    : (p.designMicroproductType === "Training Plan"
-                                      ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
-                                      : `/projects/view/${p.id}`)
-                                )}
+                                href={
+                                  isSelectMode
+                                    ? undefined
+                                    : (trashMode ? "#" : (
+                                        p.designMicroproductType === "Video" 
+                                          ? `/projects-2/view/${p.id}`
+                                          : (p.designMicroproductType === "Training Plan"
+                                            ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
+                                            : `/projects/view/${p.id}`)
+                                      ))
+                                }
                                 title={p.title}
                               />
                             </span>
