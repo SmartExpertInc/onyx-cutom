@@ -883,7 +883,6 @@ interface ProjectsTableProps {
   auditMode?: boolean;
   selectionMode?: 'default' | 'select';
   onSelectionChange?: (projectIds: number[], projects: Project[]) => void;
-  externalSelectedProjectIds?: number[];
 }
 
 interface ColumnVisibility {
@@ -2182,7 +2181,6 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   auditMode = false,
   selectionMode = 'default',
   onSelectionChange,
-  externalSelectedProjectIds,
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
