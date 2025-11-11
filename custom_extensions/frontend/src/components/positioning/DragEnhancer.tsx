@@ -1,16 +1,10 @@
 // components/positioning/DragEnhancer.tsx
-// Adds drag-and-drop functionality to existing template elements using @dnd-kit/core
+// Adds drag-and-drop functionality to existing template elements
 
 'use client';
 
-import React, { useLayoutEffect, useRef, useCallback, useState } from 'react';
-import {
-  DndContext,
-  MouseSensor,
-  useSensor,
-  useSensors,
-  PointerActivationConstraint,
-} from '@dnd-kit/core';
+import React, { useLayoutEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 
 interface DragEnhancerProps {
   isEnabled: boolean;
@@ -23,23 +17,11 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
   isEnabled,
   slideId,
   savedPositions,
-  onPositionChange,
+  onPositionChange
 }) => {
   const enhancerRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const suppressClicksUntilRef = useRef<number>(0);
-
-  // Custom activation constraint: delay and threshold to allow inline editing
-  const activationConstraint: PointerActivationConstraint = {
-    delay: 250, // delay before starting drag on hold
-    tolerance: 5, // px movement threshold
-  };
-
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint,
-  });
-
-  const sensors = useSensors(mouseSensor);
 
   useLayoutEffect(() => {
     if (!isEnabled || !enhancerRef.current) return;
@@ -66,7 +48,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       htmlElement.addEventListener('mouseenter', handleMouseEnter);
       htmlElement.addEventListener('mouseleave', handleMouseLeave);
 
-      // Position state - Don't apply position: relative unless actually dragging
+      // Position state - FIXED: Don't apply position: relative unless actually dragging
       const savedPos = savedPositions?.[elementId] || dragStateRef.current.get(elementId) || { x: 0, y: 0 };
       let currentX = savedPos.x;
       let currentY = savedPos.y;
@@ -150,44 +132,46 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return;
         }
 
-        // Get slide canvas coordinates instead of viewport coordinates
+        // 🔧 CRITICAL FIX: Get slide canvas coordinates instead of viewport coordinates
         const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
         const canvasRect = slideCanvas.getBoundingClientRect();
-
+        
+        // 📐 CANVAS DIMENSION LOGGING
         console.log('📐 [CANVAS_DIMENSIONS] Drag started on canvas');
         console.log('  🖼️ Canvas Element:', slideCanvas.tagName, slideCanvas.className);
         console.log('  📏 Canvas Dimensions:', {
           width: canvasRect.width,
           height: canvasRect.height,
           left: canvasRect.left,
-          top: canvasRect.top,
+          top: canvasRect.top
         });
         console.log('  📍 Mouse Position (viewport):', {
           clientX: e.clientX,
-          clientY: e.clientY,
+          clientY: e.clientY
         });
-
+        
         isMouseDown = true;
         dragDistance = 0;
         startPageX = e.clientX;
         startPageY = e.clientY;
-
+        
         // Calculate coordinates relative to slide canvas, not viewport
         const canvasX = e.clientX - canvasRect.left;
         const canvasY = e.clientY - canvasRect.top;
         startOffsetX = canvasX - currentX;
         startOffsetY = canvasY - currentY;
-
+        
         console.log('  🎯 Canvas-Relative Position:', {
           canvasX: canvasX.toFixed(2),
-          canvasY: canvasY.toFixed(2),
+          canvasY: canvasY.toFixed(2)
         });
 
         // Delay starting drag to give inline editing a chance on quick clicks
         clearDragTimeout();
         dragTimeoutId = window.setTimeout(() => {
-          const dx = Math.abs(startPageX - e.clientX);
-          const dy = Math.abs(startPageY - e.clientY);
+          // Only start drag if user has moved past threshold by now
+          const dx = Math.abs((startPageX) - e.clientX);
+          const dy = Math.abs((startPageY) - e.clientY);
           if ((dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) && isMouseDown) {
             startDrag(e);
           }
@@ -197,12 +181,12 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isMouseDown) return;
 
-        // Calculate coordinates relative to slide canvas
+        // 🔧 CRITICAL FIX: Calculate coordinates relative to slide canvas
         const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
         const canvasRect = slideCanvas.getBoundingClientRect();
         const canvasX = e.clientX - canvasRect.left;
         const canvasY = e.clientY - canvasRect.top;
-
+        
         const newX = canvasX - startOffsetX;
         const newY = canvasY - startOffsetY;
         const dx = Math.abs(e.clientX - startPageX);
@@ -219,6 +203,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           currentX = newX;
           currentY = newY;
           htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+          // Position is already set to relative when dragging started
           dragStateRef.current.set(elementId, { x: currentX, y: currentY });
           e.stopPropagation();
         }
@@ -233,6 +218,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
         if (isDragging) {
           isDragging = false;
+          // FIXED: Reset position to original value to avoid layout issues
           htmlElement.style.position = '';
           htmlElement.style.zIndex = '';
           htmlElement.style.userSelect = '';
@@ -244,8 +230,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             htmlElement.removeAttribute('data-just-dragged');
           }, 400);
           suppressClicksUntilRef.current = Date.now() + 400;
-
-          // Create a more targeted click suppression
+          
+          // Create a more targeted click suppression that only affects draggable elements
           const suppressNextClick = (ev: MouseEvent) => {
             const target = ev.target as HTMLElement;
             // Don't suppress clicks on text elements or elements inside wysiwyg editors
@@ -258,8 +244,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
                                  target.tagName === 'DIV' ||
                                  target.closest('.wysiwyg-editor') ||
                                  target.classList.contains('editable-text') ||
+                                 target.closest('.editable-text') ||
+                                 target.classList.contains('editable-text') ||
                                  target.closest('.editable-text');
-
+            
             if (isTextElement) {
               return; // Allow text editing
             }
@@ -277,10 +265,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             document.removeEventListener('click', suppressNextClick, true);
           }, 450);
 
-          // Comprehensive drag logging
+          // 🔍 COMPREHENSIVE DRAG LOGGING
           const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
           const finalCanvasRect = slideCanvas.getBoundingClientRect();
-
+          
           console.log('🎯 [DRAG_COMPLETE] Element drag finished');
           console.log('  📍 Element ID:', elementId);
           console.log('  📊 Final Position:', { x: currentX, y: currentY });
@@ -289,17 +277,20 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           console.log('  📐 Canvas Dimensions at completion:', {
             width: finalCanvasRect.width,
             height: finalCanvasRect.height,
-            aspectRatio: (finalCanvasRect.width / finalCanvasRect.height).toFixed(3),
+            aspectRatio: (finalCanvasRect.width / finalCanvasRect.height).toFixed(3)
           });
           console.log('  🔢 Position State:', {
             transform: htmlElement.style.transform,
-            savedInState: dragStateRef.current.get(elementId),
+            savedInState: dragStateRef.current.get(elementId)
           });
           console.log('  ➡️ Calling onPositionChange callback...');
 
           if (onPositionChange) onPositionChange(elementId, { x: currentX, y: currentY });
           return;
         }
+
+        // Not dragging -> treat as normal click (inline editing will handle it)
+        // Do not prevent default; allow click to propagate
       };
 
       htmlElement.addEventListener('mousedown', handleMouseDown);
@@ -316,6 +307,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.cursor = '';
         htmlElement.style.boxShadow = '';
         htmlElement.style.transform = '';
+        // FIXED: Reset position to avoid layout issues
         htmlElement.style.position = '';
         htmlElement.classList.remove('dragging');
         htmlElement.removeAttribute('data-just-dragged');
@@ -334,11 +326,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
   if (!isEnabled) return null;
 
-  // Wrap in DndContext to provide sensor context (even though we handle events manually)
   return (
-    <DndContext sensors={sensors}>
-      <div ref={enhancerRef} className="absolute inset-0 pointer-events-none z-20" />
-    </DndContext>
+    <div ref={enhancerRef} className="absolute inset-0 pointer-events-none z-20" />
   );
 };
 
