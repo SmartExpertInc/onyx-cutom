@@ -43,7 +43,14 @@ type UploadProgress = {
   progress: number; // 0-100
 };
 
-type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string; startedAtMs?: number; durationMs?: number }>;
+type IndexingState = Record<string, { 
+  status: 'pending' | 'done' | 'unknown' | 'success' | 'in_progress'; 
+  etaPct: number; 
+  onyxFileId?: number | string; 
+  startedAtMs?: number; 
+  durationMs?: number;
+  estimatedTokens?: number;
+}>;
 
 interface UserConnector {
   id: number; // This is the cc_pair_id (not connector_id) for management API calls
@@ -201,6 +208,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
 
     if (pathsNeedingPolling.length === 0) return;
 
+    const TOKENS_PER_SECOND = 4; // Processing speed: 4 tokens/sec
+
     const pollProgress = async () => {
       try {
         const params = new URLSearchParams();
@@ -218,24 +227,54 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
         
         setIndexing(prev => {
           const out: IndexingState = { ...prev };
+          const now = Date.now();
           
           for (const p of Object.keys(out)) {
             const progress = progressData[p];
-            if (!progress) continue;
+            const oldState = out[p];
             
-            // Update status and progress
-            if (progress.is_complete || progress.status === 'success') {
-              out[p] = { ...out[p], status: 'done', etaPct: 100 };
-            } else {
-              // Calculate progress based on tokens
-              const etaPct = progress.estimated_tokens 
-                ? Math.min(90, (progress.total_docs_indexed / Math.max(1, progress.estimated_tokens / 1000)) * 100)
-                : Math.min(90, (out[p]?.etaPct || 10) + 10);
+            // If complete, set to 100% and done
+            if (progress && (progress.is_complete || progress.status === 'success')) {
+              out[p] = { ...oldState, status: 'done', etaPct: 100 };
+              continue;
+            }
+            
+            // Calculate time-based progress (10% to 90%)
+            if (oldState.startedAtMs) {
+              const elapsedMs = now - oldState.startedAtMs;
+              const elapsedSeconds = elapsedMs / 1000;
+              
+              // Get estimated tokens from progress data or stored state
+              const estimatedTokens = progress?.estimated_tokens || oldState.estimatedTokens || 5000;
+              
+              // Update stored estimated tokens if we got new data
+              if (progress?.estimated_tokens) {
+                out[p] = { ...oldState, estimatedTokens: progress.estimated_tokens };
+              }
+              
+              // Calculate estimated duration (tokens / tokens per second)
+              const estimatedDurationSeconds = estimatedTokens / TOKENS_PER_SECOND;
+              
+              // Calculate progress: 10% at start, grows to 90% at estimated completion
+              // Formula: 10 + (elapsedSeconds / estimatedDuration) * 80
+              const timeBasedProgress = 10 + Math.min(80, (elapsedSeconds / estimatedDurationSeconds) * 80);
+              
+              // Use the higher of time-based or current progress, cap at 90%
+              const newProgress = Math.min(90, Math.max(oldState.etaPct, timeBasedProgress));
               
               out[p] = { 
-                ...out[p], 
-                status: progress.status || 'pending',
-                etaPct
+                ...oldState,
+                etaPct: newProgress,
+                status: progress?.status || oldState.status || 'pending',
+                estimatedTokens: progress?.estimated_tokens || oldState.estimatedTokens
+              };
+            } else if (progress) {
+              // First time getting progress data, initialize with time tracking
+              out[p] = {
+                ...oldState,
+                startedAtMs: now,
+                estimatedTokens: progress.estimated_tokens || 5000,
+                status: progress.status || 'pending'
               };
             }
           }
@@ -367,7 +406,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
             status: 'pending',
             etaPct: 10,
             onyxFileId: r.onyx_file_id,
-            startedAtMs: Date.now()
+            startedAtMs: Date.now(),
+            estimatedTokens: undefined // Will be filled by polling
           };
           pathsToTrack.push(p);
         }
@@ -382,7 +422,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
           next[p] = {
             status: 'pending',
             etaPct: 10,
-            startedAtMs: Date.now()
+            startedAtMs: Date.now(),
+            estimatedTokens: undefined // Will be filled by polling
           };
         }
         console.log('[SmartDriveConnectors] Setting fallback indexing state:', next);
