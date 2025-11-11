@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video, SlidersHorizontal, ListMinus, FileStack, Loader2 } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video, SlidersHorizontal, ListMinus, FileStack } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ManageAddonsModal from '../AddOnsModal';
@@ -20,6 +20,7 @@ import { Progress } from '../ui/progress';
 import { EmptySmartDrive } from '../EmptySmartDrive';
 import { EmptyConnectors } from '../EmptyConnectors';
 import { KnowledgeBaseProduct } from '@/lib/knowledgeBaseSelection';
+import MyProductsTable from '../MyProductsTable';
 
 interface ConnectorConfig {
   id: string;
@@ -87,29 +88,6 @@ const getActualConnectorStatus = (connectorStatus: any): string => {
   }
 };
 
-const computeProductTitleFromApi = (raw: any): string => {
-  try {
-    const explicitName = raw?.projectName || raw?.microproduct_name;
-    const fallbackContentTitle =
-      raw?.microproduct_content?.lessonTitle ||
-      raw?.microproduct_content?.title ||
-      raw?.microproduct_content?.quizTitle ||
-      raw?.microproduct_content?.name;
-    const candidates = [explicitName, fallbackContentTitle]
-      .map((value) => (typeof value === 'string' ? value.trim() : ''))
-      .filter((value) => value.length > 0);
-    if (candidates.length > 0) {
-      return candidates[0];
-    }
-    if (typeof raw?.design_microproduct_type === 'string' && raw.design_microproduct_type.length > 0) {
-      return raw.design_microproduct_type;
-    }
-  } catch (error) {
-    console.warn('[SmartDriveConnectors] Failed to compute product title:', error);
-  }
-  return raw?.projectName || `Product ${raw?.id ?? ''}` || 'Untitled product';
-};
-
 const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   className = '',
   mode = 'full',
@@ -148,11 +126,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   const [hasFiles, setHasFiles] = useState(false);
   const [selectedConnectorSourcesState, setSelectedConnectorSourcesState] = useState<string[]>(selectedConnectorSources || []);
   const allowConnectorSelection = selectionMode === 'connectors';
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [productsError, setProductsError] = useState<string | null>(null);
-  const [products, setProducts] = useState<Array<KnowledgeBaseProduct & { createdAt?: string; thumbnail?: string }>>([]);
-  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
-  const productsLoadedRef = useRef(false);
 
   const getConnectorsBySource = useCallback((source: string) => {
     return userConnectors.filter(connector => connector.source === source);
@@ -176,57 +149,25 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     }
   }, [showMyProductsTab, activeTab]);
 
-  useEffect(() => {
-    if (!showMyProductsTab) {
-      setSelectedProductIds([]);
-      return;
-    }
-    if (Array.isArray(selectedProducts)) {
-      setSelectedProductIds(selectedProducts.map((product) => product.id));
-    } else {
-      setSelectedProductIds([]);
-    }
-  }, [selectedProducts, showMyProductsTab]);
-
-  const toggleProductSelection = useCallback(
-    (productId: number) => {
-      setSelectedProductIds((prev) => {
-        const exists = prev.includes(productId);
-        const next = exists ? prev.filter((id) => id !== productId) : [...prev, productId];
-        return next;
-      });
+  const handleMyProductsSelection = useCallback(
+    (projectIds: number[], projects: any[]) => {
+      if (!showMyProductsTab) return;
+      const unique = projectIds.reduce<KnowledgeBaseProduct[]>((acc, id) => {
+        if (!Number.isFinite(id)) return acc;
+        if (acc.some((product) => product.id === id)) return acc;
+        const match = projects.find((project: any) => project?.id === id);
+        if (!match) return acc;
+        acc.push({
+          id,
+          title: match?.title || match?.projectName || `Product ${id}`,
+          type: match?.designMicroproductType || match?.design_microproduct_type,
+        });
+        return acc;
+      }, []);
+      onProductSelectionChange?.(unique);
     },
-    []
+    [onProductSelectionChange, showMyProductsTab]
   );
-  const handleProductSelectionChange = useCallback(
-    (nextSelected: KnowledgeBaseProduct[]) => {
-      onProductSelectionChange?.(nextSelected);
-    },
-    [onProductSelectionChange]
-  );
-  useEffect(() => {
-    if (!showMyProductsTab) return;
-    if (selectedProductIds.length === 0) {
-      handleProductSelectionChange([]);
-      return;
-    }
-    const matchedProducts = selectedProductIds
-      .map((id) => products.find((product) => product.id === id))
-      .filter((product): product is KnowledgeBaseProduct & { createdAt?: string; thumbnail?: string } => !!product);
-
-    if (matchedProducts.length === 0) {
-      if (productsLoading || products.length === 0) {
-        return;
-      }
-    }
-
-    const selected = matchedProducts.map((product) => ({
-      id: product.id,
-      title: product.title,
-      type: product.type,
-    }));
-    handleProductSelectionChange(selected);
-  }, [selectedProductIds, products, productsLoading, showMyProductsTab, handleProductSelectionChange]);
   
   // Handle file selection from SmartDriveBrowser
   const handleFilesSelected = useCallback((filePaths: string[]) => {
@@ -255,85 +196,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     });
   }, [allowConnectorSelection, getConnectorsBySource, onConnectorSelectionChange]);
 
-  const fetchProducts = useCallback(async () => {
-    if (!showMyProductsTab || productsLoadedRef.current) {
-      return;
-    }
-    productsLoadedRef.current = true;
-    setProductsLoading(true);
-    setProductsError(null);
-    try {
-      const CUSTOM_BACKEND_URL =
-        process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-      if (process.env.NODE_ENV === 'development') {
-        headers['X-Dev-Onyx-User-ID'] = headers['X-Dev-Onyx-User-ID'] || 'dummy-onyx-user-id-for-testing';
-      }
-
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects`, {
-        credentials: 'same-origin',
-        headers,
-        cache: 'no-store',
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          setProductsError('You need to be signed in to view products.');
-          return;
-        }
-        throw new Error(`Failed to load products (${response.status})`);
-      }
-
-      const rawData = await response.json();
-      const arrayData: any[] = Array.isArray(rawData)
-        ? rawData
-        : Array.isArray(rawData?.projects)
-        ? rawData.projects
-        : [];
-
-      const prepared = arrayData.map((raw: any) => {
-        const numericId =
-          typeof raw?.id === 'number'
-            ? raw.id
-            : typeof raw?.id === 'string'
-            ? Number.parseInt(raw.id, 10)
-            : undefined;
-
-        return {
-          id: Number.isFinite(numericId) ? numericId : undefined,
-          title: computeProductTitleFromApi(raw),
-          type: raw?.design_microproduct_type,
-          createdAt: raw?.created_at,
-          thumbnail: raw?.imageUrl,
-        };
-      });
-
-      console.log('[SmartDriveConnectors] Loaded products:', prepared.length);
-
-      setProducts(
-        prepared.filter(
-          (product) => typeof product.id === 'number' && Number.isFinite(product.id)
-        )
-      );
-    } catch (error: any) {
-      console.error('[SmartDriveConnectors] Failed to load products:', error);
-      setProductsError(error?.message || 'Failed to load products');
-      productsLoadedRef.current = false;
-    } finally {
-      setProductsLoading(false);
-    }
-  }, [showMyProductsTab]);
-
-  useEffect(() => {
-    if (activeTab === 'my-products') {
-      fetchProducts().catch((error) => {
-        console.error('[SmartDriveConnectors] Unhandled product fetch error:', error);
-      });
-    }
-  }, [activeTab, fetchProducts]);
-  
   // Handle files loaded callback from SmartDriveBrowser
   const handleFilesLoaded = useCallback((filesExist: boolean) => {
     setHasFiles(filesExist);
@@ -1644,80 +1506,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       )}
 
       {showMyProductsTab && activeTab === ('my-products' as SmartDriveTab) && (
-        <div className={isSelectMode ? 'mt-6' : ''}>
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-4 flex items-center justify-between border-b border-gray-100">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">My products</h3>
-                <p className="text-sm text-gray-500">
-                  Choose products you want to include alongside Smart Drive content.
-                </p>
-              </div>
-              <div className="text-sm text-gray-500">
-                {selectedProductIds.length} selected
-              </div>
-            </div>
-            <div className="p-4">
-              {productsLoading ? (
-                <div className="flex items-center justify-center py-12 text-gray-500">
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  Loading products...
-                </div>
-              ) : productsError ? (
-                <div className="py-12 text-center">
-                  <p className="text-sm text-gray-600 mb-4">{productsError}</p>
-                  <Button variant="outline" onClick={() => { productsLoadedRef.current = false; fetchProducts().catch(() => undefined); }}>
-                    Try again
-                  </Button>
-                </div>
-              ) : products.length === 0 ? (
-                <div className="py-12 text-center text-sm text-gray-500">
-                  No products found yet. Create products to import them here.
-                </div>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {products.map((product) => {
-                    const isSelected = selectedProductIds.includes(product.id);
-                    return (
-                      <button
-                        key={product.id}
-                        type="button"
-                        onClick={() => toggleProductSelection(product.id)}
-                        className={`group border rounded-lg p-4 text-left transition-colors ${
-                          isSelected ? 'border-[#719AF5] bg-[#EFF4FF]' : 'border-gray-200 hover:border-[#719AF5]'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
-                              {product.title}
-                            </h4>
-                            {product.type && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {product.type}
-                              </p>
-                            )}
-                          </div>
-                          <div
-                            className={`w-5 h-5 flex items-center justify-center rounded-full border ${
-                              isSelected
-                                ? 'bg-[#719AF5] border-[#719AF5] text-white'
-                                : 'border-gray-300 text-transparent group-hover:text-gray-300'
-                            }`}
-                          >
-                            <Check className="w-3 h-3" />
-                          </div>
-                        </div>
-                        {product.createdAt && (
-                          <p className="text-xs text-gray-400 mt-3">
-                            Created {new Date(product.createdAt).toLocaleDateString()}
-                          </p>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+        <div className="flex flex-col h-full">
+          <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div className="h-full overflow-auto">
+              <MyProductsTable
+                selectionMode="select"
+                onSelectionChange={handleMyProductsSelection}
+                externalSelectedProjectIds={Array.isArray(selectedProducts) ? selectedProducts.map((product) => product.id) : []}
+              />
             </div>
           </div>
         </div>
