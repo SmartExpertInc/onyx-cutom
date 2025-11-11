@@ -19,8 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Progress } from '../ui/progress';
 import { EmptySmartDrive } from '../EmptySmartDrive';
 import { EmptyConnectors } from '../EmptyConnectors';
-import MyProductsPicker, { PickerProduct } from './MyProductsPicker';
 import { KnowledgeBaseProduct } from '@/lib/knowledgeBaseSelection';
+import MyProductsModalContent, { ModalProduct } from './MyProductsModalContent';
 
 interface ConnectorConfig {
   id: string;
@@ -143,7 +143,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     onTabChange?.(activeTab);
   }, [activeTab, onTabChange]);
   const handleProductsSelectionChange = useCallback(
-    (ids: number[], products: PickerProduct[]) => {
+    (ids: number[], products: ModalProduct[]) => {
       setSelectedProductIds(ids);
       if (!onProductSelectionChange) return;
       const mappedProducts: KnowledgeBaseProduct[] = products.map((product) => ({
@@ -1492,10 +1492,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       {enableMyProductsTab && (activeTab as TabKey) === MY_PRODUCTS_TAB && (
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
-            <MyProductsPicker
-              selectedIds={selectedProductIds}
-              onSelectionChange={handleProductsSelectionChange}
-            />
+            <MyProductsModalContent onSelectionChange={handleProductsSelectionChange} />
             {selectedProductIds.length === 0 && (
               <p className="mt-4 text-sm text-gray-500">
                 Select products to import into your knowledge base.
