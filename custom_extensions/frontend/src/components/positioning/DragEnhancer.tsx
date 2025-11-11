@@ -99,7 +99,15 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return; // allow inline editing
         }
 
+        // If a child draggable exists under the cursor, ignore this (parent) draggable
+        const closestDraggable = targetElement.closest('[data-draggable="true"]');
+        if (closestDraggable && closestDraggable !== htmlElement) {
+          return;
+        }
+
         // Check if target is text content that should be editable
+        // BUT only if it's NOT inside this draggable element
+        // If it's inside this draggable element (or is the draggable element itself), allow dragging
         const isTextElement = targetElement.tagName === 'P' || 
                              targetElement.tagName === 'H1' || 
                              targetElement.tagName === 'H2' || 
@@ -109,14 +117,11 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
                              targetElement.classList.contains('editable-text') ||
                              targetElement.closest('.editable-text');
         
-        if (isTextElement) {
-          return; // allow text editing
-        }
-
-        // If a child draggable exists under the cursor, ignore this (parent) draggable
-        const closestDraggable = targetElement.closest('[data-draggable="true"]');
-        if (closestDraggable && closestDraggable !== htmlElement) {
-          return;
+        // Only prevent dragging if it's a text element AND it's NOT inside/part of this draggable element
+        // If the text element is inside this draggable element (or IS the draggable element), allow dragging
+        // contains() returns true if the element contains the target OR if the element is the target itself
+        if (isTextElement && !htmlElement.contains(targetElement)) {
+          return; // allow text editing only if not inside/part of draggable
         }
 
         // If we recently dragged something, suppress accidental subsequent drags/clicks
