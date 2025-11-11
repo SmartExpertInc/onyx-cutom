@@ -34,8 +34,6 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const [currentSteps, setCurrentSteps] = useState(() => (
     stepsProp && stepsProp.length ? stepsProp.map((step) => ({ ...step })) : [stepOne, stepTwo, stepThree]
   ));
-  const [currentLogoText, setCurrentLogoText] = useState(logoText || 'Your Logo');
-  const [currentLogoPath, setCurrentLogoPath] = useState(logoPath || '');
 
   useEffect(() => {
     const nextSteps = stepsProp && stepsProp.length ? stepsProp : [stepOne, stepTwo, stepThree];
@@ -45,14 +43,6 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   useEffect(() => {
     setCurrentPageNumber(pageNumber || '34');
   }, [pageNumber]);
-
-  useEffect(() => {
-    setCurrentLogoText(logoText || 'Your Logo');
-  }, [logoText]);
-
-  useEffect(() => {
-    setCurrentLogoPath(logoPath || '');
-  }, [logoPath]);
 
 
   const slideStyles: React.CSSProperties = {
@@ -155,19 +145,13 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
         zIndex: 10
       }}>
         <YourLogo
-          logoPath={currentLogoPath}
+          logoPath={logoPath}
           onLogoUploaded={(p) => {
-            setCurrentLogoPath(p);
             onUpdate && onUpdate({ logoPath: p });
           }}
           isEditable={isEditable}
           color="black"
-          text={currentLogoText}
-          onTextChange={(text) => {
-            const next = text || '';
-            setCurrentLogoText(next);
-            onUpdate && onUpdate({ logoText: next });
-          }}
+          text={logoText || 'Your Logo'}
           style={{ fontFamily: 'Inter, sans-serif !important', fontSize: '15px' }}
         />
       </div>
