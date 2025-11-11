@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, RotateCcw, Radio } from 'lucide-react';
 import { useVoice } from '@/contexts/VoiceContext';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -87,7 +87,7 @@ interface ElaiVoice {
   gender?: 'male' | 'female';
 }
 
-export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps) {
+export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps): JSX.Element | null {
   const { t } = useLanguage();
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
   const { defaultAvatar } = useAvatarDisplay();
@@ -295,43 +295,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
-    <>
-      {/* Custom CSS for range sliders */}
-      <style jsx>{`
-        .range-slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #FFFFFF;
-          cursor: pointer;
-          border: 2px solid #E0E0E0;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        
-        .range-slider::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #FFFFFF;
-          cursor: pointer;
-          border: 2px solid #E0E0E0;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        
-        .range-slider::-webkit-slider-track {
-          appearance: none;
-          background: transparent;
-        }
-        
-        .range-slider::-moz-range-track {
-          background: transparent;
-          border: none;
-        }
-      `}</style>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Blurry background overlay */}
       <div 
@@ -510,10 +478,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                     </div>
                 </div>
             </div>
-            </div>
+            )}
             
-            {/* Reset Button */}
-            {hasAnySelections && (
+            {/* Reset Button - Commented out until filtering is implemented */}
+            {/* {hasAnySelections && (
               <button
                 onClick={resetAllSelections}
                 className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
@@ -523,7 +491,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   <span className="text-sm font-medium text-gray-700">Reset all</span>
                 </div>
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -571,7 +539,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* White circle with radio wave icon */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#2C71F5' }}>
-                    <RadioWaveIcon size={20} className="text-[#2C71F5]" />
+                    <Radio size={20} className="text-[#2C71F5]" />
                   </div>
                   
                   {/* Text and badge */}
@@ -785,9 +753,6 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
           </div>
           </div>
-          </div>
-          </div>
-          </div>
         </div>
         </div>
 
@@ -862,6 +827,6 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         </div>
       </div>
     </div>
-    </>
+    </div>
   );
 }
