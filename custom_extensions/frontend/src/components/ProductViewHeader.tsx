@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProductViewHeader.tsx
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -27,6 +27,7 @@ interface ProductViewHeaderProps {
   setIsAuthorized?: (isAuthorized: boolean) => void;
   hideCloudAndArrowIndicators?: boolean;
   enableLinkViewButtons?: boolean;
+  createdAt?: string | Date | null;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
@@ -48,7 +49,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   isAuthorized = true,
   setIsAuthorized,
   hideCloudAndArrowIndicators = false,
-  enableLinkViewButtons = false
+  enableLinkViewButtons = false,
+  createdAt = null
 }) => {
 
   const [localIsAuthorized, setLocalIsAuthorized] = useState(isAuthorized);
@@ -88,7 +90,26 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isCourse = projectData?.component_name === 'TrainingPlanTable';
   const isPresentation = projectData?.component_name === 'SlideDeckDisplay';
   const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation);
-  
+
+  const getOrdinalSuffix = (day: number) => {
+    const j = day % 10;
+    const k = day % 100;
+    if (j === 1 && k !== 11) return 'st';
+    if (j === 2 && k !== 12) return 'nd';
+    if (j === 3 && k !== 13) return 'rd';
+    return 'th';
+  };
+
+  const formattedCreatedAt = useMemo(() => {
+    if (!createdAt) return null;
+    const dateObj = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
+    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return null;
+    const day = dateObj.getDate();
+    const month = dateObj.toLocaleString('en-US', { month: 'short' });
+    const year = dateObj.getFullYear();
+    return `${day}${getOrdinalSuffix(day)} ${month}, ${year}`;
+  }, [createdAt]);
+
   // Debug logging for PDF export
   console.log('🔍 ProductViewHeader Debug:', {
     componentName: projectData?.component_name,
@@ -151,28 +172,29 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </svg>
           </button>
           
-          <div className="flex items-center gap-2">
-            <h1 className="text-[#191D30] font-semibold text-[16px] leading-none">
-              {(() => {
-                const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
-                return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
-              })()}
-            </h1>
-            {!isVideoLesson && !hideCloudAndArrowIndicators && (
-              <>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[#191D30] font-semibold text-[16px] leading-none">
+                {(() => {
+                  const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+                  return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
+                })()}
+              </h1>
+              {!isVideoLesson && !hideCloudAndArrowIndicators && (
+                <>
+                  <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.7334 12.4172H2.91667C1.58415 12.4172 0.5 11.3331 0.5 10.0006C0.5 8.74958 1.4375 7.71589 2.68066 7.59609C2.75163 7.58926 2.81624 7.55247 2.8584 7.49502C2.90039 7.43757 2.91601 7.36497 2.9012 7.29531C2.59001 5.83031 3.37565 4.36286 4.77018 3.80573C6.13802 3.25316 7.70849 3.75202 8.50293 4.99209C8.56722 5.09268 8.6945 5.13418 8.80599 5.08942C10.023 4.60089 11.4458 5.21647 11.9348 6.42733C12.0541 6.72254 12.5211 6.54387 12.3984 6.2403C11.8352 4.84644 10.2445 4.09585 8.81103 4.55654C7.85726 3.23672 6.11247 2.725 4.58382 3.34186C3.04687 3.95579 2.14599 5.52252 2.36637 7.13629C1 7.39395 0 8.58145 0 10.0006C0 11.6088 1.30843 12.9172 2.91667 12.9172H9.73336C10.0486 12.9172 10.059 12.4172 9.7334 12.4172Z" fill="#71717A"/>
+                    <path d="M12.2497 7.08398C10.6414 7.08398 9.33301 8.39241 9.33301 10.0007C9.33301 11.6089 10.6414 12.9173 12.2497 12.9173C13.8579 12.9173 15.1663 11.6089 15.1663 10.0007C15.1663 8.39241 13.8579 7.08398 12.2497 7.08398ZM12.2497 12.4173C10.9172 12.4173 9.83301 11.3332 9.83301 10.0007C9.83301 8.66813 10.9172 7.58398 12.2497 7.58398C13.5822 7.58398 14.6663 8.66813 14.6663 10.0007C14.6663 11.3332 13.5822 12.4173 12.2497 12.4173Z" fill="#71717A"/>
+                    <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
+                  </svg>
+                </>
+              )}
+              {isOnePager && (
+                <>
                 <div className="h-6 w-px bg-gray-300 mx-2"></div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9.7334 12.4172H2.91667C1.58415 12.4172 0.5 11.3331 0.5 10.0006C0.5 8.74958 1.4375 7.71589 2.68066 7.59609C2.75163 7.58926 2.81624 7.55247 2.8584 7.49502C2.90039 7.43757 2.91601 7.36497 2.9012 7.29531C2.59001 5.83031 3.37565 4.36286 4.77018 3.80573C6.13802 3.25316 7.70849 3.75202 8.50293 4.99209C8.56722 5.09268 8.6945 5.13418 8.80599 5.08942C10.023 4.60089 11.4458 5.21647 11.9348 6.42733C12.0541 6.72254 12.5211 6.54387 12.3984 6.2403C11.8352 4.84644 10.2445 4.09585 8.81103 4.55654C7.85726 3.23672 6.11247 2.725 4.58382 3.34186C3.04687 3.95579 2.14599 5.52252 2.36637 7.13629C1 7.39395 0 8.58145 0 10.0006C0 11.6088 1.30843 12.9172 2.91667 12.9172H9.73336C10.0486 12.9172 10.059 12.4172 9.7334 12.4172Z" fill="#71717A"/>
-                  <path d="M12.2497 7.08398C10.6414 7.08398 9.33301 8.39241 9.33301 10.0007C9.33301 11.6089 10.6414 12.9173 12.2497 12.9173C13.8579 12.9173 15.1663 11.6089 15.1663 10.0007C15.1663 8.39241 13.8579 7.08398 12.2497 7.08398ZM12.2497 12.4173C10.9172 12.4173 9.83301 11.3332 9.83301 10.0007C9.83301 8.66813 10.9172 7.58398 12.2497 7.58398C13.5822 7.58398 14.6663 8.66813 14.6663 10.0007C14.6663 11.3332 13.5822 12.4173 12.2497 12.4173Z" fill="#71717A"/>
-                  <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
-                </svg>
-              </>
-            )}
-            {isOnePager && (
-              <>
-              <div className="h-6 w-px bg-gray-300 mx-2"></div>
-                <div className="flex items-center gap-2">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <div className="flex items-center gap-2">
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="0.5" y="0.5" width="14" height="14" rx="2" stroke="#4D4D4D"/>
                 <mask id="path-2-inside-1_1435_10944" fill="white">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5133 2.5C11.7784 2.5 11.9933 2.7149 11.9933 2.98V7.24667C11.9933 7.51177 11.7784 7.72667 11.5133 7.72667C11.2483 7.72667 11.0333 7.51177 11.0333 7.24667V4.13883L4.13882 11.0333H7.24667C7.51177 11.0333 7.72667 11.2483 7.72667 11.5133C7.72667 11.7784 7.51177 11.9933 7.24667 11.9933H2.98C2.85269 11.9933 2.7306 11.9428 2.64059 11.8528C2.55057 11.7627 2.5 11.6406 2.5 11.5133V7.24667C2.5 6.98157 2.7149 6.76667 2.98 6.76667C3.2451 6.76667 3.46 6.98157 3.46 7.24667V10.3545L10.3545 3.46H7.24667C6.98157 3.46 6.76667 3.2451 6.76667 2.98C6.76667 2.7149 6.98157 2.5 7.24667 2.5H11.5133Z"/>
@@ -181,29 +203,47 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 <path d="M11.0333 4.13883H12.0333V1.72462L10.3262 3.43172L11.0333 4.13883ZM4.13882 11.0333L3.43171 10.3262L1.7246 12.0333H4.13882V11.0333ZM3.46 10.3545H2.46V12.7687L4.16711 11.0616L3.46 10.3545ZM10.3545 3.46L11.0616 4.16711L12.7687 2.46H10.3545V3.46ZM11.5133 2.5V3.5C11.2262 3.5 10.9933 3.26723 10.9933 2.98H11.9933H12.9933C12.9933 2.16257 12.3307 1.5 11.5133 1.5V2.5ZM11.9933 2.98H10.9933V7.24667H11.9933H12.9933V2.98H11.9933ZM11.9933 7.24667H10.9933C10.9933 6.95944 11.2262 6.72667 11.5133 6.72667V7.72667V8.72667C12.3307 8.72667 12.9933 8.06409 12.9933 7.24667H11.9933ZM11.5133 7.72667V6.72667C11.8005 6.72667 12.0333 6.95944 12.0333 7.24667H11.0333H10.0333C10.0333 8.06409 10.696 8.72667 11.5133 8.72667V7.72667ZM11.0333 7.24667H12.0333V4.13883H11.0333H10.0333V7.24667H11.0333ZM11.0333 4.13883L10.3262 3.43172L3.43171 10.3262L4.13882 11.0333L4.84592 11.7405L11.7405 4.84593L11.0333 4.13883ZM4.13882 11.0333V12.0333H7.24667V11.0333V10.0333H4.13882V11.0333ZM7.24667 11.0333V12.0333C6.95944 12.0333 6.72667 11.8005 6.72667 11.5133H7.72667H8.72667C8.72667 10.696 8.06409 10.0333 7.24667 10.0333V11.0333ZM7.72667 11.5133H6.72667C6.72667 11.2262 6.95944 10.9933 7.24667 10.9933V11.9933V12.9933C8.06409 12.9933 8.72667 12.3307 8.72667 11.5133H7.72667ZM7.24667 11.9933V10.9933H2.98V11.9933V12.9933H7.24667V11.9933ZM2.98 11.9933V10.9933C3.11785 10.9933 3.25015 11.0481 3.34774 11.1457L2.64059 11.8528L1.93344 12.5598C2.21105 12.8375 2.58754 12.9933 2.98 12.9933V11.9933ZM2.64059 11.8528L3.34774 11.1457C3.44524 11.2432 3.5 11.3754 3.5 11.5133H2.5H1.5C1.5 11.9058 1.6559 12.2823 1.93344 12.5598L2.64059 11.8528ZM2.5 11.5133H3.5V7.24667H2.5H1.5V11.5133H2.5ZM2.5 7.24667H3.5C3.5 7.53385 3.26719 7.76667 2.98 7.76667V6.76667V5.76667C2.16262 5.76667 1.5 6.42928 1.5 7.24667H2.5ZM2.98 6.76667V7.76667C2.69281 7.76667 2.46 7.53385 2.46 7.24667H3.46H4.46C4.46 6.42928 3.79738 5.76667 2.98 5.76667V6.76667ZM3.46 7.24667H2.46V10.3545H3.46H4.46V7.24667H3.46ZM3.46 10.3545L4.16711 11.0616L11.0616 4.16711L10.3545 3.46L9.64741 2.75289L2.75289 9.64741L3.46 10.3545ZM10.3545 3.46V2.46H7.24667V3.46V4.46H10.3545V3.46ZM7.24667 3.46V2.46C7.53385 2.46 7.76667 2.69281 7.76667 2.98H6.76667H5.76667C5.76667 3.79738 6.42928 4.46 7.24667 4.46V3.46ZM6.76667 2.98H7.76667C7.76667 3.26719 7.53385 3.5 7.24667 3.5V2.5V1.5C6.42928 1.5 5.76667 2.16262 5.76667 2.98H6.76667ZM7.24667 2.5V3.5H11.5133V2.5V1.5H7.24667V2.5Z" fill="#4D4D4D" mask="url(#path-2-inside-1_1435_10944)"/>
                 </svg>
                 <span className="text-[#4D4D4D] text-[15px] font-medium">A4</span>
-              </div>
-            </>)}
-            {isSlideDeck && (
-              <>
-                <div className="h-6 w-px bg-gray-300 mx-2"></div>
-                <div className="flex items-center gap-2">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="4" width="12" height="8" rx="1" stroke="#71717A" strokeWidth="1.5"/>
-                  </svg>
-                  <span className="text-[#71717A] text-sm font-medium">16:9</span>
                 </div>
-              </>
-            )}
-            {!isVideoLesson && !hideCloudAndArrowIndicators && (
+              </>)}
+              {isSlideDeck && (
+                <>
+                  <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                  <div className="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="2" y="4" width="12" height="8" rx="1" stroke="#71717A" strokeWidth="1.5"/>
+                    </svg>
+                    <span className="text-[#71717A] text-sm font-medium">16:9</span>
+                  </div>
+                </>
+              )}
+              {!isVideoLesson && !hideCloudAndArrowIndicators && (
+                <>
+                  <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                  <div className="flex items-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5.99967 9.33268L2.66634 5.99935M2.66634 5.99935L5.99967 2.66602M2.66634 5.99935H9.66634C10.6388 5.99935 11.5714 6.38566 12.2591 7.07329C12.9467 7.76092 13.333 8.69356 13.333 9.66602C13.333 10.1475 13.2382 10.6243 13.0539 11.0692C12.8696 11.514 12.5995 11.9183 12.2591 12.2587C11.5714 12.9464 10.6388 13.3327 9.66634 13.3327H7.33301" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.0003 9.33268L13.3337 5.99935M13.3337 5.99935L10.0003 2.66602M13.3337 5.99935H6.33366C5.3612 5.99935 4.42857 6.38566 3.74093 7.07329C3.0533 7.76092 2.66699 8.69356 2.66699 9.66602C2.66699 10.1475 2.76183 10.6243 2.9461 11.0692C3.13037 11.514 3.40045 11.9183 3.74093 12.2587C4.42857 12.9464 5.3612 13.3327 6.33366 13.3327H8.66699" stroke="#E0E0E0" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </>
+              )}
+            </div>
+            {enableLinkViewButtons && formattedCreatedAt && (
               <>
-                <div className="h-6 w-px bg-gray-300 mx-2"></div>
-                <div className="flex items-center">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.99967 9.33268L2.66634 5.99935M2.66634 5.99935L5.99967 2.66602M2.66634 5.99935H9.66634C10.6388 5.99935 11.5714 6.38566 12.2591 7.07329C12.9467 7.76092 13.333 8.69356 13.333 9.66602C13.333 10.1475 13.2382 10.6243 13.0539 11.0692C12.8696 11.514 12.5995 11.9183 12.2591 12.2587C11.5714 12.9464 10.6388 13.3327 9.66634 13.3327H7.33301" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
+                <div className="flex items-center gap-2 text-[12px] text-[#878787]">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <g clipPath="url(#clip0_4291_33172)">
+                      <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_4291_33172">
+                        <rect width="14" height="14" fill="white"/>
+                      </clipPath>
+                    </defs>
                   </svg>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.0003 9.33268L13.3337 5.99935M13.3337 5.99935L10.0003 2.66602M13.3337 5.99935H6.33366C5.3612 5.99935 4.42857 6.38566 3.74093 7.07329C3.0533 7.76092 2.66699 8.69356 2.66699 9.66602C2.66699 10.1475 2.76183 10.6243 2.9461 11.0692C3.13037 11.514 3.40045 11.9183 3.74093 12.2587C4.42857 12.9464 5.3612 13.3327 6.33366 13.3327H8.66699" stroke="#E0E0E0" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <span>{`(${formattedCreatedAt})`}</span>
                 </div>
               </>
             )}

@@ -261,6 +261,7 @@ export default function ProjectInstanceViewPage() {
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
   const [currentProjectType, setCurrentProjectType] = useState<string>('unknown');
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
+  const [projectCreatedAt, setProjectCreatedAt] = useState<string | null>(null);
 
   const [pageState, setPageState] = useState<'initial_loading' | 'fetching' | 'error' | 'success' | 'nodata'>('initial_loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -292,6 +293,14 @@ export default function ProjectInstanceViewPage() {
   // Smart editing state
   const [showSmartEditor] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(true);
+
+  const normalizeDateValue = (value: string | Date | null | undefined) => {
+    if (!value) return null;
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+    return value;
+  };
 
 
   // State for the absolute chat URL
@@ -610,6 +619,7 @@ export default function ProjectInstanceViewPage() {
     setProjectInstanceData(null);
     setAllUserMicroproducts(undefined);
     setParentProjectNameForCurrentView(undefined);
+    setProjectCreatedAt(null);
     setEditableData(null);
     setIsEditing(false);
     setSaveError(null);
@@ -707,6 +717,11 @@ export default function ProjectInstanceViewPage() {
       }
 
       setProjectInstanceData(instanceData);
+      const instanceCreatedAt = (instanceData as any)?.createdAt ?? (instanceData as any)?.created_at;
+      const normalizedInstanceDate = normalizeDateValue(instanceCreatedAt);
+      if (normalizedInstanceDate) {
+        setProjectCreatedAt(normalizedInstanceDate);
+      }
 
       if (typeof window !== 'undefined' && instanceData.sourceChatSessionId) {
         setChatRedirectUrl(`${window.location.origin}/chat?chatId=${instanceData.sourceChatSessionId}`);
@@ -718,6 +733,11 @@ export default function ProjectInstanceViewPage() {
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
         setCurrentProjectType(currentMicroproductInList?.design_microproduct_type || 'unknown');
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
+        const listItemCreatedAt = (currentMicroproductInList as any)?.createdAt ?? (currentMicroproductInList as any)?.created_at;
+        const normalizedListDate = normalizeDateValue(listItemCreatedAt);
+        if (normalizedListDate) {
+          setProjectCreatedAt(normalizedListDate);
+        }
         // Resilient Event Poster detection based on parent project name (cannot be renamed)
         const parentName = currentMicroproductInList?.projectName || '';
         if (parentName.includes('Event Poster')) {
@@ -2177,6 +2197,7 @@ export default function ProjectInstanceViewPage() {
         setIsAuthorized={setIsAuthorized}
         hideCloudAndArrowIndicators
         enableLinkViewButtons
+        createdAt={projectCreatedAt}
       />
       
       <main 
