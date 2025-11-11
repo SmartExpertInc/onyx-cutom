@@ -99,6 +99,31 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return; // allow inline editing
         }
 
+        // Prevent drag on WysiwygEditor toolbar and its buttons
+        // Toolbar buttons are interactive elements that should not trigger drag
+        if (targetElement.tagName === 'BUTTON' || 
+            targetElement.tagName === 'INPUT' ||
+            targetElement.getAttribute('role') === 'button') {
+          // Check if it's inside a wysiwyg editor context (toolbar or editor itself)
+          const wysiwygContext = targetElement.closest('.wysiwyg-editor') || 
+                                 targetElement.closest('[class*="wysiwyg"]');
+          if (wysiwygContext) {
+            return; // Allow toolbar button interactions
+          }
+        }
+        
+        // Also check for toolbar container (positioned absolutely above editor)
+        // WysiwygEditor toolbar typically has position: absolute and negative top value
+        const parentContainer = targetElement.parentElement;
+        if (parentContainer) {
+          const parentStyle = window.getComputedStyle(parentContainer);
+          if (parentStyle.position === 'absolute' && 
+              (parentStyle.top.startsWith('-') || parseFloat(parentStyle.top) < 0)) {
+            // Likely a toolbar - allow interactions
+            return;
+          }
+        }
+
         // If a child draggable exists under the cursor, ignore this (parent) draggable
         const closestDraggable = targetElement.closest('[data-draggable="true"]');
         if (closestDraggable && closestDraggable !== htmlElement) {
