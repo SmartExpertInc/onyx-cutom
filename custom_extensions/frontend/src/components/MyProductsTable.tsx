@@ -3961,20 +3961,26 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
       : folderProjects;
   
   const navigationPanel = useMemo(() => {
-    if (trashMode) {
-      return null;
-    }
+    if (trashMode) return null;
+
+    const showFolderActions = !isExternalToolbar && !isSelectMode;
 
     return (
-      <div className={`flex justify-between gap-4 ${isExternalToolbar ? 'items-center w-full' : 'mb-12'}`}>
-        <div className="flex">
-          <Button 
-            className="flex cursor-pointer items-center gap-2 border border-[var(--border-light)] text-gray-900 px-4 py-2 shadow-sm rounded-md"
-            onClick={() => setShowFolderModal(true)}
-          >
-            <FolderPlus size={16} strokeWidth={1.5} className="text-gray-900" /> Add folder
-          </Button>
-        </div>
+      <div
+        className={`flex gap-4 ${
+          isExternalToolbar ? 'items-center justify-end' : 'justify-between mb-12'
+        }`}
+      >
+        {showFolderActions && (
+          <div className="flex">
+            <Button
+              className="flex cursor-pointer items-center gap-2 border border-[var(--border-light)] text-gray-900 px-4 py-2 shadow-sm rounded-md"
+              onClick={() => setShowFolderModal(true)}
+            >
+              <FolderPlus size={16} strokeWidth={1.5} className="text-gray-900" /> Add folder
+            </Button>
+          </div>
+        )}
         <div className="flex gap-2 items-center">
           <div className="relative w-75 h-9">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
@@ -4071,6 +4077,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   }, [
     trashMode,
     isExternalToolbar,
+    isSelectMode,
     t,
     searchTerm,
     sortOrder,
