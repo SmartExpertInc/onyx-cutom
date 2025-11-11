@@ -14,6 +14,7 @@ interface ImportFromUrlModalProps {
     selection: KnowledgeBaseSelection;
     connectorSources: string[];
     connectorIds: number[];
+    productIds?: number[];
   }) => void;
 }
 

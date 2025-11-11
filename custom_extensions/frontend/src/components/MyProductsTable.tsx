@@ -881,6 +881,8 @@ interface ProjectsTableProps {
   folderId?: number | null;
   /** If true – table displays only audit projects */
   auditMode?: boolean;
+  selectionMode?: 'default' | 'select';
+  onSelectionChange?: (projectIds: number[], projects: Project[]) => void;
 }
 
 interface ColumnVisibility {
@@ -2177,6 +2179,8 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   trashMode = false,
   folderId = null,
   auditMode = false,
+  selectionMode = 'default',
+  onSelectionChange,
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
@@ -2235,6 +2239,35 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
     type: 5,
   });
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+
+  const allProjectsFlattened = useMemo(() => {
+    const aggregated: Project[] = Array.isArray(projects) ? [...projects] : [];
+    Object.values(folderProjects || {}).forEach((list) => {
+      if (Array.isArray(list)) {
+        aggregated.push(...list);
+      }
+    });
+    return aggregated;
+  }, [projects, folderProjects]);
+
+  useEffect(() => {
+    if (!onSelectionChange || selectionMode !== 'select') return;
+    const ids = Array.from(selectedProjects);
+    if (ids.length === 0) {
+      onSelectionChange([], []);
+      return;
+    }
+    const projectMap = new Map<number, Project>();
+    allProjectsFlattened.forEach((project) => {
+      if (project && typeof project.id === 'number') {
+        projectMap.set(project.id, project);
+      }
+    });
+    const selected = ids
+      .map((id) => projectMap.get(id))
+      .filter((project): project is Project => !!project);
+    onSelectionChange(ids, selected);
+  }, [selectedProjects, allProjectsFlattened, onSelectionChange, selectionMode]);
 
   // Helper to compute a human-friendly display title for the products page
   // Prefer unique instance names for non-outline products; fall back to content-derived titles

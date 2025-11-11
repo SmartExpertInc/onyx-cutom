@@ -143,8 +143,9 @@ export default function FromFilesNew() {
     selection: KnowledgeBaseSelection;
     connectorSources: string[];
     connectorIds: number[];
+    productIds?: number[];
   }) => {
-    const { selection, connectorSources } = payload;
+    const { selection, connectorSources, productIds: _productIds } = payload;
 
     const uniqueConnectorSources = Array.from(new Set(connectorSources.filter(Boolean)));
     const { combinedContext, searchParams } = buildKnowledgeBaseContext(selection);
@@ -179,6 +180,17 @@ export default function FromFilesNew() {
       );
       if (fileExtensionsForTracking.length > 0) {
         trackImportFiles('Files', fileExtensionsForTracking);
+      }
+    } else if ((selection.products?.length ?? 0) > 0) {
+      const productTypesForTracking = Array.from(
+        new Set(
+          (selection.products || [])
+            .map((product) => product?.type || 'product')
+            .filter((type) => typeof type === 'string' && type.length > 0)
+        )
+      );
+      if (productTypesForTracking.length > 0) {
+        trackImportFiles('Products', productTypesForTracking);
       }
     }
 

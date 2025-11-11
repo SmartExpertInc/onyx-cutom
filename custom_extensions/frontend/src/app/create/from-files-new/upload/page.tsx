@@ -8,7 +8,7 @@ import { FeedbackButton } from "@/components/ui/feedback-button";
 import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
 import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
 import { BackButton } from "../../components/BackButton";
-import { buildKnowledgeBaseContext, KnowledgeBaseSelection, KnowledgeBaseConnector } from "@/lib/knowledgeBaseSelection";
+import { buildKnowledgeBaseContext, KnowledgeBaseSelection, KnowledgeBaseConnector, KnowledgeBaseProduct } from "@/lib/knowledgeBaseSelection";
 import { trackImportFiles } from "@/lib/mixpanelClient";
 
 interface UploadedFile {
@@ -18,7 +18,7 @@ interface UploadedFile {
   file: File;
 }
 
-type ReviewItemKind = "knowledge-file" | "knowledge-connector" | "uploaded";
+type ReviewItemKind = "knowledge-file" | "knowledge-connector" | "knowledge-product" | "uploaded";
 
 interface ReviewItem {
   id: string;
@@ -167,7 +167,8 @@ export default function UploadFilesPage() {
       if (
         !selection ||
         ((selection.filePaths?.length ?? 0) === 0 &&
-          (selection.connectors?.length ?? 0) === 0)
+          (selection.connectors?.length ?? 0) === 0 &&
+          (selection.products?.length ?? 0) === 0)
       ) {
         setKnowledgeBaseSelection(null);
         sessionStorage.removeItem("knowledgeBaseSelection");
@@ -190,9 +191,23 @@ export default function UploadFilesPage() {
         }
       });
 
+      const productMap = new Map<number, KnowledgeBaseProduct>();
+      (selection.products || []).forEach((product) => {
+        if (
+          product &&
+          typeof product.id === "number" &&
+          Number.isFinite(product.id)
+        ) {
+          if (!productMap.has(product.id)) {
+            productMap.set(product.id, product);
+          }
+        }
+      });
+
       const context = buildKnowledgeBaseContext({
         filePaths: selection.filePaths || [],
         connectors: Array.from(connectorMap.values()),
+        products: Array.from(productMap.values()),
       });
 
       const normalizedConnectors = context.connectorIds
@@ -204,6 +219,7 @@ export default function UploadFilesPage() {
       const normalizedSelection: KnowledgeBaseSelection = {
         filePaths: context.selectedFiles,
         connectors: normalizedConnectors,
+        products: context.selectedProducts,
       };
 
       try {
@@ -249,6 +265,17 @@ export default function UploadFilesPage() {
           if (fileExtensionsForTracking.length > 0) {
             trackImportFiles("Files", fileExtensionsForTracking);
           }
+        } else if (context.productIds.length > 0 && (context.selectedProducts?.length ?? 0) > 0) {
+          const productTypesForTracking = Array.from(
+            new Set(
+              (context.selectedProducts || [])
+                .map((product) => product?.type || "product")
+                .filter((type) => typeof type === "string" && type.length > 0)
+            )
+          );
+          if (productTypesForTracking.length > 0) {
+            trackImportFiles("Products", productTypesForTracking);
+          }
         }
       }
 
@@ -286,6 +313,21 @@ export default function UploadFilesPage() {
           metadata: { connectorId: connector.id },
         });
       });
+
+      (knowledgeBaseSelection.products || []).forEach((product) => {
+        if (!product || typeof product.id !== "number") return;
+        const displayName =
+          product.title && product.title.length > 0
+            ? product.title
+            : `Product ${product.id}`;
+        items.push({
+          id: `kb-product-${product.id}`,
+          name: displayName,
+          extension: ".product",
+          kind: "knowledge-product",
+          metadata: { productId: product.id },
+        });
+      });
     }
 
     uploadedFiles.forEach((file) => {
@@ -312,6 +354,7 @@ export default function UploadFilesPage() {
             {
               filePaths: Array.isArray(parsed.filePaths) ? parsed.filePaths : [],
               connectors: Array.isArray(parsed.connectors) ? parsed.connectors : [],
+              products: Array.isArray(parsed.products) ? parsed.products : [],
             },
             { track: false }
           );
@@ -327,6 +370,7 @@ export default function UploadFilesPage() {
       selection: KnowledgeBaseSelection;
       connectorSources: string[];
       connectorIds: number[];
+      productIds?: number[];
     }) => {
       saveKnowledgeBaseSelection(payload.selection, { track: true });
       setShowImportOptions(false);
@@ -358,6 +402,22 @@ export default function UploadFilesPage() {
         {
           filePaths: knowledgeBaseSelection.filePaths,
           connectors: remainingConnectors,
+          products: knowledgeBaseSelection.products || [],
+        },
+        { track: false }
+      );
+      return;
+    }
+
+    if (item.kind === "knowledge-product" && knowledgeBaseSelection) {
+      const remainingProducts = (knowledgeBaseSelection.products || []).filter(
+        (product) => product.id !== item.metadata?.productId
+      );
+      saveKnowledgeBaseSelection(
+        {
+          filePaths: knowledgeBaseSelection.filePaths,
+          connectors: knowledgeBaseSelection.connectors,
+          products: remainingProducts,
         },
         { track: false }
       );
