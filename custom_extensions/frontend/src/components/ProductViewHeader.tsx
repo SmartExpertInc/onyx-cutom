@@ -174,7 +174,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-[#191D30] font-semibold text-[16px] leading-none">
+              <h1
+                className={`text-[#191D30] text-[16px] leading-none ${
+                  enableLinkViewButtons ? 'font-medium' : 'font-semibold'
+                }`}
+              >
                 {(() => {
                   const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
                   return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
@@ -230,7 +234,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </>
               )}
             </div>
-            {enableLinkViewButtons && formattedCreatedAt && (
+            {enableLinkViewButtons && (
               <>
                 <div className="flex items-center gap-2 text-[12px] text-[#878787]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -243,7 +247,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                       </clipPath>
                     </defs>
                   </svg>
-                  <span>{`(${formattedCreatedAt})`}</span>
+                  <span>username@app.contentbuilder.ai</span>
+                  <span aria-hidden="true">•</span>
+                  <span>{formattedCreatedAt ?? 'Unknown date'}</span>
                 </div>
               </>
             )}
