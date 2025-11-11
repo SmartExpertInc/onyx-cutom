@@ -2723,12 +2723,28 @@ export class TemplateExtractor {
   } {
     const items: PositionableItem[] = [];
 
+    const cardPosition = { x: 660, y: 372, width: 600, height: 336 };
+    // Card container for reference
+    items.push(TemplateExtractor.createContainerItem(
+      'psychological-safety-card',
+      {
+        type: 'card',
+        variant: 'psychological-safety'
+      },
+      cardPosition
+    ));
+
     // Title
     if (props.title) {
       items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
-        { x: 60, y: 80, width: 1080, height: 60 },
+        {
+          x: cardPosition.x + 40,
+          y: cardPosition.y + 130,
+          width: cardPosition.width - 80,
+          height: 80
+        },
         'heading'
       ));
     }
@@ -2738,20 +2754,56 @@ export class TemplateExtractor {
       items.push(TemplateExtractor.createTextItem(
         'content',
         props.content,
-        { x: 60, y: 160, width: 600, height: 400 },
+        {
+          x: cardPosition.x + 40,
+          y: cardPosition.y + 210,
+          width: cardPosition.width - 80,
+          height: 120
+        },
         'text'
       ));
     }
 
-    // Profile image
+    // Profile image (circular avatar)
     if (props.profileImagePath) {
       items.push(TemplateExtractor.createImageItem(
         'profile-image',
         props.profileImagePath,
         props.profileImageAlt || 'Profile image',
-        { x: 700, y: 160, width: 440, height: 300 }
+        {
+          x: cardPosition.x + 40,
+          y: cardPosition.y + 20,
+          width: 120,
+          height: 120
+        }
       ));
     }
+
+    // Logo (image)
+    if (props.logoPath) {
+      items.push(TemplateExtractor.createImageItem(
+        'logo',
+        props.logoPath,
+        props.logoText || 'Company logo',
+        { x: 40, y: 40, width: 160, height: 60 }
+      ));
+    } else if (props.logoText) {
+      items.push(TemplateExtractor.createTextItem(
+        'logo-text',
+        props.logoText,
+        { x: 40, y: 40, width: 300, height: 40 },
+        'text'
+      ));
+    }
+
+    // Page number
+    const pageNumberValue = props.pageNumber || '01';
+    items.push(TemplateExtractor.createTextItem(
+      'page-number',
+      pageNumberValue,
+      { x: 1760, y: 1015, width: 120, height: 40 },
+      'text'
+    ));
 
     return {
       items,

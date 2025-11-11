@@ -55,7 +55,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   };
 
   // Source all templates that support avatars (avatarPosition, avatar fields, or explicit avatar templates)
-  const excludedTemplateIds = new Set(['thank-you-slide']);
+  const excludedTemplateIds = new Set(['thank-you-slide', 'learning-topics-slide', 'learning-topics']);
 
   const availableTemplates = getAllTemplates()
     .filter(t => !t.id.endsWith('_old'))

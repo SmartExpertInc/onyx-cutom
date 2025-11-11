@@ -359,7 +359,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         style={{
           position: 'absolute',
           bottom: '20px',
-          right: '20px',
+          right: '0px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
