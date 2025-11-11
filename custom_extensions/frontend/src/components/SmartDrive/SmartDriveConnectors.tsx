@@ -1521,6 +1521,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
               onSelectionChange={handleProductsSelectionChange}
               toolbarPlacement="external"
               onToolbarRender={setMyProductsToolbar}
+              showFolderButtonInSelectionMode={true}
             />
             {selectedProductIds.length === 0 && (
               <p className="mt-4 text-sm text-gray-500">
