@@ -7212,11 +7212,12 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     </div>
 
                     <div class="card">
+                        {% set avatar_url = profileImagePath or avatarImagePath or defaultAvatarImage %}
+                        {% if avatar_url %}
                         <div class="profile-image">
-                            {% if profileImagePath %}
-                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" />
-                            {% endif %}
+                            <img src="{{ avatar_url }}" alt="{{ profileImageAlt or defaultAvatarAlt or 'Profile image' }}" />
                         </div>
+                        {% endif %}
                         <div class="title">{{ title or 'Fostering Psychological Safety' }}</div>
                         <div class="content">{{ content or 'Studies indicate that teams with a high level of psychological safety have a 21% higher chance of delivering high-quality results.' }}</div>
                     </div>

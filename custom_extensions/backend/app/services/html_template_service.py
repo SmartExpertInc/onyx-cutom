@@ -333,6 +333,24 @@ class HTMLTemplateService:
                     "title": props.get("title", ""),
                     "steps": props.get("steps", [])
                 }
+
+            elif template_id == "psychological-safety-slide" or template_id == "psychological-safety":
+                avatar_url = (
+                    props.get("profileImagePath")
+                    or props.get("avatarImagePath")
+                    or props.get("defaultAvatarImage")
+                )
+                validated_props = {
+                    "title": props.get("title", ""),
+                    "content": props.get("content", ""),
+                    "profileImagePath": avatar_url,
+                    "profileImageAlt": props.get("profileImageAlt") or props.get("defaultAvatarAlt") or "Profile image",
+                    "logoPath": props.get("logoPath", ""),
+                    "logoText": props.get("logoText", "Your Logo"),
+                    "pageNumber": props.get("pageNumber", "01"),
+                    "defaultAvatarImage": props.get("defaultAvatarImage"),
+                    "defaultAvatarAlt": props.get("defaultAvatarAlt")
+                }
                 
             else:
                 logger.warning(f"Unknown template ID: {template_id}")

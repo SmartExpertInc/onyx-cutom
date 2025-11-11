@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Video, Loader, CheckCircle, AlertTriangle, Download } from 'lucide-react';
 import AvatarSelector, { Avatar, AvatarVariant } from './AvatarSelector';
+import { applyDefaultAvatarToSlides } from '@/utils/slideAvatarUtils';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -141,13 +142,28 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       console.log('🎬 [PROFESSIONAL_VIDEO] Theme:', slideData.theme);
       console.log('🎬 [PROFESSIONAL_VIDEO] Transitions count:', slideData.transitions.length);
 
+      const avatarImageUrl =
+        selectedVariant?.canvas ||
+        selectedAvatar?.canvas ||
+        selectedAvatar?.variants?.[0]?.canvas ||
+        selectedVariant?.thumbnail ||
+        selectedAvatar?.thumbnail ||
+        '';
+      const avatarAlt = selectedVariant?.name || selectedAvatar?.name || 'Avatar';
+
+      const slidesWithAvatar = applyDefaultAvatarToSlides(
+        slideData.slides,
+        avatarImageUrl,
+        avatarAlt
+      );
+
       // Create the request payload
       const requestPayload = {
         projectName: projectName,
         voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
           "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better."
         ],  // Use actual voiceover texts or fallback
-        slidesData: slideData.slides,  // Add the extracted slide data
+        slidesData: slidesWithAvatar,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         transitions: slideData.transitions,  // Add transitions for multi-slide concatenation
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
@@ -155,7 +171,9 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         layout: 'picture_in_picture',
         duration: 30.0,
         quality: 'high',
-        resolution: [1920, 1080]
+        resolution: [1920, 1080],
+        defaultAvatarImage: avatarImageUrl || undefined,
+        defaultAvatarAlt: avatarAlt
       };
 
       console.log('🎬 [PROFESSIONAL_VIDEO] Request payload:', requestPayload);

@@ -2723,7 +2723,7 @@ export class TemplateExtractor {
   } {
     const items: PositionableItem[] = [];
 
-    const cardPosition = { x: 660, y: 372, width: 600, height: 336 };
+    const cardPosition = { x: 583, y: 343, width: 755, height: 395 };
     // Card container for reference
     items.push(TemplateExtractor.createContainerItem(
       'psychological-safety-card',
@@ -2741,7 +2741,7 @@ export class TemplateExtractor {
         props.title,
         {
           x: cardPosition.x + 40,
-          y: cardPosition.y + 130,
+          y: cardPosition.y + 145,
           width: cardPosition.width - 80,
           height: 80
         },
@@ -2756,25 +2756,30 @@ export class TemplateExtractor {
         props.content,
         {
           x: cardPosition.x + 40,
-          y: cardPosition.y + 210,
+          y: cardPosition.y + 220,
           width: cardPosition.width - 80,
-          height: 120
+          height: 150
         },
         'text'
       ));
     }
 
     // Profile image (circular avatar)
-    if (props.profileImagePath) {
+    const avatarImage =
+      props.profileImagePath ||
+      (props as any).avatarImagePath ||
+      (props as any).defaultAvatarImage;
+
+    if (avatarImage) {
       items.push(TemplateExtractor.createImageItem(
         'profile-image',
-        props.profileImagePath,
-        props.profileImageAlt || 'Profile image',
+        avatarImage,
+        props.profileImageAlt || (props as any).defaultAvatarAlt || 'Profile image',
         {
           x: cardPosition.x + 40,
           y: cardPosition.y + 20,
-          width: 120,
-          height: 120
+          width: 135,
+          height: 135
         }
       ));
     }

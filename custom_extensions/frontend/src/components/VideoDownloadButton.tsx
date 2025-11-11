@@ -7,6 +7,7 @@ import StandaloneSlideImageButton from './StandaloneSlideImageButton';
 import HtmlPreviewButton from './HtmlPreviewButton';
 import SlideVideoButton from './SlideVideoButton';
 import AvatarSelector, { Avatar, AvatarVariant } from './AvatarSelector';
+import { applyDefaultAvatarToSlides } from '@/utils/slideAvatarUtils';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -131,20 +132,37 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       console.log('🎬 [VIDEO_DOWNLOAD] Slides count:', slideData.slides.length);
       console.log('🎬 [VIDEO_DOWNLOAD] Theme:', slideData.theme);
 
+      const avatarImageUrl =
+        selectedVariant?.canvas ||
+        selectedAvatar?.canvas ||
+        selectedAvatar?.variants?.[0]?.canvas ||
+        selectedVariant?.thumbnail ||
+        selectedAvatar?.thumbnail ||
+        '';
+      const avatarAlt = selectedVariant?.name || selectedAvatar?.name || 'Avatar';
+
+      const slidesWithAvatar = applyDefaultAvatarToSlides(
+        slideData.slides,
+        avatarImageUrl,
+        avatarAlt
+      );
+
       // Create the request payload
       const requestPayload = {
         projectName: projectName || 'Generated Video',
         voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
           "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better."
         ],  // Use actual voiceover texts or fallback
-        slidesData: slideData.slides,  // Add the extracted slide data
+        slidesData: slidesWithAvatar,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
         quality: 'high',
-        resolution: [1920, 1080]
+        resolution: [1920, 1080],
+        defaultAvatarImage: avatarImageUrl || undefined,
+        defaultAvatarAlt: avatarAlt
       };
 
       console.log('🎬 [VIDEO_DOWNLOAD] Request payload:', requestPayload);

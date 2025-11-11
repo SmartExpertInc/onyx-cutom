@@ -2187,14 +2187,28 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: 'Fostering Psychological Safety',
       content: 'Studies indicate that teams with a high level of psychological safety have a 21% higher chance of delivering high-quality results.',
       profileImagePath: '',
-      profileImageAlt: 'Profile image'
+      profileImageAlt: 'Profile image',
+      logoPath: '',
+      logoText: 'Your Logo',
+      pageNumber: '01'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
       content: { type: 'text', label: 'Content', required: true, maxLength: 300 },
       profileImagePath: { type: 'image', label: 'Profile Image' },
-      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
-    }
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      logoPath: { type: 'image', label: 'Logo Image' },
+      logoText: { type: 'text', label: 'Logo Text', maxLength: 80 },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 }
+    },
+    avatarPosition: {
+      x: 623,
+      y: 363,
+      width: 135,
+      height: 135,
+      shape: 'circle'
+    },
+    elaiBackgroundColor: '#E0E7FF'
   },
 
   'solution-steps-slide': {

@@ -5,6 +5,7 @@ import { PsychologicalSafetySlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
+import { useAvatarDisplay } from '../AvatarDisplayManager';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -153,6 +154,10 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  const { defaultAvatar } = useAvatarDisplay();
+  const defaultAvatarUrl = defaultAvatar?.selectedVariant?.canvas || '';
+  const defaultAvatarAlt = defaultAvatar ? `${defaultAvatar.avatar.name} - ${defaultAvatar.selectedVariant.name}` : 'Profile image';
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -242,23 +247,24 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
 
       {/* Main Card */}
       <div style={{
-        width: '600px',
-        height: '336px',
+        width: '755px',
+        height: '395px',
         backgroundColor: '#ffffff',
         borderRadius: '30px',
         padding: '40px',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative'
+        justifyContent: 'flex-start',
+        position: 'relative',
+        boxShadow: '0 12px 30px rgba(0,0,0,0.08)'
       }}>
                  {/* Profile Image - Top Left */}
          <div style={{
            position: 'absolute',
            top: '20px',
            left: '40px',
-           width: '120px',
-           height: '120px',
+         width: '135px',
+         height: '135px',
            backgroundColor: '#E0E7FF',
            overflow: 'hidden',
            borderRadius: '50%',
@@ -266,23 +272,20 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
            alignItems: 'center',
            justifyContent: 'center'
          }}>
-           <ClickableImagePlaceholder
-             imagePath={profileImagePath}
-             onImageUploaded={handleProfileImageUploaded}
-             size="MEDIUM"
-             position="CENTER"
-             description="Profile"
-             isEditable={isEditable}
-             style={{
-               width: '100%',
-               height: '100%',
-               borderRadius: '50%',
-               objectFit: 'cover',
-               position: 'absolute',
-               bottom: '-28px',
-               overflow: 'hidden'
-             }}
-           />
+        <ClickableImagePlaceholder
+          imagePath={profileImagePath || defaultAvatarUrl}
+          onImageUploaded={handleProfileImageUploaded}
+          size="MEDIUM"
+          position="CENTER"
+          description={defaultAvatarAlt}
+          isEditable={isEditable}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            objectFit: 'cover'
+          }}
+        />
          </div>
 
         {/* Title */}
@@ -291,7 +294,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
           color: '#09090B',
           fontWeight: 'bold',
           lineHeight: '1.2',
-          marginTop: '130px',
+          marginTop: '145px',
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -325,7 +328,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
           fontSize: '18px',
           color: '#09090B',
           lineHeight: '1.5',
-          marginBottom: '5px'
+          marginTop: '75px'
         }}>
           {isEditable && editingContent ? (
             <InlineEditor
