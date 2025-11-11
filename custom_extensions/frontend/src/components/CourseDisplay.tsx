@@ -147,6 +147,8 @@ const deriveSourcesFromTrainingPlan = (
 ) => {
   const sources = new Set<string>();
 
+  const createdFromScratchLabel = t('interface.customViewCard.source.createdfromscratch', 'Created from scratch');
+
   if (trainingPlanData?.sections) {
     trainingPlanData.sections.forEach(section => {
       section.lessons?.forEach(lesson => {
@@ -157,7 +159,7 @@ const deriveSourcesFromTrainingPlan = (
           } else if (lesson.source.includes('PDF') || lesson.source.includes('Document')) {
             sources.add('PDF Document');
           } else if (lesson.source.includes('text') || lesson.source.includes('Text') || lesson.source === 'Create from scratch') {
-            sources.add(t('interface.customViewCard.source.createdfromscratch'));
+            sources.add(createdFromScratchLabel);
           } else {
             sources.add(lesson.source);
           }
@@ -184,7 +186,7 @@ const deriveSourcesFromTrainingPlan = (
       'gmail': <img src="/Gmail.png" alt="Gmail" className="w-5 h-5" />,
       'zendesk': <img src="/Zendesk.svg" alt="Zendesk" className="w-5 h-5" />,
       'PDF Document': <svg className="text-red-500" width={17} height={17} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.37 8.87988H17.62" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path><path d="M6.38 8.87988L7.13 9.62988L9.38 7.37988" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path><path d="M12.37 15.8799H17.62" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path><path d="M6.38 15.8799L7.13 16.6299L9.38 14.3799" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path><path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>,
-      [t('interface.customViewCard.source.createdfromscratch')]: <svg className="text-gray-700" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+      [createdFromScratchLabel]: <svg className="text-gray-700" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
     };
 
     return connectorMap[connectorName] ||
@@ -192,7 +194,7 @@ const deriveSourcesFromTrainingPlan = (
   };
 
   return Array.from(sources).map(source => ({
-    type: source === 'PDF Document' || source === t('interface.customViewCard.source.createdfromscratch') ? 'file' : 'connector',
+    type: source === 'PDF Document' || source === createdFromScratchLabel ? 'file' : 'connector',
     name: source,
     icon: getConnectorIcon(source)
   }));
