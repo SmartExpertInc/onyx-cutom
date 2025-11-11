@@ -982,7 +982,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
             )}
           </div>
 
-          {/* {activeTab !== MY_PRODUCTS_TAB && ( */}
+          {activeTab === MY_PRODUCTS_TAB ? (
+            <div className="flex-1 flex justify-end items-center">
+              {myProductsToolbar ?? <div className="h-9" />}
+            </div>
+          ) : (
             <div className="flex items-center gap-2">
               {activeTab === 'smart-drive' && !isSelectMode && (
                 <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#878787] bg-white border border-[#878787] cursor-pointer hover:bg-gray-50 h-9">
@@ -1089,7 +1093,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
                 </div>
               )}
             </div>
-          {/* )} */}
+          )}
         </div>
 
         {/* {activeTab === 'my-products' && myProductsToolbar && (
