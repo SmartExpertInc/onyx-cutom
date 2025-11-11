@@ -1,60 +1,59 @@
-'use client';
+// custom_extensions/frontend/src/components/VideoProductDisplay.tsx
+"use client";
 
 import React, { useState } from 'react';
-import { trackSaveDraft } from '@/lib/mixpanelClient';
-
-const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-
-interface VideoProductData {
-  videoJobId: string;
-  videoUrl: string;
-  thumbnailUrl?: string;
-  generatedAt: string;
-  sourceSlides?: any[];
-  component_name: string;
-}
+import { useRouter } from 'next/navigation';
+import { VideoLessonData } from '@/types/videoLessonTypes';
+import { useLanguage } from '@/contexts/LanguageContext';
+import CommentsForGeneratedProduct from './CommentsForGeneratedProduct';
 
 interface VideoProductDisplayProps {
-  dataToDisplay: VideoProductData | null;
+  dataToDisplay: VideoLessonData | null;
   isEditing?: boolean;
-  onTextChange?: (path: string[], value: any) => void;
+  onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
+  className?: string;
   parentProjectName?: string;
+  lessonNumber?: number;
+  productId?: string;
+  createdAt?: string;
+  isAuthorized?: boolean;
 }
 
-export default function VideoProductDisplay({
+const VideoProductDisplay = ({
   dataToDisplay,
-  isEditing = false,
+  isEditing,
   onTextChange,
-  parentProjectName
-}: VideoProductDisplayProps) {
+  className = "",
+  parentProjectName,
+  lessonNumber,
+  productId,
+  createdAt,
+  isAuthorized = true,
+}: VideoProductDisplayProps): React.JSX.Element | null => {
+  const router = useRouter();
+  const { t } = useLanguage();
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  
+  // Video playback state
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Retry function for failed video loads
-  const retryVideoLoad = () => {
-    if (retryCount < 3) {
-      setRetryCount(prev => prev + 1);
-      setVideoError(null);
-      console.log(`🎬 [VIDEO_PLAYER] Retrying video load (attempt ${retryCount + 1}/3)`);
-    } else {
-      setVideoError('Video failed to load after multiple attempts. Please refresh the page.');
-    }
-  };
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   // 🔍 ENHANCED DEBUG: Detailed data structure analysis
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Received data:', dataToDisplay);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data type:', typeof dataToDisplay);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data keys:', dataToDisplay ? Object.keys(dataToDisplay) : 'null');
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure:', JSON.stringify(dataToDisplay, null, 2));
-  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video URL:', dataToDisplay?.videoUrl);
-  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL:', dataToDisplay?.thumbnailUrl);
-  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID:', dataToDisplay?.videoJobId);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video URL:', (dataToDisplay as any)?.videoUrl);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL:', (dataToDisplay as any)?.thumbnailUrl);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID:', (dataToDisplay as any)?.videoJobId);
   
   // Test the full video URL
-  const fullVideoUrl = dataToDisplay?.videoUrl?.startsWith('http') 
-    ? dataToDisplay.videoUrl 
-    : `${CUSTOM_BACKEND_URL}${dataToDisplay?.videoUrl}`;
+  const fullVideoUrl = (dataToDisplay as any)?.videoUrl?.startsWith('http') 
+    ? (dataToDisplay as any)?.videoUrl 
+    : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`;
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Full Video URL:', fullVideoUrl);
   
   // 🔍 CRITICAL DEBUG: Check for nested data structure
@@ -80,25 +79,36 @@ export default function VideoProductDisplay({
      });
   }
 
-  if (!dataToDisplay) {
-    return (
-      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        <span className="text-gray-500">No video data available</span>
-      </div>
-    );
-  }
+  const handleDraftClick = () => {
+    if (productId) {
+      router.push(`/projects-2/view/${productId}`);
+    }
+  };
 
+  // Retry function for failed video loads
+  const retryVideoLoad = () => {
+    if (retryCount < 3) {
+      setRetryCount(prev => prev + 1);
+      setVideoError(null);
+      console.log(`🎬 [VIDEO_PLAYER] Retrying video load (attempt ${retryCount + 1}/3)`);
+    } else {
+      setVideoError('Video failed to load after multiple attempts. Please refresh the page.');
+    }
+  };
+
+  // Download/Export video function
   const handleDownload = async () => {
     try {
       // Check if videoUrl exists
-      if (!dataToDisplay.videoUrl) {
+      const videoUrl = (dataToDisplay as any)?.videoUrl;
+      if (!videoUrl) {
         throw new Error('Video URL is not available');
       }
       
       // Construct full URL for video download
-      const fullVideoUrl = dataToDisplay.videoUrl.startsWith('http') 
-        ? dataToDisplay.videoUrl 
-        : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`;
+      const fullVideoUrl = videoUrl.startsWith('http') 
+        ? videoUrl 
+        : `${CUSTOM_BACKEND_URL}${videoUrl}`;
       
       const response = await fetch(fullVideoUrl, {
         method: 'GET',
@@ -111,14 +121,12 @@ export default function VideoProductDisplay({
       if (!response.ok) {
         throw new Error(`Download failed: ${response.status}`);
       }
-      // Track save draft event
-      trackSaveDraft("Video Lesson", 'mp4', 'Completed');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `video_${dataToDisplay.videoJobId}.mp4`;
+      a.download = `video_product_${productId || 'download'}.mp4`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -126,52 +134,65 @@ export default function VideoProductDisplay({
     } catch (error) {
       console.error('Download failed:', error);
       alert('Download failed. Please try again.');
-      // Track save draft event
-      trackSaveDraft("Video Lesson", 'mp4', 'Failed');
+    }
+  };
+
+
+  // Format date as "28th Oct, 25"
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear().toString().slice(-2);
+      
+      // Add ordinal suffix
+      const suffix = (day: number) => {
+        if (day > 3 && day < 21) return 'th';
+        switch (day % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+      };
+      
+      return `${day}${suffix(day)} ${month}, ${year}`;
+    } catch {
+      return '';
     }
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Header */}
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">
-              Generated Video
-            </h1>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-500">
-                Generated: {new Date(dataToDisplay.generatedAt).toLocaleDateString()}
-              </span>
-              <button
-                onClick={handleDownload}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download MP4
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Video Content */}
-        <div className="p-6">
-          <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
-            {dataToDisplay.videoUrl ? (
+    <div 
+      className="py-5 flex gap-4 bg-[#F2F2F4]" 
+      style={{ 
+        minHeight: 'calc(100vh - 64px)' // 64px = header height
+      }}
+    >
+      <div className="w-full flex flex-col gap-4">
+        {/* Top row: Video and Comments section with same height */}
+        <div className="grid grid-cols-12 gap-4">
+          {/* Video lesson section - 8 columns */}
+          <div 
+            className="col-span-8 rounded-lg overflow-hidden relative"
+            style={{ 
+              aspectRatio: '16 / 9'
+            }}
+          >
+            {(dataToDisplay as any)?.videoUrl ? (
               <video
-                key={`${dataToDisplay.videoUrl}-${retryCount}`}
-                className="w-full h-full object-contain"
+                key={`${(dataToDisplay as any)?.videoUrl}-${retryCount}`}
+                className="w-full h-full object-contain bg-black"
                 controls
                 preload="metadata"
                 playsInline
                 crossOrigin="anonymous"
-                poster={dataToDisplay.thumbnailUrl ? 
-                  (dataToDisplay.thumbnailUrl.startsWith('http') 
-                    ? dataToDisplay.thumbnailUrl 
-                    : `${CUSTOM_BACKEND_URL}${dataToDisplay.thumbnailUrl}`) 
+                poster={(dataToDisplay as any)?.thumbnailUrl ? 
+                  ((dataToDisplay as any)?.thumbnailUrl.startsWith('http') 
+                    ? (dataToDisplay as any)?.thumbnailUrl 
+                    : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.thumbnailUrl}`) 
                   : undefined}
                 onPlay={() => setIsVideoPlaying(true)}
                 onPause={() => setIsVideoPlaying(false)}
@@ -182,10 +203,10 @@ export default function VideoProductDisplay({
                   console.error('🎬 [VIDEO_PLAYER] Video error details:', {
                     error: e.nativeEvent,
                     target: e.target,
-                    videoUrl: dataToDisplay.videoUrl,
-                    fullUrl: dataToDisplay.videoUrl.startsWith('http') 
-                      ? dataToDisplay.videoUrl 
-                      : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                    videoUrl: (dataToDisplay as any)?.videoUrl,
+                    fullUrl: (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                      ? (dataToDisplay as any)?.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
                   });
                   setVideoError('Failed to load video. Please check the video file.');
                 }}
@@ -202,9 +223,9 @@ export default function VideoProductDisplay({
               >
                 <source 
                   src={
-                    dataToDisplay.videoUrl.startsWith('http') 
-                      ? dataToDisplay.videoUrl 
-                      : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                    (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                      ? (dataToDisplay as any)?.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
                   } 
                   type="video/mp4" 
                   onError={(e) => {
@@ -214,9 +235,9 @@ export default function VideoProductDisplay({
                 />
                 <source 
                   src={
-                    dataToDisplay.videoUrl.startsWith('http') 
-                      ? dataToDisplay.videoUrl 
-                      : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                    (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                      ? (dataToDisplay as any)?.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
                   } 
                   type="video/webm" 
                   onError={(e) => {
@@ -226,8 +247,8 @@ export default function VideoProductDisplay({
                 Your browser does not support the video tag.
               </video>
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-white">Video URL not available</span>
+              <div className="w-full h-full flex items-center justify-center bg-gray-900 border border-gray-700 shadow-lg">
+                <span className="text-gray-400 text-lg">No video available</span>
               </div>
             )}
             
@@ -241,14 +262,14 @@ export default function VideoProductDisplay({
                     {retryCount < 3 && (
                       <button 
                         onClick={retryVideoLoad}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
                       >
                         Retry ({retryCount}/3)
                       </button>
                     )}
                     <button 
                       onClick={() => setVideoError(null)}
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
                     >
                       Dismiss
                     </button>
@@ -257,18 +278,105 @@ export default function VideoProductDisplay({
               </div>
             )}
           </div>
+
+          {/* Comments section - 4 columns */}
+          <div className="col-span-4 flex flex-col">
+            <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+          </div>
         </div>
 
-        {/* Source Information */}
-        {dataToDisplay.sourceSlides && dataToDisplay.sourceSlides.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Source Slides</h3>
-            <div className="text-sm text-gray-600">
-              This video was generated from {dataToDisplay.sourceSlides.length} slide(s)
+        {/* Bottom row: Title + Action Buttons + Rating - 8 columns to match video width */}
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-8 flex flex-col gap-6">
+            {/* Title and Action Buttons */}
+            <div className="flex items-center justify-between flex-shrink-0">
+              {/* Left: Video Title */}
+              <div>
+                <h3 className="text-md font-semibold text-[#171718]">
+                  {parentProjectName || dataToDisplay?.mainPresentationTitle || 'Video Product'}
+                </h3>
+                <div className="flex items-center gap-2 mt-1 text-[#878787] text-xs">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_1918_78510)">
+                      <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_1918_78510">
+                        <rect width="14" height="14" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <span>username@app.contentbuilder.ai</span>
+                  {createdAt && (
+                    <>
+                      <span>•</span>
+                      <span>{formatDate(createdAt)}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* Right: Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDraftClick}
+                  className="px-3 py-2 rounded-md bg-white text-[#171718] border border-[#171718] hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm cursor-pointer"
+                  style={{ height: '40px' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.5 11.9142H12.5M9.5 0.914214C9.76522 0.648997 10.1249 0.5 10.5 0.5C10.6857 0.5 10.8696 0.53658 11.0412 0.607651C11.2128 0.678721 11.3687 0.782892 11.5 0.914214C11.6313 1.04554 11.7355 1.20144 11.8066 1.37302C11.8776 1.5446 11.9142 1.7285 11.9142 1.91421C11.9142 2.09993 11.8776 2.28383 11.8066 2.45541C11.7355 2.62699 11.6313 2.78289 11.5 2.91421L3.16667 11.2475L0.5 11.9142L1.16667 9.24755L9.5 0.914214Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Draft
+                </button>
+                <button
+                  className="px-3 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm cursor-pointer"
+                  style={{ height: '40px' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Share
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="px-3 py-2 rounded-md bg-[#0F58F9] text-white hover:bg-[#0d4dd4] transition-colors flex items-center gap-2 text-sm cursor-pointer"
+                  style={{ height: '40px' }}
+                >
+                  <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Export
+                </button>
+              </div>
+            </div>
+
+            {/* Rating section */}
+            <div className="flex flex-col items-center gap-3 flex-shrink-0">
+              <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3">
+                <span className="text-[#171718] text-xs">{t('modals.play.rateQuality', "How's the video and voice quality?")}</span>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      className="transition-colors hover:scale-110 cursor-pointer"
+                      onClick={() => console.log(`Rated ${star} stars`)}
+                      onMouseEnter={() => setHoveredStar(star)}
+                      onMouseLeave={() => setHoveredStar(null)}
+                    >
+                      <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.23047 1.01367L7.25195 1.06738L8.71582 4.58594C8.83392 4.86975 9.10084 5.06328 9.40723 5.08789L13.2061 5.39258L13.2637 5.39746L13.5059 5.41602L13.3213 5.5752L13.2773 5.61328L10.3838 8.09277C10.1503 8.29282 10.0478 8.60627 10.1191 8.90527L11.0029 12.6113L11.0039 12.6123L11.0166 12.6689L11.0723 12.9043L10.8652 12.7783L10.8154 12.748L7.56348 10.7617C7.30116 10.6017 6.97126 10.6016 6.70898 10.7617L3.45703 12.748L3.40723 12.7783L3.19922 12.9053L3.25586 12.668L3.26953 12.6113L4.15332 8.90527C4.22466 8.60628 4.12291 8.2928 3.88965 8.09277L0.995117 5.61328L0.951172 5.5752L0.765625 5.41602L1.00977 5.39746L1.06738 5.39258L4.86523 5.08789C5.17162 5.06333 5.43849 4.86971 5.55664 4.58594L7.02051 1.06738L7.04297 1.01367L7.13574 0.788086L7.23047 1.01367ZM6.6748 2.07227L5.61914 4.61133C5.49149 4.91824 5.20241 5.12763 4.87109 5.1543L2.12988 5.37402L0.931641 5.4707L1.84473 6.25293L3.93262 8.04199C4.18511 8.2583 4.29589 8.5975 4.21875 8.9209L3.58008 11.5957L3.30176 12.7646L4.32715 12.1387L6.67383 10.7051C6.95758 10.5318 7.31488 10.5318 7.59863 10.7051L9.94531 12.1387L10.9717 12.7646L10.6924 11.5957L10.0547 8.9209C9.97756 8.59758 10.0875 8.25831 10.3398 8.04199L12.4287 6.25293L13.3418 5.4707L12.1436 5.37402L9.40234 5.1543C9.07091 5.12772 8.78198 4.91833 8.6543 4.61133L7.59766 2.07227L7.13672 0.961914L6.6748 2.07227Z" fill="#171718" stroke="#171718"/>
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <span className="text-[#878787] text-xs">{t('modals.play.helpImprove', 'Help us improve ContentBuilder')}</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default VideoProductDisplay;
