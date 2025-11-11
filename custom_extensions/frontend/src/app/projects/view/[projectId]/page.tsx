@@ -2155,7 +2155,7 @@ export default function ProjectInstanceViewPage() {
             )}
 
             {projectInstanceData && typeof projectInstanceData.project_id === 'number' && projectInstanceData.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && (
-              projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
+              projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION && (
                 <VideoDownloadButton
                   projectName={projectInstanceData.name}
                   onError={(error) => {
@@ -2166,23 +2166,6 @@ export default function ProjectInstanceViewPage() {
                     console.log('Video generated successfully:', downloadUrl);
                   }}
                 />
-              ) : (
-                <button
-                  onClick={handlePdfDownload}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-                  style={{
-                    backgroundColor: '#0F58F9',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                  title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
-                >
-                  <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
-                </button>
               )
             )}
 
