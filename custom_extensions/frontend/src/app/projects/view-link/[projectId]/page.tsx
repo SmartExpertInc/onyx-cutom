@@ -33,11 +33,9 @@ import workspaceService, {
   ProductAccessCreate 
 } from '../../../../services/workspaceService';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, Trash2, ChevronDown, Sparkles, Download, Palette, XCircle } from 'lucide-react';
-import { VideoDownloadButton } from '@/components/VideoDownloadButton';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, Trash2, XCircle } from 'lucide-react';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import PresentationLayout from '@/components/PresentationLayout';
-import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -292,7 +290,7 @@ export default function ProjectInstanceViewPage() {
   const [pdfProgress, setPdfProgress] = useState<{current: number, total: number, message: string} | null>(null);
   
   // Smart editing state
-  const [showSmartEditor, setShowSmartEditor] = useState(false);
+  const [showSmartEditor] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(true);
 
 
@@ -307,10 +305,6 @@ export default function ProjectInstanceViewPage() {
   const columnDropdownRef = useRef<HTMLDivElement>(null);
 
   // Theme picker state for slide decks
-  const [showThemePicker, setShowThemePicker] = useState(false);
-
-  // Theme picker state for training plans
-  const [showTrainingPlanThemePicker, setShowTrainingPlanThemePicker] = useState(false);
 
   // Role access control state
   const [roleAccess, setRoleAccess] = useState(false);
@@ -402,20 +396,12 @@ export default function ProjectInstanceViewPage() {
           setShowEmailRoleDropdown(null);
         }
       }
-      // Close training plan theme picker
-      if (showTrainingPlanThemePicker) {
-        const target = e.target as Node;
-        const themePickerSection = document.querySelector('[data-theme-picker-section]');
-        if (themePickerSection && !themePickerSection.contains(target)) {
-          setShowTrainingPlanThemePicker(false);
-        }
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown, showEmailRoleDropdown, showTrainingPlanThemePicker]);
+  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown, showEmailRoleDropdown]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -589,40 +575,6 @@ export default function ProjectInstanceViewPage() {
     } catch (error) {
       console.error('Failed to change email role:', error);
     }
-  };
-
-  // Function to handle training plan theme change
-  const handleTrainingPlanThemeChange = async (newTheme: string) => {
-    if (!projectInstanceData?.project_id || !editableData) return;
-    
-    try {
-      // Update the editable data with new theme
-      const updatedData = { ...editableData, theme: newTheme };
-      setEditableData(updatedData);
-      
-      // Save the updated theme to backend
-      const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === 'development') {
-        saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-      }
-
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectInstanceData.project_id}`, {
-        method: 'PUT', 
-        headers: saveOperationHeaders, 
-        body: JSON.stringify({ microProductContent: updatedData }),
-      });
-
-      if (response.ok) {
-        console.log('Theme updated successfully');
-      } else {
-        console.error('Failed to update theme');
-      }
-    } catch (error) {
-      console.error('Error updating theme:', error);
-    }
-    
-    setShowTrainingPlanThemePicker(false);
   };
 
   const handleRemoveEmail = async (email: string) => {
@@ -1978,7 +1930,6 @@ export default function ProjectInstanceViewPage() {
             lessonContentStatus={lessonContentStatus}
             productId={projectId}
             metrics={courseMetrics}
-            isReadOnly
           />
         );
       case COMPONENT_NAME_PDF_LESSON:
@@ -2223,7 +2174,7 @@ export default function ProjectInstanceViewPage() {
             : projectInstanceData?.component_name === COMPONENT_NAME_QUIZ || 
               projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
             ? 'min-h-screen bg-[#F2F2F4] p-0'
-            : 'min-h-screen bg-[#F2F2F4] p-4 md:p-8'
+            : 'min-h-screen bg-[#F2F2F4] p-4'
         }`}
       >
         <div className={`mx-auto ${
@@ -2263,56 +2214,6 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
 
-            {projectInstanceData && typeof projectInstanceData.project_id === 'number' && projectInstanceData.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && projectInstanceData.component_name !== COMPONENT_NAME_VIDEO_PRODUCT && (
-              projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
-                <VideoDownloadButton
-                  projectName={projectInstanceData.name}
-                  onError={(error) => {
-                    console.error('Video generation error:', error);
-                    alert(`Video generation failed: ${error}`);
-                  }}
-                  onSuccess={(downloadUrl) => {
-                    console.log('Video generated successfully:', downloadUrl);
-                  }}
-                />
-              ) : (
-                <button
-                  onClick={handlePdfDownload}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-                  style={{
-                    backgroundColor: '#0F58F9',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                  title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
-                >
-                  <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
-                </button>
-              )
-            )}
-
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
-              <button
-                onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#8B5CF6',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
-              >
-                <Sparkles size={14} style={{ color: 'white' }} /> {t('interface.projectView.smartEdit', 'Smart Edit')}
-              </button>
-            )}
-
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && scormEnabled && (
               <ToastProvider>
                 <ScormDownloadButton
@@ -2322,62 +2223,6 @@ export default function ProjectInstanceViewPage() {
                   style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
                 />
               </ToastProvider>
-            )}
-
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <DropdownMenu open={showTrainingPlanThemePicker} onOpenChange={setShowTrainingPlanThemePicker}>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                    style={{
-                      color: '#0F58F9',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      lineHeight: '140%',
-                      letterSpacing: '0.05em'
-                    }}
-                    title="Change theme"
-                  >
-                    <Palette size={14} style={{ color: '#0F58F9' }} /> Theme
-                    <ChevronDown size={14} style={{ color: '#0F58F9' }} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-20" style={{ backgroundColor: 'white' }}>
-                  <div className="space-y-1">
-                    {[
-                      { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
-                      { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
-                      { id: 'wine', label: 'Wine', color: '#0540AB' },
-                      { id: 'vanilla', label: 'Vanilla (Engenuity)', color: '#8776A0' },
-                      { id: 'terracotta', label: 'Terracotta (Deloitte)', color: '#2D7C21' },
-                      { id: 'zephyr', label: 'Zephyr', color: '#0540AB' }
-                    ].map((theme) => {
-                      const trainingPlanData = editableData as TrainingPlanData | null;
-                      const currentTheme = trainingPlanData?.theme || 'cherry';
-                      const isSelected = currentTheme === theme.id;
-
-                      return (
-                        <button
-                          key={theme.id}
-                          onClick={() => handleTrainingPlanThemeChange(theme.id)}
-                          className={`w-full py-1.5 pr-8 pl-2 text-left text-sm hover:bg-gray-50 rounded cursor-pointer flex items-center gap-2 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
-                        >
-                          <div
-                            className="w-4 h-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: theme.color }}
-                          />
-                          <span className="flex-1">{theme.label}</span>
-                          {isSelected && (
-                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
             )}
 
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && (
@@ -2715,7 +2560,7 @@ export default function ProjectInstanceViewPage() {
           />
         )}
 
-        <div className={`p-4 sm:p-6 md:p-8 rounded-xl ${
+        <div className={`p-4 rounded-xl ${
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
             ? 'bg-[#F2F2F4]' 

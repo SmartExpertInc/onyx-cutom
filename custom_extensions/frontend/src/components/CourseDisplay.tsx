@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Edit3, Eye, Plus } from 'lucide-react';
+import { ChevronDown, Eye, Plus } from 'lucide-react';
 
 import CustomViewCard, { defaultContentTypes as defaultCardContentTypes } from '@/components/ui/custom-view-card';
 import { TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
@@ -36,24 +36,8 @@ type CourseMetrics = {
 type CourseDisplayProps = {
   t: (key: string, fallback: string) => string;
   trainingPlanData: TrainingPlanData | null;
-  previewContent?: TrainingPlanData | null;
-  onConfirmEdit?: () => void;
-  onRevertEdit?: () => void;
   collapsedSections?: Record<number, boolean>;
   onToggleSectionCollapse?: (index: number) => void;
-  onCollapseAllSections?: () => void;
-  isEditingField?: (
-    type: 'mainTitle' | 'sectionTitle' | 'lessonTitle',
-    sectionIndex?: number,
-    lessonIndex?: number
-  ) => boolean;
-  onStartEditing?: (
-    type: 'mainTitle' | 'sectionTitle' | 'lessonTitle',
-    sectionIndex?: number,
-    lessonIndex?: number
-  ) => void;
-  onInputChange?: (path: (string | number)[], value: string) => void;
-  onInputBlur?: () => void;
   columnVideoLessonEnabled?: boolean;
   lessonContentStatus?: LessonContentStatusMap;
   onAddContent?: (lesson: Lesson, contentType: string) => void;
@@ -64,7 +48,6 @@ type CourseDisplayProps = {
   contentTypes?: typeof defaultCardContentTypes;
   sources?: { type: string; name: string; icon: React.ReactNode }[];
   showMetricsCard?: boolean;
-  isReadOnly?: boolean;
 };
 
 const CustomTooltip: React.FC<{
@@ -203,16 +186,8 @@ const deriveSourcesFromTrainingPlan = (
 const CourseDisplay: React.FC<CourseDisplayProps> = ({
   t,
   trainingPlanData,
-  previewContent = null,
-  onConfirmEdit,
-  onRevertEdit,
   collapsedSections,
   onToggleSectionCollapse,
-  onCollapseAllSections,
-  isEditingField,
-  onStartEditing,
-  onInputChange,
-  onInputBlur,
   columnVideoLessonEnabled = false,
   lessonContentStatus = {},
   onAddContent,
@@ -222,8 +197,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
   metrics,
   contentTypes = defaultCardContentTypes,
   sources,
-  showMetricsCard = false,
-  isReadOnly = false
+  showMetricsCard = false
 }) => {
   const [internalCollapsedSections, setInternalCollapsedSections] = useState<Record<number, boolean>>({});
 
@@ -255,8 +229,6 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
 
   const derivedSources = useMemo(() => sources ?? deriveSourcesFromTrainingPlan(trainingPlanData, t), [sources, trainingPlanData, t]);
 
-  const editingEnabled = Boolean(onStartEditing && onInputChange && onInputBlur && isEditingField) && !isReadOnly;
-
   const handleToggleSection = (index: number) => {
     if (onToggleSectionCollapse) {
       onToggleSectionCollapse(index);
@@ -265,18 +237,6 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
         ...prev,
         [index]: !prev[index]
       }));
-    }
-  };
-
-  const handleCollapseAll = () => {
-    if (onCollapseAllSections) {
-      onCollapseAllSections();
-    } else if (trainingPlanData?.sections) {
-      const collapsed: Record<number, boolean> = {};
-      trainingPlanData.sections.forEach((_, idx) => {
-        collapsed[idx] = true;
-      });
-      setInternalCollapsedSections(collapsed);
     }
   };
 
@@ -329,90 +289,6 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px]">
       <div className="lg:col-span-3 space-y-4 pb-4">
-        {previewContent && onConfirmEdit && onRevertEdit && (
-          <div className="w-full bg-white rounded-lg p-6 border border-[#E0E0E0] mt-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
-            </div>
-            <p className="text-gray-700 mb-6">
-              {t('actions.reviewChangesMessage', 'The AI has updated your training plan. Please review the changes below. You can accept these changes to save them permanently, or revert to go back to the original content.')}
-            </p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={onConfirmEdit}
-                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#0F58F9',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                {t('actions.acceptChanges', 'Accept Changes')}
-              </button>
-
-              <button
-                onClick={onRevertEdit}
-                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  color: '#0F58F9',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em',
-                  border: '1px solid #0F58F9'
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M21 3v5h-5" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M3 21v-5h5" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                {t('actions.revertChanges', 'Revert Changes')}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="flex justify-between items-center py-3 mb-0">
-          <div className="flex items-center gap-2 text-[#797979] text-[14px]">
-            <span>
-              {totalModules} {(() => {
-                const form = getSlavicPluralForm(totalModules);
-                if (form === 'one') return t('interface.viewNew.module', 'module');
-                if (form === 'few') return t('interface.viewNew.modulesGenitive', 'modules');
-                return t('interface.viewNew.modules', 'modules');
-              })()}
-            </span>
-            <span className="w-1 h-1 rounded-full bg-[#797979]"></span>
-            <span>
-              {totalLessons} {(() => {
-                const form = getSlavicPluralForm(totalLessons);
-                if (form === 'one') return t('interface.viewNew.lessonSingular', 'lesson total');
-                if (form === 'few') return t('interface.viewNew.lessonsGenitive', 'lessons total');
-                return t('interface.viewNew.lessonsTotal', 'lessons total');
-              })()}
-            </span>
-          </div>
-          <button
-            className="flex items-center gap-2 bg-transparent rounded-md h-9 px-3 transition-all duration-200 hover:bg-gray-50 cursor-pointer"
-            style={{ border: '1px solid #E0E0E0' }}
-            onClick={handleCollapseAll}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="#797979" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-[#797979] text-[14px] font-medium">{t('interface.viewNew.collapseAll', 'Collapse All')}</span>
-          </button>
-        </div>
-
         {(() => {
           if (!trainingPlanData?.sections) {
             return (
@@ -425,55 +301,30 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
           return trainingPlanData.sections.map((section, index) => {
             const sectionLessonsCount = section.lessons?.length || 0;
             const isCollapsed = sectionsToUse[index];
-            const sectionTitleEditing = editingEnabled && isEditingField?.('sectionTitle', index);
 
             return (
               <div key={section.id || index} className="bg-[#F9F9F9] rounded-lg border border-[#E0E0E0] overflow-hidden">
                 <div className="bg-[#CCDBFC] px-[12px] py-[24px]">
-                  {sectionTitleEditing ? (
-                    <input
-                      type="text"
-                      value={section.title}
-                      onChange={(e) => onInputChange?.(['sections', index, 'title'], e.target.value)}
-                      onBlur={onInputBlur}
-                      className="text-[#0F58F9] font-semibold text-[20px] leading-[100%] bg-transparent border-none outline-none w-full"
-                      placeholder={t('interface.viewNew.moduleTitle', 'Module Title')}
-                      autoFocus
-                    />
-                  ) : (
-                    <div className="group flex items-center gap-2">
-                      <button
-                        className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-transform duration-300"
-                        style={{ backgroundColor: '#719AF5' }}
-                        onClick={() => handleToggleSection(index)}
-                      >
-                        <ChevronDown size={14} className={`text-white transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`} />
-                      </button>
-                      <h2
-                        className={`text-[#0F58F9] font-semibold text-[20px] leading-[100%] ${editingEnabled ? 'cursor-pointer' : ''}`}
-                        onClick={() => editingEnabled && onStartEditing?.('sectionTitle', index)}
-                      >
-                        {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
-                      </h2>
-                      {editingEnabled && (
-                        <button
-                          onClick={() => onStartEditing?.('sectionTitle', index)}
-                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center cursor-pointer"
-                          title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
-                        >
-                          <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
-                        </button>
-                      )}
-                      <span className="bg-white text-[#A5A5A5] text-[12px] px-2 py-[5px] rounded-full">
-                        {sectionLessonsCount} {(() => {
-                          const form = getSlavicPluralForm(sectionLessonsCount);
-                          if (form === 'one') return t('interface.viewNew.lesson', 'Lesson');
-                          if (form === 'few') return t('interface.viewNew.lessonsGenitiveSingle', 'Lessons');
-                          return t('interface.viewNew.lessonsGenitivePlural', 'Lessons');
-                        })()}
-                      </span>
-                    </div>
-                  )}
+                  <div className="group flex items-center gap-2">
+                    <button
+                      className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-transform duration-300"
+                      style={{ backgroundColor: '#719AF5' }}
+                      onClick={() => handleToggleSection(index)}
+                    >
+                      <ChevronDown size={14} className={`text-white transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`} />
+                    </button>
+                    <h2 className="text-[#0F58F9] font-semibold text-[20px] leading-[100%]">
+                      {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
+                    </h2>
+                    <span className="bg-white text-[#A5A5A5] text-[12px] px-2 py-[5px] rounded-full">
+                      {sectionLessonsCount} {(() => {
+                        const form = getSlavicPluralForm(sectionLessonsCount);
+                        if (form === 'one') return t('interface.viewNew.lesson', 'Lesson');
+                        if (form === 'few') return t('interface.viewNew.lessonsGenitiveSingle', 'Lessons');
+                        return t('interface.viewNew.lessonsGenitivePlural', 'Lessons');
+                      })()}
+                    </span>
+                  </div>
                 </div>
 
                 <div
@@ -540,8 +391,6 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                           const totalProducts = columnVideoLessonEnabled ? 4 : 3;
                           const actualCreatedCount = columnVideoLessonEnabled ? createdCount : [hasPresentation, hasOnePager, hasQuiz].filter(Boolean).length;
 
-                          const lessonTitleEditing = editingEnabled && isEditingField?.('lessonTitle', index, lessonIndex);
-
                           const videoLessonProductId = status.videoLesson.productId;
                           const quizProductId = status.quiz.productId;
                           const presentationProductId = status.presentation.productId;
@@ -556,35 +405,9 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                               <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-[#171718] text-[16px] font-medium">{lessonIndex + 1}.</span>
-                                  {lessonTitleEditing ? (
-                                    <input
-                                      type="text"
-                                      value={lesson.title}
-                                      onChange={(e) => onInputChange?.(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
-                                      onBlur={onInputBlur}
-                                      className="text-[#171718] text-[16px] leading-[100%] font-medium bg-transparent border-none outline-none flex-1"
-                                      placeholder={t('interface.viewNew.lessonTitle', 'Lesson Title')}
-                                      autoFocus
-                                    />
-                                  ) : (
-                                    <div className="group flex items-center gap-2">
-                                      <span
-                                        className={`text-[#191D30] text-[16px] leading-[100%] font-medium ${editingEnabled ? 'cursor-pointer' : ''}`}
-                                        onClick={() => editingEnabled && onStartEditing?.('lessonTitle', index, lessonIndex)}
-                                      >
-                                        {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
-                                      </span>
-                                      {editingEnabled && (
-                                        <button
-                                          onClick={() => onStartEditing?.('lessonTitle', index, lessonIndex)}
-                                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center cursor-pointer"
-                                          title={t('interface.viewNew.editLessonTitle', 'Edit lesson title')}
-                                        >
-                                          <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
-                                        </button>
-                                      )}
-                                    </div>
-                                  )}
+                                  <span className="text-[#191D30] text-[16px] leading-[100%] font-medium">
+                                    {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-2 ml-6">
                                   <div className="relative w-32 h-[3px] bg-[#CCDBFC] rounded-full overflow-hidden">
