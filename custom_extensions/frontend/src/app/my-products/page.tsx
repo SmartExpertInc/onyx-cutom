@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   FolderPlus,
   Plus,
@@ -458,6 +458,7 @@ const Header = ({ onTariffModalOpen, onAddOnsModalOpen }: { onTariffModalOpen: (
 // --- Main component ---
 const MyProductsPageInner: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLanguage();
   const [currentUser, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -468,6 +469,8 @@ const MyProductsPageInner: React.FC = () => {
   const [folders, setFolders] = useState<any[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const isEmbedded = searchParams?.get('embedded') === 'modal';
 
   // Check questionnaire completion on client side only
   useEffect(() => {
@@ -615,7 +618,7 @@ const MyProductsPageInner: React.FC = () => {
   // Show loading state while checking authentication
   if (isAuthenticated === null) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className={`flex items-center justify-center ${isEmbedded ? 'h-full' : 'h-screen'}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <span className="ml-2 text-gray-600">{t('interface.loading', 'Loading...')}</span>
       </div>
@@ -625,7 +628,7 @@ const MyProductsPageInner: React.FC = () => {
   // Show authentication error
   if (isAuthenticated === false) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className={`flex items-center justify-center ${isEmbedded ? 'h-full' : 'h-screen'}`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('interface.authenticationRequired', 'Authentication Required')}</h2>
           <p className="text-gray-600 mb-4">{t('interface.pleaseLogin', 'Please log in to access this page.')}</p>
@@ -638,15 +641,19 @@ const MyProductsPageInner: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar
-        onFolderSelect={handleFolderSelect}
-        selectedFolderId={selectedFolderId}
-        folders={folders}
-      />
-      <div className="ml-64 flex flex-col h-screen">
-        <Header onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
-        <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
+    <div className={`flex ${isEmbedded ? 'h-full bg-white w-full' : 'h-screen bg-gray-50'}`}>
+      {!isEmbedded && (
+        <Sidebar
+          onFolderSelect={handleFolderSelect}
+          selectedFolderId={selectedFolderId}
+          folders={folders}
+        />
+      )}
+      <div className={`${isEmbedded ? 'flex flex-col h-full w-full' : 'ml-64 flex flex-col h-screen'}`}>
+        {!isEmbedded && (
+          <Header onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
+        )}
+        <main className={`flex-1 overflow-y-auto ${isEmbedded ? 'p-6 bg-white' : 'p-8 bg-[#FFFFFF]'}`}>
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
@@ -654,20 +661,24 @@ const MyProductsPageInner: React.FC = () => {
           )}
         </main>
       </div>
-      <FolderModal 
-        open={showFolderModal} 
-        onClose={() => setShowFolderModal(false)} 
-        onFolderCreated={handleFolderCreated} 
-        existingFolders={folders} 
-      />
-      <TariffPlanModal
-        open={tariffModalOpen}
-        onOpenChange={setTariffModalOpen}
-      />
-      <AddOnsModal
-        isOpen={addOnsModalOpen}
-        onClose={() => setAddOnsModalOpen(false)}
-      />
+      {!isEmbedded && (
+        <>
+          <FolderModal 
+            open={showFolderModal} 
+            onClose={() => setShowFolderModal(false)} 
+            onFolderCreated={handleFolderCreated} 
+            existingFolders={folders} 
+          />
+          <TariffPlanModal
+            open={tariffModalOpen}
+            onOpenChange={setTariffModalOpen}
+          />
+          <AddOnsModal
+            isOpen={addOnsModalOpen}
+            onClose={() => setAddOnsModalOpen(false)}
+          />
+        </>
+      )}
     </div>
   );
 };
