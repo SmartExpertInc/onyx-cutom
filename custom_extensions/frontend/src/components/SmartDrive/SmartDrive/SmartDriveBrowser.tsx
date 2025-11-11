@@ -701,11 +701,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	const onUploadClick = () => uploadInput.current?.click();
 	const onUploadChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		const files = e.target.files;
-		if (!files || files.length === 0) return;
-		await uploadFiles(Array.from(files));
-		if (uploadInput.current) uploadInput.current.value = '';
-	};
+	console.log('%c[SmartDriveBrowser] FILE INPUT CHANGE EVENT', 'background: #ff0000; color: #fff; font-size: 14px; font-weight: bold');
+	console.log('[SmartDriveBrowser] Files selected from input:', e.target.files);
+	const files = e.target.files;
+	if (!files || files.length === 0) {
+		console.log('[SmartDriveBrowser] No files selected');
+		return;
+	}
+	console.log('[SmartDriveBrowser] About to call uploadFiles with:', Array.from(files).map(f => f.name));
+	await uploadFiles(Array.from(files));
+	if (uploadInput.current) uploadInput.current.value = '';
+};
 
 	const INDEX_TOKENS_PER_SEC = 2500; // ~2500 tokens/s for duration estimation
 
@@ -1037,8 +1043,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	};
 
 	const onDrop = async (e: React.DragEvent) => {
+		console.log('%c[SmartDriveBrowser] FILE DROP EVENT', 'background: #ff0000; color: #fff; font-size: 14px; font-weight: bold');
+		console.log('[SmartDriveBrowser] Files dropped:', e.dataTransfer.files);
 		e.preventDefault();
-		if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+		if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) {
+			console.log('[SmartDriveBrowser] No files dropped');
+			return;
+		}
+		console.log('[SmartDriveBrowser] About to call uploadFiles with:', Array.from(e.dataTransfer.files).map(f => f.name));
 		await uploadFiles(Array.from(e.dataTransfer.files));
 	};
 
