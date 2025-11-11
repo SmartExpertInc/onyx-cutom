@@ -289,7 +289,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px] pb-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 pb-4">
       <div className="lg:col-span-2 space-y-4">
         {(() => {
           if (!trainingPlanData?.sections) {
@@ -513,7 +513,9 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
       </div>
 
       <div className="lg:col-span-1 flex flex-col gap-4">
-        <CommentsForGeneratedProduct />
+        <div className="flex flex-col h-[550px] flex-none">
+          <CommentsForGeneratedProduct />
+        </div>
         <ProductQualityRating />
         {showMetricsCard && (
           <CustomViewCard

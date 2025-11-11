@@ -2140,6 +2140,19 @@ export default function ProjectInstanceViewPage() {
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
+  const isTrainingPlanView = projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN;
+  const containerClassName = [
+    !isTrainingPlanView && 'mx-auto',
+    projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+    projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
+    projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
+    projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+      ? 'max-w-[1920px]'
+      : (!isTrainingPlanView && 'max-w-7xl')
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <>
       <ProductViewHeader
@@ -2177,75 +2190,7 @@ export default function ProjectInstanceViewPage() {
             : 'min-h-screen bg-[#F2F2F4] p-4'
         }`}
       >
-        <div className={`mx-auto ${
-          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? 'max-w-[1920px]'
-            : 'max-w-7xl'
-        }`}>
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            {canEditContent && projectInstanceData?.component_name !== COMPONENT_NAME_TEXT_PRESENTATION && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-                style={{
-                  color: '#0F58F9',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
-              >
-                {isEditing ? (
-                  <>
-                    <Save size={14} style={{ color: '#0F58F9' }} />
-                    {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
-                  </>
-                ) : (
-                  <>
-                    <Edit size={14} style={{ color: '#0F58F9' }} />
-                    {t('interface.projectView.editContent', 'Edit Content')}
-                  </>
-                )}
-              </button>
-            )}
-
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && scormEnabled && (
-              <ToastProvider>
-                <ScormDownloadButton
-                  courseOutlineId={Number(projectId)}
-                  label={t('interface.projectView.exportScorm', 'Export to SCORM 2004')}
-                  className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
-                  style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
-                />
-              </ToastProvider>
-            )}
-
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && (
-              <button
-                onClick={() => setRoleAccess(!roleAccess)}
-                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  color: '#0F58F9',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-                title={t('interface.projectView.configureAccessControl', 'Configure access control')}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                {t('interface.projectView.ManageAccess', 'Manage Access')}
-              </button>
-            )}
-          </div>
-
+        <div className={containerClassName}>
           {/* Role Access Modal - kept for functionality */}
           {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && roleAccess && createPortal(
                   <div
