@@ -265,11 +265,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     try {
       const CUSTOM_BACKEND_URL =
         process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (process.env.NODE_ENV === 'development') {
+        headers['X-Dev-Onyx-User-ID'] = headers['X-Dev-Onyx-User-ID'] || 'dummy-onyx-user-id-for-testing';
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects`, {
         credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -280,19 +286,31 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
         throw new Error(`Failed to load products (${response.status})`);
       }
 
-      const data = await response.json();
-      if (!Array.isArray(data)) {
-        setProducts([]);
-        return;
-      }
+      const rawData = await response.json();
+      const arrayData: any[] = Array.isArray(rawData)
+        ? rawData
+        : Array.isArray(rawData?.projects)
+        ? rawData.projects
+        : [];
 
-      const prepared = data.map((raw: any) => ({
-        id: raw?.id,
-        title: computeProductTitleFromApi(raw),
-        type: raw?.design_microproduct_type,
-        createdAt: raw?.created_at,
-        thumbnail: raw?.imageUrl,
-      }));
+      const prepared = arrayData.map((raw: any) => {
+        const numericId =
+          typeof raw?.id === 'number'
+            ? raw.id
+            : typeof raw?.id === 'string'
+            ? Number.parseInt(raw.id, 10)
+            : undefined;
+
+        return {
+          id: Number.isFinite(numericId) ? numericId : undefined,
+          title: computeProductTitleFromApi(raw),
+          type: raw?.design_microproduct_type,
+          createdAt: raw?.created_at,
+          thumbnail: raw?.imageUrl,
+        };
+      });
+
+      console.log('[SmartDriveConnectors] Loaded products:', prepared.length);
 
       setProducts(
         prepared.filter(
@@ -1084,7 +1102,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
             {showMyProductsTab && (
               <button
                 onClick={() => setActiveTab('my-products')}
-                className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+                className={`flex-1 px-4 text-sm p-2 font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                   activeTab === 'my-products'
                     ? 'text-[#719AF5]'
                     : 'text-[#8D8D95] hover:text-gray-700'
