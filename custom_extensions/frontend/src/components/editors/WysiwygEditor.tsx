@@ -33,6 +33,7 @@ export function WysiwygEditor({
   const containerRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const textStyleDropdownRef = useRef<HTMLDivElement>(null);
+  const hasInitiallySelectedRef = useRef(false); // Track if we've done initial select all
 
   const cleanedStyle = { ...style };
   delete cleanedStyle.fontWeight;
@@ -149,14 +150,17 @@ export function WysiwygEditor({
   });
 
   useEffect(() => {
-    if (editor) {
+    if (editor && !hasInitiallySelectedRef.current) {
       // Use setTimeout to ensure the editor DOM is ready before focusing
       // This prevents issues with cursor positioning
       const timeoutId = setTimeout(() => {
-        // Focus the editor and place cursor at the end (not selecting all text)
-        // This allows normal text editing with visible cursor
-        // If user clicks in the middle of text, TipTap will handle cursor positioning correctly
-        editor.commands.focus('end');
+        // On initial focus, select all text (like standard input behavior)
+        // This allows user to immediately start typing to replace all text
+        // After this initial selection, user can click/select text normally
+        // TipTap will handle normal text selection after this initial selectAll
+        editor.commands.focus();
+        editor.commands.selectAll();
+        hasInitiallySelectedRef.current = true;
         
         // Set initial color from editor content or CSS styles
         const initialColor = getCurrentTextColor();
@@ -165,7 +169,7 @@ export function WysiwygEditor({
       
       return () => clearTimeout(timeoutId);
     }
-  }, [editor, style, cleanedStyle]);
+  }, [editor]); // Only depend on editor, not style/cleanedStyle to avoid re-running
 
   useEffect(() => {
     if (!editor) return;
