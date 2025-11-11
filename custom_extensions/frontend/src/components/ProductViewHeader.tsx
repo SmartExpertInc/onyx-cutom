@@ -246,7 +246,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                     color: '#171718',
                     border: '1px solid #171718',
                     fontSize: '14px',
-                    fontWeight: 600,
                     lineHeight: '140%',
                     letterSpacing: '0.05em'
                   }}
@@ -265,7 +264,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   color: '#0F58F9',
                   border: '1px solid #0F58F9',
                   fontSize: '14px',
-                  fontWeight: 600,
                   lineHeight: '140%',
                   letterSpacing: '0.05em'
                 }}
@@ -283,7 +281,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   color: '#FFFFFF',
                   border: '1px solid #0F58F9',
                   fontSize: '14px',
-                  fontWeight: 600,
                   lineHeight: '140%',
                   letterSpacing: '0.05em'
                 }}
@@ -303,7 +300,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 backgroundColor: isEditing ? '#10B981' : '#FFFFFF',
                 color: isEditing ? '#FFFFFF' : '#171718',
                 fontSize: '14px',
-                fontWeight: '600',
                 lineHeight: '140%',
                 letterSpacing: '0.05em',
                 border: isEditing ? '1px solid #10B981' : '1px solid #171718'
@@ -336,7 +332,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 backgroundColor: '#FFFFFF',
               color: '#171718',
               fontSize: '14px',
-              fontWeight: '600',
               lineHeight: '140%',
                 letterSpacing: '0.05em',
                 border: '1px solid #171718'
@@ -367,7 +362,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 backgroundColor: '#0F58F9',
                 color: '#FFFFFF',
                 fontSize: '14px',
-                fontWeight: '600',
                 lineHeight: '140%',
                 letterSpacing: '0.05em',
                 border: '1px solid #0F58F9'
@@ -387,7 +381,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 courseOutlineId={Number(productId)}
                 label={t('interface.viewNew.exportScorm', 'Export to SCORM 2004')}
                 className="rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
-                style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
+                style={{ fontSize: '14px', lineHeight: '140%', letterSpacing: '0.05em' }}
               />
             </ToastProvider>
           )}

@@ -246,7 +246,11 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
     }
 
     if (typeof window !== 'undefined') {
-      const url = `/projects/view/${productId}`;
+      const currentPath = window.location.pathname;
+      const projectsSegmentIndex = currentPath.indexOf('/projects/');
+      const prefix = projectsSegmentIndex >= 0 ? currentPath.slice(0, projectsSegmentIndex) : '';
+      const basePath = currentPath.includes('/projects/view-link/') ? `${prefix}/projects/view-link` : `${prefix}/projects/view`;
+      const url = `${basePath}/${productId}`;
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
