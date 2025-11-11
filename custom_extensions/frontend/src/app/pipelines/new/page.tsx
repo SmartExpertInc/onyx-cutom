@@ -1,9 +1,6 @@
 // custom_extensions/frontend/src/app/pipelines/new/page.tsx
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
-
 import React, { useState, useEffect, Suspense, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { PipelineFormData } from '@/types/pipelines';
@@ -153,9 +150,10 @@ const AddPipelinePageComponent = () => {
       }
       alert('Product (Pipeline) created successfully!');
       router.push('/pipelines');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to submit product (pipeline):", err);
-      setError(err.message || "An unknown error occurred.");
+      const message = err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }

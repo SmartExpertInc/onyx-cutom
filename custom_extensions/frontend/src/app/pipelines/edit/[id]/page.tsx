@@ -1,9 +1,6 @@
 // custom_extensions/frontend/src/app/pipelines/edit/[id]/page.tsx
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
-
 import React, { useState, useEffect, Suspense, ChangeEvent, FormEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link'; // Make sure Link is imported
@@ -83,9 +80,10 @@ const EditPipelinePageComponent = () => {
             structuring_prompts_list: data.structuring_prompts_list || [],
           });
           setInitialPipelineName(data.pipeline_name);
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("Failed to fetch product data:", err);
-          setError(err.message || "Could not load product data.");
+          const message = err instanceof Error ? err.message : "Could not load product data.";
+          setError(message);
         } finally {
           setIsLoadingPage(false);
         }
@@ -214,9 +212,10 @@ const EditPipelinePageComponent = () => {
       }
       alert('Product (Pipeline) updated successfully!');
       router.push('/pipelines'); 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to submit product (pipeline) update:", err);
-      setError(err.message || "An unknown error occurred.");
+      const message = err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }

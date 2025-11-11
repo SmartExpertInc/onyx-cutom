@@ -62,7 +62,7 @@ const applyDefaultAvatarToObject = <T extends Record<string, any>>(
 ): T => {
   if (!options.imageUrl) return target;
 
-  const next: T = { ...target };
+  const next: Record<string, any> = { ...target };
 
   Object.keys(next).forEach((key) => {
     const value = next[key];
@@ -77,7 +77,7 @@ const applyDefaultAvatarToObject = <T extends Record<string, any>>(
     }
   });
 
-  return next;
+  return next as T;
 };
 
 export const applyDefaultAvatarToProps = <T extends Record<string, any>>(
