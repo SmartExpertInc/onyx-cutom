@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PsychologicalSafetySlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -133,6 +134,9 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   titleColor,
   contentColor,
   accentColor,
+  logoPath = '',
+  logoText = 'Your Logo',
+  pageNumber = '01',
   isEditable = false,
   onUpdate,
   theme,
@@ -142,6 +146,8 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   const [editingContent, setEditingContent] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber || '01');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -149,8 +155,8 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    background: themeBg,
+    aspectRatio: '16/9',
+    background: '#E0E7FF',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -163,7 +169,10 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({
+        ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, logoText, pageNumber },
+        title: newTitle
+      });
     }
   };
 
@@ -171,7 +180,10 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({
+        ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, logoText, pageNumber },
+        content: newContent
+      });
     }
   };
 
@@ -187,17 +199,52 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({
+        ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, logoText, pageNumber },
+        profileImagePath: newImagePath
+      });
     }
   };
 
+  const handlePageNumberSave = (value: string) => {
+    setCurrentPageNumber(value);
+    setEditingPageNumber(false);
+    onUpdate && onUpdate({
+      ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, logoText, pageNumber },
+      pageNumber: value
+    });
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber || '01');
+    setEditingPageNumber(false);
+  };
+
+  useEffect(() => {
+    setCurrentPageNumber(pageNumber || '01');
+  }, [pageNumber]);
+
   return (
     <div className="psychological-safety-slide-template" style={slideStyles}>
+      {/* Logo */}
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p) => onUpdate && onUpdate({
+          ...{ title, content, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoText, pageNumber },
+          logoPath: p
+        })}
+        isEditable={isEditable}
+        color="#09090B"
+        text={logoText || 'Your Logo'}
+        fontSize="17px"
+        style={{ position: 'absolute', top: '40px', left: '40px' }}
+      />
+
       {/* Main Card */}
       <div style={{
         width: '600px',
         height: '336px',
-        backgroundColor: themeAccent,
+        backgroundColor: '#ffffff',
         borderRadius: '30px',
         padding: '40px',
         display: 'flex',
@@ -208,10 +255,12 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
                  {/* Profile Image - Top Left */}
          <div style={{
            position: 'absolute',
-           top: '40px',
+           top: '20px',
            left: '40px',
-           width: '80px',
-           height: '80px',
+           width: '120px',
+           height: '120px',
+           backgroundColor: '#E0E7FF',
+           overflow: 'hidden',
            borderRadius: '50%',
            display: 'flex',
            alignItems: 'center',
@@ -229,6 +278,8 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
                height: '100%',
                borderRadius: '50%',
                objectFit: 'cover',
+               position: 'absolute',
+               bottom: '-28px',
                overflow: 'hidden'
              }}
            />
@@ -237,10 +288,10 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         {/* Title */}
         <div style={{
           fontSize: '30px',
-          color: themeBg,
+          color: '#09090B',
           fontWeight: 'bold',
           lineHeight: '1.2',
-          marginTop: '106px',
+          marginTop: '130px',
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -251,7 +302,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               className="psychological-safety-title-editor"
               style={{
                 fontSize: '36px',
-                color: themeBg,
+                color: '#09090B',
                 fontWeight: 'bold',
                 lineHeight: '1.2'
               }}
@@ -272,7 +323,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         {/* Content */}
         <div style={{
           fontSize: '18px',
-          color: themeBg,
+          color: '#09090B',
           lineHeight: '1.5',
           marginBottom: '5px'
         }}>
@@ -285,7 +336,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               className="psychological-safety-content-editor"
               style={{
                 fontSize: '18px',
-                color: themeBg,
+                color: '#09090B',
                 lineHeight: '1.5'
               }}
             />
@@ -301,6 +352,42 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
             </div>
           )}
         </div>
+      </div>
+
+      {/* Page number */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '40px',
+          right: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: '#09090B',
+          fontSize: '16px',
+          fontWeight: 500
+        }}
+      >
+        {isEditable && editingPageNumber ? (
+          <InlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="psychological-safety-page-number-editor"
+            style={{
+              minWidth: '32px',
+              color: '#09090B'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+        <div style={{ width: '20px', height: '1px', backgroundColor: '#09090B' }} />
       </div>
     </div>
   );

@@ -811,6 +811,9 @@ export interface PsychologicalSafetySlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
+  pageNumber?: string;
   voiceoverText?: string;
 }
 
