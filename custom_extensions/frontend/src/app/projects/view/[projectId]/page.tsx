@@ -125,6 +125,30 @@ const slugify = (text: string | null | undefined): string => {
     .replace(/--+/g, '-');
 }
 
+// Remove updatedAt field from data
+function removeMisleadingFields<T>(data: T, componentName: string): T {
+  if (Array.isArray(data)) {
+    // Process each item in arrays
+    return data.map(item => removeMisleadingFields(item, componentName)) as unknown as T;
+  }
+
+  if (data && typeof data === "object") {
+    // Process object
+    const result: any = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (key === "updatedAt" && componentName === COMPONENT_NAME_SLIDE_DECK) {
+        continue; // Skip field
+      }
+      result[key] = removeMisleadingFields(value, componentName);
+    }
+    return result;
+  }
+
+  // Return primitive values unchanged
+  return data;
+}
+
+
 // PDF Export Loading Modal Component
 const PdfExportLoadingModal: React.FC<{
   isOpen: boolean;
@@ -1226,8 +1250,8 @@ export default function ProjectInstanceViewPage() {
     }
 
     // Check if data has actually changed
-    const currentDataString = JSON.stringify(editableData);
-    const lastSavedDataString = lastSavedDataRef.current ? JSON.stringify(lastSavedDataRef.current) : null;
+    const currentDataString = JSON.stringify(removeMisleadingFields(editableData, projectInstanceData.component_name));
+    const lastSavedDataString = lastSavedDataRef.current ? JSON.stringify(removeMisleadingFields(lastSavedDataRef.current, projectInstanceData.component_name)) : null;
     
     if (currentDataString === lastSavedDataString) {
       console.log('Auto-save: No changes detected, skipping save');
