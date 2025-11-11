@@ -28,6 +28,12 @@ interface SceneTimelineProps {
   showReady?: boolean;
 }
 
+// Helper function to strip HTML tags from strings
+const stripHtmlTags = (html: string): string => {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+};
+
 export default function SceneTimeline({ 
   scenes, 
   aspectRatio = '16:9', 
