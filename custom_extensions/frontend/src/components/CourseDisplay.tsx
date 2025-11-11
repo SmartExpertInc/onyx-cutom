@@ -308,7 +308,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                 >
                   <div className="p-[25px] pt-0">
                     <div
-                      className="grid mb-4 gap-4 items-center px-[25px] py-[10px] mx-[-25px]"
+                      className="grid gap-4 items-center px-[25px] py-[10px] mx-[-25px]"
                       style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px` }}
                     >
                       <div className="text-[12px] text-[#A5A5A5]">
@@ -358,7 +358,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 const exists = Boolean(columnStatus?.exists && columnStatus?.productId);
                                 const productIdForColumn = columnStatus?.productId;
                                 const color = exists ? '#0F58F9' : '#E0E0E0';
-                                const sharedClasses = 'flex flex-col items-center justify-center gap-1 text-[9px] font-medium transition-colors';
+                                const sharedClasses = 'flex flex-col items-center justify-center gap-2 text-[8px] transition-colors';
 
                                 if (exists && productIdForColumn) {
                                   return (
