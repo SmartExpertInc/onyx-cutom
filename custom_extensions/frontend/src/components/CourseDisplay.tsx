@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom';
 import { ChevronDown, Eye, Plus } from 'lucide-react';
 
 import CustomViewCard, { defaultContentTypes as defaultCardContentTypes } from '@/components/ui/custom-view-card';
+import CommentsForGeneratedProduct from '@/components/CommentsForGeneratedProduct';
+import ProductQualityRating from '@/components/ProductQualityRating';
 import { TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 
 export type LessonContentStatusMap = {
@@ -287,8 +289,8 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px]">
-      <div className="lg:col-span-3 space-y-4 pb-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px] pb-4">
+      <div className="lg:col-span-2 space-y-4">
         {(() => {
           if (!trainingPlanData?.sections) {
             return (
@@ -510,13 +512,17 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
         })()}
       </div>
 
-      <div className={`lg:col-span-1 ${showMetricsCard ? '' : 'hidden'}`}>
-        <CustomViewCard
-          projectId={productId}
-          sources={derivedSources}
-          contentTypes={contentTypes}
-          metrics={metricsWithFallback}
-        />
+      <div className="lg:col-span-1 flex flex-col gap-4">
+        <CommentsForGeneratedProduct />
+        <ProductQualityRating />
+        {showMetricsCard && (
+          <CustomViewCard
+            projectId={productId}
+            sources={derivedSources}
+            contentTypes={contentTypes}
+            metrics={metricsWithFallback}
+          />
+        )}
       </div>
     </div>
   );
