@@ -240,43 +240,38 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
             }
             
             // Calculate time-based progress (10% to 90%)
-            if (oldState.startedAtMs) {
-              const elapsedMs = now - oldState.startedAtMs;
-              const elapsedSeconds = elapsedMs / 1000;
-              
-              // Get estimated tokens from progress data or stored state
-              const estimatedTokens = progress?.estimated_tokens || oldState.estimatedTokens || 5000;
-              
-              // Update stored estimated tokens if we got new data
-              if (progress?.estimated_tokens) {
-                out[p] = { ...oldState, estimatedTokens: progress.estimated_tokens };
-              }
-              
-              // Calculate estimated duration (tokens / tokens per second)
-              const estimatedDurationSeconds = estimatedTokens / TOKENS_PER_SECOND;
-              
-              // Calculate progress: 10% at start, grows to 90% at estimated completion
-              // Formula: 10 + (elapsedSeconds / estimatedDuration) * 80
-              const timeBasedProgress = 10 + Math.min(80, (elapsedSeconds / estimatedDurationSeconds) * 80);
-              
-              // Use the higher of time-based or current progress, cap at 90%
-              const newProgress = Math.min(90, Math.max(oldState.etaPct, timeBasedProgress));
-              
-              out[p] = { 
-                ...oldState,
-                etaPct: newProgress,
-                status: progress?.status || oldState.status || 'pending',
-                estimatedTokens: progress?.estimated_tokens || oldState.estimatedTokens
-              };
-            } else if (progress) {
-              // First time getting progress data, initialize with time tracking
-              out[p] = {
-                ...oldState,
-                startedAtMs: now,
-                estimatedTokens: progress.estimated_tokens || 5000,
-                status: progress.status || 'pending'
-              };
-            }
+            const elapsedMs = oldState.startedAtMs ? now - oldState.startedAtMs : 0;
+            const elapsedSeconds = elapsedMs / 1000;
+            
+            // Get estimated tokens from progress data or stored state or use default
+            const estimatedTokens = progress?.estimated_tokens || oldState.estimatedTokens || 5000;
+            
+            // Calculate estimated duration (tokens / tokens per second)
+            const estimatedDurationSeconds = estimatedTokens / TOKENS_PER_SECOND;
+            
+            // Calculate progress: 10% at start, grows to 90% at estimated completion
+            // Formula: 10 + (elapsedSeconds / estimatedDuration) * 80
+            const timeBasedProgress = 10 + Math.min(80, (elapsedSeconds / estimatedDurationSeconds) * 80);
+            
+            // Use the higher of time-based or current progress, cap at 90%
+            const newProgress = Math.min(90, Math.max(oldState.etaPct, timeBasedProgress));
+            
+            console.log(`[SmartDriveConnectors] Progress update for ${p}:`, {
+              elapsedSeconds: elapsedSeconds.toFixed(1),
+              estimatedTokens,
+              estimatedDurationSeconds: estimatedDurationSeconds.toFixed(1),
+              timeBasedProgress: timeBasedProgress.toFixed(1),
+              oldProgress: oldState.etaPct,
+              newProgress: newProgress.toFixed(1)
+            });
+            
+            out[p] = { 
+              ...oldState,
+              etaPct: newProgress,
+              status: progress?.status || oldState.status || 'pending',
+              estimatedTokens,
+              startedAtMs: oldState.startedAtMs || now // Ensure startedAtMs is set
+            };
           }
           
           return out;
