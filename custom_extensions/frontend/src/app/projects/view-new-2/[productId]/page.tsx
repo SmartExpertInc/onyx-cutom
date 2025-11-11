@@ -1128,11 +1128,10 @@ export default function ProductViewNewPage() {
         projectData={projectData}
         editableData={editableData}
         productId={productId}
-        showAiAgent={showAiAgent}
-        setShowAiAgent={setShowAiAgent}
+        showSmartEditor={showAiAgent}
+        setShowSmartEditor={setShowAiAgent}
         scormEnabled={scormEnabled}
         componentName={COMPONENT_NAME_TRAINING_PLAN}
-        t={t}
       />
 
       <div 
