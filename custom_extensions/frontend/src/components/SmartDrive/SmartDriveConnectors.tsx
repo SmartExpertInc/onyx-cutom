@@ -202,91 +202,110 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   
   // Polling mechanism for indexing progress
   useEffect(() => {
-    const pathsNeedingPolling = Object.entries(indexing)
-      .filter(([_, st]) => st && st.status !== 'success' && st.status !== 'done')
-      .map(([path]) => path);
-
-    if (pathsNeedingPolling.length === 0) return;
-
     const TOKENS_PER_SECOND = 4; // Processing speed: 4 tokens/sec
-
+    
     const pollProgress = async () => {
-      try {
-        const params = new URLSearchParams();
-        for (const p of pathsNeedingPolling) {
-          params.append('paths', p);
-        }
-        
-        const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-progress?${params.toString()}`;
-        const res = await fetch(url, { credentials: 'same-origin' });
-        
-        if (!res.ok) return;
-        
-        const data = await res.json();
-        const progressData = data?.progress || {};
-        
-        setIndexing(prev => {
-          const out: IndexingState = { ...prev };
-          const now = Date.now();
-          
-          for (const p of Object.keys(out)) {
-            const progress = progressData[p];
-            const oldState = out[p];
-            
-            // If complete, set to 100% and done
-            if (progress && (progress.is_complete || progress.status === 'success')) {
-              out[p] = { ...oldState, status: 'done', etaPct: 100 };
-              continue;
+      setIndexing(prev => {
+        const pathsNeedingPolling = Object.entries(prev)
+          .filter(([_, st]) => st && st.status !== 'success' && st.status !== 'done')
+          .map(([path]) => path);
+
+        if (pathsNeedingPolling.length === 0) return prev;
+
+        // Fetch progress data asynchronously
+        (async () => {
+          try {
+            const params = new URLSearchParams();
+            for (const p of pathsNeedingPolling) {
+              params.append('paths', p);
             }
             
-            // Calculate time-based progress (10% to 90%)
-            const elapsedMs = oldState.startedAtMs ? now - oldState.startedAtMs : 0;
-            const elapsedSeconds = elapsedMs / 1000;
+            const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-progress?${params.toString()}`;
+            console.log('[SmartDriveConnectors] Polling:', url);
+            const res = await fetch(url, { credentials: 'same-origin' });
             
-            // Get estimated tokens from progress data or stored state or use default
-            const estimatedTokens = progress?.estimated_tokens || oldState.estimatedTokens || 5000;
+            if (!res.ok) {
+              console.log('[SmartDriveConnectors] Polling response not ok:', res.status);
+              return;
+            }
             
-            // Calculate estimated duration (tokens / tokens per second)
-            const estimatedDurationSeconds = estimatedTokens / TOKENS_PER_SECOND;
+            const data = await res.json();
+            const progressData = data?.progress || {};
+            console.log('[SmartDriveConnectors] Progress data received:', progressData);
             
-            // Calculate progress: 10% at start, grows to 90% at estimated completion
-            // Formula: 10 + (elapsedSeconds / estimatedDuration) * 80
-            const timeBasedProgress = 10 + Math.min(80, (elapsedSeconds / estimatedDurationSeconds) * 80);
-            
-            // Use the higher of time-based or current progress, cap at 90%
-            const newProgress = Math.min(90, Math.max(oldState.etaPct, timeBasedProgress));
-            
-            console.log(`[SmartDriveConnectors] Progress update for ${p}:`, {
-              elapsedSeconds: elapsedSeconds.toFixed(1),
-              estimatedTokens,
-              estimatedDurationSeconds: estimatedDurationSeconds.toFixed(1),
-              timeBasedProgress: timeBasedProgress.toFixed(1),
-              oldProgress: oldState.etaPct,
-              newProgress: newProgress.toFixed(1)
+            setIndexing(current => {
+              const out: IndexingState = { ...current };
+              const now = Date.now();
+              
+              for (const p of Object.keys(out)) {
+                const progress = progressData[p];
+                const oldState = out[p];
+                
+                if (!oldState) continue;
+                
+                // If complete, set to 100% and done
+                if (progress && (progress.is_complete || progress.status === 'success')) {
+                  console.log(`[SmartDriveConnectors] ${p} is complete!`);
+                  out[p] = { ...oldState, status: 'done', etaPct: 100 };
+                  continue;
+                }
+                
+                // Calculate time-based progress (10% to 90%)
+                const elapsedMs = oldState.startedAtMs ? now - oldState.startedAtMs : 0;
+                const elapsedSeconds = elapsedMs / 1000;
+                
+                // Get estimated tokens from progress data or stored state or use default
+                const estimatedTokens = progress?.estimated_tokens || oldState.estimatedTokens || 5000;
+                
+                // Calculate estimated duration (tokens / tokens per second)
+                const estimatedDurationSeconds = estimatedTokens / TOKENS_PER_SECOND;
+                
+                // Calculate progress: 10% at start, grows to 90% at estimated completion
+                // Formula: 10 + (elapsedSeconds / estimatedDuration) * 80
+                const timeBasedProgress = 10 + Math.min(80, (elapsedSeconds / estimatedDurationSeconds) * 80);
+                
+                // Use the higher of time-based or current progress, cap at 90%
+                const newProgress = Math.min(90, Math.max(oldState.etaPct, timeBasedProgress));
+                
+                console.log(`[SmartDriveConnectors] Progress update for ${p}:`, {
+                  elapsedSeconds: elapsedSeconds.toFixed(1),
+                  estimatedTokens,
+                  estimatedDurationSeconds: estimatedDurationSeconds.toFixed(1),
+                  timeBasedProgress: timeBasedProgress.toFixed(1),
+                  oldProgress: oldState.etaPct,
+                  newProgress: newProgress.toFixed(1),
+                  hasStartedAtMs: !!oldState.startedAtMs
+                });
+                
+                out[p] = { 
+                  ...oldState,
+                  etaPct: newProgress,
+                  status: progress?.status || oldState.status || 'pending',
+                  estimatedTokens,
+                  startedAtMs: oldState.startedAtMs || now // Ensure startedAtMs is set
+                };
+              }
+              
+              return out;
             });
-            
-            out[p] = { 
-              ...oldState,
-              etaPct: newProgress,
-              status: progress?.status || oldState.status || 'pending',
-              estimatedTokens,
-              startedAtMs: oldState.startedAtMs || now // Ensure startedAtMs is set
-            };
+          } catch (error) {
+            console.error('[SmartDriveConnectors] Polling error:', error);
           }
-          
-          return out;
-        });
-      } catch (error) {
-        console.error('[SmartDriveConnectors] Polling error:', error);
-      }
+        })();
+
+        return prev;
+      });
     };
 
-    // Poll immediately, then every 1.5 seconds
-    pollProgress();
+    // Poll every 1.5 seconds
     const interval = setInterval(pollProgress, 1500);
+    console.log('[SmartDriveConnectors] Started polling interval');
 
-    return () => clearInterval(interval);
-  }, [indexing]);
+    return () => {
+      console.log('[SmartDriveConnectors] Stopped polling interval');
+      clearInterval(interval);
+    };
+  }, []); // Empty deps - runs once on mount
 
   // Cleanup completed indexing entries after a delay
   useEffect(() => {
