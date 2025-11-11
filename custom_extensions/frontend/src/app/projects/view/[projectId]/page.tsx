@@ -1095,12 +1095,14 @@ export default function ProjectInstanceViewPage() {
       return;
     }
     const editableComponentTypes = [
-      COMPONENT_NAME_PDF_LESSON,
       COMPONENT_NAME_TRAINING_PLAN,
+      COMPONENT_NAME_PDF_LESSON,
       COMPONENT_NAME_SLIDE_DECK,
+      COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
+      COMPONENT_NAME_TEXT_PRESENTATION,
       COMPONENT_NAME_VIDEO_LESSON,
       COMPONENT_NAME_QUIZ,
-      COMPONENT_NAME_TEXT_PRESENTATION,
+      COMPONENT_NAME_VIDEO_PRODUCT
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
       setSaveError(t('interface.projectView.contentEditingNotSupported', 'Content editing is not supported for this component type on this page.'));
@@ -1904,48 +1906,9 @@ export default function ProjectInstanceViewPage() {
             deck={slideDeckData}
             isEditable={true}
             onSave={(updatedDeck) => {
-              // Update the editableData state with the new deck and trigger save
+              // Update the editableData state with the new deck and trigger auto-save
               console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
               setEditableData(updatedDeck);
-
-                // Use the updated deck directly for immediate save
-                console.log('🔍 page.tsx: Triggering auto-save with updated data');
-                // Create a temporary auto-save function that uses the updated deck
-                const tempAutoSave = async () => {
-                  if (!projectId || !projectInstanceData) {
-                    console.log('🔍 page.tsx: Missing required data for auto-save');
-                    return;
-                  }
-
-                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-                  if (devUserId && process.env.NODE_ENV === 'development') {
-                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-                  }
-
-                  try {
-                    const payload = { microProductContent: updatedDeck };
-                    console.log('🔍 page.tsx: Sending updated deck to backend:', JSON.stringify(payload, null, 2));
-
-                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
-                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
-                    });
-
-                    if (!response.ok) {
-                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
-                      const errorText = await response.text();
-                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
-                    } else {
-                      console.log('🔍 page.tsx: Auto-save successful with updated data');
-                      const responseData = await response.json();
-                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
-                    }
-                  } catch (err: any) {
-                    console.error('🔍 page.tsx: Auto-save error:', err.message);
-                  }
-                };
-
-              tempAutoSave();
             }}
             theme={currentTheme}
             projectId={projectId}
@@ -1962,48 +1925,9 @@ export default function ProjectInstanceViewPage() {
             deck={videoLessonPresentationData}
             isEditable={true}
             onSave={(updatedDeck) => {
-              // Update the editableData state with the new deck and trigger save
+              // Update the editableData state with the new deck and trigger auto-save
               console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
               setEditableData(updatedDeck);
-
-                // Use the updated deck directly for immediate save
-                console.log('🔍 page.tsx: Triggering auto-save with updated video lesson data');
-                // Create a temporary auto-save function that uses the updated deck
-                const tempAutoSave = async () => {
-                  if (!projectId || !projectInstanceData) {
-                    console.log('🔍 page.tsx: Missing required data for auto-save');
-                    return;
-                  }
-
-                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-                  if (devUserId && process.env.NODE_ENV === 'development') {
-                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-                  }
-
-                  try {
-                    const payload = { microProductContent: updatedDeck };
-                    console.log('🔍 page.tsx: Sending updated video lesson deck to backend:', JSON.stringify(payload, null, 2));
-
-                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
-                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
-                    });
-
-                    if (!response.ok) {
-                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
-                      const errorText = await response.text();
-                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
-                    } else {
-                      console.log('🔍 page.tsx: Auto-save successful with updated data');
-                      const responseData = await response.json();
-                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
-                    }
-                  } catch (err: any) {
-                    console.error('🔍 page.tsx: Auto-save error:', err.message);
-                  }
-                };
-
-              tempAutoSave();
             }}
             theme="dark-purple"
             projectId={projectId}
