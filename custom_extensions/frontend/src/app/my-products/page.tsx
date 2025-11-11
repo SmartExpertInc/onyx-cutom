@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-
-export const dynamic = "force-dynamic";
 import {
   FolderPlus,
   Plus,
@@ -471,7 +469,6 @@ const MyProductsPageInner: React.FC = () => {
   const [folders, setFolders] = useState<any[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   const isEmbedded = searchParams?.get('embedded') === 'modal';
 
   // Check questionnaire completion on client side only
@@ -619,8 +616,9 @@ const MyProductsPageInner: React.FC = () => {
 
   // Show loading state while checking authentication
   if (isAuthenticated === null) {
+    const loadingHeightClass = isEmbedded ? 'h-full min-h-[200px]' : 'h-screen';
     return (
-      <div className={`flex items-center justify-center ${isEmbedded ? 'h-full' : 'h-screen'}`}>
+      <div className={`flex items-center justify-center ${loadingHeightClass}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <span className="ml-2 text-gray-600">{t('interface.loading', 'Loading...')}</span>
       </div>
@@ -629,8 +627,9 @@ const MyProductsPageInner: React.FC = () => {
 
   // Show authentication error
   if (isAuthenticated === false) {
+    const authErrorHeightClass = isEmbedded ? 'h-full min-h-[200px]' : 'h-screen';
     return (
-      <div className={`flex items-center justify-center ${isEmbedded ? 'h-full' : 'h-screen'}`}>
+      <div className={`flex items-center justify-center ${authErrorHeightClass}`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('interface.authenticationRequired', 'Authentication Required')}</h2>
           <p className="text-gray-600 mb-4">{t('interface.pleaseLogin', 'Please log in to access this page.')}</p>
@@ -642,8 +641,16 @@ const MyProductsPageInner: React.FC = () => {
     );
   }
 
+  const containerHeightClass = isEmbedded ? 'h-full min-h-[400px]' : 'h-screen';
+  const mainWrapperClasses = isEmbedded
+    ? 'flex flex-col flex-1 h-full'
+    : 'ml-64 flex flex-col h-screen';
+  const mainClasses = isEmbedded
+    ? 'flex-1 overflow-y-auto p-4 bg-white'
+    : 'flex-1 overflow-y-auto p-8 bg-[#FFFFFF]';
+
   return (
-    <div className={`flex ${isEmbedded ? 'h-full bg-white w-full' : 'h-screen bg-gray-50'}`}>
+    <div className={`flex ${containerHeightClass} ${isEmbedded ? 'bg-white' : 'bg-gray-50'}`}>
       {!isEmbedded && (
         <Sidebar
           onFolderSelect={handleFolderSelect}
@@ -651,11 +658,14 @@ const MyProductsPageInner: React.FC = () => {
           folders={folders}
         />
       )}
-      <div className={`${isEmbedded ? 'flex flex-col h-full w-full' : 'ml-64 flex flex-col h-screen'}`}>
+      <div className={mainWrapperClasses}>
         {!isEmbedded && (
-          <Header onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
+          <Header
+            onTariffModalOpen={() => setTariffModalOpen(true)}
+            onAddOnsModalOpen={() => setAddOnsModalOpen(true)}
+          />
         )}
-        <main className={`flex-1 overflow-y-auto ${isEmbedded ? 'p-6 bg-white' : 'p-8 bg-[#FFFFFF]'}`}>
+        <main className={mainClasses}>
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
@@ -663,24 +673,20 @@ const MyProductsPageInner: React.FC = () => {
           )}
         </main>
       </div>
-      {!isEmbedded && (
-        <>
-          <FolderModal 
-            open={showFolderModal} 
-            onClose={() => setShowFolderModal(false)} 
-            onFolderCreated={handleFolderCreated} 
-            existingFolders={folders} 
-          />
-          <TariffPlanModal
-            open={tariffModalOpen}
-            onOpenChange={setTariffModalOpen}
-          />
-          <AddOnsModal
-            isOpen={addOnsModalOpen}
-            onClose={() => setAddOnsModalOpen(false)}
-          />
-        </>
-      )}
+      <FolderModal 
+        open={showFolderModal} 
+        onClose={() => setShowFolderModal(false)} 
+        onFolderCreated={handleFolderCreated} 
+        existingFolders={folders} 
+      />
+      <TariffPlanModal
+        open={tariffModalOpen}
+        onOpenChange={setTariffModalOpen}
+      />
+      <AddOnsModal
+        isOpen={addOnsModalOpen}
+        onClose={() => setAddOnsModalOpen(false)}
+      />
     </div>
   );
 };
