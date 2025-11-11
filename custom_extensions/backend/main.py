@@ -8038,6 +8038,27 @@ async def startup_event():
             
             logger.info("'user_features' table ensured.")
 
+            # --- ✅ NEW: Ensure presentation_jobs table for persistent video job storage ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS presentation_jobs (
+                    job_id TEXT PRIMARY KEY,
+                    status TEXT NOT NULL,
+                    progress REAL DEFAULT 0.0,
+                    error TEXT,
+                    video_url TEXT,
+                    thumbnail_url TEXT,
+                    slide_image_path TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    completed_at TIMESTAMPTZ,
+                    last_heartbeat TIMESTAMPTZ,
+                    created_files JSONB DEFAULT '[]'::jsonb
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_presentation_jobs_status ON presentation_jobs(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_presentation_jobs_created_at ON presentation_jobs(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_presentation_jobs_status_created ON presentation_jobs(status, created_at);")
+            logger.info("'presentation_jobs' table ensured - video jobs will persist across restarts ✅")
+
             # Seed initial feature definitions
             try:
                 initial_features = [
@@ -40955,11 +40976,14 @@ async def generate_poster_image(request: Request):
                 logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - html_content length: {len(html_content)} chars")
                 logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - output_path: {output_path}")
                 logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - template_id: poster")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - dimensions: 1000x1000 (poster format)")
                 
                 success = await html_to_image_service.convert_html_to_png(
                     html_content=html_content,
                     output_path=output_path,
-                    template_id="poster"
+                    template_id="poster",
+                    width=1000,
+                    height=1000
                 )
                 
                 conversion_end = time.time()
@@ -40998,7 +41022,9 @@ async def generate_poster_image(request: Request):
             success = await html_to_image_service.convert_html_to_png(
                 html_content=html_content,
                 output_path=output_path,
-                template_id="poster"
+                template_id="poster",
+                width=1000,
+                height=1000
             )
         
         # File validation and analysis

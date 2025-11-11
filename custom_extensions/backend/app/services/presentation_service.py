@@ -61,52 +61,135 @@ class PresentationJob:
     created_at: datetime = None
     completed_at: Optional[datetime] = None
     last_heartbeat: Optional[datetime] = None  # Track last heartbeat to prevent timeouts
+    created_files: List[str] = None  # Track all files created during job for cleanup
     
     def __post_init__(self):
         if self.created_at is None:
             self.created_at = datetime.now()
+        if self.created_files is None:
+            self.created_files = []
 
 class ProfessionalPresentationService:
-    """Professional presentation generation service."""
+    """Professional presentation generation service with database persistence."""
     
-    def __init__(self):
+    def __init__(self, db_pool=None):
         self.output_dir = Path("output/presentations")
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Job tracking
-        self.jobs: Dict[str, PresentationJob] = {}
+        # ✅ NEW: Store database pool reference for persistent storage
+        self.db_pool = db_pool
+        if self.db_pool:
+            logger.info("✅ [DATABASE] PresentationService initialized with database persistence")
+        else:
+            logger.warning("⚠️ [DATABASE] PresentationService running without persistence (memory only)")
+        
+        # Job tracking (DUAL-WRITE: Keep memory for backward compatibility during transition)
+        self.jobs: Dict[str, PresentationJob] = {}  # ⚠️ Transitional: Will be removed after migration
+        self.job_lock = asyncio.Lock()  # Protect job dictionary from race conditions
         
         # Heartbeat configuration
         self.heartbeat_interval = 30  # Send heartbeat every 30 seconds
         self.heartbeat_tasks: Dict[str, asyncio.Task] = {}  # Track heartbeat tasks per job
         
-        logger.info("Professional Presentation Service initialized")
+        logger.info("✅ Professional Presentation Service initialized")
     
-    def _update_job_status(self, job_id: str, **kwargs):
+    async def _save_job_to_db(self, job: PresentationJob):
+        """
+        Save job to database (following existing asyncpg pattern).
+        Uses UPSERT to create or update job records.
+        """
+        if not self.db_pool:
+            return
+        
+        try:
+            async with self.db_pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO presentation_jobs (
+                        job_id, status, progress, error, video_url, thumbnail_url,
+                        slide_image_path, created_at, completed_at, last_heartbeat, created_files
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                    ON CONFLICT (job_id) DO UPDATE SET
+                        status = EXCLUDED.status,
+                        progress = EXCLUDED.progress,
+                        error = EXCLUDED.error,
+                        video_url = EXCLUDED.video_url,
+                        thumbnail_url = EXCLUDED.thumbnail_url,
+                        slide_image_path = EXCLUDED.slide_image_path,
+                        completed_at = EXCLUDED.completed_at,
+                        last_heartbeat = EXCLUDED.last_heartbeat,
+                        created_files = EXCLUDED.created_files
+                """, job.job_id, job.status, job.progress, job.error, job.video_url,
+                     job.thumbnail_url, job.slide_image_path, job.created_at,
+                     job.completed_at, job.last_heartbeat, json.dumps(job.created_files))
+            logger.debug(f"💾 [DB] Saved job {job.job_id} to database")
+        except Exception as e:
+            logger.error(f"❌ [DB] Failed to save job {job.job_id}: {e}")
+    
+    async def _get_job_from_db(self, job_id: str) -> Optional[PresentationJob]:
+        """
+        Get job from database (following existing asyncpg pattern).
+        Returns None if job not found or database unavailable.
+        """
+        if not self.db_pool:
+            return None
+        
+        try:
+            async with self.db_pool.acquire() as conn:
+                row = await conn.fetchrow(
+                    "SELECT * FROM presentation_jobs WHERE job_id = $1",
+                    job_id
+                )
+                if row:
+                    return PresentationJob(
+                        job_id=row['job_id'],
+                        status=row['status'],
+                        progress=row['progress'],
+                        error=row['error'],
+                        video_url=row['video_url'],
+                        thumbnail_url=row['thumbnail_url'],
+                        slide_image_path=row['slide_image_path'],
+                        created_at=row['created_at'],
+                        completed_at=row['completed_at'],
+                        last_heartbeat=row['last_heartbeat'],
+                        created_files=json.loads(row['created_files']) if row['created_files'] else []
+                    )
+                logger.debug(f"💾 [DB] Job {job_id} not found in database")
+        except Exception as e:
+            logger.error(f"❌ [DB] Failed to get job {job_id}: {e}")
+        return None
+    
+    async def _update_job_status(self, job_id: str, **kwargs):
         """
         Update job status with detailed logging to prevent connection timeouts.
+        Thread-safe using asyncio.Lock.
+        NOW WITH DATABASE PERSISTENCE: Updates both memory and database.
         
         Args:
             job_id: Job ID to update
             **kwargs: Status fields to update (status, progress, error, etc.)
         """
-        if job_id in self.jobs:
-            job = self.jobs[job_id]
-            old_status = job.status
-            old_progress = job.progress
+        async with self.job_lock:
+            if job_id in self.jobs:
+                job = self.jobs[job_id]
+                old_status = job.status
+                old_progress = job.progress
+                
+                for key, value in kwargs.items():
+                    setattr(job, key, value)
+                
+                # Log every status update with timestamp
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id}: {old_status}→{job.status}, {old_progress}%→{job.progress}%")
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Timestamp: {datetime.now().isoformat()}")
+                
+                # Log specific updates
+                if 'status' in kwargs:
+                    logger.info(f"🎬 [JOB_STATUS_UPDATE] Status changed: {old_status} → {kwargs['status']}")
+                if 'progress' in kwargs:
+                    logger.info(f"🎬 [JOB_STATUS_UPDATE] Progress updated: {old_progress}% → {kwargs['progress']}%")
             
-            for key, value in kwargs.items():
-                setattr(job, key, value)
-            
-            # Log every status update with timestamp
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id}: {old_status}→{job.status}, {old_progress}%→{job.progress}%")
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Timestamp: {datetime.now().isoformat()}")
-            
-            # Log specific updates
-            if 'status' in kwargs:
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Status changed: {old_status} → {kwargs['status']}")
-            if 'progress' in kwargs:
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Progress updated: {old_progress}% → {kwargs['progress']}%")
+            # ✅ NEW: Also save to database (persistent storage)
+            if job_id in self.jobs:
+                await self._save_job_to_db(self.jobs[job_id])
     
     async def _start_heartbeat(self, job_id: str):
         """
@@ -123,24 +206,31 @@ class ProfessionalPresentationService:
             logger.info(f"💓 [HEARTBEAT] Heartbeat task started for job {job_id}")
             try:
                 heartbeat_count = 0
-                while job_id in self.jobs:
-                    job = self.jobs[job_id]
-                    heartbeat_count += 1
-                    
-                    # Only send heartbeats for active jobs
-                    if job.status in ["processing"]:
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}% (beat #{heartbeat_count})")
-                        logger.info(f"💓 [HEARTBEAT] Keeping connection alive - {datetime.now().isoformat()}")
+                while True:
+                    async with self.job_lock:
+                        # Check if job still exists
+                        if job_id not in self.jobs:
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id} removed, stopping heartbeat")
+                            break
                         
-                        # Update last activity timestamp to show we're alive
-                        job.last_heartbeat = datetime.now()
-                    elif job.status in ["completed", "failed"]:
-                        # Job is done, stop heartbeat
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat after {heartbeat_count} beats")
-                        break
-                    else:
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id} status is {job.status}, continuing heartbeat")
+                        job = self.jobs[job_id]
+                        heartbeat_count += 1
+                        
+                        # Only send heartbeats for active jobs
+                        if job.status in ["processing"]:
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}% (beat #{heartbeat_count})")
+                            logger.info(f"💓 [HEARTBEAT] Keeping connection alive - {datetime.now().isoformat()}")
+                            
+                            # Update last activity timestamp to show we're alive
+                            job.last_heartbeat = datetime.now()
+                        elif job.status in ["completed", "failed"]:
+                            # Job is done, stop heartbeat
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat after {heartbeat_count} beats")
+                            break
+                        else:
+                            logger.info(f"💓 [HEARTBEAT] Job {job_id} status is {job.status}, continuing heartbeat")
                     
+                    # Sleep outside the lock
                     await asyncio.sleep(self.heartbeat_interval)
                     
             except asyncio.CancelledError:
@@ -218,7 +308,7 @@ class ProfessionalPresentationService:
     
     async def get_job_status(self, job_id: str) -> Optional[PresentationJob]:
         """
-        Get the status of a presentation job.
+        Get the status of a presentation job (thread-safe).
         
         Args:
             job_id: Job ID to check
@@ -226,7 +316,8 @@ class ProfessionalPresentationService:
         Returns:
             Job status or None if not found
         """
-        return self.jobs.get(job_id)
+        async with self.job_lock:
+            return self.jobs.get(job_id)
     
     async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
@@ -248,13 +339,18 @@ class ProfessionalPresentationService:
                 
             except Exception as e:
                 logger.error(f"Thread processing failed for {job_id}: {e}")
-                if job_id in self.jobs:
-                    self.jobs[job_id].status = "failed"
-                    self.jobs[job_id].error = str(e)
-                    self.jobs[job_id].completed_at = datetime.now()
-                    
+                
+                # Thread-safe status update
+                async def update_failed_status():
+                    async with self.job_lock:
+                        if job_id in self.jobs:
+                            self.jobs[job_id].status = "failed"
+                            self.jobs[job_id].error = str(e)
+                            self.jobs[job_id].completed_at = datetime.now()
+                
                 # Stop heartbeat for failed job (run in the main event loop)
                 main_loop = asyncio.new_event_loop()
+                main_loop.run_until_complete(update_failed_status())
                 main_loop.run_until_complete(self._stop_heartbeat(job_id))
                 # CRITICAL FIX: Schedule cleanup for failed jobs too
                 main_loop.run_until_complete(
@@ -317,12 +413,12 @@ class ProfessionalPresentationService:
                     logger.info(f"  Text {i+1}: {text[:100]}...")
             
             # Start processing with heartbeat
-            self._update_job_status(job_id, status="processing", progress=5.0)
+            await self._update_job_status(job_id, status="processing", progress=5.0)
             await self._start_heartbeat(job_id)
             
             # Step 1: Generate clean slide video
             logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
-            self._update_job_status(job_id, progress=10.0)
+            await self._update_job_status(job_id, progress=10.0)
             
             # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
@@ -419,7 +515,7 @@ class ProfessionalPresentationService:
                     logger.info(f"🎬 [FINAL_COMPLETION] Updating job status to completed for job {job_id}")
                     logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] About to send FINAL 100% status to frontend...")
                     
-                    self._update_job_status(
+                    await self._update_job_status(
                         job_id,
                         status="completed",
                         progress=100.0,
@@ -459,7 +555,7 @@ class ProfessionalPresentationService:
             logger.error(f"🎬 [PRESENTATION_FAILED] Presentation {job_id} failed: {e}")
             
             # Update job status with failure details
-            self._update_job_status(
+            await self._update_job_status(
                 job_id,
                 status="failed",
                 error=str(e),
@@ -508,13 +604,15 @@ class ProfessionalPresentationService:
                     raise Exception(f"Slide video generation failed: {result['error']}")
                 
                 slide_video_path = result["video_path"]
+                job.created_files.append(slide_video_path)  # Track for cleanup
                 output_filename = f"presentation_{job_id}.mp4"
                 output_path = self.output_dir / output_filename
                 
                 import shutil
                 shutil.copy2(slide_video_path, output_path)
                 final_video_path = str(output_path)
-                self._update_job_status(job_id, progress=90.0)
+                job.created_files.append(final_video_path)  # Track final video for cleanup
+                await self._update_job_status(job_id, progress=90.0)
                 
                 # Cleanup temporary files
                 await self._cleanup_temp_files([slide_video_path])
@@ -542,8 +640,9 @@ class ProfessionalPresentationService:
                 voice_provider=request.voice_provider,
                 elai_background_color=elai_background_color
             )
-            self._update_job_status(job_id, progress=40.0)
+            await self._update_job_status(job_id, progress=40.0)
             
+            job.created_files.append(avatar_video_path)  # Track for cleanup
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
             
             # OPTIMIZATION: Extract actual duration from avatar video
@@ -565,13 +664,14 @@ class ProfessionalPresentationService:
             
             slide_video_path = result["video_path"]
             slide_image_paths = result.get("slide_image_paths", [])
+            job.created_files.append(slide_video_path)  # Track for cleanup
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Slide video generated: {slide_video_path}")
             
             # Store the slide image path for debugging
             if slide_image_paths and len(slide_image_paths) > 0:
                 job.slide_image_path = slide_image_paths[0]
             
-            self._update_job_status(job_id, progress=70.0)
+            await self._update_job_status(job_id, progress=70.0)
             
             # Compose final video
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Composing final video")
@@ -598,7 +698,8 @@ class ProfessionalPresentationService:
                 avatar_video_path,
                 composition_config
             )
-            self._update_job_status(job_id, progress=90.0)
+            job.created_files.append(final_video_path)  # Track final video for cleanup
+            await self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: {final_video_path}")
             
@@ -659,7 +760,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress based on slide processing (more granular)
                 base_progress = 10 + (slide_index * 70 // len(slides_data))
-                self._update_job_status(job_id, progress=base_progress)
+                await self._update_job_status(job_id, progress=base_progress)
                 
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Starting processing for slide {slide_index + 1} - Progress: {base_progress}%")
                 
@@ -692,6 +793,7 @@ class ProfessionalPresentationService:
                     
                     slide_video_path = slide_result["video_path"]
                     temp_files_to_cleanup.append(slide_video_path)
+                    job.created_files.append(slide_video_path)  # Track for cleanup
                     individual_videos.append(slide_video_path)
                     logger.info(f"🐛 [DEBUG_MODE] Slide {slide_index + 1} video generated (no avatar): {slide_video_path}")
                     continue
@@ -701,7 +803,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress to show avatar wait started
                 avatar_start_progress = base_progress + 10
-                self._update_job_status(job_id, progress=avatar_start_progress)
+                await self._update_job_status(job_id, progress=avatar_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Waiting for avatar for slide {slide_index + 1} - Progress: {avatar_start_progress}%")
                 
                 # Wait for the pre-initiated avatar video
@@ -710,9 +812,11 @@ class ProfessionalPresentationService:
                     job_id=job_id,
                     slide_index=slide_index,
                     start_progress=base_progress + 10,
-                    end_progress=base_progress + 30
+                    end_progress=base_progress + 30,
+                    total_slides=len(slides_data)
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
+                job.created_files.append(avatar_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} ready: {avatar_video_path}")
                 
                 # OPTIMIZATION: Extract actual duration from avatar video
@@ -734,6 +838,7 @@ class ProfessionalPresentationService:
                 
                 slide_video_path = slide_result["video_path"]
                 temp_files_to_cleanup.append(slide_video_path)
+                job.created_files.append(slide_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} video generated: {slide_video_path}")
                 
                 # Compose individual slide + avatar video with progress updates
@@ -742,7 +847,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress for composition start
                 composition_start_progress = base_progress + 30
-                self._update_job_status(job_id, progress=composition_start_progress)
+                await self._update_job_status(job_id, progress=composition_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition started for slide {slide_index + 1} - Progress: {composition_start_progress}%")
                 
                 # Extract avatar position from slide data if available
@@ -768,14 +873,15 @@ class ProfessionalPresentationService:
                 
                 # Update progress for composition complete
                 composition_end_progress = base_progress + 50
-                self._update_job_status(job_id, progress=composition_end_progress)
+                await self._update_job_status(job_id, progress=composition_end_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition completed for slide {slide_index + 1} - Progress: {composition_end_progress}%")
                 
                 individual_videos.append(individual_video_path)
                 temp_files_to_cleanup.append(individual_video_path)
+                job.created_files.append(individual_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
             
-            self._update_job_status(job_id, progress=80.0)
+            await self._update_job_status(job_id, progress=80.0)
             
             # Concatenate all individual videos into final presentation
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
@@ -796,7 +902,8 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Using simple concatenation (no transitions)")
                 final_video_path = await self._concatenate_videos(individual_videos, job_id)
             
-            self._update_job_status(job_id, progress=90.0)
+            job.created_files.append(final_video_path)  # Track final video for cleanup
+            await self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
             
@@ -809,9 +916,264 @@ class ProfessionalPresentationService:
             logger.error(f"Multi-slide processing failed: {e}")
             raise
 
+    async def _get_video_properties(self, video_path: str) -> Dict[str, Any]:
+        """
+        Extract detailed video properties using FFprobe.
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            Dict with video properties: codec, width, height, fps, duration, has_audio
+        """
+        try:
+            cmd = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-print_format', 'json',
+                '-show_format',
+                '-show_streams',
+                video_path
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            
+            if result.returncode != 0:
+                logger.error(f"🔍 [VIDEO_PROPERTIES] FFprobe failed for {video_path}: {result.stderr}")
+                return None
+            
+            data = json.loads(result.stdout)
+            
+            # Extract video stream properties
+            video_stream = None
+            audio_stream = None
+            
+            for stream in data.get('streams', []):
+                if stream.get('codec_type') == 'video' and not video_stream:
+                    video_stream = stream
+                elif stream.get('codec_type') == 'audio' and not audio_stream:
+                    audio_stream = stream
+            
+            if not video_stream:
+                logger.error(f"🔍 [VIDEO_PROPERTIES] No video stream found in {video_path}")
+                return None
+            
+            # Parse frame rate
+            fps_str = video_stream.get('r_frame_rate', '25/1')
+            if '/' in fps_str:
+                num, den = fps_str.split('/')
+                fps = float(num) / float(den) if float(den) > 0 else 25.0
+            else:
+                fps = float(fps_str)
+            
+            # Get duration
+            duration = float(data.get('format', {}).get('duration', 
+                            video_stream.get('duration', 0)))
+            
+            properties = {
+                'codec_name': video_stream.get('codec_name', 'unknown'),
+                'codec_long_name': video_stream.get('codec_long_name', 'unknown'),
+                'width': int(video_stream.get('width', 0)),
+                'height': int(video_stream.get('height', 0)),
+                'fps': fps,
+                'duration': duration,
+                'pix_fmt': video_stream.get('pix_fmt', 'unknown'),
+                'bit_rate': int(data.get('format', {}).get('bit_rate', 0)),
+                'has_audio': audio_stream is not None,
+                'audio_codec': audio_stream.get('codec_name', 'none') if audio_stream else None,
+            }
+            
+            logger.info(f"🔍 [VIDEO_PROPERTIES] {os.path.basename(video_path)}:")
+            logger.info(f"  - Codec: {properties['codec_name']} ({properties['codec_long_name']})")
+            logger.info(f"  - Resolution: {properties['width']}x{properties['height']}")
+            logger.info(f"  - FPS: {properties['fps']:.2f}")
+            logger.info(f"  - Duration: {properties['duration']:.2f}s")
+            logger.info(f"  - Pixel Format: {properties['pix_fmt']}")
+            logger.info(f"  - Audio: {'Yes' if properties['has_audio'] else 'No'} ({properties['audio_codec']})")
+            
+            return properties
+            
+        except Exception as e:
+            logger.error(f"🔍 [VIDEO_PROPERTIES] Error extracting properties from {video_path}: {e}")
+            return None
+
+    async def _validate_video_compatibility(self, video_paths: List[str]) -> Dict[str, Any]:
+        """
+        Validate that all videos have compatible properties for concatenation.
+        
+        Args:
+            video_paths: List of video file paths
+            
+        Returns:
+            Dict with validation results:
+            - compatible: bool (True if all videos are compatible)
+            - issues: List of compatibility issues found
+            - properties: List of properties for each video
+            - recommendation: str (recommended action)
+        """
+        logger.info(f"🔍 [COMPATIBILITY_CHECK] Validating {len(video_paths)} videos for concatenation")
+        
+        if len(video_paths) < 2:
+            return {
+                'compatible': True,
+                'issues': [],
+                'properties': [],
+                'recommendation': 'single_video'
+            }
+        
+        # Extract properties for all videos
+        all_properties = []
+        for i, video_path in enumerate(video_paths):
+            props = await self._get_video_properties(video_path)
+            if props is None:
+                logger.error(f"🔍 [COMPATIBILITY_CHECK] Failed to read properties for video {i+1}")
+                return {
+                    'compatible': False,
+                    'issues': [f"Cannot read video {i+1} properties"],
+                    'properties': all_properties,
+                    'recommendation': 'fail'
+                }
+            all_properties.append(props)
+        
+        # Compare all videos against the first one
+        reference = all_properties[0]
+        issues = []
+        
+        for i, props in enumerate(all_properties[1:], start=2):
+            # Check codec compatibility
+            if props['codec_name'] != reference['codec_name']:
+                issues.append(f"Video {i} codec mismatch: {props['codec_name']} vs {reference['codec_name']}")
+            
+            # Check resolution
+            if props['width'] != reference['width'] or props['height'] != reference['height']:
+                issues.append(f"Video {i} resolution mismatch: {props['width']}x{props['height']} vs {reference['width']}x{reference['height']}")
+            
+            # Check frame rate (allow 0.1 fps tolerance)
+            if abs(props['fps'] - reference['fps']) > 0.1:
+                issues.append(f"Video {i} FPS mismatch: {props['fps']:.2f} vs {reference['fps']:.2f}")
+            
+            # Check pixel format
+            if props['pix_fmt'] != reference['pix_fmt']:
+                issues.append(f"Video {i} pixel format mismatch: {props['pix_fmt']} vs {reference['pix_fmt']}")
+            
+            # Check audio presence consistency
+            if props['has_audio'] != reference['has_audio']:
+                issues.append(f"Video {i} audio mismatch: {'has audio' if props['has_audio'] else 'no audio'} vs {'has audio' if reference['has_audio'] else 'no audio'}")
+        
+        # Determine recommendation
+        compatible = len(issues) == 0
+        
+        if compatible:
+            recommendation = 'copy'  # Safe to use -c copy
+            logger.info(f"✅ [COMPATIBILITY_CHECK] All videos compatible - can use stream copy")
+        else:
+            recommendation = 'reencode'  # Must re-encode
+            logger.warning(f"⚠️ [COMPATIBILITY_CHECK] Compatibility issues found:")
+            for issue in issues:
+                logger.warning(f"  - {issue}")
+            logger.warning(f"⚠️ [COMPATIBILITY_CHECK] Recommendation: Re-encode during concatenation")
+        
+        return {
+            'compatible': compatible,
+            'issues': issues,
+            'properties': all_properties,
+            'recommendation': recommendation
+        }
+
+    async def _verify_concatenated_video(
+        self, 
+        video_path: str, 
+        expected_duration: float,
+        source_properties: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Verify concatenated video integrity after creation.
+        
+        Args:
+            video_path: Path to concatenated video
+            expected_duration: Expected total duration (sum of input videos)
+            source_properties: List of properties from source videos
+            
+        Returns:
+            Dict with verification results:
+            - valid: bool
+            - issues: List of issues found
+            - properties: Properties of concatenated video
+        """
+        logger.info(f"🔍 [VERIFICATION] Verifying concatenated video: {video_path}")
+        
+        issues = []
+        
+        # Check file exists and has reasonable size
+        if not os.path.exists(video_path):
+            issues.append("Output file does not exist")
+            return {'valid': False, 'issues': issues, 'properties': None}
+        
+        file_size = os.path.getsize(video_path)
+        file_size_mb = file_size / (1024 * 1024)
+        
+        logger.info(f"🔍 [VERIFICATION] File size: {file_size_mb:.2f} MB")
+        
+        # Check for suspiciously small file
+        if file_size < 100_000:  # Less than 100KB
+            issues.append(f"Output file suspiciously small: {file_size} bytes")
+            logger.error(f"❌ [VERIFICATION] File too small - likely corrupted")
+        
+        # Extract properties of concatenated video
+        props = await self._get_video_properties(video_path)
+        if props is None:
+            issues.append("Cannot read output video properties")
+            return {'valid': False, 'issues': issues, 'properties': None}
+        
+        # Verify duration (allow 2-second tolerance)
+        duration_diff = abs(props['duration'] - expected_duration)
+        if duration_diff > 2.0:
+            issues.append(f"Duration mismatch: expected {expected_duration:.2f}s, got {props['duration']:.2f}s (diff: {duration_diff:.2f}s)")
+            logger.error(f"❌ [VERIFICATION] Duration mismatch detected")
+        
+        # Verify resolution matches source videos
+        if source_properties:
+            expected_width = source_properties[0]['width']
+            expected_height = source_properties[0]['height']
+            
+            if props['width'] != expected_width or props['height'] != expected_height:
+                issues.append(f"Resolution mismatch: expected {expected_width}x{expected_height}, got {props['width']}x{props['height']}")
+        
+        # Verify video has video stream
+        if props['width'] == 0 or props['height'] == 0:
+            issues.append("No valid video stream found")
+        
+        # Verify bitrate is reasonable (not suspiciously low)
+        if props['bit_rate'] > 0 and props['bit_rate'] < 500_000:  # Less than 500 kbps
+            logger.warning(
+                f"⚠️ [VERIFICATION] Low bitrate detected ({props['bit_rate']} bps). "
+                "Continuing, but playback quality might be poor."
+            )
+        
+        valid = len(issues) == 0
+        
+        if valid:
+            logger.info(f"✅ [VERIFICATION] Video passed all integrity checks")
+        else:
+            logger.error(f"❌ [VERIFICATION] Video failed verification:")
+            for issue in issues:
+                logger.error(f"  - {issue}")
+        
+        return {
+            'valid': valid,
+            'issues': issues,
+            'properties': props
+        }
+
     async def _concatenate_videos(self, video_paths: List[str], job_id: str) -> str:
         """
-        Concatenate multiple videos into a single video using FFmpeg.
+        Concatenate multiple videos into a single video using FFmpeg with validation.
+        
+        This enhanced version:
+        1. Validates input video compatibility
+        2. Uses stream copy (-c copy) only if safe
+        3. Re-encodes if videos have incompatible properties
+        4. Verifies output integrity after concatenation
         
         Args:
             video_paths: List of video file paths to concatenate
@@ -821,9 +1183,9 @@ class ProfessionalPresentationService:
             Path to concatenated video
         """
         try:
-            logger.info(f"🎬 [VIDEO_CONCATENATION] Concatenating {len(video_paths)} videos")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Starting concatenation of {len(video_paths)} videos")
             
-            # Validate that all video files exist
+            # ✅ STEP 1: Validate that all video files exist
             for i, video_path in enumerate(video_paths):
                 if not os.path.exists(video_path):
                     logger.error(f"🎬 [VIDEO_CONCATENATION] Video file {i+1} not found: {video_path}")
@@ -832,18 +1194,30 @@ class ProfessionalPresentationService:
                     file_size = os.path.getsize(video_path)
                     logger.info(f"🎬 [VIDEO_CONCATENATION] Video file {i+1} exists: {video_path} ({file_size} bytes)")
             
+            # ✅ STEP 2: Validate video compatibility
+            compatibility = await self._validate_video_compatibility(video_paths)
+            
+            if compatibility['recommendation'] == 'fail':
+                raise Exception("Cannot concatenate videos - failed to read properties")
+            
+            use_stream_copy = compatibility['compatible']
+            source_properties = compatibility['properties']
+            
+            # Calculate expected duration
+            expected_duration = sum(props['duration'] for props in source_properties)
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Expected output duration: {expected_duration:.2f}s")
+            
             # Convert relative paths to absolute paths
             absolute_video_paths = []
             for video_path in video_paths:
                 if not os.path.isabs(video_path):
-                    # Convert relative path to absolute path
                     absolute_path = os.path.abspath(video_path)
                     logger.info(f"🎬 [VIDEO_CONCATENATION] Converting relative path '{video_path}' to absolute path '{absolute_path}'")
                     absolute_video_paths.append(absolute_path)
                 else:
                     absolute_video_paths.append(video_path)
             
-            # Create a temporary file list for FFmpeg
+            # ✅ STEP 3: Create temporary file list for FFmpeg
             import tempfile
             with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
                 for video_path in absolute_video_paths:
@@ -851,46 +1225,104 @@ class ProfessionalPresentationService:
                 concat_list_path = f.name
             
             logger.info(f"🎬 [VIDEO_CONCATENATION] Created concat list file: {concat_list_path}")
-            logger.info(f"🎬 [VIDEO_CONCATENATION] Video paths in concat list:")
-            for i, path in enumerate(absolute_video_paths):
-                logger.info(f"  {i+1}: {path}")
             
             # Output path for concatenated video
             output_filename = f"presentation_{job_id}.mp4"
             output_path = str(self.output_dir / output_filename)
             
-            # FFmpeg command to concatenate videos
+            # ✅ STEP 4: Build FFmpeg command based on compatibility
             import subprocess
-            cmd = [
-                'ffmpeg',
-                '-f', 'concat',
-                '-safe', '0',
-                '-i', concat_list_path,
-                '-c', 'copy',  # Copy streams without re-encoding for speed
-                '-y',  # Overwrite output file
-                output_path
-            ]
+            
+            if use_stream_copy:
+                # Videos are compatible - safe to use stream copy (fast)
+                logger.info(f"🎬 [VIDEO_CONCATENATION] Using STREAM COPY mode (fast) - all videos compatible")
+                cmd = [
+                    'ffmpeg',
+                    '-f', 'concat',
+                    '-safe', '0',
+                    '-i', concat_list_path,
+                    '-c', 'copy',  # ✅ Safe to copy streams
+                    '-y',
+                    output_path
+                ]
+            else:
+                # Videos have incompatible properties - must re-encode
+                logger.warning(f"🎬 [VIDEO_CONCATENATION] Using RE-ENCODE mode (slow) - videos have incompatible properties")
+                logger.warning(f"🎬 [VIDEO_CONCATENATION] Issues found: {compatibility['issues']}")
+                cmd = [
+                    'ffmpeg',
+                    '-f', 'concat',
+                    '-safe', '0',
+                    '-i', concat_list_path,
+                    '-c:v', 'libx264',           # Re-encode video to H.264
+                    '-profile:v', 'baseline',     # Browser-compatible profile
+                    '-level', '3.0',              # Compatibility level
+                    '-pix_fmt', 'yuv420p',        # Standard pixel format
+                    '-crf', '23',                 # Quality (lower = better, 23 is good)
+                    '-preset', 'medium',          # Encoding speed vs quality
+                    '-c:a', 'aac',                # Re-encode audio to AAC
+                    '-b:a', '128k',               # Audio bitrate
+                    '-movflags', '+faststart',    # Enable streaming
+                    '-y',
+                    output_path
+                ]
             
             logger.info(f"🎬 [VIDEO_CONCATENATION] Running FFmpeg command: {' '.join(cmd)}")
             
-            # Run FFmpeg
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            # ✅ STEP 5: Calculate dynamic timeout based on video count and mode
+            if use_stream_copy:
+                # Stream copy is fast: ~2 seconds per video + 60s buffer
+                timeout = max(120, len(video_paths) * 2 + 60)
+            else:
+                # Re-encoding is slow: ~30 seconds per minute of video
+                estimated_time = expected_duration * 0.5  # Rough estimate: 30s per minute
+                timeout = max(300, int(estimated_time) + 120)  # Add 2min buffer
+            
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Using dynamic timeout: {timeout}s (mode: {'copy' if use_stream_copy else 'reencode'})")
+            
+            # ✅ STEP 6: Run FFmpeg with enhanced error handling
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
             
             # Clean up temporary concat list file
             try:
                 os.unlink(concat_list_path)
-            except:
-                pass
+                logger.debug(f"🎬 [VIDEO_CONCATENATION] Cleaned up temp file: {concat_list_path}")
+            except Exception as cleanup_error:
+                logger.warning(f"🎬 [VIDEO_CONCATENATION] Could not remove temp file {concat_list_path}: {cleanup_error}")
             
             if result.returncode != 0:
-                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg failed: {result.stderr}")
+                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg failed with return code {result.returncode}")
+                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg stderr: {result.stderr}")
                 raise Exception(f"Video concatenation failed: {result.stderr}")
             
-            logger.info(f"🎬 [VIDEO_CONCATENATION] Successfully concatenated videos to: {output_path}")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] FFmpeg completed successfully")
+            
+            # ✅ STEP 7: Verify output video integrity
+            verification = await self._verify_concatenated_video(
+                output_path, 
+                expected_duration,
+                source_properties
+            )
+            
+            if not verification['valid']:
+                error_msg = f"Concatenated video failed validation: {', '.join(verification['issues'])}"
+                logger.error(f"❌ [VIDEO_CONCATENATION] {error_msg}")
+                
+                # Delete corrupted output
+                await self._cleanup_temp_files([output_path])
+                
+                raise Exception(error_msg)
+            
+            logger.info(f"✅ [VIDEO_CONCATENATION] Successfully concatenated and verified: {output_path}")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Output properties: {verification['properties']['width']}x{verification['properties']['height']}, {verification['properties']['duration']:.2f}s")
+            
             return output_path
             
+        except subprocess.TimeoutExpired:
+            logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg timeout after {timeout} seconds")
+            raise Exception(f"Video concatenation timeout after {timeout} seconds")
         except Exception as e:
-            logger.error(f"Video concatenation failed: {e}")
+            logger.error(f"❌ [VIDEO_CONCATENATION] Concatenation failed: {e}")
             raise
 
     async def _check_video_has_audio(self, video_path: str) -> bool:
@@ -1406,7 +1838,7 @@ class ProfessionalPresentationService:
             
             # Update progress - video creation started
             creation_progress = start_progress + ((end_progress - start_progress) * 0.2)
-            self._update_job_status(job_id, progress=creation_progress)
+            await self._update_job_status(job_id, progress=creation_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Video creation started - Progress: {creation_progress}%")
             
             # Start rendering
@@ -1416,16 +1848,16 @@ class ProfessionalPresentationService:
             
             # Update progress - rendering started
             render_progress = start_progress + ((end_progress - start_progress) * 0.4)
-            self._update_job_status(job_id, progress=render_progress)
+            await self._update_job_status(job_id, progress=render_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Rendering started - Progress: {render_progress}%")
             
-            # Wait for completion with progress updates
+            # Wait for completion with progress updates (single slide, so slide_count=1)
             avatar_video_path = await self._wait_for_avatar_completion_with_progress(
-                video_id, job_id, render_progress, end_progress
+                video_id, job_id, render_progress, end_progress, slide_count=1
             )
             
             # Final progress update
-            self._update_job_status(job_id, progress=end_progress)
+            await self._update_job_status(job_id, progress=end_progress)
             logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Avatar generation completed - Progress: {end_progress}%")
             
             return avatar_video_path
@@ -1565,7 +1997,8 @@ class ProfessionalPresentationService:
         job_id: str,
         slide_index: int,
         start_progress: float,
-        end_progress: float
+        end_progress: float,
+        total_slides: int = 1
     ) -> str:
         """
         Wait for a specific avatar video to complete and download it.
@@ -1576,15 +2009,16 @@ class ProfessionalPresentationService:
             slide_index: Slide index for logging
             start_progress: Starting progress percentage
             end_progress: Ending progress percentage
+            total_slides: Total number of slides for dynamic timeout
             
         Returns:
             Path to downloaded avatar video
         """
-        logger.info(f"🎬 [BATCH_AVATAR_WAIT] Waiting for avatar video {video_id} (slide {slide_index + 1})")
+        logger.info(f"🎬 [BATCH_AVATAR_WAIT] Waiting for avatar video {video_id} (slide {slide_index + 1}/{total_slides})")
         
-        # Wait for completion with progress updates
+        # Wait for completion with progress updates and dynamic timeout
         avatar_video_path = await self._wait_for_avatar_completion_with_progress(
-            video_id, job_id, start_progress, end_progress
+            video_id, job_id, start_progress, end_progress, slide_count=total_slides
         )
         
         logger.info(f"🎬 [BATCH_AVATAR_WAIT] Avatar video ready: {avatar_video_path} (slide {slide_index + 1})")
@@ -1808,15 +2242,24 @@ class ProfessionalPresentationService:
             logger.error(f"Avatar video generation failed: {e}")
             raise
     
-    async def _wait_for_avatar_completion_with_progress(self, video_id: str, job_id: str, start_progress: float, end_progress: float) -> str:
+    async def _wait_for_avatar_completion_with_progress(
+        self, 
+        video_id: str, 
+        job_id: str, 
+        start_progress: float, 
+        end_progress: float,
+        slide_count: int = 1
+    ) -> str:
         """
-        Wait for avatar video to complete rendering with progress updates.
+        Wait for avatar video to complete rendering with progress updates and adaptive polling.
+        Uses dynamic timeout based on slide count.
         
         Args:
             video_id: Elai video ID
             job_id: Job ID for progress updates
             start_progress: Starting progress percentage
             end_progress: Ending progress percentage
+            slide_count: Number of slides for dynamic timeout calculation
             
         Returns:
             Path to downloaded avatar video
@@ -1825,58 +2268,96 @@ class ProfessionalPresentationService:
             logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Waiting for avatar video: {video_id}")
             logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Progress range: {start_progress}% → {end_progress}%")
             
-            max_wait_time = 15 * 60  # 15 minutes
-            check_interval = 30  # 30 seconds
+            # Use dynamic timeout based on slide count
+            max_wait_time = video_generation_service.calculate_timeout(slide_count)
+            
+            # ✅ NEW: Adaptive polling configuration
+            current_interval = 10  # Start with 10 seconds
+            max_interval = 60      # Cap at 60 seconds
+            backoff_multiplier = 1.5
+            
             start_time = datetime.now()
             consecutive_errors = 0
             max_consecutive_errors = 5
+            last_status = None
+            poll_count = 0
+            
+            logger.info(f"⏱️ [ADAPTIVE_POLLING] Using adaptive polling: {current_interval}s → {max_interval}s")
             
             while (datetime.now() - start_time).total_seconds() < max_wait_time:
+                poll_count += 1
+                elapsed_time = (datetime.now() - start_time).total_seconds()
+                
                 status_result = await video_generation_service.check_video_status(video_id)
                 
                 if not status_result["success"]:
                     logger.warning(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Failed to check video status: {status_result['error']}")
-                    await asyncio.sleep(check_interval)
+                    await asyncio.sleep(current_interval)
                     continue
                 
                 status = status_result["status"]
                 elai_progress = status_result["progress"]
-                elapsed_time = (datetime.now() - start_time).total_seconds()
+                status_changed = (status != last_status)
                 
                 # Calculate our progress based on Elai's progress
                 our_progress = start_progress + ((end_progress - start_progress) * (elai_progress / 100))
                 
-                logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Status: {status}, Elai Progress: {elai_progress}%, Our Progress: {our_progress:.1f}%")
-                logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Elapsed: {elapsed_time:.1f}s")
+                logger.info(
+                    f"⏱️ [ADAPTIVE_POLLING] Poll #{poll_count}: status={status}, "
+                    f"elai_progress={elai_progress}%, our_progress={our_progress:.1f}%, "
+                    f"elapsed={elapsed_time:.1f}s, next_interval={current_interval:.1f}s"
+                )
                 
                 # Update our job progress based on Elai progress
                 if elai_progress > 0:
-                    self._update_job_status(job_id, progress=our_progress)
+                    await self._update_job_status(job_id, progress=our_progress)
                 
                 if status in ["rendered", "ready"]:
                     download_url = status_result["downloadUrl"]
                     if download_url:
                         # Download the video
                         avatar_video_path = await self._download_avatar_video(download_url, video_id)
-                        logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Avatar video downloaded: {avatar_video_path}")
+                        logger.info(
+                            f"✅ [ADAPTIVE_POLLING] Avatar video downloaded: {avatar_video_path} "
+                            f"(polls: {poll_count}, time: {elapsed_time:.1f}s)"
+                        )
                         return avatar_video_path
                     else:
                         raise Exception("Video rendered but no download URL available")
                 
                 elif status == "failed":
                     raise Exception(f"Avatar video rendering failed: {status}")
+                    
                 elif status == "error":
                     consecutive_errors += 1
-                    logger.warning(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Error status (consecutive: {consecutive_errors}/{max_consecutive_errors})")
+                    logger.warning(
+                        f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Error status "
+                        f"(consecutive: {consecutive_errors}/{max_consecutive_errors})"
+                    )
                     
                     if consecutive_errors >= max_consecutive_errors:
-                        raise Exception(f"Avatar video rendering failed after {consecutive_errors} consecutive errors")
+                        raise Exception(
+                            f"Avatar video rendering failed after {consecutive_errors} consecutive errors"
+                        )
+                    # Don't change interval for errors
+                    await asyncio.sleep(current_interval)
                 else:
+                    # Normal processing - apply adaptive polling
                     consecutive_errors = 0
-                
-                await asyncio.sleep(check_interval)
+                    last_status = status
+                    
+                    # Reset to fast polling on status change
+                    if status_changed:
+                        logger.info(f"⏱️ [ADAPTIVE_POLLING] Status changed - resetting to 10s interval")
+                        current_interval = 10
+                    else:
+                        # Exponential backoff
+                        new_interval = current_interval * backoff_multiplier
+                        current_interval = min(new_interval, max_interval)
+                    
+                    await asyncio.sleep(current_interval)
             
-            raise Exception("Avatar video rendering timeout")
+            raise Exception(f"Avatar video rendering timeout after {max_wait_time}s (polls: {poll_count})")
             
         except Exception as e:
             logger.error(f"Avatar video completion with progress failed: {e}")
@@ -1989,18 +2470,21 @@ class ProfessionalPresentationService:
     
     async def _cleanup_temp_files(self, file_paths: List[str]):
         """
-        Clean up temporary files.
+        Simple cleanup with proper logging and error handling.
         
         Args:
             file_paths: List of file paths to clean up
         """
-        try:
-            for file_path in file_paths:
+        for file_path in file_paths:
+            try:
                 if os.path.exists(file_path):
+                    size_mb = os.path.getsize(file_path) / (1024*1024)
                     os.remove(file_path)
-                    logger.info(f"Cleaned up temporary file: {file_path}")
-        except Exception as e:
-            logger.warning(f"Cleanup failed: {e}")
+                    logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+            except PermissionError:
+                logger.warning(f"🧹 Файл заблоковано (повторити пізніше): {file_path}")
+            except Exception as e:
+                logger.error(f"🧹 Помилка видалення {file_path}: {e}")
     
     async def get_presentation_video(self, job_id: str) -> Optional[str]:
         """
@@ -2114,45 +2598,52 @@ class ProfessionalPresentationService:
         except Exception as e:
             logger.error(f"Job cleanup failed: {e}")
     
-    async def _schedule_job_cleanup(self, job_id: str, delay_minutes: int = 30):
+    async def _schedule_job_cleanup(self, job_id: str, delay_minutes: int = 5):
         """
         Schedule cleanup of a completed job after a delay.
+        Simple cleanup: delete all tracked files and remove from memory.
         
         Args:
             job_id: Job ID to clean up
-            delay_minutes: Minutes to wait before cleanup (default: 30)
+            delay_minutes: Minutes to wait before cleanup (default: 5)
         """
         try:
             # Wait for the specified delay
             await asyncio.sleep(delay_minutes * 60)
             
-            # Check if job still exists and is completed
-            if job_id in self.jobs:
-                job = self.jobs[job_id]
-                if job.status in ["completed", "failed"]:
-                    logger.info(f"🧹 [CLEANUP] Starting scheduled cleanup for completed job: {job_id}")
-                    
-                    # Stop any remaining heartbeat tasks
-                    if job_id in self.heartbeat_tasks:
-                        self.heartbeat_tasks[job_id].cancel()
-                        del self.heartbeat_tasks[job_id]
-                        logger.info(f"🧹 [CLEANUP] Cleaned up heartbeat task for job {job_id}")
-                    
-                    # Remove job from memory
-                    del self.jobs[job_id]
-                    logger.info(f"🧹 [CLEANUP] Job {job_id} removed from memory after {delay_minutes} minutes")
-                    
-                    # Log current memory usage
-                    active_jobs = len(self.jobs)
-                    active_heartbeats = len(self.heartbeat_tasks)
-                    logger.info(f"🧹 [CLEANUP] Memory state: {active_jobs} active jobs, {active_heartbeats} heartbeat tasks")
-                else:
-                    logger.info(f"🧹 [CLEANUP] Job {job_id} is still {job.status}, skipping cleanup")
-            else:
-                logger.info(f"🧹 [CLEANUP] Job {job_id} already cleaned up")
+            # Thread-safe cleanup
+            async with self.job_lock:
+                # Check if job still exists and is completed
+                if job_id not in self.jobs:
+                    return
                 
+                job = self.jobs[job_id]
+                if job.status not in ["completed", "failed"]:
+                    return
+                
+                logger.info(f"🧹 [CLEANUP] Starting cleanup for job: {job_id}")
+                
+                # Clean up all tracked files
+                for file_path in job.created_files:
+                    try:
+                        if os.path.exists(file_path):
+                            size_mb = os.path.getsize(file_path) / (1024*1024)
+                            os.remove(file_path)
+                            logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+                    except Exception as e:
+                        logger.error(f"🧹 Не вдалося видалити {file_path}: {e}")
+                
+                # Stop any remaining heartbeat tasks
+                if job_id in self.heartbeat_tasks:
+                    self.heartbeat_tasks[job_id].cancel()
+                    del self.heartbeat_tasks[job_id]
+                
+                # Remove job from memory
+                del self.jobs[job_id]
+                logger.info(f"🧹 [CLEANUP] Job {job_id} видалено з пам'яті (активних: {len(self.jobs)})")
+                    
         except Exception as e:
-            logger.error(f"🧹 [CLEANUP] Failed to clean up job {job_id}: {e}")
+            logger.error(f"🧹 [CLEANUP] Помилка очищення {job_id}: {e}")
 
 # Global instance
 presentation_service = ProfessionalPresentationService()

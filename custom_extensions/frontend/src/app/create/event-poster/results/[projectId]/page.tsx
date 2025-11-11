@@ -11,6 +11,29 @@ export default function EventPosterProjectResults() {
   const { t } = useLanguage();
   const projectId = params?.projectId as string;
 
+  // Load Montserrat font for poster
+  useEffect(() => {
+    // Check if font link already exists
+    if (!document.querySelector('link[href*="Montserrat"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap';
+      document.head.appendChild(link);
+      
+      // Preconnect for faster loading
+      const preconnect1 = document.createElement('link');
+      preconnect1.rel = 'preconnect';
+      preconnect1.href = 'https://fonts.googleapis.com';
+      document.head.appendChild(preconnect1);
+      
+      const preconnect2 = document.createElement('link');
+      preconnect2.rel = 'preconnect';
+      preconnect2.href = 'https://fonts.gstatic.com';
+      preconnect2.crossOrigin = 'anonymous';
+      document.head.appendChild(preconnect2);
+    }
+  }, []);
+
   // State for event data
   const [eventData, setEventData] = useState({
     eventName: '',

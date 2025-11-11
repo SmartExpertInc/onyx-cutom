@@ -277,9 +277,7 @@ class ProfessionalSlideCapture:
             output_path = await self._convert_to_optimized_mp4(video_path, config)
             
             # Clean up temporary file
-            if os.path.exists(video_path):
-                os.remove(video_path)
-                logger.info(f"Cleaned up temporary video: {video_path}")
+            self._cleanup_temp_files([video_path])
             
             logger.info(f"Slide video completed: {output_path}")
             return output_path
@@ -540,9 +538,7 @@ class ProfessionalSlideCapture:
             logger.info("Test video recording stopped")
             
             # Clean up test files
-            if os.path.exists(test_video_path):
-                os.remove(test_video_path)
-                logger.info(f"Cleaned up test video: {test_video_path}")
+            self._cleanup_temp_files([test_video_path])
                 
             await test_context.close()
             logger.info("Test browser context closed")
@@ -746,10 +742,7 @@ class ProfessionalSlideCapture:
             
             # Clean up screenshots
             logger.info("Cleaning up screenshot files...")
-            for screenshot in screenshots:
-                if os.path.exists(screenshot):
-                    os.remove(screenshot)
-                    logger.info(f"Cleaned up: {screenshot}")
+            self._cleanup_temp_files(screenshots)
             
             # Verify final video exists
             if os.path.exists(output_path):
@@ -838,9 +831,7 @@ class ProfessionalSlideCapture:
             return await self._create_fallback_video(screenshots, output_path, config)
         finally:
             # Clean up input list
-            if os.path.exists(input_list_path):
-                os.remove(input_list_path)
-                logger.info(f"Cleaned up input list: {input_list_path}")
+            self._cleanup_temp_files([input_list_path])
         
         logger.info(f"Successfully converted screenshots to video: {output_path}")
     
@@ -865,6 +856,24 @@ class ProfessionalSlideCapture:
         except Exception as e:
             logger.warning(f"FFmpeg availability check failed: {e}")
             return False
+    
+    def _cleanup_temp_files(self, file_paths: List[str]):
+        """
+        Simple cleanup with proper logging and error handling.
+        
+        Args:
+            file_paths: List of file paths to clean up
+        """
+        for file_path in file_paths:
+            try:
+                if os.path.exists(file_path):
+                    size_mb = os.path.getsize(file_path) / (1024*1024)
+                    os.remove(file_path)
+                    logger.info(f"🧹 Видалено: {os.path.basename(file_path)} ({size_mb:.1f}MB)")
+            except PermissionError:
+                logger.warning(f"🧹 Файл заблоковано (повторити пізніше): {file_path}")
+            except Exception as e:
+                logger.error(f"🧹 Помилка видалення {file_path}: {e}")
     
     async def _create_fallback_video(self, screenshots: List[str], output_path: str, config: SlideVideoConfig) -> str:
         """Create a fallback video when FFmpeg is not available."""

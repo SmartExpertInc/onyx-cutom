@@ -9,14 +9,118 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+# Elai API Limits (based on typical API constraints)
+# Adjust these based on actual Elai API documentation
+MAX_VOICEOVER_TEXT_LENGTH = 5000      # Max characters per voiceover text
+MAX_TOTAL_TEXT_LENGTH = 50000         # Max total characters across all texts
+MAX_PROJECT_NAME_LENGTH = 200          # Max project name length
+MAX_PAYLOAD_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB max payload size
+MAX_SLIDES_PER_REQUEST = 50            # Max slides in single request
+
+# Warning thresholds (trigger warnings before hitting limits)
+WARN_VOICEOVER_TEXT_LENGTH = 4000      # 80% of max
+WARN_TOTAL_TEXT_LENGTH = 40000         # 80% of max
+WARN_PAYLOAD_SIZE_BYTES = 4 * 1024 * 1024  # 80% of max (4 MB)
+
 class ElaiVideoGenerationService:
     """Service for generating videos using the Elai API."""
     
     def __init__(self):
         self.api_base = "https://apis.elai.io/api/v1"
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
-        self.max_wait_time = 15 * 60  # 15 minutes
-        self.poll_interval = 30  # 30 seconds
+        
+        # ✅ NEW: Dynamic timeout configuration
+        self.base_wait_time = 10 * 60   # 10 minutes base
+        self.per_slide_time = 2 * 60    # 2 minutes per additional slide
+        self.min_wait_time = 5 * 60     # Minimum 5 minutes
+        self.max_wait_time = 60 * 60    # Maximum 60 minutes (safety cap)
+        
+        # Adaptive polling configuration
+        self.initial_poll_interval = 10      # Start with 10 seconds
+        self.max_poll_interval = 60          # Cap at 60 seconds
+        self.poll_backoff_multiplier = 1.5   # Increase by 50% each time
+        self.poll_reset_on_change = True     # Reset to initial on status change
+        
+        # ✅ NEW: Dynamic download timeout configuration
+        self.min_download_timeout = 60           # Minimum 1 minute
+        self.base_download_timeout = 5 * 60      # Base 5 minutes
+        self.timeout_per_mb = 2                  # 2 seconds per MB
+        self.max_download_timeout = 30 * 60      # Maximum 30 minutes (safety cap)
+        
+        # Deprecated: kept for backward compatibility
+        self.poll_interval = 30  # 30 seconds (deprecated, use adaptive polling)
+    
+    def calculate_timeout(self, slide_count: int = 1) -> int:
+        """
+        Calculate dynamic timeout based on number of slides.
+        
+        Args:
+            slide_count: Number of slides in presentation
+            
+        Returns:
+            Timeout in seconds
+            
+        Formula:
+            timeout = base_time + (slide_count × per_slide_time)
+            capped between min_wait_time and max_wait_time
+            
+        Examples:
+            1 slide  → 12 min (10 + 1×2)
+            5 slides → 20 min (10 + 5×2)
+            10 slides → 30 min (10 + 10×2)
+            15 slides → 40 min (10 + 15×2)
+        """
+        timeout = self.base_wait_time + (slide_count * self.per_slide_time)
+        
+        # Apply min/max constraints
+        timeout = max(self.min_wait_time, timeout)
+        timeout = min(self.max_wait_time, timeout)
+        
+        logger.info(
+            f"⏱️ [DYNAMIC_TIMEOUT] Calculated timeout: {timeout}s ({timeout/60:.1f} min) "
+            f"for {slide_count} slide(s)"
+        )
+        
+        return timeout
+    
+    def calculate_download_timeout(self, file_size_bytes: int) -> float:
+        """
+        Calculate dynamic download timeout based on expected file size.
+        
+        Args:
+            file_size_bytes: Expected file size in bytes
+            
+        Returns:
+            Timeout in seconds
+            
+        Formula:
+            timeout = base_timeout + (file_size_mb × timeout_per_mb)
+            capped between min_download_timeout and max_download_timeout
+            
+        Examples:
+            10 MB  → 320 seconds (5.3 min)
+            50 MB  → 400 seconds (6.7 min)
+            200 MB → 700 seconds (11.7 min)
+            500 MB → 1300 seconds (21.7 min)
+        """
+        if file_size_bytes <= 0:
+            # If size unknown, use base timeout
+            logger.warning("📥 [DOWNLOAD_TIMEOUT] File size unknown, using base timeout")
+            return self.base_download_timeout
+        
+        file_size_mb = file_size_bytes / (1024 * 1024)
+        timeout = self.base_download_timeout + (file_size_mb * self.timeout_per_mb)
+        
+        # Apply min/max constraints
+        timeout = max(self.min_download_timeout, timeout)
+        timeout = min(self.max_download_timeout, timeout)
+        
+        logger.info(
+            f"⏱️ [DOWNLOAD_TIMEOUT] Calculated timeout: {timeout}s ({timeout/60:.1f} min) "
+            f"for {file_size_mb:.1f} MB file"
+        )
+        
+        return timeout
     
     def _get_client(self):
         """Get or create HTTP client in the current event loop."""
@@ -39,6 +143,275 @@ class ElaiVideoGenerationService:
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
+    
+    def _validate_payload_size(
+        self, 
+        video_request: Dict[str, Any],
+        voiceover_texts: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Validate payload size before sending to API.
+        
+        Checks:
+        1. Individual text lengths
+        2. Total text length across all texts
+        3. Total JSON payload size
+        4. Number of slides
+        
+        Args:
+            video_request: Complete video request payload
+            voiceover_texts: List of voiceover texts
+            
+        Returns:
+            Dict with validation results:
+            - valid: bool (True if payload is valid)
+            - issues: List of validation issues
+            - warnings: List of warnings (non-blocking)
+            - payload_size: Size of payload in bytes
+        """
+        issues = []
+        warnings = []
+        
+        # Calculate payload size
+        import sys
+        payload_json = json.dumps(video_request)
+        payload_size = len(payload_json.encode('utf-8'))
+        
+        logger.info(f"📊 [PAYLOAD_VALIDATION] Starting payload validation")
+        logger.info(f"📊 [PAYLOAD_VALIDATION] Payload size: {payload_size:,} bytes ({payload_size / 1024:.2f} KB)")
+        
+        # Check 1: Individual text lengths
+        total_text_length = 0
+        for i, text in enumerate(voiceover_texts):
+            text_length = len(text)
+            total_text_length += text_length
+            
+            if text_length > MAX_VOICEOVER_TEXT_LENGTH:
+                issues.append(
+                    f"Voiceover text {i+1} exceeds maximum length: "
+                    f"{text_length:,} chars (max: {MAX_VOICEOVER_TEXT_LENGTH:,})"
+                )
+            elif text_length > WARN_VOICEOVER_TEXT_LENGTH:
+                warnings.append(
+                    f"Voiceover text {i+1} approaching limit: "
+                    f"{text_length:,} chars (limit: {MAX_VOICEOVER_TEXT_LENGTH:,})"
+                )
+        
+        # Check 2: Total text length
+        if total_text_length > MAX_TOTAL_TEXT_LENGTH:
+            issues.append(
+                f"Total voiceover text exceeds maximum: "
+                f"{total_text_length:,} chars (max: {MAX_TOTAL_TEXT_LENGTH:,})"
+            )
+        elif total_text_length > WARN_TOTAL_TEXT_LENGTH:
+            warnings.append(
+                f"Total voiceover text approaching limit: "
+                f"{total_text_length:,} chars (limit: {MAX_TOTAL_TEXT_LENGTH:,})"
+            )
+        
+        # Check 3: Payload size
+        if payload_size > MAX_PAYLOAD_SIZE_BYTES:
+            issues.append(
+                f"Payload size exceeds maximum: "
+                f"{payload_size:,} bytes (max: {MAX_PAYLOAD_SIZE_BYTES:,} bytes / "
+                f"{MAX_PAYLOAD_SIZE_BYTES / (1024*1024):.1f} MB)"
+            )
+        elif payload_size > WARN_PAYLOAD_SIZE_BYTES:
+            warnings.append(
+                f"Payload size approaching limit: "
+                f"{payload_size:,} bytes (limit: {MAX_PAYLOAD_SIZE_BYTES:,} bytes / "
+                f"{MAX_PAYLOAD_SIZE_BYTES / (1024*1024):.1f} MB)"
+            )
+        
+        # Check 4: Number of slides
+        num_slides = len(video_request.get('slides', []))
+        if num_slides > MAX_SLIDES_PER_REQUEST:
+            issues.append(
+                f"Number of slides exceeds maximum: "
+                f"{num_slides} slides (max: {MAX_SLIDES_PER_REQUEST})"
+            )
+        
+        # Check 5: Project name length
+        project_name = video_request.get('name', '')
+        if len(project_name) > MAX_PROJECT_NAME_LENGTH:
+            issues.append(
+                f"Project name exceeds maximum length: "
+                f"{len(project_name)} chars (max: {MAX_PROJECT_NAME_LENGTH})"
+            )
+        
+        valid = len(issues) == 0
+        
+        # Log results
+        if valid:
+            logger.info(f"✅ [PAYLOAD_VALIDATION] Payload validation passed")
+            logger.info(f"📊 [PAYLOAD_VALIDATION] Statistics:")
+            logger.info(f"  - Texts: {len(voiceover_texts)}")
+            logger.info(f"  - Total text length: {total_text_length:,} chars")
+            logger.info(f"  - Payload size: {payload_size:,} bytes ({payload_size / 1024:.2f} KB)")
+            logger.info(f"  - Slides: {num_slides}")
+        else:
+            logger.error(f"❌ [PAYLOAD_VALIDATION] Payload validation FAILED")
+            logger.error(f"❌ [PAYLOAD_VALIDATION] Issues found:")
+            for issue in issues:
+                logger.error(f"  - {issue}")
+        
+        if warnings:
+            logger.warning(f"⚠️ [PAYLOAD_VALIDATION] Warnings:")
+            for warning in warnings:
+                logger.warning(f"  - {warning}")
+        
+        return {
+            'valid': valid,
+            'issues': issues,
+            'warnings': warnings,
+            'payload_size': payload_size,
+            'stats': {
+                'num_texts': len(voiceover_texts),
+                'total_text_length': total_text_length,
+                'num_slides': num_slides,
+                'project_name_length': len(project_name)
+            }
+        }
+    
+    def _smart_truncate_texts(
+        self, 
+        texts: List[str], 
+        max_individual: int = MAX_VOICEOVER_TEXT_LENGTH,
+        max_total: int = MAX_TOTAL_TEXT_LENGTH
+    ) -> tuple:
+        """
+        Intelligently truncate texts to fit within limits while preserving as much content as possible.
+        
+        Strategy:
+        1. First, truncate any texts exceeding individual limit
+        2. If total still exceeds limit, proportionally reduce all texts
+        3. Preserve sentence boundaries when possible
+        
+        Args:
+            texts: List of voiceover texts to truncate
+            max_individual: Maximum length per text
+            max_total: Maximum total length
+            
+        Returns:
+            Tuple of (truncated_texts, was_truncated)
+        """
+        was_truncated = False
+        truncated_texts = []
+        
+        # Step 1: Enforce individual limits
+        for i, text in enumerate(texts):
+            if len(text) > max_individual:
+                # Try to truncate at sentence boundary
+                truncated = text[:max_individual]
+                
+                # Find last sentence ending
+                last_period = truncated.rfind('.')
+                last_exclaim = truncated.rfind('!')
+                last_question = truncated.rfind('?')
+                last_sentence = max(last_period, last_exclaim, last_question)
+                
+                if last_sentence > max_individual * 0.8:  # Keep if we retain 80%+
+                    truncated = truncated[:last_sentence + 1]
+                else:
+                    truncated = truncated + "..."
+                
+                truncated_texts.append(truncated)
+                was_truncated = True
+                logger.warning(
+                    f"⚠️ [TEXT_TRUNCATION] Text {i+1} truncated from {len(text)} to {len(truncated)} chars"
+                )
+            else:
+                truncated_texts.append(text)
+        
+        # Step 2: Check total length
+        total_length = sum(len(t) for t in truncated_texts)
+        
+        if total_length > max_total:
+            # Calculate proportional reduction needed
+            reduction_factor = max_total / total_length
+            logger.warning(
+                f"⚠️ [TEXT_TRUNCATION] Total length {total_length} exceeds {max_total}, "
+                f"applying {reduction_factor:.2%} reduction"
+            )
+            
+            final_texts = []
+            for i, text in enumerate(truncated_texts):
+                new_length = int(len(text) * reduction_factor)
+                if new_length < len(text):
+                    # Truncate proportionally
+                    truncated = text[:new_length]
+                    
+                    # Try to preserve sentence boundary
+                    last_sentence = max(
+                        truncated.rfind('.'),
+                        truncated.rfind('!'),
+                        truncated.rfind('?')
+                    )
+                    
+                    if last_sentence > new_length * 0.7:
+                        truncated = truncated[:last_sentence + 1]
+                    else:
+                        truncated = truncated.rstrip() + "..."
+                    
+                    final_texts.append(truncated)
+                    was_truncated = True
+                    logger.warning(
+                        f"⚠️ [TEXT_TRUNCATION] Text {i+1} further reduced from {len(text)} to {len(truncated)} chars"
+                    )
+                else:
+                    final_texts.append(text)
+            
+            truncated_texts = final_texts
+        
+        final_total = sum(len(t) for t in truncated_texts)
+        logger.info(f"📊 [TEXT_TRUNCATION] Final total length: {final_total:,} chars")
+        
+        return truncated_texts, was_truncated
+    
+    def _get_adaptive_poll_interval(
+        self,
+        elapsed_time: float,
+        current_interval: float,
+        status_changed: bool = False
+    ) -> float:
+        """
+        Calculate adaptive polling interval using exponential backoff.
+        
+        Strategy:
+        - Start with fast polling (10s)
+        - Gradually increase interval (exponential backoff)
+        - Cap at maximum (60s)
+        - Reset to initial on status change
+        
+        Args:
+            elapsed_time: Time elapsed since start (seconds)
+            current_interval: Current polling interval (seconds)
+            status_changed: Whether status changed since last poll
+            
+        Returns:
+            Next polling interval in seconds
+        """
+        # Reset to initial interval if status changed
+        if status_changed and self.poll_reset_on_change:
+            logger.info(
+                f"⏱️ [ADAPTIVE_POLLING] Status changed - resetting to initial interval: {self.initial_poll_interval}s"
+            )
+            return self.initial_poll_interval
+        
+        # Exponential backoff: multiply current interval
+        next_interval = current_interval * self.poll_backoff_multiplier
+        
+        # Apply cap
+        next_interval = min(next_interval, self.max_poll_interval)
+        
+        # Log interval changes
+        if next_interval != current_interval:
+            logger.info(
+                f"⏱️ [ADAPTIVE_POLLING] Increasing interval: {current_interval:.1f}s → {next_interval:.1f}s "
+                f"(elapsed: {elapsed_time:.1f}s)"
+            )
+        
+        return next_interval
     
     async def get_avatars(self) -> Dict[str, Any]:
         """
@@ -161,7 +534,7 @@ class ElaiVideoGenerationService:
                     "error": "No avatar code provided"
                 }
             
-            # Clean and validate voiceover texts
+            # ✅ ENHANCED: Clean and validate voiceover texts with payload size awareness
             cleaned_texts = []
             for i, text in enumerate(voiceover_texts):
                 if not text or not isinstance(text, str):
@@ -177,23 +550,28 @@ class ElaiVideoGenerationService:
                 cleaned_text = cleaned_text.replace(''', "'").replace(''', "'")
                 cleaned_text = cleaned_text.replace('…', '...')
                 
-                # Validate length
+                # Validate minimum length
                 if len(cleaned_text) < 5:
                     logger.warning(f"Voiceover text too short at index {i}: '{cleaned_text}'")
                     continue
                 
-                if len(cleaned_text) > 1000:
-                    logger.warning(f"Voiceover text too long at index {i}, truncating")
-                    cleaned_text = cleaned_text[:1000] + "..."
-                
                 cleaned_texts.append(cleaned_text)
-                logger.info(f"Cleaned voiceover text {i+1}: {cleaned_text[:100]}...")
+                logger.info(f"Cleaned voiceover text {i+1}: {cleaned_text[:100]}... (length: {len(cleaned_text)} chars)")
             
             if not cleaned_texts:
                 return {
                     "success": False,
                     "error": "No valid voiceover texts after cleaning"
                 }
+            
+            # ✅ NEW: Smart truncation if needed
+            truncated_texts, was_truncated = self._smart_truncate_texts(cleaned_texts)
+            if was_truncated:
+                logger.warning(
+                    f"⚠️ [PAYLOAD_VALIDATION] Voiceover texts were automatically truncated to fit API limits"
+                )
+            
+            cleaned_texts = truncated_texts
             
             # Get avatars to find the specified one
             avatars_response = await self.get_avatars()
@@ -311,7 +689,7 @@ class ElaiVideoGenerationService:
             # FIXED: Official Elai API structure with correct 1080x1080 dimensions
             # Use actual avatar data instead of hardcoded example values
             video_request = {
-                "name": project_name,
+                "name": project_name[:MAX_PROJECT_NAME_LENGTH],  # ✅ Enforce project name limit
                 "slides": [{
                     "id": 1,
                     "canvas": {
@@ -351,12 +729,32 @@ class ElaiVideoGenerationService:
                 "resolution": "1080p"  # CRITICAL FIX: Specify 1080p resolution
             }
             
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
-            logger.info(f"  {json.dumps(video_request, indent=2)}")
+            # ✅ NEW: Validate payload size before sending
+            validation = self._validate_payload_size(video_request, cleaned_texts)
+            
+            if not validation['valid']:
+                error_msg = "Payload validation failed: " + "; ".join(validation['issues'])
+                logger.error(f"❌ [ELAI_VIDEO_GENERATION] {error_msg}")
+                return {
+                    "success": False,
+                    "error": error_msg,
+                    "validation_details": validation
+                }
+            
+            # Log warnings (non-blocking)
+            if validation['warnings']:
+                for warning in validation['warnings']:
+                    logger.warning(f"⚠️ [ELAI_VIDEO_GENERATION] {warning}")
+            
+            # Log payload statistics
+            logger.info(f"📊 [ELAI_VIDEO_GENERATION] Payload statistics:")
+            logger.info(f"  - Size: {validation['payload_size']:,} bytes ({validation['payload_size'] / 1024:.2f} KB)")
+            logger.info(f"  - Texts: {validation['stats']['num_texts']}")
+            logger.info(f"  - Total text length: {validation['stats']['total_text_length']:,} chars")
+            logger.info(f"  - Slides: {validation['stats']['num_slides']}")
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Making API call to Elai")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API endpoint: {self.api_base}/videos")
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Headers: {self.headers}")
             
             # Create video
             response = await client.post(
@@ -375,7 +773,7 @@ class ElaiVideoGenerationService:
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response successful")
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video data received:")
                 logger.info(f"  - Video ID: {video_id}")
-                logger.info(f"  - Full response: {json.dumps(result, indent=2)}")
+                # logger.info(f"  - Full response: {json.dumps(result, indent=2)}")
                 
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video created successfully: {video_id}")
                 return {
@@ -842,29 +1240,58 @@ class ElaiVideoGenerationService:
         finally:
             await client.aclose()
     
-    async def wait_for_completion(self, video_id: str) -> Optional[str]:
+    async def wait_for_completion(self, video_id: str, slide_count: int = 1) -> Optional[str]:
         """
-        Wait for video rendering to complete and return the download URL.
+        Wait for video rendering to complete with adaptive exponential backoff and dynamic timeout.
+        
+        Enhanced polling strategy:
+        - Starts with fast polling (10s) when video just started
+        - Gradually increases interval using exponential backoff
+        - Resets to fast polling when status changes (activity detected)
+        - Caps at 60 seconds to avoid excessive delays
+        - Dynamic timeout based on number of slides
         
         Args:
             video_id: The ID of the video to monitor
+            slide_count: Number of slides in presentation (for dynamic timeout calculation)
             
         Returns:
             Download URL if successful, None if failed or timeout
         """
         start_time = datetime.now()
+        current_interval = self.initial_poll_interval
+        last_status = None
+        poll_count = 0
         
-        while (datetime.now() - start_time).total_seconds() < self.max_wait_time:
+        # Calculate dynamic timeout based on slide count
+        max_wait = self.calculate_timeout(slide_count)
+        
+        logger.info(f"⏱️ [ADAPTIVE_POLLING] Starting adaptive polling for video {video_id}")
+        logger.info(f"⏱️ [ADAPTIVE_POLLING] Configuration:")
+        logger.info(f"  - Initial interval: {self.initial_poll_interval}s")
+        logger.info(f"  - Max interval: {self.max_poll_interval}s")
+        logger.info(f"  - Backoff multiplier: {self.poll_backoff_multiplier}x")
+        logger.info(f"  - Timeout: {max_wait}s ({max_wait/60:.1f} min) for {slide_count} slide(s)")
+        
+        while (datetime.now() - start_time).total_seconds() < max_wait:
             try:
+                poll_count += 1
+                elapsed_time = (datetime.now() - start_time).total_seconds()
+                
                 status_data = await self.check_video_status(video_id)
                 
                 if not status_data:
-                    logger.warning("Failed to get video status, retrying...")
-                    await asyncio.sleep(self.poll_interval)
+                    logger.warning(f"⏱️ [ADAPTIVE_POLLING] Failed to get video status, retrying...")
+                    await asyncio.sleep(current_interval)
                     continue
                 
                 status = status_data.get("status", "unknown")
-                logger.info(f"Video {video_id} status: {status}")
+                status_changed = (status != last_status)
+                
+                logger.info(
+                    f"⏱️ [ADAPTIVE_POLLING] Poll #{poll_count}: status={status}, "
+                    f"elapsed={elapsed_time:.1f}s, next_interval={current_interval:.1f}s"
+                )
                 
                 if status in ["rendered", "ready"]:
                     # Try different possible URL fields
@@ -875,7 +1302,10 @@ class ElaiVideoGenerationService:
                     )
                     
                     if download_url:
-                        logger.info(f"Video {video_id} completed successfully")
+                        logger.info(
+                            f"✅ [ADAPTIVE_POLLING] Video {video_id} completed successfully "
+                            f"(polls: {poll_count}, time: {elapsed_time:.1f}s)"
+                        )
                         return download_url
                     else:
                         logger.error(f"Video {video_id} rendered but no download URL found")
@@ -884,6 +1314,7 @@ class ElaiVideoGenerationService:
                 elif status == "failed":
                     logger.error(f"Video {video_id} rendering failed permanently")
                     return None
+                    
                 elif status == "error":
                     # Check if this is a permanent error or temporary issue
                     error_details = status_data.get("data", {}).get("error", {})
@@ -903,26 +1334,39 @@ class ElaiVideoGenerationService:
                         return None
                     else:
                         logger.warning(f"Video {video_id} reported temporary error status, continuing to wait...")
-                        await asyncio.sleep(self.poll_interval)
+                        # Don't change interval for temporary errors
+                        await asyncio.sleep(current_interval)
                     
                 elif status in ["rendering", "queued", "draft", "validating"]:
-                    # Still processing, continue waiting
-                    await asyncio.sleep(self.poll_interval)
+                    # Normal processing states - apply adaptive interval
+                    last_status = status
+                    
+                    # Calculate next interval
+                    current_interval = self._get_adaptive_poll_interval(
+                        elapsed_time,
+                        current_interval,
+                        status_changed
+                    )
+                    
+                    await asyncio.sleep(current_interval)
                     
                 else:
                     logger.warning(f"Unknown status for video {video_id}: {status}")
-                    await asyncio.sleep(self.poll_interval)
+                    await asyncio.sleep(current_interval)
                     
             except Exception as e:
                 logger.error(f"Error monitoring video {video_id}: {str(e)}")
-                await asyncio.sleep(self.poll_interval)
+                await asyncio.sleep(current_interval)
         
-        logger.error(f"Video {video_id} generation timeout after {self.max_wait_time} seconds")
+        logger.error(
+            f"❌ [ADAPTIVE_POLLING] Video {video_id} generation timeout after {max_wait}s "
+            f"({max_wait/60:.1f} min) for {slide_count} slide(s) (polls: {poll_count})"
+        )
         return None
     
     async def download_video(self, download_url: str, output_path: str) -> bool:
         """
-        Download the rendered video to local storage.
+        Download the rendered video to local storage with dynamic timeout.
         
         Args:
             download_url: The URL to download the video from
@@ -937,21 +1381,46 @@ class ElaiVideoGenerationService:
             return False
         
         try:
-            logger.info(f"Downloading video from: {download_url}")
-            logger.info(f"Downloading to: {output_path}")
+            logger.info(f"📥 [DOWNLOAD] Starting video download")
+            logger.info(f"📥 [DOWNLOAD] URL: {download_url}")
+            logger.info(f"📥 [DOWNLOAD] Output: {output_path}")
             
-            # Use httpx to download the video
-            response = await client.get(download_url, timeout=300)
+            # ✅ STEP 1: HEAD request to get file size (with short timeout)
+            expected_size = 0
+            download_timeout = self.base_download_timeout
+            
+            try:
+                head_response = await client.head(download_url, timeout=30)
+                expected_size = int(head_response.headers.get('content-length', 0))
+                
+                if expected_size > 0:
+                    logger.info(f"📥 [DOWNLOAD] Expected file size: {expected_size / (1024*1024):.2f} MB")
+                    
+                    # Calculate dynamic timeout based on file size
+                    download_timeout = self.calculate_download_timeout(expected_size)
+                else:
+                    logger.warning("📥 [DOWNLOAD] File size not available from headers, using base timeout")
+                    
+            except Exception as e:
+                logger.warning(f"📥 [DOWNLOAD] HEAD request failed: {e}, using base timeout")
+            
+            # ✅ STEP 2: Download with dynamic timeout
+            logger.info(f"⏱️ [DOWNLOAD] Using timeout: {download_timeout}s ({download_timeout/60:.1f} min)")
+            
+            start_time = datetime.now()
+            response = await client.get(download_url, timeout=download_timeout)  # ✅ Dynamic!
             response.raise_for_status()
             
             # Get total size for progress tracking
             total_size = int(response.headers.get('content-length', 0))
             downloaded_size = 0
+            last_log_progress = 0
             
             # Create output directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             
-            # Download the video
+            # Download the video with progress logging
+            logger.info(f"📥 [DOWNLOAD] Starting file transfer...")
             with open(output_path, 'wb') as f:
                 async for chunk in response.aiter_bytes(chunk_size=8192):
                     f.write(chunk)
@@ -959,42 +1428,62 @@ class ElaiVideoGenerationService:
                     
                     if total_size > 0:
                         progress = (downloaded_size / total_size) * 100
-                        if downloaded_size % (1024 * 1024) == 0:  # Log every MB
-                            logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
+                        # Log every 10% progress
+                        if progress - last_log_progress >= 10:
+                            elapsed = (datetime.now() - start_time).total_seconds()
+                            if elapsed > 0:
+                                speed_mbps = (downloaded_size / (1024*1024)) / elapsed
+                                logger.info(
+                                    f"📥 [DOWNLOAD] Progress: {progress:.1f}% "
+                                    f"({downloaded_size/(1024*1024):.1f}/{total_size/(1024*1024):.1f} MB) "
+                                    f"Speed: {speed_mbps:.2f} MB/s"
+                                )
+                                last_log_progress = progress
             
-            # CRITICAL DEBUG: Comprehensive avatar video analysis
-            logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Download completed")
-            logger.info(f"  - Total size downloaded: {downloaded_size} bytes ({downloaded_size / (1024*1024):.2f} MB)")
-            logger.info(f"  - Expected size: {total_size} bytes ({total_size / (1024*1024):.2f} MB)")
+            # Calculate final statistics
+            elapsed_total = (datetime.now() - start_time).total_seconds()
+            final_size_mb = downloaded_size / (1024*1024)
+            avg_speed = final_size_mb / elapsed_total if elapsed_total > 0 else 0
+            
+            logger.info(f"✅ [DOWNLOAD] Video downloaded successfully")
+            logger.info(f"✅ [DOWNLOAD] File: {output_path}")
+            logger.info(f"✅ [DOWNLOAD] Size: {final_size_mb:.2f} MB")
+            logger.info(f"✅ [DOWNLOAD] Time: {elapsed_total:.1f}s ({elapsed_total/60:.1f} min)")
+            logger.info(f"✅ [DOWNLOAD] Avg speed: {avg_speed:.2f} MB/s")
             
             # Verify file was downloaded
             if os.path.exists(output_path):
                 file_size_bytes = os.path.getsize(output_path)
                 file_size_mb = file_size_bytes / (1024 * 1024)
-                logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Video downloaded successfully!")
-                logger.info(f"  - File path: {output_path}")
-                logger.info(f"  - File size: {file_size_mb:.2f} MB ({file_size_bytes} bytes)")
                 
-                # CRITICAL DEBUG: Check if file is suspiciously small (might be blank/error)
+                # Check if file is suspiciously small (might be blank/error)
                 if file_size_bytes < 100000:  # Less than 100KB is suspicious for a video
-                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is very small ({file_size_bytes} bytes)")
+                    logger.warning(f"⚠️ [DOWNLOAD] WARNING: Downloaded video is very small ({file_size_bytes} bytes)")
                     logger.warning(f"  - This might indicate a blank or error video")
                 elif file_size_bytes < 1000000:  # Less than 1MB is concerning
-                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is small ({file_size_mb:.2f} MB)")
+                    logger.warning(f"⚠️ [DOWNLOAD] WARNING: Downloaded video is small ({file_size_mb:.2f} MB)")
                     logger.warning(f"  - Avatar might not be visible or video might be very short")
                 else:
-                    logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] File size looks normal for video content")
+                    logger.info(f"✅ [DOWNLOAD] File size looks normal for video content")
                 
-                # CRITICAL DEBUG: Analyze video properties to detect blank videos
+                # Analyze video properties to detect blank videos
                 await self._analyze_downloaded_video(output_path)
                 
                 return True
             else:
-                logger.error("Download completed but file not found")
+                logger.error("❌ [DOWNLOAD] Download completed but file not found")
                 return False
                 
         except Exception as e:
-            logger.error(f"Download failed: {str(e)}")
+            # Enhanced error handling with timeout specifics
+            import httpx
+            if isinstance(e, httpx.TimeoutException):
+                logger.error(
+                    f"❌ [DOWNLOAD] Timeout after {download_timeout}s "
+                    f"({download_timeout/60:.1f} min): {str(e)}"
+                )
+            else:
+                logger.error(f"❌ [DOWNLOAD] Error: {str(e)}")
             return False
         finally:
             await client.aclose()
