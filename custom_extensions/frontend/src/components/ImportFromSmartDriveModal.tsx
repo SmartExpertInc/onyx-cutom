@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "../contexts/LanguageContext";
 import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
 import { trackImportFiles } from "@/lib/mixpanelClient";
+import { HardDrive, Workflow, Package } from "lucide-react";
 import {
   KnowledgeBaseConnector,
   KnowledgeBaseSelection,
@@ -49,7 +50,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
 }) => {
   const { t } = useLanguage();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+  const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors' | 'my-products'>('smart-drive');
   const [localSelectedFileObjects, setLocalSelectedFileObjects] = useState<any[]>([]);
   const [selectedFilePaths, setSelectedFilePaths] = useState<string[]>([]);
   const [selectedConnectorSources, setSelectedConnectorSources] = useState<string[]>([]);
@@ -72,7 +73,11 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     }
   }, [mode]);
 
-  const handleTabChange = useCallback((tab: 'smart-drive' | 'connectors') => {
+  const handleConnectorTabChange = useCallback((tab: 'smart-drive' | 'connectors') => {
+    setActiveTab(tab);
+  }, []);
+
+  const handleTopLevelTabChange = useCallback((tab: 'smart-drive' | 'connectors' | 'my-products') => {
     setActiveTab(tab);
   }, []);
 
@@ -303,13 +308,25 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
 
   const handleImport = () => {
     if (isKnowledgeBaseMode) {
+      if (activeTab === 'my-products') {
+        onClose();
+        return;
+      }
       handleKnowledgeBaseImport();
     } else {
       handleUploadImport();
     }
   };
 
-  const showImportButton = isKnowledgeBaseMode ? hasKnowledgeBaseSelection : hasUploadSelection;
+  const showImportButton = isKnowledgeBaseMode
+    ? activeTab === 'my-products'
+      ? false
+      : hasKnowledgeBaseSelection
+    : hasUploadSelection;
+
+  const connectorsActiveTab = useMemo<'smart-drive' | 'connectors'>(() => {
+    return activeTab === 'connectors' ? 'connectors' : 'smart-drive';
+  }, [activeTab]);
 
   const selectedSourcesForChild = useMemo(() => {
     if (!isKnowledgeBaseMode) return undefined;
@@ -341,22 +358,70 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       >
         {/* Title */}
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">
-          {activeTab === 'connectors' 
-            ? t('interface.importFromSmartDrive.selectConnector', 'Select a connector') 
-            : t('interface.importFromSmartDrive.selectFile', 'Select a file')}
+          {activeTab === 'connectors'
+            ? t('interface.importFromSmartDrive.selectConnector', 'Select a connector')
+            : activeTab === 'my-products'
+              ? t('interface.importFromSmartDrive.selectProduct', 'My products')
+              : t('interface.importFromSmartDrive.selectFile', 'Select a file')}
         </h2>
+
+        {isKnowledgeBaseMode && (
+          <div className="flex gap-4 mb-4">
+            {[
+              {
+                id: 'smart-drive' as const,
+                label: t('interface.smartDrive', 'Smart drive'),
+                icon: HardDrive,
+              },
+              {
+                id: 'connectors' as const,
+                label: t('interface.importFromSmartDrive.connectors', 'Connectors'),
+                icon: Workflow,
+              },
+              {
+                id: 'my-products' as const,
+                label: t('interface.importFromSmartDrive.myProducts', 'My products'),
+                icon: Package,
+              },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => handleTopLevelTabChange(id)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full border transition-colors ${
+                  activeTab === id
+                    ? 'text-[#719AF5] border-[#719AF5] bg-white shadow-sm'
+                    : 'text-[#8D8D95] border-[#B8B8BC] hover:text-gray-700 hover:border-gray-400'
+                }`}
+              >
+                <Icon size={16} strokeWidth={1.5} />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* SmartDrive Connectors Component */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          <SmartDriveConnectors 
-            mode="select" 
-            onTabChange={handleTabChange} 
-            hideStatsBar={true}
-            onFileSelect={handleFileSelection}
-            onConnectorSelectionChange={isKnowledgeBaseMode ? setSelectedConnectorSources : undefined}
-            selectedConnectorSources={selectedSourcesForChild}
-            selectionMode={isKnowledgeBaseMode ? 'connectors' : 'none'}
-          />
+          {activeTab === 'my-products' ? (
+            <iframe
+              src="/my-products?embedded=modal"
+              title="My products"
+              className="w-full h-full rounded-lg border border-[#E0E0E0] bg-white"
+              style={{ minHeight: '100%', minWidth: '100%' }}
+            />
+          ) : (
+            <SmartDriveConnectors 
+              mode="select" 
+              onTabChange={handleConnectorTabChange} 
+              hideStatsBar={true}
+              onFileSelect={handleFileSelection}
+              onConnectorSelectionChange={isKnowledgeBaseMode ? setSelectedConnectorSources : undefined}
+              selectedConnectorSources={selectedSourcesForChild}
+              selectionMode={isKnowledgeBaseMode ? 'connectors' : 'none'}
+              externalActiveTab={connectorsActiveTab}
+              hideTabNavigation
+            />
+          )}
         </div>
 
         {/* Action buttons */}

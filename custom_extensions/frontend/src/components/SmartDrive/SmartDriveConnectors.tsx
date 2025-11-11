@@ -65,6 +65,8 @@ interface SmartDriveConnectorsProps {
   onConnectorSelectionChange?: (selectedSources: string[]) => void; // Callback when connector selection changes (select mode only)
   selectedConnectorSources?: string[]; // Controlled list of selected connector sources
   selectionMode?: 'none' | 'connectors'; // Enable connector selection instead of connect/disconnect flow
+  externalActiveTab?: 'smart-drive' | 'connectors'; // Allow parent to control active tab
+  hideTabNavigation?: boolean;
 }
 
 // Helper function to determine actual connector status (based on Onyx's logic)
@@ -89,7 +91,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   hideStatsBar = false,
   onConnectorSelectionChange,
   selectedConnectorSources,
-  selectionMode = 'none'
+  selectionMode = 'none',
+  externalActiveTab,
+  hideTabNavigation = false
 }) => {
   console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
   
@@ -111,7 +115,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
   const [connectorVisibility, setConnectorVisibility] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+  const isControlled = typeof externalActiveTab !== 'undefined';
+  const [internalActiveTab, setInternalActiveTab] = useState<'smart-drive' | 'connectors'>(externalActiveTab ?? 'smart-drive');
+  const activeTab = isControlled ? externalActiveTab! : internalActiveTab;
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [hasFiles, setHasFiles] = useState(false);
   const [selectedConnectorSourcesState, setSelectedConnectorSourcesState] = useState<string[]>(selectedConnectorSources || []);
@@ -132,6 +138,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   useEffect(() => {
     onTabChange?.(activeTab);
   }, [activeTab, onTabChange]);
+
+  useEffect(() => {
+    if (isControlled && typeof externalActiveTab !== 'undefined') {
+      setInternalActiveTab(externalActiveTab);
+    }
+  }, [externalActiveTab, isControlled]);
   
   // Handle file selection from SmartDriveBrowser
   const handleFilesSelected = useCallback((filePaths: string[]) => {
@@ -842,6 +854,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     return `${mainDomain}/admin/connectors?source=${connectorId}&access_type=private`;
   };
 
+  const handleSetActiveTab = useCallback((tab: 'smart-drive' | 'connectors') => {
+    if (!isControlled) {
+      setInternalActiveTab(tab);
+    }
+    onTabChange?.(tab);
+  }, [isControlled, onTabChange]);
+
   if (showFrame) {
     return (
       <div className={`space-y-6 ${className}`}>
@@ -897,34 +916,38 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       {/* Tabs */}
       <div className="flex justify-between gap-4 mb-2">
           <div className="flex">
-            <button
-              onClick={() => setActiveTab('smart-drive')}
-              className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
-                activeTab === 'smart-drive' 
-                  ? 'text-[#719AF5]' 
-                  : 'text-[#8D8D95] hover:text-gray-700'
-              }`}
-            >
-              <HardDrive size={16} strokeWidth={1.5} />
-              Smart drive
-              {activeTab === 'smart-drive' ? (
-                <div className="absolute bottom-0 left-0 right-0 border-2 border-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 border border-[#B8B8BC] rounded-full"></div>)}
-            </button>
-            <button
-              onClick={() => setActiveTab('connectors')}
-              className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
-                activeTab === 'connectors' 
-                  ? 'text-[#719AF5]' 
-                  : 'text-[#8D8D95] hover:text-gray-700'
-              }`}
-            >
-              <Workflow size={16} strokeWidth={1.5} />
-              Connectors
-              {activeTab === 'connectors' ? (
-                <div className="absolute bottom-0 left-0 right-0 border-2 border-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 border border-[#B8B8BC] rounded-full"></div>)}
-            </button>
+            {!hideTabNavigation && (
+              <>
+                <button
+                  onClick={() => handleSetActiveTab('smart-drive')}
+                  className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+                    activeTab === 'smart-drive' 
+                      ? 'text-[#719AF5]' 
+                      : 'text-[#8D8D95] hover:text-gray-700'
+                  }`}
+                >
+                  <HardDrive size={16} strokeWidth={1.5} />
+                  Smart drive
+                  {activeTab === 'smart-drive' ? (
+                    <div className="absolute bottom-0 left-0 right-0 border-2 border-[#719AF5] rounded-full"></div>
+                  ) : (<div className="absolute bottom-0 left-0 right-0 border border-[#B8B8BC] rounded-full"></div>)}
+                </button>
+                <button
+                  onClick={() => handleSetActiveTab('connectors')}
+                  className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+                    activeTab === 'connectors' 
+                      ? 'text-[#719AF5]' 
+                      : 'text-[#8D8D95] hover:text-gray-700'
+                  }`}
+                >
+                  <Workflow size={16} strokeWidth={1.5} />
+                  Connectors
+                  {activeTab === 'connectors' ? (
+                    <div className="absolute bottom-0 left-0 right-0 border-2 border-[#719AF5] rounded-full"></div>
+                  ) : (<div className="absolute bottom-0 left-0 right-0 border border-[#B8B8BC] rounded-full"></div>)}
+                </button>
+              </>
+            )}
           </div>
           <div className="flex gap-2">
             
