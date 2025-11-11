@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -468,13 +468,33 @@ const MyProductsPageInner: React.FC = () => {
   const [folders, setFolders] = useState<any[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  const computeIsEmbedded = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('embedded') === 'modal') {
+        return true;
+      }
+      return window.self !== window.top;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const [isEmbedded, setIsEmbedded] = useState<boolean>(() => computeIsEmbedded());
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    setIsEmbedded(params.get('embedded') === 'modal');
-  }, []);
+    setIsEmbedded(computeIsEmbedded());
+    const handleLocationChange = () => setIsEmbedded(computeIsEmbedded());
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, [computeIsEmbedded]);
 
   // Check questionnaire completion on client side only
   useEffect(() => {
