@@ -1077,7 +1077,6 @@ export default function Projects2ViewPage() {
             aspectRatio={aspectRatio}
             onAddScene={() => {}} // Disabled for now
             onMenuClick={handleMenuClick}
-            onSceneRename={handleSceneRename}
             videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             onSlideSelect={handleSlideSelect}
