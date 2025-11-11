@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Progress } from '../ui/progress';
 import { EmptySmartDrive } from '../EmptySmartDrive';
 import { EmptyConnectors } from '../EmptyConnectors';
-import MyProductsTable from '../MyProductsTable';
+import MyProductsPicker, { PickerProduct } from './MyProductsPicker';
 import { KnowledgeBaseProduct } from '@/lib/knowledgeBaseSelection';
 
 interface ConnectorConfig {
@@ -143,22 +143,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
     onTabChange?.(activeTab);
   }, [activeTab, onTabChange]);
   const handleProductsSelectionChange = useCallback(
-    (ids: number[], projects: any[]) => {
+    (ids: number[], products: PickerProduct[]) => {
       setSelectedProductIds(ids);
       if (!onProductSelectionChange) return;
-      const mappedProducts: KnowledgeBaseProduct[] = (projects || []).map((project: any) => ({
-        id: typeof project?.id === 'number' ? project.id : Number(project?.id),
-        title:
-          project?.title ||
-          project?.instanceName ||
-          project?.projectName ||
-          (typeof project?.microproduct_name === 'string' ? project.microproduct_name : undefined),
-        type:
-          project?.designMicroproductType ||
-          project?.design_microproduct_type ||
-          project?.microproduct_type ||
-          project?.type,
-      })).filter((product) => typeof product.id === 'number' && Number.isFinite(product.id));
+      const mappedProducts: KnowledgeBaseProduct[] = products.map((product) => ({
+        id: product.id,
+        title: product.title,
+        type: product.type,
+      }));
       onProductSelectionChange(mappedProducts);
     },
     [onProductSelectionChange]
@@ -1500,7 +1492,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       {enableMyProductsTab && (activeTab as TabKey) === MY_PRODUCTS_TAB && (
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
-            <MyProductsTable selectionMode="select" onSelectionChange={handleProductsSelectionChange} />
+            <MyProductsPicker
+              selectedIds={selectedProductIds}
+              onSelectionChange={handleProductsSelectionChange}
+            />
             {selectedProductIds.length === 0 && (
               <p className="mt-4 text-sm text-gray-500">
                 Select products to import into your knowledge base.
