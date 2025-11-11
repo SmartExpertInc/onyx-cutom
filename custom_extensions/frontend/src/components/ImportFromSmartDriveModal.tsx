@@ -402,6 +402,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
             selectionMode={isKnowledgeBaseMode ? 'connectors' : 'none'}
             onProductSelectionChange={isKnowledgeBaseMode ? handleProductSelectionChange : undefined}
             showMyProductsTab={isKnowledgeBaseMode}
+            selectedProducts={selectedProducts}
           />
         </div>
 
