@@ -2503,7 +2503,7 @@ export default function ProjectInstanceViewPage() {
           />
         )}
 
-        <div className={`p-4 rounded-xl ${
+        <div className={`p-3 rounded-xl ${
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
             ? 'bg-[#F2F2F4]' 

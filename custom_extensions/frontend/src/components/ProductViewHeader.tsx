@@ -256,23 +256,25 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   Draft
                 </button>
               )}
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  color: '#0F58F9',
-                  border: '1px solid #0F58F9',
-                  fontSize: '14px',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Export
-              </button>
+              {currentIsAuthorized && (
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#0F58F9',
+                    border: '1px solid #0F58F9',
+                    fontSize: '14px',
+                    lineHeight: '140%',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Export
+                </button>
+              )}
               <button
                 onClick={handleCopyLink}
                 className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -346,7 +348,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           )}
 
           {/* Export button for slide deck presentations, quizzes, and text presentations */}
-          {!shouldShowLinkButtons && (isSlideDeck || isQuiz || isOnePager) && (
+          {!shouldShowLinkButtons && currentIsAuthorized && (isSlideDeck || isQuiz || isOnePager) && (
             <button
               onClick={() => {
                 console.log('🔍 Export button clicked for:', projectData?.component_name);
@@ -390,12 +392,15 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {currentIsAuthorized ? (
             <UserDropdown />
           ) : (
-            <button
-              className="px-4 py-2 rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: '#0F58F9', height: '40px' }}
-            >
-              Sign up
-            </button>
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-px bg-gray-300" />
+              <button
+                className="flex items-center rounded-md h-9 px-[15px] pr-[20px] text-sm font-medium text-white transition-all duration-200 hover:opacity-90 focus:outline-none cursor-pointer"
+                style={{ backgroundColor: '#0F58F9' }}
+              >
+                Sign up
+              </button>
+            </div>
           )}
         </div>
       </div>
