@@ -107,7 +107,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     fontSize: '46px',
     fontWeight: 800,
     color: '#FFFFFF',
-    maxWidth: '900px',
+    maxWidth: '730px',
     lineHeight: 1.2,
     whiteSpace: 'pre-line'
   };

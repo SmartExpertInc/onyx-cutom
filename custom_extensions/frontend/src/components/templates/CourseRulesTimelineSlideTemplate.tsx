@@ -22,6 +22,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     textColor,
     isEditable = false,
     onUpdate,
+    pageNumber = '34',
     theme,
   } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; companyLogoPath?: string; companyLogoAlt?: string; logoText?: string; logoPath?: string; };
   const stepOne = { number: '1', text: 'Rules of the course' };
@@ -32,20 +33,35 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const [editingStep, setEditingStep] = useState<{ index: number; field: 'number' | 'text' } | null>(null);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
-  const [currentPageNumber, setCurrentPageNumber] = useState('34');
-  
-  // Define the three steps
-  const steps = [
-    { number: '1', text: 'Rules of the course' },
-    { number: '2', text: 'Prerequisite courses' },
-    { number: '3', text: 'Course expectations' }
-  ];
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber || '34');
+  const [currentSteps, setCurrentSteps] = useState(() => (
+    stepsProp && stepsProp.length ? stepsProp.map((step) => ({ ...step })) : [stepOne, stepTwo, stepThree]
+  ));
+  const [currentLogoText, setCurrentLogoText] = useState(logoText || 'Your Logo');
+  const [currentLogoPath, setCurrentLogoPath] = useState(logoPath || '');
+
+  useEffect(() => {
+    const nextSteps = stepsProp && stepsProp.length ? stepsProp : [stepOne, stepTwo, stepThree];
+    setCurrentSteps(nextSteps.map((step) => ({ ...step })));
+  }, [stepsProp]);
+
+  useEffect(() => {
+    setCurrentPageNumber(pageNumber || '34');
+  }, [pageNumber]);
+
+  useEffect(() => {
+    setCurrentLogoText(logoText || 'Your Logo');
+  }, [logoText]);
+
+  useEffect(() => {
+    setCurrentLogoPath(logoPath || '');
+  }, [logoPath]);
 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF',
+    backgroundColor: backgroundColor || '#E0E7FF',
     position: 'relative',
     overflow: 'visible',
     fontFamily: currentTheme.fonts.titleFont,
@@ -83,7 +99,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   };
 
   const stepTextStyles: React.CSSProperties = {
-    color: 'black',
+    color: textColor || 'black',
     fontSize: '35px',
     fontWeight: 600,
     lineHeight: '1.05',
@@ -142,11 +158,19 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
         zIndex: 10
       }}>
         <YourLogo
-          logoPath={logoPath}
-          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          logoPath={currentLogoPath}
+          onLogoUploaded={(p) => {
+            setCurrentLogoPath(p);
+            onUpdate && onUpdate({ logoPath: p });
+          }}
           isEditable={isEditable}
           color="black"
-          text={logoText}
+          text={currentLogoText}
+          onTextChange={(text) => {
+            const next = text || '';
+            setCurrentLogoText(next);
+            onUpdate && onUpdate({ logoText: next });
+          }}
           style={{ fontFamily: 'Inter, sans-serif !important', fontSize: '15px' }}
         />
       </div>
@@ -155,7 +179,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       <div style={actorStyles}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
-          onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
+          onImageUploaded={(p: string) => {
+            onUpdate && onUpdate({ profileImagePath: p });
+          }}
           size="LARGE"
           position="CENTER"
           description="Actor"
@@ -169,7 +195,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       <div style={lineStyles} />
 
       {/* Render the three steps */}
-      {steps.map((step, i) => (
+      {currentSteps.map((step, i) => (
         <div key={i}>
           {/* Step number square - positioned directly on the vertical line */}
           <div style={circlePositionStyles(i)}>
@@ -178,7 +204,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
                 initialValue={step.number}
                 onSave={(val) => {
                   setEditingStep(null);
-                  onUpdate && onUpdate({ steps: steps.map((s, idx) => idx === i ? { ...s, number: val } : s) });
+                  const updatedSteps = currentSteps.map((s, idx) => idx === i ? { ...s, number: val } : s);
+                  setCurrentSteps(updatedSteps);
+                  onUpdate && onUpdate({ steps: updatedSteps });
                 }}
                 onCancel={() => setEditingStep(null)}
                 className="timeline-step-number-editor"
@@ -196,7 +224,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
                 initialValue={step.text}
                 onSave={(val) => {
                   setEditingStep(null);
-                  onUpdate && onUpdate({ steps: steps.map((s, idx) => idx === i ? { ...s, text: val } : s) });
+                  const updatedSteps = currentSteps.map((s, idx) => idx === i ? { ...s, text: val } : s);
+                  setCurrentSteps(updatedSteps);
+                  onUpdate && onUpdate({ steps: updatedSteps });
                 }}
                 onCancel={() => setEditingStep(null)}
                 className="timeline-step-text-editor step-text"

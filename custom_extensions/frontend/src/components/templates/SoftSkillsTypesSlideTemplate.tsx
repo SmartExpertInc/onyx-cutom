@@ -25,6 +25,13 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingCard, setEditingCard] = useState<number | null>(null);
+
+  const handleCardLabelSave = (index: number, value: string) => {
+    const next = [...cards];
+    next[index] = { ...next[index], label: value };
+    onUpdate && onUpdate({ cards: next });
+  };
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -40,8 +47,9 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     top: '96px',
     left: '56px',
     fontSize: '60px',
-    lineHeight: 1.1,
+    lineHeight: 1,
     fontWeight: 800,
+    width: '69%',
     color: '#09090B',
   };
 
@@ -167,11 +175,36 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               isEditable={isEditable}
               style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
             />
-            <div style={cardLabelStyles}>
+            <div
+              style={{ ...cardLabelStyles, cursor: isEditable ? 'pointer' : 'default' }}
+              onClick={() => isEditable && setEditingCard(i)}
+            >
               <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px', flexShrink: 0 }}>
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
               </svg>
-              <span style={{ fontSize: '23px' }}>{c.label}</span>
+              {isEditable && editingCard === i ? (
+                <ImprovedInlineEditor
+                  initialValue={c.label || ''}
+                  onSave={(v) => {
+                    handleCardLabelSave(i, v);
+                    setEditingCard(null);
+                  }}
+                  onCancel={() => setEditingCard(null)}
+                  className="soft-skills-card-label-editor"
+                  style={{
+                    fontSize: '23px',
+                    fontWeight: 600,
+                    color: '#FFFFFF',
+                    background: 'transparent',
+                    border: 'none',
+                    padding: 0,
+                    margin: 0,
+                    minWidth: '120px'
+                  }}
+                />
+              ) : (
+                <span style={{ fontSize: '23px' }}>{c.label}</span>
+              )}
             </div>
           </div>
         ))}

@@ -53,6 +53,8 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     top: '87px',
     fontSize: '56px',
     fontWeight: 800,
+    width: '69%',
+    lineHeight: 1,
     color: '#FFFFFF',
   };
 

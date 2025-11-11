@@ -55,8 +55,12 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   };
 
   // Source all templates that support avatars (avatarPosition, avatar fields, or explicit avatar templates)
+  const excludedTemplateIds = new Set(['learning-topics-slide', 'psychological-safety-slide', 'thank-you-slide']);
+
   const availableTemplates = getAllTemplates()
     .filter(t => !t.id.endsWith('_old'))
+    .filter(t => !(typeof t.name === 'string' && t.name.toLowerCase().includes('(old')))
+    .filter(t => !excludedTemplateIds.has(t.id))
     .filter(t => Boolean(t.avatarPosition) || t.id.startsWith('avatar-') || hasAvatarImageField(t))
     .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }))
     .sort((a, b) => a.name.localeCompare(b.name));
