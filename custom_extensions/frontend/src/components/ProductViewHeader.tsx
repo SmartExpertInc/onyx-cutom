@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProductViewHeader.tsx
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -20,6 +20,8 @@ interface ProductViewHeaderProps {
   onPdfExport?: () => void;
   isEditing?: boolean;
   onEditOrSave?: () => void;
+  isAuthorized?: boolean;
+  setIsAuthorized?: (isAuthorized: boolean) => void;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
@@ -34,8 +36,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   t,
   onPdfExport,
   isEditing,
-  onEditOrSave
+  onEditOrSave,
+  isAuthorized = true,
+  setIsAuthorized
 }) => {
+
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
     allowedComponentNames 
@@ -49,7 +54,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a quiz to show Export button
   const isQuiz = projectData?.component_name === 'QuizDisplay';
   const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
-  const isCourseOutline = projectData?.component_name === 'TrainingPlanTable';
+  const isVideoLesson = projectData?.component_name === 'VideoLessonDisplay' || 
+                        projectData?.component_name === 'VideoLessonPresentationDisplay';
   
   // Debug logging for PDF export
   console.log('🔍 ProductViewHeader Debug:', {
@@ -83,12 +89,16 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
               })()}
             </h1>
-            <div className="h-6 w-px bg-gray-300 mx-2"></div>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9.7334 12.4172H2.91667C1.58415 12.4172 0.5 11.3331 0.5 10.0006C0.5 8.74958 1.4375 7.71589 2.68066 7.59609C2.75163 7.58926 2.81624 7.55247 2.8584 7.49502C2.90039 7.43757 2.91601 7.36497 2.9012 7.29531C2.59001 5.83031 3.37565 4.36286 4.77018 3.80573C6.13802 3.25316 7.70849 3.75202 8.50293 4.99209C8.56722 5.09268 8.6945 5.13418 8.80599 5.08942C10.023 4.60089 11.4458 5.21647 11.9348 6.42733C12.0541 6.72254 12.5211 6.54387 12.3984 6.2403C11.8352 4.84644 10.2445 4.09585 8.81103 4.55654C7.85726 3.23672 6.11247 2.725 4.58382 3.34186C3.04687 3.95579 2.14599 5.52252 2.36637 7.13629C1 7.39395 0 8.58145 0 10.0006C0 11.6088 1.30843 12.9172 2.91667 12.9172H9.73336C10.0486 12.9172 10.059 12.4172 9.7334 12.4172Z" fill="#71717A"/>
-              <path d="M12.2497 7.08398C10.6414 7.08398 9.33301 8.39241 9.33301 10.0007C9.33301 11.6089 10.6414 12.9173 12.2497 12.9173C13.8579 12.9173 15.1663 11.6089 15.1663 10.0007C15.1663 8.39241 13.8579 7.08398 12.2497 7.08398ZM12.2497 12.4173C10.9172 12.4173 9.83301 11.3332 9.83301 10.0007C9.83301 8.66813 10.9172 7.58398 12.2497 7.58398C13.5822 7.58398 14.6663 8.66813 14.6663 10.0007C14.6663 11.3332 13.5822 12.4173 12.2497 12.4173Z" fill="#71717A"/>
-              <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
-            </svg>
+            {!isVideoLesson && (
+              <>
+                <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9.7334 12.4172H2.91667C1.58415 12.4172 0.5 11.3331 0.5 10.0006C0.5 8.74958 1.4375 7.71589 2.68066 7.59609C2.75163 7.58926 2.81624 7.55247 2.8584 7.49502C2.90039 7.43757 2.91601 7.36497 2.9012 7.29531C2.59001 5.83031 3.37565 4.36286 4.77018 3.80573C6.13802 3.25316 7.70849 3.75202 8.50293 4.99209C8.56722 5.09268 8.6945 5.13418 8.80599 5.08942C10.023 4.60089 11.4458 5.21647 11.9348 6.42733C12.0541 6.72254 12.5211 6.54387 12.3984 6.2403C11.8352 4.84644 10.2445 4.09585 8.81103 4.55654C7.85726 3.23672 6.11247 2.725 4.58382 3.34186C3.04687 3.95579 2.14599 5.52252 2.36637 7.13629C1 7.39395 0 8.58145 0 10.0006C0 11.6088 1.30843 12.9172 2.91667 12.9172H9.73336C10.0486 12.9172 10.059 12.4172 9.7334 12.4172Z" fill="#71717A"/>
+                  <path d="M12.2497 7.08398C10.6414 7.08398 9.33301 8.39241 9.33301 10.0007C9.33301 11.6089 10.6414 12.9173 12.2497 12.9173C13.8579 12.9173 15.1663 11.6089 15.1663 10.0007C15.1663 8.39241 13.8579 7.08398 12.2497 7.08398ZM12.2497 12.4173C10.9172 12.4173 9.83301 11.3332 9.83301 10.0007C9.83301 8.66813 10.9172 7.58398 12.2497 7.58398C13.5822 7.58398 14.6663 8.66813 14.6663 10.0007C14.6663 11.3332 13.5822 12.4173 12.2497 12.4173Z" fill="#71717A"/>
+                  <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
+                </svg>
+              </>
+            )}
             {isOnePager && (
               <>
               <div className="h-6 w-px bg-gray-300 mx-2"></div>
@@ -115,19 +125,80 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </div>
               </>
             )}
-            <div className="h-6 w-px bg-gray-300 mx-2"></div>
-            <div className="flex items-center">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.99967 9.33268L2.66634 5.99935M2.66634 5.99935L5.99967 2.66602M2.66634 5.99935H9.66634C10.6388 5.99935 11.5714 6.38566 12.2591 7.07329C12.9467 7.76092 13.333 8.69356 13.333 9.66602C13.333 10.1475 13.2382 10.6243 13.0539 11.0692C12.8696 11.514 12.5995 11.9183 12.2591 12.2587C11.5714 12.9464 10.6388 13.3327 9.66634 13.3327H7.33301" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.0003 9.33268L13.3337 5.99935M13.3337 5.99935L10.0003 2.66602M13.3337 5.99935H6.33366C5.3612 5.99935 4.42857 6.38566 3.74093 7.07329C3.0533 7.76092 2.66699 8.69356 2.66699 9.66602C2.66699 10.1475 2.76183 10.6243 2.9461 11.0692C3.13037 11.514 3.40045 11.9183 3.74093 12.2587C4.42857 12.9464 5.3612 13.3327 6.33366 13.3327H8.66699" stroke="#E0E0E0" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
+            {!isVideoLesson && (
+              <>
+                <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                <div className="flex items-center">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.99967 9.33268L2.66634 5.99935M2.66634 5.99935L5.99967 2.66602M2.66634 5.99935H9.66634C10.6388 5.99935 11.5714 6.38566 12.2591 7.07329C12.9467 7.76092 13.333 8.69356 13.333 9.66602C13.333 10.1475 13.2382 10.6243 13.0539 11.0692C12.8696 11.514 12.5995 11.9183 12.2591 12.2587C11.5714 12.9464 10.6388 13.3327 9.66634 13.3327H7.33301" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.0003 9.33268L13.3337 5.99935M13.3337 5.99935L10.0003 2.66602M13.3337 5.99935H6.33366C5.3612 5.99935 4.42857 6.38566 3.74093 7.07329C3.0533 7.76092 2.66699 8.69356 2.66699 9.66602C2.66699 10.1475 2.76183 10.6243 2.9461 11.0692C3.13037 11.514 3.40045 11.9183 3.74093 12.2587C4.42857 12.9464 5.3612 13.3327 6.33366 13.3327H8.66699" stroke="#E0E0E0" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
+          {/* Auth Toggle Switch */}
+          <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
+            <button
+              onClick={() => setIsAuthorized?.(true)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                isAuthorized 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Authorized
+            </button>
+            <button
+              onClick={() => setIsAuthorized?.(false)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                !isAuthorized 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Unauthorized
+            </button>
+          </div>
+
+        {isOnePager && onEditOrSave && (
+            <button
+              onClick={onEditOrSave}
+              className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+              style={{
+                backgroundColor: isEditing ? '#10B981' : '#FFFFFF',
+                color: isEditing ? '#FFFFFF' : '#171718',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em',
+                border: isEditing ? '1px solid #10B981' : '1px solid #171718'
+              }}
+              title={isEditing ? 'Save' : 'Edit'}
+            >
+              {isEditing ? (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Save
+                </>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Edit
+                </>
+              )}
+            </button>
+          )}
+
 {projectData && projectData.component_name === componentName && productId && setShowAiAgent && !showAiAgent && (
           <button
               onClick={() => setShowAiAgent(!showAiAgent)}
@@ -181,7 +252,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </button>
           )}
 
-          {shouldShowButtons && scormEnabled && isCourseOutline && (
+          {shouldShowButtons && scormEnabled && (
             <ToastProvider>
               <ScormDownloadButton
                 courseOutlineId={Number(productId)}
@@ -192,11 +263,36 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </ToastProvider>
           )}
 
-          {/* User Dropdown */}
-          <UserDropdown />
+          {/* Conditional rendering based on auth state */}
+          {isAuthorized ? (
+            <UserDropdown />
+          ) : (
+            <>
+              {/* Share button */}
+              <button
+                className="px-3 py-2 rounded-md bg-white text-[#0F58F9] border border-[#0F58F9] hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm cursor-pointer"
+                style={{ height: '40px' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Share
+              </button>
+
+              {/* Vertical divider */}
+              <div className="h-6 w-px bg-gray-300"></div>
+
+              {/* Sign up button */}
+              <button
+                className="px-4 py-2 rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#0F58F9', height: '40px' }}
+              >
+                Sign up
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
   );
 };
-
