@@ -779,37 +779,39 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${filename}`.replace(/\/+/g, '/');
 					console.log(`[SmartDrive] Creating path: ${p} from currentPath=${currentPath}, filename=${filename}`);
 					
-					if (r.onyx_file_id) {
-						next[p] = { 
-							status: 'not_started', 
-							etaPct: 5, 
-							onyxFileId: r.onyx_file_id,
-							timeStarted: undefined,
-							timeUpdated: undefined,
-							estimatedTokens: undefined,
-							estimatedDuration: undefined
-						};
-						pathsToTrack.push(p);
-						console.log(`[SmartDrive] Added to indexing tracking:`, { path: p, onyxFileId: r.onyx_file_id });
-					} else {
-						console.warn(`[SmartDrive] No onyx_file_id for ${filename}:`, r);
-					}
+					// Always add to tracking, even without onyx_file_id (we'll use pending state)
+					next[p] = { 
+						status: r.onyx_file_id ? 'pending' : 'pending', 
+						etaPct: 10, 
+						onyxFileId: r.onyx_file_id,
+						timeStarted: Date.now(),
+						timeUpdated: Date.now(),
+						estimatedTokens: undefined,
+						estimatedDuration: undefined
+					};
+					pathsToTrack.push(p);
+					console.log(`[SmartDrive] Added to indexing tracking:`, { path: p, onyxFileId: r.onyx_file_id, state: next[p] });
 				}
 				
 				console.log('[SmartDrive] New indexing state:', next);
 				console.log('[SmartDrive] Paths to track:', pathsToTrack);
 				
+				// Set indexing state BEFORE fetching list so the UI shows progress immediately
 				setIndexing(next);
 				
-				// Start polling for real progress data
+				// Fetch the updated list to show new files
+				await fetchList(currentPath);
+				
+				// Start polling for real progress data (non-blocking)
 				if (pathsToTrack.length > 0) {
-					await pollIndexingProgress(pathsToTrack);
+					pollIndexingProgress(pathsToTrack).catch(err => {
+						console.error('[SmartDrive] pollIndexingProgress error:', err);
+					});
 				}
 			} else {
 				console.warn('[SmartDrive] No results array in upload response:', data);
+				await fetchList(currentPath);
 			}
-			
-			await fetchList(currentPath);
 		} catch (e) {
 			console.error('[SmartDrive] Upload error:', e);
 			alert('Upload failed');
@@ -1364,6 +1366,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														{folderItem.type === 'file' && (() => { 
 															const s = indexing[folderItem.path] || indexing[(() => { try { return decodeURIComponent(folderItem.path); } catch { return folderItem.path; } })()] || indexing[encodeURI(folderItem.path)]; 
 															const shouldShow = s && s.status !== 'done';
+															console.log(`[SmartDrive] Grid progress bar check for '${folderItem.path}':`, {
+																indexingState: s,
+																shouldShow,
+																allIndexingKeys: Object.keys(indexing),
+																decodedPath: (() => { try { return decodeURIComponent(folderItem.path); } catch { return 'decode-error'; } })(),
+																encodedPath: encodeURI(folderItem.path)
+															});
 															return shouldShow;
 														})() && (
 															<div className="mb-2" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
