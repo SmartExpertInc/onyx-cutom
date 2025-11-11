@@ -330,6 +330,13 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
     setActiveSettingsPanel('templates');
+    // Close other panels
+    setShowTextRightPanel(false);
+    setShowShapeRightPanel(false);
+    setShowAvatarRightPanel(false);
+    setShowImageRightPanel(false);
+    setShowVideoRightPanel(false);
+    setShowMusicRightPanel(false);
   };
 
   // NEW: Function to handle text changes (for Script component)
@@ -480,6 +487,13 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
     console.log('🎬 Transition clicked:', transitionIndex);
     setActiveTransitionIndex(transitionIndex);
     setActiveSettingsPanel('transition');
+    // Close other panels
+    setShowTextRightPanel(false);
+    setShowShapeRightPanel(false);
+    setShowAvatarRightPanel(false);
+    setShowImageRightPanel(false);
+    setShowVideoRightPanel(false);
+    setShowMusicRightPanel(false);
   };
 
   // NEW: Handle transition change
@@ -1179,7 +1193,18 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
         <div ref={rightPanelRef} className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
-          {showShapeRightPanel ? (
+          {activeSettingsPanel === 'templates' ? (
+            <TemplateSelector 
+              currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
+              onAddSlide={handleAddSlide}
+            />
+          ) : activeSettingsPanel === 'transition' ? (
+            <Transition 
+              transitionIndex={activeTransitionIndex}
+              currentTransition={componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null}
+              onTransitionChange={handleTransitionChange}
+            />
+          ) : showShapeRightPanel ? (
             <ShapeRightPanel
               isAppearanceEnabled={isAppearanceEnabled}
               setIsAppearanceEnabled={setIsAppearanceEnabled}
