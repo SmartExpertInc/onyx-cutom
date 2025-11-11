@@ -126,7 +126,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
           onCancel={() => setEditingTitle(false)}
           className="sst-title-editor title-element"
           multiline={true}
-          style={{ ...titleStyles, background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, width: 'fit-content', maxWidth: '1200px' }}
+          style={{ ...titleStyles, background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, width: 'fit-content', maxWidth: '75%' }}
         />
       ) : (
         <div 
@@ -138,7 +138,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
             padding: 0,
             margin: 0,
             width: 'fit-content',
-            maxWidth: '1200px'
+            maxWidth: '75%'
           }}
         >
           {title}
