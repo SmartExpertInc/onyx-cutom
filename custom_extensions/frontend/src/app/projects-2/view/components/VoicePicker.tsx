@@ -87,7 +87,7 @@ interface ElaiVoice {
   gender?: 'male' | 'female';
 }
 
-export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps): JSX.Element | null {
+export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps) {
   const { t } = useLanguage();
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
   const { defaultAvatar } = useAvatarDisplay();
