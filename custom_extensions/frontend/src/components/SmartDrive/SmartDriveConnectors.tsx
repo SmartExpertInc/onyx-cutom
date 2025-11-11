@@ -120,7 +120,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
   const [connectorVisibility, setConnectorVisibility] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<TabKey>('smart-drive');
+  const [activeTab, setActiveTab] = useState<TabKey>(() => (
+    enableMyProductsTab ? MY_PRODUCTS_TAB : 'smart-drive'
+  ));
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [hasFiles, setHasFiles] = useState(false);
   const [selectedConnectorSourcesState, setSelectedConnectorSourcesState] = useState<string[]>(selectedConnectorSources || []);
@@ -136,6 +138,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       setSelectedConnectorSourcesState(selectedConnectorSources);
     }
   }, [allowConnectorSelection, selectedConnectorSources]);
+
+  useEffect(() => {
+    if (enableMyProductsTab && activeTab === 'smart-drive') {
+      setActiveTab(MY_PRODUCTS_TAB);
+    }
+  }, [enableMyProductsTab, activeTab]);
 
 
   // Notify parent when tab changes
