@@ -759,6 +759,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			
 			const data = await res.json();
 			console.log('[SmartDrive] Upload response data:', data);
+			console.log('[SmartDrive] Upload response type check:', {
+				hasData: !!data,
+				hasResults: !!data?.results,
+				resultsIsArray: Array.isArray(data?.results),
+				resultsLength: data?.results?.length,
+				dataKeys: data ? Object.keys(data) : []
+			});
 			
 			// Initialize indexing tracking for uploaded files using response mapping (onyx_file_id when present)
 			if (data && Array.isArray(data.results)) {
@@ -795,9 +802,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				
 				console.log('[SmartDrive] New indexing state:', next);
 				console.log('[SmartDrive] Paths to track:', pathsToTrack);
+				console.log('[SmartDrive] About to call setIndexing with:', next);
 				
 				// Set indexing state BEFORE fetching list so the UI shows progress immediately
 				setIndexing(next);
+				console.log('[SmartDrive] setIndexing called');
 				
 				// Fetch the updated list to show new files
 				await fetchList(currentPath);
@@ -810,7 +819,41 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				}
 			} else {
 				console.warn('[SmartDrive] No results array in upload response:', data);
+				console.warn('[SmartDrive] Response structure:', JSON.stringify(data, null, 2));
+				
+				// Fallback: Try to initialize indexing for uploaded files based on file list
+				// This ensures progress bars show even if backend response format is different
+				const uploadedFileNames = files.map(f => f.name);
+				console.log('[SmartDrive] Fallback: uploaded file names:', uploadedFileNames);
+				
+				const next: IndexingState = { ...indexing };
+				const pathsToTrack: string[] = [];
+				
+				for (const fileName of uploadedFileNames) {
+					const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${fileName}`.replace(/\/+/g, '/');
+					next[p] = {
+						status: 'pending',
+						etaPct: 10,
+						timeStarted: Date.now(),
+						timeUpdated: Date.now(),
+						estimatedTokens: undefined,
+						estimatedDuration: undefined
+					};
+					pathsToTrack.push(p);
+					console.log(`[SmartDrive] Fallback: Added to indexing tracking:`, { path: p, state: next[p] });
+				}
+				
+				console.log('[SmartDrive] Fallback indexing state:', next);
+				setIndexing(next);
+				console.log('[SmartDrive] Fallback setIndexing called');
+				
 				await fetchList(currentPath);
+				
+				if (pathsToTrack.length > 0) {
+					pollIndexingProgress(pathsToTrack).catch(err => {
+						console.error('[SmartDrive] Fallback pollIndexingProgress error:', err);
+					});
+				}
 			}
 		} catch (e) {
 			console.error('[SmartDrive] Upload error:', e);
@@ -986,10 +1029,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	// Periodic polling driver: while there are any items not complete, poll every 1.5s
 	useEffect(() => {
+		console.log('[SmartDrive] useEffect - indexing state changed:', {
+			indexingKeys: Object.keys(indexing),
+			indexingState: indexing
+		});
+		
 		const pathsNeedingPolling = Object.entries(indexing)
 			.filter(([_, st]) => st && st.status !== 'success' && st.status !== 'done' && st.status !== 'failed')
 			.map(([path]) => path);
 
+		console.log('[SmartDrive] useEffect - paths needing polling:', pathsNeedingPolling);
+		
 		if (pathsNeedingPolling.length === 0) return;
 
 		const interval = setInterval(() => {
