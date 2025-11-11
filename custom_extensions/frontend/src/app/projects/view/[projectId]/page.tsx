@@ -2095,6 +2095,8 @@ export default function ProjectInstanceViewPage() {
         projectData={projectInstanceData}
         editableData={editableData as TrainingPlanData | null}
         productId={projectId}
+        showSmartEditor={showSmartEditor}
+        setShowSmartEditor={setShowSmartEditor}
         scormEnabled={scormEnabled}
         componentName={COMPONENT_NAME_TRAINING_PLAN}
         allowedComponentNames={[
@@ -2104,10 +2106,7 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_QUIZ,
           COMPONENT_NAME_TEXT_PRESENTATION
         ]}
-        t={t}
         onPdfExport={handlePdfDownload}
-        isEditing={isEditing}
-        onEditOrSave={handleToggleEdit}
       />
       
       <main 
