@@ -1,4 +1,4 @@
-// custom_extensions/frontend/src/app/projects/view/[projectId]/page.tsx
+// custom_extensions/frontend/src/app/projects/view-link/[projectId]/page.tsx
 "use client";
 
 import React, { Suspense, useEffect, useState, useCallback, useMemo, useRef } from 'react';
@@ -1813,41 +1813,6 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-
-  if (pageState === 'initial_loading' || pageState === 'fetching') {
-    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">{t('interface.projectView.loadingProject', 'Loading project details...')}</div></div>;
-  }
-  if (pageState === 'error') {
-    return <div className="flex items-center justify-center min-h-screen bg-red-50"><div className="p-8 text-center text-red-700 text-lg">{t('interface.projectView.errorLoadingProject', 'Error: Failed to load project data.')}</div></div>;
-  }
-  if (!projectInstanceData) {
-    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">{t('interface.projectView.projectNotFound', 'Project not found or data unavailable.')}</div></div>;
-  }
-
-  const DefaultDisplayComponent = ({ instanceData, t }: { instanceData: ProjectInstanceDetail | null; t: (key: string, fallback?: string) => string }) => (
-    <div className="p-6 border rounded-lg bg-gray-50 shadow-md">
-      <div className="flex items-center text-blue-600 mb-3">
-        <Info size={24} className="mr-3" />
-        <h2 className="text-2xl font-semibold">{instanceData?.name || t('interface.projectView.contentDetails', 'Content Details')}</h2>
-      </div>
-      <p className="text-gray-700 mb-2">
-        {t('interface.projectView.utilizesDesignComponent', 'This project instance utilizes the design component:')} <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || t('interface.projectView.unknownComponent', 'Unknown')}&quot;</strong>.
-      </p>
-      <p className="text-gray-600 mb-4">
-        {t('interface.projectView.specificUIForDirectViewing', 'A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.')}
-        {t('interface.projectView.editGeneralDetails', 'You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.')}
-      </p>
-      <details className="group text-sm">
-        <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
-          {t('interface.projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
-        </summary>
-        <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
-          {JSON.stringify(instanceData?.details, null, 2)}
-        </pre>
-      </details>
-    </div>
-  );
-
   const trainingPlanContent = editableData as TrainingPlanData | null;
 
   const totalModules = trainingPlanContent?.sections?.length ?? 0;
@@ -1955,6 +1920,40 @@ export default function ProjectInstanceViewPage() {
 
     return status;
   }, [trainingPlanContent, allUserMicroproducts, projectInstanceData]);
+
+  if (pageState === 'initial_loading' || pageState === 'fetching') {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">{t('interface.projectView.loadingProject', 'Loading project details...')}</div></div>;
+  }
+  if (pageState === 'error') {
+    return <div className="flex items-center justify-center min-h-screen bg-red-50"><div className="p-8 text-center text-red-700 text-lg">{t('interface.projectView.errorLoadingProject', 'Error: Failed to load project data.')}</div></div>;
+  }
+  if (!projectInstanceData) {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">{t('interface.projectView.projectNotFound', 'Project not found or data unavailable.')}</div></div>;
+  }
+
+  const DefaultDisplayComponent = ({ instanceData, t }: { instanceData: ProjectInstanceDetail | null; t: (key: string, fallback?: string) => string }) => (
+    <div className="p-6 border rounded-lg bg-gray-50 shadow-md">
+      <div className="flex items-center text-blue-600 mb-3">
+        <Info size={24} className="mr-3" />
+        <h2 className="text-2xl font-semibold">{instanceData?.name || t('interface.projectView.contentDetails', 'Content Details')}</h2>
+      </div>
+      <p className="text-gray-700 mb-2">
+        {t('interface.projectView.utilizesDesignComponent', 'This project instance utilizes the design component:')} <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || t('interface.projectView.unknownComponent', 'Unknown')}&quot;</strong>.
+      </p>
+      <p className="text-gray-600 mb-4">
+        {t('interface.projectView.specificUIForDirectViewing', 'A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.')}
+        {t('interface.projectView.editGeneralDetails', 'You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.')}
+      </p>
+      <details className="group text-sm">
+        <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
+          {t('interface.projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
+        </summary>
+        <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
+          {JSON.stringify(instanceData?.details, null, 2)}
+        </pre>
+      </details>
+    </div>
+  );
 
   const displayContent = () => {
     if (!projectInstanceData || pageState !== 'success') {
