@@ -426,6 +426,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         isEditable={false}
                         onSlideUpdate={() => {}}
                         theme={theme}
+                        deckTemplateVersion={deck.templateVersion}
                       />
                     </div>
                   </div>
@@ -516,6 +517,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             isEditable={isEditable}
                             onSlideUpdate={handleSlideUpdate}
                             theme={theme}
+                            deckTemplateVersion={deck.templateVersion}
                           />
                       </div>
                     </div>
