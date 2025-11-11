@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   FolderPlus,
   Plus,
@@ -458,7 +458,6 @@ const Header = ({ onTariffModalOpen, onAddOnsModalOpen }: { onTariffModalOpen: (
 // --- Main component ---
 const MyProductsPageInner: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { t } = useLanguage();
   const [currentUser, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -469,7 +468,13 @@ const MyProductsPageInner: React.FC = () => {
   const [folders, setFolders] = useState<any[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const isEmbedded = searchParams?.get('embedded') === 'modal';
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    setIsEmbedded(params.get('embedded') === 'modal');
+  }, []);
 
   // Check questionnaire completion on client side only
   useEffect(() => {
