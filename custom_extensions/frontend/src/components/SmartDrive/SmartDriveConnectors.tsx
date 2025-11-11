@@ -193,6 +193,88 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   const [uploading, setUploading] = useState<UploadProgress[]>([]);
   const [indexing, setIndexing] = useState<IndexingState>({});
   
+  // Polling mechanism for indexing progress
+  useEffect(() => {
+    const pathsNeedingPolling = Object.entries(indexing)
+      .filter(([_, st]) => st && st.status !== 'success' && st.status !== 'done')
+      .map(([path]) => path);
+
+    if (pathsNeedingPolling.length === 0) return;
+
+    const pollProgress = async () => {
+      try {
+        const params = new URLSearchParams();
+        for (const p of pathsNeedingPolling) {
+          params.append('paths', p);
+        }
+        
+        const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-progress?${params.toString()}`;
+        const res = await fetch(url, { credentials: 'same-origin' });
+        
+        if (!res.ok) return;
+        
+        const data = await res.json();
+        const progressData = data?.progress || {};
+        
+        setIndexing(prev => {
+          const out: IndexingState = { ...prev };
+          
+          for (const p of Object.keys(out)) {
+            const progress = progressData[p];
+            if (!progress) continue;
+            
+            // Update status and progress
+            if (progress.is_complete || progress.status === 'success') {
+              out[p] = { ...out[p], status: 'done', etaPct: 100 };
+            } else {
+              // Calculate progress based on tokens
+              const etaPct = progress.estimated_tokens 
+                ? Math.min(90, (progress.total_docs_indexed / Math.max(1, progress.estimated_tokens / 1000)) * 100)
+                : Math.min(90, (out[p]?.etaPct || 10) + 10);
+              
+              out[p] = { 
+                ...out[p], 
+                status: progress.status || 'pending',
+                etaPct
+              };
+            }
+          }
+          
+          return out;
+        });
+      } catch (error) {
+        console.error('[SmartDriveConnectors] Polling error:', error);
+      }
+    };
+
+    // Poll immediately, then every 1.5 seconds
+    pollProgress();
+    const interval = setInterval(pollProgress, 1500);
+
+    return () => clearInterval(interval);
+  }, [indexing]);
+
+  // Cleanup completed indexing entries after a delay
+  useEffect(() => {
+    const completedPaths = Object.entries(indexing)
+      .filter(([_, st]) => st && st.status === 'done')
+      .map(([path]) => path);
+
+    if (completedPaths.length === 0) return;
+
+    const timeout = setTimeout(() => {
+      setIndexing(prev => {
+        const next = { ...prev };
+        completedPaths.forEach(path => {
+          delete next[path];
+        });
+        return next;
+      });
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [indexing]);
+  
   // Placeholder objects for filter functionality
   const contentTypeFilterLabels: Record<string, string> = {
     all: 'All',
