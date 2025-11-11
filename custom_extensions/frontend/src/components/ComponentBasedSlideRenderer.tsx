@@ -114,13 +114,15 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   const defaultAvatarImage =
     defaultAvatar?.selectedVariant?.canvas ||
     (slide.props as any)?.defaultAvatarImage ||
-    slide.profileImagePath ||
+    (slide.props as any)?.profileImagePath ||
+    (slide.props as any)?.avatarImagePath ||
     null;
 
   const defaultAvatarAlt =
     (defaultAvatar && `${defaultAvatar.avatar.name} - ${defaultAvatar.selectedVariant.name}`) ||
     (slide.props as any)?.defaultAvatarAlt ||
-    (slide as any).profileImageAlt ||
+    (slide.props as any)?.profileImageAlt ||
+    (slide.props as any)?.avatarImageAlt ||
     null;
 
   const slidePropsWithAvatar = useMemo(() => {
