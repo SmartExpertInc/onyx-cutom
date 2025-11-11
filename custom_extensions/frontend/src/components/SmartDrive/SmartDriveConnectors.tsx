@@ -1500,7 +1500,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       {enableMyProductsTab && (activeTab as TabKey) === MY_PRODUCTS_TAB && (
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
-            <MyProductsModalContent onSelectionChange={handleProductsSelectionChange} />
+            <MyProductsModalContent
+              selectedIds={selectedProductIds}
+              onSelectionChange={handleProductsSelectionChange}
+            />
             {selectedProductIds.length === 0 && (
               <p className="mt-4 text-sm text-gray-500">
                 Select products to import into your knowledge base.
