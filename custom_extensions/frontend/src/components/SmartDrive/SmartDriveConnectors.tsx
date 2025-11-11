@@ -1006,7 +1006,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
                 />
               </div>
 
-              {activeTab === 'smart-drive' && (
+              {activeTab !== 'connectors' && (
                 <div 
                   className="flex items-center mt-1 px-3 bg-white border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer h-9"
                   onClick={() => {
@@ -1019,7 +1019,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
                   <ArrowDownUp size={16} className="text-[#71717A]" />
                 </div>
               )}
-              {activeTab === 'smart-drive' && (
+              {activeTab !== 'connectors' && (
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -1092,11 +1092,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
           )}
         </div>
 
-        {activeTab === 'my-products' && myProductsToolbar && (
+        {/* {activeTab === 'my-products' && myProductsToolbar && (
           <div className="mt-3 w-full">
             {myProductsToolbar}
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Quota Exceeded Modal */}
