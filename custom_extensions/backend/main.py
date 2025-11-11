@@ -2103,7 +2103,8 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           }
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-        "teamImagePath": "https://via.placeholder.com/400x200?text=Team",
+        "teamImagePath": "",
+        "teamImagePrompt": "Professional team meeting in a modern hybrid office environment, diverse group collaborating around a conference table with laptops and digital displays, natural lighting, bright and positive atmosphere — cinematic composition, soft focus background, warm lighting",
         "logoPath": "",
         "logoText": "Your Logo",
         "pageNumber": "18"
@@ -2205,6 +2206,16 @@ def fix_presentation_issues(slides: List[Dict]) -> List[Dict]:
         if template_id == 'big-image-left' and ('imagePrompt' not in props or not props.get('imagePrompt', '').strip()):
             props['imagePrompt'] = "Realistic cinematic scene of professionals working in a modern office environment with natural lighting and contemporary furniture. The workspace features clean, organized materials and professional equipment. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
             logger.info(f"Fixed big-image-left slide {slide_num}: Added default imagePrompt")
+        
+        # Fix hybrid-work-best-practices-slide missing teamImagePrompt
+        if template_id == 'hybrid-work-best-practices-slide' and ('teamImagePrompt' not in props or not props.get('teamImagePrompt', '').strip()):
+            props['teamImagePrompt'] = "Professional team meeting in a modern hybrid office environment, diverse group collaborating around a conference table with laptops and digital displays, natural lighting, bright and positive atmosphere — cinematic composition, soft focus background, warm lighting"
+            logger.info(f"Fixed hybrid-work-best-practices-slide slide {slide_num}: Added default teamImagePrompt")
+        
+        # Fix phishing-definition-slide missing rightImagePrompt
+        if template_id == 'phishing-definition-slide' and ('rightImagePrompt' not in props or not props.get('rightImagePrompt', '').strip()):
+            props['rightImagePrompt'] = "Realistic cinematic photograph of cybersecurity professionals monitoring a large wall of screens displaying network security dashboards and threat detection systems in a modern Security Operations Center (SOC). The scene features diverse professionals in business casual attire analyzing data on multiple monitors showing threat maps, firewall status, and intrusion detection alerts — cinematic 35mm lens, wide angle shot, professional lighting, depth of field"
+            logger.info(f"Fixed phishing-definition-slide slide {slide_num}: Added default rightImagePrompt")
         
         # Fix challenges-solutions count
         if template_id == 'challenges-solutions':
@@ -3447,6 +3458,12 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('teamImagePath'):
                     normalized_props['teamImagePath'] = 'https://via.placeholder.com/400x200?text=Team'
+            if not normalized_props.get('teamImagePrompt'):
+                normalized_props['teamImagePrompt'] = (
+                    "Professional team meeting in a modern hybrid office environment, "
+                    "diverse group collaborating around a conference table with laptops and digital displays, "
+                    "natural lighting, bright and positive atmosphere — cinematic composition, soft focus background, warm lighting"
+                )
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Your Logo'
                 if not normalized_props.get('pageNumber'):
@@ -15644,7 +15661,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 }
               ],
               "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
-              "teamImagePath": "https://via.placeholder.com/400x200?text=Team",
+              "teamImagePath": "",
+              "teamImagePrompt": "Professional team meeting in a modern hybrid office environment, diverse group collaborating around a conference table with laptops and digital displays, natural lighting, bright and positive atmosphere — cinematic composition, soft focus background, warm lighting",
               "logoPath": "",
               "logoText": "Your Logo",
               "pageNumber": "18"

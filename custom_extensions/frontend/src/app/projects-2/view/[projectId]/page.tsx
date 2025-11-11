@@ -20,6 +20,7 @@ import LanguageVariantModal from '../components/LanguageVariantModal';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import { ComponentBasedSlideDeckRenderer } from '@/components/ComponentBasedSlideRenderer';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import { AutomaticImageGenerationManager } from '@/components/AutomaticImageGenerationManager';
 import SceneTimeline from '../components/SceneTimeline';
 import TextSettings from '../components/TextSettings';
 import ImageSettings from '../components/ImageSettings';
@@ -79,6 +80,10 @@ export default function Projects2ViewPage() {
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
 
+  // ✅ NEW: Track automatic image generation state
+  const [autoGenerationCompleted, setAutoGenerationCompleted] = useState<boolean>(false);
+  const [enableAutoImageGeneration, setEnableAutoImageGeneration] = useState<boolean>(true);
+
   // Ref for slide editor container to detect clicks outside
   const slideEditorRef = useRef<HTMLDivElement>(null);
 
@@ -86,6 +91,35 @@ export default function Projects2ViewPage() {
   const showReady = true;
 
   // Debug v1/v2 toggle removed; always using v2
+
+  // ✅ NEW: Initialize slideTitle for all slides on load (decouple from props.title)
+  useEffect(() => {
+    if (componentBasedSlideDeck) {
+      let needsUpdate = false;
+      const stripHtmlTags = (html: string): string => {
+        if (!html) return '';
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+
+      const updatedSlides = componentBasedSlideDeck.slides.map(slide => {
+        if (!slide.slideTitle) {
+          needsUpdate = true;
+          const plainTitle = stripHtmlTags(slide.props?.title as string || '') || `Slide ${slide.slideNumber}`;
+          console.log(`🔧 Initializing slideTitle for ${slide.slideId}: "${plainTitle}"`);
+          return { ...slide, slideTitle: plainTitle };
+        }
+        return slide;
+      });
+
+      if (needsUpdate) {
+        const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+        setComponentBasedSlideDeck(updatedDeck);
+        saveVideoLessonData(updatedDeck);
+      }
+    }
+  }, [componentBasedSlideDeck?.slides?.length]); // Only run when slide count changes or initial load
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -97,11 +131,19 @@ export default function Projects2ViewPage() {
     });
 
     if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
-      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility
+      // ✅ Helper to strip HTML for plain-text slideTitle
+      const stripHtmlTags = (html: string): string => {
+        if (!html) return '';
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+
+      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility (plain text, no HTML)
       // This matches the golden reference implementation in SmartSlideDeckViewer
       const slideWithBackendCompat: any = {
         ...newSlide,
-        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
+        slideTitle: stripHtmlTags((typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`),
         slideNumber: componentBasedSlideDeck.slides.length + 1
       };
 
@@ -226,6 +268,73 @@ export default function Projects2ViewPage() {
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
     setActiveComponent('templates');
+  };
+
+  // ✅ NEW: Function to handle scene/slide title rename (independent from props.title)
+  const handleSceneRename = (sceneId: string, newName: string) => {
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      const updatedSlides = componentBasedSlideDeck.slides.map(slide => 
+        slide.slideId === sceneId 
+          ? { ...slide, slideTitle: newName } // Only update slideTitle, not props.title
+          : slide
+      );
+      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+      setComponentBasedSlideDeck(updatedDeck);
+      saveVideoLessonData(updatedDeck);
+      console.log(`✏️ Scene title renamed: ${sceneId} → "${newName}"`);
+    }
+  };
+
+  // ✅ NEW: Handle automatic image generation events
+  const handleAutoGenerationStarted = (elementId: string) => {
+    console.log(`🎨 [VIDEO LESSON AUTO-GEN] Generation started for element: ${elementId}`);
+  };
+
+  const handleAutoGenerationCompleted = (elementId: string, imagePath: string) => {
+    console.log(`✅ [VIDEO LESSON AUTO-GEN] Generation completed for element: ${elementId}, path: ${imagePath}`);
+    
+    // Update the deck with the generated image
+    if (componentBasedSlideDeck) {
+      const updatedSlides = componentBasedSlideDeck.slides.map(slide => {
+        const slideId = slide.slideId;
+        
+        // Check if this element belongs to this slide
+        if (elementId.startsWith(slideId)) {
+          const updatedSlide = { ...slide };
+          
+          // Update the appropriate image property based on element ID pattern
+          if (elementId === `${slideId}-image`) {
+            updatedSlide.props = { ...updatedSlide.props, imagePath };
+            console.log(`🔧 [VIDEO LESSON AUTO-GEN] Updated imagePath for ${slideId}`);
+          } else if (elementId === `${slideId}-team-image`) {
+            updatedSlide.props = { ...updatedSlide.props, teamImagePath: imagePath };
+            console.log(`🔧 [VIDEO LESSON AUTO-GEN] Updated teamImagePath for ${slideId}`);
+          } else if (elementId === `${slideId}-right-image`) {
+            updatedSlide.props = { ...updatedSlide.props, rightImagePath: imagePath };
+            console.log(`🔧 [VIDEO LESSON AUTO-GEN] Updated rightImagePath for ${slideId}`);
+          } else if (elementId === `${slideId}-left-image`) {
+            updatedSlide.props = { ...updatedSlide.props, leftImagePath: imagePath };
+            console.log(`🔧 [VIDEO LESSON AUTO-GEN] Updated leftImagePath for ${slideId}`);
+          }
+          
+          return updatedSlide;
+        }
+        return slide;
+      });
+      
+      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+      setComponentBasedSlideDeck(updatedDeck);
+      saveVideoLessonData(updatedDeck);
+    }
+  };
+
+  const handleAutoGenerationFailed = (elementId: string, error: string) => {
+    console.error(`❌ [VIDEO LESSON AUTO-GEN] Generation failed for element: ${elementId}, error: ${error}`);
+  };
+
+  const handleAllGenerationsComplete = (results: any[]) => {
+    console.log(`🏁 [VIDEO LESSON AUTO-GEN] All generations complete. Results:`, results);
+    setAutoGenerationCompleted(true);
   };
 
   // NEW: Function to handle text changes (for Script component)
@@ -968,6 +1077,7 @@ export default function Projects2ViewPage() {
             aspectRatio={aspectRatio}
             onAddScene={() => {}} // Disabled for now
             onMenuClick={handleMenuClick}
+            onSceneRename={handleSceneRename}
             videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             onSlideSelect={handleSlideSelect}
@@ -978,6 +1088,35 @@ export default function Projects2ViewPage() {
             activeTransitionIndex={activeTransitionIndex}
             showReady={showReady}
           />
+
+          {/* ✅ NEW: Automatic Image Generation Manager for Video Lessons */}
+          {isComponentBasedVideoLesson && componentBasedSlideDeck && enableAutoImageGeneration && !autoGenerationCompleted && (
+            <>
+              {console.log('🔍 [VIDEO LESSON AUTO-GEN] Rendering AutomaticImageGenerationManager', {
+                enabled: enableAutoImageGeneration,
+                completed: autoGenerationCompleted,
+                slideCount: componentBasedSlideDeck.slides.length,
+                slides: componentBasedSlideDeck.slides.map(s => ({
+                  id: s.slideId,
+                  templateId: s.templateId,
+                  hasTeamImagePrompt: !!(s.props as any).teamImagePrompt,
+                  hasRightImagePrompt: !!(s.props as any).rightImagePrompt,
+                  hasImagePrompt: !!(s.props as any).imagePrompt,
+                  teamImagePath: (s.props as any).teamImagePath,
+                  rightImagePath: (s.props as any).rightImagePath,
+                  imagePath: (s.props as any).imagePath
+                }))
+              })}
+              <AutomaticImageGenerationManager
+                deck={componentBasedSlideDeck}
+                enabled={enableAutoImageGeneration && !autoGenerationCompleted}
+                onGenerationStarted={handleAutoGenerationStarted}
+                onGenerationCompleted={handleAutoGenerationCompleted}
+                onGenerationFailed={handleAutoGenerationFailed}
+                onAllGenerationsComplete={handleAllGenerationsComplete}
+              />
+            </>
+          )}
         </div>
       </div>
 

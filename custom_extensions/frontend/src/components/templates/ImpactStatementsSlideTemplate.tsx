@@ -225,8 +225,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             size="LARGE"
             position="CENTER"
             style={{
-              width: '75%',
-              height: '105%',
+              height: '120%',
               position: 'relative',
               bottom: '-8%',
             }}

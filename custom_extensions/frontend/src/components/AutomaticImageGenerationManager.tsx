@@ -189,6 +189,29 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           }
           break;
 
+        case 'hybrid-work-best-practices-slide':
+          // Handle team image
+          const teamImageElementId = `${slideId}-team-image`;
+          console.log(`[AutoImageGen] Checking hybrid-work-best-practices-slide:`, {
+            slideId,
+            hasPrompt: !!slide.props.teamImagePrompt,
+            hasImage: !!slide.props.teamImagePath,
+            prompt: slide.props.teamImagePrompt?.substring(0, 50)
+          });
+          if (slide.props.teamImagePrompt && !slide.props.teamImagePath) {
+            console.log(`[AutoImageGen] ✅ Adding hybrid-work-best-practices-slide team image to generation queue`);
+            extractedPlaceholders.push({
+              elementId: teamImageElementId,
+              slideId,
+              templateId,
+              imagePrompt: slide.props.teamImagePrompt,
+              imagePath: slide.props.teamImagePath,
+              placeholderDimensions: { width: 600, height: 400 }, // Team meeting image dimensions
+              isGenerating: false
+            });
+          }
+          break;
+
         default:
           // Check for generic image properties
           if (slide.props.imagePrompt && !slide.props.imagePath) {
@@ -215,6 +238,12 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         hasPrompt: !!p.imagePrompt,
         hasImage: !!p.imagePath
       }))
+    });
+
+    // ✅ ENHANCED: Always log to console for debugging
+    console.log(`🔍 [AutoImageGen] Extracted ${extractedPlaceholders.length} placeholders from ${deckData.slides?.length || 0} slides`);
+    extractedPlaceholders.forEach(p => {
+      console.log(`  📍 ${p.elementId} (${p.templateId}): prompt=${!!p.imagePrompt}, image=${!!p.imagePath}`);
     });
 
     return extractedPlaceholders;
@@ -441,6 +470,13 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
 
   // Start automatic generation when placeholders are available
   useEffect(() => {
+    console.log(`🔍 [AutoImageGen useEffect] Checking if generation should start:`, {
+      enabled,
+      placeholdersCount: placeholders.length,
+      isProcessing,
+      shouldStart: enabled && placeholders.length > 0 && !isProcessing
+    });
+
     if (enabled && placeholders.length > 0 && !isProcessing) {
       log('AutomaticImageGenerationManager', 'startingAutomaticGeneration', {
         placeholdersCount: placeholders.length,
@@ -451,8 +487,17 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           hasImage: !!p.imagePath
         }))
       });
+
+      console.log(`🚀 [AutoImageGen] Starting automatic generation for ${placeholders.length} placeholders`);
+      placeholders.forEach(p => {
+        console.log(`  🎨 Will generate: ${p.elementId} (${p.templateId})`);
+      });
       
       processAllPlaceholders();
+    } else {
+      console.log(`⏸️ [AutoImageGen] NOT starting generation:`, {
+        reason: !enabled ? 'disabled' : placeholders.length === 0 ? 'no placeholders' : 'already processing'
+      });
     }
   }, [enabled, placeholders, isProcessing, processAllPlaceholders]);
 

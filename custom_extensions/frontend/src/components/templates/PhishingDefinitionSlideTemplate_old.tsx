@@ -141,6 +141,7 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   profileImageAlt = 'Profile image',
   rightImagePath = '',
   rightImageAlt = 'Right side image',
+  rightImagePrompt,
   backgroundColor,
   titleColor,
   contentColor,
@@ -426,7 +427,9 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
           size="LARGE"
           position="CENTER"
           description="Right side image"
+          prompt={rightImagePrompt || rightImageAlt || "Cybersecurity professionals in security operations center"}
           isEditable={isEditable}
+          elementId={`${slideId}-right-image`}
           style={{
             width: '100%',
             height: '100%',
