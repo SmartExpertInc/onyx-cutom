@@ -50,6 +50,7 @@ type CourseDisplayProps = {
   contentTypes?: typeof defaultCardContentTypes;
   sources?: { type: string; name: string; icon: React.ReactNode }[];
   showMetricsCard?: boolean;
+  isAuthorized?: boolean;
 };
 
 const CustomTooltip: React.FC<{
@@ -199,7 +200,8 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
   metrics,
   contentTypes = defaultCardContentTypes,
   sources,
-  showMetricsCard = false
+  showMetricsCard = false,
+  isAuthorized = true
 }) => {
   const [internalCollapsedSections, setInternalCollapsedSections] = useState<Record<number, boolean>>({});
 
@@ -289,7 +291,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-[6px]">
       <div className="lg:col-span-2 space-y-4">
         {(() => {
           if (!trainingPlanData?.sections) {
@@ -514,7 +516,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
 
       <div className="lg:col-span-1 flex flex-col gap-4">
         <div className="flex flex-col h-[550px] flex-none">
-          <CommentsForGeneratedProduct />
+          <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
         </div>
         <ProductQualityRating />
         {showMetricsCard && (

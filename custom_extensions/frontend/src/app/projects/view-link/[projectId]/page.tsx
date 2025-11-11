@@ -1930,6 +1930,7 @@ export default function ProjectInstanceViewPage() {
             lessonContentStatus={lessonContentStatus}
             productId={projectId}
             metrics={courseMetrics}
+            isAuthorized={isAuthorized}
           />
         );
       case COMPONENT_NAME_PDF_LESSON:
