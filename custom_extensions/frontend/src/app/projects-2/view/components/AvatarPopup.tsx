@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Avatar data interfaces
 interface AvatarVariant {
@@ -59,15 +60,50 @@ export default function AvatarPopup({
   position
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
-  const [activeButton, setActiveButton] = useState<string>('button1');
+  const genderDropdownRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
   const [selectedFilters, setSelectedFilters] = useState({
-    gender: 'View All',
-    age: null as string | null,
-    ethnicity: null as string | null,
-    look: null as string | null
+    gender: 'All',
+    age: [] as string[],
+    ethnicity: [] as string[],
+    look: [] as string[]
   });
-  const [previewMode, setPreviewMode] = useState<boolean>(false);
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const genderOptions = useMemo(
+    () => [
+      { value: 'All', label: t('avatarPopup.filters.gender.options.all', 'All') },
+      { value: 'Female', label: t('avatarPopup.filters.gender.options.female', 'Female') },
+      { value: 'Male', label: t('avatarPopup.filters.gender.options.male', 'Male') }
+    ],
+    [t]
+  );
+  const ageOptions = useMemo(
+    () => [
+      { value: 'Young', label: t('avatarPopup.filters.age.options.young', 'Young') },
+      { value: 'Middle-aged', label: t('avatarPopup.filters.age.options.middleAged', 'Middle-aged') },
+      { value: 'Senior', label: t('avatarPopup.filters.age.options.senior', 'Senior') }
+    ],
+    [t]
+  );
+  const lookOptions = useMemo(
+    () => [
+      { value: 'Business', label: t('avatarPopup.filters.look.options.business', 'Business') },
+      { value: 'Casual', label: t('avatarPopup.filters.look.options.casual', 'Casual') },
+      { value: 'Call Centre', label: t('avatarPopup.filters.look.options.callCentre', 'Call Centre') },
+      { value: 'Doctor', label: t('avatarPopup.filters.look.options.doctor', 'Doctor') },
+      { value: 'Construction', label: t('avatarPopup.filters.look.options.construction', 'Construction') },
+      { value: 'Fitness', label: t('avatarPopup.filters.look.options.fitness', 'Fitness') },
+      { value: 'Chef', label: t('avatarPopup.filters.look.options.chef', 'Chef') },
+      { value: 'Thobe', label: t('avatarPopup.filters.look.options.thobe', 'Thobe') },
+      { value: 'Casual White', label: t('avatarPopup.filters.look.options.casualWhite', 'Casual White') }
+    ],
+    [t]
+  );
+  const selectedGenderLabel = useMemo(
+    () => genderOptions.find((option) => option.value === selectedFilters.gender)?.label ?? selectedFilters.gender,
+    [genderOptions, selectedFilters.gender]
+  );
   
   // Integrate with global avatar system
   const { updateSelectedAvatar } = useAvatarDisplay();
@@ -104,6 +140,23 @@ export default function AvatarPopup({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, displayMode, onClose]);
+
+  // Handle click outside for gender dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(event.target as Node)) {
+        setIsGenderDropdownOpen(false);
+      }
+    };
+
+    if (isGenderDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isGenderDropdownOpen]);
 
   // Process avatar data to flatten variants
   const processedAvatars = useMemo(() => {
@@ -160,31 +213,37 @@ export default function AvatarPopup({
   const filteredAvatars = useMemo(() => {
     const filtered = processedAvatars.filter((avatar) => {
       // Gender filter
-      if (selectedFilters.gender !== 'View All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
+      if (selectedFilters.gender !== 'All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
         return false;
       }
       
       // Age filter
-      if (selectedFilters.age && avatar.age) {
-        const ageMatch = (
-          (selectedFilters.age === 'Young' && avatar.age < 30) ||
-          (selectedFilters.age === 'Middle-aged' && avatar.age >= 30 && avatar.age <= 50) ||
-          (selectedFilters.age === 'Senior' && avatar.age > 50)
-        );
+      if (selectedFilters.age.length > 0 && avatar.age) {
+        const ageMatch = selectedFilters.age.some(ageFilter => (
+          (ageFilter === 'Young' && avatar.age! < 30) ||
+          (ageFilter === 'Middle-aged' && avatar.age! >= 30 && avatar.age! <= 50) ||
+          (ageFilter === 'Senior' && avatar.age! > 50)
+        ));
         if (!ageMatch) {
           return false;
         }
       }
       
       // Ethnicity filter
-      if (selectedFilters.ethnicity && avatar.ethnicity && 
-          !avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())) {
-        return false;
+      if (selectedFilters.ethnicity.length > 0 && avatar.ethnicity) {
+        const ethnicityMatch = selectedFilters.ethnicity.some(ethnicityFilter =>
+          avatar.ethnicity?.toLowerCase().includes(ethnicityFilter.toLowerCase())
+        );
+        if (!ethnicityMatch) {
+          return false;
+        }
       }
       
       // Look filter (variant name)
-      if (selectedFilters.look && avatar.lookCategory !== selectedFilters.look) {
-        return false;
+      if (selectedFilters.look.length > 0) {
+        if (!selectedFilters.look.includes(avatar.lookCategory)) {
+          return false;
+        }
       }
       
       return true;
@@ -203,8 +262,21 @@ export default function AvatarPopup({
     }));
   };
 
+  const handleCheckboxChange = (filterType: 'age' | 'ethnicity' | 'look', value: string) => {
+    setSelectedFilters(prev => {
+      const currentValues = prev[filterType];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return {
+        ...prev,
+        [filterType]: newValues
+      };
+    });
+  };
+
   const handleAvatarClick = (avatar: ProcessedAvatar) => {
-    console.log('🎬 [AVATAR_POPUP] Avatar clicked for preview:', {
+    console.log('🎬 [AVATAR_POPUP] Avatar clicked:', {
       id: avatar.id,
       name: avatar.name,
       displayName: avatar.displayName,
@@ -215,347 +287,242 @@ export default function AvatarPopup({
       selectedVariant: avatar.selectedVariant
     });
     
+    // Directly add to scene without preview mode
     setSelectedAvatar(avatar);
-    setPreviewMode(true);
-    
-    console.log('🎬 [AVATAR_POPUP] Preview mode activated for avatar:', avatar.displayName);
+    handleAddToSceneDirectly(avatar);
   };
 
-  const handleBackClick = () => {
-    console.log('🎬 [AVATAR_POPUP] Back button clicked, returning to avatar grid');
-    setPreviewMode(false);
-    setSelectedAvatar(null);
-    console.log('🎬 [AVATAR_POPUP] Preview mode deactivated, avatar grid restored');
-  };
-
-  const handleAddToScene = () => {
-    console.log('🎬 [AVATAR_POPUP] Add to Scene button clicked!');
-    console.log('🎬 [AVATAR_POPUP] Selected avatar:', selectedAvatar);
-    console.log('🎬 [AVATAR_POPUP] onAvatarSelect callback exists:', !!onAvatarSelect);
+  const handleAddToSceneDirectly = (avatar: ProcessedAvatar) => {
+    console.log('🎬 [AVATAR_POPUP] Adding avatar to scene directly');
     
-    if (selectedAvatar && onAvatarSelect) {
+    if (avatar && onAvatarSelect) {
       console.log('🎬 [AVATAR_POPUP] Calling onAvatarSelect with:', {
-        avatar: selectedAvatar,
-        variant: selectedAvatar.selectedVariant
+        avatar: avatar,
+        variant: avatar.selectedVariant
       });
       
       // Call the callback to update the avatar on the slide
-      onAvatarSelect(selectedAvatar, selectedAvatar.selectedVariant);
+      onAvatarSelect(avatar, avatar.selectedVariant);
       
-              // Update the global avatar system (same as AvatarSelector does)
-        if (selectedAvatar.selectedVariant) {
-          const elaiAvatar = {
-            id: selectedAvatar.id,
-            code: selectedAvatar.code,
-            name: selectedAvatar.name,
-            type: null,
-            status: 1,
-            accountId: '',
-            gender: selectedAvatar.gender,
-            thumbnail: selectedAvatar.thumbnail,
-            canvas: selectedAvatar.canvas,
-            age: selectedAvatar.age,
-            ethnicity: selectedAvatar.ethnicity,
-            variants: [{
-              code: selectedAvatar.selectedVariant.code,
-              id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
-              name: selectedAvatar.selectedVariant.name,
-              thumbnail: selectedAvatar.selectedVariant.thumbnail,
-              canvas: selectedAvatar.selectedVariant.canvas
-            }]
-          };
-          
-          const elaiVariant = {
-            code: selectedAvatar.selectedVariant.code,
-            id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
-            name: selectedAvatar.selectedVariant.name,
-            thumbnail: selectedAvatar.selectedVariant.thumbnail,
-            canvas: selectedAvatar.selectedVariant.canvas
-          };
-          
-          updateSelectedAvatar(elaiAvatar, elaiVariant);
-          console.log('🎬 [AVATAR_POPUP] Global avatar context updated:', {
-            avatar: selectedAvatar.name,
-            variant: selectedAvatar.selectedVariant.name
-          });
-        }
+      // Update the global avatar system (same as AvatarSelector does)
+      if (avatar.selectedVariant) {
+        const elaiAvatar = {
+          id: avatar.id,
+          code: avatar.code,
+          name: avatar.name,
+          type: null,
+          status: 1,
+          accountId: '',
+          gender: avatar.gender,
+          thumbnail: avatar.thumbnail,
+          canvas: avatar.canvas,
+          age: avatar.age,
+          ethnicity: avatar.ethnicity,
+          variants: [{
+            code: avatar.selectedVariant.code,
+            id: avatar.selectedVariant.code,
+            name: avatar.selectedVariant.name,
+            thumbnail: avatar.selectedVariant.thumbnail,
+            canvas: avatar.selectedVariant.canvas
+          }]
+        };
+        
+        const elaiVariant = {
+          code: avatar.selectedVariant.code,
+          id: avatar.selectedVariant.code,
+          name: avatar.selectedVariant.name,
+          thumbnail: avatar.selectedVariant.thumbnail,
+          canvas: avatar.selectedVariant.canvas
+        };
+        
+        updateSelectedAvatar(elaiAvatar, elaiVariant);
+        console.log('🎬 [AVATAR_POPUP] Global avatar context updated:', {
+          avatar: avatar.name,
+          variant: avatar.selectedVariant.name
+        });
+      }
       
       console.log('🎬 [AVATAR_POPUP] Avatar selection callback completed, closing popup');
       onClose();
     } else {
       console.error('🎬 [AVATAR_POPUP] Cannot add to scene:', {
-        hasSelectedAvatar: !!selectedAvatar,
+        hasSelectedAvatar: !!avatar,
         hasCallback: !!onAvatarSelect
       });
     }
   };
 
-  const resetFilters = () => {
-    setSelectedFilters({
-      gender: 'View All',
-      age: null,
-      ethnicity: null,
-      look: null
-    });
-  };
-
   const content = (
-    <div className="flex h-full">
-      {!previewMode && (
-        <>
+    <div className="flex h-full p-3">
           {/* Left sidebar */}
-          <div className="w-64 bg-white px-6 py-4 flex flex-col">
-                    {/* Three buttons at the top */}
-        <div className="mb-4 flex justify-center">
-                        <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1 py-1" style={{ width: 'fit-content', height: '36px' }}>
-                <button 
-                  onClick={() => setActiveButton('button1')}
-                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
-                    activeButton === 'button1' 
-                      ? 'bg-gray-200 text-black' 
-                      : 'bg-white text-gray-600'
-                  }`}
-                >
-                  All
-                </button>
-                <button 
-                  onClick={() => setActiveButton('button2')}
-                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
-                    activeButton === 'button2' 
-                      ? 'bg-gray-200 text-black' 
-                      : 'bg-white text-gray-600'
-                  }`}
-                >
-                  Custom
-                </button>
-                <button 
-                  onClick={() => setActiveButton('button3')}
-                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
-                    activeButton === 'button3' 
-                      ? 'bg-gray-200 text-black' 
-                      : 'bg-white text-gray-600'
-                  }`}
-                >
-                  Stock
-                </button>
+          <div className="w-56 bg-white px-3 py-4 flex flex-col border rounded-md border-[#E0E0E0]">
+            {/* Search bar at the top */}
+            <div className="mb-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  {/* Search icon */}
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder={t('avatarPopup.searchPlaceholder', 'Search...')}
+                  className="w-full pl-10 pr-4 h-9 border border-[#E0E0E0] rounded-md text-sm placeholder-[#878787] focus:outline-none focus:ring-0"
+                />
               </div>
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto pb-4">
+            <div className="flex-1 overflow-y-auto pb-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
               {/* Gender */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Gender</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center cursor-pointer pl-2">
-                    <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'Male'}
-                      onChange={() => handleFilterChange('gender', 'Male')}
-                      className="mr-2 border-gray-400 text-black focus:ring-0"
-                    />
-                    <span className="text-sm text-black">Male</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer pl-2">
-                    <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'Female'}
-                      onChange={() => handleFilterChange('gender', 'Female')}
-                      className="mr-2 border-gray-400 text-black focus:ring-0"
-                    />
-                    <span className="text-sm text-black">Female</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer pl-2">
-                      <input
-                      type="radio"
-                      name="gender"
-                      checked={selectedFilters.gender === 'View All'}
-                      onChange={() => handleFilterChange('gender', 'View All')}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
-                      />
-                    <span className="text-sm text-black">View All</span>
-                    </label>
+                <h4 className="text-xs font-medium text-gray-500 mb-2">
+                  {t('avatarPopup.filters.gender.label', 'Gender')}
+                </h4>
+                <div className="relative" ref={genderDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md text-sm text-[#878787] bg-white focus:outline-none text-left flex items-center justify-between"
+                  >
+                    <span>{selectedGenderLabel}</span>
+                    <svg 
+                      className={`w-4 h-4 transition-transform ${isGenderDropdownOpen ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {isGenderDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-[#E0E0E0] rounded-md shadow-lg">
+                      {genderOptions.map((option) => (
+                        <div
+                          key={option.value}
+                          onClick={() => {
+                            handleFilterChange('gender', option.value);
+                            setIsGenderDropdownOpen(false);
+                          }}
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#171718] flex items-center justify-between ${
+                            selectedFilters.gender === option.value ? 'bg-gray-50' : ''
+                          } ${option.value === 'All' ? 'rounded-t-md' : ''} ${option.value === 'Male' ? 'rounded-b-md' : ''}`}
+                        >
+                          <span>{option.label}</span>
+                          {selectedFilters.gender === option.value && (
+                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8.22461 0.527344C8.3016 0.577768 8.32278 0.68085 8.27246 0.757812L3.73926 7.69141C3.71263 7.73204 3.66962 7.75942 3.62109 7.76562C3.57295 7.77178 3.52442 7.75629 3.48828 7.72363L0.554688 5.05664C0.486645 4.99478 0.481227 4.88941 0.542969 4.82129C0.604886 4.75318 0.71022 4.74865 0.77832 4.81055L3.13379 6.95117L3.56738 7.3457L3.88867 6.85449L7.99414 0.575195C8.04461 0.49844 8.1477 0.47706 8.22461 0.527344Z" fill="#171718" stroke="#171718"/>
+                            </svg>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Age */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
-                <div className="space-y-2">
-                  {['Young', 'Middle-aged', 'Senior'].map((age) => (
-                    <label key={age} className="flex items-center cursor-pointer pl-2">
+                <h4 className="text-xs font-medium text-[#171718] mb-2">
+                  {t('avatarPopup.filters.age.label', 'Age')}
+                </h4>
+                <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
+                  {ageOptions.map((option) => (
+                    <label key={option.value} className="flex items-center cursor-pointer">
                       <input
-                        type="radio"
-                        name="age"
-                        checked={selectedFilters.age === age}
-                        onChange={() => handleFilterChange('age', age)}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                        type="checkbox"
+                        checked={selectedFilters.age.includes(option.value)}
+                        onChange={() => handleCheckboxChange('age', option.value)}
+                        className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        style={{
+                          backgroundImage: selectedFilters.age.includes(option.value) 
+                            ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
+                            : 'none',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
                       />
-                      <span className="text-sm text-black">{age}</span>
+                      <span className="text-sm text-[#171718]">{option.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* Ethnicity */}
-              <div className="mb-4">
+              {/* Ethnicity - Hidden for now */}
+              {/* <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
-                <div className="space-y-2">
+                <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
                   {['Asian', 'Black', 'White / Caucasian', 'South Asian / Indian', 'Southeast Asian / Pacific Island', 'Black, Latino / Hispanic', 'Latino / Hispanic', 'Middle Eastern'].map((ethnicity) => (
-                    <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
+                    <label key={ethnicity} className="flex items-center cursor-pointer">
                       <input
-                        type="radio"
-                        name="ethnicity"
-                        checked={selectedFilters.ethnicity === ethnicity}
-                        onChange={() => handleFilterChange('ethnicity', ethnicity)}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                        type="checkbox"
+                        checked={selectedFilters.ethnicity.includes(ethnicity)}
+                        onChange={() => handleCheckboxChange('ethnicity', ethnicity)}
+                        className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        style={{
+                          backgroundImage: selectedFilters.ethnicity.includes(ethnicity) 
+                            ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
+                            : 'none',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
                       />
                       <span className="text-sm text-black">{ethnicity}</span>
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Look (Avatar Variants) */}
               <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-500 mb-2">Look</h4>
-                <div className="space-y-2">
-                  {['Business', 'Casual', 'Call Centre', 'Doctor', 'Construction', 'Fitness', 'Chef', 'Thobe', 'Casual White'].map((look) => (
-                    <label key={look} className="flex items-center cursor-pointer pl-2">
+                <h4 className="text-xs font-medium text-[#171718] mb-2">
+                  {t('avatarPopup.filters.look.label', 'Look')}
+                </h4>
+                <div className="border border-[#E0E0E0] rounded-md p-2 space-y-2">
+                  {lookOptions.map((option) => (
+                    <label key={option.value} className="flex items-center cursor-pointer">
                       <input
-                        type="radio"
-                        name="look"
-                        checked={selectedFilters.look === look}
-                        onChange={() => handleFilterChange('look', look)}
-                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                        type="checkbox"
+                        checked={selectedFilters.look.includes(option.value)}
+                        onChange={() => handleCheckboxChange('look', option.value)}
+                        className="mr-2 w-4 h-4 rounded-sm border border-[#878787] bg-white checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none"
+                        style={{
+                          backgroundImage: selectedFilters.look.includes(option.value) 
+                            ? "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMuMzMzMyA0TDYgMTEuMzMzM0wyLjY2NjY3IDgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=')" 
+                            : 'none',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
                       />
-                      <span className="text-sm text-black">{look}</span>
+                      <span className="text-sm text-[#171718]">{option.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
             </div>
-
-            {/* Footer - appears when filters are applied */}
-            {(selectedFilters.age || selectedFilters.ethnicity || selectedFilters.look || selectedFilters.gender !== 'View All') && (
-              <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6 flex justify-center">
-                <button 
-                  onClick={resetFilters}
-                  className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-                  style={{ width: 'fit-content' }}
-                >
-                  <span className="text-base">×</span>
-                  <span>Reset filters</span>
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Vertical divider */}
-          <div className="w-px bg-gray-200"></div>
-        </>
-      )}
-
       {/* Right main area */}
-      <div className={`flex flex-col ${previewMode ? 'w-full' : 'flex-1'} min-h-0`}>
-        {previewMode ? (
-          // Preview mode content
+      <div className="flex flex-col pl-4 pr-1 flex-1">
+          {/* Avatar grid - always show */}
           <>
-            {/* Header with back button and avatar name */}
-            <div className="flex items-center gap-3 mb-6 flex-shrink-0 px-4 pt-4">
-              <button 
-                onClick={handleBackClick}
-                className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <span className="text-lg font-medium text-black">{selectedAvatar?.displayName}</span>
-            </div>
-
-            {/* Main preview area */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0">
-              {/* Big rectangle with avatar thumbnail */}
-              <div className="relative w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-                {selectedAvatar?.thumbnail ? (
-                  <img 
-                    src={selectedAvatar.thumbnail} 
-                    alt={selectedAvatar.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              
-              {/* Avatar name only */}
-              <div className="w-full text-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {selectedAvatar?.displayName}
-                </h3>
-              </div>
-            </div>
-
-            {/* Footer with Add to Scene button */}
-            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 pb-4 px-4">
-              <button 
-                onClick={handleAddToScene}
-                className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors"
-              >
-                + Add to scene
-              </button>
-            </div>
-          </>
-        ) : (
-          // Normal mode content
-          <>
-            {/* Search bar and create button - fixed at top */}
-            <div className="flex items-center gap-4 mb-6 flex-shrink-0">
-              {/* Search bar */}
-              <div className="flex-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  {/* Black magnifying glass icon */}
-                  <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="w-full pl-10 pr-4 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
-                  style={{ height: '36px' }}
-                />
-              </div>
-              
-              {/* Create button */}
-              <button className="px-3 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium text-sm" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', height: '36px' }}>
-                + Create
-              </button>
-            </div>
-
             {/* Scrollable content area */}
-            <div className="flex-1 overflow-y-auto pb-4">
+            <div className="flex-1 overflow-y-auto pb-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
               {/* Avatar rectangles grid */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-[18px]">
                  {filteredAvatars.map((avatar: ProcessedAvatar, index) => (
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                        className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden"
+                      className="relative w-full h-[136px] rounded-md mb-2 cursor-pointer transition-all duration-200 group overflow-hidden flex items-center justify-center border border-[#E0E0E0]"
                       onClick={() => handleAvatarClick(avatar)}
                       >
                         {avatar.thumbnail ? (
                           <img 
                             src={avatar.thumbnail} 
                             alt={avatar.displayName}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
@@ -576,26 +543,17 @@ export default function AvatarPopup({
                             )}
                           </div>
                         </div>
-                        
-                        {/* Click indicator */}
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <svg className="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        </div>
                       </div>
                       
                       {/* Avatar name only */}
                       <div className="text-center w-full">
-                        <div className="text-sm text-black font-medium">{avatar.displayName}</div>
+                        <div className="text-sm text-[#171718] font-medium">{avatar.displayName}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </>
-        )}
       </div>
     </div>
   );
@@ -606,15 +564,13 @@ export default function AvatarPopup({
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         {/* Light background overlay */}
         <div 
-          className="absolute inset-0"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+          className="absolute inset-0 bg-black/20"
           onClick={onClose}
         ></div>
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl w-full mx-4 z-10 ${className}`}
-          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px', height: previewMode ? 'auto' : '420px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[570px] max-w-[880px] rounded-md overflow-hidden ${className}`}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -628,17 +584,10 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`fixed z-50 bg-white shadow-xl border border-gray-200 ${className}`} 
-        style={{ 
-          borderRadius: '12px',
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 w-[880px] h-[570px] rounded-md overflow-hidden ${className}`} 
+        style={{
           left: position?.x || 0,
-          top: position?.y || 0,
-          width: previewMode ? '500px' : '800px',
-          height: previewMode ? 'auto' : '420px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
+          top: position?.y || 0
         }}
       >
         {/* Main content area with sidebar */}

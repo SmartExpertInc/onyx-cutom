@@ -3,8 +3,10 @@ import { Trash2, Image as ImageIcon, Check, X } from 'lucide-react';
 import Media from './Media';
 import AdvancedSettings from './AdvancedSettings';
 import Tooltip from './Tooltip';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ImageSettings() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'animate' | 'filters'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +39,7 @@ export default function ImageSettings() {
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 h-fit flex flex-col">
+      <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
       {/* Header with grey background */}
       <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
@@ -46,23 +48,23 @@ export default function ImageSettings() {
             <ImageIcon className="w-5 h-5 text-gray-700" />
           </div>
           {/* Image text */}
-          <span className="text-sm font-medium text-gray-700">Image</span>
+          <span className="text-xs font-medium text-gray-700">{t('panels.image.image', 'Image')}</span>
         </div>
         
         <div className="flex items-center space-x-2">
           {/* Replace image button */}
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
+            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors"
           >
-            Replace image
+            {t('panels.image.replaceImage', 'Replace image')}
           </button>
           
           {/* Trashcan button */}
-          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:border-gray-400 transition-colors group relative" title="Remove media">
+          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:border-gray-400 transition-colors group relative" title={t('panels.image.removeMedia', 'Remove media')}>
             <Trash2 className="w-4 h-4 text-gray-700" />
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Remove media
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              {t('panels.image.removeMedia', 'Remove media')}
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
             </div>
           </button>
@@ -73,33 +75,33 @@ export default function ImageSettings() {
       <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab('format')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'format'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Format
+          {t('panels.image.format', 'Format')}
         </button>
         <button
           onClick={() => setActiveTab('animate')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'animate'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Animate
+          {t('panels.image.animate', 'Animate')}
         </button>
         <button
           onClick={() => setActiveTab('filters')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'filters'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Filters
+          {t('panels.image.filters', 'Filters')}
         </button>
       </div>
       
@@ -109,7 +111,7 @@ export default function ImageSettings() {
           <div className="space-y-4">
             {/* Reset size */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Reset size</span>
+              <span className="text-xs font-medium text-gray-700">Reset size</span>
               <button className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 flex items-center justify-center transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32" className="text-gray-700">
                   <path fill="currentColor" d="M18 28A12 12 0 1 0 6 16v6.2l-3.6-3.6L1 20l6 6l6-6l-1.4-1.4L8 22.2V16a10 10 0 1 1 10 10Z"/>
@@ -119,7 +121,7 @@ export default function ImageSettings() {
 
             {/* Crop */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Crop</span>
+              <span className="text-xs font-medium text-gray-700">Crop</span>
               {!isCropMode ? (
                 <button 
                   onClick={() => setIsCropMode(true)}
@@ -151,7 +153,7 @@ export default function ImageSettings() {
 
             {/* Order */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Order</span>
+              <span className="text-xs font-medium text-gray-700">Order</span>
               <div className="flex space-x-2">
                 <Tooltip content="Send media to back">
                   <button
@@ -218,11 +220,11 @@ export default function ImageSettings() {
           <div className="space-y-4">
             {/* Animation type */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Animation type</span>
+              <span className="text-xs font-medium text-gray-700">Animation type</span>
               <div className="relative" ref={animationDropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span className="text-gray-700">None</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +240,7 @@ export default function ImageSettings() {
                         onClick={() => {
                           setShowDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                       >
                         {option === 'None' ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TextPopupProps {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface TextPopupProps {
 }
 
 export default function TextPopup({ isOpen, onClose, position }: TextPopupProps) {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
@@ -21,7 +24,7 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
       
       {/* Popup */}
       <div 
-        className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[200px]"
+        className="fixed z-50 bg-white border border-gray-200 rounded-md shadow-lg p-2 min-w-[200px]"
         style={{
           left: position.x,
           top: position.y,
@@ -29,9 +32,9 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
       >
         <div className="space-y-0">
           {/* Title */}
-          <div className="cursor-pointer hover:bg-gray-50 px-2 py-1 rounded transition-colors">
+          <div className="cursor-pointer hover:bg-gray-50 px-1.5 py-0.5 rounded transition-colors">
             <span 
-              className="font-normal"
+              className="font-bold"
               style={{
                 fontSize: '20px',
                 lineHeight: '1.2',
@@ -39,14 +42,14 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               }}
             >
-              Title
+              {t('textPopup.options.title', 'Title')}
             </span>
           </div>
 
           {/* Subtitle */}
-          <div className="cursor-pointer hover:bg-gray-50 px-2 py-1 rounded transition-colors">
+          <div className="cursor-pointer hover:bg-gray-50 px-1.5 py-0.5 rounded transition-colors">
             <span 
-              className="font-normal"
+              className="font-semibold"
               style={{
                 fontSize: '16px',
                 lineHeight: '1.3',
@@ -54,12 +57,12 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               }}
             >
-              Subtitle
+              {t('textPopup.options.subtitle', 'Subtitle')}
             </span>
           </div>
 
           {/* Body Text */}
-          <div className="cursor-pointer hover:bg-gray-50 px-2 py-1 rounded transition-colors">
+          <div className="cursor-pointer hover:bg-gray-50 px-1.5 py-0.5 rounded transition-colors">
             <span 
               className="font-normal"
               style={{
@@ -69,7 +72,7 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               }}
             >
-              Body text
+              {t('textPopup.options.body', 'Body text')}
             </span>
           </div>
         </div>

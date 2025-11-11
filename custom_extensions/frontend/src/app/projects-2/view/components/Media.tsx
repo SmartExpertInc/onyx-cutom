@@ -1,5 +1,5 @@
-import { useRef, useEffect } from 'react';
-import { Folder, Image, Sparkles } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MediaProps {
   isOpen: boolean;
@@ -7,16 +7,87 @@ interface MediaProps {
   title?: string;
   displayMode?: 'modal' | 'popup';
   className?: string;
+  onOptionSelect?: (option: string) => void;
 }
 
 export default function Media({ 
   isOpen, 
   onClose, 
-  title = "Choose Media", 
+  title, 
   displayMode = 'modal',
-  className = ''
+  className = '',
+  onOptionSelect,
 }: MediaProps) {
+  const { t } = useLanguage();
+  const defaultTitle = t('panels.media.chooseMedia', 'Choose Media');
   const popupRef = useRef<HTMLDivElement>(null);
+  const [selectedOption, setSelectedOption] = useState<string>('image');
+  const [isLocationsExpanded, setIsLocationsExpanded] = useState<boolean>(false);
+  const [selectedMusicIndex, setSelectedMusicIndex] = useState<number | null>(null);
+  const [isOutlinedExpanded, setIsOutlinedExpanded] = useState<boolean>(false);
+  const [isFilledExpanded, setIsFilledExpanded] = useState<boolean>(false);
+  const [isColoredExpanded, setIsColoredExpanded] = useState<boolean>(false);
+  const [isLibraryEmpty, setIsLibraryEmpty] = useState<boolean>(true);
+  const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
+  const [promptText, setPromptText] = useState<string>('');
+  const [isMusicEnabled, setIsMusicEnabled] = useState<boolean>(true);
+  const [showMusicDropdown, setShowMusicDropdown] = useState<boolean>(false);
+  const [selectedMusic, setSelectedMusic] = useState<string>('East London');
+  const [musicVolume, setMusicVolume] = useState<number>(65);
+  const [isPlayEverywhereEnabled, setIsPlayEverywhereEnabled] = useState<boolean>(true);
+  const onOptionSelectRef = useRef<typeof onOptionSelect>(onOptionSelect);
+
+  const aiAgentBadge = t('panels.media.aiAgent.badge', 'AI Agent');
+  const aiAgentDescription = t(
+    'panels.media.aiAgent.description',
+    'Agent uses credits to deliver advanced AI editing.'
+  );
+  const aiAgentLearnMore = t('panels.media.aiAgent.learnMore', 'Learn more');
+  const aiAgentPromptTitle = t(
+    'panels.media.aiAgent.promptTitle',
+    'Get started with a prompt'
+  );
+  const aiAgentPromptPlaceholder = t(
+    'panels.media.aiAgent.promptPlaceholder',
+    'Describe your image...'
+  );
+  const aiAgentSend = t('panels.media.aiAgent.send', 'Send');
+  const aiAgentPrompts = {
+    modernOffice: t(
+      'panels.media.aiAgent.prompts.modernOffice',
+      'Modern office setting'
+    ),
+    pharmaceuticalLaboratory: t(
+      'panels.media.aiAgent.prompts.pharmaceuticalLaboratory',
+      'Pharmaceutical laboratory'
+    ),
+    constructionSite: t(
+      'panels.media.aiAgent.prompts.constructionSite',
+      'Construction site'
+    ),
+  };
+
+  useEffect(() => {
+    onOptionSelectRef.current = onOptionSelect;
+  }, [onOptionSelect]);
+
+  const handleOptionClick = (option: string) => {
+    setSelectedOption(option);
+    onOptionSelect?.(option);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedOption('image');
+      onOptionSelectRef.current?.('image');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (selectedOption !== 'music') {
+      setShowMusicDropdown(false);
+    }
+  }, [selectedOption]);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -39,62 +110,99 @@ export default function Media({
   const content = (
     <div className="flex h-full">
       {/* Sidebar */}
-      <div className="w-64 bg-white p-4 flex flex-col">
+      <div className="w-64 bg-white pt-[24px] pr-[16px] pb-[24px] pl-[24px] flex flex-col">
         {/* My assets section */}
-        <div className="mb-3 pt-4">
-          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">My assets</h4>
-          <div className="flex items-center px-3 py-2 bg-gray-200 rounded-lg cursor-pointer transition-colors">
-                          <Folder className="w-3 h-3 text-black mr-3" />
-            <span className="text-sm text-black">Library</span>
+        <div className="mb-5">
+          <h4 className="font-medium text-[#878787] mb-2" style={{ fontSize: '10px' }}>{t('panels.media.myAssets', 'My assets')}</h4>
+          <div 
+            onClick={() => handleOptionClick('library')}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+            style={selectedOption === 'library' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.33301 5.33464V12.668C1.33301 13.4013 1.93301 14.0013 2.66634 14.0013H11.9997M5.33301 11.3346H13.333C13.6866 11.3346 14.0258 11.1942 14.2758 10.9441C14.5259 10.6941 14.6663 10.3549 14.6663 10.0013V6.0013C14.6663 5.64768 14.5259 5.30854 14.2758 5.05849C14.0258 4.80844 13.6866 4.66797 13.333 4.66797H10.713C10.4934 4.66683 10.2775 4.61147 10.0844 4.5068C9.89134 4.40212 9.72712 4.25138 9.60634 4.06797L9.05967 3.26797C8.93889 3.08455 8.77467 2.93381 8.58161 2.82914C8.38855 2.72447 8.17262 2.6691 7.95301 2.66797H5.33301C4.97939 2.66797 4.64025 2.80844 4.3902 3.05849C4.14015 3.30854 3.99967 3.64768 3.99967 4.0013V10.0013C3.99967 10.7346 4.59967 11.3346 5.33301 11.3346Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-xs text-black">{t('panels.media.library', 'Library')}</span>
           </div>
         </div>
 
         {/* Stock assets section */}
         <div className="mb-6 flex-1">
-          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">Stock assets</h4>
+          <h4 className="font-medium text-[#878787] mb-2" style={{ fontSize: '10px' }}>{t('panels.media.stockAssets', 'Stock assets')}</h4>
           
+          <div className="flex flex-col gap-2">
           {/* Image option */}
-          <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-1">
-            <Image className="w-3 h-3 text-black mr-3" />
-            <span className="text-sm text-black">Image</span>
+            <div 
+              onClick={() => handleOptionClick('image')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+              style={selectedOption === 'image' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
+            >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 10L11.9427 7.94267C11.6926 7.69271 11.3536 7.55229 11 7.55229C10.6464 7.55229 10.3074 7.69271 10.0573 7.94267L4 14M3.33333 2H12.6667C13.403 2 14 2.59695 14 3.33333V12.6667C14 13.403 13.403 14 12.6667 14H3.33333C2.59695 14 2 13.403 2 12.6667V3.33333C2 2.59695 2.59695 2 3.33333 2ZM7.33333 6C7.33333 6.73638 6.73638 7.33333 6 7.33333C5.26362 7.33333 4.66667 6.73638 4.66667 6C4.66667 5.26362 5.26362 4.66667 6 4.66667C6.73638 4.66667 7.33333 5.26362 7.33333 6Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-xs text-black">{t('panels.media.image', 'Image')}</span>
           </div>
 
                       {/* Video option */}
-            <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-1">
-              <svg className="w-3 h-3 text-black mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-                <g fill="currentColor">
-                  <path d="M23.5 16.866a1 1 0 0 0 0-1.732l-12-6.928a1 1 0 0 0-1.5.866v13.856a1 1 0 0 0 1.5.866l12-6.928Z"/>
-                  <path d="M6 1a5 5 0 0 0-5 5v20a5 5 0 0 0 5 5h20a5 5 0 0 0 5-5V6a5 5 0 0 0-5-5H6ZM3 6a3 3 0 0 1 3-3h20a3 3 0 0 1 3 3v20a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Z"/>
-                </g>
+            <div 
+              onClick={() => handleOptionClick('video')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+              style={selectedOption === 'video' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14.6663 5.33333L10.6663 8L14.6663 10.6667V5.33333Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9.33301 4H2.66634C1.92996 4 1.33301 4.59695 1.33301 5.33333V10.6667C1.33301 11.403 1.92996 12 2.66634 12H9.33301C10.0694 12 10.6663 11.403 10.6663 10.6667V5.33333C10.6663 4.59695 10.0694 4 9.33301 4Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-sm text-black">Video</span>
+              <span className="text-xs text-black">{t('panels.media.video', 'Video')}</span>
+            </div>
+
+            {/* Music option */}
+            <div 
+              onClick={() => handleOptionClick('music')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+              style={selectedOption === 'music' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-xs text-black">{t('panels.media.music', 'Music')}</span>
+            </div>
+
+            {/* Icon option */}
+            <div 
+              onClick={() => handleOptionClick('icon')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+              style={selectedOption === 'icon' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.99967 1.33203L10.0597 5.50536L14.6663 6.1787L11.333 9.42537L12.1197 14.012L7.99967 11.8454L3.87967 14.012L4.66634 9.42537L1.33301 6.1787L5.93967 5.50536L7.99967 1.33203Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-xs text-black">{t('panels.media.icon', 'Icon')}</span>
             </div>
 
           {/* AI image option */}
-          <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
-            <Sparkles className="w-3 h-3 text-black mr-3" />
-            <span className="text-sm text-black">AI image</span>
+            <div 
+              onClick={() => handleOptionClick('aiImage')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md cursor-pointer transition-colors border" 
+              style={selectedOption === 'aiImage' ? { backgroundColor: '#E6E6E6', borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' } : { borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.58594 2.75586C6.00911 4.12151 6.51585 5.07368 7.25879 5.81543C8.00135 6.55616 8.95431 7.06019 10.3203 7.4834C8.95426 7.90548 8.00221 8.41012 7.25879 9.15234C6.51626 9.89434 6.01008 10.8462 5.58594 12.2119C5.19223 10.941 4.72808 10.0286 4.06543 9.30957L3.91406 9.15234L3.75684 9.00098C3.0379 8.34124 2.1246 7.87724 0.853516 7.4834C2.21905 7.06141 3.1708 6.55738 3.91406 5.81543V5.81445C4.65643 5.07263 5.16185 4.12104 5.58594 2.75586ZM10.7627 1.35254C10.8794 1.54881 11.0138 1.72706 11.1738 1.88672C11.3327 2.0453 11.5101 2.17805 11.7051 2.29395C11.5093 2.41021 11.3322 2.54494 11.1729 2.7041C11.0136 2.86321 10.879 3.04001 10.7627 3.23535C10.6461 3.03958 10.5112 2.86245 10.3516 2.70312C10.1924 2.54428 10.0157 2.40997 9.82031 2.29395C10.0158 2.1778 10.1934 2.04467 10.3525 1.88574C10.5122 1.72632 10.6462 1.54833 10.7627 1.35254Z" stroke="#171718"/>
+              </svg>
+
+              <span className="text-xs text-black">{t('panels.media.aiImage', 'AI image')}</span>
+            </div>
           </div>
         </div>
 
         {/* Bottom buttons */}
         <div className="space-y-3">
           {/* Upload button */}
-          <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg className="w-4 h-4 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" strokeWidth="2" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l0 8M8 12l4-4 4 4" />
+          <button className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-white border rounded-md hover:bg-gray-50 transition-colors cursor-pointer" style={{ borderColor: '#E6E6E6', boxShadow: '0px 1px 2px 0px #0000000D' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-sm text-gray-700">Upload</span>
-          </button>
-
-          {/* Record button */}
-          <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="white" stroke="#ef4444" strokeWidth="1" />
-              <circle cx="12" cy="12" r="6" fill="#ef4444" />
-            </svg>
-            <span className="text-sm text-gray-700">Record</span>
+            <span className="text-xs text-black">{t('panels.media.upload', 'Upload')}</span>
           </button>
         </div>
       </div>
@@ -104,84 +212,774 @@ export default function Media({
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col p-4">
-        {/* Tabs */}
-        <div className="relative border-b border-gray-200">
-          <div className="flex px-2 pt-0">
-            <button className="relative px-4 py-2 text-sm font-medium text-gray-900 mr-8">
-              Media library
-              {/* Active tab indicator */}
-              <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-black"></div>
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-              Brand kit
-            </button>
-          </div>
+        {/* Dev Toggle for Library State - only show when Library is selected */}
+        {selectedOption === 'library' && (
+        <div className="flex items-center gap-2 pb-2 text-xs">
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={isLibraryEmpty} 
+              onChange={(e) => setIsLibraryEmpty(e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span style={{ color: '#878787' }}>{t('panels.media.libraryEmptyToggle', 'Library empty')}</span>
+          </label>
+          <span style={{ color: '#878787' }}>/</span>
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={!isLibraryEmpty} 
+              onChange={(e) => setIsLibraryEmpty(!e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span style={{ color: '#878787' }}>{t('panels.media.libraryFullToggle', 'Library full')}</span>
+          </label>
         </div>
+        )}
         
-        {/* Search bar and upload button */}
-        <div className="flex items-center gap-4 px-2 py-4">
+        {/* Search bar and upload button - hide when library is empty or AI image is selected */}
+        {!(selectedOption === 'library' && isLibraryEmpty) && selectedOption !== 'aiImage' && (
+        <div className="flex items-center gap-6 pb-4">
           {/* Search bar */}
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               {/* Magnifying glass icon */}
-              <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <input
               type="text"
-              placeholder="Search media library"
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-400 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder={t('panels.media.searchPlaceholder', 'Search...')}
+              className="w-full pl-[30px] pr-4 py-1.5 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-[34px]"
+              style={{ 
+                borderColor: '#E0E0E0',
+                boxShadow: '0px 1px 2px 0px #0000000D',
+                color: '#171718'
+              }}
             />
+            <style jsx>{`
+              input::placeholder {
+                color: #878787;
+                font-size: 12px;
+              }
+            `}</style>
           </div>
           
-          {/* Upload button */}
-          <button className="flex items-center px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" strokeWidth="2" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l0 8M8 12l4-4 4 4" />
+          {/* Upload to Library button - only show when Library is selected */}
+          {selectedOption === 'library' && (
+            <button className="flex items-center px-4 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors border h-[34px] cursor-pointer" style={{ borderColor: '#171718' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-sm font-medium">Upload to Library</span>
+              <span className="text-sm font-medium" style={{ color: '#171718' }}>{t('panels.media.uploadToLibrary', 'Upload to Library')}</span>
           </button>
+          )}
         </div>
+        )}
         
         {/* Tab content */}
-        <div className="flex-1 px-2 pt-0 pb-2 overflow-y-auto">
-          {/* Demo rectangles in three columns */}
-          <div className="grid grid-cols-3 gap-4 pb-0">
-            {/* Column 1 */}
-            <div className="space-y-4">
-              <div className="bg-gray-200 rounded-lg h-32"></div>
-              <div className="bg-gray-200 rounded-lg h-24"></div>
-              <div className="bg-gray-200 rounded-lg h-40"></div>
-              <div className="bg-gray-200 rounded-lg h-28"></div>
-              <div className="bg-gray-200 rounded-lg h-36"></div>
-              <div className="bg-gray-200 rounded-lg h-32"></div>
-              <div className="bg-gray-200 rounded-lg h-44"></div>
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#C0C0C0]">
+          {selectedOption === 'library' ? (
+            isLibraryEmpty ? (
+              /* Library empty state */
+              <div className="flex flex-col items-center justify-center h-full">
+                <svg width="736" height="215" viewBox="0 0 736 215" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6" style={{ maxWidth: '700px', height: 'auto' }}>
+                  <g clipPath="url(#clip0_2195_13277)">
+                    <rect opacity="0.5" x="351.037" y="202.092" width="33.9253" height="33.9056" rx="16.9528" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="328.037" y="179.108" width="79.9253" height="79.8793" rx="39.9397" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="305.037" y="156.123" width="125.925" height="125.853" rx="62.9265" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="282.037" y="133.135" width="171.925" height="171.827" rx="85.9134" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="259.037" y="110.147" width="217.925" height="217.8" rx="108.9" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="236.037" y="87.1584" width="263.925" height="263.774" rx="131.887" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="213.037" y="64.1741" width="309.925" height="309.748" rx="154.874" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                    <rect opacity="0.5" x="190.037" y="41.1858" width="355.925" height="355.722" rx="177.861" stroke="#C7D2FE" strokeWidth="0.574672"/>
+                  </g>
+                  <g filter="url(#filter0_ddd_2195_13277)">
+                    <rect x="242.363" y="86.4297" width="32.1816" height="32.1816" rx="6.89606" fill="url(#paint0_linear_2195_13277)"/>
+                    <g clipPath="url(#clip1_2195_13277)">
+                      <path d="M256.037 98.0469H253.579V98.6614H256.037V98.0469Z" fill="#878787"/>
+                      <path d="M256.037 99.2773H253.579V99.8919H256.037V99.2773Z" fill="#878787"/>
+                      <path d="M262.489 99.2773H256.651V99.8919H262.489V99.2773Z" fill="#878787"/>
+                      <path d="M262.489 102.965H256.651V103.579H262.489V102.965Z" fill="#878787"/>
+                      <path d="M262.489 100.508H256.651V101.122H262.489V100.508Z" fill="#878787"/>
+                      <path d="M256.037 100.508H253.579V101.122H256.037V100.508Z" fill="#878787"/>
+                      <path d="M262.489 101.734H256.651V102.349H262.489V101.734Z" fill="#878787"/>
+                      <path d="M251.12 106.035V110.644C251.12 110.954 251.495 111.259 251.877 111.259H264.19C264.572 111.259 264.947 110.954 264.947 110.644V106.035H251.12ZM256.477 110.029H255.894L255.402 108.862H255.36L254.831 110.029H254.247L255.032 108.525L254.196 106.933H254.772L255.318 108.194H255.36L255.952 106.933H256.528L255.692 108.525L256.477 110.029ZM259.162 110.029H257.225V106.934H257.737V109.647H259.162V110.029ZM261.356 109.507C261.31 109.612 261.245 109.704 261.161 109.784C261.077 109.863 260.973 109.927 260.85 109.975C260.727 110.022 260.587 110.046 260.43 110.046C260.363 110.046 260.294 110.042 260.222 110.036C260.15 110.029 260.078 110.017 260.006 110C259.933 109.983 259.863 109.96 259.798 109.931C259.732 109.901 259.675 109.865 259.627 109.823L259.716 109.462C259.755 109.484 259.804 109.506 259.865 109.527C259.925 109.548 259.987 109.568 260.051 109.586C260.116 109.604 260.18 109.619 260.245 109.63C260.309 109.641 260.369 109.647 260.425 109.647C260.596 109.647 260.727 109.607 260.818 109.527C260.909 109.447 260.954 109.329 260.954 109.172C260.954 109.077 260.922 108.996 260.858 108.929C260.793 108.861 260.713 108.8 260.616 108.746C260.52 108.691 260.416 108.637 260.303 108.582C260.191 108.527 260.086 108.463 259.988 108.389C259.89 108.315 259.809 108.227 259.745 108.126C259.68 108.026 259.648 107.9 259.648 107.748C259.648 107.611 259.673 107.489 259.724 107.383C259.774 107.277 259.842 107.186 259.928 107.112C260.013 107.038 260.113 106.981 260.226 106.942C260.339 106.903 260.459 106.883 260.585 106.883C260.714 106.883 260.844 106.895 260.976 106.919C261.107 106.942 261.213 106.981 261.295 107.034C261.278 107.071 261.258 107.111 261.236 107.154C261.214 107.198 261.193 107.238 261.173 107.276C261.154 107.314 261.137 107.345 261.123 107.37C261.109 107.396 261.1 107.41 261.098 107.413C261.081 107.404 261.062 107.393 261.041 107.379C261.02 107.365 260.989 107.351 260.95 107.337C260.911 107.323 260.86 107.313 260.795 107.308C260.73 107.302 260.648 107.303 260.547 107.312C260.491 107.318 260.438 107.333 260.387 107.36C260.337 107.387 260.292 107.419 260.253 107.459C260.213 107.498 260.183 107.542 260.16 107.591C260.138 107.64 260.127 107.687 260.127 107.732C260.127 107.844 260.159 107.934 260.223 108.003C260.287 108.072 260.367 108.132 260.463 108.183C260.558 108.235 260.661 108.286 260.773 108.335C260.885 108.384 260.99 108.443 261.087 108.513C261.183 108.583 261.264 108.671 261.328 108.776C261.392 108.881 261.425 109.016 261.425 109.181C261.426 109.293 261.403 109.401 261.356 109.507Z" fill="#878787"/>
+                      <path d="M264.947 105.424V97.7362C264.947 97.5009 264.918 97.3267 264.778 97.1856L261.202 93.6104C261.095 93.5032 260.946 93.4414 260.794 93.4414H251.877C251.512 93.4414 251.12 93.7229 251.12 94.3404V105.424H264.947ZM260.645 94.4833C260.645 94.3426 260.815 94.2722 260.915 94.3718L264.016 97.4735C264.116 97.5731 264.045 97.743 263.905 97.743H260.645V94.4833ZM252.964 102.966V102.352V101.737V101.123V100.508V99.8938V99.2793V98.6648V97.4357H256.651V98.6648H263.103V99.8938V100.508V101.123V101.737V102.352V102.966V104.195H256.651H256.036H252.964V102.966Z" fill="#878787"/>
+                      <path d="M256.037 101.734H253.579V102.349H256.037V101.734Z" fill="#878787"/>
+                      <path d="M256.037 102.965H253.579V103.579H256.037V102.965Z" fill="#878787"/>
+                    </g>
+                  </g>
+                  <g filter="url(#filter1_ddd_2195_13277)">
+                    <rect x="460.668" y="86.4297" width="32.1816" height="32.1816" rx="6.89606" fill="url(#paint1_linear_2195_13277)"/>
+                    <g clipPath="url(#clip2_2195_13277)">
+                      <path d="M476.635 103.578C477.143 103.578 477.556 103.164 477.556 102.656V101.734H475.713V102.656C475.713 103.164 476.126 103.578 476.635 103.578ZM476.327 102.349H476.942C477.112 102.349 477.249 102.486 477.249 102.656C477.249 102.826 477.112 102.963 476.942 102.963H476.327C476.158 102.963 476.02 102.826 476.02 102.656C476.02 102.486 476.158 102.349 476.327 102.349Z" fill="#878787"/>
+                      <path d="M483.701 105.424V97.7362C483.701 97.5009 483.672 97.3267 483.532 97.1856L479.956 93.6104C479.849 93.5032 479.7 93.4414 479.548 93.4414H470.631C470.266 93.4414 469.874 93.7229 469.874 94.3404V105.424H483.701ZM479.399 94.4833C479.399 94.3426 479.569 94.2722 479.668 94.3718L482.77 97.4735C482.87 97.5731 482.799 97.743 482.659 97.743H479.399V94.4833ZM475.097 101.123H476.326V100.508H475.712V99.8938H476.326V99.2793H475.712V98.6648H476.326V98.0502H475.712V97.4357H476.326V96.8212H475.712V96.2067H476.326V95.5922H476.941V96.2067H477.555V96.8212H476.941V97.4357H477.555V98.0502H476.941V98.6648H477.555V99.2793H476.941V99.8938H477.555V100.508H476.941V101.123H478.17V102.659C478.17 103.506 477.481 104.195 476.634 104.195C475.787 104.195 475.097 103.506 475.097 102.659V101.123Z" fill="#878787"/>
+                      <path d="M479.322 107.528C479.278 107.468 479.217 107.418 479.139 107.377C479.061 107.337 478.957 107.316 478.828 107.316H478.45V108.543H478.912C478.974 108.543 479.035 108.533 479.095 108.511C479.155 108.49 479.211 108.456 479.261 108.408C479.311 108.361 479.352 108.294 479.383 108.209C479.413 108.124 479.429 108.018 479.429 107.892C479.429 107.842 479.422 107.783 479.408 107.718C479.394 107.652 479.365 107.589 479.322 107.528Z" fill="#878787"/>
+                      <path d="M469.874 106.035V110.644C469.874 110.954 470.249 111.259 470.631 111.259H482.944C483.326 111.259 483.701 110.954 483.701 110.644V106.035H469.874ZM475.947 107.341L474.473 109.555L474.389 109.622H475.947V110.029H473.889V109.622L475.363 107.408L475.452 107.341H473.889V106.934H475.947V107.341ZM477.178 110.029H476.665V106.934H477.178V110.029ZM479.837 108.318C479.784 108.445 479.71 108.553 479.614 108.639C479.519 108.726 479.404 108.793 479.27 108.841C479.136 108.888 478.987 108.912 478.825 108.912H478.451V110.029H477.947V106.934H478.837C478.968 106.934 479.099 106.954 479.227 106.997C479.356 107.039 479.472 107.102 479.574 107.186C479.676 107.269 479.759 107.371 479.822 107.49C479.885 107.609 479.917 107.743 479.917 107.891C479.917 108.048 479.89 108.19 479.837 108.318Z" fill="#878787"/>
+                    </g>
+                  </g>
+                  <g filter="url(#filter2_ddd_2195_13277)">
+                    <rect x="351.809" y="124.359" width="32.1816" height="32.1816" rx="6.89606" fill="url(#paint2_linear_2195_13277)"/>
+                    <g clipPath="url(#clip3_2195_13277)">
+                      <path d="M361.6 148.195C361.855 148.996 362.597 149.576 363.47 149.576H372.769C373.642 149.576 374.384 148.996 374.64 148.195H361.6Z" fill="#878787"/>
+                      <path d="M374.156 134.619L371.868 132.332C371.774 132.238 371.672 132.154 371.563 132.082V134.912C371.563 134.976 371.616 135.028 371.68 135.028H374.47C374.385 134.88 374.28 134.743 374.156 134.619Z" fill="#878787"/>
+                      <path d="M374.744 136.071H371.693C371.052 136.071 370.531 135.55 370.531 134.91V131.755C370.518 131.754 370.504 131.754 370.49 131.754H363.479C362.395 131.754 361.513 132.636 361.513 133.72V139.084H374.744L374.744 136.071Z" fill="#878787"/>
+                      <path d="M368.131 142.395C367.812 142.395 367.653 142.573 367.653 142.931V144.353C367.653 144.711 367.812 144.89 368.131 144.89C368.453 144.89 368.614 144.711 368.614 144.353V142.931C368.614 142.573 368.453 142.395 368.131 142.395Z" fill="#878787"/>
+                      <path d="M374.798 140.129H361.432C360.704 140.129 360.112 140.721 360.112 141.448V145.831C360.112 146.558 360.704 147.15 361.432 147.15H374.798C375.526 147.15 376.118 146.558 376.118 145.831V141.448C376.118 140.721 375.526 140.129 374.798 140.129ZM366.323 144.319C366.323 144.756 366.203 145.076 365.964 145.28C365.724 145.484 365.404 145.586 365.003 145.586H364.053C363.946 145.586 363.858 145.561 363.79 145.511C363.722 145.461 363.688 145.402 363.688 145.334V141.916C363.688 141.848 363.722 141.789 363.79 141.738C363.858 141.688 363.946 141.663 364.053 141.663H365.003C365.404 141.663 365.724 141.765 365.964 141.969C366.203 142.173 366.323 142.493 366.323 142.93V144.319ZM369.446 144.352C369.446 144.788 369.326 145.108 369.087 145.312C368.847 145.516 368.527 145.618 368.126 145.618C367.729 145.618 367.411 145.516 367.171 145.312C366.931 145.108 366.811 144.788 366.811 144.352V142.93C366.811 142.493 366.931 142.173 367.171 141.969C367.411 141.765 367.729 141.663 368.126 141.663C368.527 141.663 368.847 141.765 369.087 141.969C369.326 142.173 369.446 142.493 369.446 142.93V144.352ZM371.265 144.888C371.365 144.888 371.448 144.872 371.515 144.84C371.581 144.808 371.628 144.759 371.657 144.692C371.685 144.626 371.704 144.572 371.713 144.529C371.722 144.486 371.73 144.427 371.737 144.352C371.751 144.184 371.889 144.099 372.15 144.099C372.304 144.099 372.413 144.127 372.478 144.183C372.542 144.238 372.574 144.343 372.574 144.497C372.574 144.844 372.448 145.117 372.196 145.318C371.944 145.518 371.621 145.618 371.227 145.618C370.845 145.618 370.534 145.516 370.296 145.312C370.058 145.108 369.94 144.788 369.94 144.352V142.93C369.94 142.493 370.058 142.173 370.296 141.969C370.534 141.765 370.845 141.663 371.227 141.663C371.621 141.663 371.944 141.758 372.196 141.948C372.448 142.137 372.574 142.398 372.574 142.731C372.574 142.885 372.542 142.99 372.478 143.045C372.413 143.101 372.306 143.128 372.156 143.128C371.887 143.128 371.748 143.044 371.737 142.876C371.726 142.554 371.567 142.393 371.26 142.393C370.938 142.393 370.777 142.572 370.777 142.93V144.352C370.777 144.709 370.939 144.888 371.265 144.888Z" fill="#878787"/>
+                      <path d="M365.011 142.395H364.533V144.857H365.011C365.333 144.857 365.494 144.679 365.494 144.321V142.931C365.494 142.573 365.333 142.395 365.011 142.395Z" fill="#878787"/>
+                    </g>
+                  </g>
+                  <g filter="url(#filter3_ddd_2195_13277)">
+                    <rect x="281.416" y="162.285" width="32.1816" height="32.1816" rx="6.89606" fill="url(#paint3_linear_2195_13277)"/>
+                    <g clipPath="url(#clip4_2195_13277)">
+                      <path d="M300.942 176.942C300.987 176.878 301.005 176.837 301.012 176.814C300.974 176.794 300.924 176.754 300.651 176.754C300.496 176.754 300.301 176.761 300.095 176.787C300.345 176.98 300.406 177.077 300.57 177.077C300.642 177.077 300.847 177.074 300.942 176.942Z" fill="#878787"/>
+                      <path d="M295.092 179.204C295.138 179.19 295.406 179.068 295.904 178.148C295.247 178.517 294.979 178.821 294.96 178.992C294.957 179.02 294.949 179.094 295.092 179.204Z" fill="#878787"/>
+                      <path d="M304.607 181.163V173.475C304.607 173.239 304.579 173.065 304.438 172.924L300.862 169.349C300.755 169.241 300.606 169.18 300.454 169.18H291.537C291.173 169.18 290.78 169.461 290.78 170.079V181.163H304.607ZM300.305 170.222C300.305 170.081 300.475 170.011 300.575 170.11L303.676 173.212C303.776 173.311 303.706 173.481 303.565 173.481H300.305V170.222ZM294.446 178.937C294.502 178.436 295.121 177.913 296.285 177.379C296.747 176.367 297.187 175.119 297.449 174.076C297.143 173.409 296.845 172.543 297.062 172.035C297.138 171.857 297.233 171.721 297.41 171.662C297.48 171.639 297.657 171.609 297.722 171.609C297.877 171.609 298.013 171.809 298.11 171.931C298.2 172.047 298.406 172.292 297.995 174.021C298.409 174.877 298.996 175.748 299.559 176.345C299.961 176.272 300.308 176.235 300.59 176.235C301.071 176.235 301.363 176.347 301.482 176.578C301.58 176.769 301.54 176.993 301.362 177.242C301.191 177.481 300.955 177.608 300.68 177.608C300.306 177.608 299.871 177.372 299.386 176.906C298.515 177.088 297.496 177.413 296.674 177.773C296.417 178.318 296.171 178.757 295.942 179.079C295.627 179.521 295.356 179.726 295.087 179.726C294.98 179.726 294.877 179.692 294.79 179.626C294.469 179.385 294.426 179.118 294.446 178.937Z" fill="#878787"/>
+                      <path d="M295.303 183.267C295.26 183.206 295.199 183.156 295.121 183.116C295.042 183.075 294.938 183.055 294.81 183.055H294.432V184.281H294.894C294.955 184.281 295.016 184.271 295.077 184.25C295.137 184.229 295.192 184.194 295.242 184.147C295.293 184.099 295.333 184.033 295.364 183.947C295.395 183.862 295.41 183.756 295.41 183.63C295.41 183.58 295.403 183.521 295.389 183.456C295.375 183.39 295.347 183.327 295.303 183.267Z" fill="#878787"/>
+                      <path d="M297.799 174.762C297.579 175.522 297.289 176.343 296.978 177.086C297.62 176.837 298.318 176.619 298.973 176.465C298.559 175.983 298.144 175.382 297.799 174.762Z" fill="#878787"/>
+                      <path d="M290.78 181.773V186.382C290.78 186.692 291.155 186.997 291.537 186.997H303.85C304.232 186.997 304.607 186.692 304.607 186.382V181.773H290.78ZM295.818 184.056C295.765 184.184 295.691 184.291 295.595 184.377C295.5 184.464 295.385 184.531 295.251 184.579C295.117 184.627 294.968 184.65 294.806 184.65H294.432V185.768H293.927V182.672H294.818C294.949 182.672 295.08 182.693 295.208 182.735C295.337 182.777 295.453 182.84 295.555 182.924C295.657 183.008 295.74 183.109 295.803 183.228C295.866 183.347 295.898 183.481 295.898 183.63C295.898 183.787 295.871 183.929 295.818 184.056ZM298.908 184.787C298.853 184.968 298.784 185.119 298.7 185.241C298.616 185.363 298.521 185.459 298.416 185.529C298.311 185.599 298.21 185.651 298.112 185.686C298.014 185.721 297.924 185.744 297.843 185.754C297.762 185.763 297.702 185.768 297.662 185.768H296.49V182.672H297.423C297.683 182.672 297.912 182.713 298.11 182.796C298.307 182.878 298.471 182.988 298.601 183.125C298.731 183.262 298.829 183.419 298.893 183.594C298.957 183.768 298.99 183.948 298.99 184.133C298.99 184.388 298.962 184.606 298.908 184.787ZM301.657 183.054H300.233V184.029H301.527V184.373H300.233V185.768H299.72V182.672H301.657V183.054Z" fill="#878787"/>
+                      <path d="M298.236 183.397C298.148 183.295 298.028 183.212 297.877 183.149C297.726 183.086 297.53 183.055 297.289 183.055H296.995V185.399H297.495C297.837 185.399 298.083 185.29 298.234 185.071C298.385 184.853 298.461 184.536 298.461 184.122C298.461 183.993 298.446 183.866 298.415 183.74C298.384 183.614 298.325 183.5 298.236 183.397Z" fill="#878787"/>
+                      <path d="M297.612 172.16C297.582 172.17 297.204 172.7 297.642 173.148C297.933 172.498 297.625 172.156 297.612 172.16Z" fill="#878787"/>
+                    </g>
+                  </g>
+                  <g filter="url(#filter4_ddd_2195_13277)">
+                    <rect x="422.2" y="162.285" width="32.1816" height="32.1816" rx="6.89606" fill="url(#paint4_linear_2195_13277)"/>
+                    <g clipPath="url(#clip5_2195_13277)">
+                      <path d="M444.815 172.924L441.239 169.349C441.132 169.241 440.983 169.18 440.831 169.18H431.914C431.55 169.18 431.157 169.461 431.157 170.079V181.163H431.352L436.494 176.786C436.616 176.682 436.797 176.689 436.91 176.803L438.368 178.26L441.377 174.964C441.433 174.903 441.511 174.867 441.593 174.864C441.68 174.861 441.756 174.892 441.816 174.948L444.888 177.867L444.984 177.959V173.475C444.984 173.239 444.955 173.065 444.815 172.924ZM434.23 176.443C433.286 176.443 432.519 175.675 432.519 174.731C432.519 173.788 433.286 173.02 434.23 173.02C435.173 173.02 435.941 173.788 435.941 174.731C435.941 175.675 435.173 176.443 434.23 176.443ZM443.942 173.481H440.682V170.222C440.682 170.081 440.852 170.011 440.952 170.11L444.053 173.212C444.153 173.311 444.083 173.481 443.942 173.481Z" fill="#878787"/>
+                      <path d="M438.803 178.695L440.28 180.172C440.4 180.292 440.4 180.486 440.28 180.606C440.16 180.726 439.966 180.726 439.845 180.606L436.676 177.437L432.3 181.162H444.984V178.816L441.62 175.609L438.803 178.695Z" fill="#878787"/>
+                      <path d="M435.557 184.249C435.617 184.228 435.673 184.194 435.723 184.146C435.773 184.099 435.814 184.032 435.845 183.947C435.875 183.862 435.891 183.756 435.891 183.63C435.891 183.579 435.884 183.521 435.87 183.456C435.856 183.39 435.827 183.327 435.784 183.267C435.74 183.206 435.679 183.156 435.601 183.116C435.523 183.075 435.419 183.055 435.29 183.055H434.912V184.281H435.374C435.436 184.281 435.497 184.27 435.557 184.249Z" fill="#878787"/>
+                      <path d="M434.228 173.633C433.624 173.633 433.132 174.125 433.132 174.729C433.132 175.334 433.624 175.826 434.228 175.826C434.833 175.826 435.325 175.334 435.325 174.729C435.325 174.125 434.833 173.633 434.228 173.633Z" fill="#878787"/>
+                      <path d="M431.572 181.773H431.157V182.105V182.388V186.382C431.157 186.692 431.532 186.997 431.914 186.997H444.227C444.609 186.997 444.984 186.692 444.984 186.382V181.773H431.772H431.572ZM440.007 183.518C440.073 183.321 440.164 183.156 440.28 183.025C440.396 182.893 440.533 182.793 440.69 182.724C440.846 182.656 441.016 182.621 441.198 182.621C441.366 182.621 441.522 182.649 441.668 182.705C441.814 182.762 441.944 182.845 442.059 182.957L441.71 183.268C441.643 183.187 441.566 183.128 441.479 183.092C441.392 183.056 441.302 183.037 441.21 183.037C441.106 183.037 441.008 183.057 440.914 183.096C440.82 183.135 440.736 183.202 440.662 183.295C440.588 183.389 440.529 183.51 440.488 183.659C440.446 183.807 440.423 183.989 440.42 184.205C440.423 184.415 440.445 184.597 440.486 184.751C440.526 184.905 440.582 185.031 440.654 185.129C440.725 185.227 440.806 185.3 440.897 185.347C440.988 185.395 441.084 185.418 441.185 185.418C441.216 185.418 441.257 185.416 441.309 185.412C441.361 185.408 441.412 185.401 441.464 185.391C441.516 185.381 441.566 185.368 441.613 185.351C441.661 185.334 441.696 185.311 441.719 185.28V184.515H441.193V184.171H442.218V185.368C442.154 185.449 442.082 185.516 442.002 185.567C441.922 185.619 441.838 185.662 441.75 185.696C441.662 185.729 441.571 185.754 441.477 185.768C441.383 185.782 441.29 185.789 441.198 185.789C441.013 185.789 440.843 185.755 440.687 185.688C440.532 185.621 440.396 185.521 440.28 185.39C440.164 185.258 440.073 185.093 440.007 184.894C439.941 184.695 439.908 184.465 439.908 184.205C439.908 183.945 439.941 183.716 440.007 183.518ZM436.955 182.672H437.467L438.681 184.806V182.672H439.194V185.768H438.681L437.467 183.634V185.768H436.955V182.672ZM434.409 182.672H435.3C435.431 182.672 435.561 182.693 435.69 182.735C435.819 182.777 435.934 182.84 436.037 182.924C436.139 183.008 436.222 183.109 436.285 183.228C436.348 183.347 436.379 183.481 436.379 183.63C436.379 183.787 436.353 183.929 436.299 184.056C436.246 184.184 436.172 184.291 436.077 184.377C435.981 184.464 435.867 184.531 435.732 184.579C435.598 184.627 435.449 184.65 435.287 184.65H434.913V185.768H434.409L434.409 182.672Z" fill="#878787"/>
+                    </g>
+                  </g>
+                  <mask id="mask0_2195_13277" style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="0" y="213" width="736" height="2">
+                    <rect y="213.879" width="735.579" height="0.574672" fill="url(#paint5_linear_2195_13277)"/>
+                  </mask>
+                  <g mask="url(#mask0_2195_13277)">
+                  </g>
+                  <rect width="735.579" height="0.574672" transform="translate(0 213.879)" fill="#E6E6E6"/>
+                  <defs>
+                    <filter id="filter0_ddd_2195_13277" x="240.639" y="85.2803" width="35.6297" height="35.6277" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                      <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="erode" in="SourceAlpha" result="effect1_dropShadow_2195_13277"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.574672"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.862007"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="effect1_dropShadow_2195_13277" result="effect2_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="dilate" in="SourceAlpha" result="effect3_dropShadow_2195_13277"/>
+                      <feOffset/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+                      <feBlend mode="normal" in2="effect2_dropShadow_2195_13277" result="effect3_dropShadow_2195_13277"/>
+                      <feBlend mode="normal" in="SourceGraphic" in2="effect3_dropShadow_2195_13277" result="shape"/>
+                    </filter>
+                    <filter id="filter1_ddd_2195_13277" x="458.944" y="85.2803" width="35.6297" height="35.6277" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                      <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="erode" in="SourceAlpha" result="effect1_dropShadow_2195_13277"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.574672"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.862007"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="effect1_dropShadow_2195_13277" result="effect2_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="dilate" in="SourceAlpha" result="effect3_dropShadow_2195_13277"/>
+                      <feOffset/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+                      <feBlend mode="normal" in2="effect2_dropShadow_2195_13277" result="effect3_dropShadow_2195_13277"/>
+                      <feBlend mode="normal" in="SourceGraphic" in2="effect3_dropShadow_2195_13277" result="shape"/>
+                    </filter>
+                    <filter id="filter2_ddd_2195_13277" x="350.085" y="123.21" width="35.6297" height="35.6277" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                      <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="erode" in="SourceAlpha" result="effect1_dropShadow_2195_13277"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.574672"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.862007"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="effect1_dropShadow_2195_13277" result="effect2_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="dilate" in="SourceAlpha" result="effect3_dropShadow_2195_13277"/>
+                      <feOffset/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+                      <feBlend mode="normal" in2="effect2_dropShadow_2195_13277" result="effect3_dropShadow_2195_13277"/>
+                      <feBlend mode="normal" in="SourceGraphic" in2="effect3_dropShadow_2195_13277" result="shape"/>
+                    </filter>
+                    <filter id="filter3_ddd_2195_13277" x="279.692" y="161.136" width="35.6297" height="35.6277" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                      <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="erode" in="SourceAlpha" result="effect1_dropShadow_2195_13277"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.574672"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.862007"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="effect1_dropShadow_2195_13277" result="effect2_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="dilate" in="SourceAlpha" result="effect3_dropShadow_2195_13277"/>
+                      <feOffset/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+                      <feBlend mode="normal" in2="effect2_dropShadow_2195_13277" result="effect3_dropShadow_2195_13277"/>
+                      <feBlend mode="normal" in="SourceGraphic" in2="effect3_dropShadow_2195_13277" result="shape"/>
+                    </filter>
+                    <filter id="filter4_ddd_2195_13277" x="420.476" y="161.136" width="35.6297" height="35.6277" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                      <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="erode" in="SourceAlpha" result="effect1_dropShadow_2195_13277"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.574672"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feOffset dy="0.574672"/>
+                      <feGaussianBlur stdDeviation="0.862007"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                      <feBlend mode="normal" in2="effect1_dropShadow_2195_13277" result="effect2_dropShadow_2195_13277"/>
+                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                      <feMorphology radius="0.574672" operator="dilate" in="SourceAlpha" result="effect3_dropShadow_2195_13277"/>
+                      <feOffset/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+                      <feBlend mode="normal" in2="effect2_dropShadow_2195_13277" result="effect3_dropShadow_2195_13277"/>
+                      <feBlend mode="normal" in="SourceGraphic" in2="effect3_dropShadow_2195_13277" result="shape"/>
+                    </filter>
+                    <linearGradient id="paint0_linear_2195_13277" x1="258.454" y1="86.4297" x2="258.454" y2="118.611" gradientUnits="userSpaceOnUse">
+                      <stop offset="0.25" stopColor="white"/>
+                      <stop offset="1" stopColor="#F9FAFB"/>
+                    </linearGradient>
+                    <linearGradient id="paint1_linear_2195_13277" x1="476.759" y1="86.4297" x2="476.759" y2="118.611" gradientUnits="userSpaceOnUse">
+                      <stop offset="0.25" stopColor="white"/>
+                      <stop offset="1" stopColor="#F9FAFB"/>
+                    </linearGradient>
+                    <linearGradient id="paint2_linear_2195_13277" x1="367.899" y1="124.359" x2="367.899" y2="156.541" gradientUnits="userSpaceOnUse">
+                      <stop offset="0.25" stopColor="white"/>
+                      <stop offset="1" stopColor="#F9FAFB"/>
+                    </linearGradient>
+                    <linearGradient id="paint3_linear_2195_13277" x1="297.507" y1="162.285" x2="297.507" y2="194.467" gradientUnits="userSpaceOnUse">
+                      <stop offset="0.25" stopColor="white"/>
+                      <stop offset="1" stopColor="#F9FAFB"/>
+                    </linearGradient>
+                    <linearGradient id="paint4_linear_2195_13277" x1="438.291" y1="162.285" x2="438.291" y2="194.467" gradientUnits="userSpaceOnUse">
+                      <stop offset="0.25" stopColor="white"/>
+                      <stop offset="1" stopColor="#F9FAFB"/>
+                    </linearGradient>
+                    <linearGradient id="paint5_linear_2195_13277" x1="0" y1="214.166" x2="735.579" y2="214.166" gradientUnits="userSpaceOnUse">
+                      <stop stopOpacity="0"/>
+                      <stop offset="0.5"/>
+                      <stop offset="1" stopOpacity="0"/>
+                    </linearGradient>
+                    <clipPath id="clip0_2195_13277">
+                      <rect width="736" height="214.741" fill="white"/>
+                    </clipPath>
+                    <clipPath id="clip1_2195_13277">
+                      <rect width="17.8208" height="17.8208" fill="white" transform="translate(249.126 93.4414)"/>
+                    </clipPath>
+                    <clipPath id="clip2_2195_13277">
+                      <rect width="17.8208" height="17.8208" fill="white" transform="translate(467.88 93.4414)"/>
+                    </clipPath>
+                    <clipPath id="clip3_2195_13277">
+                      <rect width="17.8208" height="17.8208" fill="white" transform="translate(359.211 131.754)"/>
+                    </clipPath>
+                    <clipPath id="clip4_2195_13277">
+                      <rect width="17.8208" height="17.8208" fill="white" transform="translate(288.784 169.18)"/>
+                    </clipPath>
+                    <clipPath id="clip5_2195_13277">
+                      <rect width="17.8208" height="17.8208" fill="white" transform="translate(429.161 169.18)"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+                
+                <h3 className="font-semibold mb-2" style={{ color: '#171718', fontSize: '14px' }}>{t('panels.media.noFilesYet', 'No files yet')}</h3>
+                <p className="mb-3 text-center" style={{ color: '#878787', fontSize: '12px' }}>
+                  {t('panels.media.dragAndDrop', 'Drag and drop files here or click "Upload" to add them.')}
+                </p>
+                
+                <button className="flex items-center gap-2 px-4 py-2 rounded-md hover:opacity-90 transition-opacity cursor-pointer" style={{ backgroundColor: '#0F58F9' }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.1378 7.57364V9.94975C11.1378 10.2648 11.0126 10.567 10.7898 10.7898C10.567 11.0126 10.2648 11.1378 9.94975 11.1378H1.63337C1.31828 11.1378 1.01609 11.0126 0.793286 10.7898C0.570482 10.567 0.445313 10.2648 0.445312 9.94975V7.57364M8.7617 3.41545L5.79156 0.445312M5.79156 0.445312L2.82142 3.41545M5.79156 0.445312V7.57364" stroke="white" strokeWidth="0.891041" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span style={{ color: 'white', fontSize: '12px', fontWeight: 600 }}>{t('panels.media.uploadFiles', 'Upload files')}</span>
+                </button>
+              </div>
+            ) : (
+            /* Library view - Simple grid of 18 rectangles */
+            <div className="grid grid-cols-3 gap-3 pb-4">
+              {Array.from({ length: 18 }).map((_, index) => (
+                <div key={index} className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+              ))}
             </div>
-            
-            {/* Column 2 */}
-            <div className="space-y-4">
-              <div className="bg-gray-200 rounded-lg h-36"></div>
-              <div className="bg-gray-200 rounded-lg h-32"></div>
-              <div className="bg-gray-200 rounded-lg h-20"></div>
-              <div className="bg-gray-200 rounded-lg h-44"></div>
-              <div className="bg-gray-200 rounded-lg h-28"></div>
-              <div className="bg-gray-200 rounded-lg h-40"></div>
-              <div className="bg-gray-200 rounded-lg h-32"></div>
+            )
+          ) : selectedOption === 'image' ? (
+            /* Image view - Categorized groups */
+            <div className="flex flex-col gap-6 pb-4 pt-1">
+              {/* Locations Group */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-4">{t('panels.media.locations', 'Locations')}</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {/* First 2 rectangles */}
+                  <div className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+                  <div className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+                  
+                  {/* Last rectangle - clickable with "+ 6" or more rectangles when expanded */}
+                  {!isLocationsExpanded ? (
+                    <div 
+                      onClick={() => setIsLocationsExpanded(true)}
+                      className="bg-gray-200 rounded-md w-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '16/9' }}
+                    >
+                      <span className="text-base font-semibold text-[#171718]">+ 6</span>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+                  )}
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isLocationsExpanded && (
+                  <div className="grid grid-cols-3 gap-3 mt-3">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <div key={index} className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* All Images Group */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-4">{t('panels.media.allImages', 'All images')}</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {/* 4 rows of 3 rectangles = 12 rectangles */}
+                  {Array.from({ length: 12 }).map((_, index) => (
+                    <div key={index} className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}></div>
+                  ))}
+                </div>
+              </div>
             </div>
-            
-            {/* Column 3 */}
-            <div className="space-y-4">
-              <div className="bg-gray-200 rounded-lg h-28"></div>
-              <div className="bg-gray-200 rounded-lg h-36"></div>
-              <div className="bg-gray-200 rounded-lg h-24"></div>
-              <div className="bg-gray-200 rounded-lg h-32"></div>
-              <div className="bg-gray-200 rounded-lg h-40"></div>
-              <div className="bg-gray-200 rounded-lg h-28"></div>
-              <div className="bg-gray-200 rounded-lg h-36"></div>
+          ) : selectedOption === 'video' ? (
+            /* Video view - Grid with time overlays */
+            <div className="grid grid-cols-3 gap-3 pb-4">
+              {Array.from({ length: 18 }).map((_, index) => {
+                // Generate random time between 00:05 and 01:30
+                const minutes = Math.floor(Math.random() * 2);
+                const seconds = Math.floor(Math.random() * 60);
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                return (
+                  <div key={index} className="bg-gray-200 rounded-md w-full relative cursor-pointer hover:bg-gray-300 transition-colors" style={{ aspectRatio: '16/9' }}>
+                    {/* Time overlay in top-left corner */}
+                    <div 
+                      className="absolute top-3 left-3 px-1 py-0.5 rounded-xs text-white"
+                      style={{ backgroundColor: '#00000080', fontSize: '10px' }}
+                    >
+                      {timeString}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+          ) : selectedOption === 'music' ? (
+            /* Music view - 6 rows of horizontal divs */
+            <div className="flex flex-col gap-3 pb-4">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div 
+                  key={index} 
+                  onClick={() => setSelectedMusicIndex(index)}
+                  className="flex items-center gap-4 px-2 py-2 border rounded-md w-full cursor-pointer transition-colors"
+                  style={{ 
+                    borderColor: '#E0E0E0',
+                    backgroundColor: selectedMusicIndex === index ? '#E0E0E0' : 'white'
+                  }}
+                >
+                  {/* Play icon SVG */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24.002 43.9961C35.0476 43.9961 44.002 35.0418 44.002 23.9961C44.002 12.9504 35.0476 3.99609 24.002 3.99609C12.9563 3.99609 4.00195 12.9504 4.00195 23.9961C4.00195 35.0418 12.9563 43.9961 24.002 43.9961Z" stroke="#4D4D4D" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M20.002 15.9961L32.002 23.9961L20.002 31.9961V15.9961Z" stroke="#4D4D4D" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  
+                  {/* Text content */}
+                  <div className="flex flex-col gap-3.5">
+                    <span style={{ color: '#171718', fontSize: '14px', lineHeight: '1' }}>Epic New World</span>
+                    <span style={{ color: '#878787', fontSize: '10px', lineHeight: '1' }}>2:14</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : selectedOption === 'icon' ? (
+            /* Icon view - Three categories with placeholders */
+            <div className="flex flex-col gap-4 pb-4">
+              {/* Outlined Category */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">{t('panels.media.outlined', 'Outlined')}</h3>
+                <div className="grid grid-cols-7 gap-3">
+                  {/* First 6 squares */}
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  ))}
+                  
+                  {/* 7th square - See more button when collapsed, placeholder when expanded */}
+                  {!isOutlinedExpanded ? (
+                    <div 
+                      onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeMore', 'See more')}</span>
+                    </div>
+                  ) : (
+                    <div 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  )}
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isOutlinedExpanded && (
+                  <div className="grid grid-cols-7 gap-3 mt-3">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                        style={{ aspectRatio: '1/1' }}
+                      ></div>
+                    ))}
+                    
+                    {/* See less button at the end */}
+                    <div 
+                      onClick={() => setIsOutlinedExpanded(!isOutlinedExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeLess', 'See less')}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Filled Category */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">{t('panels.media.filled', 'Filled')}</h3>
+                <div className="grid grid-cols-7 gap-3">
+                  {/* First 6 squares */}
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  ))}
+                  
+                  {/* 7th square - See more button when collapsed, placeholder when expanded */}
+                  {!isFilledExpanded ? (
+                    <div 
+                      onClick={() => setIsFilledExpanded(!isFilledExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeMore', 'See more')}</span>
+                    </div>
+                  ) : (
+                    <div 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  )}
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isFilledExpanded && (
+                  <div className="grid grid-cols-7 gap-3 mt-3">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                        style={{ aspectRatio: '1/1' }}
+                      ></div>
+                    ))}
+                    
+                    {/* See less button at the end */}
+                    <div 
+                      onClick={() => setIsFilledExpanded(!isFilledExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeLess', 'See less')}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Colored Category */}
+              <div>
+                <h3 className="text-xs font-medium text-[#171718] mb-2">{t('panels.media.colored', 'Colored')}</h3>
+                <div className="grid grid-cols-7 gap-3">
+                  {/* First 6 squares */}
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  ))}
+                  
+                  {/* 7th square - See more button when collapsed, placeholder when expanded */}
+                  {!isColoredExpanded ? (
+                    <div 
+                      onClick={() => setIsColoredExpanded(!isColoredExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeMore', 'See more')}</span>
+                    </div>
+                  ) : (
+                    <div 
+                      className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                      style={{ aspectRatio: '1/1' }}
+                    ></div>
+                  )}
+                </div>
+                
+                {/* Additional rows when expanded */}
+                {isColoredExpanded && (
+                  <div className="grid grid-cols-7 gap-3 mt-3">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-gray-200 rounded-md w-full cursor-pointer hover:bg-gray-300 transition-colors" 
+                        style={{ aspectRatio: '1/1' }}
+                      ></div>
+                    ))}
+                    
+                    {/* See less button at the end */}
+                    <div 
+                      onClick={() => setIsColoredExpanded(!isColoredExpanded)}
+                      className="rounded-md w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                      style={{ aspectRatio: '1/1', border: '1px solid #E0E0E0' }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-xs text-[#09090B] mt-1 text-center">{t('panels.media.seeLess', 'See less')}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : selectedOption === 'aiImage' ? (
+            /* AI Image view */
+            <div className="flex flex-col pt-1 h-full">
+              {/* Badge */}
+              <div 
+                className="inline-flex items-center px-2.5 py-0.5 rounded-sm w-fit"
+                style={{ backgroundColor: '#F2CCFA', fontSize: '12px', color: '#D60AFF' }}
+              >
+                {aiAgentBadge}
+              </div>
+              
+              {/* Text rows with reduced spacing */}
+              <div className="mt-2 flex flex-col gap-0.5">
+                <p style={{ fontSize: '8px', color: '#878787', lineHeight: '1.2' }}>
+                  {aiAgentDescription}
+                </p>
+                <p className="cursor-pointer" style={{ fontSize: '8px', color: '#719AF5', lineHeight: '1.2' }}>
+                  {aiAgentLearnMore}
+                </p>
+              </div>
+              
+              {/* Center content */}
+              <div className="flex-1 flex flex-col items-center justify-center">
+                {/* Title */}
+                <h3 className="mb-5 font-semibold" style={{ fontSize: '16px', color: '#171718' }}>
+                  {aiAgentPromptTitle}
+                </h3>
+                
+                {/* Prompt buttons */}
+                <div className="flex gap-3">
+                  {/* Button 1 */}
+                  <button 
+                    onClick={() => {
+                      const text = aiAgentPrompts.modernOffice;
+                      let newPrompts;
+                      if (selectedPrompts.includes(text)) {
+                        newPrompts = selectedPrompts.filter(p => p !== text);
+                      } else {
+                        newPrompts = [...selectedPrompts, text];
+                      }
+                      setSelectedPrompts(newPrompts);
+                      setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
+                    }}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
+                    style={{
+                      borderColor: '#878787',
+                      backgroundColor: selectedPrompts.includes(aiAgentPrompts.modernOffice) ? '#FCE7FE' : 'transparent'
+                    }}
+                  >
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.4209 1.6875C3.68006 2.52398 3.99032 3.1072 4.44531 3.56152H4.44629C4.90081 4.01483 5.48355 4.32394 6.31934 4.58301C5.59903 4.80567 5.06709 5.0662 4.64258 5.4248L4.44531 5.60547C3.99066 6.05989 3.6816 6.64318 3.42188 7.47949C3.16282 6.64304 2.85308 6.06044 2.39746 5.60547C1.94251 5.15164 1.35858 4.84226 0.521484 4.58301C1.3585 4.32446 1.94203 4.01623 2.39746 3.56152C2.85218 3.10715 3.16115 2.52374 3.4209 1.6875ZM6.59082 0.828125C6.6624 0.948534 6.74563 1.05735 6.84375 1.15527C6.94083 1.25214 7.04891 1.33345 7.16797 1.4043C7.04821 1.47546 6.94029 1.55886 6.84277 1.65625C6.74517 1.75376 6.66209 1.86172 6.59082 1.98145C6.51947 1.86169 6.43752 1.75275 6.33984 1.65527C6.24227 1.55792 6.13344 1.47637 6.01367 1.40527C6.13368 1.33403 6.24314 1.25282 6.34082 1.15527C6.43853 1.05768 6.5195 0.947973 6.59082 0.828125Z" stroke="#878787" strokeWidth="0.612448"/>
+                    </svg>
+                    <span style={{ fontSize: '12px', color: '#878787' }}>{aiAgentPrompts.modernOffice}</span>
+                  </button>
+                  
+                  {/* Button 2 */}
+                  <button 
+                    onClick={() => {
+                      const text = aiAgentPrompts.pharmaceuticalLaboratory;
+                      let newPrompts;
+                      if (selectedPrompts.includes(text)) {
+                        newPrompts = selectedPrompts.filter(p => p !== text);
+                      } else {
+                        newPrompts = [...selectedPrompts, text];
+                      }
+                      setSelectedPrompts(newPrompts);
+                      setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
+                    }}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
+                    style={{
+                      borderColor: '#878787',
+                      backgroundColor: selectedPrompts.includes(aiAgentPrompts.pharmaceuticalLaboratory) ? '#FCE7FE' : 'transparent'
+                    }}
+                  >
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.4209 1.6875C3.68006 2.52398 3.99032 3.1072 4.44531 3.56152H4.44629C4.90081 4.01483 5.48355 4.32394 6.31934 4.58301C5.59903 4.80567 5.06709 5.0662 4.64258 5.4248L4.44531 5.60547C3.99066 6.05989 3.6816 6.64318 3.42188 7.47949C3.16282 6.64304 2.85308 6.06044 2.39746 5.60547C1.94251 5.15164 1.35858 4.84226 0.521484 4.58301C1.3585 4.32446 1.94203 4.01623 2.39746 3.56152C2.85218 3.10715 3.16115 2.52374 3.4209 1.6875ZM6.59082 0.828125C6.6624 0.948534 6.74563 1.05735 6.84375 1.15527C6.94083 1.25214 7.04891 1.33345 7.16797 1.4043C7.04821 1.47546 6.94029 1.55886 6.84277 1.65625C6.74517 1.75376 6.66209 1.86172 6.59082 1.98145C6.51947 1.86169 6.43752 1.75275 6.33984 1.65527C6.24227 1.55792 6.13344 1.47637 6.01367 1.40527C6.13368 1.33403 6.24314 1.25282 6.34082 1.15527C6.43853 1.05768 6.5195 0.947973 6.59082 0.828125Z" stroke="#878787" strokeWidth="0.612448"/>
+                    </svg>
+                    <span style={{ fontSize: '12px', color: '#878787' }}>{aiAgentPrompts.pharmaceuticalLaboratory}</span>
+                  </button>
+                  
+                  {/* Button 3 */}
+                  <button 
+                    onClick={() => {
+                      const text = aiAgentPrompts.constructionSite;
+                      let newPrompts;
+                      if (selectedPrompts.includes(text)) {
+                        newPrompts = selectedPrompts.filter(p => p !== text);
+                      } else {
+                        newPrompts = [...selectedPrompts, text];
+                      }
+                      setSelectedPrompts(newPrompts);
+                      setPromptText(newPrompts.join('. ') + (newPrompts.length > 0 ? '.' : ''));
+                    }}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full border transition-colors hover:bg-gray-50 cursor-pointer"
+                    style={{
+                      borderColor: '#878787',
+                      backgroundColor: selectedPrompts.includes(aiAgentPrompts.constructionSite) ? '#FCE7FE' : 'transparent'
+                    }}
+                  >
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.4209 1.6875C3.68006 2.52398 3.99032 3.1072 4.44531 3.56152H4.44629C4.90081 4.01483 5.48355 4.32394 6.31934 4.58301C5.59903 4.80567 5.06709 5.0662 4.64258 5.4248L4.44531 5.60547C3.99066 6.05989 3.6816 6.64318 3.42188 7.47949C3.16282 6.64304 2.85308 6.06044 2.39746 5.60547C1.94251 5.15164 1.35858 4.84226 0.521484 4.58301C1.3585 4.32446 1.94203 4.01623 2.39746 3.56152C2.85218 3.10715 3.16115 2.52374 3.4209 1.6875ZM6.59082 0.828125C6.6624 0.948534 6.74563 1.05735 6.84375 1.15527C6.94083 1.25214 7.04891 1.33345 7.16797 1.4043C7.04821 1.47546 6.94029 1.55886 6.84277 1.65625C6.74517 1.75376 6.66209 1.86172 6.59082 1.98145C6.51947 1.86169 6.43752 1.75275 6.33984 1.65527C6.24227 1.55792 6.13344 1.47637 6.01367 1.40527C6.13368 1.33403 6.24314 1.25282 6.34082 1.15527C6.43853 1.05768 6.5195 0.947973 6.59082 0.828125Z" stroke="#878787" strokeWidth="0.612448"/>
+                    </svg>
+                    <span style={{ fontSize: '12px', color: '#878787' }}>{aiAgentPrompts.constructionSite}</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Textarea at the bottom */}
+              <div className="relative w-full mb-6">
+                <div className="relative border rounded-md" style={{ borderColor: '#D60AFF' }}>
+                  {/* Textarea */}
+                  <textarea
+                    value={promptText}
+                    onChange={(e) => {
+                      const newText = e.target.value;
+                      setPromptText(newText);
+                      // Clear selected prompts if user manually edits
+                      setSelectedPrompts([]);
+                    }}
+                    className="w-full px-3 mt-3 mb-4 focus:outline-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E0E0E0] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-[#C0C0C0]"
+                  placeholder={aiAgentPromptPlaceholder}
+                  style={{ fontSize: '12px', color: '#171718', height: '50px', paddingBottom: '32px' }}
+                  />
+                  <style jsx>{`
+                    textarea::placeholder {
+                      color: #878787;
+                    }
+                  `}</style>
+                  
+                  {/* Plus icon at bottom left */}
+                  <button className="absolute bottom-3 left-3 flex items-center cursor-pointer hover:opacity-70 transition-opacity">
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4.42871 0.429688V8.42969M0.428711 4.42969H8.42871" stroke="#D60AFF" strokeWidth="0.857143" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  
+                  {/* Send button at bottom right */}
+                  <button 
+                    disabled={!promptText.trim()}
+                    className="absolute bottom-2 right-2 flex items-center gap-1.5 px-1.5 py-0.5 border rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 disabled:hover:bg-transparent"
+                    style={{ borderColor: '#D60AFF', boxShadow: '0px 1px 2px 0px #0000000D' }}
+                  >
+                  <span style={{ fontSize: '10px', color: '#D60AFF' }}>{aiAgentSend}</span>
+                    <svg width="10" height="10" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clipPath="url(#clip0_2048_69344)">
+                        <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="#D60AFF" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_2048_69344">
+                          <rect width="8" height="8" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Empty view for other options */
+            <div className="flex items-center justify-center h-full">
+              {/* Empty for now */}
           </div>
+          )}
         </div>
       </div>
     </div>
@@ -200,8 +998,7 @@ export default function Media({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[500px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px' }}
+          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[520px] overflow-hidden rounded-md ${className}`}
         >
           {/* Header */}
           <div className="border-b border-gray-200">
@@ -219,8 +1016,7 @@ export default function Media({
     return (
       <div 
         ref={popupRef}
-        className={`absolute z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
-        style={{ borderRadius: '12px' }}
+        className={`absolute z-50 bg-white shadow-xl border border-gray-200 overflow-hidden rounded-md ${className}`}
       >
         {/* Main content area with sidebar */}
         {content}

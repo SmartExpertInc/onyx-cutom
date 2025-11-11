@@ -9,6 +9,7 @@ import { VideoLessonData } from '@/types/videoLessonTypes';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 // Import Voice Context
 import { useVoice } from '@/contexts/VoiceContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ScriptProps {
   onAiButtonClick: (position: { x: number; y: number }) => void;
@@ -21,108 +22,72 @@ interface ScriptProps {
 }
 
 export default function Script({ onAiButtonClick, videoLessonData, componentBasedSlideDeck, currentSlideId, onTextChange, showReady }: ScriptProps) {
-  const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
+  const { t } = useLanguage();
+  const [openDropdownSlideId, setOpenDropdownSlideId] = useState<string | null>(null);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
-
-  const [isPausePopupOpen, setIsPausePopupOpen] = useState(false);
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playTime, setPlayTime] = useState(0);
   
   // Get selected voice from context
   const { selectedVoice } = useVoice();
-  // Get current slide data from either structure
-  const currentSlide = componentBasedSlideDeck 
-    ? componentBasedSlideDeck.slides?.find(s => s.slideId === currentSlideId)
-    : videoLessonData?.slides?.find(s => s.slideId === currentSlideId);
+  
+  // Get all slides from either structure
+  const allSlides = componentBasedSlideDeck?.slides || videoLessonData?.slides || [];
   
   // Use voiceover text from current slide or fallback to placeholder
-  const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
+  const defaultPlaceholder = t('panels.script.defaultPlaceholder', 'Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!');
   
-  // Function to handle script content changes
-  const handleScriptContentChange = (newContent: string) => {
-    // Save changes directly to parent without updating local state
-    // This prevents re-renders that would reset cursor position
-    if (onTextChange && currentSlide) {
+  // Function to handle script content changes for a specific slide
+  const handleScriptContentChange = (slideId: string, newContent: string) => {
+    if (onTextChange) {
       if (componentBasedSlideDeck?.slides) {
-        // Handle component-based slide deck
-        const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlide.slideId);
+        const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === slideId);
         if (slideIndex !== -1) {
           onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
         }
       } else if (videoLessonData?.slides) {
-        // Handle old video lesson data
-        const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === currentSlide.slideId);
+        const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
         if (slideIndex !== -1) {
           onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
         }
       }
     }
   };
-  const [cursorPosition, setCursorPosition] = useState(0);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const aiButtonRef = useRef<HTMLDivElement>(null);
-  const pausePopupRef = useRef<HTMLDivElement>(null);
-  const textAreaRef = useRef<HTMLDivElement>(null);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const selectedCardRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsAvatarDropdownOpen(false);
-      }
-      if (pausePopupRef.current && !pausePopupRef.current.contains(event.target as Node)) {
-        setIsPausePopupOpen(false);
+        setOpenDropdownSlideId(null);
       }
     };
 
-    if (isAvatarDropdownOpen || isPausePopupOpen) {
+    if (openDropdownSlideId) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isAvatarDropdownOpen, isPausePopupOpen]);
+  }, [openDropdownSlideId]);
 
-  // Timer effect for play functionality
+  // Scroll to selected card when currentSlideId changes
   useEffect(() => {
-    if (isPlaying) {
-      timerIntervalRef.current = setInterval(() => {
-        setPlayTime(prev => prev + 1);
-      }, 1000);
-    } else if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
+    if (selectedCardRef.current && currentSlideId) {
+      selectedCardRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
     }
-
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-        timerIntervalRef.current = null;
-      }
-    };
-  }, [isPlaying]);
-
-  // Update text content when current slide changes (using ref to avoid re-renders)
-  useEffect(() => {
-    if (textAreaRef.current) {
-      const newContent = currentSlide?.voiceoverText || defaultPlaceholder;
-      
-      // Only update if content actually changed to avoid unnecessary DOM updates
-      if (textAreaRef.current.textContent !== newContent) {
-        textAreaRef.current.textContent = newContent;
-      }
-    }
-  }, [currentSlide?.voiceoverText, currentSlideId, defaultPlaceholder]);
+  }, [currentSlideId]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
   console.log('Script - componentBasedSlideDeck:', componentBasedSlideDeck);
   console.log('Script - currentSlideId:', currentSlideId);
-  console.log('Script - currentSlide:', currentSlide);
-  console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
+  console.log('Script - allSlides:', allSlides);
 
   // Play handler
   const handlePlay = () => {
@@ -139,26 +104,26 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   };
 
   // Format time as MM:SS
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  // const formatTime = (seconds: number) => {
+  //   const mins = Math.floor(seconds / 60);
+  //   const secs = seconds % 60;
+  //   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  // };
 
   // Function to handle AI button click and calculate position
-  const handleAiButtonClick = () => {
-    if (aiButtonRef.current) {
-      const rect = aiButtonRef.current.getBoundingClientRect();
-      const position = {
-        x: rect.left + rect.width / 2, // Center horizontally
-        y: rect.top, // Position above the button
-      };
-      onAiButtonClick(position);
-    }
-  };
+  // const handleAiButtonClick = () => {
+  //   if (aiButtonRef.current) {
+  //     const rect = aiButtonRef.current.getBoundingClientRect();
+  //     const position = {
+  //       x: rect.left + rect.width / 2, // Center horizontally
+  //       y: rect.top, // Position above the button
+  //     };
+  //     onAiButtonClick(position);
+  //   }
+  // };
 
   // Function to insert move/animation marker at cursor position
-  const insertMoveMarker = () => {
+  /* const insertMoveMarker = () => {
     if (textAreaRef.current) {
       // Focus the textarea first to ensure cursor is positioned within it
       textAreaRef.current.focus();
@@ -203,9 +168,9 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
       selection?.removeAllRanges();
       selection?.addRange(range);
     }
-  };
+  }; */
   return (
-    <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full script-container">
+    <div className="h-full bg-white relative w-full script-container overflow-y-auto">
       <style>{`
         .script-container button {
           -webkit-user-select: none;
@@ -214,13 +179,36 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           user-select: none;
         }
       `}</style>
-      {/* Content Container */}
-      <div className="relative z-10 flex flex-col items-start justify-start p-8 pb-20">
-
-        {/* Top Section with Avatar Dropdown and Selector */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
+      
+      {/* Scrollable Content Container */}
+      <div className="relative z-10 flex flex-col gap-4 p-3">
+        {/* Map through all slides and create a card for each */}
+        {allSlides.map((slide, index) => {
+          const isSelected = slide.slideId === currentSlideId;
+          
+          return (
+            <div
+              key={slide.slideId}
+              ref={isSelected ? selectedCardRef : null}
+              className={`p-3 rounded-lg ${
+                isSelected 
+                  ? 'shadow-lg' 
+                  : ''
+              }`}
+              style={{
+                backgroundColor: isSelected ? '#CCDBFC' : 'transparent',
+                border: isSelected ? '1px solid #E0E0E0' : 'none',
+              }}
+            >
+              {/* Top Section with Avatar Dropdown and Voice Selector */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 mb-4 w-full">
+          {/* Card Number Circle */}
+          <div className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-gray-200 flex-shrink-0">
+            <span className="text-xs font-medium" style={{ color: '#E0E0E0' }}>{index + 1}</span>
+          </div>
+          
           {/* Avatar Dropdown */}
-          <div className="relative flex-shrink-0" ref={dropdownRef}>
+                <div className="relative flex-shrink-0">
             <button
               onMouseDown={(e) => {
                 e.preventDefault();
@@ -228,30 +216,34 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               }}
               onClick={() => {
                 if (showReady) return;
-                setIsAvatarDropdownOpen(!isAvatarDropdownOpen);
+                      setOpenDropdownSlideId(
+                        openDropdownSlideId === slide.slideId ? null : slide.slideId
+                      );
               }}
               disabled={showReady}
               title={showReady ? 'Soon' : undefined}
-              className={`flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg transition-colors ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
-              style={{ userSelect: 'none' }}
+                    className={`flex items-center gap-1 px-2 py-1 h-8 bg-white border rounded-lg transition-colors cursor-pointer ${showReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+              style={{ 
+                userSelect: 'none',
+                borderColor: openDropdownSlideId === slide.slideId ? '#A5A5A5' : '#E0E0E0'
+              }}
             >
               <User size={20} className="text-gray-700" />
               <ChevronDown size={16} className="text-gray-500" />
             </button>
 
             {/* Avatar Dropdown Popup */}
-            {isAvatarDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  {openDropdownSlideId === slide.slideId && (
+                    <div 
+                      ref={dropdownRef}
+                      className="absolute top-full left-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+                      style={{ borderColor: '#A5A5A5' }}
+                    >
                 <div className="p-2">
-                  {/* Row 1: Header */}
-                  <div className="px-2 py-1">
-                    <span className="text-xs text-gray-500">Avatars</span>
-                  </div>
-                  
-                  {/* Row 2: Lisa - Office 4 */}
+                        {/* Row 1: Lisa */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <User size={16} className="text-gray-700" />
-                    <span className="text-sm text-gray-700">Lisa - Office 4</span>
+                          <span className="text-xs text-gray-700">{t('panels.script.avatarLisa', 'Lisa')}</span>
                   </button>
                   
                   {/* Row 3: Narration only */}
@@ -259,7 +251,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
                       <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
                     </svg>
-                    <span className="text-sm text-gray-700">Narration only</span>
+                    <span className="text-xs text-gray-700">{t('panels.script.narrationOnly', 'Narration only')}</span>
                   </button>
                   
                   {/* Row 4: Horizontal line */}
@@ -270,13 +262,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   {/* Row 5: Remove avatar */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <UserMinus size={16} className="text-gray-500" />
-                    <span className="text-sm text-gray-500">Remove avatar</span>
+                    <span className="text-xs text-gray-500">{t('panels.script.removeAvatar', 'Remove avatar')}</span>
                   </button>
                   
                   {/* Row 6: Add new avatar */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <UserPlus size={16} className="text-gray-700" />
-                    <span className="text-sm text-gray-700">Add new avatar</span>
+                    <span className="text-xs text-gray-700">{t('panels.script.addNewAvatar', 'Add new avatar')}</span>
                   </button>
                 </div>
               </div>
@@ -293,33 +285,40 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               onClick={() => {
                 setIsLanguageModalOpen(true);
               }}
-              className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto"
+                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-[#E0E0E0] rounded-lg hover:bg-gray-50 transition-colors w-auto cursor-pointer"
               style={{ userSelect: 'none' }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
-                <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
-              </svg>
-              <span className="text-sm font-medium text-gray-700">
-                {selectedVoice 
-                  ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
-                  : 'Select Voice'
-                }
-              </span>
+                    <span className="text-xs" style={{ color: '#878787' }}>
+                      {t('panels.script.lisaNarration', 'Lisa narration')}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <g fill="none" stroke="#878787" stroke-width="1.5">
+                        <path d="M1 13.857v-3.714a2 2 0 0 1 2-2h2.9a1 1 0 0 0 .55-.165l6-3.956a1 1 0 0 1 1.55.835v14.286a1 1 0 0 1-1.55.835l-6-3.956a1 1 0 0 0-.55-.165H3a2 2 0 0 1-2-2Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.5 7.5S19 9 19 11.5s-1.5 4-1.5 4m3-11S23 7 23 11.5s-2.5 7-2.5 7"/>
+                      </g>
+                    </svg>
             </button>
           </div>
         </div>
 
-        {/* Main Content Text */}
+              {/* Script Text Area */}
         <div className="w-full max-w-[615px] lg:max-w-[650px]">
           <div
-            ref={textAreaRef}
             contentEditable
             suppressContentEditableWarning
-            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
-            style={{ whiteSpace: 'pre-wrap', height: '200px' }}
-            onInput={(e) => handleScriptContentChange(e.currentTarget.textContent || '')}
+                  className="w-full text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
+                  style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    minHeight: '100px',
+                    color: isSelected ? '#171718' : '#434343'
+                  }}
+                  onInput={(e) => handleScriptContentChange(slide.slideId, e.currentTarget.textContent || '')}
+                  dangerouslySetInnerHTML={{ __html: slide.voiceoverText || defaultPlaceholder }}
           />
         </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Voice Picker Modal */}
@@ -340,13 +339,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
       />
 
       {/* Bottom Controls */}
-      <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2 px-6">
+      {/* <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2 px-6">
         <div className="flex items-center gap-0.5 border border-gray-200 rounded-lg px-0.5 py-0.5 w-[280px] justify-center">
         {!isPlaying ? (
           // Default toolbar with all buttons
           <>
         {/* AI Button */}
-        <div className="relative group" ref={aiButtonRef}>
+        {/* <div className="relative group" ref={aiButtonRef}>
           <button 
             onMouseDown={(e) => {
               e.preventDefault();
@@ -363,16 +362,16 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Zm8.446-7.189L18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Zm-1.365 11.852L16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183l.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/>
             </svg>
-          </button>
+          </button> */}
           
           {/* Tooltip */}
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             {showReady ? 'Soon' : 'Use the AI assistant'}
           </div>
-        </div>
+        </div> */}
 
         {/* Pause Button */}
-        <div className="relative group" ref={pausePopupRef}>
+        {/* <div className="relative group" ref={pausePopupRef}>
           <button 
             onMouseDown={(e) => {
               e.preventDefault();
@@ -389,58 +388,58 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
             </svg>
-          </button>
+          </button> */}
           
           {/* Pause Popup */}
           {isPausePopupOpen && !showReady && (
             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-              <div className="p-2">
+              <div className="p-2"> */}
                 {/* 0.5s pause */}
-                <button 
+                {/* <button 
                   onClick={() => setIsPausePopupOpen(false)}
                   className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">0.5s pause</span>
-                </button>
+                  <span className="text-xs text-gray-700">0.5s pause</span>
+                </button> */}
                 
                 {/* 1s pause */}
-                <button 
+                {/* <button 
                   onClick={() => setIsPausePopupOpen(false)}
                   className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">1s pause</span>
-                </button>
+                  <span className="text-xs text-gray-700">1s pause</span>
+                </button> */}
                 
                 {/* 2s pause */}
-                <button 
+                {/* <button 
                   onClick={() => setIsPausePopupOpen(false)}
                   className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">2s pause</span>
-                </button>
+                  <span className="text-xs text-gray-700">2s pause</span>
+                </button> */}
                 
                 {/* 5s pause */}
-                <button 
+                {/* <button 
                   onClick={() => setIsPausePopupOpen(false)}
                   className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">5s pause</span>
+                  <span className="text-xs text-gray-700">5s pause</span>
                 </button>
               </div>
             </div>
-          )}
+          )} */}
           
           {/* Tooltip (only show when popup is closed) */}
           {!isPausePopupOpen && (
@@ -448,10 +447,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             {showReady ? 'Soon' : 'Add a pause to the script'}
           </div>
           )}
-        </div>
+        </div> */}
 
         {/* Move Button */}
-        <div className="relative group">
+        {/* <div className="relative group">
           <button 
             onMouseDown={(e) => {
               e.preventDefault();
@@ -475,7 +474,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             {showReady ? 'Soon' : 'Add animation marker to the script'}
           </div>
-        </div>
+        </div> */}
 
         {/* Hand Button */}
         <div className="relative group">
@@ -487,10 +486,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             {showReady ? 'Soon' : 'No avatar selected'}
           </div>
-        </div>
+        </div> */}
 
         {/* Translate Button */}
-        <div className="relative group">
+        {/* <div className="relative group">
           <button 
             onMouseDown={(e) => {
               e.preventDefault();
@@ -511,13 +510,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             {showReady ? 'Soon' : 'Pronounciations'}
           </div>
-        </div>
+        </div> */}
 
         {/* Grey Vertical Line */}
-        <div className="h-6 w-px bg-gray-300 mx-0.5"></div>
+        {/* <div className="h-6 w-px bg-gray-300 mx-0.5"></div> */}
 
         {/* Play Button */}
-        <div className="relative group">
+        {/* <div className="relative group">
           <button 
             onClick={handlePlay}
             title={showReady ? 'Soon' : undefined}
@@ -532,19 +531,19 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           </div>
         </div>
         </>
-        ) : (
-          // Playing state toolbar with timer and stop button
-          <>
+        ) : ( */}
+          {/* Playing state toolbar with timer and stop button */}
+          {/* <>
             {/* Timer Display */}
-            <div className="text-sm text-gray-700 font-mono px-2">
+            {/* <div className="text-xs text-gray-700 font-mono px-2">
               {formatTime(playTime)}
-            </div>
+            </div> */}
             
             {/* Divider Line */}
-            <div className="w-32 mx-4 h-px bg-gray-300"></div>
+            {/* <div className="w-32 mx-4 h-px bg-gray-300"></div> */}
             
             {/* Stop Button */}
-            <div className="relative group">
+            {/* <div className="relative group">
               <button 
                 onClick={handleStop}
                 className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
@@ -557,7 +556,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           </>
         )}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

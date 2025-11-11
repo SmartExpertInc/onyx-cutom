@@ -1,25 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useVoice } from '@/contexts/VoiceContext';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
-
-// Custom Radio Wave Icon
-const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 256 256"
-    className={className}
-  >
-    <path 
-      fill="currentColor" 
-      d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"
-    />
-  </svg>
-);
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Custom Flag Icons
 const AmericanFlag = ({ size = 18 }: { size?: number }) => (
@@ -103,30 +88,19 @@ interface ElaiVoice {
 }
 
 export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice, showReady = true }: VoicePickerProps) {
+  const { t } = useLanguage();
   const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
   const { defaultAvatar } = useAvatarDisplay();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
-  const [ageDropdownOpen, setAgeDropdownOpen] = useState(false);
-  const [toneDropdownOpen, setToneDropdownOpen] = useState(false);
-  const [scenarioDropdownOpen, setScenarioDropdownOpen] = useState(false);
   const [speed, setSpeed] = useState(50);
   const [stability, setStability] = useState(50);
-  const [applyTo, setApplyTo] = useState<'block' | 'scene' | 'all'>('block');
-  const [selectedAccents, setSelectedAccents] = useState<string[]>([]);
-  const [selectedAges, setSelectedAges] = useState<string[]>([]);
-  const [selectedTones, setSelectedTones] = useState<string[]>([]);
-  const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
+  const [applyTo, setApplyTo] = useState<'scene' | 'all'>('scene');
   const [voices, setVoices] = useState<ElaiVoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [tempSelectedVoice, setTempSelectedVoice] = useState<ElaiVoice | null>(null);
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   
-  const accentRef = useRef<HTMLDivElement>(null);
-  const ageRef = useRef<HTMLDivElement>(null);
-  const toneRef = useRef<HTMLDivElement>(null);
-  const scenarioRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize temporary selection from global selection when modal opens
@@ -308,130 +282,6 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
     }
   };
 
-  // Accent options with country flags
-  const accentOptions = [
-    { id: 'american', flag: <AmericanFlag />, text: 'American English' },
-    { id: 'british', flag: <BritishFlag />, text: 'British English' },
-    { id: 'australian', flag: <AustralianFlag />, text: 'Australian English' },
-    { id: 'indian', flag: <IndianFlag />, text: 'English (India)' },
-    { id: 'south-african', flag: <SouthAfricanFlag />, text: 'English (South Africa)' }
-  ];
-
-  // Age options
-  const ageOptions = [
-    { id: 'adult', text: 'Adult' },
-    { id: 'middle-aged', text: 'Middle-Aged' },
-    { id: 'senior', text: 'Senior' },
-    { id: 'young', text: 'Young' },
-    { id: 'young-adult', text: 'Young Adult' }
-  ];
-
-  // Tone options
-  const toneOptions = [
-    { id: 'anxious', text: 'Anxious' },
-    { id: 'calm', text: 'Calm' },
-    { id: 'cheerful', text: 'Cheerful' },
-    { id: 'cloned-voice', text: 'Cloned Voice' },
-    { id: 'confident', text: 'Confident' },
-    { id: 'conversational', text: 'Conversational' },
-    { id: 'deep', text: 'Deep' },
-    { id: 'delightful', text: 'Delightful' },
-    { id: 'determined', text: 'Determined' },
-    { id: 'educational', text: 'Educational' },
-    { id: 'engaging', text: 'Engaging' },
-    { id: 'fast', text: 'Fast' },
-    { id: 'friendly', text: 'Friendly' },
-    { id: 'gentle', text: 'Gentle' }
-  ];
-
-  // Scenario options
-  const scenarioOptions = [
-    { id: 'ad', text: 'Ad' },
-    { id: 'any', text: 'Any' },
-    { id: 'assistant', text: 'Assistant' },
-    { id: 'chat', text: 'Chat' },
-    { id: 'conversational', text: 'Conversational' },
-    { id: 'customer-service', text: 'Customer Service' },
-    { id: 'documentary', text: 'Documentary' },
-    { id: 'e-learning', text: 'E-Learning' },
-    { id: 'explainer', text: 'Explainer' },
-    { id: 'how-to', text: 'How-to' }
-  ];
-
-  const toggleAccent = (accentId: string) => {
-    setSelectedAccents(prev => 
-      prev.includes(accentId) 
-        ? prev.filter(id => id !== accentId)
-        : [...prev, accentId]
-    );
-  };
-
-  const toggleAge = (ageId: string) => {
-    setSelectedAges(prev => 
-      prev.includes(ageId) 
-        ? prev.filter(id => id !== ageId)
-        : [...prev, ageId]
-    );
-  };
-
-  const toggleTone = (toneId: string) => {
-    setSelectedTones(prev => 
-      prev.includes(toneId) 
-        ? prev.filter(id => id !== toneId)
-        : [...prev, toneId]
-    );
-  };
-
-  const toggleScenario = (scenarioId: string) => {
-    setSelectedScenarios(prev => 
-      prev.includes(scenarioId) 
-        ? prev.filter(id => id !== scenarioId)
-        : [...prev, scenarioId]
-    );
-  };
-
-  // Reset functions
-  const resetAccents = () => setSelectedAccents([]);
-  const resetAges = () => setSelectedAges([]);
-  const resetTones = () => setSelectedTones([]);
-  const resetScenarios = () => setSelectedScenarios([]);
-  
-  // Reset all selections
-  const resetAllSelections = () => {
-    resetAccents();
-    resetAges();
-    resetTones();
-    resetScenarios();
-  };
-  
-  // Check if any selections exist
-  const hasAnySelections = selectedAccents.length > 0 || selectedAges.length > 0 || selectedTones.length > 0 || selectedScenarios.length > 0;
-
-  // Handle click outside to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (accentRef.current && !accentRef.current.contains(event.target as Node)) {
-        setAccentDropdownOpen(false);
-      }
-      if (ageRef.current && !ageRef.current.contains(event.target as Node)) {
-        setAgeDropdownOpen(false);
-      }
-      if (toneRef.current && !toneRef.current.contains(event.target as Node)) {
-        setToneDropdownOpen(false);
-      }
-      if (scenarioRef.current && !scenarioRef.current.contains(event.target as Node)) {
-        setScenarioDropdownOpen(false);
-      }
-    };
-
-    if (accentDropdownOpen || ageDropdownOpen || toneDropdownOpen || scenarioDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [accentDropdownOpen, ageDropdownOpen, toneDropdownOpen, scenarioDropdownOpen]);
 
   // Cleanup audio when modal closes
   useEffect(() => {
@@ -456,9 +306,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           width: 12px;
           height: 12px;
           border-radius: 50%;
-          background: #000000;
+          background: #FFFFFF;
           cursor: pointer;
-          border: none;
+          border: 2px solid #E0E0E0;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         
@@ -466,9 +316,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           width: 12px;
           height: 12px;
           border-radius: 50%;
-          background: #000000;
+          background: #FFFFFF;
           cursor: pointer;
-          border: none;
+          border: 2px solid #E0E0E0;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         
@@ -483,245 +333,182 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         }
       `}</style>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Light background overlay */}
+      {/* Blurry background overlay */}
       <div 
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+        style={{ 
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}
         onClick={onClose}
       ></div>
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[90vh] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[85vh] flex flex-col px-7 py-3 gap-3 z-10"
         style={{ borderRadius: '12px' }}
       >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-2.5 right-2.5 w-6 h-6 bg-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity z-20"
+          style={{
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0px 10px 10px 0px #0000001A, 0px 4px 4px 0px #0000000D, 0px 1px 0px 0px #0000000D'
+          }}
+        >
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 14L14 2" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 2L14 14" stroke="#878787" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
         
         {/* Row 1: Title */}
-        <div className="p-6 pb-4">
-          <h2 className="text-lg text-gray-900">Pick a voice</h2>
+        <div>
+          <h2 className="text-base font-medium text-gray-900">{t('voicePicker.title', 'Pick a voice')}</h2>
         </div>
 
         {/* Row 2: Search Bar */}
-        <div className="px-6 pb-4">
+        <div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={20} className="text-gray-400" />
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 10.5L8.11111 8.11111M9.38889 4.94444C9.38889 7.39904 7.39904 9.38889 4.94444 9.38889C2.48985 9.38889 0.5 7.39904 0.5 4.94444C0.5 2.48985 2.48985 0.5 4.94444 0.5C7.39904 0.5 9.38889 2.48985 9.38889 4.94444Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <input
               type="text"
-              placeholder="Search"
+              placeholder={t('voicePicker.searchPlaceholder', 'Search...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-[#878787]"
+              style={{ 
+                boxShadow: '0px 1px 2px 0px #0000000D',
+                color: '#171718'
+              }}
             />
           </div>
         </div>
 
-        {/* Row 3: Dropdown Buttons */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-3 items-center justify-between">
-            <div className="flex gap-3">
-            {/* Accent Dropdown */}
-            <div className="relative" ref={accentRef}>
-              <button
-                onClick={() => setAccentDropdownOpen(!accentDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
-                  accentDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Globe size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {selectedAccents.length > 0 ? `${selectedAccents.length} selected` : 'Accent'}
+        {/* Main content area with voices count and bordered container */}
+        <div className="flex-1 flex flex-col min-h-0 gap-3">
+          {/* Voices count text above container */}
+        <div>
+            <span className="text-xs text-[#878787] leading-none block">
+                {loading ? t('voicePicker.loadingVoices', 'Loading voices...') : `${voices.filter(voice => 
+                  voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                ).length + ((t('voicePicker.mockVoiceName', 'Sarah - Conversational').toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') ? 1 : 0)} ${t('voicePicker.voicesFound', 'voices found')}`}
                   </span>
                 </div>
-                <ChevronDown size={16} className="text-gray-400" />
-              </button>
-              {/* Accent dropdown popup */}
-              {accentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  {accentOptions.map((accent) => (
-                    <div
-                      key={accent.id}
-                      onClick={() => toggleAccent(accent.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedAccents.includes(accent.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedAccents.includes(accent.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
                       
-                      {/* Country flag */}
-                      <div className="flex-shrink-0">{accent.flag}</div>
+        {/* Content Container with proper flex structure */}
+          <div className="flex-1 flex flex-col min-h-0 border border-[#E0E0E0] rounded-lg">
+          {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
+          <div className="flex flex-1 min-h-0">
+          {/* Left Panel - Voice List with its own scrolling */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {/* Create Custom Voice Row */}
+            <div className="mb-3">
+              <div 
+                className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer bg-white border"
+                style={{ 
+                  borderColor: '#0F58F9' 
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  {/* Custom voice icon */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 40.5C15.25 40.5 14.5469 39.7969 14.5469 38.8594V25.8125C14.5469 24.9531 15.25 24.25 16.1094 24.25C17.0469 24.25 17.75 24.9531 17.75 25.8125V38.9375C17.75 39.7969 16.9688 40.5 16.1094 40.5Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10.875 34.7188C9.9375 34.7188 9.23438 34.0156 9.23438 33.0781V15.4219C9.23438 14.4844 9.9375 13.7812 10.875 13.7812C11.7344 13.7812 12.4375 14.4844 12.4375 15.4219V33.0781C12.4375 34.0156 11.7344 34.7188 10.875 34.7188Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M5.64062 30.5C4.70312 30.5 4 29.7969 4 28.9375V19.5625C4 18.7031 4.70312 18 5.64062 18C6.5 18 7.20312 18.7031 7.20312 19.5625V28.9375C7.20312 29.7969 6.5 30.5 5.64062 30.5Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M31.8906 28.4688C31.0312 28.4688 30.25 27.7656 30.25 26.9062V21.6719C30.25 20.7344 30.9531 20.0312 31.8906 20.0312C32.75 20.0312 33.4531 20.7344 33.4531 21.6719V26.8281C33.4531 27.7656 32.75 28.4688 31.8906 28.4688Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 19.9531C25.7188 19.9531 25.0156 19.1719 25.0156 18.3125V15.0312C25.0156 14.0938 25.7188 13.3906 26.6562 13.3906C27.5156 13.3906 28.2188 14.0938 28.2188 15.0312V18.3125C28.2188 19.1719 27.5156 19.9531 26.6562 19.9531Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 35.1094C25.7188 35.1094 25.0156 34.4062 25.0156 33.4688V22.6875C25.0156 21.8281 25.7188 21.125 26.6562 21.125C27.5156 21.125 28.2188 21.8281 28.2188 22.6875V33.4688C28.2188 34.3281 27.5156 35.1094 26.6562 35.1094Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M21.3438 33.1562C20.4844 33.1562 19.7812 32.375 19.7812 31.5156V16.9844C19.7812 16.125 20.4844 15.3438 21.3438 15.3438C22.2812 15.3438 22.9844 16.125 22.9844 16.9844V31.5156C22.9844 32.4531 22.2812 33.1562 21.3438 33.1562Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#0F58F9"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#0F58F9"/>
+                  </svg>
                       
                       {/* Text */}
-                      <span className="text-sm text-gray-700">{accent.text}</span>
+                  <span className="font-medium text-sm" style={{ color: '#0F58F9' }}>{t('voicePicker.createCustomVoice', 'Create a custom voice')}</span>
                     </div>
-                  ))}
                   
-
+                {/* Right chevron */}
+                <ChevronRight size={16} style={{ color: '#0F58F9' }} />
                 </div>
-              )}
             </div>
 
-            {/* Age Dropdown */}
-            <div className="relative" ref={ageRef}>
-              <button
-                onClick={() => setAgeDropdownOpen(!ageDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
-                  ageDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
+            {/* Mock voice item */}
+            {(t('voicePicker.mockVoiceName', 'Sarah - Conversational').toLowerCase().includes(searchTerm.toLowerCase()) || searchTerm === '') && (
+            <div className="mb-3 group">
+              <div 
+                className="rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer border border-[#E0E0E0] bg-white transition-all"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '';
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <Cake size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {selectedAges.length > 0 ? `${selectedAges.length} selected` : 'Age'}
+                  <div className="flex items-center gap-3">
+                  {/* Voice icon */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:hidden">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 40.5C15.25 40.5 14.5469 39.7969 14.5469 38.8594V25.8125C14.5469 24.9531 15.25 24.25 16.1094 24.25C17.0469 24.25 17.75 24.9531 17.75 25.8125V38.9375C17.75 39.7969 16.9688 40.5 16.1094 40.5Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10.875 34.7188C9.9375 34.7188 9.23438 34.0156 9.23438 33.0781V15.4219C9.23438 14.4844 9.9375 13.7812 10.875 13.7812C11.7344 13.7812 12.4375 14.4844 12.4375 15.4219V33.0781C12.4375 34.0156 11.7344 34.7188 10.875 34.7188Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M5.64062 30.5C4.70312 30.5 4 29.7969 4 28.9375V19.5625C4 18.7031 4.70312 18 5.64062 18C6.5 18 7.20312 18.7031 7.20312 19.5625V28.9375C7.20312 29.7969 6.5 30.5 5.64062 30.5Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M31.8906 28.4688C31.0312 28.4688 30.25 27.7656 30.25 26.9062V21.6719C30.25 20.7344 30.9531 20.0312 31.8906 20.0312C32.75 20.0312 33.4531 20.7344 33.4531 21.6719V26.8281C33.4531 27.7656 32.75 28.4688 31.8906 28.4688Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 19.9531C25.7188 19.9531 25.0156 19.1719 25.0156 18.3125V15.0312C25.0156 14.0938 25.7188 13.3906 26.6562 13.3906C27.5156 13.3906 28.2188 14.0938 28.2188 15.0312V18.3125C28.2188 19.1719 27.5156 19.9531 26.6562 19.9531Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 35.1094C25.7188 35.1094 25.0156 34.4062 25.0156 33.4688V22.6875C25.0156 21.8281 25.7188 21.125 26.6562 21.125C27.5156 21.125 28.2188 21.8281 28.2188 22.6875V33.4688C28.2188 34.3281 27.5156 35.1094 26.6562 35.1094Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M21.3438 33.1562C20.4844 33.1562 19.7812 32.375 19.7812 31.5156V16.9844C19.7812 16.125 20.4844 15.3438 21.3438 15.3438C22.2812 15.3438 22.9844 16.125 22.9844 16.9844V31.5156C22.9844 32.4531 22.2812 33.1562 21.3438 33.1562Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#E0E0E0"/>
+                  </svg>
+                  {/* Play button - visible on hover */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden group-hover:block">
+                    <circle cx="24" cy="24" r="19.5" fill="white" stroke="#4D4D4D"/>
+                    <path d="M31.75 23.3612C32.4167 23.7461 32.4167 24.7084 31.75 25.0933L20.5 31.5885C19.8333 31.9734 19 31.4922 19 30.7224L19 17.7321C19 16.9623 19.8333 16.4811 20.5 16.866L31.75 23.3612Z" fill="#4D4D4D"/>
+                  </svg>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-gray-900 text-sm font-medium">{t('voicePicker.mockVoiceName', 'Sarah - Conversational')}</span>
+                    <div className="flex gap-2 flex-wrap">
+                      {/* 32 languages badge - no SVG */}
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full leading-none inline-flex items-center" style={{ backgroundColor: '#E0E0E0', color: '#171718' }}>
+                        {t('voicePicker.badge32Languages', '32 languages')}
+                      </span>
+                      
+                      {/* Custom voice badge */}
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CCDBFC', color: '#171718' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11.0837 5.83073V6.9974C11.0837 8.08036 10.6535 9.11897 9.88768 9.88475C9.1219 10.6505 8.08329 11.0807 7.00033 11.0807M7.00033 11.0807C5.91736 11.0807 4.87875 10.6505 4.11297 9.88475C3.3472 9.11897 2.91699 8.08036 2.91699 6.9974V5.83073M7.00033 11.0807V12.8307M7.00033 1.16406C6.5362 1.16406 6.09108 1.34844 5.76289 1.67663C5.4347 2.00481 5.25033 2.44993 5.25033 2.91406V6.9974C5.25033 7.46152 5.4347 7.90664 5.76289 8.23483C6.09108 8.56302 6.5362 8.7474 7.00033 8.7474C7.46445 8.7474 7.90957 8.56302 8.23776 8.23483C8.56595 7.90664 8.75033 7.46152 8.75033 6.9974V2.91406C8.75033 2.44993 8.56595 2.00481 8.23776 1.67663C7.90957 1.34844 7.46445 1.16406 7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        {t('voicePicker.badgeCustomVoice', 'Custom voice')}
+                      </span>
+                      
+                      {/* Best fit for avatar badge */}
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#CAFCF7', color: '#171718' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.00033 1.16406L8.80283 4.81573L12.8337 5.4049L9.91699 8.24573L10.6053 12.2591L7.00033 10.3632L3.39533 12.2591L4.08366 8.24573L1.16699 5.4049L5.19783 4.81573L7.00033 1.16406Z" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        {t('voicePicker.badgeBestFitAvatar', 'Best fit for avatar')}
+                  </span>
+                      
+                      {/* Previously used badge */}
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#FEE7C8', color: '#171718' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1.75 7C1.75 5.60761 2.30312 4.27226 3.28769 3.28769C4.27226 2.30312 5.60761 1.75 7 1.75C8.46769 1.75552 9.87643 2.32821 10.9317 3.34833L12.25 4.66667M12.25 4.66667V1.75M12.25 4.66667H9.33333M12.25 7C12.25 8.39239 11.6969 9.72774 10.7123 10.7123C9.72774 11.6969 8.39239 12.25 7 12.25C5.53231 12.2445 4.12357 11.6718 3.06833 10.6517L1.75 9.33333M1.75 9.33333H4.66667M1.75 9.33333V12.25" stroke="#171718" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        {t('voicePicker.badgePreviouslyUsed', 'Previously used')}
                   </span>
                 </div>
-                <ChevronDown size={16} className="text-gray-400" />
-              </button>
-              {/* Age dropdown popup */}
-              {ageDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  {ageOptions.map((age) => (
-                    <div
-                      key={age.id}
-                      onClick={() => toggleAge(age.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedAges.includes(age.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedAges.includes(age.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
                       </div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{age.text}</span>
                     </div>
-                  ))}
-                  
-
                 </div>
-              )}
-            </div>
-
-            {/* Tone Dropdown */}
-            <div className="relative" ref={toneRef}>
-              <button
-                onClick={() => setToneDropdownOpen(!toneDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
-                  toneDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioWaveIcon size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {selectedTones.length > 0 ? `${selectedTones.length} selected` : 'Tone'}
-                  </span>
-                </div>
-                <ChevronDown size={16} className="text-gray-400" />
-              </button>
-              {/* Tone dropdown popup */}
-              {toneDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2 max-h-60 overflow-y-auto">
-                  {toneOptions.map((tone) => (
-                    <div
-                      key={tone.id}
-                      onClick={() => toggleTone(tone.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedTones.includes(tone.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedTones.includes(tone.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{tone.text}</span>
-                    </div>
-                  ))}
-                  
-
-                </div>
-              )}
-            </div>
-
-            {/* Scenario Dropdown */}
-            <div className="relative" ref={scenarioRef}>
-              <button
-                onClick={() => setScenarioDropdownOpen(!scenarioDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
-                  scenarioDropdownOpen 
-                    ? 'bg-gray-100' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Briefcase size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {selectedScenarios.length > 0 ? `${selectedScenarios.length} selected` : 'Scenario'}
-                  </span>
-                </div>
-                <ChevronDown size={16} className="text-gray-400" />
-              </button>
-              {/* Scenario dropdown popup */}
-              {scenarioDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  {scenarioOptions.map((scenario) => (
-                    <div
-                      key={scenario.id}
-                      onClick={() => toggleScenario(scenario.id)}
-                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                    >
-                      {/* Custom checkbox */}
-                      <div className={`
-                        w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${selectedScenarios.includes(scenario.id) 
-                          ? 'bg-black border-black' 
-                          : 'bg-white border-gray-300'
-                        }
-                      `}>
-                        {selectedScenarios.includes(scenario.id) && (
-                          <Check size={10} className="text-white" />
-                        )}
-                      </div>
-                      
-                      {/* Text */}
-                      <span className="text-sm text-gray-700">{scenario.text}</span>
-                    </div>
-                  ))}
-                  
-
-                </div>
-              )}
             </div>
             </div>
             
@@ -805,14 +592,22 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
 
             {/* Dynamically rendered voice items from Elai API */}
             {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading voices...</div>
+              <div className="text-center py-8 text-gray-500">{t('voicePicker.loadingVoices', 'Loading voices...')}</div>
             ) : sortedVoices.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No voices found</div>
-            ) : (
-               sortedVoices.map((voice, index) => (
+              <div className="text-center py-8 text-gray-500">{t('voicePicker.noVoicesFound', 'No voices found')}</div>
+            ) : (() => {
+              const filteredVoices = sortedVoices.filter(voice => 
+                voice.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (voice.name && voice.name.toLowerCase().includes(searchTerm.toLowerCase()))
+              );
+              
+              return filteredVoices.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">{t('voicePicker.noResultsFound', 'No results found')}</div>
+              ) : (
+                filteredVoices.map((voice, index) => (
                  <div 
                    key={voice.voice || index} 
-                   className="mb-4 group"
+                   className="mb-3 group"
                    onClick={() => {
                      console.log('🎤 [VOICE_PICKER] Voice item clicked:', {
                        character: voice.character,
@@ -824,104 +619,100 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                      setTempSelectedVoice(voice);
                    }}
                  >
-                   <div className={`rounded-lg p-4 flex items-center justify-between cursor-pointer border transition-colors ${
-                     tempSelectedVoice?.voice === voice.voice 
-                       ? 'border-blue-500 bg-blue-50' 
-                       : 'border-gray-300 bg-white hover:bg-gray-50'
-                   }`}>
+                  <div 
+                    className={`rounded-lg px-2 py-1 flex items-center justify-between cursor-pointer border transition-all ${
+                    tempSelectedVoice?.voice === voice.voice 
+                        ? 'border-[#E0E0E0] bg-white' 
+                        : 'border-[#E0E0E0] bg-white'
+                    }`}
+                    style={tempSelectedVoice?.voice === voice.voice ? {
+                      backgroundColor: '#E0E0E0',
+                      boxShadow: '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514'
+                    } : undefined}
+                    onMouseEnter={(e) => {
+                      if (tempSelectedVoice?.voice !== voice.voice) {
+                        e.currentTarget.style.boxShadow = '0px 14px 24px 0px #0E1F3514, 0px 6px 12px 0px #0E1F351F, 0px 3px 6px 0px #0E1F3514';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (tempSelectedVoice?.voice !== voice.voice) {
+                        e.currentTarget.style.boxShadow = '';
+                      }
+                    }}
+                  >
                 <div className="flex items-center gap-3">
-                  {/* Radio wave icon / Play button */}
-                      <div 
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300 cursor-pointer"
-                        onClick={(e) => handlePlayVoice(e, voice)}
-                      >
-                        {playingVoice === voice.voice ? (
-                          <div className="flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                            <div className="flex gap-0.5">
-                              <div className="w-1 h-3 bg-gray-600"></div>
-                              <div className="w-1 h-3 bg-gray-600"></div>
-                    </div>
-                  </div>
-                        ) : (
-                          <>
-                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
-                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
-                    </div>
-                          </>
-                        )}
-                  </div>
+                  {/* Voice icon / Play button */}
+                  {/* Voice icon - hidden on hover and when selected */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" 
+                    className={tempSelectedVoice?.voice === voice.voice ? 'hidden' : 'group-hover:hidden'}>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 22.4531C15.25 22.4531 14.5469 21.75 14.5469 20.8125V9.64062C14.5469 8.70312 15.25 8 16.1094 8C17.0469 8 17.75 8.70312 17.75 9.64062V20.8125C17.75 21.6719 16.9688 22.4531 16.1094 22.4531Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M16.1094 40.5C15.25 40.5 14.5469 39.7969 14.5469 38.8594V25.8125C14.5469 24.9531 15.25 24.25 16.1094 24.25C17.0469 24.25 17.75 24.9531 17.75 25.8125V38.9375C17.75 39.7969 16.9688 40.5 16.1094 40.5Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10.875 34.7188C9.9375 34.7188 9.23438 34.0156 9.23438 33.0781V15.4219C9.23438 14.4844 9.9375 13.7812 10.875 13.7812C11.7344 13.7812 12.4375 14.4844 12.4375 15.4219V33.0781C12.4375 34.0156 11.7344 34.7188 10.875 34.7188Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M5.64062 30.5C4.70312 30.5 4 29.7969 4 28.9375V19.5625C4 18.7031 4.70312 18 5.64062 18C6.5 18 7.20312 18.7031 7.20312 19.5625V28.9375C7.20312 29.7969 6.5 30.5 5.64062 30.5Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M31.8906 28.4688C31.0312 28.4688 30.25 27.7656 30.25 26.9062V21.6719C30.25 20.7344 30.9531 20.0312 31.8906 20.0312C32.75 20.0312 33.4531 20.7344 33.4531 21.6719V26.8281C33.4531 27.7656 32.75 28.4688 31.8906 28.4688Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 19.9531C25.7188 19.9531 25.0156 19.1719 25.0156 18.3125V15.0312C25.0156 14.0938 25.7188 13.3906 26.6562 13.3906C27.5156 13.3906 28.2188 14.0938 28.2188 15.0312V18.3125C28.2188 19.1719 27.5156 19.9531 26.6562 19.9531Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M26.6562 35.1094C25.7188 35.1094 25.0156 34.4062 25.0156 33.4688V22.6875C25.0156 21.8281 25.7188 21.125 26.6562 21.125C27.5156 21.125 28.2188 21.8281 28.2188 22.6875V33.4688C28.2188 34.3281 27.5156 35.1094 26.6562 35.1094Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M21.3438 33.1562C20.4844 33.1562 19.7812 32.375 19.7812 31.5156V16.9844C19.7812 16.125 20.4844 15.3438 21.3438 15.3438C22.2812 15.3438 22.9844 16.125 22.9844 16.9844V31.5156C22.9844 32.4531 22.2812 33.1562 21.3438 33.1562Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M37.125 39.5625C36.2656 39.5625 35.5625 38.8594 35.5625 38V10.5C35.5625 9.64062 36.2656 8.9375 37.125 8.9375C38.0625 8.9375 38.7656 9.64062 38.7656 10.5V38C38.7656 38.8594 38.0625 39.5625 37.125 39.5625Z" fill="#E0E0E0"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M42.3594 34.7188C41.5 34.7188 40.7969 34.0156 40.7969 33.0781V15.4219C40.7969 14.4844 41.5 13.7812 42.3594 13.7812C43.2969 13.7812 44 14.4844 44 15.4219V33.0781C44 34.0156 43.2969 34.7188 42.3594 34.7188Z" fill="#E0E0E0"/>
+                  </svg>
+                  {/* Play button - visible on hover and when selected */}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" 
+                    className={tempSelectedVoice?.voice === voice.voice ? 'block' : 'hidden group-hover:block'}
+                    onClick={(e) => handlePlayVoice(e, voice)}>
+                    <circle cx="24" cy="24" r="19.5" fill="white" stroke="#4D4D4D"/>
+                    <path d="M31.75 23.3612C32.4167 23.7461 32.4167 24.7084 31.75 25.0933L20.5 31.5885C19.8333 31.9734 19 31.4922 19 30.7224L19 17.7321C19 16.9623 19.8333 16.4811 20.5 16.866L31.75 23.3612Z" fill="#4D4D4D"/>
+                  </svg>
                   
                   {/* Text and badges */}
-                  <div className="flex flex-col gap-2">
-                        <span className="text-gray-900 font-medium">{voice.character}</span>
-                        <div className="flex gap-2 flex-wrap">
-                          {voice.name && (
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
-                              {voice.name}
-                      </span>
-                          )}
+                  <div className="flex flex-col gap-1.5">
+                        <span className="text-gray-900 text-sm font-medium">{voice.character}</span>
                           {voice.premium && (
-                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                          <div className="flex gap-2 flex-wrap">
+                      <span className="px-2.5 py-0.5 text-[11px] rounded-full flex items-center gap-2 leading-none" style={{ backgroundColor: '#FCF6E6', color: '#171718' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style={{ color: '#171718' }}>
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
-                              <span>Premium</span>
+                              <span>{t('voicePicker.premium', 'Premium')}</span>
                       </span>
+                          </div>
                           )}
-                          {voice.tags && voice.tags.slice(0, 2).map((tag, i) => (
-                            <span key={i} className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-full">
-                              {tag}
-                      </span>
-                          ))}
                     </div>
-                  </div>
-                </div>
-                
-                {/* Action buttons - visible on hover */}
-                <div className="hidden group-hover:flex items-center gap-2">
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1 items-center justify-center h-4 w-4">
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                    </div>
-                  </button>
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
               ))
-            )}
+              );
+            })()}
 
           </div>
           
-          {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0 relative">
-            {showReady && (
-              <div className="absolute inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-10 pointer-events-none">
-                <span className="text-sm text-gray-600 font-medium">Soon</span>
-              </div>
-            )}
-            <div className={showReady ? 'opacity-50 pointer-events-none' : ''}>
+          {/* Vertical Divider */}
+          <div className="w-px bg-[#E0E0E0]"></div>
+          
+          {/* Right Panel Container */}
+          <div className="flex flex-col gap-2 p-4" style={{ width: '260px' }}>
+            {/* Voice Details Label */}
+            <div>
+              <span className="text-xs leading-none block" style={{ color: '#878787' }}>{t('voicePicker.voiceDetails', 'Voice details')}</span>
+            </div>
+            
+            {/* Right Panel - Voice Details Card with scrolling */}
+            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
             {tempSelectedVoice ? (
               <>
                 {/* Row 1: Voice name title */}
             <div className="mb-2">
-                  <h3 className="text-xl text-gray-900">{tempSelectedVoice.character}</h3>
+                  <h3 className="text-base font-medium" style={{ color: '#171718' }}>{tempSelectedVoice.character}</h3>
             </div>
             
                 {/* Row 2: Flag + locale */}
                 {tempSelectedVoice.name && (
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2">
                     {tempSelectedVoice.icon === 'us' && <AmericanFlag size={16} />}
                     {tempSelectedVoice.icon === 'gb' && <BritishFlag size={16} />}
                     {tempSelectedVoice.icon === 'au' && <AustralianFlag size={16} />}
-                    <span className="text-xs text-gray-700">{tempSelectedVoice.name}</span>
+                    <span className="text-xs" style={{ color: '#878787' }}>{tempSelectedVoice.name}</span>
             </div>
                 )}
             
@@ -932,7 +723,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       {tempSelectedVoice.tags.map((tag, index) => (
                   <span
                           key={index}
-                    className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] rounded-full border border-gray-300"
+                    className="px-2.5 py-0.5 bg-white text-[11px] rounded-full leading-none inline-flex items-center"
+                    style={{ color: '#878787', borderWidth: '1px', borderStyle: 'solid', borderColor: '#878787' }}
                   >
                           {tag.charAt(0).toUpperCase() + tag.slice(1)}
                   </span>
@@ -942,24 +734,22 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 )}
               </>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                Select a voice to view details
+              <div className="text-center py-8 text-xs text-gray-500">
+                {t('voicePicker.selectVoiceToViewDetails', 'Select a voice to view details')}
               </div>
             )}
             
-            {/* Row 4: Horizontal line */}
-            <div className="mb-3 -mx-3">
-              <hr className="border-gray-300" />
+            {/* Advanced settings */}
+            <div className="my-4">
+              <h4 className="text-xs" style={{ color: '#878787' }}>{t('voicePicker.advancedSettings', 'Advanced settings')}</h4>
             </div>
             
-            {/* Row 5: Advanced settings */}
-            <div className="mb-3">
-              <h4 className="text-sm text-gray-900">Advanced settings</h4>
+            {/* Speed */}
+            <div className="mb-2">
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs" style={{ color: '#4D4D4D' }}>{t('voicePicker.speed', 'Speed')}</label>
+                <span className="text-xs" style={{ color: '#4D4D4D' }}>{speed}</span>
             </div>
-            
-            {/* Row 6: Speed */}
-            <div className="mb-3">
-              <label className="text-sm text-gray-700 mb-1 block">Speed</label>
               <input
                 type="range"
                 min="0"
@@ -968,102 +758,77 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 onChange={(e) => setSpeed(Number(e.target.value))}
                 className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
                 style={{
-                  background: `linear-gradient(to right, #000000 0%, #000000 ${speed}%, #e5e7eb ${speed}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #1058F9 0%, #1058F9 ${speed}%, #E0E0E0 ${speed}%, #E0E0E0 100%)`
                 }}
               />
             </div>
             
-            {/* Row 7: Stability */}
-            <div className="mb-6">
-              <label className="text-sm text-gray-700 mb-1 block">Stability</label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={stability}
-                onChange={(e) => setStability(Number(e.target.value))}
-                className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
-                style={{
-                  background: `linear-gradient(to right, #000000 0%, #000000 ${stability}%, #e5e7eb ${stability}%, #e5e7eb 100%)`
-                }}
-              />
-            </div>
-            
-            {/* Row 8: Play Sample button */}
+            {/* Play Sample button */}
             {tempSelectedVoice && (
               <button 
                 onClick={(e) => handlePlayVoice(e, tempSelectedVoice)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white rounded-md hover:bg-gray-50 transition-colors"
+                style={{ 
+                  border: '1px solid #E6E6E6',
+                  boxShadow: '0px 1px 2px 0px #0000000D',
+                  color: '#4D4D4D'
+                }}
               >
-              <Volume2 size={16} className="text-gray-700" />
-                <span className="text-sm font-medium text-gray-700">
-                  {playingVoice === tempSelectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9.06533 4.93417C9.61212 5.48112 9.91929 6.22285 9.91929 6.99625C9.91929 7.76965 9.61212 8.51138 9.06533 9.05833M11.1245 2.875C12.2181 3.96891 12.8324 5.45238 12.8324 6.99917C12.8324 8.54596 12.2181 10.0294 11.1245 11.1233M6.41699 2.91583L3.50033 5.24917H1.16699V8.74917H3.50033L6.41699 11.0825V2.91583Z" stroke="#4D4D4D" strokeWidth="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="text-xs">
+                  {playingVoice === tempSelectedVoice.voice ? t('voicePicker.stopSample', 'Stop Sample') : t('voicePicker.playSample', 'Play Sample')}
                 </span>
             </button>
             )}
             </div>
           </div>
+          </div>
+          </div>
+          </div>
+          </div>
         </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-xl">
+        <div className="bg-white flex items-center justify-between rounded-b-xl">
           {/* Left side - Apply new voice to */}
-          <div className="flex-1 relative">
-            {showReady && (
-              <div className="absolute inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-10 pointer-events-none">
-                <span className="text-sm text-gray-600 font-medium">Soon</span>
-              </div>
-            )}
-            <div className={showReady ? 'opacity-50 pointer-events-none' : ''} title={showReady ? 'Soon' : undefined}>
-              <div className="mb-2">
-                <span className="text-sm text-gray-700">Apply new voice to</span>
-              </div>
-              <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
-                <button
-                  onClick={() => setApplyTo('block')}
-                  disabled={showReady}
-                  className={`flex-1 py-1 text-sm rounded transition-colors ${
-                    applyTo === 'block' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  This block only
-                </button>
-                <button
-                  onClick={() => setApplyTo('scene')}
-                  disabled={showReady}
-                  className={`flex-1 py-1 text-sm rounded transition-colors ${
-                    applyTo === 'scene' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  This scene only
-                </button>
-                <button
-                  onClick={() => setApplyTo('all')}
-                  disabled={showReady}
-                  className={`flex-1 py-1 text-sm rounded transition-colors ${
-                    applyTo === 'all' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  All scenes
-                </button>
-              </div>
+          <div className="flex-1">
+            <div className="rounded-lg px-1 py-1 flex gap-1" style={{ backgroundColor: '#F4F4F5', width: '250px' }}>
+              <button
+                onClick={() => setApplyTo('scene')}
+                className={`flex-1 py-1 text-xs rounded transition-colors ${
+                  applyTo === 'scene' 
+                    ? 'bg-white shadow-sm' 
+                    : 'hover:bg-gray-300'
+                }`}
+                style={{ color: applyTo === 'scene' ? '#171718' : '#878787' }}
+              >
+                {t('voicePicker.thisSceneOnly', 'This scene only')}
+              </button>
+              <button
+                onClick={() => setApplyTo('all')}
+                className={`flex-1 py-1 text-xs rounded transition-colors ${
+                  applyTo === 'all' 
+                    ? 'bg-white shadow-sm' 
+                    : 'hover:bg-gray-300'
+                }`}
+                style={{ color: applyTo === 'all' ? '#171718' : '#878787' }}
+              >
+                {t('voicePicker.allScenes', 'All scenes')}
+              </button>
             </div>
           </div>
 
           {/* Right side - Action buttons */}
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-3 py-1.5 text-xs bg-white rounded-md hover:bg-gray-50 transition-colors"
+              style={{ border: '1px solid #719AF5', color: '#719AF5' }}
             >
-              Cancel
+              {t('voicePicker.cancel', 'Cancel')}
             </button>
             <button
               onClick={() => {
@@ -1087,10 +852,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                  }
                 onClose();
               }}
-              className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="px-3 py-1.5 text-xs text-white rounded-md hover:opacity-90 transition-colors"
+              style={{ backgroundColor: '#0F58F9' }}
                disabled={!tempSelectedVoice}
             >
-              Apply voice
+              {t('voicePicker.apply', 'Apply')}
             </button>
           </div>
         </div>

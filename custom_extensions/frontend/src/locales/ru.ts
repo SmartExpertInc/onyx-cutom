@@ -267,6 +267,13 @@ export const ru = {
       createQuizAndOnePager: "Создать тест или одностраничник",
       createAll: "Создать презентацию, тест или одностраничник",
     },
+    trimVideo: {
+      previewPlaceholder: "Предпросмотр видео",
+      adjustTrimStart: "Настроить начало обрезки",
+      adjustTrimEnd: "Настроить конец обрезки",
+      trimmedLengthLabel: "Длительность обрезанного видео",
+      confirm: "Обрезать",
+    },
     folderSettings: {
       title: "Настройки папки",
       subtitle: "Настройка качества производства для",
@@ -372,6 +379,52 @@ export const ru = {
       onePager: 'Ставка одностраничника',
       quiz: 'Ставка теста',
       videoLesson: 'Ставка видео-урока'
+    },
+    play: {
+      videoPreviewArea: "Область предпросмотра видео",
+      draft: "Черновик",
+      cancel: "Отменить",
+      generate: "Сгенерировать",
+      noLipMovements: "В предпросмотре нет движения губ.",
+      needGenerate: "Необходимо сгенерировать видео, чтобы увидеть его.",
+      rateQuality: "Как качество видео и голоса?",
+      helpImprove: "Помогите нам улучшить ContentBuilder"
+    },
+    generate: {
+      title: "Сгенерировать видео",
+      titleLabel: "Название",
+      titlePlaceholder: "Введите название видео",
+      subtitles: "Субтитры",
+      selectSubtitle: "Выберите опцию субтитров",
+      optionalSubtitles: "Опциональные субтитры (SRT/VTT)",
+      optionalSubtitlesDesc: "Могут быть включены зрителями по требованию",
+      burntInSubtitles: "Встроенные субтитры",
+      burntInSubtitlesDesc: "Встроены в видео, нельзя отключить",
+      resolution: "Разрешение",
+      location: "Местоположение",
+      library: "Библиотека",
+      cancel: "Отменить",
+      startGeneration: "Начать генерацию",
+      startingGeneration: "Начало генерации...",
+      generationInProgress: "Генерация выполняется...",
+      startVideoGeneration: "Начать генерацию видео"
+    },
+    completed: {
+      generatingProgress: "Генерация видео...",
+      download: "Скачать",
+      downloadMp4: "Скачать MP4",
+      copyLink: "Копировать ссылку",
+      exitTo: "Выйти в",
+      home: "Главная",
+      newDraft: "Новый черновик",
+      generatingVideo: "Генерация вашего видео...",
+      percentComplete: "завершено",
+      browserNotSupported: "Ваш браузер не поддерживает тег video.",
+      generationFailed: "Генерация не удалась",
+      firstSlide: "Первый слайд",
+      slideContentPlaceholder: "Содержание слайда будет отображено здесь",
+      firstSlideWillDisplay: "Первый слайд будет отображен здесь",
+      downloadFailed: "Загрузка не удалась. Пожалуйста, попробуйте снова."
     }
   },
   projects: {
@@ -2051,5 +2104,397 @@ export const ru = {
       describeRole: "Опишите вашу роль",
       describeIndustry: "Опишите вашу отрасль"
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Медиатека",
+    videoPreview: "Предпросмотр видео",
+    video: "Видео",
+    menu: {
+      saveAsSceneLayout: "Сохранить как шаблон сцены",
+      duplicateScene: "Дублировать сцену",
+      insertScene: "Вставить сцену",
+      deleteSlide: "Удалить слайд",
+      deleteScene: "Удалить сцену"
+    },
+    aspectRatio: {
+      desktop: "Настольное видео, Youtube",
+      story: "История Instagram",
+      square: "Квадрат, пост Instagram",
+      custom: "установить пользовательский размер"
+    },
+    tools: {
+      script: "Скрипт",
+      avatar: "Аватар",
+      shape: "Фигура",
+      text: "Текст",
+      media: "Медиа"
+    },
+    actions: {
+      preview: "Предпросмотр",
+      debug: "Отладка",
+      debugTooltip: "Рендер слайдов только с переходами (без аватара) - для тестирования и отладки",
+      generate: "Сгенерировать"
+    }
+  },
+  avatarPopup: {
+    searchPlaceholder: "Поиск...",
+    filters: {
+      gender: {
+        label: "Пол",
+        options: {
+          all: "Все",
+          female: "Женский",
+          male: "Мужской"
+        }
+      },
+      age: {
+        label: "Возраст",
+        options: {
+          young: "Молодой",
+          middleAged: "Средний возраст",
+          senior: "Пожилой"
+        }
+      },
+      look: {
+        label: "Образ",
+        options: {
+          business: "Бизнес",
+          casual: "Повседневный",
+          callCentre: "Колл-центр",
+          doctor: "Доктор",
+          construction: "Строитель",
+          fitness: "Фитнес",
+          chef: "Шеф-повар",
+          thobe: "Thobe",
+          casualWhite: "Повседневный белый"
+        }
+      }
+    }
+  },
+  textPopup: {
+    options: {
+      title: "Заголовок",
+      subtitle: "Подзаголовок",
+      body: "Основной текст"
+    }
+  },
+  productViewHeader: {
+    aiImprove: "AI Улучшить",
+    export: "Экспорт",
+    exportToPdf: "Экспорт в PDF",
+    exportScorm: "Экспорт в SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Войти",
+    adminSettings: "Настройки администратора",
+    logOut: "Выйти"
+  },
+  scormDownload: {
+    preparing: "Подготовка пакета SCORM",
+    building: "Создание пакета SCORM 2004...",
+    ready: "SCORM готов",
+    downloadStarted: "Загрузка начата.",
+    exportFailed: "Экспорт не удался",
+    unexpectedError: "Неожиданная ошибка",
+    exporting: "Экспортируется…",
+    downloadScorm: "Скачать SCORM 2004"
+  },
+  panels: {
+    script: {
+      defaultPlaceholder: "Создавайте динамичные, мощные и информативные видео с аватаром в качестве ведущего. Мгновенно переводите видео на более чем восемьдесят языков, используйте привлекательные медиа для привлечения внимания аудитории или даже моделируйте разговоры между несколькими аватарами. Все с интуитивным интерфейсом, который может использовать каждый!",
+      avatarLisa: "Лиза",
+      narrationOnly: "Только закадровый голос",
+      removeAvatar: "Удалить аватар",
+      addNewAvatar: "Добавить новый аватар",
+      lisaNarration: "Озвучивание Лизы"
+    },
+    image: {
+      image: "Изображение",
+      replaceImage: "Заменить изображение",
+      removeMedia: "Удалить медиа",
+      format: "Формат",
+      animate: "Анимация",
+      filters: "Фильтры"
+    },
+    avatar: {
+      nameOfAvatar: "Имя аватара",
+      change: "Изменить",
+      applyToAllScenes: "Применить ко всем сценам",
+      appearance: "Внешний вид",
+      shoulder: "Плечи",
+      fullBody: "Полное тело",
+      bubble: "Пузырь",
+      view: "Вид",
+      selectView: "Выберите вид...",
+      frontView: "Вид спереди",
+      sideView: "Вид сбоку",
+      backView: "Вид сзади",
+      position: "Позиция",
+      alignLeft: "Выровнять по левому краю",
+      alignCenter: "Выровнять по центру",
+      alignRight: "Выровнять по правому краю",
+      order: "Порядок",
+      sendToBack: "Отправить аватар назад",
+      sendBackward: "Отправить аватар на шаг назад",
+      bringForward: "Переместить аватар вперед",
+      sendToFront: "Отправить аватар на передний план",
+      chooseAvatar: "Выберите аватар"
+    },
+    avatarRightPanel: {
+      addToAllSlides: "Добавить на все слайды",
+      replaceAvatar: "Заменить аватар",
+      appearance: "Внешний вид",
+      transparent: "Прозрачный",
+      inCircle: "В круге",
+      alignment: "Выравнивание",
+      layer: "Слой",
+      toBack: "Назад",
+      backward: "Шаг назад",
+      forward: "Шаг вперед",
+      toFront: "Вперед",
+      position: "Позиция",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрыть"
+    },
+    textRightPanel: {
+      typography: "Типографика",
+      textColor: "Цвет текста",
+      layer: "Слой",
+      toBack: "Назад",
+      backward: "Шаг назад",
+      forward: "Шаг вперед",
+      toFront: "Вперед"
+    },
+    shapeRightPanel: {
+      addColor: "Добавить цвет",
+      addStroke: "Добавить обводку",
+      stroke: "Обводка",
+      color: "Цвет",
+      rotation: "Поворот",
+      appearance: "Внешний вид",
+      transparent: "Прозрачный",
+      inCircle: "В круге",
+      alignment: "Выравнивание",
+      layer: "Слой",
+      toBack: "Назад",
+      backward: "Шаг назад",
+      forward: "Шаг вперед",
+      toFront: "Вперед",
+      position: "Позиция",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрыть"
+    },
+    imageRightPanel: {
+      uploadedIcon: "Загруженный значок",
+      uploadedImage: "Загруженное изображение",
+      removeIcon: "Удалить значок",
+      removeImage: "Удалить изображение",
+      resetOriginalSize: "Сбросить исходный размер",
+      crop: "Обрезать",
+      replace: "Заменить",
+      transparency: "Прозрачность"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Загруженное видео",
+      removeVideo: "Удалить видео",
+      replace: "Заменить",
+      trim: "Обрезать",
+      transparency: "Прозрачность",
+      duration: "Длительность",
+      durationFreeze: "Заморозить",
+      durationFreezeTooltip: "Зафиксируйте последний кадр видео до конца сцены",
+      durationLoop: "Зациклить",
+      durationLoopTooltip: "Зациклите видео, если оно заканчивается раньше сцены",
+      durationAdjust: "Настроить",
+      durationAdjustTooltip: "Подгоните видео под длительность сцены",
+      durationHide: "Скрыть",
+      durationHideTooltip: "Скрывайте видео, если оно заканчивается раньше сцены",
+      sound: "Звук"
+    },
+    musicRightPanel: {
+      music: "Музыка",
+      replaceMusic: "Заменить музыку",
+      volume: "Громкость",
+      playEverywhere: "Воспроизводить везде"
+    },
+    applyAvatarModal: {
+      title: "Применить аватар ко всем сценам",
+      addToAllScenes: "Добавить ко всем сценам",
+      replaceOnAllScenes: "Заменить во всех сценах",
+      cancel: "Отмена",
+      apply: "Применить"
+    },
+    shape: {
+      shapeName: "Название фигуры",
+      remove: "Удалить",
+      format: "Формат",
+      animate: "Анимация",
+      fill: "Заливка",
+      color: "Цвет",
+      fillColor: "Цвет заливки",
+      stroke: "Обводка",
+      strokeColor: "Цвет обводки",
+      strokeWidth: "Ширина обводки",
+      order: "Порядок",
+      sendToBack: "Отправить фигуру назад",
+      sendBackward: "Отправить фигуру на шаг назад",
+      bringForward: "Переместить фигуру вперед",
+      sendToFront: "Отправить фигуру на передний план",
+      animationType: "Тип анимации",
+      animationNone: "Нет",
+      animationFade: "Затухание",
+      animationSlide: "Скольжение",
+      animationGrow: "Увеличение"
+    },
+    text: {
+      textFormatting: "Форматирование текста",
+      selectTextToEdit: "Текст (Выберите текст для редактирования)",
+      active: "Активно",
+      format: "Формат",
+      animate: "Анимация",
+      fontFamily: "Семейство шрифтов",
+      selectFont: "Выберите шрифт",
+      fontStyle: "Стиль шрифта",
+      bold: "Жирный",
+      italic: "Курсив",
+      underline: "Подчеркнутый",
+      strikethrough: "Зачеркнутый",
+      fontSize: "Размер шрифта",
+      textAlign: "Выравнивание текста",
+      fontColor: "Цвет шрифта",
+      backgroundColor: "Цвет фона",
+      order: "Порядок",
+      sendToBack: "Отправить текст назад",
+      sendBackward: "Отправить текст на шаг назад",
+      bringForward: "Переместить текст вперед",
+      sendToFront: "Отправить текст на передний план",
+      animationType: "Тип анимации",
+      animationNone: "Нет",
+      animationFade: "Затухание",
+      animationSlide: "Скольжение",
+      animationGrow: "Увеличение"
+    },
+    media: {
+      chooseMedia: "Выбрать медиа",
+      myAssets: "Мои ресурсы",
+      library: "Библиотека",
+      stockAssets: "Стоковые ресурсы",
+      image: "Изображение",
+      video: "Видео",
+      music: "Музыка",
+      icon: "Иконка",
+      locations: "Локации",
+      allImages: "Все изображения",
+      outlined: "Контурные",
+      filled: "Залитые",
+      colored: "Цветные",
+      seeMore: "Показать больше",
+      seeLess: "Показать меньше",
+      aiImage: "AI изображение",
+      upload: "Загрузить",
+      record: "Записать",
+      mediaLibrary: "Медиатека",
+      brandKit: "Брендовый набор",
+      searchPlaceholder: "Поиск...",
+      uploadToLibrary: "Загрузить в библиотеку",
+      libraryEmptyToggle: "Библиотека пустая",
+      libraryFullToggle: "Библиотека полная",
+      noFilesYet: "Файлов пока нет",
+      dragAndDrop: "Перетащите файлы сюда или нажмите \"Загрузить\", чтобы добавить их.",
+      aiAgent: {
+        badge: "AI-агент",
+        description: "Агент использует кредиты для расширенного AI-редактирования.",
+        learnMore: "Узнать больше",
+        promptTitle: "Начните с подсказки",
+        prompts: {
+          modernOffice: "Современный офис",
+          pharmaceuticalLaboratory: "Фармацевтическая лаборатория",
+          constructionSite: "Строительная площадка"
+        },
+        promptPlaceholder: "Опишите ваше изображение...",
+        send: "Отправить"
+      },
+      uploadFiles: "Загрузить файлы"
+    }
+  },
+  rightPanel: {
+    music: "Музыка",
+    volume: "Громкость",
+    background: "Фон",
+    none: "Нет",
+    sceneTransition: "Переход между сценами",
+    clickToEditTransitions: "Нажмите, чтобы редактировать переходы",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Разблокируйте с тарифом Team",
+      upgradePlan: "Обновить тариф"
+    },
+    brandKit: {
+      title: "Брендбук",
+      infoAriaLabel: "Информация о брендбуке",
+      logos: "Логотипы",
+      colors: "Цвета",
+      fonts: "Шрифты",
+      colorsLimit: "До 5 фирменных цветов.",
+      colorSlot: "Слот фирменного цвета",
+      thisSlide: "Этот слайд",
+      allSlides: "Все слайды",
+      addColor: "Добавить цвет"
+    },
+    transitions: {
+      none: "Нет",
+      fade: "Затухание",
+      close: "Закрыть",
+      crop: "Обрезать",
+      blur: "Размытие",
+      open: "Открыть",
+      slide: "Скольжение",
+      wipe: "Стереть",
+      smoothWipe: "Плавное стирание"
+    }
+  },
+  colorPalettePopup: {
+    title: "Выбор цвета",
+    lastUsed: "Недавно использованные",
+    noRecentColor: "Нет недавнего цвета",
+  },
+  voicePicker: {
+    title: "Выберите голос",
+    search: "Поиск",
+    searchPlaceholder: "Поиск...",
+    selected: "выбрано",
+    accent: "Акцент",
+    age: "Возраст",
+    tone: "Тон",
+    scenario: "Сценарий",
+    resetAll: "Сбросить все",
+    loadingVoices: "Загрузка голосов...",
+    voicesFound: "голосов найдено",
+    voiceDetails: "Детали голоса",
+    createCustomVoice: "Создать пользовательский голос",
+    new: "НОВЫЙ",
+    noVoicesFound: "Голоса не найдены",
+    noResultsFound: "Результаты не найдены",
+    premium: "Премиум",
+    selectVoiceToViewDetails: "Выберите голос для просмотра деталей",
+    advancedSettings: "Расширенные настройки",
+    speed: "Скорость",
+    stability: "Стабильность",
+    playSample: "Воспроизвести образец",
+    stopSample: "Остановить образец",
+    applyNewVoiceTo: "Применить новый голос к",
+    thisBlockOnly: "Только этот блок",
+    thisSceneOnly: "Только эта сцена",
+    allScenes: "Все сцены",
+    cancel: "Отмена",
+    apply: "Применить",
+    applyVoice: "Применить голос",
+    // Badge translations
+    mockVoiceName: "Сара - Разговорный",
+    badge32Languages: "32 языка",
+    badgeCustomVoice: "Пользовательский голос",
+    badgeBestFitAvatar: "Лучше всего подходит для аватара",
+    badgePreviouslyUsed: "Ранее использованный"
   }
 };

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import AdvancedSettings from './AdvancedSettings';
 import ColorPalettePopup from './ColorPalettePopup';
 import Tooltip from './Tooltip';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ShapeSettings() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
   
@@ -11,7 +13,6 @@ export default function ShapeSettings() {
   const [fillColor, setFillColor] = useState('#3B82F6');
   const [strokeColor, setStrokeColor] = useState('#000000');
   const [strokeWidth, setStrokeWidth] = useState(2);
-  const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -43,10 +44,6 @@ export default function ShapeSettings() {
       // Don't close dropdowns if color pickers are open
       if (showFillColorPicker || showStrokeColorPicker) {
         return;
-      }
-      
-      if (showStrokeWidthDropdown) {
-        setShowStrokeWidthDropdown(false);
       }
     }
 
@@ -109,9 +106,9 @@ export default function ShapeSettings() {
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 h-fit flex flex-col">
+      <div className="bg-white h-full flex flex-col">
       {/* Header with grey background */}
-      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
+      <div className="bg-gray-100 px-4 py-3 flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
           {/* Shape icon */}
           <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center border border-gray-300">
@@ -120,12 +117,12 @@ export default function ShapeSettings() {
             </svg>
           </div>
           {/* Shape name */}
-          <span className="text-sm font-medium text-gray-700">Shape name</span>
+          <span className="text-xs font-medium text-gray-700">{t('panels.shape.shapeName', 'Shape name')}</span>
         </div>
         
         {/* Remove button */}
-        <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
-          Remove
+        <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+          {t('panels.shape.remove', 'Remove')}
         </button>
       </div>
       
@@ -133,23 +130,23 @@ export default function ShapeSettings() {
       <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab('format')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'format'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Format
+          {t('panels.shape.format', 'Format')}
         </button>
         <button
           onClick={() => setActiveTab('animate')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'animate'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Animate
+          {t('panels.shape.animate', 'Animate')}
         </button>
       </div>
       
@@ -161,19 +158,19 @@ export default function ShapeSettings() {
             <div className="space-y-3">
               {/* Fill header with Remove button */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 pl-2">Fill</span>
-                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
-                  Remove
+                <span className="text-xs font-medium text-gray-700 pl-2">{t('panels.shape.fill', 'Fill')}</span>
+                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+                  {t('panels.shape.remove', 'Remove')}
                 </button>
               </div>
               
               {/* Fill Color */}
               <div className="flex items-center justify-between pl-4">
-                <span className="text-sm text-gray-600">Color</span>
+                <span className="text-xs text-gray-600">{t('panels.shape.color', 'Color')}</span>
                 <button
                   className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                   style={{ backgroundColor: fillColor }}
-                  title={`Fill color: ${fillColor}`}
+                  title={`${t('panels.shape.fillColor', 'Fill color')}: ${fillColor}`}
                   onClick={handleFillColorClick}
                 >
                   {/* Add a subtle pattern for better color visibility */}
@@ -186,19 +183,19 @@ export default function ShapeSettings() {
             <div className="space-y-3">
               {/* Stroke header with Remove button */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Stroke</span>
-                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
-                  Remove
+                <span className="text-xs font-medium text-gray-700">{t('panels.shape.stroke', 'Stroke')}</span>
+                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+                  {t('panels.shape.remove', 'Remove')}
                 </button>
               </div>
               
               {/* Stroke Color */}
               <div className="flex items-center justify-between pl-4">
-                <span className="text-sm text-gray-600">Stroke color</span>
+                <span className="text-xs text-gray-600">{t('panels.shape.strokeColor', 'Stroke color')}</span>
                 <button
                   className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                   style={{ backgroundColor: strokeColor }}
-                  title={`Stroke color: ${strokeColor}`}
+                  title={`${t('panels.shape.strokeColor', 'Stroke color')}: ${strokeColor}`}
                   onClick={handleStrokeColorClick}
                 >
                   {/* Add a subtle pattern for better color visibility */}
@@ -208,9 +205,9 @@ export default function ShapeSettings() {
 
               {/* Stroke Width with Range Slider */}
               <div className="flex items-center justify-between pl-4">
-                <span className="text-sm text-gray-600">Stroke width</span>
+                <span className="text-xs text-gray-600">{t('panels.shape.strokeWidth', 'Stroke width')}</span>
                 <div className="flex items-center space-x-3">
-                  <span className="text-xs text-gray-500 min-w-[2rem]">{strokeWidth}</span>
+                  <span className="text-[10px] text-gray-500 min-w-[2rem]">{strokeWidth}</span>
                   <div className="relative w-32 flex items-center">
                     <input
                       type="range"
@@ -224,7 +221,7 @@ export default function ShapeSettings() {
                         e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
                       }}
                       className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
-                      title={`Stroke width: ${strokeWidth}`}
+                      title={`${t('panels.shape.strokeWidth', 'Stroke width')}: ${strokeWidth}`}
                       style={{
                         background: `linear-gradient(to right, #000000 0%, #000000 ${strokeWidth}%, #e5e7eb ${strokeWidth}%, #e5e7eb 100%)`
                       }}
@@ -266,50 +263,87 @@ export default function ShapeSettings() {
               </div>
             </div>
 
-            {/* Order */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Order</span>
-              <div className="flex space-x-2">
-                <Tooltip content="Send shape to back">
-                  <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send shape to back"
-                  >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill="currentColor" d="M2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5V6H9.5A3.5 3.5 0 0 0 6 9.5V13H4.5A2.5 2.5 0 0 1 2 10.5v-6ZM9.5 7A2.5 2.5 0 0 0 7 9.5v6A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7h-6ZM8 9.5A1.5 1.5 0 0 1 9.5 8h6A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5v-6Z"/>
-                    </svg>
-                  </button>
-                </Tooltip>
-                <Tooltip content="Send shape backward">
-                  <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send shape backward"
-                  >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill="currentColor" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v6A2.5 2.5 0 0 0 4.5 13H6v-1.707L5.293 12H4.5c-.232 0-.45-.053-.647-.146L6 9.707V9.5c0-.571.137-1.11.38-1.586l-3.234 3.233A1.495 1.495 0 0 1 3 10.5v-.94L9.56 3h.94c.232 0 .45.052.647.146L7.914 6.38A3.485 3.485 0 0 1 9.5 6h.207l2.147-2.147c.094.196.146.415.146.647v.793L11.293 6H13V4.5A2.5 2.5 0 0 0 10.5 2h-6ZM3 4.5A1.5 1.5 0 0 1 4.5 3h.647L3 5.147V4.5Zm0 2.06L6.56 3h1.587L3 8.147V6.56ZM7 9.5A2.5 2.5 0 0 1 9.5 7h6A2.5 2.5 0 0 1 18 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 7 15.5v-6ZM9.5 8A1.5 1.5 0 0 0 8 9.5v6A1.5 1.5 0 0 0 9.5 17h6a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 15.5 8h-6Z"/>
-                    </svg>
-                  </button>
-                </Tooltip>
-                <Tooltip content="Bring shape forward">
-                  <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Bring shape forward"
-                  >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6ZM4.5 3A1.5 1.5 0 0 0 3 4.5v.647L5.147 3H4.5Zm2.06 0L3 6.56v1.587L8.147 3H6.56ZM3 10.5c0 .232.052.45.146.647l8-8A1.495 1.495 0 0 0 10.5 3h-.94L3 9.56v.94ZM4.5 12h.793L12 5.293V4.5c0-.232-.053-.45-.146-.647l-8 8c.195.095.414.147.646.147Zm5.207 0h.793a1.5 1.5 0 0 0 1.5-1.5v-.793L9.707 12Zm-1.414 0L12 8.293V6.707L6.707 12h1.586Z"/>
-                    </svg>
-                  </button>
-                </Tooltip>
-                <Tooltip content="Send shape to front">
-                  <button
-                    className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors"
-                    title="Send shape to front"
-                  >
-                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill="currentColor" d="M7 14v1.5A2.5 2.5 0 0 0 9.5 18h6a2.5 2.5 0 0 0 2.5-2.5v-6A2.5 2.5 0 0 0 15.5 7H14v1h1.5A1.5 1.5 0 0 1 17 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 8 15.5V14H7ZM2 4.5A2.5 2.5 0 0 1 4.5 2h6A2.5 2.5 0 0 1 13 4.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 10.5v-6Z"/>
-                    </svg>
-                  </button>
-                </Tooltip>
+            {/* Stroke section */}
+            <div className="space-y-3">
+              {/* Stroke header with Remove button */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-700">{t('panels.shape.stroke', 'Stroke')}</span>
+                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+                  {t('panels.shape.remove', 'Remove')}
+                </button>
+              </div>
+              
+              {/* Stroke Color */}
+              <div className="flex items-center justify-between pl-4">
+                <span className="text-xs text-gray-600">{t('panels.shape.strokeColor', 'Stroke color')}</span>
+                <button
+                  className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
+                  style={{ backgroundColor: strokeColor }}
+                  title={`${t('panels.shape.strokeColor', 'Stroke color')}: ${strokeColor}`}
+                  onClick={handleStrokeColorClick}
+                >
+                  {/* Add a subtle pattern for better color visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+                </button>
+              </div>
+
+              {/* Stroke Width with Range Slider */}
+              <div className="flex items-center justify-between pl-4">
+                <span className="text-xs text-gray-600">{t('panels.shape.strokeWidth', 'Stroke width')}</span>
+                <div className="flex items-center space-x-3">
+                  <span className="text-[10px] text-gray-500 min-w-[2rem]">{strokeWidth}</span>
+                  <div className="relative w-32 flex items-center">
+                    <input
+                      type="range"
+                      min="1"
+                      max="100"
+                      value={strokeWidth}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setStrokeWidth(parseInt(value));
+                        const percentage = value + '%';
+                        e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
+                      }}
+                      className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                      title={`${t('panels.shape.strokeWidth', 'Stroke width')}: ${strokeWidth}`}
+                      style={{
+                        background: `linear-gradient(to right, #000000 0%, #000000 ${strokeWidth}%, #e5e7eb ${strokeWidth}%, #e5e7eb 100%)`
+                      }}
+                    />
+                    <style jsx>{`
+                      input[type="range"]::-webkit-slider-thumb {
+                        appearance: none;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #000000;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                      }
+                      
+                      input[type="range"]::-moz-range-thumb {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #000000;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                      }
+                      
+                      input[type="range"]::-webkit-slider-track {
+                        appearance: none;
+                        background: transparent;
+                      }
+                      
+                      input[type="range"]::-moz-range-track {
+                        background: transparent;
+                        border: none;
+                      }
+                    `}</style>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -333,13 +367,13 @@ export default function ShapeSettings() {
           <div className="space-y-4">
             {/* Animation type */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Animation type</span>
+              <span className="text-xs font-medium text-gray-700">{t('panels.shape.animationType', 'Animation type')}</span>
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                                          <span className="text-gray-700">None</span>
+                                          <span className="text-gray-700">{t('panels.shape.animationNone', 'None')}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -347,22 +381,27 @@ export default function ShapeSettings() {
                 
                 {showDropdown && (
                   <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                    {['None', 'Fade', 'Slide', 'Grow'].map((option) => (
+                    {[
+                      { key: 'none', label: t('panels.shape.animationNone', 'None') },
+                      { key: 'fade', label: t('panels.shape.animationFade', 'Fade') },
+                      { key: 'slide', label: t('panels.shape.animationSlide', 'Slide') },
+                      { key: 'grow', label: t('panels.shape.animationGrow', 'Grow') }
+                    ].map((option) => (
                       <button
-                        key={option}
+                        key={option.key}
                         onClick={() => {
                           setShowDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                       >
-                        {option === 'None' ? (
+                        {option.key === 'none' ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         ) : (
                           <div className="w-4 h-4 mr-2"></div>
                         )}
-                        <span className="text-gray-700">{option}</span>
+                        <span className="text-gray-700">{option.label}</span>
                       </button>
                     ))}
                   </div>

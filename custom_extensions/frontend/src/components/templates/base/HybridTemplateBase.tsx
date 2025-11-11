@@ -266,12 +266,12 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''} ${isVideoMode ? 'video-mode' : ''}`}
       style={{
         // Use max-width and max-height instead of fixed dimensions to allow natural flow
-        width: isVideoMode ? '80%' : '100%',
+        width: '100%',
         height: 'auto',
         minHeight: isVideoMode ? 'auto' : '600px', // No minHeight in video mode
         position: 'relative',
         // Ensure the wrapper doesn't interfere with slide spacing
-        margin: isVideoMode ? '0 auto' : 0,
+        margin: 0,
         padding: 0,
         display: 'block'
       }}

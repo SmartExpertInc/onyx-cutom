@@ -277,6 +277,13 @@ export const en = {
       createQuizAndOnePager: "Create quiz or one-pager",
       createAll: "Create presentation, quiz, or one-pager",
     },
+    trimVideo: {
+      previewPlaceholder: "Video preview placeholder",
+      adjustTrimStart: "Adjust trim start",
+      adjustTrimEnd: "Adjust trim end",
+      trimmedLengthLabel: "Trimmed video length",
+      confirm: "Trim",
+    },
     folderSettings: {
       title: "Folder Settings",
       subtitle: "Configure production quality for",
@@ -383,6 +390,52 @@ export const en = {
       onePager: 'One‑pager rate',
       quiz: 'Quiz rate',
       videoLesson: 'Video lesson rate'
+    },
+    play: {
+      videoPreviewArea: "Video preview area",
+      draft: "Draft",
+      cancel: "Cancel",
+      generate: "Generate",
+      noLipMovements: "The preview has no lip movements.",
+      needGenerate: "You need to generate the video to make it visible.",
+      rateQuality: "How's the video and voice quality?",
+      helpImprove: "Help us improve ContentBuilder"
+    },
+    generate: {
+      title: "Generate video",
+      titleLabel: "Title",
+      titlePlaceholder: "Enter video title",
+      subtitles: "Subtitles",
+      selectSubtitle: "Select subtitle option",
+      optionalSubtitles: "Optional subtitles (SRT/VTT)",
+      optionalSubtitlesDesc: "Can be turned on by viewers on demand",
+      burntInSubtitles: "Burnt-in subtitles",
+      burntInSubtitlesDesc: "Burnt into the video, can't be disabled",
+      resolution: "Resolution",
+      location: "Location",
+      library: "Library",
+      cancel: "Cancel",
+      startGeneration: "Start generation",
+      startingGeneration: "Starting generation...",
+      generationInProgress: "Generation in progress...",
+      startVideoGeneration: "Start video generation"
+    },
+    completed: {
+      generatingProgress: "Generating video...",
+      download: "Download",
+      downloadMp4: "Download MP4",
+      copyLink: "Copy link",
+      exitTo: "Exit to",
+      home: "Home",
+      newDraft: "New draft",
+      generatingVideo: "Generating your video...",
+      percentComplete: "complete",
+      browserNotSupported: "Your browser does not support the video tag.",
+      generationFailed: "Generation failed",
+      firstSlide: "First Slide",
+      slideContentPlaceholder: "Slide content will be displayed here",
+      firstSlideWillDisplay: "First slide will be displayed here",
+      downloadFailed: "Download failed. Please try again."
     }
   },
   projects: {
@@ -2005,5 +2058,392 @@ export const en = {
       describeRole: "Describe your role",
       describeIndustry: "Describe your industry"
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Media Library",
+    videoPreview: "Video Preview",
+    video: "Video",
+    menu: {
+      saveAsSceneLayout: "Save as Scene Layout",
+      duplicateScene: "Duplicate Scene",
+      insertScene: "Insert Scene",
+      deleteSlide: "Delete Slide",
+      deleteScene: "Delete Scene"
+    },
+    aspectRatio: {
+      desktop: "Desktop video, Youtube",
+      story: "Instagram story",
+      square: "Square, instagram post",
+      custom: "set a custom size"
+    },
+    tools: {
+      script: "Script",
+      avatar: "Avatar",
+      shape: "Shape",
+      text: "Text",
+      media: "Media"
+    },
+    actions: {
+      preview: "Preview",
+      debug: "Debug",
+      debugTooltip: "Render slides with transitions only (no avatar) - for testing and debugging",
+      generate: "Generate"
+    }
+  },
+  avatarPopup: {
+    searchPlaceholder: "Search...",
+    filters: {
+      gender: {
+        label: "Gender",
+        options: {
+          all: "All",
+          female: "Female",
+          male: "Male"
+        }
+      },
+      age: {
+        label: "Age",
+        options: {
+          young: "Young",
+          middleAged: "Middle-aged",
+          senior: "Senior"
+        }
+      },
+      look: {
+        label: "Look",
+        options: {
+          business: "Business",
+          casual: "Casual",
+          callCentre: "Call Centre",
+          doctor: "Doctor",
+          construction: "Construction",
+          fitness: "Fitness",
+          chef: "Chef",
+          thobe: "Thobe",
+          casualWhite: "Casual White"
+        }
+      }
+    }
+  },
+  textPopup: {
+    options: {
+      title: "Title",
+      subtitle: "Subtitle",
+      body: "Body text"
+    }
+  },
+  productViewHeader: {
+    aiImprove: "AI Improve",
+    export: "Export",
+    exportToPdf: "Export to PDF",
+    exportScorm: "Export to SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Log In",
+    adminSettings: "Admin Settings",
+    logOut: "Log out"
+  },
+  scormDownload: {
+    preparing: "Preparing SCORM Package",
+    building: "Building SCORM 2004 package...",
+    ready: "SCORM Ready",
+    downloadStarted: "Download started.",
+    exportFailed: "Export Failed",
+    unexpectedError: "Unexpected error",
+    exporting: "Exporting…",
+    downloadScorm: "Download SCORM 2004"
+  },
+  panels: {
+    script: {
+      defaultPlaceholder: "Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!",
+      avatarLisa: "Lisa",
+      narrationOnly: "Narration only",
+      removeAvatar: "Remove avatar",
+      addNewAvatar: "Add new avatar",
+      lisaNarration: "Lisa narration"
+    },
+    image: {
+      image: "Image",
+      replaceImage: "Replace image",
+      removeMedia: "Remove media",
+      format: "Format",
+      animate: "Animate",
+      filters: "Filters"
+    },
+    avatar: {
+      nameOfAvatar: "Name of avatar",
+      change: "Change",
+      applyToAllScenes: "Apply to all scenes",
+      appearance: "Appearance",
+      shoulder: "Shoulder",
+      fullBody: "Full body",
+      bubble: "Bubble",
+      view: "View",
+      selectView: "Select view...",
+      frontView: "Front View",
+      sideView: "Side View",
+      backView: "Back View",
+      position: "Position",
+      alignLeft: "Align left",
+      alignCenter: "Align center",
+      alignRight: "Align right",
+      order: "Order",
+      sendToBack: "Send avatar to back",
+      sendBackward: "Send avatar backward",
+      bringForward: "Bring avatar forward",
+      sendToFront: "Send avatar to front",
+      chooseAvatar: "Choose Avatar"
+    },
+    avatarRightPanel: {
+      addToAllSlides: "Add to all slides",
+      replaceAvatar: "Replace avatar",
+      appearance: "Appearance",
+      transparent: "Transparent",
+      inCircle: "In circle",
+      alignment: "Alignment",
+      layer: "Layer",
+      toBack: "To back",
+      backward: "Backward",
+      forward: "Forward",
+      toFront: "To front",
+      position: "Position",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Close"
+    },
+    textRightPanel: {
+      typography: "Typography",
+      textColor: "Text color"
+    },
+    shapeRightPanel: {
+      addColor: "Add color",
+      addStroke: "Add Stroke",
+      stroke: "Stroke",
+      color: "Color",
+      rotation: "Rotation",
+      appearance: "Appearance",
+      transparent: "Transparent",
+      inCircle: "In circle",
+      alignment: "Alignment",
+      layer: "Layer",
+      toBack: "To back",
+      backward: "Backward",
+      forward: "Forward",
+      toFront: "To front",
+      position: "Position",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Close"
+    },
+    imageRightPanel: {
+      uploadedIcon: "Uploaded icon",
+      uploadedImage: "Uploaded image",
+      removeIcon: "Remove icon",
+      removeImage: "Remove image",
+      resetOriginalSize: "Reset original size",
+      crop: "Crop",
+      replace: "Replace",
+      transparency: "Transparency"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Uploaded video",
+      removeVideo: "Remove video",
+      replace: "Replace",
+      trim: "Trim",
+      transparency: "Transparency",
+      duration: "Duration",
+      durationFreeze: "Freeze",
+      durationFreezeTooltip: "Freeze the last frame of the video until the scene ends",
+      durationLoop: "Loop",
+      durationLoopTooltip: "Loop the video if it ends earlier than the scene",
+      durationAdjust: "Adjust",
+      durationAdjustTooltip: "Adjust the video to match the duration of the scene",
+      durationHide: "Hide",
+      durationHideTooltip: "Hide the video if it ends earlier than the scene",
+      sound: "Sound"
+    },
+    musicRightPanel: {
+      music: "Music",
+      replaceMusic: "Replace music",
+      volume: "Volume",
+      playEverywhere: "Play everywhere"
+    },
+    applyAvatarModal: {
+      title: "Apply avatar to all scenes",
+      addToAllScenes: "Add to all scenes",
+      replaceOnAllScenes: "Replace on all scenes",
+      cancel: "Cancel",
+      apply: "Apply"
+    },
+    shape: {
+      shapeName: "Shape name",
+      remove: "Remove",
+      format: "Format",
+      animate: "Animate",
+      fill: "Fill",
+      color: "Color",
+      fillColor: "Fill color",
+      stroke: "Stroke",
+      strokeColor: "Stroke color",
+      strokeWidth: "Stroke width",
+      order: "Order",
+      sendToBack: "Send shape to back",
+      sendBackward: "Send shape backward",
+      bringForward: "Bring shape forward",
+      sendToFront: "Send shape to front",
+      animationType: "Animation type",
+      animationNone: "None",
+      animationFade: "Fade",
+      animationSlide: "Slide",
+      animationGrow: "Grow"
+    },
+    text: {
+      textFormatting: "Text Formatting",
+      selectTextToEdit: "Text (Select text to edit)",
+      active: "Active",
+      format: "Format",
+      animate: "Animate",
+      fontFamily: "Font family",
+      selectFont: "Select font",
+      fontStyle: "Font style",
+      bold: "Bold",
+      italic: "Italic",
+      underline: "Underline",
+      strikethrough: "Strikethrough",
+      fontSize: "Font size",
+      textAlign: "Text align",
+      fontColor: "Font color",
+      backgroundColor: "Background color",
+      order: "Order",
+      sendToBack: "Send text to back",
+      sendBackward: "Send text backward",
+      bringForward: "Bring text forward",
+      sendToFront: "Send text to front",
+      animationType: "Animation type",
+      animationNone: "None",
+      animationFade: "Fade",
+      animationSlide: "Slide",
+      animationGrow: "Grow"
+    },
+    media: {
+      chooseMedia: "Choose Media",
+      myAssets: "My assets",
+      library: "Library",
+      stockAssets: "Stock assets",
+      image: "Image",
+      video: "Video",
+      music: "Music",
+      icon: "Icon",
+      locations: "Locations",
+      allImages: "All images",
+      outlined: "Outlined",
+      filled: "Filled",
+      colored: "Colored",
+      seeMore: "See more",
+      seeLess: "See less",
+      aiImage: "AI image",
+      upload: "Upload",
+      record: "Record",
+      mediaLibrary: "Media library",
+      brandKit: "Brand kit",
+      searchPlaceholder: "Search...",
+      uploadToLibrary: "Upload to Library",
+      libraryEmptyToggle: "Library empty",
+      libraryFullToggle: "Library full",
+      noFilesYet: "No files yet",
+      dragAndDrop: "Drag and drop files here or click \"Upload\" to add them.",
+      aiAgent: {
+        badge: "AI Agent",
+        description: "Agent uses credits to deliver advanced AI editing.",
+        learnMore: "Learn more",
+        promptTitle: "Get started with a prompt",
+        prompts: {
+          modernOffice: "Modern office setting",
+          pharmaceuticalLaboratory: "Pharmaceutical laboratory",
+          constructionSite: "Construction site"
+        },
+        promptPlaceholder: "Describe your image...",
+        send: "Send"
+      },
+      uploadFiles: "Upload files"
+    }
+  },
+  rightPanel: {
+    music: "Music",
+    volume: "Volume",
+    background: "Background",
+    none: "None",
+    sceneTransition: "Scene transition",
+    clickToEditTransitions: "Click to edit transitions",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Unlock with Team plan",
+      upgradePlan: "Upgrade plan"
+    },
+    brandKit: {
+      title: "Brand kit",
+      infoAriaLabel: "Brand kit info",
+      logos: "Logos",
+      colors: "Colors",
+      fonts: "Fonts",
+      colorsLimit: "Up to 5 brand colors.",
+      colorSlot: "Brand color slot",
+      thisSlide: "This slide",
+      allSlides: "All slides",
+      addColor: "Add color"
+    },
+    transitions: {
+      none: "None",
+      fade: "Fade",
+      close: "Close",
+      crop: "Crop",
+      blur: "Blur",
+      open: "Open",
+      slide: "Slide",
+      wipe: "Wipe",
+      smoothWipe: "Smooth wipe"
+    }
+  },
+  colorPalettePopup: {
+    title: "Color Picker",
+    lastUsed: "Last used",
+    noRecentColor: "No recent color",
+  },
+  voicePicker: {
+    title: "Pick a voice",
+    search: "Search",
+    searchPlaceholder: "Search...",
+    selected: "selected",
+    accent: "Accent",
+    age: "Age",
+    tone: "Tone",
+    scenario: "Scenario",
+    resetAll: "Reset all",
+    loadingVoices: "Loading voices...",
+    voicesFound: "voices found",
+    voiceDetails: "Voice details",
+    createCustomVoice: "Create a custom voice",
+    new: "NEW",
+    noVoicesFound: "No voices found",
+    noResultsFound: "No results found",
+    premium: "Premium",
+    selectVoiceToViewDetails: "Select a voice to view details",
+    advancedSettings: "Advanced settings",
+    speed: "Speed",
+    stability: "Stability",
+    playSample: "Play Sample",
+    stopSample: "Stop Sample",
+    applyNewVoiceTo: "Apply new voice to",
+    thisBlockOnly: "This block only",
+    thisSceneOnly: "This scene only",
+    allScenes: "All scenes",
+    cancel: "Cancel",
+    apply: "Apply",
+    applyVoice: "Apply voice",
+    // Badge translations
+    mockVoiceName: "Sarah - Conversational",
+    badge32Languages: "32 languages",
+    badgeCustomVoice: "Custom voice",
+    badgeBestFitAvatar: "Best fit for avatar",
+    badgePreviouslyUsed: "Previously used"
   }
 };

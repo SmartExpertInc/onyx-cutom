@@ -240,7 +240,6 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
         relatedTarget.tagName === 'BUTTON' ||
         relatedTarget.closest('button')
       )) {
-        console.log('⚠️ Blur prevented - focusing control element');
         return; // Don't save, keep editor open
       }
       
@@ -345,4 +344,3 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
 ControlledWysiwygEditor.displayName = 'ControlledWysiwygEditor';
 
 export default ControlledWysiwygEditor;
-

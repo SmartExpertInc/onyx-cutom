@@ -2,14 +2,16 @@
 
 import React, { useState } from 'react';
 import { Search, Play, Volume2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Music() {
+  const { t } = useLanguage();
   const [activeButton, setActiveButton] = useState<'stock' | 'upload'>('stock');
   const [selectedMusic, setSelectedMusic] = useState<string | null>('no-music');
   const [isBackgroundMusicEnabled, setIsBackgroundMusicEnabled] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const selectBtnClass = "opacity-0 group-hover:opacity-100 px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-all cursor-pointer";
+  const selectBtnClass = "opacity-0 group-hover:opacity-100 px-3 py-1 text-xs rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-all cursor-pointer";
 
   // Track information mapping
   const trackInfo = {
@@ -41,14 +43,14 @@ export default function Music() {
               
               {/* Track info */}
               <div className="flex flex-col">
-                <span className="text-gray-700 text-sm font-medium">{track.name}</span>
-                <span className="text-gray-500 text-xs">{track.duration}</span>
+                <span className="text-gray-700 text-xs font-medium">{track.name}</span>
+                <span className="text-gray-500 text-[10px]">{track.duration}</span>
               </div>
             </div>
             
             {/* Change button */}
             <button 
-              className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-3 py-1 text-xs rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
               onClick={() => setShowSettings(false)}
             >
               Change
@@ -61,7 +63,7 @@ export default function Music() {
             <div className="p-4 rounded-lg">
               {/* Set as background music row */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-sm">Set as background music everywhere</span>
+                <span className="text-gray-700 text-xs">Set as background music everywhere</span>
                 {/* Switch/Slider */}
                 <div 
                   className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
@@ -79,7 +81,7 @@ export default function Music() {
 
               {/* Volume control row */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 text-sm">Volume</span>
+                <span className="text-gray-700 text-xs">Volume</span>
                 <div className="flex items-center gap-2">
                   <Volume2 size={16} className="text-gray-600 flex-shrink-0" />
                   {/* Volume range slider */}
@@ -148,7 +150,7 @@ export default function Music() {
         <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 mt-4 mb-4">
           <button
             onClick={() => setActiveButton('stock')}
-            className={`flex-1 py-1 text-sm rounded transition-colors ${
+            className={`flex-1 py-1 text-xs rounded transition-colors ${
               activeButton === 'stock' 
                 ? 'bg-white text-gray-900 shadow-sm' 
                 : 'text-gray-600 hover:bg-gray-300'
@@ -158,7 +160,7 @@ export default function Music() {
           </button>
           <button
             onClick={() => setActiveButton('upload')}
-            className={`flex-1 py-1 text-sm rounded transition-colors ${
+            className={`flex-1 py-1 text-xs rounded transition-colors ${
               activeButton === 'upload' 
                 ? 'bg-white text-gray-900 shadow-sm' 
                 : 'text-gray-600 hover:bg-gray-300'
@@ -182,7 +184,7 @@ export default function Music() {
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full pl-10 pr-4 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black hover:border-black transition-colors text-sm"
+                className="w-full pl-10 pr-4 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black hover:border-black transition-colors text-xs"
               />
             </div>
 
@@ -203,13 +205,13 @@ export default function Music() {
                     <path d="M15.304 4.697a.5.5 0 0 1 0 .707l-9.9 9.9a.5.5 0 1 1-.707-.707l9.9-9.9a.5.5 0 0 1 .707 0Z"/>
                   </g>
                 </svg>
-                <span className="text-gray-700 text-sm">No music</span>
+                <span className="text-gray-700 text-xs">No music</span>
               </div>
               
               {/* Always reserve space for the right side content */}
               <div className="w-16 flex justify-end">
                 {selectedMusic === 'no-music' ? (
-                  <span className="text-gray-400 text-sm">Default</span>
+                  <span className="text-gray-400 text-[10px]">Default</span>
                 ) : (
                   <button 
                     className={selectBtnClass}
@@ -239,13 +241,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Corporate</span>
+                <span className="text-gray-700 text-xs">Corporate</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'corporate' ? (
                                   <button 
-                    className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
                                       onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('corporate');
@@ -282,13 +284,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Happy</span>
+                <span className="text-gray-700 text-xs">Happy</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'happy' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('happy');
@@ -325,13 +327,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Vibe Vacation</span>
+                <span className="text-gray-700 text-xs">Vibe Vacation</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'vibe-vacation' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('vibe-vacation');
@@ -368,13 +370,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Inspiring</span>
+                <span className="text-gray-700 text-xs">Inspiring</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'inspiring' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('inspiring');
@@ -411,13 +413,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Long Journey</span>
+                <span className="text-gray-700 text-xs">Long Journey</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'long-journey' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('long-journey');
@@ -454,13 +456,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Outside The Lines</span>
+                <span className="text-gray-700 text-xs">Outside The Lines</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'outside-the-lines' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('outside-the-lines');
@@ -497,13 +499,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Motivation</span>
+                <span className="text-gray-700 text-xs">Motivation</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'motivation' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('motivation');
@@ -540,13 +542,13 @@ export default function Music() {
                 <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                   <Play size={18} className="text-gray-600 ml-0.5" />
                 </div>
-                <span className="text-gray-700 text-sm">Relaxing</span>
+                <span className="text-gray-700 text-xs">Relaxing</span>
               </div>
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'relaxing' ? (
                 <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  className="hidden group-hover:block px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('relaxing');
@@ -580,7 +582,7 @@ export default function Music() {
                 <path d="M12 8v8m0-8c-.7 0-2.008 1.994-2.5 2.5M12 8c.7 0 2.008 1.994 2.5 2.5"/>
               </g>
             </svg>
-            <p className="text-gray-600 text-center text-sm">
+            <p className="text-gray-600 text-center text-xs">
               Drag and drop your document here or click to upload
             </p>
           </div>

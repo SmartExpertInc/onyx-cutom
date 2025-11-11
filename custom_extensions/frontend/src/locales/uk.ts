@@ -266,6 +266,13 @@ export const uk = {
       createQuizAndOnePager: "Створити тест або односторінку",
       createAll: "Створити презентацію, тест або односторінку",
     },
+    trimVideo: {
+      previewPlaceholder: "Попередній перегляд відео",
+      adjustTrimStart: "Налаштувати початок обрізання",
+      adjustTrimEnd: "Налаштувати кінець обрізання",
+      trimmedLengthLabel: "Тривалість обрізаного відео",
+      confirm: "Обрізати",
+    },
     folderSettings: {
       title: "Налаштування папки",
       subtitle: "Налаштування якості виробництва для",
@@ -357,6 +364,52 @@ export const uk = {
       onePager: 'Ставка односторінки',
       quiz: 'Ставка тесту',
       videoLesson: 'Ставка відео-уроку'
+    },
+    play: {
+      videoPreviewArea: "Область попереднього перегляду відео",
+      draft: "Чернетка",
+      cancel: "Скасувати",
+      generate: "Згенерувати",
+      noLipMovements: "У попередньому перегляді немає руху губ.",
+      needGenerate: "Необхідно згенерувати відео, щоб побачити його.",
+      rateQuality: "Яка якість відео та голосу?",
+      helpImprove: "Допоможіть нам покращити ContentBuilder"
+    },
+    generate: {
+      title: "Згенерувати відео",
+      titleLabel: "Назва",
+      titlePlaceholder: "Введіть назву відео",
+      subtitles: "Субтитри",
+      selectSubtitle: "Виберіть опцію субтитрів",
+      optionalSubtitles: "Опціональні субтитри (SRT/VTT)",
+      optionalSubtitlesDesc: "Можуть бути увімкнені глядачами на вимогу",
+      burntInSubtitles: "Вбудовані субтитри",
+      burntInSubtitlesDesc: "Вбудовані у відео, не можна вимкнути",
+      resolution: "Роздільна здатність",
+      location: "Розташування",
+      library: "Бібліотека",
+      cancel: "Скасувати",
+      startGeneration: "Почати генерацію",
+      startingGeneration: "Початок генерації...",
+      generationInProgress: "Генерація виконується...",
+      startVideoGeneration: "Почати генерацію відео"
+    },
+    completed: {
+      generatingProgress: "Генерація відео...",
+      download: "Завантажити",
+      downloadMp4: "Завантажити MP4",
+      copyLink: "Копіювати посилання",
+      exitTo: "Вийти в",
+      home: "Головна",
+      newDraft: "Нова чернетка",
+      generatingVideo: "Генерація вашого відео...",
+      percentComplete: "завершено",
+      browserNotSupported: "Ваш браузер не підтримує тег video.",
+      generationFailed: "Генерація не вдалася",
+      firstSlide: "Перший слайд",
+      slideContentPlaceholder: "Вміст слайду буде відображено тут",
+      firstSlideWillDisplay: "Перший слайд буде відображено тут",
+      downloadFailed: "Завантаження не вдалося. Будь ласка, спробуйте знову."
     }
   },
   projects: {
@@ -2056,5 +2109,397 @@ export const uk = {
       describeRole: "Опишіть вашу роль",
       describeIndustry: "Опишіть вашу галузь"
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Медіатека",
+    videoPreview: "Попередній перегляд відео",
+    video: "Відео",
+    menu: {
+      saveAsSceneLayout: "Зберегти як шаблон сцени",
+      duplicateScene: "Дублювати сцену",
+      insertScene: "Вставити сцену",
+      deleteSlide: "Видалити слайд",
+      deleteScene: "Видалити сцену"
+    },
+    aspectRatio: {
+      desktop: "Настільне відео, Youtube",
+      story: "Історія Instagram",
+      square: "Квадрат, пост Instagram",
+      custom: "встановити власний розмір"
+    },
+    tools: {
+      script: "Скрипт",
+      avatar: "Аватар",
+      shape: "Фігура",
+      text: "Текст",
+      media: "Медіа"
+    },
+    actions: {
+      preview: "Попередній перегляд",
+      debug: "Налагодження",
+      debugTooltip: "Рендер слайдів тільки з переходами (без аватара) - для тестування та налагодження",
+      generate: "Згенерувати"
+    }
+  },
+  avatarPopup: {
+    searchPlaceholder: "Пошук...",
+    filters: {
+      gender: {
+        label: "Стать",
+        options: {
+          all: "Усі",
+          female: "Жіноча",
+          male: "Чоловіча"
+        }
+      },
+      age: {
+        label: "Вік",
+        options: {
+          young: "Молодий",
+          middleAged: "Середній вік",
+          senior: "Похилого віку"
+        }
+      },
+      look: {
+        label: "Образ",
+        options: {
+          business: "Бізнес",
+          casual: "Повсякденний",
+          callCentre: "Кол-центр",
+          doctor: "Лікар",
+          construction: "Будівельник",
+          fitness: "Фітнес",
+          chef: "Шеф-кухар",
+          thobe: "Thobe",
+          casualWhite: "Повсякденний білий"
+        }
+      }
+    }
+  },
+  textPopup: {
+    options: {
+      title: "Заголовок",
+      subtitle: "Підзаголовок",
+      body: "Основний текст"
+    }
+  },
+  productViewHeader: {
+    aiImprove: "AI Покращити",
+    export: "Експорт",
+    exportToPdf: "Експорт у PDF",
+    exportScorm: "Експорт у SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Увійти",
+    adminSettings: "Налаштування адміністратора",
+    logOut: "Вийти"
+  },
+  scormDownload: {
+    preparing: "Підготовка пакету SCORM",
+    building: "Створення пакету SCORM 2004...",
+    ready: "SCORM готовий",
+    downloadStarted: "Завантаження розпочато.",
+    exportFailed: "Експорт не вдався",
+    unexpectedError: "Неочікувана помилка",
+    exporting: "Експортується…",
+    downloadScorm: "Завантажити SCORM 2004"
+  },
+  panels: {
+    script: {
+      defaultPlaceholder: "Створюйте динамічні, потужні та інформативні відео з аватаром як ведучим. Миттєво перекладайте відео понад вісімдесят мов, використовуйте привабливі медіа для привернення уваги аудиторії або навіть моделюйте розмови між кількома аватарами. Все з інтуїтивним інтерфейсом, який може використовувати кожен!",
+      avatarLisa: "Ліза",
+      narrationOnly: "Тільки закадровий голос",
+      removeAvatar: "Видалити аватар",
+      addNewAvatar: "Додати новий аватар",
+      lisaNarration: "Озвучення Лізи"
+    },
+    image: {
+      image: "Зображення",
+      replaceImage: "Замінити зображення",
+      removeMedia: "Видалити медіа",
+      format: "Формат",
+      animate: "Анімація",
+      filters: "Фільтри"
+    },
+    avatar: {
+      nameOfAvatar: "Ім'я аватара",
+      change: "Змінити",
+      applyToAllScenes: "Застосувати до всіх сцен",
+      appearance: "Зовнішній вигляд",
+      shoulder: "Плечі",
+      fullBody: "Повне тіло",
+      bubble: "Бульбашка",
+      view: "Вид",
+      selectView: "Виберіть вид...",
+      frontView: "Вид спереду",
+      sideView: "Вид збоку",
+      backView: "Вид ззаду",
+      position: "Позиція",
+      alignLeft: "Вирівняти по лівому краю",
+      alignCenter: "Вирівняти по центру",
+      alignRight: "Вирівняти по правому краю",
+      order: "Порядок",
+      sendToBack: "Відправити аватар назад",
+      sendBackward: "Відправити аватар на крок назад",
+      bringForward: "Перемістити аватар вперед",
+      sendToFront: "Відправити аватар на передній план",
+      chooseAvatar: "Виберіть аватар"
+    },
+    avatarRightPanel: {
+      addToAllSlides: "Додати до всіх слайдів",
+      replaceAvatar: "Замінити аватар",
+      appearance: "Зовнішній вигляд",
+      transparent: "Прозорий",
+      inCircle: "В колі",
+      alignment: "Вирівнювання",
+      layer: "Шар",
+      toBack: "Назад",
+      backward: "Крок назад",
+      forward: "Крок вперед",
+      toFront: "Вперед",
+      position: "Позиція",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрити"
+    },
+    textRightPanel: {
+      typography: "Типографіка",
+      textColor: "Колір тексту",
+      layer: "Шар",
+      toBack: "Назад",
+      backward: "Крок назад",
+      forward: "Крок вперед",
+      toFront: "Вперед"
+    },
+    shapeRightPanel: {
+      addColor: "Додати колір",
+      addStroke: "Додати обведення",
+      stroke: "Обведення",
+      color: "Колір",
+      rotation: "Поворот",
+      appearance: "Зовнішній вигляд",
+      transparent: "Прозорий",
+      inCircle: "В колі",
+      alignment: "Вирівнювання",
+      layer: "Шар",
+      toBack: "Назад",
+      backward: "Крок назад",
+      forward: "Крок вперед",
+      toFront: "Вперед",
+      position: "Позиція",
+      xPosition: "X",
+      yPosition: "Y",
+      close: "Закрити"
+    },
+    imageRightPanel: {
+      uploadedIcon: "Завантажена іконка",
+      uploadedImage: "Завантажене зображення",
+      removeIcon: "Видалити іконку",
+      removeImage: "Видалити зображення",
+      resetOriginalSize: "Скинути початковий розмір",
+      crop: "Обрізати",
+      replace: "Замінити",
+      transparency: "Прозорість"
+    },
+    videoRightPanel: {
+      uploadedVideo: "Завантажене відео",
+      removeVideo: "Видалити відео",
+      replace: "Замінити",
+      trim: "Обрізати",
+      transparency: "Прозорість",
+      duration: "Тривалість",
+      durationFreeze: "Зафіксувати",
+      durationFreezeTooltip: "Заморозьте останній кадр відео до завершення сцени",
+      durationLoop: "Зациклити",
+      durationLoopTooltip: "Зацикліть відео, якщо воно завершується раніше сцени",
+      durationAdjust: "Налаштувати",
+      durationAdjustTooltip: "Підлаштуйте відео під тривалість сцени",
+      durationHide: "Приховати",
+      durationHideTooltip: "Приховуйте відео, якщо воно завершується раніше сцени",
+      sound: "Звук"
+    },
+    musicRightPanel: {
+      music: "Музика",
+      replaceMusic: "Замінити музику",
+      volume: "Гучність",
+      playEverywhere: "Відтворювати всюди"
+    },
+    applyAvatarModal: {
+      title: "Застосувати аватар до всіх сцен",
+      addToAllScenes: "Додати до всіх сцен",
+      replaceOnAllScenes: "Замінити в усіх сценах",
+      cancel: "Скасувати",
+      apply: "Застосувати"
+    },
+    shape: {
+      shapeName: "Назва фігури",
+      remove: "Видалити",
+      format: "Формат",
+      animate: "Анімація",
+      fill: "Заливка",
+      color: "Колір",
+      fillColor: "Колір заливки",
+      stroke: "Обведення",
+      strokeColor: "Колір обведення",
+      strokeWidth: "Ширина обведення",
+      order: "Порядок",
+      sendToBack: "Відправити фігуру назад",
+      sendBackward: "Відправити фігуру на крок назад",
+      bringForward: "Перемістити фігуру вперед",
+      sendToFront: "Відправити фігуру на передній план",
+      animationType: "Тип анімації",
+      animationNone: "Немає",
+      animationFade: "Затухання",
+      animationSlide: "Ковзання",
+      animationGrow: "Збільшення"
+    },
+    text: {
+      textFormatting: "Форматування тексту",
+      selectTextToEdit: "Текст (Виберіть текст для редагування)",
+      active: "Активно",
+      format: "Формат",
+      animate: "Анімація",
+      fontFamily: "Сімейство шрифтів",
+      selectFont: "Виберіть шрифт",
+      fontStyle: "Стиль шрифту",
+      bold: "Жирний",
+      italic: "Курсив",
+      underline: "Підкреслений",
+      strikethrough: "Закреслений",
+      fontSize: "Розмір шрифту",
+      textAlign: "Вирівнювання тексту",
+      fontColor: "Колір шрифту",
+      backgroundColor: "Колір фону",
+      order: "Порядок",
+      sendToBack: "Відправити текст назад",
+      sendBackward: "Відправити текст на крок назад",
+      bringForward: "Перемістити текст вперед",
+      sendToFront: "Відправити текст на передній план",
+      animationType: "Тип анімації",
+      animationNone: "Немає",
+      animationFade: "Затухання",
+      animationSlide: "Ковзання",
+      animationGrow: "Збільшення"
+    },
+    media: {
+      chooseMedia: "Вибрати медіа",
+      myAssets: "Мої ресурси",
+      library: "Бібліотека",
+      stockAssets: "Стокові ресурси",
+      image: "Зображення",
+      video: "Відео",
+      music: "Музика",
+      icon: "Іконка",
+      locations: "Локації",
+      allImages: "Усі зображення",
+      outlined: "Контурні",
+      filled: "Заповнені",
+      colored: "Кольорові",
+      seeMore: "Показати більше",
+      seeLess: "Показати менше",
+      aiImage: "AI зображення",
+      upload: "Завантажити",
+      record: "Записати",
+      mediaLibrary: "Медіатека",
+      brandKit: "Брендовий набір",
+      searchPlaceholder: "Пошук...",
+      uploadToLibrary: "Завантажити до бібліотеки",
+      libraryEmptyToggle: "Бібліотека порожня",
+      libraryFullToggle: "Бібліотека заповнена",
+      noFilesYet: "Файлів ще немає",
+      dragAndDrop: "Перетягніть файли сюди або натисніть \"Завантажити\", щоб додати їх.",
+      aiAgent: {
+        badge: "AI-агент",
+        description: "Агент використовує кредити для розширеного AI-редагування.",
+        learnMore: "Докладніше",
+        promptTitle: "Почніть з підказки",
+        prompts: {
+          modernOffice: "Сучасний офіс",
+          pharmaceuticalLaboratory: "Фармацевтична лабораторія",
+          constructionSite: "Будівельний майданчик"
+        },
+        promptPlaceholder: "Опишіть своє зображення...",
+        send: "Надіслати"
+      },
+      uploadFiles: "Завантажити файли"
+    }
+  },
+  rightPanel: {
+    music: "Музика",
+    volume: "Гучність",
+    background: "Фон",
+    none: "Немає",
+    sceneTransition: "Перехід між сценами",
+    clickToEditTransitions: "Натисніть, щоб редагувати переходи",
+    upgradePlanBlock: {
+      unlockWithTeamPlan: "Розблокуйте з тарифом Team",
+      upgradePlan: "Оновити тариф"
+    },
+    brandKit: {
+      title: "Брендбук",
+      infoAriaLabel: "Інформація про брендбук",
+      logos: "Логотипи",
+      colors: "Кольори",
+      fonts: "Шрифти",
+      colorsLimit: "До 5 брендованих кольорів.",
+      colorSlot: "Комірка кольору бренду",
+      thisSlide: "Цей слайд",
+      allSlides: "Усі слайди",
+      addColor: "Додати колір"
+    },
+    transitions: {
+      none: "Немає",
+      fade: "Затухання",
+      close: "Закрити",
+      crop: "Обрізати",
+      blur: "Розмиття",
+      open: "Відкрити",
+      slide: "Ковзання",
+      wipe: "Стерти",
+      smoothWipe: "Плавне стирання"
+    }
+  },
+  colorPalettePopup: {
+    title: "Вибір кольору",
+    lastUsed: "Нещодавно використані",
+    noRecentColor: "Немає нещодавнього кольору",
+  },
+  voicePicker: {
+    title: "Оберіть голос",
+    search: "Пошук",
+    searchPlaceholder: "Пошук...",
+    selected: "обрано",
+    accent: "Акцент",
+    age: "Вік",
+    tone: "Тон",
+    scenario: "Сценарій",
+    resetAll: "Скинути все",
+    loadingVoices: "Завантаження голосів...",
+    voicesFound: "голосів знайдено",
+    voiceDetails: "Деталі голосу",
+    createCustomVoice: "Створити власний голос",
+    new: "НОВИЙ",
+    noVoicesFound: "Голоси не знайдені",
+    noResultsFound: "Результатів не знайдено",
+    premium: "Преміум",
+    selectVoiceToViewDetails: "Виберіть голос для перегляду деталей",
+    advancedSettings: "Розширені налаштування",
+    speed: "Швидкість",
+    stability: "Стабільність",
+    playSample: "Відтворити зразок",
+    stopSample: "Зупинити зразок",
+    applyNewVoiceTo: "Застосувати новий голос до",
+    thisBlockOnly: "Тільки цей блок",
+    thisSceneOnly: "Тільки ця сцена",
+    allScenes: "Всі сцени",
+    cancel: "Скасувати",
+    apply: "Застосувати",
+    applyVoice: "Застосувати голос",
+    // Badge translations
+    mockVoiceName: "Сара - Розмовний",
+    badge32Languages: "32 мови",
+    badgeCustomVoice: "Власний голос",
+    badgeBestFitAvatar: "Найкраще підходить для аватара",
+    badgePreviouslyUsed: "Раніше використаний"
   }
 };

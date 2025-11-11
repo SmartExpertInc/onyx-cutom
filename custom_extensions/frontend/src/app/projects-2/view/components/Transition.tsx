@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export type TransitionType = 
   // Basic
@@ -43,6 +44,7 @@ interface TransitionProps {
 }
 
 export default function Transition({ transitionIndex, currentTransition, onTransitionChange }: TransitionProps) {
+  const { t } = useLanguage();
   const [selectedTransition, setSelectedTransition] = useState<TransitionType>(
     currentTransition?.type || 'none'
   );
@@ -130,7 +132,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               
               {/* Transition name */}
               <div className="flex flex-col">
-                <span className="text-gray-700 text-sm font-medium capitalize">{selectedTransition}</span>
+                <span className="text-gray-700 text-xs font-medium capitalize">{selectedTransition}</span>
                 {transitionIndex !== null && transitionIndex !== undefined && (
                   <span className="text-gray-500 text-xs">Between slides {transitionIndex + 1} and {transitionIndex + 2}</span>
                 )}
@@ -152,7 +154,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
             <div className="p-4 rounded-lg">
               {/* Apply between all scenes row */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-sm">Apply between all scenes</span>
+                <span className="text-gray-700 text-xs">Apply between all scenes</span>
                 {/* Switch/Slider */}
                 <div 
                   className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
@@ -170,7 +172,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
 
               {/* Duration row */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-sm">Duration (sec)</span>
+                <span className="text-gray-700 text-xs">Duration (sec)</span>
                 <div className="flex items-center gap-2">
                   {/* Duration range slider */}
                   <div className="relative w-32 flex items-center">
@@ -224,13 +226,13 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                       }
                     `}</style>
                   </div>
-                  <span className="text-gray-600 text-sm w-8 text-right">{duration.toFixed(1)}</span>
+                  <span className="text-gray-600 text-xs w-8 text-right">{duration.toFixed(1)}</span>
                 </div>
               </div>
 
               {/* Variant row */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 text-sm">Variant</span>
+                <span className="text-gray-700 text-xs">Variant</span>
                 <div className="flex gap-2">
                   {/* Circle button */}
                   <button 
@@ -299,8 +301,8 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              width="20" 
-              height="20" 
+              width="16" 
+              height="16" 
               viewBox="0 0 24 24"
               className="text-gray-700"
             >
@@ -309,7 +311,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 d="m16.1 12.8l-1.4-1.45L17.75 9L12 4.55l-2.35 1.8l-1.4-1.45l2.525-1.95q.275-.2.588-.312T12 2.525q.325 0 .638.113t.587.312l6.75 5.25q.2.15.3.363t.1.437q0 .225-.1.438t-.3.362l-3.875 3Zm2.875 2.85l-1.45-1.45l1.225-.925q.275-.2.613-.2t.612.2q.4.3.4.787t-.4.788l-1 .8Zm.125 5.75l-3.3-3.3l-2.575 2q-.275.2-.587.313t-.638.112q-.325 0-.638-.112t-.587-.313l-6.75-5.25q-.4-.3-.388-.787t.413-.788q.275-.2.6-.2t.6.2L12 18.5l2.35-1.825l-1.425-1.425q-.225.125-.438.175t-.487.05q-.325 0-.625-.1t-.6-.325L4 9.775q-.2-.15-.288-.35T3.625 9q0-.225.075-.438t.275-.362l1.05-.825l-2.95-2.95q-.3-.3-.3-.7t.3-.7q.3-.3.713-.3t.712.3L20.5 20q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275ZM12.2 8.875Z"
               />
             </svg>
-            <span className="text-gray-700 font-medium">No transition</span>
+            <span className="text-gray-700 text-xs font-medium">No transition</span>
           </button>
 
           {/* Transition options grid */}
@@ -324,7 +326,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onClick={() => handleTransitionSelect('fade')}
                 >
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-                  <span className="text-sm text-gray-700 text-center">Fade</span>
+                  <span className="text-xs text-gray-700 text-center">Fade</span>
                 </div>
 
                 {/* Dissolve */}
@@ -333,7 +335,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onClick={() => handleTransitionSelect('dissolve')}
                 >
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-                  <span className="text-sm text-gray-700 text-center">Dissolve</span>
+                  <span className="text-xs text-gray-700 text-center">Dissolve</span>
                 </div>
               </div>
             </div>
@@ -616,7 +618,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
                     <span className="text-2xl">⤢</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Diag BR</span>
+                  <span className="text-xs text-gray-700 text-center">Diag BR</span>
                 </div>
               </div>
             </div>
@@ -644,7 +646,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
                     <span className="text-2xl">◈</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Distance</span>
+                  <span className="text-xs text-gray-700 text-center">Distance</span>
                 </div>
               </div>
             </div>
@@ -694,7 +696,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
                     <span className="text-2xl">▮</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">V-Down Slice</span>
+                  <span className="text-xs text-gray-700 text-center">V-Down Slice</span>
                 </div>
               </div>
             </div>
@@ -733,7 +735,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
                     <span className="text-2xl">⊕</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Zoom In</span>
+                  <span className="text-xs text-gray-700 text-center">Zoom In</span>
                 </div>
               </div>
             </div>
@@ -761,7 +763,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
                     <span className="text-2xl">▦</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Pixelize</span>
+                  <span className="text-xs text-gray-700 text-center">Pixelize</span>
                 </div>
               </div>
             </div>
@@ -811,7 +813,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors flex items-center justify-center">
                     <span className="text-2xl">◒</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Fade Slow</span>
+                  <span className="text-xs text-gray-700 text-center">Fade Slow</span>
                 </div>
               </div>
             </div>

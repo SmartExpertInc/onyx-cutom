@@ -2,40 +2,152 @@
 "use client";
 
 import React from 'react';
-import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
+import { ProjectInstanceDetail, TrainingPlanData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { UserDropdown } from '@/components/UserDropdown';
+import { useLanguage } from '@/contexts/LanguageContext';
+// All icons are now custom SVGs
 
 interface ProductViewHeaderProps {
   projectData: ProjectInstanceDetail | null;
-  editableData: TrainingPlanData | TextPresentationData | null;
+  editableData: TrainingPlanData | null;
   productId: string | undefined;
-  showAiAgent?: boolean;
-  setShowAiAgent?: (show: boolean) => void;
+  showSmartEditor: boolean;
+  setShowSmartEditor: (show: boolean) => void;
   scormEnabled: boolean;
   componentName: string;
   allowedComponentNames?: string[];
-  t: (key: string, fallback: string) => string;
   onPdfExport?: () => void;
-  isEditing?: boolean;
-  onEditOrSave?: () => void;
+  // Video Editor Tools (optional - only for Projects2ViewPage)
+  showVideoEditorTools?: boolean;
+  activeSettingsPanel?: string | null;
+  onSettingsButtonClick?: (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => void;
+  onShapesButtonClick?: (position: { x: number; y: number }) => void;
+  onTextButtonClick?: (position: { x: number; y: number }) => void;
+  onAvatarButtonClick?: (position: { x: number; y: number }) => void;
+  onLanguageVariantModalOpen?: () => void;
+  hideAiImproveButton?: boolean;
+  // Popup states for active button styling
+  isMediaPopupOpen?: boolean;
+  isTextPopupOpen?: boolean;
+  isShapesPopupOpen?: boolean;
+  isAvatarPopupOpen?: boolean;
+  // Video Editor Actions (optional - only for Projects2ViewPage)
+  showVideoEditorActions?: boolean;
+  aspectRatio?: string;
+  onAspectRatioChange?: (ratio: string) => void;
+  onPreviewClick?: () => void;
+  onDebugClick?: () => void;
+  onGenerateClick?: () => void;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   projectData,
   editableData,
   productId,
-  showAiAgent,
-  setShowAiAgent,
+  showSmartEditor,
+  setShowSmartEditor,
   scormEnabled,
   componentName,
   allowedComponentNames,
-  t,
   onPdfExport,
-  isEditing,
-  onEditOrSave
+  showVideoEditorTools = false,
+  activeSettingsPanel = null,
+  onSettingsButtonClick,
+  onShapesButtonClick,
+  onTextButtonClick,
+  onAvatarButtonClick,
+  onLanguageVariantModalOpen,
+  hideAiImproveButton = false,
+  isMediaPopupOpen = false,
+  isTextPopupOpen = false,
+  isShapesPopupOpen = false,
+  isAvatarPopupOpen = false,
+  showVideoEditorActions = false,
+  aspectRatio,
+  onAspectRatioChange,
+  onPreviewClick,
+  onDebugClick,
+  onGenerateClick
 }) => {
+  const { t } = useLanguage();
+  const [isResizePopupOpen, setIsResizePopupOpen] = React.useState(false);
+  const resizeButtonRef = React.useRef<HTMLButtonElement>(null);
+  
+  // Close resize popup when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isResizePopupOpen) {
+        const isClickInButton = resizeButtonRef.current?.contains(event.target as Node);
+        const resizePopupElement = document.querySelector('[data-resize-popup]');
+        const isClickInPopup = resizePopupElement?.contains(event.target as Node);
+        
+        if (!isClickInButton && !isClickInPopup) {
+          setIsResizePopupOpen(false);
+        }
+      }
+    };
+
+    if (isResizePopupOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isResizePopupOpen]);
+
+  const handleResizeClick = () => {
+    setIsResizePopupOpen(!isResizePopupOpen);
+  };
+
+  const handleResizeOptionClick = (ratio: string) => {
+    if (ratio !== 'Custom' && onAspectRatioChange) {
+      onAspectRatioChange(ratio);
+    }
+    setIsResizePopupOpen(false);
+  };
+
+  const resizeOptions = [
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      ratio: "16:9",
+      description: t('videoEditor.aspectRatio.desktop', 'Desktop video, Youtube')
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      ratio: "9:16",
+      description: t('videoEditor.aspectRatio.story', 'Instagram story')
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      ratio: "1:1",
+      description: t('videoEditor.aspectRatio.square', 'Square, instagram post')
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" fill="none"/>
+        </svg>
+      ),
+      ratio: "Custom",
+      description: t('videoEditor.aspectRatio.custom', 'set a custom size')
+    }
+  ];
+  
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
     allowedComponentNames 
@@ -45,20 +157,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
   // Check if current component is a slide deck (presentation) to show Export button
   const isSlideDeck = projectData?.component_name === 'SlideDeckDisplay';
-  
-  // Check if current component is a quiz to show Export button
-  const isQuiz = projectData?.component_name === 'QuizDisplay';
-  const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
-  const isCourseOutline = projectData?.component_name === 'TrainingPlanTable';
-  
-  // Debug logging for PDF export
-  console.log('🔍 ProductViewHeader Debug:', {
-    componentName: projectData?.component_name,
-    isOnePager,
-    isQuiz,
-    isSlideDeck,
-    onPdfExport: !!onPdfExport
-  });
 
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
@@ -89,32 +187,71 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               <path d="M12.2497 7.08398C10.6414 7.08398 9.33301 8.39241 9.33301 10.0007C9.33301 11.6089 10.6414 12.9173 12.2497 12.9173C13.8579 12.9173 15.1663 11.6089 15.1663 10.0007C15.1663 8.39241 13.8579 7.08398 12.2497 7.08398ZM12.2497 12.4173C10.9172 12.4173 9.83301 11.3332 9.83301 10.0007C9.83301 8.66813 10.9172 7.58398 12.2497 7.58398C13.5822 7.58398 14.6663 8.66813 14.6663 10.0007C14.6663 11.3332 13.5822 12.4173 12.2497 12.4173Z" fill="#71717A"/>
               <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
             </svg>
-            {isOnePager && (
-              <>
+
+            {/* Divider - Only visible when Resize button is shown */}
+            {showVideoEditorActions && (
               <div className="h-6 w-px bg-gray-300 mx-2"></div>
-                <div className="flex items-center gap-2">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0.5" y="0.5" width="14" height="14" rx="2" stroke="#4D4D4D"/>
-                <mask id="path-2-inside-1_1435_10944" fill="white">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5133 2.5C11.7784 2.5 11.9933 2.7149 11.9933 2.98V7.24667C11.9933 7.51177 11.7784 7.72667 11.5133 7.72667C11.2483 7.72667 11.0333 7.51177 11.0333 7.24667V4.13883L4.13882 11.0333H7.24667C7.51177 11.0333 7.72667 11.2483 7.72667 11.5133C7.72667 11.7784 7.51177 11.9933 7.24667 11.9933H2.98C2.85269 11.9933 2.7306 11.9428 2.64059 11.8528C2.55057 11.7627 2.5 11.6406 2.5 11.5133V7.24667C2.5 6.98157 2.7149 6.76667 2.98 6.76667C3.2451 6.76667 3.46 6.98157 3.46 7.24667V10.3545L10.3545 3.46H7.24667C6.98157 3.46 6.76667 3.2451 6.76667 2.98C6.76667 2.7149 6.98157 2.5 7.24667 2.5H11.5133Z"/>
-                </mask>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5133 2.5C11.7784 2.5 11.9933 2.7149 11.9933 2.98V7.24667C11.9933 7.51177 11.7784 7.72667 11.5133 7.72667C11.2483 7.72667 11.0333 7.51177 11.0333 7.24667V4.13883L4.13882 11.0333H7.24667C7.51177 11.0333 7.72667 11.2483 7.72667 11.5133C7.72667 11.7784 7.51177 11.9933 7.24667 11.9933H2.98C2.85269 11.9933 2.7306 11.9428 2.64059 11.8528C2.55057 11.7627 2.5 11.6406 2.5 11.5133V7.24667C2.5 6.98157 2.7149 6.76667 2.98 6.76667C3.2451 6.76667 3.46 6.98157 3.46 7.24667V10.3545L10.3545 3.46H7.24667C6.98157 3.46 6.76667 3.2451 6.76667 2.98C6.76667 2.7149 6.98157 2.5 7.24667 2.5H11.5133Z" fill="#4D4D4D"/>
-                <path d="M11.0333 4.13883H12.0333V1.72462L10.3262 3.43172L11.0333 4.13883ZM4.13882 11.0333L3.43171 10.3262L1.7246 12.0333H4.13882V11.0333ZM3.46 10.3545H2.46V12.7687L4.16711 11.0616L3.46 10.3545ZM10.3545 3.46L11.0616 4.16711L12.7687 2.46H10.3545V3.46ZM11.5133 2.5V3.5C11.2262 3.5 10.9933 3.26723 10.9933 2.98H11.9933H12.9933C12.9933 2.16257 12.3307 1.5 11.5133 1.5V2.5ZM11.9933 2.98H10.9933V7.24667H11.9933H12.9933V2.98H11.9933ZM11.9933 7.24667H10.9933C10.9933 6.95944 11.2262 6.72667 11.5133 6.72667V7.72667V8.72667C12.3307 8.72667 12.9933 8.06409 12.9933 7.24667H11.9933ZM11.5133 7.72667V6.72667C11.8005 6.72667 12.0333 6.95944 12.0333 7.24667H11.0333H10.0333C10.0333 8.06409 10.696 8.72667 11.5133 8.72667V7.72667ZM11.0333 7.24667H12.0333V4.13883H11.0333H10.0333V7.24667H11.0333ZM11.0333 4.13883L10.3262 3.43172L3.43171 10.3262L4.13882 11.0333L4.84592 11.7405L11.7405 4.84593L11.0333 4.13883ZM4.13882 11.0333V12.0333H7.24667V11.0333V10.0333H4.13882V11.0333ZM7.24667 11.0333V12.0333C6.95944 12.0333 6.72667 11.8005 6.72667 11.5133H7.72667H8.72667C8.72667 10.696 8.06409 10.0333 7.24667 10.0333V11.0333ZM7.72667 11.5133H6.72667C6.72667 11.2262 6.95944 10.9933 7.24667 10.9933V11.9933V12.9933C8.06409 12.9933 8.72667 12.3307 8.72667 11.5133H7.72667ZM7.24667 11.9933V10.9933H2.98V11.9933V12.9933H7.24667V11.9933ZM2.98 11.9933V10.9933C3.11785 10.9933 3.25015 11.0481 3.34774 11.1457L2.64059 11.8528L1.93344 12.5598C2.21105 12.8375 2.58754 12.9933 2.98 12.9933V11.9933ZM2.64059 11.8528L3.34774 11.1457C3.44524 11.2432 3.5 11.3754 3.5 11.5133H2.5H1.5C1.5 11.9058 1.6559 12.2823 1.93344 12.5598L2.64059 11.8528ZM2.5 11.5133H3.5V7.24667H2.5H1.5V11.5133H2.5ZM2.5 7.24667H3.5C3.5 7.53385 3.26719 7.76667 2.98 7.76667V6.76667V5.76667C2.16262 5.76667 1.5 6.42928 1.5 7.24667H2.5ZM2.98 6.76667V7.76667C2.69281 7.76667 2.46 7.53385 2.46 7.24667H3.46H4.46C4.46 6.42928 3.79738 5.76667 2.98 5.76667V6.76667ZM3.46 7.24667H2.46V10.3545H3.46H4.46V7.24667H3.46ZM3.46 10.3545L4.16711 11.0616L11.0616 4.16711L10.3545 3.46L9.64741 2.75289L2.75289 9.64741L3.46 10.3545ZM10.3545 3.46V2.46H7.24667V3.46V4.46H10.3545V3.46ZM7.24667 3.46V2.46C7.53385 2.46 7.76667 2.69281 7.76667 2.98H6.76667H5.76667C5.76667 3.79738 6.42928 4.46 7.24667 4.46V3.46ZM6.76667 2.98H7.76667C7.76667 3.26719 7.53385 3.5 7.24667 3.5V2.5V1.5C6.42928 1.5 5.76667 2.16262 5.76667 2.98H6.76667ZM7.24667 2.5V3.5H11.5133V2.5V1.5H7.24667V2.5Z" fill="#4D4D4D" mask="url(#path-2-inside-1_1435_10944)"/>
-                </svg>
-                <span className="text-[#4D4D4D] text-[15px] font-medium">A4</span>
-              </div>
-            </>)}
-            {isSlideDeck && (
-              <>
-                <div className="h-6 w-px bg-gray-300 mx-2"></div>
-                <div className="flex items-center gap-2">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="4" width="12" height="8" rx="1" stroke="#71717A" strokeWidth="1.5"/>
-                  </svg>
-                  <span className="text-[#71717A] text-sm font-medium">16:9</span>
-                </div>
-              </>
             )}
+
+            {/* Resize Button - Only visible in Projects2ViewPage */}
+            {showVideoEditorActions && (
+              <div className="relative flex items-center">
+                <button
+                  ref={resizeButtonRef}
+                  onClick={handleResizeClick}
+                  className="flex items-center gap-1 hover:bg-gray-100 rounded transition-colors cursor-pointer py-1"
+                >
+                  {aspectRatio === '16:9' && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
+                      <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  {aspectRatio === '9:16' && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
+                      <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  {aspectRatio === '1:1' && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
+                      <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  {(!aspectRatio || !['16:9', '9:16', '1:1'].includes(aspectRatio)) && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
+                      <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  <span className="text-xs text-[#71717A]">{aspectRatio || '16:9'}</span>
+                </button>
+
+                {/* Resize Popup */}
+                {isResizePopupOpen && (
+                  <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-56 border" style={{ borderColor: '#E0E0E0' }} data-resize-popup>
+                    <div className="py-1">
+                      {resizeOptions.map((option, index) => (
+                        <button
+                          key={index}
+                          className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
+                            option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          onClick={() => handleResizeOptionClick(option.ratio)}
+                          disabled={option.ratio === 'Custom'}
+                        >
+                          <div>
+                            {option.icon}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-black">{option.ratio}</span>
+                            <span className="text-xs text-gray-500">{option.description}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="h-6 w-px bg-gray-300 mx-2"></div>
             <div className="flex items-center">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -127,39 +264,124 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           </div>
         </div>
 
+        {/* Video Editor Tools - Only visible in Projects2ViewPage */}
+        {showVideoEditorTools && (
+          <div className="flex items-center gap-1">
+            {/* Avatar Button */}
+            <button
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const popupWidth = 880;
+                const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
+                onAvatarButtonClick?.({ x: centerX, y: 70 });
+              }}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] ${
+                isAvatarPopupOpen 
+                  ? 'border shadow-sm rounded-sm' 
+                  : 'hover:bg-gray-50'
+              }`}
+              style={isAvatarPopupOpen ? { borderColor: '#E0E0E0' } : {}}
+            >
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.5 21C19.5 19.4087 18.8679 17.8826 17.7426 16.7574C16.6174 15.6321 15.0913 15 13.5 15M13.5 15C11.9087 15 10.3826 15.6321 9.25736 16.7574C8.13214 17.8826 7.5 19.4087 7.5 21M13.5 15C15.7091 15 17.5 13.2091 17.5 11C17.5 8.79086 15.7091 7 13.5 7C11.2909 7 9.5 8.79086 9.5 11C9.5 13.2091 11.2909 15 13.5 15ZM23.5 13C23.5 18.5228 19.0228 23 13.5 23C7.97715 23 3.5 18.5228 3.5 13C3.5 7.47715 7.97715 3 13.5 3C19.0228 3 23.5 7.47715 23.5 13Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px] mt-0.5 text-[#71717A]">{t('videoEditor.tools.avatar', 'Avatar')}</span>
+            </button>
+
+            {/* Shape Button */}
+            <button
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const popupWidth = 380;
+                const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
+                onShapesButtonClick?.({ x: centerX, y: 70 });
+              }}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] ${
+                isShapesPopupOpen 
+                  ? 'border shadow-sm rounded-sm' 
+                  : 'hover:bg-gray-50'
+              }`}
+              style={isShapesPopupOpen ? { borderColor: '#E0E0E0' } : {}}
+            >
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.38889 11.178C9.24566 11.1858 9.10305 11.1538 8.97684 11.0856C8.85063 11.0175 8.74573 10.9157 8.67375 10.7916C8.60176 10.6676 8.56549 10.526 8.56895 10.3826C8.57241 10.2392 8.61545 10.0995 8.69333 9.97906L12.8333 3.40017C12.8984 3.28303 12.9926 3.18468 13.1068 3.11465C13.2211 3.04463 13.3515 3.00531 13.4854 3.0005C13.6193 2.99569 13.7522 3.02557 13.8712 3.08722C13.9901 3.14887 14.0912 3.24022 14.1644 3.3524L18.2778 9.95573C18.3589 10.0722 18.4065 10.2086 18.4157 10.3502C18.4248 10.4917 18.395 10.6331 18.3296 10.759C18.2641 10.8849 18.1655 10.9905 18.0443 11.0643C17.9231 11.1382 17.7841 11.1775 17.6422 11.178H9.38889Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10.1667 15.6224H4.61111C3.99746 15.6224 3.5 16.1199 3.5 16.7335V22.2891C3.5 22.9027 3.99746 23.4002 4.61111 23.4002H10.1667C10.7803 23.4002 11.2778 22.9027 11.2778 22.2891V16.7335C11.2778 16.1199 10.7803 15.6224 10.1667 15.6224Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19.6111 23.4002C21.7589 23.4002 23.5 21.6591 23.5 19.5113C23.5 17.3635 21.7589 15.6224 19.6111 15.6224C17.4633 15.6224 15.7222 17.3635 15.7222 19.5113C15.7222 21.6591 17.4633 23.4002 19.6111 23.4002Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px] mt-0.5 text-[#71717A]">{t('videoEditor.tools.shape', 'Shape')}</span>
+            </button>
+
+            {/* Text Button */}
+            <button
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const popupWidth = 200;
+                const centerX = rect.left + (rect.width / 2) - (popupWidth / 2);
+                onTextButtonClick?.({ x: centerX, y: 70 });
+              }}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] ${
+                isTextPopupOpen 
+                  ? 'border shadow-sm rounded-sm' 
+                  : 'hover:bg-gray-50'
+              }`}
+              style={isTextPopupOpen ? { borderColor: '#E0E0E0' } : {}}
+            >
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.24219 23C8.24219 23.41 7.90219 23.75 7.49219 23.75H6.49219C4.42219 23.75 2.74219 22.07 2.74219 20V19C2.74219 18.59 3.08219 18.25 3.49219 18.25C3.90219 18.25 4.24219 18.59 4.24219 19V20C4.24219 21.24 5.25219 22.25 6.49219 22.25H7.49219C7.90219 22.25 8.24219 22.59 8.24219 23ZM20.4922 2.25H19.4922C19.0822 2.25 18.7422 2.59 18.7422 3C18.7422 3.41 19.0822 3.75 19.4922 3.75H20.4922C21.7322 3.75 22.7422 4.76 22.7422 6V7C22.7422 7.41 23.0822 7.75 23.4922 7.75C23.9022 7.75 24.2422 7.41 24.2422 7V6C24.2422 3.93 22.5622 2.25 20.4922 2.25ZM3.49219 7.75C3.90219 7.75 4.24219 7.41 4.24219 7V6C4.24219 4.76 5.25219 3.75 6.49219 3.75H7.49219C7.90219 3.75 8.24219 3.41 8.24219 3C8.24219 2.59 7.90219 2.25 7.49219 2.25H6.49219C4.42219 2.25 2.74219 3.93 2.74219 6V7C2.74219 7.41 3.08219 7.75 3.49219 7.75ZM23.4922 18.25C23.0822 18.25 22.7422 18.59 22.7422 19V20C22.7422 21.24 21.7322 22.25 20.4922 22.25H19.4922C19.0822 22.25 18.7422 22.59 18.7422 23C18.7422 23.41 19.0822 23.75 19.4922 23.75H20.4922C22.5622 23.75 24.2422 22.07 24.2422 20V19C24.2422 18.59 23.9022 18.25 23.4922 18.25ZM18.7422 9C18.7422 9.41 19.0822 9.75 19.4922 9.75C19.9022 9.75 20.2422 9.41 20.2422 9V8C20.2422 7.04 19.4522 6.25 18.4922 6.25H8.49219C7.53219 6.25 6.74219 7.04 6.74219 8V9C6.74219 9.41 7.08219 9.75 7.49219 9.75C7.90219 9.75 8.24219 9.41 8.24219 9V8C8.24219 7.86 8.35219 7.75 8.49219 7.75H12.7422V19.25H10.4922C10.0822 19.25 9.74219 19.59 9.74219 20C9.74219 20.41 10.0822 20.75 10.4922 20.75H16.4922C16.9022 20.75 17.2422 20.41 17.2422 20C17.2422 19.59 16.9022 19.25 16.4922 19.25H14.2422V7.75H18.4922C18.6322 7.75 18.7422 7.86 18.7422 8V9Z" fill="#171718"/>
+              </svg>
+              <span className="text-[10px] mt-0.5 text-[#71717A]">{t('videoEditor.tools.text', 'Text')}</span>
+            </button>
+
+            {/* Media Button */}
+            <button
+              onClick={(e) => onSettingsButtonClick?.('media', e)}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] ${
+                isMediaPopupOpen 
+                  ? 'border shadow-sm rounded-sm' 
+                  : 'hover:bg-gray-50'
+              }`}
+              style={isMediaPopupOpen ? { borderColor: '#E0E0E0' } : {}}
+            >
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.1848 13.8249V20.7023C21.1848 21.2235 20.9778 21.7233 20.6093 22.0918C20.2408 22.4603 19.741 22.6673 19.2198 22.6673H5.46498C4.94384 22.6673 4.44403 22.4603 4.07553 22.0918C3.70702 21.7233 3.5 21.2235 3.5 20.7023V6.94747C3.5 6.42633 3.70702 5.92653 4.07553 5.55802C4.44403 5.18951 4.94384 4.98249 5.46498 4.98249H12.3424M16.2724 6.94747H22.1673M19.2198 4V9.89494M21.1848 16.7724L18.1529 13.7404C17.7844 13.372 17.2847 13.1651 16.7636 13.1651C16.2426 13.1651 15.7429 13.372 15.3744 13.7404L6.44747 22.6673M11.3599 10.8774C11.3599 11.9627 10.4802 12.8424 9.39494 12.8424C8.30971 12.8424 7.42996 11.9627 7.42996 10.8774C7.42996 9.7922 8.30971 8.91245 9.39494 8.91245C10.4802 8.91245 11.3599 9.7922 11.3599 10.8774Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[10px] mt-0.5 text-[#71717A]">{t('videoEditor.tools.media', 'Media')}</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center space-x-3">
-{projectData && projectData.component_name === componentName && productId && setShowAiAgent && !showAiAgent && (
+          {/* AI Improve button for Course Outline and Presentations */}
+          {shouldShowButtons && !hideAiImproveButton && (
           <button
-              onClick={() => setShowAiAgent(!showAiAgent)}
+              onClick={() => setShowSmartEditor(!showSmartEditor)}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
             style={{
                 backgroundColor: '#FFFFFF',
-              color: '#171718',
+              color: '#0F58F9',
               fontSize: '14px',
               fontWeight: '600',
               lineHeight: '140%',
                 letterSpacing: '0.05em',
-                border: '1px solid #171718'
+                border: '1px solid #0F58F9'
               }}
-              title={t('actions.aiAgent', 'AI Improve')}
+              title={t('productViewHeader.aiImprove', 'AI Improve')}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              {t('actions.aiAgent', 'AI Improve')}
+              {t('productViewHeader.aiImprove', 'AI Improve')}
           </button>
           )}
 
-          {/* Export button for slide deck presentations, quizzes, and text presentations */}
-          {(isSlideDeck || isQuiz || isOnePager) && (
+          {/* Export button for slide deck presentations */}
+          {isSlideDeck && (
             <button
               onClick={() => {
-                console.log('🔍 Export button clicked for:', projectData?.component_name);
                 if (onPdfExport) {
-                  console.log('🔍 Calling onPdfExport function...');
                   onPdfExport();
                 } else {
-                  console.error('🔍 PDF export function not provided');
+                  console.log('PDF export function not provided');
                 }
               }}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -172,24 +394,70 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 letterSpacing: '0.05em',
                 border: '1px solid #0F58F9'
               }}
-              title="Export to PDF"
+              title={t('productViewHeader.exportToPdf', 'Export to PDF')}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7 1V9M7 9L4 6M7 9L10 6M2 12V13H12V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Export
+              {t('productViewHeader.export', 'Export')}
             </button>
           )}
 
-          {shouldShowButtons && scormEnabled && isCourseOutline && (
+          {shouldShowButtons && scormEnabled && (
             <ToastProvider>
               <ScormDownloadButton
                 courseOutlineId={Number(productId)}
-                label={t('interface.viewNew.exportScorm', 'Export to SCORM 2004')}
+                label={t('productViewHeader.exportScorm', 'Export to SCORM 2004')}
                 className="rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
                 style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
               />
             </ToastProvider>
+          )}
+
+          {/* Video Editor Actions - Only visible in Projects2ViewPage */}
+          {showVideoEditorActions && (
+            <>
+              {/* Preview Button */}
+              <button
+                onClick={onPreviewClick}
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-md transition-colors cursor-pointer border border-[#E4E4E7] h-8"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-700">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span className="text-black text-sm font-normal">{t('videoEditor.actions.preview', 'Preview')}</span>
+              </button>
+
+              {/* Debug Button */}
+              <button
+                onClick={onDebugClick}
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-md transition-colors cursor-pointer border border-[#E4E4E7] h-8"
+                title={t('videoEditor.actions.debugTooltip', 'Render slides with transitions only (no avatar) - for testing and debugging')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-700">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                  <line x1="7" y1="2" x2="7" y2="22"></line>
+                  <line x1="17" y1="2" x2="17" y2="22"></line>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <line x1="2" y1="7" x2="7" y2="7"></line>
+                  <line x1="2" y1="17" x2="7" y2="17"></line>
+                  <line x1="17" y1="17" x2="22" y2="17"></line>
+                  <line x1="17" y1="7" x2="22" y2="7"></line>
+                </svg>
+                <span className="text-black text-sm font-normal">{t('videoEditor.actions.debug', 'Debug')}</span>
+              </button>
+
+              {/* Generate Button */}
+              <button
+                onClick={onGenerateClick}
+                className="bg-[#0F58F9] text-white hover:bg-[#0D4CD4] rounded-md px-3 py-1.5 flex items-center gap-2 h-8 border border-[#0F58F9] cursor-pointer"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5423 11.8593C11.1071 12.0258 10.8704 12.2637 10.702 12.6981C10.5353 12.2637 10.297 12.0274 9.86183 11.8593C10.297 11.6928 10.5337 11.4565 10.702 11.0204C10.8688 11.4549 11.1071 11.6912 11.5423 11.8593ZM10.7628 5.05818C11.1399 3.656 11.6552 3.14044 13.0612 2.76346C11.6568 2.387 11.1404 1.87251 10.7628 0.46875C10.3858 1.87093 9.87044 2.38649 8.46442 2.76346C9.86886 3.13993 10.3852 3.65442 10.7628 5.05818ZM11.1732 7.95231C11.1732 7.8202 11.1044 7.6607 10.9118 7.607C9.33637 7.16717 8.34932 6.66503 7.61233 5.92985C6.8754 5.19411 6.37139 4.20858 5.93249 2.63565C5.8787 2.44339 5.71894 2.37465 5.58662 2.37465C5.4543 2.37465 5.29454 2.44339 5.24076 2.63565C4.80022 4.20858 4.29727 5.19405 3.56092 5.92985C2.82291 6.66668 1.83688 7.1688 0.261415 7.607C0.0688515 7.6607 0 7.82021 0 7.95231C0 8.08442 0.0688515 8.24393 0.261415 8.29763C1.83688 8.73746 2.82393 9.2396 3.56092 9.97477C4.29892 10.7116 4.80186 11.696 5.24076 13.269C5.29455 13.4612 5.45431 13.53 5.58662 13.53C5.71895 13.53 5.87871 13.4612 5.93249 13.269C6.37303 11.696 6.87598 10.7106 7.61233 9.97477C8.35034 9.23795 9.33637 8.73582 10.9118 8.29763C11.1044 8.24392 11.1732 8.08442 11.1732 7.95231Z" fill="white"/>
+                </svg>
+                <span className="text-sm font-normal">{t('videoEditor.actions.generate', 'Generate')}</span>
+              </button>
+            </>
           )}
 
           {/* User Dropdown */}
