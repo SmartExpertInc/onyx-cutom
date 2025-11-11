@@ -5,17 +5,14 @@ import { CourseRulesTimelineSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import PresentationImageUpload from '../PresentationImageUpload';
 import YourLogo from '../YourLogo';
 
-export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = (props: CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }) => {
+export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; }> = (props: CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; }) => {
   const {
     slideId,
     steps: stepsProp,
     profileImagePath = '',
     profileImageAlt = 'Profile image',
-    companyLogoPath = '',
-    companyLogoAlt = 'Company logo',
     logoText = 'Your Logo',
     logoPath = '',
     backgroundColor,
@@ -24,7 +21,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     onUpdate,
     pageNumber = '34',
     theme,
-  } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; companyLogoPath?: string; companyLogoAlt?: string; logoText?: string; logoPath?: string; };
+  } = props;
   const stepOne = { number: '1', text: 'Rules of the course' };
   const stepTwo = { number: '2', text: 'Prerequisite courses' };
   const stepThree = { number: '3', text: 'Course expectations' };

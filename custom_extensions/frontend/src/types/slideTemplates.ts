@@ -1218,6 +1218,9 @@ export interface CourseRulesTimelineSlideProps extends BaseTemplateProps {
   profileImageAlt?: string;
   backgroundColor?: string;
   textColor?: string;
+  logoPath?: string;
+  logoText?: string;
+  pageNumber?: string;
 }
 
 export interface ResilienceBehaviorsSlideProps extends BaseTemplateProps {
