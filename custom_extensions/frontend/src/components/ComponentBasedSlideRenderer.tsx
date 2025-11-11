@@ -1,10 +1,12 @@
 // custom_extensions/frontend/src/components/ComponentBasedSlideRenderer.tsx
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplateResolved } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import HybridTemplateBase from './templates/base/HybridTemplateBase';
+import { useAvatarDisplay } from './AvatarDisplayManager';
+import { applyDefaultAvatarToProps } from '@/utils/slideAvatarUtils';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -31,6 +33,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
 }) => {
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME, deckTemplateVersion);
+  const { defaultAvatar } = useAvatarDisplay();
 
   // Debug logging for version resolution (enable with window.__DEBUG_SLIDE_VERSIONS__ = true)
   if (typeof window !== 'undefined' && (window as any).__DEBUG_SLIDE_VERSIONS__) {
@@ -108,8 +111,28 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   
   // Render the template component with props and theme
   const TemplateComponent = template.component;
+  const defaultAvatarImage =
+    defaultAvatar?.selectedVariant?.canvas ||
+    (slide.props as any)?.defaultAvatarImage ||
+    slide.profileImagePath ||
+    null;
+
+  const defaultAvatarAlt =
+    (defaultAvatar && `${defaultAvatar.avatar.name} - ${defaultAvatar.selectedVariant.name}`) ||
+    (slide.props as any)?.defaultAvatarAlt ||
+    (slide as any).profileImageAlt ||
+    null;
+
+  const slidePropsWithAvatar = useMemo(() => {
+    return applyDefaultAvatarToProps(
+      slide.props || {},
+      defaultAvatarImage,
+      defaultAvatarAlt,
+    );
+  }, [slide.props, defaultAvatarImage, defaultAvatarAlt]);
+
   const templateProps = {
-    ...slide.props,
+    ...slidePropsWithAvatar,
     slideId: slide.slideId,
     isEditable,
     onUpdate: handlePropsUpdate,

@@ -56,52 +56,84 @@ const injectAvatarIntoValue = (value: any, options: AvatarInjectionOptions): any
   return value;
 };
 
+const applyDefaultAvatarToObject = <T extends Record<string, any>>(
+  target: T,
+  options: AvatarInjectionOptions,
+): T => {
+  if (!options.imageUrl) return target;
+
+  const next: T = { ...target };
+
+  Object.keys(next).forEach((key) => {
+    const value = next[key];
+    if (key === 'props' || key === 'items' || key === 'metadata') {
+      return;
+    }
+
+    if (shouldSetImage(key, value)) {
+      next[key] = options.imageUrl;
+    } else if (shouldSetAlt(key, value) && options.altText) {
+      next[key] = options.altText;
+    }
+  });
+
+  return next;
+};
+
+export const applyDefaultAvatarToProps = <T extends Record<string, any>>(
+  props: T,
+  imageUrl?: string | null,
+  altText?: string | null,
+): T => {
+  if (!props || typeof props !== 'object') return props;
+
+  const options: AvatarInjectionOptions = {
+    imageUrl: imageUrl ?? undefined,
+    altText: altText ?? undefined,
+  };
+
+  const propsWithTopLevel = applyDefaultAvatarToObject(props, options);
+  const injectedProps = injectAvatarIntoValue(propsWithTopLevel, options);
+
+  if (options.imageUrl && typeof injectedProps === 'object' && injectedProps) {
+    if (!('defaultAvatarImage' in injectedProps) || !injectedProps.defaultAvatarImage) {
+      injectedProps.defaultAvatarImage = options.imageUrl;
+    }
+    if (options.altText && (!('defaultAvatarAlt' in injectedProps) || !injectedProps.defaultAvatarAlt)) {
+      injectedProps.defaultAvatarAlt = options.altText;
+    }
+  }
+
+  return injectedProps;
+};
+
 export const applyDefaultAvatarToSlides = (
   slides: any[],
   imageUrl?: string | null,
   altText?: string | null,
 ) => {
-  if (!Array.isArray(slides) || !imageUrl) {
+  if (!Array.isArray(slides)) {
     return slides;
   }
-
-  const options: AvatarInjectionOptions = {
-    imageUrl,
-    altText: altText || 'Avatar',
-  };
 
   return slides.map((slide) => {
     if (!slide || typeof slide !== 'object') return slide;
 
-    const updatedSlide = { ...slide };
+    const options: AvatarInjectionOptions = {
+      imageUrl: imageUrl ?? slide.defaultAvatarImage,
+      altText: altText ?? slide.defaultAvatarAlt ?? 'Avatar',
+    };
 
-    // Update top-level fields
-    Object.keys(updatedSlide).forEach((key) => {
-      if (key === 'props' || key === 'items' || key === 'metadata') return;
-      const value = updatedSlide[key];
-      if (shouldSetImage(key, value)) {
-        updatedSlide[key] = imageUrl;
-      } else if (shouldSetAlt(key, value) && options.altText) {
-        updatedSlide[key] = options.altText;
-      }
-    });
+    const updatedSlide = applyDefaultAvatarToObject(slide, options);
 
-    // Update props recursively
     if (updatedSlide.props) {
-      updatedSlide.props = injectAvatarIntoValue(updatedSlide.props, options);
-      if (!updatedSlide.props.defaultAvatarImage) {
-        updatedSlide.props.defaultAvatarImage = imageUrl;
-      }
-      if (options.altText && !updatedSlide.props.defaultAvatarAlt) {
-        updatedSlide.props.defaultAvatarAlt = options.altText;
-      }
+      updatedSlide.props = applyDefaultAvatarToProps(updatedSlide.props, options.imageUrl, options.altText);
     }
 
-    // Store at slide level as well
-    if (!updatedSlide.defaultAvatarImage) {
-      updatedSlide.defaultAvatarImage = imageUrl;
+    if (options.imageUrl && (!updatedSlide.defaultAvatarImage || updatedSlide.defaultAvatarImage === '')) {
+      updatedSlide.defaultAvatarImage = options.imageUrl;
     }
-    if (options.altText && !updatedSlide.defaultAvatarAlt) {
+    if (options.altText && (!updatedSlide.defaultAvatarAlt || updatedSlide.defaultAvatarAlt === '')) {
       updatedSlide.defaultAvatarAlt = options.altText;
     }
 

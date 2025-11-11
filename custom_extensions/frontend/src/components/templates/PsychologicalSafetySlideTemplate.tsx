@@ -286,6 +286,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
             width: '100%',
             height: '100%',
             borderRadius: '50%',
+            marginTop: '20px',
             objectFit: 'cover'
           }}
         />
