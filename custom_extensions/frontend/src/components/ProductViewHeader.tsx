@@ -236,7 +236,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </div>
             {enableLinkViewButtons && (
               <>
-                <div className="flex items-center gap-2 text-[12px] text-[#878787]">
+                <div className="flex items-center gap-1.5 text-[12px] text-[#878787]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g clipPath="url(#clip0_4291_33172)">
                       <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>

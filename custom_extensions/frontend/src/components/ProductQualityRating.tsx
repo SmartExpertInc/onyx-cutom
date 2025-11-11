@@ -3,10 +3,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductQualityRatingProps {
   questionText?: string;
+  fullWidth?: boolean;
+  className?: string;
 }
 
 const ProductQualityRating = ({
   questionText,
+  fullWidth = false,
+  className,
 }: ProductQualityRatingProps): React.JSX.Element => {
   const { t } = useLanguage();
   const [_hoveredStar, setHoveredStar] = useState<number | null>(null);
@@ -14,9 +18,25 @@ const ProductQualityRating = ({
   const displayQuestion =
     questionText ?? t('modals.play.rateQuality', "How's the video and voice quality?");
 
+  const containerClasses = [
+    'flex flex-col gap-3 flex-shrink-0',
+    fullWidth ? 'items-stretch' : 'items-center',
+    fullWidth ? 'w-full' : '',
+    className ?? '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const ratingBoxClasses = [
+    'items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3',
+    fullWidth ? 'flex justify-between w-full' : 'inline-flex',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="flex flex-col items-center gap-3 flex-shrink-0">
-      <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3">
+    <div className={containerClasses}>
+      <div className={ratingBoxClasses}>
         <span className="text-[#171718] text-xs">{displayQuestion}</span>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -44,7 +64,7 @@ const ProductQualityRating = ({
           ))}
         </div>
       </div>
-      <span className="text-[#878787] text-xs">
+      <span className="text-[#878787] text-xs text-center">
         {t('modals.play.helpImprove', 'Help us improve ContentBuilder')}
       </span>
     </div>
