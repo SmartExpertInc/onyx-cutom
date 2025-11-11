@@ -1359,6 +1359,35 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														<h3 className="font-semibold text-sm h-10 text-gray-900 truncate mb-1">
 															{(() => { try { return decodeURIComponent(folderItem.name); } catch { return folderItem.name; } })()}
 														</h3>
+														
+														{/* Progress bar for indexing files */}
+														{folderItem.type === 'file' && (() => { 
+															const s = indexing[folderItem.path] || indexing[(() => { try { return decodeURIComponent(folderItem.path); } catch { return folderItem.path; } })()] || indexing[encodeURI(folderItem.path)]; 
+															const shouldShow = s && s.status !== 'done';
+															return shouldShow;
+														})() && (
+															<div className="mb-2" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
+																{(() => { 
+																	const s = indexing[folderItem.path] || indexing[(() => { try { return decodeURIComponent(folderItem.path); } catch { return folderItem.path; } })()] || indexing[encodeURI(folderItem.path)]; 
+																	const pct = s?.etaPct ?? 10; 
+																	return (
+																		<div className="space-y-1">
+																			<div className="flex items-center justify-between">
+																				<span className="text-xs text-blue-600 font-medium">Indexing...</span>
+																				<span className="text-xs text-blue-600">{Math.round(pct)}%</span>
+																			</div>
+																			<div className="h-1.5 w-full bg-slate-200 rounded overflow-hidden">
+																				<div 
+																					className="h-full bg-blue-500 transition-all duration-300" 
+																					style={{ width: `${pct}%` }} 
+																				/>
+																			</div>
+																		</div>
+																	);
+																})()}
+															</div>
+														)}
+														
 														<div className="flex items-center justify-between">
 															<p className="text-xs text-gray-500">
 																{folderItem.modified ? new Date(folderItem.modified).toLocaleDateString('en-US', { 
@@ -1671,6 +1700,28 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																)
 															}
 														</div>
+														{it.type === 'file' && (() => { 
+															const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+															const shouldShow = s && s.status !== 'done';
+															console.log(`[SmartDrive] Progress bar check for expanded folder item '${it.path}':`, {
+																indexingState: s,
+																shouldShow,
+																allIndexing: indexing
+															});
+															return shouldShow;
+														})() && (
+															<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
+																{(() => { 
+																	const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+																	const pct = s?.etaPct ?? 10; 
+																	return (
+																		<div className="h-1.5 w-56 md:w-64 bg-slate-200 rounded overflow-hidden">
+																			<div className="h-full bg-blue-500" style={{ width: `${pct}%` }} />
+																		</div>
+																	);
+																})()}
+															</div>
+														)}
 													</TableCell>
 													
 													{/* Creator Column */}
