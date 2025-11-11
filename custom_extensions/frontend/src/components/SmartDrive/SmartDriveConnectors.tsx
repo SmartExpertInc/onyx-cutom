@@ -202,7 +202,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
   
   // Polling mechanism for indexing progress
   useEffect(() => {
-    const TOKENS_PER_SECOND = 4; // Processing speed: 4 tokens/sec
+    const TOKENS_PER_SECOND = 500; // Processing speed: ~500 tokens/sec (conservative estimate)
     
     const pollProgress = async () => {
       setIndexing(prev => {
