@@ -93,6 +93,7 @@ interface SmartDriveBrowserProps {
 	sortOrder?: 'asc' | 'desc';
 	onFilesLoaded?: (hasFiles: boolean) => void;
 	emptyStateVariant?: 'smartdrive' | 'knowledgebase';
+	externalIndexingState?: IndexingState; // Allow parent to pass indexing state
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -126,9 +127,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	sortOrder = 'asc',
 	onFilesLoaded,
 	emptyStateVariant = 'knowledgebase',
+	externalIndexingState,
 }) => {
 	console.log('%c[SmartDriveBrowser] COMPONENT MOUNTED/RENDERED', 'background: #00ff00; color: #000; font-size: 14px; font-weight: bold');
-	console.log('[SmartDriveBrowser] Props:', { mode, initialPath, viewMode, contentTypeFilter });
+	console.log('[SmartDriveBrowser] Props:', { mode, initialPath, viewMode, contentTypeFilter, hasExternalIndexing: !!externalIndexingState });
 	
 	const { t } = useLanguage();
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
@@ -141,7 +143,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [sortAsc, setSortAsc] = useState<boolean>(true);
 	const [lastIndex, setLastIndex] = useState<number | null>(null);
 	const [uploading, setUploading] = useState<UploadProgress[]>([]);
-	const [indexing, setIndexing] = useState<IndexingState>({});
+	const [internalIndexing, setInternalIndexing] = useState<IndexingState>({});
+	
+	// Use external indexing state if provided, otherwise use internal state
+	const indexing = externalIndexingState || internalIndexing;
+	const setIndexing = externalIndexingState ? () => {} : setInternalIndexing;
 	const [mkdirOpen, setMkdirOpen] = useState(false);
 	const [mkdirName, setMkdirName] = useState('');
 	// Rename modal state

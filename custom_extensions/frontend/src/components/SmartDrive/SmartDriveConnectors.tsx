@@ -249,7 +249,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
 
   const uploadFiles = async (files: File[]) => {
     if (files.length === 0) return;
-    console.log('[SmartDrive] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
+    console.log('[SmartDriveConnectors] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
     
     const progress: UploadProgress[] = files.map(f => ({ filename: f.name, progress: 0 }));
     setUploading(progress);
@@ -266,6 +266,45 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       if (!res.ok && res.status !== 207) {
         const errorText = await res.text();
         throw new Error(errorText);
+      }
+      
+      const data = await res.json();
+      console.log('[SmartDriveConnectors] Upload response data:', data);
+      
+      // Initialize indexing tracking for uploaded files
+      if (data && Array.isArray(data.results)) {
+        const next: IndexingState = { ...indexing };
+        const pathsToTrack: string[] = [];
+        
+        for (const r of data.results) {
+          const filename = r.filename || r.file;
+          if (!filename) continue;
+          
+          const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${filename}`.replace(/\/+/g, '/');
+          next[p] = {
+            status: 'pending',
+            etaPct: 10,
+            onyxFileId: r.onyx_file_id,
+            startedAtMs: Date.now()
+          };
+          pathsToTrack.push(p);
+        }
+        
+        console.log('[SmartDriveConnectors] Setting indexing state:', next);
+        setIndexing(next);
+      } else {
+        // Fallback: use file names
+        const next: IndexingState = { ...indexing };
+        for (const file of files) {
+          const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${file.name}`.replace(/\/+/g, '/');
+          next[p] = {
+            status: 'pending',
+            etaPct: 10,
+            startedAtMs: Date.now()
+          };
+        }
+        console.log('[SmartDriveConnectors] Setting fallback indexing state:', next);
+        setIndexing(next);
       }
       
       await fetchList(currentPath);
@@ -886,6 +925,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
             sortOrder={sortOrder}
             onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
             onFilesLoaded={handleFilesLoaded}
+            externalIndexingState={indexing}
           />
         )}
       </div>
@@ -1138,6 +1178,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
                 sortOrder={sortOrder}
                 onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
                 onFilesLoaded={handleFilesLoaded}
+                externalIndexingState={indexing}
               />
             )}
           </div>
