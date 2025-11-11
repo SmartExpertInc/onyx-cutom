@@ -127,6 +127,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	onFilesLoaded,
 	emptyStateVariant = 'knowledgebase',
 }) => {
+	console.log('%c[SmartDriveBrowser] COMPONENT MOUNTED/RENDERED', 'background: #00ff00; color: #000; font-size: 14px; font-weight: bold');
+	console.log('[SmartDriveBrowser] Props:', { mode, initialPath, viewMode, contentTypeFilter });
+	
 	const { t } = useLanguage();
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
 	const [items, setItems] = useState<SmartDriveItem[]>([]);
@@ -734,7 +737,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	const uploadFiles = async (files: File[]) => {
 		if (files.length === 0) return;
+		console.log('=== [SmartDrive] UPLOAD STARTED ===');
 		console.log('[SmartDrive] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
+		console.log('[SmartDrive] Current indexing state BEFORE upload:', indexing);
 		
 		const progress: UploadProgress[] = files.map(f => ({ filename: f.name, progress: 0 }));
 		setUploading(progress);
@@ -807,6 +812,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				// Set indexing state BEFORE fetching list so the UI shows progress immediately
 				setIndexing(next);
 				console.log('[SmartDrive] setIndexing called');
+				// Verify state will update
+				setTimeout(() => {
+					console.log('[SmartDrive] State check after 100ms - indexing keys:', Object.keys(indexing));
+				}, 100);
 				
 				// Fetch the updated list to show new files
 				await fetchList(currentPath);
@@ -844,8 +853,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				}
 				
 				console.log('[SmartDrive] Fallback indexing state:', next);
+				console.log('[SmartDrive] Fallback - Object.keys(next):', Object.keys(next));
+				console.log('[SmartDrive] Fallback - next has data?:', Object.keys(next).length > 0);
 				setIndexing(next);
 				console.log('[SmartDrive] Fallback setIndexing called');
+				console.log('=== [SmartDrive] FALLBACK COMPLETE ===');
 				
 				await fetchList(currentPath);
 				
@@ -856,9 +868,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				}
 			}
 		} catch (e) {
+			console.error('=== [SmartDrive] UPLOAD ERROR ===');
 			console.error('[SmartDrive] Upload error:', e);
 			alert('Upload failed');
 		} finally {
+			console.log('=== [SmartDrive] UPLOAD FINALLY BLOCK ===');
+			console.log('[SmartDrive] Indexing state at end of upload:', indexing);
 			setUploading([]);
 			setBusy(false);
 		}
