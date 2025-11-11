@@ -239,6 +239,18 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
     return configs;
   }, [columnVideoLessonEnabled, t]);
 
+  const handleProductClick = (productId: number, contentType: string) => {
+    if (onViewProduct) {
+      onViewProduct(productId, contentType);
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      const url = `/projects/view/${productId}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const handleToggleSection = (index: number) => {
     if (onToggleSectionCollapse) {
       onToggleSectionCollapse(index);
@@ -277,17 +289,9 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                       >
                         <ChevronDown size={14} className={`text-white transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`} />
                       </button>
-                    <h2 className="text-[#0F58F9] font-semibold text-[20px] leading-[100%]">
+                      <h2 className="text-[#0F58F9] font-semibold text-[20px] leading-[100%]">
                         {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
                       </h2>
-                      <span className="bg-white text-[#A5A5A5] text-[12px] px-2 py-[5px] rounded-full">
-                        {sectionLessonsCount} {(() => {
-                          const form = getSlavicPluralForm(sectionLessonsCount);
-                          if (form === 'one') return t('interface.viewNew.lesson', 'Lesson');
-                          if (form === 'few') return t('interface.viewNew.lessonsGenitiveSingle', 'Lessons');
-                          return t('interface.viewNew.lessonsGenitivePlural', 'Lessons');
-                        })()}
-                      </span>
                     </div>
                 </div>
 
@@ -343,15 +347,6 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                         {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
                                       </span>
                                 </div>
-                                <div className="flex items-center gap-2 ml-6">
-                                  <div className="relative w-32 h-[3px] bg-[#CCDBFC] rounded-full overflow-hidden">
-                                    <div
-                                      className="absolute top-0 left-0 h-full bg-[#719AF5] rounded-full transition-all duration-300"
-                                      style={{ width: `${(actualCreatedCount / totalProducts) * 100}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-[#A5A5A5] text-[9px]">{actualCreatedCount}/{totalProducts} {t('interface.viewNew.created', 'created')}</span>
-                                </div>
                               </div>
 
                               {contentColumnConfigs.map((config) => {
@@ -361,12 +356,12 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 const color = exists ? '#0F58F9' : '#E0E0E0';
                                 const sharedClasses = 'flex flex-col items-center justify-center gap-1 text-[12px] font-medium transition-colors';
 
-                                if (exists && productIdForColumn && onViewProduct) {
+                                if (exists && productIdForColumn) {
                                   return (
                                     <button
                                       key={config.key}
                                       type="button"
-                                      onClick={() => onViewProduct(productIdForColumn, config.contentType)}
+                                      onClick={() => handleProductClick(productIdForColumn, config.contentType)}
                                       className={`${sharedClasses} cursor-pointer hover:opacity-80`}
                                       style={{ color }}
                                     >
@@ -404,7 +399,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
         <div className="flex flex-col h-[550px] flex-none">
           <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
         </div>
-        <ProductQualityRating />
+        <ProductQualityRating questionText="How satisfied are you with this course overall?" />
         {showMetricsCard && (
         <CustomViewCard
           projectId={productId}
