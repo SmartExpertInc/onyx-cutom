@@ -20,7 +20,6 @@ import { Progress } from '../ui/progress';
 import { EmptySmartDrive } from '../EmptySmartDrive';
 import { EmptyConnectors } from '../EmptyConnectors';
 import { KnowledgeBaseProduct } from '@/lib/knowledgeBaseSelection';
-import MyProductsModalContent, { ModalProduct } from './MyProductsModalContent';
 import MyProductsTable from '../MyProductsTable';
 
 interface ConnectorConfig {
@@ -1502,6 +1501,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
             <MyProductsTable selectionMode="select" onSelectionChange={handleProductsSelectionChange} />
+            {selectedProductIds.length === 0 && (
+              <p className="mt-4 text-sm text-gray-500">
+                Select products to import into your knowledge base.
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -1511,7 +1515,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <p>My products</p>
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
-            <MyProductsModalContent onSelectionChange={handleProductsSelectionChange} />
+            <MyProductsTable selectionMode="select" onSelectionChange={handleProductsSelectionChange} />
+            {selectedProductIds.length === 0 && (
+              <p className="mt-4 text-sm text-gray-500">
+                Select products to import into your knowledge base.
+              </p>
+            )}
           </div>
         </div>
       )}
