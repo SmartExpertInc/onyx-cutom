@@ -2184,10 +2184,7 @@ export default function ProjectInstanceViewPage() {
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
           projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
             ? 'bg-[#F2F2F4] px-12 py-0'
-            : projectInstanceData?.component_name === COMPONENT_NAME_QUIZ || 
-              projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
-            ? 'min-h-screen bg-[#F2F2F4] p-0'
-            : 'min-h-screen bg-[#F2F2F4] p-4'
+            : 'min-h-screen bg-[#F2F2F4] p-0'
         }`}
       >
         <div className={containerClassName}>
