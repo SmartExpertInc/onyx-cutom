@@ -4625,6 +4625,70 @@
     font-weight: 300;
 }
 
+/* Two Column Slide Template - EXACT React Copy */
+.two-column-slide-template {
+    width: 100%;
+    aspect-ratio: 16/9;
+    height: 100%;
+    display: flex;
+    flex-direction: row-reverse;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+.two-column-slide-template .left-section {
+    width: 50%;
+    height: 100%;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.two-column-slide-template .profile-image-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 40px;
+}
+
+.two-column-slide-template .profile-image-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.two-column-slide-template .content-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.two-column-slide-template .content-text {
+    font-size: 14px;
+    line-height: 1.6;
+    position: relative;
+    bottom: -100px;
+}
+
+.two-column-slide-template .right-section {
+    width: 85%;
+    height: 100%;
+    position: relative;
+}
+
+.two-column-slide-template .right-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
         /* Benefits And Perks Columns Slide Template - EXACT React Copy */
         .benefits-perks-columns-slide {
             width: 100%;
@@ -8649,6 +8713,36 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="frame">
                         {% if mainImagePath %}
                             <img src="{{ mainImagePath }}" alt="Main image" />
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% elif templateId == 'two-column-slide' %}
+                <!-- Two Column Slide Template - EXACT React Copy -->
+                <div class="two-column-slide-template" style="background: {{ backgroundColor or 'var(--bg-color, #ffffff)' }};">
+                    <!-- Left section with avatar and text -->
+                    <div class="left-section" style="background: {{ backgroundColor or 'var(--bg-color, #ffffff)' }};">
+                        <!-- Profile image -->
+                        <div class="profile-image-container">
+                            {% set avatar_url = profileImagePath or defaultAvatarImage %}
+                            {% if avatar_url %}
+                                <img src="{{ avatar_url }}" alt="{{ profileImageAlt or defaultAvatarAlt or 'Profile image' }}" />
+                            {% endif %}
+                        </div>
+
+                        <!-- Content -->
+                        <div class="content-section">
+                            <!-- Content text -->
+                            <div class="content-text" style="color: {{ contentColor or 'var(--content-color, #09090B)' }};">
+                                {{ content or 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right section with image -->
+                    <div class="right-section">
+                        {% if rightImagePath %}
+                            <img src="{{ rightImagePath }}" alt="{{ rightImageAlt or 'Right side image' }}" />
                         {% endif %}
                     </div>
                 </div>
