@@ -21,7 +21,6 @@ import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import VideoProductDisplay from '@/components/VideoProductDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
-import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { LessonPlanView } from '@/components/LessonPlanView';
 import CourseDisplay, { LessonContentStatusMap } from '@/components/CourseDisplay';
 import { useLanguage } from '../../../../contexts/LanguageContext';
@@ -292,8 +291,6 @@ export default function ProjectInstanceViewPage() {
   const [pdfDownloadReady, setPdfDownloadReady] = useState<{url: string, filename: string} | null>(null);
   const [pdfProgress, setPdfProgress] = useState<{current: number, total: number, message: string} | null>(null);
   
-  // Smart editing state
-  const [showSmartEditor] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(true);
 
   const normalizeDateValue = (value: string | Date | null | undefined) => {
@@ -1038,25 +1035,6 @@ export default function ProjectInstanceViewPage() {
     });
   }, [editableData]);
 
-  // Handler for SmartPromptEditor content updates
-  const handleSmartEditContentUpdate = useCallback((updatedContent: any) => {
-    setEditableData(updatedContent);
-    // Note: Don't refetch from server here since with confirmation flow,
-    // changes are only saved after user explicitly confirms them
-  }, []);
-
-  // Handler for SmartPromptEditor errors
-  const handleSmartEditError = useCallback((error: string) => {
-    setSaveError(error);
-  }, []);
-
-  // Handler for SmartPromptEditor revert
-  const handleSmartEditRevert = useCallback(() => {
-    // Refetch the original data from the server to restore the original content
-    if (projectId) {
-      fetchPageData(projectId);
-    }
-  }, [projectId, fetchPageData]);
 
   const handleSave = async () => {
     if (!projectId || !editableData) {
@@ -2091,8 +2069,11 @@ export default function ProjectInstanceViewPage() {
     .join(' ');
 
   const productContent = displayContent();
-  const layoutContainerClasses = 'flex flex-col lg:flex-row gap-6 px-4 lg:px-10';
-  const mainColumnClasses = 'flex-1 min-w-0 space-y-6';
+  const layoutWrapperClasses = [
+    containerClassName,
+    'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-6 px-4 lg:px-10'
+  ].filter(Boolean).join(' ');
+  const mainColumnClasses = 'space-y-6 min-w-0';
   const mainCardClasses = [
     'p-3 rounded-xl',
     projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN ||
@@ -2137,332 +2118,28 @@ export default function ProjectInstanceViewPage() {
             : 'min-h-screen bg-[#F2F2F4] p-0'
         }`}
       >
-        <div className={containerClassName}>
-          {/* Role Access Modal - kept for functionality */}
-          {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && roleAccess && createPortal(
-                  <div
-                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
-                    onClick={() => setRoleAccess(false)}
-                  >
-                    <div
-                      className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {/* Header */}
-                      <div className="flex items-center justify-between p-6 pb-4">
-                        <h2 className="text-xl font-regular text-gray-900">{t('interface.projectView.addMember', 'Add member to product')}</h2>
-                        <button
-                          onClick={() => setRoleAccess(false)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-
-                      {/* Content */}
-                      <div className="px-6 pb-6">
-                        {/* Add Member Input */}
-                        <div className="mb-6">
-                          <div className="flex gap-3">
-                                <input
-                              type="email"
-                              value={newEmail}
-                              onChange={(e) => setNewEmail(e.target.value)}
-                              placeholder={t('interface.projectView.addMembersToProduct', 'Add members to product')}
-                              className="flex-1 px-4 py-3 text-sm placeholder-gray-400 text-gray-400 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
-                            />
-                            <button
-                              onClick={handleAddEmail}
-                              disabled={!newEmail.trim()}
-                              className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {t('interface.projectView.add', 'Add')}
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Members with access */}
-                        <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.membersWithAccess', 'Members with access')}</h3>
-                          <div className="space-y-3 max-h-42 overflow-y-auto pr-2">
-                            {customEmails.map((email) => {
-                              const currentRole = emailRoles[email] || 'editor';
-                              const roleLabel = predefinedRoles.find(r => r.id === currentRole)?.label || 'Editor';
-                              return (
-                                <div key={email} className="flex items-center justify-between p-2 bg-white rounded-lg min-h-[52px]">
-                                <div className="flex items-center">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium mr-3">
-                                      {email.charAt(0).toUpperCase()}
-                                    </div>
-                                    <span className="text-sm text-gray-900">{email}</span>
-                                  </div>
-                                  <div className="relative" data-email-role-section>
-                                    <div
-                                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
-                                      onClick={() => setShowEmailRoleDropdown(showEmailRoleDropdown === email ? null : email)}
-                                    >
-                                      <span className="text-sm text-gray-900">{roleLabel}</span>
-                                      <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                  </svg>
-                                    </div>
-
-                                    {/* Email Role Dropdown */}
-                                    {showEmailRoleDropdown === email && (
-                                      <div className="fixed bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto" style={{
-                                        top: '50%',
-                                        left: '55%',
-                                        transform: 'translate(-50%, -50%)'
-                                      }}>
-                                        <div className="space-y-1">
-                                          {predefinedRoles.map((role) => (
-                                            <div
-                                              key={role.id}
-                                              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50 ${currentRole === role.id ? 'bg-blue-50' : ''}`}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEmailRoleChange(email, role.id);
-                                                setShowEmailRoleDropdown(null);
-                                              }}
-                                            >
-                                              <span className="text-sm font-medium text-gray-900">{role.label}</span>
-                              </div>
-                            ))}
-                                          <div className="border-t border-gray-200 pt-1 mt-1">
-                                            <div
-                                              className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-red-50 text-red-600"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRemoveEmail(email);
-                                                setShowEmailRoleDropdown(null);
-                                              }}
-                                            >
-                                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                              </svg>
-                                              <span className="text-sm font-medium">Remove</span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            {customEmails.length === 0 && (
-                              <div className="text-center py-4 text-gray-500 text-sm">
-                                {t('interface.projectView.noMembersYet', 'No members added yet')}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* General access */}
-                        <div className="mb-6" data-general-access-section>
-                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.generalAccess', 'General access')}</h3>
-                          <div className="relative">
-                            <div
-                              className="p-2 bg-white rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowGeneralAccessDropdown(!showGeneralAccessDropdown)}
-                            >
-                              <div className="flex items-center gap-1 mb-1">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-1 ${generalAccessOption === 'restricted' ? 'bg-[#D9D9D9]' : 'bg-[#C4EED0]'}`}>
-                                  {generalAccessOption === 'restricted' ? (
-                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                                  ) : (
-                                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 55.818 55.818" xmlns="http://www.w3.org/2000/svg">
-                                      <g id="Group_6" data-name="Group 6" transform="translate(-1212.948 -289.602)">
-                                        <path id="Path_19" data-name="Path 19" d="M1249.54,294.79s-4.5.25-5,6.25a17.908,17.908,0,0,0,2.5,10.5s2.193-1.558-.028,5.971,7.278,14.529,10.778,6.279-.5-11.783,2-12.641a33.771,33.771,0,0,0,5.382-2.6l-3.229-6.081-5.21-5.421-7.43-4.027Z" fill="#231f20" />
-                                        <path id="Path_20" data-name="Path 20" d="M1219.365,331.985s2.675-14.195,6.425-10.695.25,5.5,2.5,9,5.25,1.5,5.5,5.5.755,6.979,2.618,7.241S1222.967,339.984,1219.365,331.985Z" fill="#231f20" />
-                                        <path id="Path_21" data-name="Path 21" d="M1266.766,317.511a25.909,25.909,0,1,1-25.91-25.909A25.909,25.909,0,0,1,1266.766,317.511Z" fill="none" stroke="#231f20" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
-                                        <path id="Path_22" data-name="Path 22" d="M1240.122,311.619a6.078,6.078,0,1,1-6.078-6.079A6.079,6.079,0,0,1,1240.122,311.619Z" fill="#231f20" />
-                                      </g>
-                                    </svg>
-                                  )}
-                          </div>
-                                <span className="text-sm -mt-3 font-medium text-gray-900">
-                                  {generalAccessOption === 'restricted'
-                                    ? t('interface.projectView.restricted', 'Restricted')
-                                    : t('interface.projectView.anyoneWithLink', 'Anyone with link')
-                                  }
-                                </span>
-                                <svg className="w-4 h-4 -mt-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </div>
-                              <p className="text-xs -mt-2 text-gray-600 ml-10">
-                                {generalAccessOption === 'restricted'
-                                  ? t('interface.projectView.onlyMembersWithAccess', 'Only members with access can open with the link.')
-                                  : t('interface.projectView.anyoneOnTheInternet', 'Anyone on the internet with the link can view.')
-                                }
-                              </p>
-                        </div>
-
-                            {/* General Access Dropdown */}
-                            {showGeneralAccessDropdown && (
-                              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
-                                <div className="space-y-2">
-                                  <div
-                                    className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
-                                    onClick={() => {
-                                      setGeneralAccessOption('restricted');
-                                      setShowGeneralAccessDropdown(false);
-                                    }}
-                                  >
-                                    <div className="w-6 h-6 bg-[#D9D9D9] rounded-full flex items-center justify-center">
-                                      <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                      </svg>
-                                    </div>
-                                    <div>
-                                      <span className="text-sm font-medium text-gray-900">{t('interface.projectView.restricted', 'Restricted')}</span>
-                                      <p className="text-xs text-gray-500">{t('interface.projectView.onlyMembersWithAccess', 'Only members with access can open with the link.')}</p>
-                                    </div>
-                                  </div>
-                                  <div
-                                    className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
-                                    onClick={() => {
-                                      setGeneralAccessOption('anyone');
-                                      setShowGeneralAccessDropdown(false);
-                                    }}
-                                  >
-                                    <div className="w-6 h-6 bg-[#C4EED0] rounded-full flex items-center justify-center">
-                                      <svg className="w-3 h-3 text-gray-600" viewBox="0 0 55.818 55.818" xmlns="http://www.w3.org/2000/svg">
-                                        <g id="Group_6" data-name="Group 6" transform="translate(-1212.948 -289.602)">
-                                          <path id="Path_19" data-name="Path 19" d="M1249.54,294.79s-4.5.25-5,6.25a17.908,17.908,0,0,0,2.5,10.5s2.193-1.558-.028,5.971,7.278,14.529,10.778,6.279-.5-11.783,2-12.641a33.771,33.771,0,0,0,5.382-2.6l-3.229-6.081-5.21-5.421-7.43-4.027Z" fill="#231f20" />
-                                          <path id="Path_20" data-name="Path 20" d="M1219.365,331.985s2.675-14.195,6.425-10.695.25,5.5,2.5,9,5.25,1.5,5.5,5.5.755,6.979,2.618,7.241S1222.967,339.984,1219.365,331.985Z" fill="#231f20" />
-                                          <path id="Path_21" data-name="Path 21" d="M1266.766,317.511a25.909,25.909,0,1,1-25.91-25.909A25.909,25.909,0,0,1,1266.766,317.511Z" fill="none" stroke="#231f20" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
-                                          <path id="Path_22" data-name="Path 22" d="M1240.122,311.619a6.078,6.078,0,1,1-6.078-6.079A6.079,6.079,0,0,1,1240.122,311.619Z" fill="#231f20" />
-                                        </g>
-                                      </svg>
-                                    </div>
-                                    <div>
-                                      <span className="text-sm font-medium text-gray-900">{t('interface.projectView.anyoneWithLink', 'Anyone with link')}</span>
-                                      <p className="text-xs text-gray-500">{t('interface.projectView.anyoneOnTheInternet', 'Anyone on the internet with the link can view.')}</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Roles that have access */}
-                        <div className="mb-6" data-roles-section>
-                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
-                          <div className="relative">
-                            <div
-                              className="flex gap-2 p-3 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors overflow-x-auto scrollbar-hide"
-                              onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-                            >
-                              {selectedRoles.map((roleId) => {
-                                const role = predefinedRoles.find(r => r.id === roleId);
-                                return role ? (
-                                  <div key={roleId} className="flex items-center gap-2 px-3 py-1 bg-gray-200 rounded-full">
-                                    <span className="text-xs text-gray-700">{role.label}</span>
-                          <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRoleToggle(roleId);
-                                      }}
-                                      className="text-gray-500 hover:text-gray-700"
-                                    >
-                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                                    </button>
-                                  </div>
-                                ) : null;
-                              })}
-                              {selectedRoles.length === 0 && (
-                                <span className="text-gray-500 text-sm">{t('interface.projectView.noRolesSelected', 'No roles selected')}</span>
-                              )}
-                              <div className="ml-auto">
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </div>
-                            </div>
-
-                            {/* Role Dropdown */}
-                            {showRoleDropdown && (
-                              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
-                                <div className="space-y-2">
-                                  {predefinedRoles.map((role) => (
-                                    <label key={role.id} className="flex items-center cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        checked={selectedRoles.includes(role.id)}
-                                        onChange={() => handleRoleToggle(role.id)}
-                                        className="mr-3 text-blue-600 focus:ring-blue-500"
-                                      />
-                                      <div>
-                                        <span className="text-sm font-medium text-gray-900">{role.label}</span>
-                                        <p className="text-xs text-gray-500">{role.description}</p>
-                                      </div>
-                                    </label>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Copy link button */}
-                        <div className="flex justify-start">
-                          <button className="px-6 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            {t('interface.projectView.copyLink', 'Copy link')}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>,
-                  document.body
-                )}
-
-          {saveError &&
-          <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm flex items-center">
-            <AlertTriangle size={18} className="mr-2 flex-shrink-0" />
-            <span>{saveError}</span>
+        <div className={layoutWrapperClasses}>
+          <div className={mainColumnClasses}>
+            <div className={mainCardClasses}>
+              <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
+                {productContent}
+              </Suspense>
+            </div>
           </div>
-        }
-
-        {/* Smart Prompt Editor - render outside the white content container */}
-        {showSmartEditor && projectInstanceData && (
-          projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN ||
-          projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK ||
-          projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-        ) && (
-          <SmartPromptEditor
-            projectId={projectInstanceData.project_id}
-            onContentUpdate={handleSmartEditContentUpdate}
-            onError={handleSmartEditError}
-            onRevert={handleSmartEditRevert}
-            currentLanguage={(editableData as TrainingPlanData | null)?.detectedLanguage}
-            currentTheme={(editableData as TrainingPlanData | null)?.theme}
-          />
-        )}
-
-        <div className={`p-3 rounded-xl ${
-          projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
-          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
-            ? 'bg-[#F2F2F4]' 
-            : 'bg-transparent'
-        }`}>
-          <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
-            {displayContent()}
-          </Suspense>
+          <aside className="flex flex-col gap-6">
+            <div className="flex flex-col h-[550px] flex-none">
+              <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+            </div>
+            <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
+          </aside>
         </div>
-      </div>
+
+        {saveError &&
+        <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm flex items-center">
+          <AlertTriangle size={18} className="mr-2 flex-shrink-0" />
+          <span>{saveError}</span>
+        </div>
+      }
 
       {/* PDF Export Loading Modal */}
       <PdfExportLoadingModal 
