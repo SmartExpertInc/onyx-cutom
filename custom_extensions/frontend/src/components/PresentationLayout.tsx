@@ -478,7 +478,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={editingEnabled ? () => setHoveredSlideId(null) : undefined}
                   >
                     <div className="w-full max-w-6xl">
-                      <div className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'aspect-[16/9] bg-[#F2F2F4] overflow-hidden' : ''}`}>
+                      <div className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {editingEnabled && isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -530,23 +530,24 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                          {isViewMode ? (
-                            <div className="absolute inset-0">
+                        {isViewMode ? (
+                          <div className="relative aspect-[16/9] w-full overflow-hidden">
+                            <div className="presentation-slide-view-wrapper absolute inset-0">
                               <ComponentBasedSlideRenderer
                                 slide={slide}
                                 isEditable={false}
-                                onSlideUpdate={handleSlideUpdate}
                                 theme={theme}
                               />
                             </div>
-                          ) : (
-                            <ComponentBasedSlideRenderer
-                              slide={slide}
-                              isEditable={editingEnabled}
-                              onSlideUpdate={handleSlideUpdate}
-                              theme={theme}
-                            />
-                          )}
+                          </div>
+                        ) : (
+                          <ComponentBasedSlideRenderer
+                            slide={slide}
+                            isEditable={editingEnabled}
+                            onSlideUpdate={handleSlideUpdate}
+                            theme={theme}
+                          />
+                        )}
                       </div>
                     </div>
               </div>
