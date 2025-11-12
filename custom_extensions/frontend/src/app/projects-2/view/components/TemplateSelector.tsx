@@ -12,7 +12,26 @@ import {
   PanelsTopLeft,
   Grid3X3,
   FileText,
-  ClipboardList
+  ClipboardList,
+  Image,
+  Presentation,
+  TrendingUp,
+  Users,
+  Shield,
+  Target,
+  Zap,
+  CheckCircle2,
+  PieChart,
+  LineChart,
+  Award,
+  Lightbulb,
+  Briefcase,
+  Heart,
+  Calendar,
+  Map,
+  FileCheck,
+  List,
+  Layers
 } from 'lucide-react';
 import { ComponentBasedSlide, TemplateComponentInfo } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
@@ -153,35 +172,95 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // Lucide icon overrides to better visualize structure
+  // All video slides should have proper Lucide icons instead of emojis
   const iconOverrides: Record<string, React.ReactNode> = {
-    'course-overview-slide': <ListChecks className="text-gray-700" />, // Title + bullets
-    'work-life-balance-slide': <UserRound className="text-gray-700" />, // Big avatar + text
-    'phishing-definition-slide': <BookOpenText className="text-gray-700" />, // Definition
-    'culture-values-three-columns': <Grid3X3 className="text-gray-700" />, // 3 columns ✅ Fixed
-    'percent-circles': <PanelsTopLeft className="text-gray-700" />, // Multi-cards ✅ Fixed
-    'benefits-list-slide': <ListChecks className="text-gray-700" />, // Bullet list
-    'impact-statements-slide': <Type className="text-gray-700" />, // Text callouts
-    'dei-methods': <LayoutGrid className="text-gray-700" />, // Grid + icons ✅ Fixed
-    'company-tools-resources-slide': <FileText className="text-gray-700" />, // List + icon
-    'ai-pharma-market-growth-slide': <BarChart3 className="text-gray-700" />, // Bar chart + photo
-    'critical-thinking-slide': <Type className="text-gray-700" />, // Question + points
-    'benefits-tags-slide': <Tags className="text-gray-700" />, // Tags + avatar
-    'kpi-update-slide': <BarChart3 className="text-gray-700" />, // KPI cards
-    'phishing-rise-slide': <BarChart3 className="text-gray-700" />, // Bar chart narrative
-    'soft-skills-assessment-slide': <Type className="text-gray-700" />, // Scale + notes
-    'problems-grid': <LayoutGrid className="text-gray-700" />, // Grid of problems ✅ Fixed
-    'solution-steps-slide': <ListChecks className="text-gray-700" />, // Numbered steps
-    'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" />, // Tips list
-    'thank-you-slide': <UserRound className="text-gray-700" />, // Thank you + avatar
-    'interest-growth-slide': <BarChart3 className="text-gray-700" />, // Interest growth + photo
-    'leftbar-avatar-image': <UserRound className="text-gray-700" /> // Left bar + avatar + image
+    'course-overview-slide': <ListChecks className="text-gray-700" />,
+    'course-overview': <ListChecks className="text-gray-700" />,
+    'work-life-balance-slide': <UserRound className="text-gray-700" />,
+    'work-life-balance': <UserRound className="text-gray-700" />,
+    'phishing-definition-slide': <BookOpenText className="text-gray-700" />,
+    'phishing-definition': <BookOpenText className="text-gray-700" />,
+    'culture-values-three-columns-slide': <Grid3X3 className="text-gray-700" />,
+    'culture-values-three-columns': <Grid3X3 className="text-gray-700" />,
+    'key-skills-data-analysis-slide': <BarChart3 className="text-gray-700" />,
+    'key-skills-data-analysis': <BarChart3 className="text-gray-700" />,
+    'percent-circles-slide': <PieChart className="text-gray-700" />,
+    'percent-circles': <PieChart className="text-gray-700" />,
+    'benefits-list-slide': <CheckCircle2 className="text-gray-700" />,
+    'benefits-list': <CheckCircle2 className="text-gray-700" />,
+    'impact-statements-slide': <Target className="text-gray-700" />,
+    'impact-statements': <Target className="text-gray-700" />,
+    'hybrid-work-best-practices-slide': <Briefcase className="text-gray-700" />,
+    'hybrid-work': <Briefcase className="text-gray-700" />,
+    'dei-methods-slide': <Users className="text-gray-700" />,
+    'dei-methods': <Users className="text-gray-700" />,
+    'company-tools-resources-slide': <FileText className="text-gray-700" />,
+    'company-tools-resources': <FileText className="text-gray-700" />,
+    'ai-pharma-market-growth-slide': <TrendingUp className="text-gray-700" />,
+    'ai-pharma-market-growth': <TrendingUp className="text-gray-700" />,
+    'critical-thinking-slide': <Lightbulb className="text-gray-700" />,
+    'critical-thinking': <Lightbulb className="text-gray-700" />,
+    'benefits-tags-slide': <Tags className="text-gray-700" />,
+    'benefits-tags': <Tags className="text-gray-700" />,
+    'kpi-update-slide': <LineChart className="text-gray-700" />,
+    'kpi-update': <LineChart className="text-gray-700" />,
+    'phishing-rise-slide': <BarChart3 className="text-gray-700" />,
+    'phishing-rise': <BarChart3 className="text-gray-700" />,
+    'soft-skills-assessment-slide': <ClipboardList className="text-gray-700" />,
+    'soft-skills-assessment': <ClipboardList className="text-gray-700" />,
+    'four-box-grid-slide': <LayoutGrid className="text-gray-700" />,
+    'four-box-grid': <LayoutGrid className="text-gray-700" />,
+    'solution-steps-slide': <ListChecks className="text-gray-700" />,
+    'solution-steps': <ListChecks className="text-gray-700" />,
+    'benefits-perks-columns-slide': <Heart className="text-gray-700" />,
+    'benefits-perks-columns': <Heart className="text-gray-700" />,
+    'benefits-and-perks-columns-slide': <Heart className="text-gray-700" />,
+    'benefits-and-perks-columns': <Heart className="text-gray-700" />,
+    'benefits-perks': <Heart className="text-gray-700" />,
+    'soft-skills-types-slide': <Award className="text-gray-700" />,
+    'soft-skills-types': <Award className="text-gray-700" />,
+    'soft-skills': <Award className="text-gray-700" />,
+    'skills-types': <Award className="text-gray-700" />,
+    'psychological-safety-slide': <Shield className="text-gray-700" />,
+    'psychological-safety': <Shield className="text-gray-700" />,
+    'marketing-agency-thank-you-slide': <Presentation className="text-gray-700" />,
+    'marketing-agency-thank-you': <Presentation className="text-gray-700" />,
+    'problems-grid-slide': <LayoutGrid className="text-gray-700" />,
+    'problems-grid': <LayoutGrid className="text-gray-700" />,
+    'problems': <LayoutGrid className="text-gray-700" />,
+    'problems-slide': <LayoutGrid className="text-gray-700" />,
+    'soft-skills-develop-slide': <Zap className="text-gray-700" />,
+    'soft-skills-develop': <Zap className="text-gray-700" />,
+    'soft-skills-development': <Zap className="text-gray-700" />,
+    'oral-hygiene-signs-slide': <Heart className="text-gray-700" />,
+    'oral-hygiene-signs': <Heart className="text-gray-700" />,
+    'oral-hygiene': <Heart className="text-gray-700" />,
+    'high-performing-teams-slide': <Users className="text-gray-700" />,
+    'high-performing-teams': <Users className="text-gray-700" />,
+    'resilience-behaviors-slide': <Target className="text-gray-700" />,
+    'resilience-behaviors': <Target className="text-gray-700" />,
+    'resilience': <Target className="text-gray-700" />,
+    'stay-safe-tips-slide': <Shield className="text-gray-700" />,
+    'stay-safe-tips': <Shield className="text-gray-700" />,
+    'stay-safe': <Shield className="text-gray-700" />,
+    'topics': <List className="text-gray-700" />,
+    'resources-list-slide': <FileText className="text-gray-700" />,
+    'table-of-contents-slide': <Layers className="text-gray-700" />,
+    'course-rules-timeline-slide': <Calendar className="text-gray-700" />,
+    'impact-metrics-right-image': <Image className="text-gray-700" />,
+    'enterprise-roadmap-slide': <Map className="text-gray-700" />,
+    'enterprise-roadmap': <Map className="text-gray-700" />,
+    'thank-you-slide': <UserRound className="text-gray-700" />,
+    'interest-growth-slide': <BarChart3 className="text-gray-700" />,
+    'leftbar-avatar-image': <Image className="text-gray-700" />
   };
 
-  const renderIcon = (templateId: string, fallback?: React.ReactNode) => {
+  const renderIcon = (templateId: string) => {
+    // Always use Lucide icons, never emojis from registry
     const icon = iconOverrides[templateId];
     return (
       <div className="w-6 h-6 flex items-center justify-center">
-        {icon ?? fallback ?? <LayoutGrid className="text-gray-700" />}
+        {icon ?? <LayoutGrid className="text-gray-700" />}
       </div>
     );
   };
@@ -264,7 +343,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
               className="w-full p-4 border border-gray-200 rounded-lg bg-white cursor-pointer flex items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
             >
               <div className="flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
-                {renderIcon(template.id, template.icon as any)}
+                {renderIcon(template.id)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-blue-700">
