@@ -2,8 +2,9 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ImageIcon, Replace, MoreVertical, Download, Trash2, Sparkles, Loader2 } from 'lucide-react';
+import { ImageIcon, Replace, MoreVertical, Download, Trash2, Sparkles, Loader2, Video } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
+import PresentationVideoUpload from './PresentationVideoUpload';
 import AIImageGenerationModal from './AIImageGenerationModal';
 import ImageChoiceModal from './ImageChoiceModal';
 import Moveable from 'react-moveable';
@@ -94,6 +95,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // ✅ NEW: Image choice modal state
   const [showImageChoiceModal, setShowImageChoiceModal] = useState(false);
 
+  // ✅ NEW: Video upload modal state
+  const [showVideoUploadModal, setShowVideoUploadModal] = useState(false);
+
   // ✅ NEW: Track manual deletion to prevent auto-regeneration
   const [wasManuallyDeleted, setWasManuallyDeleted] = useState(false);
 
@@ -106,7 +110,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // ✅ REMOVED: Context menu state - replaced with inline buttons!
 
   const internalRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const imgRef = useRef<HTMLImageElement | HTMLVideoElement>(null);
   
   // Use provided ref or internal ref
   const containerRef = elementRef || internalRef;
@@ -415,6 +419,35 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
 
+  // ✅ NEW: Video Upload handler
+  const handleVideoUploaded = useCallback((videoPath: string, videoFile?: File) => {
+    console.log('🔍 [VideoUpload] Video uploaded successfully', { 
+      elementId,
+      instanceId,
+      videoPath,
+      timestamp: Date.now()
+    });
+    
+    // Set the uploaded video path (same as image path prop)
+    setDisplayedImage(videoPath);
+    
+    // Notify parent component (using same callback as images)
+    onImageUploaded(videoPath);
+    
+    // Clear selection state
+    setIsSelected(false);
+    
+    // Reset manual deletion flag
+    setWasManuallyDeleted(false);
+    
+    console.log('🔍 [VideoUpload] Video integration completed', {
+      elementId,
+      instanceId,
+      videoPath,
+      timestamp: Date.now()
+    });
+  }, [onImageUploaded, elementId, instanceId]);
+
   // ✅ NEW: AI Image Generation handler
   const handleAIImageGenerated = useCallback((imagePath: string) => {
     console.log('🔍 [AIGeneration] Image generated successfully', { 
@@ -477,6 +510,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setShowUploadModal(true);
     log('ClickableImagePlaceholder', 'chooseUpload', { elementId, instanceId });
   }, [elementId, instanceId]);
+
+  // ✅ NEW: Video upload handler
+  const handleChooseVideo = useCallback(() => {
+    console.log('🔍 [InlineAction] Video Upload chosen', { 
+      elementId,
+      instanceId,
+      hasExistingImage: !!displayedImage,
+      timestamp: Date.now()
+    });
+    
+    setShowImageChoiceModal(false);
+    setShowVideoUploadModal(true);
+  }, [elementId, instanceId, displayedImage]);
 
   // ✅ NEW: AI Generation handlers
   const handleChooseAI = useCallback(() => {
@@ -757,6 +803,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     return false;
   };
 
+  // Helper function to check if path is a video file
+  const isVideoFile = (path: string | undefined): boolean => {
+    if (!path || typeof path !== 'string') return false;
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi'];
+    const lowerPath = path.toLowerCase();
+    return videoExtensions.some(ext => lowerPath.endsWith(ext));
+  };
+
   // Regular image display
   if (displayedImage && isValidImagePath(displayedImage)) {
     return (
@@ -779,21 +833,40 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           }}
                       onClick={handleImageClick}
         >
-          <img 
-            ref={imgRef}
-            src={displayedImage}
-            alt="Uploaded content"
-            className="w-full h-full object-cover"
+          {isVideoFile(displayedImage) ? (
+            <video 
+              ref={imgRef as React.RefObject<HTMLVideoElement>}
+              src={displayedImage}
+              className="w-full h-full object-cover"
               style={{
-              objectFit: cropMode
-            }}
-            onError={(e) => {
-              // If image fails to load, clear it
-              console.warn('Image failed to load:', displayedImage);
-              setDisplayedImage(undefined);
-              onImageUploaded('');
-            }}
-          />
+                objectFit: cropMode
+              }}
+              controls
+              playsInline
+              onError={(e) => {
+                // If video fails to load, clear it
+                console.warn('Video failed to load:', displayedImage);
+                setDisplayedImage(undefined);
+                onImageUploaded('');
+              }}
+            />
+          ) : (
+            <img 
+              ref={imgRef as React.RefObject<HTMLImageElement>}
+              src={displayedImage}
+              alt="Uploaded content"
+              className="w-full h-full object-cover"
+              style={{
+                objectFit: cropMode
+              }}
+              onError={(e) => {
+                // If image fails to load, clear it
+                console.warn('Image failed to load:', displayedImage);
+                setDisplayedImage(undefined);
+                onImageUploaded('');
+              }}
+            />
+          )}
           
                      {/* ✅ NEW: Inline action buttons - no more context menu! */}
            {isSelected && (
@@ -870,6 +943,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           title={t('interface.modals.aiImageGeneration.title', 'Generate AI Image')}
           preFilledPrompt={aiGeneratedPrompt}
           templateId={templateId}
+        />
+
+        {/* ✅ NEW: Video Upload Modal */}
+        <PresentationVideoUpload
+          isOpen={showVideoUploadModal}
+          onClose={() => setShowVideoUploadModal(false)}
+          onVideoUploaded={handleVideoUploaded}
+          title={t('interface.modals.aiImageGeneration.uploadVideo', 'Upload Video')}
         />
 
                  {/* ✅ REMOVED: ContextMenu - replaced with inline buttons! */}
@@ -969,7 +1050,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onClose={() => setShowImageChoiceModal(false)}
         onChooseUpload={handleChooseUpload}
         onChooseAI={handleChooseAI}
-                  title={t('interface.modals.aiImageGeneration.addImage', 'Add Image')}
+        onChooseVideo={handleChooseVideo}
+        title={t('interface.modals.aiImageGeneration.addImage', 'Add Image')}
+      />
+
+      {/* ✅ NEW: Video Upload Modal for placeholder */}
+      <PresentationVideoUpload
+        isOpen={showVideoUploadModal}
+        onClose={() => setShowVideoUploadModal(false)}
+        onVideoUploaded={handleVideoUploaded}
+        title={t('interface.modals.aiImageGeneration.uploadVideo', 'Upload Video')}
       />
     </>
   );

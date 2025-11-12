@@ -81,6 +81,23 @@ export async function uploadPresentationImage(imageFile: File): Promise<ImageUpl
   return response.json();
 }
 
+export async function uploadPresentationVideo(videoFile: File): Promise<ImageUploadResponse> {
+  const formData = new FormData();
+  formData.append('file', videoFile);
+
+  const response = await fetch(`${API_BASE_URL}/presentation/upload_video`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to upload presentation video');
+  }
+
+  return response.json();
+}
+
 // NEW: AI Image Generation Types
 export interface AIImageGenerationRequest {
   prompt: string;

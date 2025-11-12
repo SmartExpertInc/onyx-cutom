@@ -11528,6 +11528,35 @@ async def upload_presentation_image(file: UploadFile = File(...)):
     web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
     return {"file_path": web_accessible_path}
 
+@app.post("/api/custom/presentation/upload_video", responses={200: {"description": "Video uploaded successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/your_video_name.mp4"}}}},400: {"description": "Invalid file type or other error", "model": ErrorDetail},413: {"description": "File too large", "model": ErrorDetail}})
+async def upload_presentation_video(file: UploadFile = File(...)):
+    """Upload a video for use in presentations"""
+    allowed_extensions = {".mp4", ".webm", ".mov", ".avi"}
+    max_file_size = 100 * 1024 * 1024  # 100MB for presentation videos
+    file_content = await file.read()
+    if len(file_content) > max_file_size:
+        detail_msg = "File too large." if IS_PRODUCTION else f"File too large. Max size {max_file_size // (1024*1024)}MB."
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=detail_msg)
+    await file.seek(0)
+    file_extension = os.path.splitext(file.filename)[1].lower() if file.filename else ".mp4"
+    if file_extension not in allowed_extensions:
+        detail_msg = "Invalid file type." if IS_PRODUCTION else f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_msg)
+    safe_filename_base = str(uuid.uuid4())
+    unique_filename = f"presentation_{safe_filename_base}{file_extension}"
+    file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
+    try:
+        with open(file_path_on_disk, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        logger.error(f"Error saving presentation video: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not save video." if IS_PRODUCTION else f"Could not save video: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    finally:
+        await file.close()
+    web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
+    return {"file_path": web_accessible_path}
+
 # NEW: AI Image Generation Endpoint
 class AIImageGenerationRequest(BaseModel):
     prompt: str = Field(..., description="Text prompt for image generation")

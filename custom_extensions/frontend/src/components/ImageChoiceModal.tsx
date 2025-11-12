@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Upload, Sparkles } from 'lucide-react';
+import { X, Upload, Sparkles, Video } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Debug logging utility
@@ -18,6 +18,7 @@ interface ImageChoiceModalProps {
   onClose: () => void;
   onChooseUpload: () => void;
   onChooseAI: () => void;
+  onChooseVideo?: () => void;
   title?: string;
 }
 
@@ -26,6 +27,7 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
   onClose,
   onChooseUpload,
   onChooseAI,
+  onChooseVideo,
   title
 }) => {
   const { t } = useLanguage();
@@ -130,6 +132,29 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
               </div>
             </div>
           </button>
+          
+          {/* Upload Video Option */}
+          {onChooseVideo && (
+            <button
+              onClick={() => {
+                onChooseVideo();
+                onClose();
+              }}
+              className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-all duration-200 flex items-center gap-3"
+            >
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Video className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="text-left">
+                <div className="font-medium text-gray-900">
+                  {t('interface.modals.aiImageGeneration.uploadVideo', 'Upload Video')}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {t('interface.modals.aiImageGeneration.uploadVideoDescription', 'Choose a video file from your device')}
+                </div>
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </div>
