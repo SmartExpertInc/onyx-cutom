@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ChevronLeft, ChevronRight, Plus, FileText, Clipboard, ChevronDown, X, Sparkles, ChevronDown as ArrowDown, MoreVertical, Copy, Trash2 } from 'lucide-react';
 import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
@@ -8,6 +8,114 @@ import { getAllTemplates, getTemplate } from './templates/registry';
 import AIImageGenerationModal from './AIImageGenerationModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import './PresentationLayout.css';
+
+const VIEW_MODE_MAX_WIDTH = 1152; // matches max-w-6xl (72rem)
+const VIEW_MODE_ASPECT_RATIO = 16 / 9;
+const DEFAULT_SLIDE_WIDTH = 1200;
+const DEFAULT_SLIDE_HEIGHT = 675;
+const SCALE_EPSILON = 0.001;
+
+const ViewModeSlide: React.FC<{ slide: ComponentBasedSlide; theme?: string }> = ({ slide, theme }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [naturalSize, setNaturalSize] = useState({ width: DEFAULT_SLIDE_WIDTH, height: DEFAULT_SLIDE_HEIGHT });
+  const [targetHeight, setTargetHeight] = useState(DEFAULT_SLIDE_HEIGHT);
+
+  const recomputeScale = useCallback(() => {
+    const outer = containerRef.current;
+    const inner = contentRef.current;
+    if (!outer || !inner) return;
+
+    const availableWidth = Math.min(outer.clientWidth || DEFAULT_SLIDE_WIDTH, VIEW_MODE_MAX_WIDTH);
+    if (availableWidth <= 0) return;
+
+    const rect = inner.getBoundingClientRect();
+    const naturalWidth = rect.width || naturalSize.width;
+    const naturalHeight = rect.height || naturalSize.height;
+    if (naturalWidth <= 0 || naturalHeight <= 0) return;
+
+    const desiredHeight = availableWidth / VIEW_MODE_ASPECT_RATIO;
+    const nextScale = Math.min(availableWidth / naturalWidth, desiredHeight / naturalHeight);
+
+    if (Math.abs(naturalWidth - naturalSize.width) > 0.5 || Math.abs(naturalHeight - naturalSize.height) > 0.5) {
+      setNaturalSize({ width: naturalWidth, height: naturalHeight });
+    }
+    if (Math.abs(desiredHeight - targetHeight) > 0.5) {
+      setTargetHeight(desiredHeight);
+    }
+    if (!Number.isNaN(nextScale) && Math.abs(nextScale - scale) > SCALE_EPSILON) {
+      setScale(nextScale);
+    }
+  }, [naturalSize.width, naturalSize.height, scale, targetHeight]);
+
+  useLayoutEffect(() => {
+    recomputeScale();
+  }, [recomputeScale, slide]);
+
+  useEffect(() => {
+    const outer = containerRef.current;
+    const inner = contentRef.current;
+    if (!outer || !inner) return;
+
+    let resizeObserver: ResizeObserver | null = null;
+    let cleanup: (() => void) | null = null;
+
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        recomputeScale();
+      });
+      resizeObserver.observe(outer);
+      resizeObserver.observe(inner);
+      cleanup = () => {
+        resizeObserver?.disconnect();
+      };
+    } else if (typeof window !== 'undefined') {
+      const handleResize = () => recomputeScale();
+      window.addEventListener('resize', handleResize);
+      cleanup = () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+
+    return () => {
+      if (cleanup) {
+        cleanup();
+      }
+    };
+  }, [recomputeScale]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full"
+      style={{ maxWidth: VIEW_MODE_MAX_WIDTH, margin: '0 auto' }}
+    >
+      <div
+        className="flex items-center justify-center overflow-hidden"
+        style={{ height: `${targetHeight}px`, backgroundColor: '#F2F2F4' }}
+      >
+        <div
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            width: `${naturalSize.width}px`,
+            height: `${naturalSize.height}px`
+          }}
+        >
+          <div ref={contentRef}>
+            <ComponentBasedSlideRenderer
+              slide={slide}
+              isEditable={false}
+              theme={theme}
+              forceHybridView
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface PresentationLayoutProps {
   deck: ComponentBasedSlideDeck;
@@ -530,12 +638,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        <ComponentBasedSlideRenderer
-                          slide={slide}
-                          isEditable={editingEnabled}
-                          onSlideUpdate={handleSlideUpdate}
-                          theme={theme}
-                        />
+                        {isViewMode ? (
+                          <ViewModeSlide slide={slide} theme={theme} />
+                        ) : (
+                          <ComponentBasedSlideRenderer
+                            slide={slide}
+                            isEditable={editingEnabled}
+                            onSlideUpdate={handleSlideUpdate}
+                            theme={theme}
+                          />
+                        )}
                       </div>
                     </div>
               </div>
