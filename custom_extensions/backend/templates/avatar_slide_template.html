@@ -4191,6 +4191,174 @@
     background-color: #09090B;
 }
 
+/* Marketing Agency Thank You Slide Template - EXACT React Copy */
+.marketing-agency-thank-you-slide {
+    width: 100%;
+    aspect-ratio: 16/9;
+    height: 100%;
+    background-color: #E0E7FF;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 40px 60px;
+    box-sizing: border-box;
+}
+
+.marketing-agency-thank-you-slide .logo-container {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.marketing-agency-thank-you-slide .logo-container img {
+    height: 30px;
+    max-width: 120px;
+    object-fit: contain;
+}
+
+.marketing-agency-thank-you-slide .logo-placeholder {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #000000;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.marketing-agency-thank-you-slide .logo-placeholder::before {
+    content: '';
+    width: 12px;
+    height: 2px;
+    background-color: #000000;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.marketing-agency-thank-you-slide .logo-placeholder::after {
+    content: '';
+    width: 2px;
+    height: 12px;
+    background-color: #000000;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.marketing-agency-thank-you-slide .intro-badge {
+    position: absolute;
+    top: 135px;
+    right: 237px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #09090B;
+    padding: 7px 16px;
+    border-radius: 20px;
+}
+
+.marketing-agency-thank-you-slide .intro-badge .dot {
+    width: 8px;
+    height: 8px;
+    background-color: blue;
+    border-radius: 50%;
+}
+
+.marketing-agency-thank-you-slide .intro-badge .text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #09090B;
+}
+
+.marketing-agency-thank-you-slide .main-content {
+    position: absolute;
+    top: 120px;
+    left: 60px;
+    right: 60px;
+    bottom: 10px;
+    display: flex;
+    gap: 40px;
+}
+
+.marketing-agency-thank-you-slide .left-section {
+    width: 480px;
+    height: 460px;
+    background: linear-gradient(90deg, #0F58F9 0%, #1023A1 100%);
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.marketing-agency-thank-you-slide .left-section .profile-image {
+    position: relative;
+    bottom: -20px;
+    width: 100%;
+    height: 460px;
+    object-fit: cover;
+}
+
+.marketing-agency-thank-you-slide .right-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 155px;
+    padding-left: 20px;
+}
+
+.marketing-agency-thank-you-slide .main-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 30px;
+    line-height: 1.1;
+    font-family: 'Lora', serif;
+}
+
+.marketing-agency-thank-you-slide .body-text {
+    font-size: 23px;
+    color: #09090B;
+    line-height: 1.4;
+    width: 415px;
+    white-space: pre-line;
+}
+
+.marketing-agency-thank-you-slide .page-number-container {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.marketing-agency-thank-you-slide .page-number-container .line {
+    width: 20px;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.marketing-agency-thank-you-slide .page-number-container .number {
+    color: #000000;
+    font-size: 17px;
+    font-weight: 300;
+}
+
         /* Benefits And Perks Columns Slide Template - EXACT React Copy */
         .benefits-perks-columns-slide {
             width: 100%;
@@ -7236,6 +7404,49 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="page-number">
                         <span>{{ pageNumber or '01' }}</span>
                         <div class="divider"></div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'marketing-agency-thank-you-slide' or templateId == 'marketing-agency-thank-you' %}
+                <!-- Marketing Agency Thank You Slide Template - EXACT React Copy -->
+                <div class="marketing-agency-thank-you-slide">
+                    <!-- Logo in top-left corner -->
+                    <div class="logo-container">
+                        {% if companyLogoPath %}
+                            <img src="{{ companyLogoPath }}" alt="{{ logoText or 'Your Logo' }}" />
+                        {% else %}
+                            <div class="logo-placeholder"></div>
+                            <span>{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Introduction Badge -->
+                    <div class="intro-badge">
+                        <div class="dot"></div>
+                        <div class="text">{{ (headerTitle or 'Introduction to Our Marketing Agency')|replace('\n', ' ') }}</div>
+                    </div>
+
+                    <!-- Main Content Area -->
+                    <div class="main-content">
+                        <!-- Left Section - Blue Gradient with Profile Image -->
+                        <div class="left-section">
+                            {% set avatar_url = profileImagePath or avatarImagePath or defaultAvatarImage %}
+                            {% if avatar_url %}
+                                <img src="{{ avatar_url }}" alt="{{ profileImageAlt or defaultAvatarAlt or 'Profile image' }}" class="profile-image" />
+                            {% endif %}
+                        </div>
+
+                        <!-- Right Section - Text Content -->
+                        <div class="right-section">
+                            <div class="main-title">{{ mainTitle or 'Thank you!' }}</div>
+                            <div class="body-text">{{ bodyText or 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="line"></div>
+                        <div class="number">{{ pageNumber or '03' }}</div>
                     </div>
                 </div>
                 
