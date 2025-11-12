@@ -145,7 +145,8 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   // Use static colors from dark-purple theme
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '100%',
+    aspectRatio: '16/9',
     background: 'linear-gradient(to bottom, #002D91 0%, #000C5B 100%)',
     display: 'flex',
     flexDirection: 'row-reverse',
