@@ -17,6 +17,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   bodyText = 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!',
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  companyLogoPath = '',
+  pageNumber,
   backgroundColor,
   titleColor,
   contentColor,
@@ -24,7 +26,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  ...props
 }) => {
   const [editingHeaderTitle, setEditingHeaderTitle] = useState(false);
   const [editingLogoText, setEditingLogoText] = useState(false);
@@ -39,10 +42,38 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   const [currentLogoText, setCurrentLogoText] = useState(logoText);
   const [currentMainTitle, setCurrentMainTitle] = useState(mainTitle);
   const [currentBodyText, setCurrentBodyText] = useState(bodyText);
-  const [currentIntroText, setCurrentIntroText] = useState('Introduction to Our Marketing Agency');
-  const [currentPageNumber, setCurrentPageNumber] = useState('03');
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber || '03');
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath || '');
+
+  // Sync local state with props when they change
+  useEffect(() => {
+    setCurrentHeaderTitle(headerTitle);
+  }, [headerTitle]);
+
+  useEffect(() => {
+    setCurrentLogoText(logoText);
+  }, [logoText]);
+
+  useEffect(() => {
+    setCurrentMainTitle(mainTitle);
+  }, [mainTitle]);
+
+  useEffect(() => {
+    setCurrentBodyText(bodyText);
+  }, [bodyText]);
+
+  useEffect(() => {
+    if (pageNumber) {
+      setCurrentPageNumber(pageNumber);
+    }
+  }, [pageNumber]);
+
+  useEffect(() => {
+    if (companyLogoPath !== undefined) {
+      setCurrentCompanyLogoPath(companyLogoPath);
+    }
+  }, [companyLogoPath]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -64,7 +95,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setCurrentHeaderTitle(newHeaderTitle);
     setEditingHeaderTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, headerTitle: newHeaderTitle });
+      onUpdate({ 
+        headerTitle: newHeaderTitle,
+        logoText: currentLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
@@ -72,7 +112,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setCurrentLogoText(newLogoText);
     setEditingLogoText(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, logoText: newLogoText });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: newLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
@@ -80,7 +129,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setCurrentMainTitle(newMainTitle);
     setEditingMainTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, mainTitle: newMainTitle });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: currentLogoText,
+        mainTitle: newMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
@@ -88,15 +146,33 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setCurrentBodyText(newBodyText);
     setEditingBodyText(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, bodyText: newBodyText });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: currentLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: newBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
   const handleIntroTextSave = (newIntroText: string) => {
-    setCurrentIntroText(newIntroText);
+    setCurrentHeaderTitle(newIntroText);
     setEditingIntroText(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, introText: newIntroText });
+      onUpdate({ 
+        headerTitle: newIntroText,
+        logoText: currentLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
@@ -104,7 +180,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setCurrentPageNumber(newPageNumber);
     setEditingPageNumber(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: currentLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: newPageNumber
+      });
     }
   };
 
@@ -112,20 +197,47 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setCurrentYourLogoText(newYourLogoText);
     setEditingYourLogoText(false);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, yourLogoText: newYourLogoText });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: newYourLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: currentLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath: newImagePath,
+        profileImageAlt,
+        companyLogoPath: currentCompanyLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
   const handleCompanyLogoUploaded = (newLogoPath: string) => {
     setCurrentCompanyLogoPath(newLogoPath);
     if (onUpdate) {
-      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
+      onUpdate({ 
+        headerTitle: currentHeaderTitle,
+        logoText: currentLogoText,
+        mainTitle: currentMainTitle,
+        bodyText: currentBodyText,
+        profileImagePath,
+        profileImageAlt,
+        companyLogoPath: newLogoPath,
+        pageNumber: currentPageNumber
+      });
     }
   };
 
@@ -254,7 +366,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         }}>
           {isEditable && editingIntroText ? (
             <ImprovedInlineEditor
-              initialValue={currentIntroText}
+              initialValue={currentHeaderTitle.replace(/\n/g, ' ')}
               onSave={handleIntroTextSave}
               onCancel={() => setEditingIntroText(false)}
               className="intro-text-editor"
@@ -277,7 +389,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 userSelect: 'none'
               }}
             >
-              {currentIntroText}
+              {currentHeaderTitle.replace(/\n/g, ' ')}
             </div>
           )}
         </div>

@@ -983,6 +983,7 @@ export interface MarketingAgencyThankYouSlideProps extends BaseTemplateProps {
   profileImagePath?: string;
   profileImageAlt?: string;
   companyLogoPath?: string;
+  pageNumber?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
