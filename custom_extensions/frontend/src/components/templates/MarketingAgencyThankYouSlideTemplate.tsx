@@ -230,7 +230,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       <div style={{
         position: 'absolute',
         top: '135px',
-        right: '237px',
+        left: '49%',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',

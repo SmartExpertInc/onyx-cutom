@@ -43,7 +43,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'problems-grid': 'Problems Grid',                         // ✅ Fixed: corrected ID
     'solution-steps-slide': 'Numbered Steps + Icons',
     'hybrid-work-best-practices-slide': 'Tips List + Illustration',
-    'thank-you-slide': 'Thank You + Contact Info'
+    'thank-you-slide': 'Thank You + Contact Info',
+    'interest-growth-slide': 'Interest Growth + Photo Panel'
   };
 
   const hasAvatarImageField = (template: TemplateComponentInfo) => {
@@ -55,14 +56,82 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     });
   };
 
-  // Source all templates that support avatars (avatarPosition, avatar fields, or explicit avatar templates)
+  // Whitelist of all slide IDs that exist in avatar_slide_template.html
+  const videoSlideWhitelist = new Set([
+    'avatar-checklist',
+    'avatar-crm',
+    'avatar-service',
+    'avatar-service-slide',
+    'avatar-buttons',
+    'avatar-with-buttons',
+    'avatar-steps',
+    'course-overview-slide',
+    'work-life-balance-slide',
+    'phishing-definition-slide',
+    'culture-values-three-columns-slide',
+    'culture-values-three-columns',
+    'key-skills-data-analysis-slide',
+    'key-skills-data-analysis',
+    'percent-circles-slide',
+    'percent-circles',
+    'benefits-list-slide',
+    'impact-statements-slide',
+    'hybrid-work-best-practices-slide',
+    'dei-methods-slide',
+    'dei-methods',
+    'company-tools-resources-slide',
+    'ai-pharma-market-growth-slide',
+    'critical-thinking-slide',
+    'benefits-tags-slide',
+    'kpi-update-slide',
+    'phishing-rise-slide',
+    'soft-skills-assessment-slide',
+    'four-box-grid',
+    'four-box-grid-slide',
+    'solution-steps-slide',
+    'benefits-perks-columns-slide',
+    'benefits-perks-columns',
+    'benefits-and-perks-columns',
+    'benefits-and-perks-columns-slide',
+    'soft-skills-types-slide',
+    'soft-skills-types',
+    'psychological-safety-slide',
+    'marketing-agency-thank-you-slide',
+    'problems-grid-slide',
+    'problems-grid',
+    'soft-skills-develop-slide',
+    'soft-skills-develop',
+    'soft-skills-development',
+    'oral-hygiene-signs-slide',
+    'oral-hygiene-signs',
+    'oral-hygiene',
+    'high-performing-teams-slide',
+    'high-performing-teams',
+    'resilience-behaviors-slide',
+    'resilience-behaviors',
+    'resilience',
+    'stay-safe-tips-slide',
+    'stay-safe-tips',
+    'stay-safe',
+    'topics',
+    'resources-list-slide',
+    'table-of-contents-slide',
+    'course-rules-timeline-slide',
+    'impact-metrics-right-image',
+    'enterprise-roadmap-slide',
+    'enterprise-roadmap',
+    'thank-you-slide',
+    'interest-growth-slide'
+  ]);
+
+  // Source all templates that are in avatar_slide_template.html
   const excludedTemplateIds = new Set(['learning-topics-slide', 'learning-topics']);
 
   const availableTemplates = getAllTemplates()
     .filter(t => !t.id.endsWith('_old'))
     .filter(t => !(typeof t.name === 'string' && t.name.toLowerCase().includes('(old')))
     .filter(t => !excludedTemplateIds.has(t.id))
-    .filter(t => Boolean(t.avatarPosition) || t.id.startsWith('avatar-') || hasAvatarImageField(t))
+    .filter(t => videoSlideWhitelist.has(t.id) || Boolean(t.avatarPosition) || t.id.startsWith('avatar-') || hasAvatarImageField(t))
     .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -86,7 +155,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'problems-grid': <LayoutGrid className="text-gray-700" />, // Grid of problems ✅ Fixed
     'solution-steps-slide': <ListChecks className="text-gray-700" />, // Numbered steps
     'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" />, // Tips list
-    'thank-you-slide': <UserRound className="text-gray-700" /> // Thank you + avatar
+    'thank-you-slide': <UserRound className="text-gray-700" />, // Thank you + avatar
+    'interest-growth-slide': <BarChart3 className="text-gray-700" /> // Interest growth + photo
   };
 
   const renderIcon = (templateId: string, fallback?: React.ReactNode) => {

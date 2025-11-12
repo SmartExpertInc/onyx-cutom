@@ -2612,6 +2612,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       rightImagePath: { type: 'image', label: 'Right Image' },
       rightImageAlt: { type: 'text', label: 'Right Image Alt Text' },
       rightPanelColor: { type: 'color', label: 'Right Panel Color' }
+    },
+    avatarPosition: {
+      // ✅ RECTANGULAR AVATAR - Based on right panel position
+      // Right panel positioned on left side of slide (grid column 1/2)
+      // Panel: width 430px, height 498px, marginTop 69px, padding 24px
+      x: 24,         // Left padding of slide
+      y: 93,         // Top padding (24px) + marginTop (69px) = 93px
+      width: 430,    // Panel width
+      height: 498   // Panel height
     }
   },
 
