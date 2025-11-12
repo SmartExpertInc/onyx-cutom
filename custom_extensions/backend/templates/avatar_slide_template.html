@@ -91,13 +91,13 @@
         
         /* Theme color definitions - EXACT FRONTEND MATCH */
         .theme-dark-purple {
-            --bg-color: #110c35;
+            --bg-color: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
             --title-color: #ffffff;
-            --subtitle-color: #d9e1ff;
-            --content-color: #d9e1ff;
+            --subtitle-color: #ffffff;
+            --content-color: #09090B;
             --accent-color: #f35657;
-            --title-font: 'Kanit', sans-serif;
-            --content-font: 'Martel Sans', sans-serif;
+            --title-font: 'Inter', sans-serif;
+            --content-font: 'Inter', sans-serif;
             --title-size: 45px;
             --content-size: 18px;
         }
@@ -4635,7 +4635,7 @@
     position: relative;
     overflow: hidden;
     font-family: 'Inter', sans-serif;
-    background: var(--bg-color);
+    background: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
 }
 
 .two-column-slide-template .left-section {
@@ -4647,7 +4647,7 @@
     align-items: end;
     justify-content: space-between;
     box-sizing: border-box;
-    background: var(--bg-color);
+    background: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
 }
 
 .two-column-slide-template .profile-image-container {
@@ -4679,7 +4679,7 @@
     bottom: -100px;
     white-space: pre-wrap;
     word-wrap: break-word;
-    color: var(--content-color);
+    color: #09090B;
 }
 
 .two-column-slide-template .right-section {
@@ -8724,8 +8724,9 @@ Create opportunities for growth & advancement.{% endif %}</div>
 
             {% elif templateId == 'two-column-slide' %}
                 <!-- Two Column Slide Template - EXACT React Copy -->
+                <!-- Note: flex-direction: row-reverse means right section appears first visually, left section second -->
                 <div class="two-column-slide-template">
-                    <!-- Left section with avatar and text -->
+                    <!-- Left section with avatar and text (appears on right due to row-reverse) -->
                     <div class="left-section">
                         <!-- Profile image -->
                         <div class="profile-image-container">
@@ -8744,7 +8745,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         </div>
                     </div>
 
-                    <!-- Right section with image -->
+                    <!-- Right section with image (appears on left due to row-reverse) -->
                     <div class="right-section">
                         {% if rightImagePath %}
                             <img src="{{ rightImagePath }}" alt="{{ rightImageAlt or 'Right side image' }}" />

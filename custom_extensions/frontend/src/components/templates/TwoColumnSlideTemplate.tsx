@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { TwoColumnSlideProps } from '@/types/slideTemplates';
-import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { SlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
@@ -15,11 +15,11 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
+function InlineEditor({
+  initialValue,
+  onSave,
+  onCancel,
+  multiline = false,
   placeholder = "",
   className = "",
   style = {}
@@ -142,19 +142,16 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
 
-  // Use theme colors instead of props
-  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
-
+  // Use static colors from dark-purple theme
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    background: themeBg,
+    background: 'linear-gradient(to bottom, #002D91 0%, #000C5B 100%)',
     display: 'flex',
     flexDirection: 'row-reverse',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -201,7 +198,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
       <div style={{
         width: '50%',
         height: '100%',
-        background: themeBg,
+        background: 'linear-gradient(to bottom, #002D91 0%, #000C5B 100%)',
         padding: '60px',
         display: 'flex',
         flexDirection: 'column',
@@ -246,7 +243,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           {/* Content text */}
           <div style={{
             fontSize: '14px',
-            color: themeContent,
+            color: '#09090B',
             lineHeight: '1.6',
             position: 'relative',
             bottom: '-100px'
@@ -260,7 +257,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 className="two-column-content-editor"
                 style={{
                   fontSize: '14px',
-                  color: themeContent,
+                  color: '#09090B',
                   lineHeight: '1.6'
                 }}
               />
