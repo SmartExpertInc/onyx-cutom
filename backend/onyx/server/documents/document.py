@@ -150,10 +150,13 @@ def get_file_content(
         )
     
     # Map file_id -> document_id
-    file_id_to_doc_id = {
-        user_file.id: user_file.document_id 
-        for user_file in user_files
-    }
+    # IMPORTANT: UserFile.document_id uses "USER_FILE_CONNECTOR__" prefix,
+    # but the actual indexed document in Vespa uses "FILE_CONNECTOR__" prefix
+    file_id_to_doc_id = {}
+    for user_file in user_files:
+        # Transform USER_FILE_CONNECTOR__ -> FILE_CONNECTOR__
+        actual_doc_id = user_file.document_id.replace("USER_FILE_CONNECTOR__", "FILE_CONNECTOR__", 1)
+        file_id_to_doc_id[user_file.id] = actual_doc_id
     
     # DEBUG: Log the mapping
     logger.info(f"[GET_FILE_CONTENT] Mapped {len(file_id_to_doc_id)} files:")

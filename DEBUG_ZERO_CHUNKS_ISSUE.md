@@ -2,7 +2,7 @@
 
 **Date:** November 12, 2025  
 **Issue:** Direct extraction returns 0 chunks despite successful API call  
-**Status:** 🔧 LOGGER IMPORT FIXED - READY TO TEST
+**Status:** ✅ FIXED - Document ID Prefix Mismatch Resolved
 
 ---
 
@@ -21,6 +21,36 @@ logger = setup_logger()
 ```
 
 The endpoint will now work and provide diagnostic logging.
+
+## ✅ Fix Applied: Document ID Prefix Correction
+
+**Root Cause Discovered:**
+
+The diagnostic logs revealed:
+```
+[GET_FILE_CONTENT]   file_id=57 -> document_id=USER_FILE_CONNECTOR__e09a0d27-1e23-4169-94ce-4998aee9d1c5/Шейн_Організаційна_культура_та_ліерство.pdf
+[GET_FILE_CONTENT] Retrieved 0 chunks from Vespa
+⚠️ DOCUMENT NOT FOUND: No chunks in Vespa for these document_ids
+```
+
+The UserFile table stores `document_id` with prefix `USER_FILE_CONNECTOR__`, but when the file connector indexes to Vespa, it uses prefix `FILE_CONNECTOR__`.
+
+**Evidence from code** (`backend/onyx/connectors/file/connector.py:174`):
+```python
+doc_id = metadata.get("document_id") or f"FILE_CONNECTOR__{file_name}"
+```
+
+**Solution:** Transform the document_id by replacing the prefix:
+```python
+actual_doc_id = user_file.document_id.replace("USER_FILE_CONNECTOR__", "FILE_CONNECTOR__", 1)
+```
+
+Now the endpoint will search for:
+```
+FILE_CONNECTOR__e09a0d27-1e23-4169-94ce-4998aee9d1c5/Шейн_Організаційна_культура_та_ліерство.pdf
+```
+
+Which should match the actual document in Vespa!
 
 ---
 
