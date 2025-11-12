@@ -243,6 +243,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
       setDuration(currentTransition.duration);
       setVariant(currentTransition.variant || 'circle');
       setIsApplyBetweenAllScenes(currentTransition.applyToAll || false);
+    } else {
+      setSelectedTransition('none');
+      setDuration(1.0);
+      setVariant('circle');
+      setIsApplyBetweenAllScenes(false);
     }
   }, [currentTransition]);
   // Handle transition selection
@@ -463,7 +468,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
             <path d="M5.16667 9.83333L0.5 5.16667M0.5 5.16667L5.16667 0.5M0.5 5.16667H9.83333" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        <h3 className="text-[16px] font-semibold text-[#171718] uppercase">Scene Transition</h3>
+        <h3 className="text-[16px] font-semibold text-[#171718]">Scene Transition</h3>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 transition-scroll">

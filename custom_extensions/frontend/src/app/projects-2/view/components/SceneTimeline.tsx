@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
@@ -169,15 +169,23 @@ export default function SceneTimeline({
   useEffect(() => {
     const updatePositions = () => {
       const newPositions: { [key: string]: { x: number, y: number } } = {};
+      const containerRect = timelineContainerRef.current?.getBoundingClientRect();
+
       Object.entries(slideRefs.current).forEach(([slideId, element]) => {
         if (element) {
           const rect = element.getBoundingClientRect();
-          newPositions[slideId] = {
+          const position = {
             x: rect.right,
             y: rect.top + rect.height / 2
           };
+
+          // Only store positions that remain in the horizontal bounds of the scroll container
+          if (!containerRect || (position.x >= containerRect.left && position.x <= containerRect.right)) {
+            newPositions[slideId] = position;
+          }
         }
       });
+
       setTransitionPositions(newPositions);
     };
 
@@ -199,6 +207,20 @@ export default function SceneTimeline({
       height: `${baseHeight}px`,
     };
   };
+
+  const transitionPositionsWithVisibility = useMemo(() => {
+    if (!timelineContainerRef.current) return transitionPositions;
+    const containerRect = timelineContainerRef.current.getBoundingClientRect();
+    const adjusted: { [key: string]: { x: number; y: number } } = {};
+
+    Object.entries(transitionPositions).forEach(([id, position]) => {
+      if (position.x >= containerRect.left && position.x <= containerRect.right) {
+        adjusted[id] = position;
+      }
+    });
+
+    return adjusted;
+  }, [transitionPositions]);
 
   return (
     <>
@@ -401,7 +423,7 @@ export default function SceneTimeline({
           {displayScenes.map((scene, index) => {
             if (index >= displayScenes.length - 1) return null;
             
-            const position = transitionPositions[scene.id];
+            const position = transitionPositionsWithVisibility[scene.id];
             if (!position) return null;
             
             return (
