@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
 import { LayoutGrid } from 'lucide-react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
@@ -12,6 +12,105 @@ interface TemplateSelectorProps {
   variant?: 'panel' | 'modal';
   onClose?: () => void;
 }
+
+const BASE_CANVAS_WIDTH = 1200;
+const BASE_CANVAS_HEIGHT = 675;
+
+interface TemplatePreviewFrameProps {
+  slide: ComponentBasedSlide;
+  deckTemplateVersion: string;
+  minHeight?: number;
+}
+
+const TemplatePreviewFrame: React.FC<TemplatePreviewFrameProps> = ({
+  slide,
+  deckTemplateVersion,
+  minHeight
+}) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const element = containerRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateScale = () => {
+      const rect = element.getBoundingClientRect();
+
+      if (!rect.width || !rect.height) {
+        return;
+      }
+
+      const nextScale = Math.min(rect.width / BASE_CANVAS_WIDTH, rect.height / BASE_CANVAS_HEIGHT);
+      setScale(nextScale);
+    };
+
+    updateScale();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver((entries) => {
+        const entry = entries.find((item) => item.target === element);
+        if (!entry) {
+          return;
+        }
+
+        const { width, height } = entry.contentRect;
+        if (!width || !height) {
+          return;
+        }
+
+        const nextScale = Math.min(width / BASE_CANVAS_WIDTH, height / BASE_CANVAS_HEIGHT);
+        setScale(nextScale);
+      });
+
+      observer.observe(element);
+
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener('resize', updateScale);
+
+    return () => {
+      window.removeEventListener('resize', updateScale);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full aspect-[16/9] rounded-[6px] overflow-hidden bg-[#F3F4F8]"
+      style={{ minHeight: minHeight ? `${minHeight}px` : undefined }}
+    >
+      {scale !== null && (
+        <div
+          className="absolute top-0 left-0 pointer-events-none"
+          style={{
+            width: BASE_CANVAS_WIDTH,
+            height: BASE_CANVAS_HEIGHT,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <ComponentBasedSlideRenderer
+            slide={slide}
+            isEditable={false}
+            isVideoMode
+            forceHybridBase
+            deckTemplateVersion={deckTemplateVersion}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function TemplateSelector({ currentSlideCount, onAddSlide, variant = 'panel', onClose }: TemplateSelectorProps) {
   // Whitelist of template IDs allowed for Video Lessons only
@@ -574,44 +673,12 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
       );
     }
 
-    const baseWidth = 320;
-    const baseHeight = 180;
-    const scale = variant === 'modal' ? 0.25 : 0.2;
-    const scaledWidth = baseWidth * scale;
-    const scaledHeight = baseHeight * scale;
-
     return (
-      <div className="relative w-full aspect-[16/9] rounded-[6px] overflow-hidden bg-[#F3F4F8]">
-        <div style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          overflow: 'hidden',
-          pointerEvents: 'none',
-          userSelect: 'none', aspectRatio: '16/9', minHeight: '120px'}} className="flex items-center justify-center">
-          <div
-            className="pointer-events-none flex items-center justify-center"
-            style={{
-              width: '400%',
-              height: "400%",
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              backgroundColor: '#ffffff',
-            }}
-          >
-            <ComponentBasedSlideRenderer
-              slide={previewSlide}
-              isEditable={false}
-              isVideoMode
-              forceHybridBase
-              deckTemplateVersion="v2"
-            />
-          </div>
-        </div>
-      </div>
+      <TemplatePreviewFrame
+        slide={previewSlide}
+        deckTemplateVersion="v2"
+        minHeight={variant === 'modal' ? 132 : 110}
+      />
     );
   };
 
@@ -644,20 +711,20 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
 
   if (variant === 'modal') {
     return (
-      <div className="w-full max-w-[960px] max-h-[640px] bg-white rounded-[30px] shadow-[0_40px_80px_rgba(15,24,52,0.12)] p-8 flex flex-col">
+      <div className="w-full max-w-[960px] max-h-[640px] bg-white/90 backdrop-blur-sm rounded-[6px] shadow-[0_40px_80px_rgba(15,24,52,0.12)] p-8 flex flex-col">
         <div className="flex items-center justify-between">
-          <div className="bg-[#EEF0F7] rounded-full p-1 flex gap-2">
-            <button className="px-5 py-1.5 text-sm font-semibold text-[#171718] rounded-full bg-white shadow-sm">Templates</button>
-            <button className="px-5 py-1.5 text-sm text-[#A0A3AD] rounded-full" disabled>Saved scenes</button>
+          <div className="bg-[#F4F4F5] rounded-lg p-1 flex gap-2">
+            <button className="px-5 py-1.5 text-sm font-semibold text-[#171718] rounded-lg bg-white shadow-sm">Templates</button>
+            <button className="px-5 py-1.5 text-sm text-[#A0A3AD] rounded-lg" disabled>Saved scenes</button>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#F3F4F8] flex items-center justify-center hover:bg-[#E7E9F1] transition-colors"
+            className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[#E7E9F1] transition-colors"
           >
             <span className="sr-only">Close</span>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L13 13M13 1L1 13" stroke="#171718" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M1 1L13 13M13 1L1 13" stroke="#878787" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
         </div>

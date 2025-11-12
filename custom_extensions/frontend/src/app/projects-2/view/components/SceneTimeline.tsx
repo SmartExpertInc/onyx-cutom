@@ -71,27 +71,30 @@ export default function SceneTimeline({
   const addDropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Convert Video Lesson slides to scenes if provided
-  const displayScenes = (() => {
+  const displayScenes = useMemo(() => {
     if (componentBasedSlideDeck) {
       // Handle component-based slide deck
-      return componentBasedSlideDeck.slides.map((slide, index) => ({
+      return componentBasedSlideDeck.slides.map((slide) => ({
         id: slide.slideId,
         // ✅ Use slideTitle if available (plain text), otherwise strip HTML from props.title
-        name: slide.slideTitle || stripHtmlTags(slide.props?.title as string || '') || `Slide ${slide.slideNumber}`,
+        name: slide.slideTitle || stripHtmlTags((slide.props?.title as string) || '') || `Slide ${slide.slideNumber}`,
         order: slide.slideNumber,
         slideData: slide
       }));
-    } else if (videoLessonData) {
+    }
+
+    if (videoLessonData) {
       // Handle old video lesson data
-      return videoLessonData.slides.map((slide, index) => ({
+      return videoLessonData.slides.map((slide) => ({
         id: slide.slideId,
         name: slide.slideTitle || '',
         order: slide.slideNumber,
         slideData: slide
       }));
     }
-    return []; // Commented out regular scenes for now
-  })();
+
+    return [];
+  }, [componentBasedSlideDeck, videoLessonData]);
   
   const SECONDS_PER_SLIDE = 30;
   const totalDuration = displayScenes.length * SECONDS_PER_SLIDE;
