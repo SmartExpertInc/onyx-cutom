@@ -9,6 +9,11 @@ import AIImageGenerationModal from './AIImageGenerationModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import './PresentationLayout.css';
 
+const VIEW_MODE_MAX_WIDTH = 1152; // Tailwind max-w-6xl (72rem)
+const VIEW_MODE_MIN_WIDTH = 320;
+const VIEW_MODE_SIDEBAR_WIDTH = 400;
+const VIEW_MODE_HORIZONTAL_GAP = 32; // px allowance when sidebar is beside slides
+
 interface PresentationLayoutProps {
   deck: ComponentBasedSlideDeck;
   isEditable?: boolean;
@@ -42,6 +47,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [viewModeSlideWidth, setViewModeSlideWidth] = useState(VIEW_MODE_MAX_WIDTH);
 
   const isViewMode = mode === 'view';
   const editingEnabled = !isViewMode && isEditable;
@@ -67,6 +73,26 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     if (cutoff === -1) return all;
     return all.slice(0, cutoff);
   })();
+
+  // Compute slide width in view mode based on viewport size
+  useEffect(() => {
+    if (!isViewMode || typeof window === 'undefined') {
+      return;
+    }
+
+    const computeWidth = () => {
+      const viewportWidth = window.innerWidth;
+      const sidebarAllowance =
+        viewportWidth >= 1024 && rightSidebar ? VIEW_MODE_SIDEBAR_WIDTH + VIEW_MODE_HORIZONTAL_GAP : 32;
+      const availableWidth = Math.max(VIEW_MODE_MIN_WIDTH, viewportWidth - sidebarAllowance);
+      const nextWidth = Math.min(VIEW_MODE_MAX_WIDTH, availableWidth);
+      setViewModeSlideWidth(nextWidth);
+    };
+
+    computeWidth();
+    window.addEventListener('resize', computeWidth);
+    return () => window.removeEventListener('resize', computeWidth);
+  }, [isViewMode, rightSidebar]);
 
   // Initialize with first slide
   useEffect(() => {
@@ -308,9 +334,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       className={[
         'flex min-h-screen bg-[#F2F2F4] presentation-layout',
         shouldCenterView ? 'justify-center' : '',
-        isViewMode ? 'items-start' : '',
+        isViewMode ? 'presentation-view items-start' : '',
         rightSidebar ? (rightSidebarContainerClassName ?? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10') : ''
       ].filter(Boolean).join(' ')}
+      style={
+        isViewMode
+          ? ({ '--slide-width': `${viewModeSlideWidth}px` } as React.CSSProperties)
+          : undefined
+      }
     >
       {/* Left Sidebar - Slide Thumbnails */}
       {!isViewMode && (
@@ -478,11 +509,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={editingEnabled ? () => setHoveredSlideId(null) : undefined}
                   >
                     <div className="w-full max-w-6xl">
-                      <div
-                        className={`border border-[#CCCCCC] rounded-md relative ${
-                          isViewMode ? 'bg-[#F2F2F4] view-mode-slide-wrapper' : ''
-                        }`}
-                      >
+                      <div className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {editingEnabled && isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -534,12 +561,23 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        <ComponentBasedSlideRenderer
-                          slide={slide}
-                          isEditable={editingEnabled}
-                          onSlideUpdate={handleSlideUpdate}
-                          theme={theme}
-                        />
+                        {isViewMode ? (
+                          <div className="presentation-viewer-slide">
+                            <ComponentBasedSlideRenderer
+                              slide={slide}
+                              isEditable={false}
+                              theme={theme}
+                              forceHybridView
+                            />
+                          </div>
+                        ) : (
+                          <ComponentBasedSlideRenderer
+                            slide={slide}
+                            isEditable={editingEnabled}
+                            onSlideUpdate={handleSlideUpdate}
+                            theme={theme}
+                          />
+                        )}
                       </div>
                     </div>
               </div>
