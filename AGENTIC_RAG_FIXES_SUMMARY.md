@@ -133,6 +133,37 @@ query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.Q
 
 ---
 
+### 6. Incorrect Data Structure Format ✅
+
+**Error:** `TypeError: unhashable type: 'slice'`
+
+**File:** `custom_extensions/backend/main.py`
+
+**Root Cause:** The connector agentic RAG function was passing `file_contents` as a list of dicts (`[{"content": text}]`) instead of a list of strings (`[text]`)
+
+**Location:** Lines 13498 and 13608 in `collect_agentic_context_from_connectors_streaming()`
+
+**Fix:** Changed the data structure to match the format expected by `assemble_context_with_budget()`:
+
+```python
+# Before (WRONG):
+{"file_contents": [{"content": broad_context_text}]}  # Line 13498
+{"file_contents": [{"content": chunk} for chunk in collected_chunks.values()]}  # Line 13608
+
+# After (CORRECT):
+{"file_contents": [broad_context_text]}  # Line 13498 - list of strings
+{"file_contents": list(collected_chunks.values())}  # Line 13608 - list of strings
+```
+
+**Why this matters:**
+- `file_contents` is expected to be a list of strings throughout the codebase
+- `assemble_context_with_budget()` iterates over `file_contents` and directly uses each item as a string
+- Passing dicts causes the code to try to slice a dict (`txt[:2000]`), which is not allowed in Python
+
+**Status:** ✅ Fixed
+
+---
+
 ## Implementation Timeline
 
 1. **Initial Implementation** - Created connector agentic RAG function and updated all 4 product endpoints
@@ -141,7 +172,8 @@ query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.Q
 4. **Bug Fix #3** - Fixed `semantic_retrieval` → `hybrid_retrieval`
 5. **Bug Fix #4** - Fixed import path for `MODEL_SERVER_HOST`
 6. **Bug Fix #5** - Fixed missing `text_type` parameter in `encode()`
-7. **Diagnostic Logging** - Added debug logging to diagnose ACL and indexing issues
+7. **Bug Fix #6** - Fixed incorrect data structure format for `file_contents`
+8. **Diagnostic Logging** - Added debug logging to diagnose ACL and indexing issues
 
 ## Current Status
 

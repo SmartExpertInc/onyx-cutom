@@ -13495,7 +13495,7 @@ async def collect_agentic_context_from_connectors_streaming(
         
         skeleton_prompt = build_skeleton_prompt(
             original_prompt, 
-            {"file_contents": [{"content": broad_context_text}]},  # Format like file extraction
+            {"file_contents": [broad_context_text]},  # file_contents is a list of strings, not dicts
             product_type
         )
         skeleton = await generate_skeleton(skeleton_prompt, product_type, model)
@@ -13604,8 +13604,9 @@ async def collect_agentic_context_from_connectors_streaming(
         yield ("progress", f"✅ Context collection complete ({elapsed:.1f}s)")
         
         # Return in same format as file extraction for compatibility
+        # file_contents is a list of strings (not dicts), matching extract_file_content_direct format
         yield ("complete", {
-            "file_contents": [{"content": chunk} for chunk in collected_chunks.values()],
+            "file_contents": list(collected_chunks.values()),
             "file_summaries": [],
             "key_topics": []
         })
