@@ -134,7 +134,6 @@ export class TemplateExtractor {
       'benefits-tags-slide': this.extractBenefitsTagsSlide,
       'learning-topics-slide': this.extractLearningTopicsSlide,
       'soft-skills-assessment-slide': this.extractSoftSkillsAssessmentSlide,
-      'two-column': this.extractTwoColumn,
       'phishing-definition-slide': this.extractPhishingDefinitionSlide,
       'impact-statements-slide': this.extractImpactStatementsSlide,
       'bar-chart-slide': this.extractBarChartSlide,
