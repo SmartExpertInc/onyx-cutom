@@ -576,20 +576,29 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
 
     const baseWidth = 320;
     const baseHeight = 180;
-    const scale = variant === 'modal' ? 0.75 : 0.2;
+    const scale = variant === 'modal' ? 0.25 : 0.2;
     const scaledWidth = baseWidth * scale;
     const scaledHeight = baseHeight * scale;
 
     return (
-      <div className="relative w-full aspect-[16/9] rounded-[6px] overflow-hidden bg-[#F3F4F8] flex items-center justify-center">
-        <div style={{ width: scaledWidth, height: scaledHeight }} className="flex items-center justify-center">
+      <div className="relative w-full aspect-[16/9] rounded-[6px] overflow-hidden bg-[#F3F4F8]">
+        <div style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          userSelect: 'none', aspectRatio: '16/9', minHeight: '120px'}} className="flex items-center justify-center">
           <div
             className="pointer-events-none flex items-center justify-center"
             style={{
-              width: baseWidth,
-              height: baseHeight,
+              width: '400%',
+              height: "400%",
               transform: `scale(${scale})`,
-              transformOrigin: 'center',
+              transformOrigin: 'top left',
+              position: 'absolute',
+              top: 0,
+              left: 0,
               backgroundColor: '#ffffff',
             }}
           >
@@ -658,19 +667,19 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
               <button
                 key={template.id}
                 onClick={() => handleAddSlide(template.id)}
-                className="group rounded-[24px] bg-white border border-transparent hover:border-[#0F58F9] hover:shadow-[0_18px_40px_rgba(15,88,249,0.18)] transition-all flex flex-col"
+                className="group rounded-[6px] bg-white border border-transparent hover:border-[#0F58F9] hover:shadow-[0_18px_40px_rgba(15,88,249,0.18)] transition-all flex flex-col"
               >
-                <div className="rounded-t-[24px] overflow-hidden">
+                <div className="rounded-t-[6px] overflow-hidden">
                   {renderTemplatePreview(template.id)}
                 </div>
-                <div className="px-5 py-4 text-left">
+                {/* <div className="px-5 py-4 text-left">
                   <div className="text-sm font-semibold text-[#171718] group-hover:text-[#0F58F9] truncate">
                     {template.name}
                   </div>
                   {template.description && (
                     <div className="text-xs text-[#6C7280] mt-1 line-clamp-2">{template.description}</div>
                   )}
-                </div>
+                </div> */}
               </button>
             ))}
           </div>
