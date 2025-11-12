@@ -20545,18 +20545,13 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         # Determine product type from context
                         product_type_name = wiz_payload.get("product", "")
                         
-                        # Progress callback for agentic collection
-                        async def agentic_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
                                 cookies=cookies,
-                                progress_callback=agentic_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -20640,18 +20635,13 @@ FULL FILE CONTENT:
                         # Use agentic context collection for files (focused, semantic)
                         logger.info(f"[COURSE_OUTLINE] Using AGENTIC extraction for {len(file_ids_list)} files")
                         
-                        # Progress callback for agentic collection
-                        async def course_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Course Outline",
                                 cookies=cookies,
-                                progress_callback=course_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[COURSE_OUTLINE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -28515,18 +28505,13 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         # Determine product type from context
                         product_type_name = wiz_payload.get("product", "")
                         
-                        # Progress callback for agentic collection
-                        async def agentic_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
                                 cookies=cookies,
-                                progress_callback=agentic_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -28607,18 +28592,13 @@ FULL FILE CONTENT:
                         # Use agentic context collection for files (focused, semantic)
                         logger.info(f"[LESSON_PRESENTATION] Using AGENTIC extraction for {len(file_ids_list)} files")
                         
-                        # Progress callback for agentic collection
-                        async def lesson_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Lesson Presentation",
                                 cookies=cookies,
-                                progress_callback=lesson_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[LESSON_PRESENTATION] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -34074,18 +34054,13 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         # Determine product type from context
                         product_type_name = wiz_payload.get("product", "")
                         
-                        # Progress callback for agentic collection
-                        async def agentic_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
                                 cookies=cookies,
-                                progress_callback=agentic_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -34166,18 +34141,13 @@ FULL FILE CONTENT:
                         # Use agentic context collection for files (focused, semantic)
                         logger.info(f"[QUIZ] Using AGENTIC extraction for {len(file_ids_list)} files")
                         
-                        # Progress callback for agentic collection
-                        async def quiz_files_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Quiz",
                                 cookies=cookies,
-                                progress_callback=quiz_files_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[QUIZ] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -35981,18 +35951,13 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         # Determine product type from context
                         product_type_name = wiz_payload.get("product", "")
                         
-                        # Progress callback for agentic collection
-                        async def agentic_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
                                 cookies=cookies,
-                                progress_callback=agentic_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
@@ -36073,18 +36038,13 @@ FULL FILE CONTENT:
                         # Use agentic context collection for files (focused, semantic)
                         logger.info(f"[TEXT_PRESENTATION] Using AGENTIC extraction for {len(file_ids_list)} files")
                         
-                        # Progress callback for agentic collection
-                        async def text_progress(message: str):
-                            progress_packet = {"type": "info", "message": message}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                        
                         try:
                             file_context = await collect_agentic_context(
                                 file_ids=file_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Text Presentation",
                                 cookies=cookies,
-                                progress_callback=text_progress
+                                progress_callback=None  # Progress logged internally
                             )
                             logger.info(f"[TEXT_PRESENTATION] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:

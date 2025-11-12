@@ -43,7 +43,7 @@ Added the following functions after line 12746:
    - **Stage 2:** For each skeleton item, extract focused chunks (5 chunks each)
    - Returns `file_context` dict compatible with existing generation logic
    - Comprehensive logging of metrics (time, tokens, API calls)
-   - Progress callbacks for streaming updates
+   - Progress logged internally via logger.info() (progress_callback set to None in endpoints)
 
 ### 2. Updated Product Endpoints
 
