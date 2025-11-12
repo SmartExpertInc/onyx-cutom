@@ -57,6 +57,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   };
 
   // Whitelist of all slide IDs that exist in avatar_slide_template.html
+  // Only slides that are actually rendered in the HTML template
   const videoSlideWhitelist = new Set([
     'avatar-checklist',
     'avatar-crm',
@@ -66,8 +67,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'avatar-with-buttons',
     'avatar-steps',
     'course-overview-slide',
+    'course-overview',
     'work-life-balance-slide',
+    'work-life-balance',
     'phishing-definition-slide',
+    'phishing-definition',
     'culture-values-three-columns-slide',
     'culture-values-three-columns',
     'key-skills-data-analysis-slide',
@@ -75,30 +79,48 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'percent-circles-slide',
     'percent-circles',
     'benefits-list-slide',
+    'benefits-list',
     'impact-statements-slide',
+    'impact-statements',
     'hybrid-work-best-practices-slide',
+    'hybrid-work',
     'dei-methods-slide',
     'dei-methods',
     'company-tools-resources-slide',
+    'company-tools-resources',
     'ai-pharma-market-growth-slide',
+    'ai-pharma-market-growth',
     'critical-thinking-slide',
+    'critical-thinking',
     'benefits-tags-slide',
+    'benefits-tags',
     'kpi-update-slide',
+    'kpi-update',
     'phishing-rise-slide',
+    'phishing-rise',
     'soft-skills-assessment-slide',
+    'soft-skills-assessment',
     'four-box-grid',
     'four-box-grid-slide',
     'solution-steps-slide',
+    'solution-steps',
     'benefits-perks-columns-slide',
     'benefits-perks-columns',
     'benefits-and-perks-columns',
     'benefits-and-perks-columns-slide',
+    'benefits-perks',
     'soft-skills-types-slide',
     'soft-skills-types',
+    'soft-skills',
+    'skills-types',
     'psychological-safety-slide',
+    'psychological-safety',
     'marketing-agency-thank-you-slide',
+    'marketing-agency-thank-you',
     'problems-grid-slide',
     'problems-grid',
+    'problems',
+    'problems-slide',
     'soft-skills-develop-slide',
     'soft-skills-develop',
     'soft-skills-development',
@@ -124,14 +146,14 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'interest-growth-slide'
   ]);
 
-  // Source all templates that are in avatar_slide_template.html
+  // Source ONLY templates that are in avatar_slide_template.html
   const excludedTemplateIds = new Set(['learning-topics-slide', 'learning-topics']);
 
   const availableTemplates = getAllTemplates()
     .filter(t => !t.id.endsWith('_old'))
     .filter(t => !(typeof t.name === 'string' && t.name.toLowerCase().includes('(old')))
     .filter(t => !excludedTemplateIds.has(t.id))
-    .filter(t => videoSlideWhitelist.has(t.id) || Boolean(t.avatarPosition) || t.id.startsWith('avatar-') || hasAvatarImageField(t))
+    .filter(t => videoSlideWhitelist.has(t.id)) // ONLY slides from avatar_slide_template.html
     .map(t => ({ ...t, name: nameOverrides[t.id] || t.name }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
