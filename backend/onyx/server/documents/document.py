@@ -22,8 +22,10 @@ from onyx.server.documents.models import FileChunk
 from onyx.server.documents.models import FileContentRequest
 from onyx.server.documents.models import FileContentResponse
 from onyx.db.models import UserFile
+from onyx.utils.logger import setup_logger
 
 
+logger = setup_logger()
 router = APIRouter(prefix="/document")
 
 

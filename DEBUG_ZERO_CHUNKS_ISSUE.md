@@ -2,7 +2,25 @@
 
 **Date:** November 12, 2025  
 **Issue:** Direct extraction returns 0 chunks despite successful API call  
-**Status:** 🔍 INVESTIGATING
+**Status:** 🔧 LOGGER IMPORT FIXED - READY TO TEST
+
+---
+
+## ✅ Fix Applied: Logger Import
+
+**Error encountered:**
+```
+NameError: name 'logger' is not defined
+```
+
+**Solution:** Added logger import to `backend/onyx/server/documents/document.py`:
+```python
+from onyx.utils.logger import setup_logger
+
+logger = setup_logger()
+```
+
+The endpoint will now work and provide diagnostic logging.
 
 ---
 
