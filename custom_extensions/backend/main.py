@@ -12745,6 +12745,362 @@ async def extract_file_content_direct(
             "metadata": {"error": str(e)}
         }
 
+# ========================================
+# AGENTIC RAG FUNCTIONS
+# ========================================
+
+def build_focused_query(skeleton_item: dict, product_type: str) -> str:
+    """
+    Build focused query based on skeleton item and product type.
+    
+    Args:
+        skeleton_item: Dict with skeleton item details (title, topics, etc.)
+        product_type: Type of product being generated
+        
+    Returns:
+        Optimized query string for Vespa semantic search
+    """
+    if product_type == "Course Outline":
+        # Item: {"module_name": "...", "key_topics": [...]}
+        module = skeleton_item.get('module_name', '')
+        topics = ', '.join(skeleton_item.get('key_topics', []))
+        return f"Find detailed information about module: {module}. Focus on: {topics}"
+    
+    elif product_type in ["Lesson Presentation", "Text Presentation"]:
+        # Item: {"title": "...", "bullet_points": [...]}
+        title = skeleton_item.get('title', '')
+        bullets = skeleton_item.get('bullet_points', [])
+        if bullets:
+            bullets_str = ', '.join(bullets)
+            return f"Find specific facts and details about: {title}. Topics: {bullets_str}"
+        return f"Find specific facts and details about: {title}"
+    
+    elif product_type == "Quiz":
+        # Item: {"topic_name": "...", "key_concepts": [...]}
+        topic = skeleton_item.get('topic_name', '')
+        concepts = ', '.join(skeleton_item.get('key_concepts', []))
+        return f"Find information to create quiz questions about: {topic}. Concepts: {concepts}"
+    
+    else:
+        # Fallback
+        title = skeleton_item.get('title') or skeleton_item.get('module_name') or skeleton_item.get('topic_name', '')
+        return f"Find detailed information about: {title}"
+
+
+def validate_skeleton_structure(skeleton: dict, product_type: str):
+    """
+    Validate skeleton has required fields for product type.
+    
+    Raises:
+        ValueError: If skeleton is invalid for the product type
+    """
+    if product_type == "Course Outline":
+        if 'modules' not in skeleton:
+            raise ValueError("Skeleton missing 'modules' field")
+        if not skeleton['modules']:
+            raise ValueError("Skeleton has empty 'modules' list")
+    elif product_type in ["Lesson Presentation", "Text Presentation"]:
+        if 'slides' not in skeleton and 'sections' not in skeleton:
+            raise ValueError("Skeleton missing 'slides' or 'sections' field")
+        items = skeleton.get('slides') or skeleton.get('sections')
+        if not items:
+            raise ValueError("Skeleton has empty slides/sections list")
+    elif product_type == "Quiz":
+        if 'quiz_topics' not in skeleton:
+            raise ValueError("Skeleton missing 'quiz_topics' field")
+        if not skeleton['quiz_topics']:
+            raise ValueError("Skeleton has empty 'quiz_topics' list")
+
+
+def build_skeleton_prompt(
+    original_prompt: str,
+    file_context: Dict[str, Any],
+    product_type: str
+) -> str:
+    """
+    Build prompt for skeleton generation based on product type.
+    
+    Args:
+        original_prompt: User's original request
+        file_context: Extracted file context with broad chunks
+        product_type: Type of product being generated
+        
+    Returns:
+        Complete prompt for skeleton generation
+    """
+    from custom_assistants.skeleton_prompts import get_skeleton_instructions
+    
+    # Use existing context assembly to create a focused context for skeleton
+    context_text = assemble_context_with_budget(
+        original_prompt, file_context, product_type, "gpt-4o-mini"
+    )
+    
+    # Load product-specific skeleton instructions
+    skeleton_instructions = get_skeleton_instructions(product_type)
+    
+    prompt = f"""
+{skeleton_instructions}
+
+SOURCE DOCUMENTS:
+═══════════════════════════════════════════════════════════════════════════
+{context_text}
+═══════════════════════════════════════════════════════════════════════════
+
+USER REQUEST: {original_prompt}
+
+CRITICAL: Generate ONLY the skeleton structure as valid JSON. Do NOT include any explanatory text, code fences, or markdown. Return raw JSON only.
+"""
+    return prompt
+
+
+async def generate_skeleton(
+    prompt: str,
+    product_type: str,
+    model: str = "gpt-4o-mini",
+    max_retries: int = 1
+) -> dict:
+    """
+    Call OpenAI to generate skeleton, with JSON validation and retry.
+    
+    Args:
+        prompt: Complete skeleton generation prompt
+        product_type: Type of product for validation
+        model: OpenAI model to use
+        max_retries: Number of retry attempts for JSON fixing
+        
+    Returns:
+        Validated skeleton dict
+        
+    Raises:
+        ValueError: If skeleton generation fails after retries
+    """
+    import json
+    import re
+    
+    try:
+        logger.info(f"[SKELETON_GEN] Calling OpenAI for {product_type} skeleton...")
+        
+        # Call OpenAI with low temperature for structured output
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {OPENAI_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": "You are a JSON structure generator. Return only valid JSON, no markdown or explanations."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.3,  # Low temperature for structured output
+                    "max_tokens": 2000
+                }
+            )
+            response.raise_for_status()
+            result = response.json()
+            
+        response_text = result['choices'][0]['message']['content'].strip()
+        logger.info(f"[SKELETON_GEN] Received response ({len(response_text)} chars)")
+        
+        # Try to extract JSON if wrapped in markdown code fences
+        json_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response_text, re.DOTALL)
+        if json_match:
+            response_text = json_match.group(1).strip()
+            logger.info(f"[SKELETON_GEN] Extracted JSON from code fence")
+        
+        # Parse JSON
+        skeleton = json.loads(response_text)
+        logger.info(f"[SKELETON_GEN] Successfully parsed JSON")
+        
+        # Validate structure
+        validate_skeleton_structure(skeleton, product_type)
+        logger.info(f"[SKELETON_GEN] Skeleton validation passed")
+        
+        return skeleton
+        
+    except (json.JSONDecodeError, ValueError) as e:
+        logger.warning(f"[SKELETON_GEN] Skeleton generation error: {e}")
+        
+        if max_retries > 0:
+            # Try to fix JSON
+            fix_prompt = f"""The following text should be valid JSON but has errors. Fix it and return ONLY valid JSON:
+
+{response_text}
+
+Return the corrected JSON without any markdown formatting or explanations."""
+            
+            logger.info(f"[SKELETON_GEN] Retrying with JSON fix prompt (retries left: {max_retries})")
+            return await generate_skeleton(fix_prompt, product_type, model, max_retries - 1)
+        
+        raise ValueError(f"Failed to generate valid skeleton after retries: {e}")
+
+
+async def collect_agentic_context(
+    file_ids: List[int],
+    original_prompt: str,
+    product_type: str,
+    cookies: Dict[str, str],
+    model: str = "gpt-4o-mini",
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+) -> Dict[str, Any]:
+    """
+    Collect focused context using agentic approach.
+    Returns enhanced file_context compatible with existing generation.
+    
+    This function implements a two-stage agentic RAG workflow:
+    1. Stage 1: Generate lightweight skeleton (modules/slides/topics)
+    2. Stage 2: For each skeleton item, extract focused chunks
+    
+    The collected chunks are then assembled within budget by existing assembler.
+    
+    Args:
+        file_ids: List of file IDs to extract from
+        original_prompt: User's original request
+        product_type: Type of product (Course Outline, Quiz, etc.)
+        cookies: Authentication cookies
+        model: OpenAI model for skeleton generation
+        progress_callback: Optional callback for progress updates
+        
+    Returns:
+        Enhanced file_context dict compatible with existing code
+    """
+    import time
+    
+    stage1_start = time.time()
+    
+    # STAGE 1: Generate lightweight skeleton
+    logger.info(f"[AGENTIC_STAGE1_START] product_type={product_type}")
+    logger.info(f"[AGENTIC_STAGE1_START] original_prompt='{original_prompt[:100]}...'")
+    logger.info(f"[AGENTIC_STAGE1_START] file_count={len(file_ids)}")
+    
+    if progress_callback:
+        await progress_callback("Analyzing document structure...")
+    
+    # Extract broad context (existing function)
+    broad_context = await extract_file_content_direct(
+        file_ids=file_ids,
+        prompt=original_prompt,
+        cookies=cookies,
+        max_chunks_per_file=50  # Current default
+    )
+    
+    # Generate skeleton using product-specific prompt
+    skeleton_prompt = build_skeleton_prompt(
+        original_prompt, broad_context, product_type
+    )
+    skeleton = await generate_skeleton(skeleton_prompt, product_type, model)
+    
+    stage1_time = time.time() - stage1_start
+    
+    # Determine skeleton items based on product type
+    if product_type == "Course Outline":
+        skeleton_items = skeleton.get('modules', [])
+    elif product_type in ["Lesson Presentation", "Text Presentation"]:
+        skeleton_items = skeleton.get('slides') or skeleton.get('sections', [])
+    elif product_type == "Quiz":
+        skeleton_items = skeleton.get('quiz_topics', [])
+    else:
+        skeleton_items = []
+    
+    logger.info(f"[AGENTIC_STAGE1_COMPLETE] skeleton_items={len(skeleton_items)}")
+    logger.info(f"[AGENTIC_STAGE1_COMPLETE] time={stage1_time:.2f}s")
+    
+    if progress_callback:
+        await progress_callback(f"Generated outline with {len(skeleton_items)} sections")
+    
+    # STAGE 2: Collect focused chunks for each skeleton item
+    logger.info(f"[AGENTIC_STAGE2_START] collecting chunks for {len(skeleton_items)} items")
+    
+    all_focused_chunks = []
+    stage2_start = time.time()
+    
+    for i, item in enumerate(skeleton_items):
+        item_start = time.time()
+        
+        # Build focused query from skeleton
+        focused_query = build_focused_query(item, product_type)
+        logger.info(f"[AGENTIC_STAGE2_ITEM] {i+1}/{len(skeleton_items)}")
+        logger.info(f"[AGENTIC_STAGE2_ITEM] focused_query='{focused_query}'")
+        
+        if progress_callback:
+            progress = int((i / len(skeleton_items)) * 100)
+            title = item.get('title') or item.get('module_name') or item.get('topic_name', f'Item {i+1}')
+            await progress_callback(f"Collecting context for: {title} ({progress}%)")
+        
+        # Extract focused chunks
+        try:
+            focused_context = await extract_file_content_direct(
+                file_ids=file_ids,
+                prompt=focused_query,
+                cookies=cookies,
+                max_chunks_per_file=5  # Reduced for focus
+            )
+            
+            item_time = time.time() - item_start
+            chunks_count = len(focused_context.get('file_contents', []))
+            logger.info(f"[AGENTIC_STAGE2_ITEM] chunks_retrieved={chunks_count}")
+            logger.info(f"[AGENTIC_STAGE2_ITEM] time={item_time:.2f}s")
+            
+            # Tag chunks with skeleton info for traceability
+            for content in focused_context.get('file_contents', []):
+                all_focused_chunks.append({
+                    'content': content,
+                    'skeleton_item': item,
+                    'query': focused_query
+                })
+                
+        except Exception as e:
+            logger.error(f"[AGENTIC_STAGE2_ITEM] Error extracting chunks for item {i+1}: {e}")
+            # Continue with other items even if one fails
+            continue
+    
+    stage2_time = time.time() - stage2_start
+    total_chunks = len(all_focused_chunks)
+    
+    logger.info(f"[AGENTIC_STAGE2_COMPLETE] total_chunks={total_chunks}")
+    logger.info(f"[AGENTIC_STAGE2_COMPLETE] avg_chunks_per_item={total_chunks/len(skeleton_items):.1f}" if skeleton_items else "")
+    logger.info(f"[AGENTIC_STAGE2_COMPLETE] time={stage2_time:.2f}s")
+    
+    if progress_callback:
+        await progress_callback("Context collection complete")
+    
+    # Final summary
+    total_time = time.time() - stage1_start
+    logger.info(f"[AGENTIC_COMPLETE] vespa_queries={1 + len(skeleton_items)}")
+    logger.info(f"[AGENTIC_COMPLETE] total_time={total_time:.2f}s")
+    logger.info(f"[AGENTIC_COMPLETE] method=agentic vs method=single-shot")
+    
+    # Budget logging
+    total_items = len(skeleton_items)
+    total_budget = 50000  # Current max
+    target_per_item = total_budget // total_items if total_items > 0 else 0
+    
+    logger.info(f"[AGENTIC_BUDGET] total_budget={total_budget}")
+    logger.info(f"[AGENTIC_BUDGET] items={total_items}")
+    logger.info(f"[AGENTIC_BUDGET] target_per_item={target_per_item}")
+    
+    # STAGE 3: Convert collected chunks back to file_context format
+    # This allows existing assembler and generation logic to work unchanged
+    enhanced_context = {
+        'file_contents': [chunk['content'] for chunk in all_focused_chunks],
+        'file_summaries': [],  # Will be built by assembler if needed
+        'key_topics': [],
+        'metadata': {
+            'method': 'agentic',
+            'skeleton': skeleton,
+            'total_items': len(skeleton_items),
+            'chunks_per_item': total_chunks / len(skeleton_items) if skeleton_items else 0,
+            'stage1_time': stage1_time,
+            'stage2_time': stage2_time,
+            'total_time': total_time
+        }
+    }
+    
+    return enhanced_context
+
+
 async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract context from specific connectors using the Search persona with connector filtering.
@@ -20183,19 +20539,26 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        # USE NEW DIRECT EXTRACTION METHOD
-                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # USE NEW AGENTIC CONTEXT COLLECTION
+                        logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                        
+                        # Determine product type from context
+                        product_type_name = wiz_payload.get("product", "")
+                        
+                        # Progress callback for agentic collection
+                        async def agentic_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids,
+                                original_prompt=payload.prompt,
+                                product_type=product_type_name,
+                                cookies=cookies,
+                                progress_callback=agentic_progress
                             )
-                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -20272,23 +20635,27 @@ FULL FILE CONTENT:
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    # USE NEW AGENTIC CONTEXT COLLECTION
                     if file_ids_list and not folder_ids_list:
-                        # Use direct API extraction for files (faster, more reliable)
-                        logger.info(f"[COURSE_OUTLINE] Using DIRECT extraction for {len(file_ids_list)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # Use agentic context collection for files (focused, semantic)
+                        logger.info(f"[COURSE_OUTLINE] Using AGENTIC extraction for {len(file_ids_list)} files")
+                        
+                        # Progress callback for agentic collection
+                        async def course_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids_list, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Course Outline",
+                                cookies=cookies,
+                                progress_callback=course_progress
                             )
-                            logger.info(f"[COURSE_OUTLINE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[COURSE_OUTLINE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
-                            logger.error(f"[COURSE_OUTLINE] Direct extraction failed, using fallback: {e}")
+                            logger.error(f"[COURSE_OUTLINE] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
                             async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                                 if update["type"] == "progress":
@@ -28142,19 +28509,26 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        # USE NEW DIRECT EXTRACTION METHOD
-                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # USE NEW AGENTIC CONTEXT COLLECTION
+                        logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                        
+                        # Determine product type from context
+                        product_type_name = wiz_payload.get("product", "")
+                        
+                        # Progress callback for agentic collection
+                        async def agentic_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids,
+                                original_prompt=payload.prompt,
+                                product_type=product_type_name,
+                                cookies=cookies,
+                                progress_callback=agentic_progress
                             )
-                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -28228,23 +28602,27 @@ FULL FILE CONTENT:
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    # USE NEW AGENTIC CONTEXT COLLECTION
                     if file_ids_list and not folder_ids_list:
-                        # Use direct API extraction for files (faster, more reliable)
-                        logger.info(f"[LESSON_PRESENTATION] Using DIRECT extraction for {len(file_ids_list)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # Use agentic context collection for files (focused, semantic)
+                        logger.info(f"[LESSON_PRESENTATION] Using AGENTIC extraction for {len(file_ids_list)} files")
+                        
+                        # Progress callback for agentic collection
+                        async def lesson_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids_list, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Lesson Presentation",
+                                cookies=cookies,
+                                progress_callback=lesson_progress
                             )
-                            logger.info(f"[LESSON_PRESENTATION] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[LESSON_PRESENTATION] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
-                            logger.error(f"[LESSON_PRESENTATION] Direct extraction failed, using fallback: {e}")
+                            logger.error(f"[LESSON_PRESENTATION] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
                             async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                                 if update["type"] == "progress":
@@ -33690,19 +34068,26 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        # USE NEW DIRECT EXTRACTION METHOD
-                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # USE NEW AGENTIC CONTEXT COLLECTION
+                        logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                        
+                        # Determine product type from context
+                        product_type_name = wiz_payload.get("product", "")
+                        
+                        # Progress callback for agentic collection
+                        async def agentic_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids,
+                                original_prompt=payload.prompt,
+                                product_type=product_type_name,
+                                cookies=cookies,
+                                progress_callback=agentic_progress
                             )
-                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -33776,23 +34161,27 @@ FULL FILE CONTENT:
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    # USE NEW AGENTIC CONTEXT COLLECTION
                     if file_ids_list and not folder_ids_list:
-                        # Use direct API extraction for files (faster, more reliable)
-                        logger.info(f"[QUIZ] Using DIRECT extraction for {len(file_ids_list)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # Use agentic context collection for files (focused, semantic)
+                        logger.info(f"[QUIZ] Using AGENTIC extraction for {len(file_ids_list)} files")
+                        
+                        # Progress callback for agentic collection
+                        async def quiz_files_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids_list, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Quiz",
+                                cookies=cookies,
+                                progress_callback=quiz_files_progress
                             )
-                            logger.info(f"[QUIZ] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[QUIZ] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
-                            logger.error(f"[QUIZ] Direct extraction failed, using fallback: {e}")
+                            logger.error(f"[QUIZ] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
                             async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                                 if update["type"] == "progress":
@@ -35586,19 +35975,26 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        # USE NEW DIRECT EXTRACTION METHOD
-                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # USE NEW AGENTIC CONTEXT COLLECTION
+                        logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                        
+                        # Determine product type from context
+                        product_type_name = wiz_payload.get("product", "")
+                        
+                        # Progress callback for agentic collection
+                        async def agentic_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids,
+                                original_prompt=payload.prompt,
+                                product_type=product_type_name,
+                                cookies=cookies,
+                                progress_callback=agentic_progress
                             )
-                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -35672,23 +36068,27 @@ FULL FILE CONTENT:
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    # USE NEW AGENTIC CONTEXT COLLECTION
                     if file_ids_list and not folder_ids_list:
-                        # Use direct API extraction for files (faster, more reliable)
-                        logger.info(f"[TEXT_PRESENTATION] Using DIRECT extraction for {len(file_ids_list)} files")
-                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
-                        yield (json.dumps(progress_packet) + "\n").encode()
+                        # Use agentic context collection for files (focused, semantic)
+                        logger.info(f"[TEXT_PRESENTATION] Using AGENTIC extraction for {len(file_ids_list)} files")
+                        
+                        # Progress callback for agentic collection
+                        async def text_progress(message: str):
+                            progress_packet = {"type": "info", "message": message}
+                            yield (json.dumps(progress_packet) + "\n").encode()
                         
                         try:
-                            file_context = await extract_file_content_direct(
-                                file_ids_list, 
-                                payload.prompt,
-                                cookies,
-                                max_chunks_per_file=50
+                            file_context = await collect_agentic_context(
+                                file_ids=file_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Text Presentation",
+                                cookies=cookies,
+                                progress_callback=text_progress
                             )
-                            logger.info(f"[TEXT_PRESENTATION] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                            logger.info(f"[TEXT_PRESENTATION] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
                         except Exception as e:
-                            logger.error(f"[TEXT_PRESENTATION] Direct extraction failed, using fallback: {e}")
+                            logger.error(f"[TEXT_PRESENTATION] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
                             async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                                 if update["type"] == "progress":
