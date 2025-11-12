@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import { LayoutGrid, Gem } from 'lucide-react';
+import { LayoutGrid, Gem, LayoutDashboard } from 'lucide-react';
 
 interface Scene {
   id: string;
@@ -386,7 +386,7 @@ export default function SceneTimeline({
                     </svg>
                   </button>
                   {isAddDropdownOpen && (
-                    <div className="absolute right-0 bottom-full mb-3 w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl p-2 space-y-1 z-50">
+                    <div className="absolute right-0 bottom-full mb-3 w-[220px] rounded-[6px] border border-[#E5E7EB] bg-white shadow-xl p-2 space-y-1 z-50">
                       <button
                         type="button"
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#EEF4FF] transition-colors text-sm font-medium text-[#171718]"
@@ -395,8 +395,8 @@ export default function SceneTimeline({
                           onOpenTemplateSelector?.();
                         }}
                       >
-                        <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#EEF4FF] text-[#0F58F9]">
-                          <LayoutGrid size={16} strokeWidth={2} />
+                        <span className="flex items-center justify-center w-7 h-7 text-[#171718]">
+                          <LayoutDashboard size={16} strokeWidth={2} />
                         </span>
                         Add from template
                       </button>
@@ -408,8 +408,8 @@ export default function SceneTimeline({
                           console.log('Premium slides clicked');
                         }}
                       >
-                        <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#FEF3FF] text-[#A855F7]">
-                          <Gem size={16} strokeWidth={2} />
+                        <span className="flex items-center justify-center w-7 h-7 text-[#D60AFF]">
+                          <Gem size={16} strokeWidth={1.5} />
                         </span>
                         Premium Slides
                       </button>

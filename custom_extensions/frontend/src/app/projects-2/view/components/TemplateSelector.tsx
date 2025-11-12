@@ -545,7 +545,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
   const previewSlidesMap = useMemo(() => {
     const map: Record<string, ComponentBasedSlide> = {};
     availableTemplates.forEach((template) => {
-      const previewProps = sanitizeTemplateProps(template.id, false);
+      const previewProps = sanitizeTemplateProps(template.id, true);
       map[template.id] = {
         slideId: `preview-${template.id}`,
         slideNumber: 1,
@@ -579,7 +579,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
     const scaledHeight = baseHeight * scale;
 
     return (
-      <div className="relative w-full aspect-[16/9] rounded-[24px] overflow-hidden bg-[#F3F4F8] flex items-center justify-center">
+      <div className="relative w-full aspect-[16/9] rounded-[6px] overflow-hidden bg-[#F3F4F8] flex items-center justify-center">
         <div style={{ width: scaledWidth, height: scaledHeight }} className="flex items-center justify-center">
           <div
             className="pointer-events-none origin-top-left"
@@ -591,7 +591,12 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
               backgroundColor: '#ffffff',
             }}
           >
-            <ComponentBasedSlideRenderer slide={previewSlide} isEditable={false} isVideoMode />
+            <ComponentBasedSlideRenderer
+              slide={previewSlide}
+              isEditable={false}
+              isVideoMode
+              deckTemplateVersion="v2"
+            />
           </div>
         </div>
       </div>

@@ -330,19 +330,21 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               {/* Apply between all scenes row */}
               <div className="flex items-center justify-between">
                 <span className="text-[#171718] font-medium text-sm">Apply between all scenes</span>
-                {/* Switch/Slider */}
-                <div 
-                  className={`w-12 h-6 rounded-full flex items-center px-1 cursor-pointer transition-colors ${
-                    isApplyBetweenAllScenes ? 'bg-blue-600' : 'bg-gray-300'
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isApplyBetweenAllScenes}
+                  className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0F58F9] ${
+                    isApplyBetweenAllScenes ? 'bg-[#0F58F9]' : 'bg-gray-300'
                   }`}
                   onClick={() => handleApplyToAllChange(!isApplyBetweenAllScenes)}
                 >
-                  <div 
-                    className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
-                      isApplyBetweenAllScenes ? 'bg-white translate-x-4' : 'bg-white'
+                  <span
+                    className={`w-4 h-4 rounded-full shadow-sm bg-white transition-transform ${
+                      isApplyBetweenAllScenes ? 'translate-x-4' : ''
                     }`}
-                  ></div>
-                </div>
+                  />
+                </button>
               </div>
               <div>
                 <span className="text-[#171718] font-semibold text-sm tracking-wide">Modify</span>
