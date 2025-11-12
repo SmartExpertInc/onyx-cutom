@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { getTransitionIcon, TransitionType } from './Transition';
 
 interface Scene {
   id: string;
@@ -360,27 +361,27 @@ export default function SceneTimeline({
             {/* Add Slide Button - Opens Templates Panel */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="h-20 flex items-center justify-center">
-                <button
-                  onClick={onOpenTemplateSelector}
-                    className="w-12 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
-                    style={{ backgroundColor: '#CCDBFC' }}
-                  title="Add new slide"
-                >
-                <svg 
-                    className="w-6 h-6" 
-                  fill="none" 
-                    stroke="#0F58F9" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                  />
-                </svg>
-              </button>
-            </div>
+                  <button
+                    onClick={onOpenTemplateSelector}
+                      className="w-12 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                      style={{ backgroundColor: '#CCDBFC' }}
+                    title="Add new slide"
+                  >
+                  <svg 
+                      className="w-6 h-6" 
+                    fill="none" 
+                      stroke="#0F58F9" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Chevron Up Button - Non-functional for now */}
@@ -508,6 +509,8 @@ export default function SceneTimeline({
             
             const position = transitionPositionsWithVisibility[scene.id];
             if (!position) return null;
+            const transitionType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
+            const transitionIcon = getTransitionIcon(transitionType, true);
             
             return (
               <div 
@@ -567,10 +570,10 @@ export default function SceneTimeline({
                   >
                     <div className="px-4 pb-2">
                       <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
-                        <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#EEF4FF] text-[#0F58F9] text-xs font-medium">
-                          {(componentBasedSlideDeck?.transitions?.[index]?.type || 'N').charAt(0).toUpperCase()}
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#EEF4FF] text-[#0F58F9]">
+                          {transitionIcon}
                         </span>
-                        {formatTransitionLabel(componentBasedSlideDeck?.transitions?.[index]?.type)}
+                        {formatTransitionLabel(transitionType)}
                       </div>
                     </div>
                     <div className="h-px bg-[#F1F5F9] mb-1"></div>

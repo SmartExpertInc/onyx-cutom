@@ -711,11 +711,13 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
 
   if (variant === 'modal') {
     return (
-      <div className="w-full max-w-[960px] max-h-[640px] bg-white/90 backdrop-blur-sm rounded-[6px] shadow-[0_40px_80px_rgba(15,24,52,0.12)] p-8 flex flex-col">
-        <div className="flex items-center justify-between">
-          <div className="bg-[#F4F4F5] rounded-lg p-1 flex gap-2">
+      <div className="w-full max-w-[960px] max-h-[530px] bg-white/90 backdrop-blur-sm rounded-[6px] shadow-[0_40px_80px_rgba(15,24,52,0.12)] px-8 pt-8 flex flex-col">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 flex justify-center">
+            <div className="bg-[#F4F4F5] rounded-lg p-1 flex gap-2">
             <button className="px-5 py-1.5 text-sm font-semibold text-[#171718] rounded-lg bg-white shadow-sm">Templates</button>
             <button className="px-5 py-1.5 text-sm text-[#A0A3AD] rounded-lg" disabled>Saved scenes</button>
+          </div>
           </div>
           <button
             type="button"
@@ -728,7 +730,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
             </svg>
           </button>
         </div>
-        <div className="mt-6 flex-1 overflow-y-auto pr-2">
+        <div className="mt-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <div className="grid grid-cols-3 gap-5">
             {availableTemplates.map((template) => (
               <button

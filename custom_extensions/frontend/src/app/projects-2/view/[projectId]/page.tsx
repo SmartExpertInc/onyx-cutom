@@ -45,6 +45,7 @@ export default function Projects2ViewPage() {
   const [isInteractionPopupOpen, setIsInteractionPopupOpen] = useState<boolean>(false);
   const [isInteractionModalOpen, setIsInteractionModalOpen] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -267,8 +268,9 @@ export default function Projects2ViewPage() {
 
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
-    setActiveComponent('templates');
+    setIsTemplateModalOpen(true);
   };
+  const handleCloseTemplateModal = () => setIsTemplateModalOpen(false);
 
   // ✅ NEW: Function to handle scene/slide title rename (independent from props.title)
   const handleSceneRename = (sceneId: string, newName: string) => {
@@ -1219,6 +1221,26 @@ export default function Projects2ViewPage() {
         onClose={() => setIsAiPopupOpen(false)} 
         position={aiPopupPosition}
       />
+
+      {/* Template Modal */}
+      {isTemplateModalOpen && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <TemplateSelector
+            variant="modal"
+            currentSlideCount={
+              isComponentBasedVideoLesson
+                ? componentBasedSlideDeck?.slides?.length || 0
+                : videoLessonData?.slides?.length || 0
+            }
+            onAddSlide={(newSlide) => {
+              handleAddSlide(newSlide);
+              setIsTemplateModalOpen(false);
+            }}
+            onClose={handleCloseTemplateModal}
+          />
+        </div>,
+        document.body
+      )}
 
       {/* Language Variant Modal */}
       <LanguageVariantModal 

@@ -157,7 +157,7 @@ const VARIANT_OPTIONS: Array<{ value: TransitionVariant; label: string; icon: st
   { value: 'circle', label: 'Circle', icon: '◯' }
 ];
 
-const getTransitionIcon = (transitionType: TransitionType, isHovered = false): React.ReactNode => {
+export const getTransitionIcon = (transitionType: TransitionType, isHovered = false): React.ReactNode => {
   const iconProps = isHovered ? hoverIconProps : defaultIconProps;
   switch (transitionType) {
     case 'fade':
