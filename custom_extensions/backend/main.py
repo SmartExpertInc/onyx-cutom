@@ -13463,7 +13463,7 @@ async def collect_agentic_context_from_connectors_streaming(
         # Get broad context from connectors using new API
         async with httpx.AsyncClient(timeout=120.0) as client:
             broad_response = await client.post(
-                f"{ONYX_API_URL}/document/get-file-content",
+                f"{ONYX_API_SERVER_URL}/document/get-file-content",
                 json={
                     "source_types": connector_sources,
                     "query": original_prompt,
@@ -13544,7 +13544,7 @@ async def collect_agentic_context_from_connectors_streaming(
             try:
                 async with httpx.AsyncClient(timeout=60.0) as client:
                     focused_response = await client.post(
-                        f"{ONYX_API_URL}/document/get-file-content",
+                        f"{ONYX_API_SERVER_URL}/document/get-file-content",
                         json={
                             "source_types": connector_sources,
                             "query": focused_query,
