@@ -530,25 +530,12 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        {isViewMode ? (
-                          <div className="relative w-full">
-                            <div style={{ paddingTop: '56.25%' }} />
-                            <div className="absolute inset-0 overflow-hidden">
-                              <ComponentBasedSlideRenderer
-                                slide={slide}
-                                isEditable={false}
-                                theme={theme}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <ComponentBasedSlideRenderer
-                            slide={slide}
-                            isEditable={editingEnabled}
-                            onSlideUpdate={handleSlideUpdate}
-                            theme={theme}
-                          />
-                        )}
+                        <ComponentBasedSlideRenderer
+                          slide={slide}
+                          isEditable={editingEnabled}
+                          onSlideUpdate={handleSlideUpdate}
+                          theme={theme}
+                        />
                       </div>
                     </div>
               </div>
@@ -648,7 +635,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         </div>
       </div>
       {rightSidebar && (
-        <div className="w-full lg:w-[400px] h-[550px] flex-shrink-0">
+        <div
+          className="w-full lg:w-[400px] flex-shrink-0 overflow-y-auto"
+          style={{ height: '550px', minHeight: '550px' }}
+        >
           {rightSidebar}
         </div>
       )}
