@@ -605,6 +605,25 @@ class ProfessionalPresentationService:
                 
                 slide_video_path = result["video_path"]
                 job.created_files.append(slide_video_path)  # Track for cleanup
+                
+                # ✅ NEW: Detect and compose uploaded video if present (even in slide-only mode)
+                uploaded_video_path = self._detect_uploaded_video(slide_data)
+                if uploaded_video_path:
+                    logger.info(f"🎬 [UPLOADED_VIDEO] Slide-only mode: Single slide has uploaded video, composing onto slide video")
+                    slide_with_uploaded_path = str(self.output_dir / f"slide_with_uploaded_{job_id}.mp4")
+                    try:
+                        slide_video_path = await self._compose_uploaded_video_onto_slide(
+                            slide_video_path=slide_video_path,
+                            uploaded_video_path=uploaded_video_path,
+                            output_path=slide_with_uploaded_path,
+                            slide_data=slide_data
+                        )
+                        job.created_files.append(slide_with_uploaded_path)  # Track for cleanup
+                        logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Slide-only mode: Uploaded video composed")
+                    except Exception as e:
+                        logger.error(f"🎬 [UPLOADED_VIDEO] ❌ Failed to compose uploaded video: {e}")
+                        logger.warning(f"🎬 [UPLOADED_VIDEO] Continuing with slide video only")
+                
                 output_filename = f"presentation_{job_id}.mp4"
                 output_path = self.output_dir / output_filename
                 
@@ -670,6 +689,28 @@ class ProfessionalPresentationService:
             # Store the slide image path for debugging
             if slide_image_paths and len(slide_image_paths) > 0:
                 job.slide_image_path = slide_image_paths[0]
+            
+            # ✅ NEW: Detect and compose uploaded video if present (ADDITIVE LOGIC)
+            uploaded_video_path = self._detect_uploaded_video(slide_data)
+            if uploaded_video_path:
+                logger.info(f"🎬 [UPLOADED_VIDEO] Single slide has uploaded video, composing onto slide video")
+                # Create intermediate output for slide + uploaded video composition
+                slide_with_uploaded_path = str(self.output_dir / f"slide_with_uploaded_{job_id}.mp4")
+                try:
+                    slide_video_path = await self._compose_uploaded_video_onto_slide(
+                        slide_video_path=slide_video_path,
+                        uploaded_video_path=uploaded_video_path,
+                        output_path=slide_with_uploaded_path,
+                        slide_data=slide_data
+                    )
+                    job.created_files.append(slide_with_uploaded_path)  # Track for cleanup
+                    logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Single slide: Uploaded video composed onto slide")
+                except Exception as e:
+                    logger.error(f"🎬 [UPLOADED_VIDEO] ❌ Failed to compose uploaded video for single slide: {e}")
+                    logger.warning(f"🎬 [UPLOADED_VIDEO] Continuing with slide video only (uploaded video composition failed)")
+                    # Continue with original slide_video_path if composition fails
+            else:
+                logger.info(f"🎬 [UPLOADED_VIDEO] Single slide: No uploaded video detected, using slide video only")
             
             await self._update_job_status(job_id, progress=70.0)
             
@@ -794,6 +835,26 @@ class ProfessionalPresentationService:
                     slide_video_path = slide_result["video_path"]
                     temp_files_to_cleanup.append(slide_video_path)
                     job.created_files.append(slide_video_path)  # Track for cleanup
+                    
+                    # ✅ NEW: Detect and compose uploaded video if present (even in slide-only mode)
+                    uploaded_video_path = self._detect_uploaded_video(slide_data)
+                    if uploaded_video_path:
+                        logger.info(f"🎬 [UPLOADED_VIDEO] Slide-only mode: Slide {slide_index + 1} has uploaded video, composing onto slide video")
+                        slide_with_uploaded_path = str(self.output_dir / f"slide_{slide_index + 1}_with_uploaded_{job_id}.mp4")
+                        try:
+                            slide_video_path = await self._compose_uploaded_video_onto_slide(
+                                slide_video_path=slide_video_path,
+                                uploaded_video_path=uploaded_video_path,
+                                output_path=slide_with_uploaded_path,
+                                slide_data=slide_data
+                            )
+                            temp_files_to_cleanup.append(slide_with_uploaded_path)
+                            job.created_files.append(slide_with_uploaded_path)  # Track for cleanup
+                            logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Slide-only mode: Slide {slide_index + 1}: Uploaded video composed")
+                        except Exception as e:
+                            logger.error(f"🎬 [UPLOADED_VIDEO] ❌ Failed to compose uploaded video for slide {slide_index + 1}: {e}")
+                            logger.warning(f"🎬 [UPLOADED_VIDEO] Continuing with slide video only")
+                    
                     individual_videos.append(slide_video_path)
                     logger.info(f"🐛 [DEBUG_MODE] Slide {slide_index + 1} video generated (no avatar): {slide_video_path}")
                     continue
@@ -840,6 +901,29 @@ class ProfessionalPresentationService:
                 temp_files_to_cleanup.append(slide_video_path)
                 job.created_files.append(slide_video_path)  # Track for cleanup
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} video generated: {slide_video_path}")
+                
+                # ✅ NEW: Detect and compose uploaded video if present (ADDITIVE LOGIC)
+                uploaded_video_path = self._detect_uploaded_video(slide_data)
+                if uploaded_video_path:
+                    logger.info(f"🎬 [UPLOADED_VIDEO] Slide {slide_index + 1} has uploaded video, composing onto slide video")
+                    # Create intermediate output for slide + uploaded video composition
+                    slide_with_uploaded_path = str(self.output_dir / f"slide_{slide_index + 1}_with_uploaded_{job_id}.mp4")
+                    try:
+                        slide_video_path = await self._compose_uploaded_video_onto_slide(
+                            slide_video_path=slide_video_path,
+                            uploaded_video_path=uploaded_video_path,
+                            output_path=slide_with_uploaded_path,
+                            slide_data=slide_data
+                        )
+                        temp_files_to_cleanup.append(slide_with_uploaded_path)
+                        job.created_files.append(slide_with_uploaded_path)  # Track for cleanup
+                        logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Slide {slide_index + 1}: Uploaded video composed onto slide")
+                    except Exception as e:
+                        logger.error(f"🎬 [UPLOADED_VIDEO] ❌ Failed to compose uploaded video for slide {slide_index + 1}: {e}")
+                        logger.warning(f"🎬 [UPLOADED_VIDEO] Continuing with slide video only (uploaded video composition failed)")
+                        # Continue with original slide_video_path if composition fails
+                else:
+                    logger.info(f"🎬 [UPLOADED_VIDEO] Slide {slide_index + 1}: No uploaded video detected, using slide video only")
                 
                 # Compose individual slide + avatar video with progress updates
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Composing individual video for slide {slide_index + 1}")
@@ -914,6 +998,219 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Multi-slide processing failed: {e}")
+            raise
+
+    def _is_video_file(self, file_path: str) -> bool:
+        """
+        Check if a file path points to a video file based on extension.
+        
+        Args:
+            file_path: File path to check
+            
+        Returns:
+            True if file is a video, False otherwise
+        """
+        if not file_path or not isinstance(file_path, str):
+            return False
+        
+        video_extensions = ['.mp4', '.webm', '.mov', '.avi']
+        lower_path = file_path.lower()
+        return any(lower_path.endswith(ext) for ext in video_extensions)
+    
+    def _resolve_uploaded_video_path(self, video_path: str) -> Optional[str]:
+        """
+        Resolve uploaded video path to absolute file path.
+        Handles both relative paths from static_design_images and absolute paths.
+        
+        Args:
+            video_path: Video path from slide props (can be relative or absolute)
+            
+        Returns:
+            Absolute path to video file, or None if not found
+        """
+        if not video_path:
+            return None
+        
+        try:
+            # Check if it's already an absolute path
+            if os.path.isabs(video_path) and os.path.exists(video_path):
+                logger.info(f"🎬 [UPLOADED_VIDEO] Video path is absolute and exists: {video_path}")
+                return video_path
+            
+            # Check if it's a web-accessible path (starts with /)
+            if video_path.startswith('/'):
+                # Convert /static_design_images/video.mp4 → absolute path
+                static_dir = Path("static_design_images")
+                relative_path = video_path.lstrip('/')
+                # Remove leading static_design_images/ if present
+                if relative_path.startswith('static_design_images/'):
+                    relative_path = relative_path[len('static_design_images/'):]
+                absolute_path = static_dir / relative_path
+                
+                if absolute_path.exists():
+                    resolved = str(absolute_path.resolve())
+                    logger.info(f"🎬 [UPLOADED_VIDEO] Resolved web path '{video_path}' → '{resolved}'")
+                    return resolved
+                else:
+                    logger.warning(f"🎬 [UPLOADED_VIDEO] Web path not found: {absolute_path}")
+            
+            # Try direct path resolution
+            if os.path.exists(video_path):
+                resolved = os.path.abspath(video_path)
+                logger.info(f"🎬 [UPLOADED_VIDEO] Resolved relative path '{video_path}' → '{resolved}'")
+                return resolved
+            
+            logger.warning(f"🎬 [UPLOADED_VIDEO] Video file not found: {video_path}")
+            return None
+            
+        except Exception as e:
+            logger.error(f"🎬 [UPLOADED_VIDEO] Error resolving video path '{video_path}': {e}")
+            return None
+    
+    def _detect_uploaded_video(self, slide_data: Dict[str, Any]) -> Optional[str]:
+        """
+        Detect if slide contains an uploaded video asset.
+        
+        Checks slide props for video files (identified by extension in imagePath).
+        This is additive logic that doesn't modify existing code paths.
+        
+        Args:
+            slide_data: Slide data dictionary containing props
+            
+        Returns:
+            Resolved absolute path to uploaded video, or None if not found
+        """
+        try:
+            # Extract props from slide data (can be nested or flat)
+            slide_props = slide_data.get('props', {})
+            if not slide_props:
+                slide_props = slide_data  # Try slide_data itself if no props key
+            
+            # Check imagePath for video files (videos are stored in imagePath but detected as videos)
+            image_path = slide_props.get('imagePath')
+            if image_path and self._is_video_file(image_path):
+                logger.info(f"🎬 [UPLOADED_VIDEO] Detected video in imagePath: {image_path}")
+                resolved_path = self._resolve_uploaded_video_path(image_path)
+                if resolved_path:
+                    logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Uploaded video detected and resolved: {resolved_path}")
+                    return resolved_path
+                else:
+                    logger.warning(f"🎬 [UPLOADED_VIDEO] ⚠️ Video detected but path resolution failed: {image_path}")
+            
+            # Also check for explicit videoPath prop (if added in future)
+            video_path = slide_props.get('videoPath')
+            if video_path:
+                logger.info(f"🎬 [UPLOADED_VIDEO] Detected videoPath prop: {video_path}")
+                resolved_path = self._resolve_uploaded_video_path(video_path)
+                if resolved_path:
+                    logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Uploaded video detected via videoPath: {resolved_path}")
+                    return resolved_path
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"🎬 [UPLOADED_VIDEO] Error detecting uploaded video: {e}")
+            return None
+    
+    async def _compose_uploaded_video_onto_slide(
+        self,
+        slide_video_path: str,
+        uploaded_video_path: str,
+        output_path: str,
+        slide_data: Dict[str, Any]
+    ) -> str:
+        """
+        Compose uploaded video onto slide video as an overlay.
+        
+        This uses the same composition mechanism as avatar videos but for user-uploaded videos.
+        The uploaded video is overlaid onto the slide video maintaining its position and size.
+        
+        Args:
+            slide_video_path: Path to generated slide video
+            uploaded_video_path: Path to user-uploaded video
+            output_path: Path for output composed video
+            slide_data: Slide data containing position/size info for uploaded video
+            
+        Returns:
+            Path to composed video (slide + uploaded video)
+        """
+        try:
+            logger.info(f"🎬 [UPLOADED_VIDEO] Starting composition of uploaded video onto slide")
+            logger.info(f"🎬 [UPLOADED_VIDEO] Slide video: {slide_video_path}")
+            logger.info(f"🎬 [UPLOADED_VIDEO] Uploaded video: {uploaded_video_path}")
+            logger.info(f"🎬 [UPLOADED_VIDEO] Output: {output_path}")
+            
+            # Extract position and size from slide data (similar to avatar position)
+            # Check metadata for element positions (from drag-and-drop)
+            metadata = slide_data.get('metadata', {})
+            element_positions = metadata.get('elementPositions', {})
+            
+            # Try to find uploaded video element position
+            uploaded_video_position = None
+            slide_props = slide_data.get('props', {})
+            
+            # Check if there's position info in props or metadata
+            # Look for element with video path
+            image_path = slide_props.get('imagePath')
+            if image_path and self._is_video_file(image_path):
+                # Find element ID that matches this video
+                for element_id, position_data in element_positions.items():
+                    element_props = position_data.get('props', {})
+                    if element_props.get('imagePath') == image_path:
+                        uploaded_video_position = position_data
+                        logger.info(f"🎬 [UPLOADED_VIDEO] Found position data for element: {element_id}")
+                        break
+            
+            # Use SimpleVideoComposer for composition (same as avatar)
+            from .simple_video_composer import SimpleVideoComposer
+            simple_composer = SimpleVideoComposer()
+            
+            # Prepare position config (similar to avatar_position)
+            # Default: center of slide if no position specified
+            if uploaded_video_position:
+                position_config = {
+                    'x': uploaded_video_position.get('x', 0),
+                    'y': uploaded_video_position.get('y', 0),
+                    'width': uploaded_video_position.get('width', 640),
+                    'height': uploaded_video_position.get('height', 360),
+                    'shape': 'rectangle'  # Default shape for uploaded videos
+                }
+            else:
+                # Default: center position, reasonable size
+                position_config = {
+                    'x': 640,  # (1920 - 640) / 2
+                    'y': 360,  # (1080 - 360) / 2
+                    'width': 640,
+                    'height': 360,
+                    'shape': 'rectangle'
+                }
+                logger.info(f"🎬 [UPLOADED_VIDEO] No position data found, using default center position")
+            
+            logger.info(f"🎬 [UPLOADED_VIDEO] Position config: {position_config}")
+            
+            # Compose videos using the same mechanism as avatar composition
+            def progress_callback(progress):
+                logger.info(f"🎬 [UPLOADED_VIDEO] Composition progress: {progress}%")
+            
+            success = await simple_composer.compose_videos(
+                slide_video_path=slide_video_path,
+                avatar_video_path=uploaded_video_path,  # Treat uploaded video as "avatar" for composition
+                output_path=output_path,
+                progress_callback=progress_callback,
+                avatar_position=position_config  # Use position config for uploaded video
+            )
+            
+            simple_composer.cleanup()
+            
+            if success:
+                logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Successfully composed uploaded video onto slide: {output_path}")
+                return output_path
+            else:
+                logger.error(f"🎬 [UPLOADED_VIDEO] ❌ Composition failed")
+                raise Exception("Failed to compose uploaded video onto slide")
+                
+        except Exception as e:
+            logger.error(f"🎬 [UPLOADED_VIDEO] Error composing uploaded video: {e}")
             raise
 
     async def _get_video_properties(self, video_path: str) -> Dict[str, Any]:
