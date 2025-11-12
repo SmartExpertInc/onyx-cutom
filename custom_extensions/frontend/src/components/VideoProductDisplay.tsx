@@ -137,10 +137,10 @@ const VideoProductDisplay = ({
 
 
   // Format date as "28th Oct, 25"
-  const formatDate = (dateString?: string): string => {
-    if (!dateString) return '';
+  const formatDate = (timestamp: string | Date | undefined) => {
+    if (!timestamp) return '';
     try {
-      const date = new Date(dateString);
+      const date = new Date(timestamp);
       const day = date.getDate();
       const month = date.toLocaleString('en-US', { month: 'short' });
       const year = date.getFullYear().toString().slice(-2);
@@ -161,8 +161,6 @@ const VideoProductDisplay = ({
       return '';
     }
   };
-
-  const hasValidVideoUrl = (dataToDisplay as any)?.videoUrl && (dataToDisplay as any)?.videoUrl.startsWith('http');
 
   return (
     <div className={`flex flex-col gap-6 ${className}`}>
@@ -189,7 +187,7 @@ const VideoProductDisplay = ({
             </button>
           </div>
 
-          {hasValidVideoUrl ? (
+          {(dataToDisplay as any)?.videoUrl ? (
             <video
               className="absolute inset-0 w-full h-full object-contain bg-black"
               controls
