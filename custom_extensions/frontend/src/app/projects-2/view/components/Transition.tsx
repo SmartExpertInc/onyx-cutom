@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import './Transition.css';
 
@@ -145,6 +145,12 @@ const effectsIcon = ({fillLighter = '#878787', fillDarker = '#4D4D4D'}: {fillLig
 const defaultIconProps = { fillLighter: '#E4E4E4', fillDarker: '#4D4D4D' };
 const hoverIconProps = { fillLighter: '#CCDBFC', fillDarker: '#0F58F9' };
 
+const VARIANT_OPTIONS: Array<{ value: TransitionVariant; label: string; icon: string; helper?: string }> = [
+  { value: 'horizontal-chevrons', label: 'Left', icon: '←' },
+  { value: 'vertical-chevrons', label: 'Up', icon: '↑' },
+  { value: 'circle', label: 'Circle', icon: '◯' }
+];
+
 const getTransitionIcon = (transitionType: TransitionType, isHovered = false): React.ReactNode => {
   const iconProps = isHovered ? hoverIconProps : defaultIconProps;
   switch (transitionType) {
@@ -218,6 +224,8 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
   const [duration, setDuration] = useState(currentTransition?.duration || 1.0);
   const [variant, setVariant] = useState<TransitionVariant>(currentTransition?.variant || 'circle');
   const [hoveredTransition, setHoveredTransition] = useState<TransitionType | 'none' | null>(null);
+  const [isVariantMenuOpen, setIsVariantMenuOpen] = useState(false);
+  const variantDropdownRef = useRef<HTMLDivElement>(null);
 
   const isTransitionActive = (type: TransitionOption) =>
     hoveredTransition === type || selectedTransition === type;
@@ -234,6 +242,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
   // Handle transition selection
   const handleTransitionSelect = (transitionType: TransitionType) => {
     setSelectedTransition(transitionType);
+    setIsVariantMenuOpen(false);
     
     // Immediately save the transition
     const transitionData: TransitionData = {
@@ -260,6 +269,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
   // Handle variant change
   const handleVariantChange = (newVariant: TransitionVariant) => {
     setVariant(newVariant);
+    setIsVariantMenuOpen(false);
     const transitionData: TransitionData = {
       type: selectedTransition,
       duration,
@@ -281,21 +291,29 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
     onTransitionChange?.(transitionData);
   };
 
+  useEffect(() => {
+    if (!isVariantMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (variantDropdownRef.current && !variantDropdownRef.current.contains(event.target as Node)) {
+        setIsVariantMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isVariantMenuOpen]);
+
   // Function to render the selected transition settings view
   const renderSelectedTransitionView = () => {
     if (!selectedTransition || selectedTransition === 'none') return null;
 
     return (
       <div className="h-full flex flex-col">
-        <div className="w-full border border-gray-300 rounded-md">
+        <div className="w-full">
           {/* Top part - Light grey background */}
-          <div className="bg-gray-100 p-4 flex items-center justify-between rounded-t-md">
+          {/* <div className="bg-gray-100 p-4 flex items-center justify-between rounded-t-md">
             <div className="flex items-center gap-3">
-              {/* Transition square */}
               <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
               </div>
-              
-              {/* Transition name */}
               <div className="flex flex-col">
                 <span className="text-gray-700 text-xs font-medium capitalize">{selectedTransition}</span>
                 {transitionIndex !== null && transitionIndex !== undefined && (
@@ -303,19 +321,22 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Bottom part - White background */}
-          <div className="bg-white p-4 flex-1 rounded-b-md">
+          <div className="bg-white flex-1">
             {/* Settings container */}
-            <div className="p-4 rounded-lg">
+             <div className="py-4 flex flex-col gap-6">
+              <div>
+                <span className="text-[#171718] font-semibold text-sm uppercase tracking-wide">Modify</span>
+              </div>
               {/* Apply between all scenes row */}
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-xs">Apply between all scenes</span>
+              <div className="flex items-center justify-between">
+                <span className="text-[#171718] font-medium text-sm">Apply between all scenes</span>
                 {/* Switch/Slider */}
                 <div 
-                  className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
-                    isApplyBetweenAllScenes ? 'bg-black' : 'bg-gray-300'
+                  className={`w-12 h-6 rounded-full flex items-center px-1 cursor-pointer transition-colors ${
+                    isApplyBetweenAllScenes ? 'bg-blue-600' : 'bg-gray-300'
                   }`}
                   onClick={() => handleApplyToAllChange(!isApplyBetweenAllScenes)}
                 >
@@ -328,104 +349,87 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               </div>
 
               {/* Duration row */}
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-xs">Duration (sec)</span>
-                <div className="flex items-center gap-2">
-                  {/* Duration range slider */}
-                  <div className="relative w-32 flex items-center">
+              <div className="flex flex-col gap-2">
+                <span className="text-[#171718] font-medium text-sm">Duration</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 border border-[#E5E7EB] rounded-xl shadow-sm bg-white min-w-[160px]">
+                    <span role="img" aria-label="timer" className="text-gray-600">⏱</span>
                     <input
-                      type="range"
+                      type="number"
                       min="0.5"
                       max="3.0"
                       step="0.1"
                       value={duration}
-                      className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
                       onChange={(e) => {
-                        const value = parseFloat(e.target.value);
-                        handleDurationChange(value);
-                        const percentage = ((value - 0.5) / 2.5) * 100 + '%';
-                        e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
+                        const parsed = parseFloat(e.target.value);
+                        if (Number.isNaN(parsed)) {
+                          return;
+                        }
+                        const clamped = Math.max(0.5, Math.min(3, parsed));
+                        handleDurationChange(parseFloat(clamped.toFixed(1)));
                       }}
-                      style={{
-                        background: `linear-gradient(to right, #000000 0%, #000000 ${((duration - 0.5) / 2.5) * 100}%, #e5e7eb ${((duration - 0.5) / 2.5) * 100}%, #e5e7eb 100%)`
+                      onBlur={(e) => {
+                        const parsed = parseFloat(e.target.value);
+                        if (Number.isNaN(parsed)) {
+                          handleDurationChange(duration);
+                          return;
+                        }
+                        const clamped = Math.max(0.5, Math.min(3, parsed));
+                        handleDurationChange(parseFloat(clamped.toFixed(1)));
                       }}
+                      className="w-12 border-none focus:outline-none text-sm text-[#171718] bg-transparent"
                     />
-                    <style jsx>{`
-                      input[type="range"]::-webkit-slider-thumb {
-                        appearance: none;
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background: #000000;
-                        cursor: pointer;
-                        border: none;
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-                      }
-                      
-                      input[type="range"]::-moz-range-thumb {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background: #000000;
-                        cursor: pointer;
-                        border: none;
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-                      }
-                      
-                      input[type="range"]::-webkit-slider-track {
-                        appearance: none;
-                        background: transparent;
-                      }
-                      
-                      input[type="range"]::-moz-range-track {
-                        background: transparent;
-                        border: none;
-                      }
-                    `}</style>
+                    <span className="text-gray-500 text-sm">s</span>
                   </div>
-                  <span className="text-gray-600 text-xs w-8 text-right">{duration.toFixed(1)}</span>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="3.0"
+                    step="0.1"
+                    value={duration}
+                    className="transition-range w-full h-1 rounded-full appearance-none cursor-pointer bg-gray-200"
+                    onChange={(e) => handleDurationChange(parseFloat(e.target.value))}
+                    style={{
+                      background: `linear-gradient(to right, #0F58F9 0%, #0F58F9 ${((duration - 0.5) / 2.5) * 100}%, #E5E7EB ${((duration - 0.5) / 2.5) * 100}%, #E5E7EB 100%)`
+                    }}
+                  />
                 </div>
               </div>
 
               {/* Variant row */}
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700 text-xs">Variant</span>
-                <div className="flex gap-2">
-                  {/* Circle button */}
-                  <button 
-                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'circle' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleVariantChange('circle')}
+              <div className="flex flex-col gap-2">
+                <span className="text-[#171718] font-medium text-sm">Variant</span>
+                <div className="relative w-full max-w-[220px]" ref={variantDropdownRef}>
+                  <button
+                    className="w-full flex items-center justify-between px-4 py-2.5 border border-[#E5E7EB] rounded-xl bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors"
+                    onClick={() => setIsVariantMenuOpen((prev) => !prev)}
+                    type="button"
                   >
-                    <div className="w-3 h-3 rounded-full bg-white border border-black"></div>
+                    <span className="flex items-center gap-2">
+                      <span className="text-lg leading-none">
+                        {VARIANT_OPTIONS.find((option) => option.value === variant)?.icon}
+                      </span>
+                      {VARIANT_OPTIONS.find((option) => option.value === variant)?.label ?? 'Select variant'}
+                    </span>
+                    <span className={`text-xs transition-transform ${isVariantMenuOpen ? 'rotate-180' : ''}`}>▼</span>
                   </button>
-                  
-                  {/* Horizontal chevrons button */}
-                  <button 
-                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'horizontal-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleVariantChange('horizontal-chevrons')}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m16 18l-6-6l6-6"/>
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m8 18l6-6l-6-6"/>
-                    </svg>
-                  </button>
-                  
-                  {/* Vertical chevrons button */}
-                  <button 
-                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'vertical-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleVariantChange('vertical-chevrons')}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 16l-6-6l-6 6"/>
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 8l-6 6l-6-6"/>
-                    </svg>
-                  </button>
+                  {isVariantMenuOpen && (
+                    <div className="absolute left-0 right-0 mt-2 rounded-xl border border-[#E5E7EB] bg-white shadow-lg z-20 overflow-hidden">
+                      {VARIANT_OPTIONS.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                            variant === option.value ? 'bg-[#EFF4FF] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
+                          }`}
+                          onClick={() => handleVariantChange(option.value)}
+                        >
+                          <span className="text-lg leading-none">{option.icon}</span>
+                          <span>{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -439,7 +443,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
 
   return (
     <>
-    <div className="h-full bg-white relative overflow-y-auto overflow-hidden w-full">
+    <div className="h-full bg-white relative overflow-y-auto overflow-hidden w-full transition-scroll">
       {/* Header with transition info */}
       <div className="mb-4">
         <h3 className="text-sm font-medium text-gray-700">
@@ -474,10 +478,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('fade')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('fade') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fade') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fade', isTransitionActive('fade'))}
+                    <span className="text-xs text-gray-700 text-center">Fade</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Fade</span>
+                  
                 </div>
 
                 {/* Dissolve */}
@@ -487,10 +492,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('dissolve')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('dissolve') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('dissolve') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('dissolve', isTransitionActive('dissolve'))}
+                    <span className="text-xs text-gray-700 text-center">Dissolve</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Dissolve</span>
+                  
                 </div>
               </div>
             </div>
@@ -506,10 +512,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipeleft')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipeleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipeleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipeleft', isTransitionActive('wipeleft'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe Left</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe Left</span>
+                  
                 </div>
 
                 {/* Wipe Right */}
@@ -519,10 +526,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wiperight')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wiperight') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wiperight') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wiperight', isTransitionActive('wiperight'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe Right</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe Right</span>
+                  
                 </div>
 
                 {/* Wipe Up */}
@@ -532,10 +540,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipeup')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipeup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipeup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipeup', isTransitionActive('wipeup'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe Up</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe Up</span>
+                  
                 </div>
 
                 {/* Wipe Down */}
@@ -545,10 +554,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipedown')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipedown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipedown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipedown', isTransitionActive('wipedown'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe Down</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe Down</span>
+                  
                 </div>
 
                 {/* Wipe Top-Left */}
@@ -558,10 +568,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipetl')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipetl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipetl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipetl', isTransitionActive('wipetl'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe TL</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe TL</span>
+                 
                 </div>
 
                 {/* Wipe Top-Right */}
@@ -571,10 +582,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipetr')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipetr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipetr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipetr', isTransitionActive('wipetr'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe TR</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe TR</span>
+                  
                 </div>
 
                 {/* Wipe Bottom-Left */}
@@ -584,10 +596,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipebl')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipebl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipebl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipebl', isTransitionActive('wipebl'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe BL</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe BL</span>
+                  
                 </div>
 
                 {/* Wipe Bottom-Right */}
@@ -597,10 +610,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('wipebr')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('wipebr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipebr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipebr', isTransitionActive('wipebr'))}
+                    <span className="text-sm text-gray-700 text-center">Wipe BR</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Wipe BR</span>
+                  
                 </div>
               </div>
             </div>
@@ -616,10 +630,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('slideleft')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('slideleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slideleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slideleft', isTransitionActive('slideleft'))}
+                    <span className="text-sm text-gray-700 text-center">Slide Left</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Slide Left</span>
+                  
                 </div>
 
                 {/* Slide Right */}
@@ -629,10 +644,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('slideright')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('slideright') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slideright') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slideright', isTransitionActive('slideright'))}
+                    <span className="text-sm text-gray-700 text-center">Slide Right</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Slide Right</span>
+                  
                 </div>
 
                 {/* Slide Up */}
@@ -642,10 +658,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('slideup')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('slideup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slideup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slideup', isTransitionActive('slideup'))}
+                    <span className="text-sm text-gray-700 text-center">Slide Up</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Slide Up</span>
+                 
                 </div>
 
                 {/* Slide Down */}
@@ -655,10 +672,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('slidedown')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('slidedown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slidedown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slidedown', isTransitionActive('slidedown'))}
+                    <span className="text-sm text-gray-700 text-center">Slide Down</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Slide Down</span>
+                  
                 </div>
               </div>
             </div>
@@ -674,10 +692,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('smoothleft')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('smoothleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothleft', isTransitionActive('smoothleft'))}
+                    <span className="text-sm text-gray-700 text-center">Smooth Left</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Smooth Left</span>
+                  
                 </div>
 
                 {/* Smooth Right */}
@@ -687,10 +706,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('smoothright')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('smoothright') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothright') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothright', isTransitionActive('smoothright'))}
+                    <span className="text-sm text-gray-700 text-center">Smooth Right</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Smooth Right</span>
+                  
                 </div>
 
                 {/* Smooth Up */}
@@ -700,10 +720,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('smoothup')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('smoothup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothup', isTransitionActive('smoothup'))}
+                    <span className="text-sm text-gray-700 text-center">Smooth Up</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Smooth Up</span>
+                  
                 </div>
 
                 {/* Smooth Down */}
@@ -713,10 +734,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('smoothdown')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('smoothdown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothdown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothdown', isTransitionActive('smoothdown'))}
+                    <span className="text-sm text-gray-700 text-center">Smooth Down</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Smooth Down</span>
+                  
                 </div>
               </div>
             </div>
@@ -732,10 +754,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('circlecrop')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('circlecrop') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('circlecrop') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('circlecrop', isTransitionActive('circlecrop'))}
+                    <span className="text-sm text-gray-700 text-center">Circle Crop</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Circle Crop</span>
+                  
                 </div>
 
                 {/* Circle Open */}
@@ -745,10 +768,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('circleopen')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('circleopen') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('circleopen') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('circleopen', isTransitionActive('circleopen'))}
+                    <span className="text-sm text-gray-700 text-center">Circle Open</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Circle Open</span>
+                  
                 </div>
 
                 {/* Circle Close */}
@@ -758,10 +782,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('circleclose')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('circleclose') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('circleclose') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('circleclose', isTransitionActive('circleclose'))}
+                    <span className="text-sm text-gray-700 text-center">Circle Close</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Circle Close</span>
+                  
                 </div>
               </div>
             </div>
@@ -777,10 +802,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('diagtl')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('diagtl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagtl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagtl', isTransitionActive('diagtl'))}
+                    <span className="text-sm text-gray-700 text-center">Diag TL</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Diag TL</span>
+                  
                 </div>
 
                 {/* Diagonal Top-Right */}
@@ -790,10 +816,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('diagtr')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('diagtr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagtr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagtr', isTransitionActive('diagtr'))}
+                    <span className="text-sm text-gray-700 text-center">Diag TR</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Diag TR</span>
+                  
                 </div>
 
                 {/* Diagonal Bottom-Left */}
@@ -803,10 +830,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('diagbl')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('diagbl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagbl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagbl', isTransitionActive('diagbl'))}
+                    <span className="text-sm text-gray-700 text-center">Diag BL</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Diag BL</span>
+                  
                 </div>
 
                 {/* Diagonal Bottom-Right */}
@@ -816,10 +844,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('diagbr')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('diagbr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagbr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagbr', isTransitionActive('diagbr'))}
+                    <span className="text-xs text-gray-700 text-center">Diag BR</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Diag BR</span>
+                  
                 </div>
               </div>
             </div>
@@ -835,10 +864,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('radial')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('radial') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('radial') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('radial', isTransitionActive('radial'))}
+                    <span className="text-sm text-gray-700 text-center">Radial</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Radial</span>
+                  
                 </div>
 
                 {/* Distance */}
@@ -848,10 +878,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('distance')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('distance') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('distance') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('distance', isTransitionActive('distance'))}
+                    <span className="text-xs text-gray-700 text-center">Distance</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Distance</span>
+                  
                 </div>
               </div>
             </div>
@@ -867,10 +898,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('hlslice')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('hlslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('hlslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('hlslice', isTransitionActive('hlslice'))}
+                    <span className="text-sm text-gray-700 text-center">H-Left Slice</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">H-Left Slice</span>
+                  
                 </div>
 
                 {/* Horizontal Right Slice */}
@@ -880,10 +912,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('hrslice')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('hrslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('hrslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('hrslice', isTransitionActive('hrslice'))}
+                    <span className="text-sm text-gray-700 text-center">H-Right Slice</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">H-Right Slice</span>
+                  
                 </div>
 
                 {/* Vertical Up Slice */}
@@ -893,10 +926,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('vuslice')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('vuslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('vuslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('vuslice', isTransitionActive('vuslice'))}
+                    <span className="text-sm text-gray-700 text-center">V-Up Slice</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">V-Up Slice</span>
+                  
                 </div>
 
                 {/* Vertical Down Slice */}
@@ -906,10 +940,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('vdslice')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('vdslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('vdslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('vdslice', isTransitionActive('vdslice'))}
+                    <span className="text-xs text-gray-700 text-center">V-Down Slice</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">V-Down Slice</span>
+                  
                 </div>
               </div>
             </div>
@@ -925,10 +960,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('squeezeh')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('squeezeh') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('squeezeh') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('squeezeh', isTransitionActive('squeezeh'))}
+                    <span className="text-sm text-gray-700 text-center">Squeeze H</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Squeeze H</span>
+                  
                 </div>
 
                 {/* Squeeze Vertical */}
@@ -938,10 +974,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('squeezev')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('squeezev') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('squeezev') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('squeezev', isTransitionActive('squeezev'))}
+                    <span className="text-sm text-gray-700 text-center">Squeeze V</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Squeeze V</span>
+                  
                 </div>
 
                 {/* Zoom In */}
@@ -951,10 +988,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('zoomin')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('zoomin') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('zoomin') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('zoomin', isTransitionActive('zoomin'))}
+                    <span className="text-xs text-gray-700 text-center">Zoom In</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Zoom In</span>
+                  
                 </div>
               </div>
             </div>
@@ -970,10 +1008,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('hblur')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('hblur') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('hblur') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('hblur', isTransitionActive('hblur'))}
+                    <span className="text-sm text-gray-700 text-center">H-Blur</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">H-Blur</span>
+                  
                 </div>
 
                 {/* Pixelize */}
@@ -983,10 +1022,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('pixelize')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('pixelize') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('pixelize') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('pixelize', isTransitionActive('pixelize'))}
+                    <span className="text-xs text-gray-700 text-center">Pixelize</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Pixelize</span>
+                  
                 </div>
               </div>
             </div>
@@ -1002,10 +1042,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('fadeblack')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('fadeblack') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadeblack') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadeblack', isTransitionActive('fadeblack'))}
+                    <span className="text-sm text-gray-700 text-center">Fade Black</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Fade Black</span>
+                  
                 </div>
 
                 {/* Fade White */}
@@ -1015,10 +1056,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('fadewhite')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('fadewhite') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadewhite') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadewhite', isTransitionActive('fadewhite'))}
+                    <span className="text-sm text-gray-700 text-center">Fade White</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Fade White</span>
+                  
                 </div>
 
                 {/* Fade Fast */}
@@ -1028,10 +1070,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('fadefast')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('fadefast') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadefast') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadefast', isTransitionActive('fadefast'))}
+                    <span className="text-sm text-gray-700 text-center">Fade Fast</span>
                   </div>
-                  <span className="text-sm text-gray-700 text-center">Fade Fast</span>
+                  
                 </div>
 
                 {/* Fade Slow */}
@@ -1041,10 +1084,11 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   onMouseEnter={() => setHoveredTransition('fadeslow')}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
-                  <div className={`w-14 h-14 bg-white border rounded-lg mb-2 hover:bg-white transition-colors flex items-center justify-center ${isTransitionActive('fadeslow') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
+                  <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadeslow') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadeslow', isTransitionActive('fadeslow'))}
+                    <span className="text-xs text-gray-700 text-center">Fade Slow</span>
                   </div>
-                  <span className="text-xs text-gray-700 text-center">Fade Slow</span>
+                  
                 </div>
               </div>
             </div>
