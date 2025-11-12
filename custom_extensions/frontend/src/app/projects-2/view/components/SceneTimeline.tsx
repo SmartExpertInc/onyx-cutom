@@ -3,12 +3,6 @@ import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { LayoutGrid, Gem } from 'lucide-react';
 
 interface Scene {
@@ -64,6 +58,7 @@ export default function SceneTimeline({
   const timelineContainerRef = useRef<HTMLDivElement | null>(null);
   const [playheadPosition, setPlayheadPosition] = useState(0); // x position in pixels
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+  const addDropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = (() => {
@@ -101,6 +96,31 @@ export default function SceneTimeline({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isAddDropdownOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!addDropdownRef.current) return;
+      if (!addDropdownRef.current.contains(event.target as Node)) {
+        setIsAddDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsAddDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAddDropdownOpen]);
 
   // Playback timer
   useEffect(() => {
@@ -343,63 +363,59 @@ export default function SceneTimeline({
             {/* Chevron Up Button - Non-functional for now */}
             <div className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="h-20 flex items-center justify-center">
-                <DropdownMenu open={isAddDropdownOpen} onOpenChange={setIsAddDropdownOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className="w-8 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
-                      style={{ backgroundColor: '#CCDBFC' }}
-                      title="Add slide options"
-                      type="button"
-                    >
-                      <svg 
-                        className="w-6 h-6" 
-                        fill="none" 
-                        stroke="#0F58F9" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M5 15l7-7 7 7" 
-                        />
-                      </svg>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    side="top"
-                    sideOffset={12}
-                    className="w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl p-2 space-y-1"
+                <div className="relative" ref={addDropdownRef}>
+                  <button
+                    className="w-8 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                    style={{ backgroundColor: '#CCDBFC' }}
+                    title="Add slide options"
+                    type="button"
+                    onClick={() => setIsAddDropdownOpen((prev) => !prev)}
                   >
-                    <DropdownMenuItem
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#EEF4FF] transition-colors text-sm font-medium text-[#171718]"
-                      onSelect={(event) => {
-                        event.preventDefault();
-                        setIsAddDropdownOpen(false);
-                        onOpenTemplateSelector?.();
-                      }}
+                    <svg 
+                      className="w-6 h-6" 
+                      fill="none" 
+                      stroke="#0F58F9" 
+                      viewBox="0 0 24 24"
                     >
-                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#EEF4FF] text-[#0F58F9]">
-                        <LayoutGrid size={16} strokeWidth={2} />
-                      </span>
-                      Add from template
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FEF3FF] transition-colors text-sm font-medium text-[#171718]"
-                      onSelect={(event) => {
-                        event.preventDefault();
-                        setIsAddDropdownOpen(false);
-                        console.log('Premium slides clicked');
-                      }}
-                    >
-                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#FEF3FF] text-[#A855F7]">
-                        <Gem size={16} strokeWidth={2} />
-                      </span>
-                      Premium Slides
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M5 15l7-7 7 7" 
+                      />
+                    </svg>
+                  </button>
+                  {isAddDropdownOpen && (
+                    <div className="absolute right-0 bottom-full mb-3 w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl p-2 space-y-1 z-50">
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#EEF4FF] transition-colors text-sm font-medium text-[#171718]"
+                        onClick={() => {
+                          setIsAddDropdownOpen(false);
+                          onOpenTemplateSelector?.();
+                        }}
+                      >
+                        <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#EEF4FF] text-[#0F58F9]">
+                          <LayoutGrid size={16} strokeWidth={2} />
+                        </span>
+                        Add from template
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FEF3FF] transition-colors text-sm font-medium text-[#171718]"
+                        onClick={() => {
+                          setIsAddDropdownOpen(false);
+                          console.log('Premium slides clicked');
+                        }}
+                      >
+                        <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#FEF3FF] text-[#A855F7]">
+                          <Gem size={16} strokeWidth={2} />
+                        </span>
+                        Premium Slides
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

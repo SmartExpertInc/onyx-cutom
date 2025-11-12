@@ -405,7 +405,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 <DropdownMenu open={isVariantMenuOpen} onOpenChange={setIsVariantMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[220px]"
+                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[200px]"
                       type="button"
                     >
                       <span className="flex items-center gap-2">

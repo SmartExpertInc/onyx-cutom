@@ -4,6 +4,7 @@ import React, { useMemo, useCallback } from 'react';
 import { LayoutGrid } from 'lucide-react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
+import { ComponentBasedSlideRenderer } from '@/components/ComponentBasedSlideRenderer';
 
 interface TemplateSelectorProps {
   currentSlideCount: number;
@@ -541,14 +542,18 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
     [chartLabelSkipKeys, narrativeKeys]
   );
 
-  const previewPropsMap = useMemo(() => {
-    const map: Record<string, any> = {};
+  const previewSlidesMap = useMemo(() => {
+    const map: Record<string, ComponentBasedSlide> = {};
     availableTemplates.forEach((template) => {
       const previewProps = sanitizeTemplateProps(template.id, false);
       map[template.id] = {
-        ...previewProps,
         slideId: `preview-${template.id}`,
-        isEditable: false,
+        slideNumber: 1,
+        templateId: template.id,
+        props: previewProps,
+        metadata: {
+          version: 'preview',
+        },
       };
     });
     return map;
@@ -556,11 +561,10 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
 
   const renderTemplatePreview = (templateId: string) => {
     const template = availableTemplates.find((item) => item.id === templateId);
-    const TemplateComponent = template?.component as React.ComponentType<any> | undefined;
-    const previewProps = previewPropsMap[templateId];
+    const previewSlide = previewSlidesMap[templateId];
     const fallbackIcon = iconOverrides[templateId];
 
-    if (!TemplateComponent || !previewProps) {
+    if (!template || !previewSlide) {
       return (
         <div className="flex h-full w-full items-center justify-center text-gray-400">
           {fallbackIcon ?? <LayoutGrid className="w-10 h-10" />}
@@ -587,7 +591,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
               backgroundColor: '#ffffff',
             }}
           >
-            <TemplateComponent {...previewProps} />
+            <ComponentBasedSlideRenderer slide={previewSlide} isEditable={false} isVideoMode />
           </div>
         </div>
       </div>
@@ -602,16 +606,12 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
 
     const slideId = `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const props = sanitizeTemplateProps(templateId, true);
-    const slideProps = {
-      ...props,
-      slideId,
-    };
 
     const newSlide: ComponentBasedSlide = {
       slideId,
       slideNumber: currentSlideCount + 1,
       templateId,
-      props: slideProps,
+      props,
       metadata: {
         createdAt: new Date().toISOString(),
         version: '1.0',
