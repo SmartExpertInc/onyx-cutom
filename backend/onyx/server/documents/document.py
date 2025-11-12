@@ -153,9 +153,16 @@ def get_file_content(
         for user_file in user_files
     }
     
+    # DEBUG: Log the mapping
+    logger.info(f"[GET_FILE_CONTENT] Mapped {len(file_id_to_doc_id)} files:")
+    for file_id, doc_id in file_id_to_doc_id.items():
+        logger.info(f"[GET_FILE_CONTENT]   file_id={file_id} -> document_id={doc_id}")
+    
     search_settings = get_current_search_settings(db_session)
     document_index = get_default_document_index(search_settings, None)
     user_acl_filters = build_access_filters_for_user(user, db_session)
+    
+    logger.info(f"[GET_FILE_CONTENT] ACL filters: {user_acl_filters}")
     
     # Retrieve chunks for all documents
     chunk_requests = [
@@ -163,12 +170,32 @@ def get_file_content(
         for doc_id in file_id_to_doc_id.values()
     ]
     
+    logger.info(f"[GET_FILE_CONTENT] Requesting chunks for {len(chunk_requests)} documents")
+    
     all_chunks = document_index.id_based_retrieval(
         chunk_requests=chunk_requests,
         filters=IndexFilters(access_control_list=user_acl_filters),
     )
     
+    logger.info(f"[GET_FILE_CONTENT] Retrieved {len(all_chunks) if all_chunks else 0} chunks from Vespa")
+    
     if not all_chunks:
+        # Try again WITHOUT ACL filters to see if permissions are the issue
+        logger.warning(f"[GET_FILE_CONTENT] No chunks found with ACL filters, retrying without filters for debugging...")
+        all_chunks_no_acl = document_index.id_based_retrieval(
+            chunk_requests=chunk_requests,
+            filters=None,  # No filters
+        )
+        logger.info(f"[GET_FILE_CONTENT] Without ACL filters: {len(all_chunks_no_acl) if all_chunks_no_acl else 0} chunks")
+        
+        if all_chunks_no_acl:
+            logger.error(f"[GET_FILE_CONTENT] ⚠️ ACL PERMISSION ISSUE: Chunks exist but are filtered by ACL")
+            logger.error(f"[GET_FILE_CONTENT] Sample chunk document_id: {all_chunks_no_acl[0].document_id}")
+            logger.error(f"[GET_FILE_CONTENT] Sample chunk access: {all_chunks_no_acl[0].access}")
+        else:
+            logger.error(f"[GET_FILE_CONTENT] ⚠️ DOCUMENT NOT FOUND: No chunks in Vespa for these document_ids")
+            logger.error(f"[GET_FILE_CONTENT] Searched for document_ids: {list(file_id_to_doc_id.values())}")
+        
         return FileContentResponse(
             files={},
             total_chunks=0,
