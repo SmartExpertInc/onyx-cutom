@@ -1857,22 +1857,11 @@ export default function ProjectInstanceViewPage() {
     };
   }, [totalLessons, totalModules]);
 
-  const lessonContentStatus: LessonContentStatusMap = useMemo(() => {
+  const lessonContentStatus = useMemo(() => {
     const status: LessonContentStatusMap = {};
 
-    if (!trainingPlanContent?.sections || !projectInstanceData) {
-      return status;
-    }
-
-    const outlineName = (trainingPlanContent.mainTitle || projectInstanceData.name || '').trim();
-    if (!outlineName) {
-      return status;
-    }
-
-    const projects = allUserMicroproducts ?? [];
-
-    trainingPlanContent.sections.forEach((section) => {
-      section.lessons?.forEach((lesson) => {
+    trainingPlanContent?.sections?.forEach((section, sectionIndex) => {
+      section.lessons?.forEach((lesson, lessonIndex) => {
         const lessonKey = lesson.id || lesson.title;
         if (!lessonKey) {
           return;
@@ -1885,11 +1874,12 @@ export default function ProjectInstanceViewPage() {
           videoLesson: { exists: false }
         };
 
-        const expectedProjectName = `${outlineName}: ${lesson.title}`;
-        const legacyQuizPattern = `Quiz - ${outlineName}: ${lesson.title}`;
-        const legacyTextPresentationPattern = `Text Presentation - ${outlineName}: ${lesson.title}`;
+        const projectNameFallback = projectInstanceData?.name || '';
+        const expectedProjectName = `${trainingPlanContent.mainTitle || projectNameFallback}: ${lesson.title}`;
+        const legacyQuizPattern = `Quiz - ${trainingPlanContent.mainTitle || projectNameFallback}: ${lesson.title}`;
+        const legacyTextPresentationPattern = `Text Presentation - ${trainingPlanContent.mainTitle || projectNameFallback}: ${lesson.title}`;
 
-        projects.forEach((project) => {
+        allUserMicroproducts?.forEach((project, projectIndex) => {
           const projectName = project.projectName?.trim();
           if (!projectName) return;
 
