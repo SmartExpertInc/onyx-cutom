@@ -2085,13 +2085,13 @@ export default function ProjectInstanceViewPage() {
   const isVideoProductComponent = projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
 
-  const handleVideoDraftClick = useCallback(() => {
+  const handleVideoDraftClick = () => {
     if (projectId) {
       router.push(`/projects-2/view/${projectId}`);
     }
-  }, [router, projectId]);
+  };
 
-  const handleVideoExportClick = useCallback(async () => {
+  const handleVideoExportClick = async () => {
     try {
       const videoUrl = videoProductData?.videoUrl;
       if (!videoUrl) {
@@ -2122,7 +2122,7 @@ export default function ProjectInstanceViewPage() {
       console.error('Video export failed:', error);
       alert(t('videoProductDisplay.downloadFailed', 'Download failed. Please try again.'));
     }
-  }, [videoProductData, projectId, t]);
+  };
 
   return (
     <>
