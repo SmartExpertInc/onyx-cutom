@@ -13,7 +13,7 @@ const ProductQualityRating = ({
   fullWidth = false,
   className,
   isAuthorized = true,
-}: ProductQualityRatingProps): React.ReactElement | null => {
+}: ProductQualityRatingProps): React.ReactElement => {
   const { t } = useLanguage();
   const [_hoveredStar, setHoveredStar] = useState<number | null>(null);
 
@@ -35,10 +35,6 @@ const ProductQualityRating = ({
   ]
     .filter(Boolean)
     .join(' ');
-
-  if (!isAuthorized) {
-    return null;
-  }
 
   return (
     <div className={containerClasses}>

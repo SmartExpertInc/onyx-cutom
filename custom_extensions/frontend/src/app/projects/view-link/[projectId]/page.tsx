@@ -1980,8 +1980,10 @@ export default function ProjectInstanceViewPage() {
             mode="view"
             rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
             rightSidebar={
-              <div className="space-y-6">
-                <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+              <div className="space-y-6 w-full">
+                <div className="w-full">
+                  <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+                </div>
                 <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
               </div>
             }
@@ -2001,8 +2003,10 @@ export default function ProjectInstanceViewPage() {
             mode="view"
             rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
             rightSidebar={
-              <div className="space-y-6">
-                <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+              <div className="space-y-6 w-full">
+                <div className="w-full">
+                  <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+                </div>
                 <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
               </div>
             }
