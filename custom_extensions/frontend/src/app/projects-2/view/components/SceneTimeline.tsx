@@ -4,6 +4,12 @@ import ReactDOM from 'react-dom';
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import { LayoutGrid, Gem, LayoutDashboard, Settings, Zap, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Scene {
   id: string;
@@ -63,9 +69,6 @@ export default function SceneTimeline({
   const [playheadPosition, setPlayheadPosition] = useState(0); // x position in pixels
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
   const addDropdownRef = useRef<HTMLDivElement | null>(null);
-  const [openTransitionMenuIndex, setOpenTransitionMenuIndex] = useState<number | null>(null);
-  const [transitionMenuPosition, setTransitionMenuPosition] = useState<{ x: number; y: number } | null>(null);
-  const transitionMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = (() => {
@@ -129,33 +132,6 @@ export default function SceneTimeline({
     };
   }, [isAddDropdownOpen]);
 
-  useEffect(() => {
-    if (openTransitionMenuIndex === null) return;
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (transitionMenuRef.current && transitionMenuRef.current.contains(event.target as Node)) {
-        return;
-      }
-      setOpenTransitionMenuIndex(null);
-      setTransitionMenuPosition(null);
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpenTransitionMenuIndex(null);
-        setTransitionMenuPosition(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [openTransitionMenuIndex]);
-
   const formatTransitionLabel = (type?: string) => {
     if (!type || type === 'none') return 'No transition';
     return type
@@ -164,25 +140,6 @@ export default function SceneTimeline({
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  };
-
-  const handleTransitionButtonClick = (event: React.MouseEvent<HTMLButtonElement>, index: number) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const menuWidth = 220;
-    const horizontalPadding = 12;
-    const verticalOffset = 8;
-    const leftBoundary = typeof window !== 'undefined' ? window.innerWidth : rect.left + menuWidth;
-    const left = Math.min(rect.left, leftBoundary - menuWidth - horizontalPadding);
-    const top = rect.bottom + verticalOffset;
-    setTransitionMenuPosition({ x: left, y: top });
-    setOpenTransitionMenuIndex(index);
-  };
-
-  const closeTransitionMenu = () => {
-    setOpenTransitionMenuIndex(null);
-    setTransitionMenuPosition(null);
   };
 
   // Playback timer
@@ -484,67 +441,6 @@ export default function SceneTimeline({
           </div>
         </div>
       </div>
-
-      {openTransitionMenuIndex !== null && transitionMenuPosition && typeof window !== 'undefined' &&
-        ReactDOM.createPortal(
-          <>
-            <div className="fixed inset-0 z-[9997]" onClick={closeTransitionMenu}></div>
-            <div
-              ref={transitionMenuRef}
-              className="fixed z-[9998] w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl py-2"
-              style={{
-                top: transitionMenuPosition.y,
-                left: transitionMenuPosition.x
-              }}
-            >
-              <div className="px-4 pb-2">
-                <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#EEF4FF] text-[#0F58F9] text-xs font-medium">
-                    {(componentBasedSlideDeck?.transitions?.[openTransitionMenuIndex]?.type || 'N').charAt(0).toUpperCase()}
-                  </span>
-                  {formatTransitionLabel(componentBasedSlideDeck?.transitions?.[openTransitionMenuIndex]?.type)}
-                </div>
-              </div>
-              <div className="h-px bg-[#F1F5F9] mb-1"></div>
-              <button
-                type="button"
-                className="w-full px-4 py-2 flex items-center gap-3 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors"
-                onClick={() => {
-                  onTransitionClick?.(openTransitionMenuIndex);
-                  closeTransitionMenu();
-                }}
-              >
-                <Settings size={16} />
-                Modify
-              </button>
-              <button
-                type="button"
-                className="w-full px-4 py-2 flex items-center gap-3 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors"
-                onClick={() => {
-                  onTransitionApplyEverywhere?.(openTransitionMenuIndex);
-                  closeTransitionMenu();
-                }}
-              >
-                <Zap size={16} />
-                Apply everywhere
-              </button>
-              <button
-                type="button"
-                className="w-full px-4 py-2 flex items-center gap-3 text-sm text-[#E11900] hover:bg-[#FFF2F0] transition-colors"
-                onClick={() => {
-                  onTransitionDelete?.(openTransitionMenuIndex);
-                  closeTransitionMenu();
-                }}
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
-          </>,
-          document.body
-        )
-      }
-
       {/* Portal for playhead line - rendered outside to avoid overflow clipping */}
       {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && (isPlaying || currentTime > 0) && (() => {
         // Check if playhead is within visible bounds of timeline container
@@ -621,55 +517,92 @@ export default function SceneTimeline({
                   zIndex: 40
                 }}
               >
-                <div className="relative group">
-                  <button 
-                    className={`w-7 h-7 border rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg ${
-                      activeTransitionIndex === index
-                        ? 'bg-blue-500 border-blue-500'
-                        : 'bg-white border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={(event) => handleTransitionButtonClick(event, index)}
-                    onContextMenu={(event) => handleTransitionButtonClick(event, index)}
-                  >
-                    <svg 
-                      width="13" 
-                      height="9" 
-                      viewBox="0 0 13 9" 
-                      fill="none" 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="w-4 h-3"
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button 
+                      className={`w-7 h-7 border rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg ${
+                        activeTransitionIndex === index
+                          ? 'bg-blue-500 border-blue-500'
+                          : 'bg-white border-gray-300 hover:bg-gray-50'
+                      }`}
+                      type="button"
                     >
-                      <path 
-                        d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" 
-                        fill={activeTransitionIndex === index ? '#ffffff' : '#848485'}
-                      />
-                      <path 
-                        d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" 
-                        stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
-                        strokeWidth="0.640535" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                      />
-                      <path 
-                        d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" 
-                        stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
-                        strokeWidth="0.640535" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                  
-                  {/* Tooltip */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
-                    <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                      {componentBasedSlideDeck?.transitions?.[index]?.type 
-                        ? `Transition: ${componentBasedSlideDeck.transitions[index].type}`
-                        : 'Add transition'}
+                      <svg 
+                        width="13" 
+                        height="9" 
+                        viewBox="0 0 13 9" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className="w-4 h-3"
+                      >
+                        <path 
+                          d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" 
+                          fill={activeTransitionIndex === index ? '#ffffff' : '#848485'}
+                        />
+                        <path 
+                          d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" 
+                          stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
+                          strokeWidth="0.640535" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                        />
+                        <path 
+                          d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" 
+                          stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
+                          strokeWidth="0.640535" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    side="top"
+                    sideOffset={12}
+                    className="w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl py-2"
+                  >
+                    <div className="px-4 pb-2">
+                      <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
+                        <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#EEF4FF] text-[#0F58F9] text-xs font-medium">
+                          {(componentBasedSlideDeck?.transitions?.[index]?.type || 'N').charAt(0).toUpperCase()}
+                        </span>
+                        {formatTransitionLabel(componentBasedSlideDeck?.transitions?.[index]?.type)}
+                      </div>
                     </div>
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
-                  </div>
-                </div>
+                    <div className="h-px bg-[#F1F5F9] mb-1"></div>
+                    <DropdownMenuItem
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
+                      onSelect={(event: Event) => {
+                        event.preventDefault();
+                        onTransitionClick?.(index);
+                      }}
+                    >
+                      <Settings size={16} />
+                      Modify
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
+                      onSelect={(event: Event) => {
+                        event.preventDefault();
+                        onTransitionApplyEverywhere?.(index);
+                      }}
+                    >
+                      <Zap size={16} />
+                      Apply everywhere
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#E11900] hover:bg-[#FFF2F0] transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
+                      onSelect={(event: Event) => {
+                        event.preventDefault();
+                        onTransitionDelete?.(index);
+                      }}
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             );
           })}

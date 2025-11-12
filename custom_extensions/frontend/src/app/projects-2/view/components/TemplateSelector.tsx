@@ -574,9 +574,9 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
       );
     }
 
-    const baseWidth = 1280;
-    const baseHeight = 720;
-    const scale = variant === 'modal' ? 0.25 : 0.2;
+    const baseWidth = 320;
+    const baseHeight = 180;
+    const scale = variant === 'modal' ? 0.75 : 0.2;
     const scaledWidth = baseWidth * scale;
     const scaledHeight = baseHeight * scale;
 
@@ -584,12 +584,12 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
       <div className="relative w-full aspect-[16/9] rounded-[6px] overflow-hidden bg-[#F3F4F8] flex items-center justify-center">
         <div style={{ width: scaledWidth, height: scaledHeight }} className="flex items-center justify-center">
           <div
-            className="pointer-events-none origin-top-left"
+            className="pointer-events-none flex items-center justify-center"
             style={{
               width: baseWidth,
               height: baseHeight,
               transform: `scale(${scale})`,
-              transformOrigin: 'top left',
+              transformOrigin: 'center',
               backgroundColor: '#ffffff',
             }}
           >
