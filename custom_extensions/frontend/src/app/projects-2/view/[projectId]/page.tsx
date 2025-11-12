@@ -829,6 +829,7 @@ export default function Projects2ViewPage() {
               transitionIndex={activeTransitionIndex}
               currentTransition={currentTransition}
               onTransitionChange={handleTransitionChange}
+              onBack={handleCloseSettingsPanel}
             />
           );
         default:

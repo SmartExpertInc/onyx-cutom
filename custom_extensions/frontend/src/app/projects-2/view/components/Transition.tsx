@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import './Transition.css';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export type TransitionType = 
   // Basic
@@ -213,9 +219,10 @@ interface TransitionProps {
   transitionIndex?: number | null;
   currentTransition?: TransitionData | null;
   onTransitionChange?: (transitionData: TransitionData) => void;
+  onBack?: () => void;
 }
 
-export default function Transition({ transitionIndex, currentTransition, onTransitionChange }: TransitionProps) {
+export default function Transition({ transitionIndex, currentTransition, onTransitionChange, onBack }: TransitionProps) {
   const { t } = useLanguage();
   const [selectedTransition, setSelectedTransition] = useState<TransitionType>(
     currentTransition?.type || 'none'
@@ -225,7 +232,6 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
   const [variant, setVariant] = useState<TransitionVariant>(currentTransition?.variant || 'circle');
   const [hoveredTransition, setHoveredTransition] = useState<TransitionType | 'none' | null>(null);
   const [isVariantMenuOpen, setIsVariantMenuOpen] = useState(false);
-  const variantDropdownRef = useRef<HTMLDivElement>(null);
 
   const isTransitionActive = (type: TransitionOption) =>
     hoveredTransition === type || selectedTransition === type;
@@ -291,17 +297,6 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
     onTransitionChange?.(transitionData);
   };
 
-  useEffect(() => {
-    if (!isVariantMenuOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (variantDropdownRef.current && !variantDropdownRef.current.contains(event.target as Node)) {
-        setIsVariantMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isVariantMenuOpen]);
-
   // Function to render the selected transition settings view
   const renderSelectedTransitionView = () => {
     if (!selectedTransition || selectedTransition === 'none') return null;
@@ -327,9 +322,6 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
           <div className="bg-white flex-1">
             {/* Settings container */}
              <div className="py-4 flex flex-col gap-6">
-              <div>
-                <span className="text-[#171718] font-semibold text-sm uppercase tracking-wide">Modify</span>
-              </div>
               {/* Apply between all scenes row */}
               <div className="flex items-center justify-between">
                 <span className="text-[#171718] font-medium text-sm">Apply between all scenes</span>
@@ -342,18 +334,24 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div 
                     className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
-                      isApplyBetweenAllScenes ? 'bg-white translate-x-6' : 'bg-white'
+                      isApplyBetweenAllScenes ? 'bg-white translate-x-4' : 'bg-white'
                     }`}
                   ></div>
                 </div>
               </div>
+              <div>
+                <span className="text-[#171718] font-semibold text-sm tracking-wide">Modify</span>
+              </div>
 
               {/* Duration row */}
-              <div className="flex flex-col gap-2">
-                <span className="text-[#171718] font-medium text-sm">Duration</span>
+              <div className="flex flex-row items-center gap-2">
+                <span className="text-[#171718] text-xs">Duration</span>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-2 border border-[#E5E7EB] rounded-xl shadow-sm bg-white min-w-[160px]">
-                    <span role="img" aria-label="timer" className="text-gray-600">⏱</span>
+                  <div className="flex items-center gap-2 px-3 py-1 border border-[#E5E7EB] rounded-md shadow-sm bg-white">
+                    <span role="img" aria-label="timer" className="text-gray-600"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6.39941 0.5H9.59961C9.61793 0.500049 9.63274 0.514885 9.63281 0.533203C9.63281 0.551581 9.61797 0.566356 9.59961 0.566406H8.0332V2.72363L8.49414 2.75879C9.57974 2.84267 10.5883 3.20079 11.4512 3.76367L11.8506 4.02441L12.1299 3.63672L12.1484 3.61523L13.2148 2.54883C13.28 2.48372 13.3861 2.48372 13.4512 2.54883C13.5159 2.6138 13.5158 2.71914 13.4512 2.78418H13.4502L12.4111 3.82422L12.0527 4.18262L12.415 4.53613C13.5944 5.68578 14.3261 7.29016 14.3262 9.06641C14.3262 12.5604 11.4939 15.3933 8 15.3936C4.50587 15.3936 1.67285 12.5605 1.67285 9.06641C1.67297 5.73895 4.24235 3.0109 7.50488 2.75879L7.96582 2.72363V0.566406H6.39941C6.38105 0.56635 6.36621 0.551582 6.36621 0.533203C6.36628 0.514883 6.38109 0.500056 6.39941 0.5ZM8 2.80664C4.54277 2.80664 1.73939 5.60921 1.73926 9.06641C1.73926 12.5237 4.54269 15.3271 8 15.3271C11.4571 15.3269 14.2598 12.5235 14.2598 9.06641C14.2596 5.60937 11.457 2.8069 8 2.80664ZM7.5 9.27344L7.64551 9.41992L10.5889 12.3633C9.87568 12.9244 8.97769 13.2597 8 13.2598C5.68408 13.2598 3.80664 11.3823 3.80664 9.06641C3.80676 6.91964 5.41966 5.15028 7.5 4.90332V9.27344Z" fill="#4D4D4D" stroke="#4D4D4D"/>
+                      </svg>
+                      </span>
                     <input
                       type="number"
                       min="0.5"
@@ -381,7 +379,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                     />
                     <span className="text-gray-500 text-sm">s</span>
                   </div>
-                  <input
+                  {/* <input
                     type="range"
                     min="0.5"
                     max="3.0"
@@ -392,45 +390,54 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                     style={{
                       background: `linear-gradient(to right, #0F58F9 0%, #0F58F9 ${((duration - 0.5) / 2.5) * 100}%, #E5E7EB ${((duration - 0.5) / 2.5) * 100}%, #E5E7EB 100%)`
                     }}
-                  />
+                  /> */}
                 </div>
               </div>
 
               {/* Variant row */}
-              <div className="flex flex-col gap-2">
-                <span className="text-[#171718] font-medium text-sm">Variant</span>
-                <div className="relative w-full max-w-[220px]" ref={variantDropdownRef}>
-                  <button
-                    className="w-full flex items-center justify-between px-4 py-2.5 border border-[#E5E7EB] rounded-xl bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors"
-                    onClick={() => setIsVariantMenuOpen((prev) => !prev)}
-                    type="button"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-lg leading-none">
-                        {VARIANT_OPTIONS.find((option) => option.value === variant)?.icon}
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[#171718] text-xs">Variant</span>
+                <DropdownMenu open={isVariantMenuOpen} onOpenChange={setIsVariantMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors"
+                      type="button"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-md leading-none">
+                          {VARIANT_OPTIONS.find((option) => option.value === variant)?.icon}
+                        </span>
+                        {VARIANT_OPTIONS.find((option) => option.value === variant)?.label ?? 'Select variant'}
                       </span>
-                      {VARIANT_OPTIONS.find((option) => option.value === variant)?.label ?? 'Select variant'}
-                    </span>
-                    <span className={`text-xs transition-transform ${isVariantMenuOpen ? 'rotate-180' : ''}`}>▼</span>
-                  </button>
-                  {isVariantMenuOpen && (
-                    <div className="absolute left-0 right-0 mt-2 rounded-xl border border-[#E5E7EB] bg-white shadow-lg z-20 overflow-hidden">
-                      {VARIANT_OPTIONS.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
-                            variant === option.value ? 'bg-[#EFF4FF] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
-                          }`}
-                          onClick={() => handleVariantChange(option.value)}
-                        >
-                          <span className="text-lg leading-none">{option.icon}</span>
-                          <span>{option.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                      <span className={`text-xs transition-transform ${isVariantMenuOpen ? 'rotate-180' : ''}`}>
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12.7969 0.62207C12.9576 0.45958 13.2159 0.459411 13.377 0.62207C13.5408 0.787762 13.5408 1.05892 13.377 1.22461L7.29004 7.37793C7.21211 7.45668 7.10775 7.5 7 7.5C6.89223 7.49999 6.78784 7.45667 6.70996 7.37793L0.623047 1.22461C0.459166 1.05893 0.459166 0.787752 0.623047 0.62207C0.783931 0.459457 1.04225 0.459439 1.20312 0.62207L6.64453 6.12305L7 6.48242L7.35547 6.12305L12.7969 0.62207Z" fill="#4D4D4D" stroke="#4D4D4D"/>
+                        </svg>
+                      </span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    sideOffset={8}
+                    className="w-[220px] rounded-xl border border-[#E5E7EB] bg-white shadow-lg overflow-hidden p-0"
+                  >
+                    {VARIANT_OPTIONS.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onSelect={(event) => {
+                          event.preventDefault();
+                          handleVariantChange(option.value);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors focus:bg-[#EFF4FF] focus:text-[#0F58F9] ${
+                          variant === option.value ? 'bg-[#EFF4FF] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
+                        }`}
+                      >
+                        <span className="text-lg leading-none">{option.icon}</span>
+                        <span>{option.label}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -445,12 +452,18 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
     <>
     <div className="h-full bg-white relative overflow-y-auto overflow-hidden w-full transition-scroll">
       {/* Header with transition info */}
-      <div className="mb-4">
-        <h3 className="text-sm font-medium text-gray-700">
-          {transitionIndex !== null && transitionIndex !== undefined
-            ? `Transition ${transitionIndex + 1} (between slides ${transitionIndex + 1} and ${transitionIndex + 2})`
-            : 'Slide Transition'}
-        </h3>
+      <div className="mb-4 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onBack?.()}
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors text-[#878787]"
+          aria-label="Back"
+        >
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5.16667 9.83333L0.5 5.16667M0.5 5.16667L5.16667 0.5M0.5 5.16667H9.83333" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <h3 className="text-[16px] font-semibold text-[#171718] uppercase">Scene Transition</h3>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 transition-scroll">
@@ -514,7 +527,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipeleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipeleft', isTransitionActive('wipeleft'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe Left</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe Left</span>
                   </div>
                   
                 </div>
@@ -528,7 +541,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wiperight') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wiperight', isTransitionActive('wiperight'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe Right</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe Right</span>
                   </div>
                   
                 </div>
@@ -542,7 +555,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipeup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipeup', isTransitionActive('wipeup'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe Up</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe Up</span>
                   </div>
                   
                 </div>
@@ -556,7 +569,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipedown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipedown', isTransitionActive('wipedown'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe Down</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe Down</span>
                   </div>
                   
                 </div>
@@ -570,7 +583,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipetl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipetl', isTransitionActive('wipetl'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe TL</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe TL</span>
                   </div>
                  
                 </div>
@@ -584,7 +597,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipetr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipetr', isTransitionActive('wipetr'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe TR</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe TR</span>
                   </div>
                   
                 </div>
@@ -598,7 +611,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipebl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipebl', isTransitionActive('wipebl'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe BL</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe BL</span>
                   </div>
                   
                 </div>
@@ -612,7 +625,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('wipebr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('wipebr', isTransitionActive('wipebr'))}
-                    <span className="text-sm text-gray-700 text-center">Wipe BR</span>
+                    <span className="text-[10px] text-gray-700 text-center">Wipe BR</span>
                   </div>
                   
                 </div>
@@ -632,7 +645,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slideleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slideleft', isTransitionActive('slideleft'))}
-                    <span className="text-sm text-gray-700 text-center">Slide Left</span>
+                    <span className="text-[10px] text-gray-700 text-center">Slide Left</span>
                   </div>
                   
                 </div>
@@ -646,7 +659,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slideright') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slideright', isTransitionActive('slideright'))}
-                    <span className="text-sm text-gray-700 text-center">Slide Right</span>
+                    <span className="text-[10px] text-gray-700 text-center">Slide Right</span>
                   </div>
                   
                 </div>
@@ -660,7 +673,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slideup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slideup', isTransitionActive('slideup'))}
-                    <span className="text-sm text-gray-700 text-center">Slide Up</span>
+                    <span className="text-[10px] text-gray-700 text-center">Slide Up</span>
                   </div>
                  
                 </div>
@@ -674,7 +687,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('slidedown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('slidedown', isTransitionActive('slidedown'))}
-                    <span className="text-sm text-gray-700 text-center">Slide Down</span>
+                    <span className="text-[10px] text-gray-700 text-center">Slide Down</span>
                   </div>
                   
                 </div>
@@ -694,7 +707,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothleft') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothleft', isTransitionActive('smoothleft'))}
-                    <span className="text-sm text-gray-700 text-center">Smooth Left</span>
+                    <span className="text-[10px] text-gray-700 text-center">Smooth Left</span>
                   </div>
                   
                 </div>
@@ -708,7 +721,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothright') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothright', isTransitionActive('smoothright'))}
-                    <span className="text-sm text-gray-700 text-center">Smooth Right</span>
+                    <span className="text-[10px] text-gray-700 text-center">Smooth Right</span>
                   </div>
                   
                 </div>
@@ -722,7 +735,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothup') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothup', isTransitionActive('smoothup'))}
-                    <span className="text-sm text-gray-700 text-center">Smooth Up</span>
+                    <span className="text-[10px] text-gray-700 text-center">Smooth Up</span>
                   </div>
                   
                 </div>
@@ -736,7 +749,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('smoothdown') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('smoothdown', isTransitionActive('smoothdown'))}
-                    <span className="text-sm text-gray-700 text-center">Smooth Down</span>
+                    <span className="text-[10px] text-gray-700 text-center">Smooth Down</span>
                   </div>
                   
                 </div>
@@ -756,7 +769,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('circlecrop') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('circlecrop', isTransitionActive('circlecrop'))}
-                    <span className="text-sm text-gray-700 text-center">Circle Crop</span>
+                    <span className="text-[10px] text-gray-700 text-center">Circle Crop</span>
                   </div>
                   
                 </div>
@@ -770,7 +783,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('circleopen') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('circleopen', isTransitionActive('circleopen'))}
-                    <span className="text-sm text-gray-700 text-center">Circle Open</span>
+                    <span className="text-[10px] text-gray-700 text-center">Circle Open</span>
                   </div>
                   
                 </div>
@@ -784,7 +797,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('circleclose') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('circleclose', isTransitionActive('circleclose'))}
-                    <span className="text-sm text-gray-700 text-center">Circle Close</span>
+                    <span className="text-[10px] text-gray-700 text-center">Circle Close</span>
                   </div>
                   
                 </div>
@@ -804,7 +817,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagtl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagtl', isTransitionActive('diagtl'))}
-                    <span className="text-sm text-gray-700 text-center">Diag TL</span>
+                    <span className="text-[10px] text-gray-700 text-center">Diag TL</span>
                   </div>
                   
                 </div>
@@ -818,7 +831,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagtr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagtr', isTransitionActive('diagtr'))}
-                    <span className="text-sm text-gray-700 text-center">Diag TR</span>
+                    <span className="text-[10px] text-gray-700 text-center">Diag TR</span>
                   </div>
                   
                 </div>
@@ -832,7 +845,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagbl') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagbl', isTransitionActive('diagbl'))}
-                    <span className="text-sm text-gray-700 text-center">Diag BL</span>
+                    <span className="text-[10px] text-gray-700 text-center">Diag BL</span>
                   </div>
                   
                 </div>
@@ -846,7 +859,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('diagbr') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('diagbr', isTransitionActive('diagbr'))}
-                    <span className="text-xs text-gray-700 text-center">Diag BR</span>
+                    <span className="text-[10px] text-gray-700 text-center">Diag BR</span>
                   </div>
                   
                 </div>
@@ -866,7 +879,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('radial') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('radial', isTransitionActive('radial'))}
-                    <span className="text-sm text-gray-700 text-center">Radial</span>
+                    <span className="text-[10px] text-gray-700 text-center">Radial</span>
                   </div>
                   
                 </div>
@@ -880,7 +893,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('distance') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('distance', isTransitionActive('distance'))}
-                    <span className="text-xs text-gray-700 text-center">Distance</span>
+                    <span className="text-[10px] text-gray-700 text-center">Distance</span>
                   </div>
                   
                 </div>
@@ -900,7 +913,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('hlslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('hlslice', isTransitionActive('hlslice'))}
-                    <span className="text-sm text-gray-700 text-center">H-Left Slice</span>
+                    <span className="text-[10px] text-gray-700 text-center">H-Left Slice</span>
                   </div>
                   
                 </div>
@@ -914,7 +927,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('hrslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('hrslice', isTransitionActive('hrslice'))}
-                    <span className="text-sm text-gray-700 text-center">H-Right Slice</span>
+                    <span className="text-[10px] text-gray-700 text-center">H-Right Slice</span>
                   </div>
                   
                 </div>
@@ -928,7 +941,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('vuslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('vuslice', isTransitionActive('vuslice'))}
-                    <span className="text-sm text-gray-700 text-center">V-Up Slice</span>
+                    <span className="text-[10px] text-gray-700 text-center">V-Up Slice</span>
                   </div>
                   
                 </div>
@@ -942,7 +955,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('vdslice') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('vdslice', isTransitionActive('vdslice'))}
-                    <span className="text-xs text-gray-700 text-center">V-Down Slice</span>
+                    <span className="text-[10px] text-gray-700 text-center">V-Down Slice</span>
                   </div>
                   
                 </div>
@@ -962,7 +975,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('squeezeh') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('squeezeh', isTransitionActive('squeezeh'))}
-                    <span className="text-sm text-gray-700 text-center">Squeeze H</span>
+                    <span className="text-[10px] text-gray-700 text-center">Squeeze H</span>
                   </div>
                   
                 </div>
@@ -976,7 +989,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('squeezev') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('squeezev', isTransitionActive('squeezev'))}
-                    <span className="text-sm text-gray-700 text-center">Squeeze V</span>
+                    <span className="text-[10px] text-gray-700 text-center">Squeeze V</span>
                   </div>
                   
                 </div>
@@ -990,7 +1003,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('zoomin') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('zoomin', isTransitionActive('zoomin'))}
-                    <span className="text-xs text-gray-700 text-center">Zoom In</span>
+                    <span className="text-[10px] text-gray-700 text-center">Zoom In</span>
                   </div>
                   
                 </div>
@@ -1010,7 +1023,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('hblur') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('hblur', isTransitionActive('hblur'))}
-                    <span className="text-sm text-gray-700 text-center">H-Blur</span>
+                    <span className="text-[10px] text-gray-700 text-center">H-Blur</span>
                   </div>
                   
                 </div>
@@ -1024,7 +1037,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('pixelize') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('pixelize', isTransitionActive('pixelize'))}
-                    <span className="text-xs text-gray-700 text-center">Pixelize</span>
+                    <span className="text-[10px] text-gray-700 text-center">Pixelize</span>
                   </div>
                   
                 </div>
@@ -1044,7 +1057,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadeblack') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadeblack', isTransitionActive('fadeblack'))}
-                    <span className="text-sm text-gray-700 text-center">Fade Black</span>
+                    <span className="text-[10px] text-gray-700 text-center">Fade Black</span>
                   </div>
                   
                 </div>
@@ -1058,7 +1071,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadewhite') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadewhite', isTransitionActive('fadewhite'))}
-                    <span className="text-sm text-gray-700 text-center">Fade White</span>
+                    <span className="text-[10px] text-gray-700 text-center">Fade White</span>
                   </div>
                   
                 </div>
@@ -1072,7 +1085,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadefast') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadefast', isTransitionActive('fadefast'))}
-                    <span className="text-sm text-gray-700 text-center">Fade Fast</span>
+                    <span className="text-[10px] text-gray-700 text-center">Fade Fast</span>
                   </div>
                   
                 </div>
@@ -1086,7 +1099,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 >
                   <div className={`w-14 h-14 flex flex-col bg-white border rounded-lg mb-2 hover:bg-white transition-colors items-center justify-center ${isTransitionActive('fadeslow') ? 'border-[#0F58F9]' : 'border-[#E0E0E0]'}`}>
                     {getTransitionIcon('fadeslow', isTransitionActive('fadeslow'))}
-                    <span className="text-xs text-gray-700 text-center">Fade Slow</span>
+                    <span className="text-[10px] text-gray-700 text-center">Fade Slow</span>
                   </div>
                   
                 </div>

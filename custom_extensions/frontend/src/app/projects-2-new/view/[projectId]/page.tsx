@@ -1203,6 +1203,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
               transitionIndex={activeTransitionIndex}
               currentTransition={componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null}
               onTransitionChange={handleTransitionChange}
+              onBack={() => setActiveSettingsPanel(null)}
             />
           ) : showShapeRightPanel ? (
             <ShapeRightPanel

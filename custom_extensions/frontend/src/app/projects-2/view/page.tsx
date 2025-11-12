@@ -315,7 +315,7 @@ export default function Projects2ViewPage() {
       case 'music':
         return <Music />;
       case 'transition':
-        return <Transition />;
+        return <Transition onBack={() => setActiveComponent('script')} />;
       case 'comments':
         return <Comments />;
       default:
