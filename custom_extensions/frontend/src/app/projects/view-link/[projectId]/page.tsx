@@ -2071,7 +2071,7 @@ export default function ProjectInstanceViewPage() {
   const productContent = displayContent();
   const layoutWrapperClasses = [
     containerClassName,
-    'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-2 px-4 lg:px-10'
+    'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-2'
   ].filter(Boolean).join(' ');
   const mainColumnClasses = 'space-y-6 min-w-0';
   const mainCardClasses = [
@@ -2110,13 +2110,7 @@ export default function ProjectInstanceViewPage() {
       />
       
       <main 
-        className={`font-inter ${
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT ||
-          projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? 'bg-[#F2F2F4] px-12 py-0'
-            : 'min-h-screen bg-[#F2F2F4] p-0'
-        }`}
+        className="font-inter min-h-screen bg-[#F2F2F4] p-3"
       >
         <div className={layoutWrapperClasses}>
           <div className={mainColumnClasses}>
