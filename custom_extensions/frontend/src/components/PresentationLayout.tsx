@@ -530,13 +530,25 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        <ComponentBasedSlideRenderer
-                          slide={slide}
-                          isEditable={editingEnabled}
-                          onSlideUpdate={handleSlideUpdate}
-                          theme={theme}
-                          forceHybridView={isViewMode}
-                        />
+                        {isViewMode ? (
+                          <div className="relative w-full">
+                            <div style={{ paddingTop: '56.25%' }} />
+                            <div className="absolute inset-0 overflow-hidden">
+                              <ComponentBasedSlideRenderer
+                                slide={slide}
+                                isEditable={false}
+                                theme={theme}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <ComponentBasedSlideRenderer
+                            slide={slide}
+                            isEditable={editingEnabled}
+                            onSlideUpdate={handleSlideUpdate}
+                            theme={theme}
+                          />
+                        )}
                       </div>
                     </div>
               </div>
