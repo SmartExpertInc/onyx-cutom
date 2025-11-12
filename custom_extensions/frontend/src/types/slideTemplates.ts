@@ -879,7 +879,7 @@ export type TemplateId =
   | 'benefits-tags-slide'
   | 'learning-topics-slide'
   | 'soft-skills-assessment-slide'
-  | 'two-column'
+  | 'two-column-slide'
   | 'phishing-definition-slide'
   | 'impact-statements-slide'
   | 'bar-chart-slide'
