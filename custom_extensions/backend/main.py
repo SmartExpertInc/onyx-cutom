@@ -21087,7 +21087,31 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
-                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                                files_ctx = None
+                                try:
+                                    async for update_type, update_data in collect_agentic_context_streaming(
+                                        file_ids=file_ids,
+                                        original_prompt=payload.prompt,
+                                        product_type="Course Outline",
+                                        cookies=cookies
+                                    ):
+                                        if update_type == "progress":
+                                            progress_packet = {"type": "info", "message": update_data}
+                                            yield (json.dumps(progress_packet) + "\n").encode()
+                                            last_send = asyncio.get_event_loop().time()
+                                        elif update_type == "complete":
+                                            files_ctx = update_data
+                                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(files_ctx.get('file_contents', []))} chunks")
+                                        elif update_type == "error":
+                                            raise Exception(update_data)
+                                    
+                                    if files_ctx is None:
+                                        raise Exception("No context returned from agentic extraction")
+                                except Exception as e:
+                                    logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
+                                    files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                
                                 file_context = merge_source_contexts(connector_context, files_ctx)
                         except Exception as merr:
                             logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
@@ -34712,8 +34736,31 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
-                                logger.info(f"[HYBRID_CONTEXT] Extracting context from mapped files (count={len(file_ids)}) and merging with connector context")
-                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                                files_ctx = None
+                                try:
+                                    async for update_type, update_data in collect_agentic_context_streaming(
+                                        file_ids=file_ids,
+                                        original_prompt=payload.prompt,
+                                        product_type="Quiz",
+                                        cookies=cookies
+                                    ):
+                                        if update_type == "progress":
+                                            progress_packet = {"type": "info", "message": update_data}
+                                            yield (json.dumps(progress_packet) + "\n").encode()
+                                            last_send = asyncio.get_event_loop().time()
+                                        elif update_type == "complete":
+                                            files_ctx = update_data
+                                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(files_ctx.get('file_contents', []))} chunks")
+                                        elif update_type == "error":
+                                            raise Exception(update_data)
+                                    
+                                    if files_ctx is None:
+                                        raise Exception("No context returned from agentic extraction")
+                                except Exception as e:
+                                    logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
+                                    files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                
                                 file_context = merge_source_contexts(connector_context, files_ctx)
                         except Exception as merr:
                             logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
@@ -36647,7 +36694,31 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
-                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
+                                files_ctx = None
+                                try:
+                                    async for update_type, update_data in collect_agentic_context_streaming(
+                                        file_ids=file_ids,
+                                        original_prompt=payload.prompt,
+                                        product_type="Text Presentation",
+                                        cookies=cookies
+                                    ):
+                                        if update_type == "progress":
+                                            progress_packet = {"type": "info", "message": update_data}
+                                            yield (json.dumps(progress_packet) + "\n").encode()
+                                            last_send = asyncio.get_event_loop().time()
+                                        elif update_type == "complete":
+                                            files_ctx = update_data
+                                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(files_ctx.get('file_contents', []))} chunks")
+                                        elif update_type == "error":
+                                            raise Exception(update_data)
+                                    
+                                    if files_ctx is None:
+                                        raise Exception("No context returned from agentic extraction")
+                                except Exception as e:
+                                    logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
+                                    files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                
                                 file_context = merge_source_contexts(connector_context, files_ctx)
                         except Exception as merr:
                             logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
