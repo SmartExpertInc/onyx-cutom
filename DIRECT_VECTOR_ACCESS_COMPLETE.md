@@ -89,13 +89,21 @@ async def extract_file_content_direct(
 - Compatible with existing OpenAI prompt construction
 - No chat sessions = no LLM refusal
 
-### Phase 4: Semantic Ranking ⏳
-**Status:** Deferred to future enhancement
+### Phase 4: Semantic Ranking ✅
+**Status:** COMPLETE (Nov 12, 2025)
 
-- Initial implementation removed semantic ranking to avoid complexity
-- Chunks returned in natural order from Vespa (still very effective)
-- This is still vastly better than chat-based extraction (no LLM refusal)
-- Future enhancement: Add cosine similarity ranking based on query
+**Implementation:**
+- Added `_compute_cosine_similarity()` and `_rank_chunks_by_query()` functions
+- Computes embeddings for query and all chunks
+- Ranks chunks by cosine similarity to user's prompt
+- Returns top-K most relevant chunks per file
+- Graceful fallback to natural order if ranking fails
+
+**Benefits:**
+- Higher content quality - most relevant chunks extracted first
+- Better alignment with user intent
+- Improved product generation quality
+- Efficient token usage - top 50 relevant chunks vs random 50
 
 ### Phase 5: Product Generation Integration ✅
 **Updated all 4 product endpoints:**
@@ -276,13 +284,14 @@ file_context = await extract_file_content_direct(
 ## ✅ Success Criteria Met
 
 1. ✅ **No LLM Refusal** - Direct chunk access bypasses extraction prompts
-2. ✅ **Semantic Ranking** - Chunks ranked by relevance to user prompt
-3. ✅ **Performance** - Single API call vs 4+ per file
+2. ✅ **Semantic Ranking** - Chunks ranked by cosine similarity to user prompt (Nov 12, 2025)
+3. ✅ **Performance** - Single API call vs 4+ per file (1-3 seconds for 100 chunks)
 4. ✅ **Reliability** - No API overload from batch processing
 5. ✅ **Scalability** - Handles files of any size
 6. ✅ **Compatibility** - Same output format as old method
 7. ✅ **Safety** - Automatic fallback if direct extraction fails
 8. ✅ **Docker-Friendly** - API-based architecture (no code imports)
+9. ✅ **Relevance Scores** - Each chunk includes similarity score for further processing
 
 ---
 

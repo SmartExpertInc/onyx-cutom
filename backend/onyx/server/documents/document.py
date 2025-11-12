@@ -23,10 +23,94 @@ from onyx.server.documents.models import FileContentRequest
 from onyx.server.documents.models import FileContentResponse
 from onyx.db.models import UserFile
 from onyx.utils.logger import setup_logger
+from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
+from onyx.db.embedding_model import get_current_db_embedding_model
+from onyx.configs.model_configs import EMBEDDING_MODEL_SERVER_HOST
+from onyx.configs.model_configs import MODEL_SERVER_PORT
+import numpy as np
 
 
 logger = setup_logger()
 router = APIRouter(prefix="/document")
+
+
+def _compute_cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
+    """Compute cosine similarity between two vectors."""
+    a = np.array(vec1)
+    b = np.array(vec2)
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+
+def _rank_chunks_by_query(
+    chunks: list,
+    query: str | None,
+    embedding_model: EmbeddingModel | None,
+    db_session: Session,
+) -> list:
+    """Rank chunks by semantic similarity to query."""
+    if not query or not embedding_model or not chunks:
+        logger.info(f"[SEMANTIC_RANK] Skipping ranking: query={bool(query)}, model={bool(embedding_model)}, chunks={len(chunks) if chunks else 0}")
+        return chunks
+    
+    try:
+        logger.info(f"[SEMANTIC_RANK] Ranking {len(chunks)} chunks by query: {query[:100]}...")
+        
+        # Get query embedding
+        from onyx.natural_language_processing.search_nlp_models import EmbedRequest, EmbedTextType
+        query_embed_req = EmbedRequest(
+            texts=[query],
+            model_name=embedding_model.model_name,
+            max_context_length=embedding_model.tokenizer.max_seq_length,
+            normalize_embeddings=embedding_model.normalize,
+            api_key=embedding_model.api_key,
+            provider_type=embedding_model.provider_type,
+            prefix=embedding_model.query_prefix,
+            text_type=EmbedTextType.QUERY,
+            manual_query_reduction_disabled=False,
+        )
+        
+        query_response = embedding_model._make_model_server_request(query_embed_req)
+        query_embedding = query_response.embeddings[0]
+        
+        logger.info(f"[SEMANTIC_RANK] Query embedding computed: dim={len(query_embedding)}")
+        
+        # Get embeddings for all chunk contents
+        chunk_texts = [chunk.content for chunk in chunks]
+        chunks_embed_req = EmbedRequest(
+            texts=chunk_texts,
+            model_name=embedding_model.model_name,
+            max_context_length=embedding_model.tokenizer.max_seq_length,
+            normalize_embeddings=embedding_model.normalize,
+            api_key=embedding_model.api_key,
+            provider_type=embedding_model.provider_type,
+            prefix=embedding_model.passage_prefix,
+            text_type=EmbedTextType.PASSAGE,
+            manual_query_reduction_disabled=False,
+        )
+        
+        chunks_response = embedding_model._make_model_server_request(chunks_embed_req)
+        chunk_embeddings = chunks_response.embeddings
+        
+        logger.info(f"[SEMANTIC_RANK] Chunk embeddings computed: count={len(chunk_embeddings)}")
+        
+        # Compute similarity scores
+        scored_chunks = []
+        for i, chunk in enumerate(chunks):
+            similarity = _compute_cosine_similarity(query_embedding, chunk_embeddings[i])
+            scored_chunks.append((similarity, chunk))
+        
+        # Sort by similarity (descending)
+        scored_chunks.sort(key=lambda x: x[0], reverse=True)
+        
+        logger.info(f"[SEMANTIC_RANK] Top 5 scores: {[f'{score:.3f}' for score, _ in scored_chunks[:5]]}")
+        
+        # Return chunks in ranked order
+        return [chunk for _, chunk in scored_chunks]
+        
+    except Exception as e:
+        logger.error(f"[SEMANTIC_RANK] Error ranking chunks: {e}", exc_info=True)
+        # Fall back to original order if ranking fails
+        return chunks
 
 
 # Have to use a query parameter as FastAPI is interpreting the URL type document_ids
@@ -119,17 +203,23 @@ def get_file_content(
     db_session: Session = Depends(get_session),
 ) -> FileContentResponse:
     """
-    Get document chunks for uploaded files by file_id.
+    Get document chunks for uploaded files by file_id with optional semantic ranking.
     
     This endpoint:
     1. Maps file_ids to document_ids via UserFile table
     2. Retrieves chunks from Vespa using id_based_retrieval
-    3. Returns chunks in natural order (limited by max_chunks_per_file)
-    4. Respects user ACL permissions
+    3. If query provided: ranks chunks by semantic similarity to query
+    4. Returns top chunks (limited by max_chunks_per_file)
+    5. Respects user ACL permissions
     
-    Note: Semantic ranking by query is planned for future enhancement.
-    Current implementation returns chunks in their natural order from Vespa,
-    which is still vastly superior to chat-based extraction (no LLM refusal).
+    Semantic Ranking:
+    - When query is provided, computes embeddings for query and all chunks
+    - Ranks chunks by cosine similarity to query
+    - Returns most relevant chunks first
+    - Falls back to natural order if ranking fails
+    
+    This direct vector access eliminates LLM refusal issues for large files
+    and provides semantically relevant content for product generation.
     """
     user_id = user.id if user else None
     
@@ -214,10 +304,26 @@ def get_file_content(
             doc_id_to_chunks[chunk.document_id] = []
         doc_id_to_chunks[chunk.document_id].append(chunk)
     
-    # Note: Semantic ranking by query removed for simplicity (Phase 1 implementation)
-    # Chunks are returned in their natural order from Vespa
-    # This is still much better than chat-based extraction which often refuses for large files
-    # TODO: Add semantic ranking in future enhancement
+    # Get embedding model for semantic ranking
+    embedding_model = None
+    if request.query:
+        try:
+            db_embedding_model = get_current_db_embedding_model(db_session)
+            if db_embedding_model:
+                embedding_model = EmbeddingModel(
+                    server_host=EMBEDDING_MODEL_SERVER_HOST,
+                    server_port=MODEL_SERVER_PORT,
+                    model_name=db_embedding_model.model_name,
+                    normalize=db_embedding_model.normalize,
+                    query_prefix=db_embedding_model.query_prefix,
+                    passage_prefix=db_embedding_model.passage_prefix,
+                    api_key=db_embedding_model.api_key,
+                    api_url=db_embedding_model.api_url,
+                    provider_type=db_embedding_model.provider_type,
+                )
+                logger.info(f"[GET_FILE_CONTENT] Embedding model loaded: {db_embedding_model.model_name}")
+        except Exception as e:
+            logger.warning(f"[GET_FILE_CONTENT] Could not load embedding model: {e}")
     
     # Build response: map document_id back to file_id
     result_files = {}
@@ -226,21 +332,31 @@ def get_file_content(
     for file_id, doc_id in file_id_to_doc_id.items():
         chunks = doc_id_to_chunks.get(doc_id, [])
         
-        # Limit chunks per file
+        if not chunks:
+            continue
+        
+        # Apply semantic ranking if query provided
+        if request.query and embedding_model:
+            logger.info(f"[GET_FILE_CONTENT] Ranking {len(chunks)} chunks for file_id={file_id}")
+            chunks = _rank_chunks_by_query(chunks, request.query, embedding_model, db_session)
+        
+        # Limit chunks per file (after ranking)
         chunks = chunks[:request.max_chunks_per_file]
         
-        # Convert to FileChunk models
-        file_chunks = [
-            FileChunk(
+        # Convert to FileChunk models with relevance scores
+        file_chunks = []
+        for idx, chunk in enumerate(chunks):
+            # If ranked, higher index = lower relevance
+            relevance_score = (len(chunks) - idx) / len(chunks) if request.query else None
+            
+            file_chunks.append(FileChunk(
                 chunk_id=chunk.chunk_id,
                 content=chunk.content,
                 document_id=chunk.document_id,
                 semantic_identifier=chunk.semantic_identifier,
                 source_type=chunk.source_type.value,
-                relevance_score=None  # Semantic ranking not implemented yet
-            )
-            for chunk in chunks
-        ]
+                relevance_score=relevance_score
+            ))
         
         result_files[file_id] = file_chunks
         total_chunks += len(file_chunks)

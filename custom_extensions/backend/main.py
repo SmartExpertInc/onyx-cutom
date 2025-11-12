@@ -12670,6 +12670,11 @@ async def extract_file_content_direct(
         
         logger.info(f"[DIRECT_EXTRACT] Received {result['total_chunks']} chunks from API")
         
+        # If no chunks returned, raise exception to trigger fallback
+        if result['total_chunks'] == 0:
+            logger.warning(f"[DIRECT_EXTRACT] No chunks returned from API - file may not be indexed yet")
+            raise ValueError(f"No chunks found for file_ids {file_ids} - file may not be indexed to Vespa yet")
+        
         # Convert API response to expected format
         extracted_context = {
             "file_summaries": [],
