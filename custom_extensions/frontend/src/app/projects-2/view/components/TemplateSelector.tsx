@@ -44,7 +44,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'solution-steps-slide': 'Numbered Steps + Icons',
     'hybrid-work-best-practices-slide': 'Tips List + Illustration',
     'thank-you-slide': 'Thank You + Contact Info',
-    'interest-growth-slide': 'Interest Growth + Photo Panel'
+    'interest-growth-slide': 'Interest Growth + Photo Panel',
+    'leftbar-avatar-image': 'Left Bar + Avatar + Image'
   };
 
   const hasAvatarImageField = (template: TemplateComponentInfo) => {
@@ -59,13 +60,6 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   // Whitelist of all slide IDs that exist in avatar_slide_template.html
   // Only slides that are actually rendered in the HTML template
   const videoSlideWhitelist = new Set([
-    'avatar-checklist',
-    'avatar-crm',
-    'avatar-service',
-    'avatar-service-slide',
-    'avatar-buttons',
-    'avatar-with-buttons',
-    'avatar-steps',
     'course-overview-slide',
     'course-overview',
     'work-life-balance-slide',
@@ -143,7 +137,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'enterprise-roadmap-slide',
     'enterprise-roadmap',
     'thank-you-slide',
-    'interest-growth-slide'
+    'interest-growth-slide',
+    'leftbar-avatar-image'
   ]);
 
   // Source ONLY templates that are in avatar_slide_template.html
@@ -178,7 +173,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'solution-steps-slide': <ListChecks className="text-gray-700" />, // Numbered steps
     'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" />, // Tips list
     'thank-you-slide': <UserRound className="text-gray-700" />, // Thank you + avatar
-    'interest-growth-slide': <BarChart3 className="text-gray-700" /> // Interest growth + photo
+    'interest-growth-slide': <BarChart3 className="text-gray-700" />, // Interest growth + photo
+    'leftbar-avatar-image': <UserRound className="text-gray-700" /> // Left bar + avatar + image
   };
 
   const renderIcon = (templateId: string, fallback?: React.ReactNode) => {

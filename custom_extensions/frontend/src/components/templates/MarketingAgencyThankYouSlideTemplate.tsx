@@ -348,21 +348,34 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         border: '1px solid #09090B',
         padding: '7px 16px',
         borderRadius: '20px',
+        zIndex: 100,
+        pointerEvents: 'auto'
       }}>
         {/* Small blue dot */}
         <div style={{
           width: '8px',
           height: '8px',
           backgroundColor: 'blue',
-          borderRadius: '50%'
+          borderRadius: '50%',
+          flexShrink: 0
         }} />
         {/* Introduction text */}
-        <div style={{
-          fontSize: '16px',
-          fontWeight: '500',
-          color: '#09090B',
-          borderRadius: '20px',
-        }}>
+        <div 
+          style={{
+            fontSize: '16px',
+            fontWeight: '500',
+            color: '#09090B',
+            borderRadius: '20px',
+            flex: 1,
+            minWidth: 0
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isEditable && !editingIntroText) {
+              setEditingIntroText(true);
+            }
+          }}
+        >
           {isEditable && editingIntroText ? (
             <ImprovedInlineEditor
               initialValue={currentHeaderTitle.replace(/\n/g, ' ')}
@@ -385,16 +398,11 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             />
           ) : (
             <div
-              onClick={(e) => {
-                e.stopPropagation();
-                if (isEditable) {
-                  setEditingIntroText(true);
-                }
-              }}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                minHeight: '20px'
+                minHeight: '20px',
+                width: '100%'
               }}
             >
               {currentHeaderTitle.replace(/\n/g, ' ')}

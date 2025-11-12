@@ -4359,6 +4359,97 @@
     font-weight: 300;
 }
 
+/* Left Bar Avatar Image Slide Template - EXACT React Copy */
+.leftbar-avatar-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    height: 100%;
+    background: #FFFFFF;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.leftbar-avatar-image .left-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 170px;
+    background: linear-gradient(90deg, #0F58F9 0%, #1023A1 100%);
+}
+
+.leftbar-avatar-image .logo-container {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.leftbar-avatar-image .logo-container img {
+    height: 20px;
+    max-width: 120px;
+    object-fit: contain;
+}
+
+.leftbar-avatar-image .avatar-wrap {
+    position: absolute;
+    left: 75px;
+    border: 8px solid #E0E7FF;
+    z-index: 10;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.leftbar-avatar-image .avatar-wrap img {
+    width: 100%;
+    height: 147%;
+    object-fit: cover;
+}
+
+.leftbar-avatar-image .frame {
+    position: absolute;
+    left: 330px;
+    top: 100px;
+    right: 70px;
+    bottom: 100px;
+}
+
+.leftbar-avatar-image .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0px;
+}
+
+.leftbar-avatar-image .page-number-container {
+    position: absolute;
+    bottom: 30px;
+    left: 0px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.leftbar-avatar-image .page-number-container .line {
+    width: 20px;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.leftbar-avatar-image .page-number-container .number {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 300;
+}
+
         /* Benefits And Perks Columns Slide Template - EXACT React Copy */
         .benefits-perks-columns-slide {
             width: 100%;
@@ -8280,6 +8371,42 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 <div class="title-accent">Professional Development</div>
                                 <div class="body-accent">Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.</div>
                             </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% elif templateId == 'leftbar-avatar-image' %}
+                <!-- Left Bar Avatar Image Slide Template - EXACT React Copy -->
+                <div class="leftbar-avatar-image">
+                    <div class="left-bar">
+                        <!-- Logo in top-left corner -->
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Your Logo" />
+                            {% else %}
+                                <span>Your Logo</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Page number with line -->
+                        <div class="page-number-container">
+                            <div class="line"></div>
+                            <div class="number">{{ pageNumber or '04' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Avatar -->
+                    <div class="avatar-wrap">
+                        {% set avatar_url = avatarPath or defaultAvatarImage %}
+                        {% if avatar_url %}
+                            <img src="{{ avatar_url }}" alt="{{ defaultAvatarAlt or 'Avatar' }}" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Main Image Frame -->
+                    <div class="frame">
+                        {% if mainImagePath %}
+                            <img src="{{ mainImagePath }}" alt="Main image" />
                         {% endif %}
                     </div>
                 </div>
