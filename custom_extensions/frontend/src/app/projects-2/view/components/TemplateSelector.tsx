@@ -551,6 +551,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
         slideNumber: 1,
         templateId: template.id,
         props: previewProps,
+        items: [],
+        positioningMode: 'template',
         metadata: {
           version: 'preview',
         },
@@ -595,6 +597,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
               slide={previewSlide}
               isEditable={false}
               isVideoMode
+              forceHybridBase
               deckTemplateVersion="v2"
             />
           </div>

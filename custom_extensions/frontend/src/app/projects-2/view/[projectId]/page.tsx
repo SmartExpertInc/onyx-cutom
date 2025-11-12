@@ -442,6 +442,58 @@ export default function Projects2ViewPage() {
     saveVideoLessonData(updatedDeck);
   };
 
+  const ensureTransitionArray = (deck: ComponentBasedSlideDeck) => {
+    const transitions = deck.transitions ? [...deck.transitions] : [];
+    const requiredLength = deck.slides.length - 1;
+    while (transitions.length < requiredLength) {
+      transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
+    }
+    return transitions;
+  };
+
+  const handleApplyTransitionEverywhere = (transitionIndex: number) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck) return;
+    const transitions = ensureTransitionArray(componentBasedSlideDeck);
+    const baseTransition = transitions[transitionIndex] || { type: 'none', duration: 1.0, variant: 'circle', applyToAll: false };
+    const sanitized = { ...baseTransition, applyToAll: false };
+    const updatedTransitions = transitions.map(() => ({ ...sanitized }));
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      transitions: updatedTransitions
+    };
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
+    setActiveTransitionIndex(transitionIndex);
+    setActiveSettingsPanel('transition');
+    setTimeout(() => {
+      const applySwitch = document.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Apply between all scenes switch"]');
+      if (applySwitch && applySwitch.getAttribute('aria-checked') === 'false') {
+        applySwitch.click();
+      }
+    }, 0);
+  };
+
+  const handleDeleteTransition = (transitionIndex: number) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck) return;
+    const transitions = ensureTransitionArray(componentBasedSlideDeck);
+    if (transitionIndex >= transitions.length) return;
+    transitions[transitionIndex] = { type: 'none', duration: 1.0, variant: 'circle', applyToAll: false };
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      transitions
+    };
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
+    setActiveTransitionIndex(transitionIndex);
+    setActiveSettingsPanel('transition');
+    setTimeout(() => {
+      const applySwitch = document.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Apply between all scenes switch"]');
+      if (applySwitch && applySwitch.getAttribute('aria-checked') === 'true') {
+        applySwitch.click();
+      }
+    }, 0);
+  };
+
   // NEW: Function to delete slide (following old interface pattern)
   const handleDeleteSlide = (slideId: string) => {
     console.log('🗑️ handleDeleteSlide called with:', {
@@ -1088,6 +1140,8 @@ export default function Projects2ViewPage() {
             onOpenTemplateSelector={handleOpenTemplateSelector}
             onTransitionClick={handleTransitionClick}
             activeTransitionIndex={activeTransitionIndex}
+            onTransitionApplyEverywhere={handleApplyTransitionEverywhere}
+            onTransitionDelete={handleDeleteTransition}
             showReady={showReady}
           />
 

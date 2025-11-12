@@ -334,6 +334,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   type="button"
                   role="switch"
                   aria-checked={isApplyBetweenAllScenes}
+                  aria-label="Apply between all scenes switch"
                   className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0F58F9] ${
                     isApplyBetweenAllScenes ? 'bg-[#0F58F9]' : 'bg-gray-300'
                   }`}

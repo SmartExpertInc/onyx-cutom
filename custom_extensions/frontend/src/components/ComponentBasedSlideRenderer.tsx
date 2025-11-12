@@ -16,6 +16,7 @@ interface ComponentBasedSlideRendererProps {
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
   isVideoMode?: boolean; // Flag for video editor mode
+  forceHybridBase?: boolean; // Force HybridTemplateBase even when not editable (useful for read-only previews)
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -27,7 +28,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   theme,
   deckTemplateVersion,
   getPlaceholderGenerationState,
-  isVideoMode = false
+  isVideoMode = false,
+  forceHybridBase = false
 }) => {
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME, deckTemplateVersion);
@@ -104,7 +106,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   }
 
   // Always use positioning for editable slides - PowerPoint-like behavior
-  const shouldUsePositioning = isEditable;
+  const shouldUsePositioning = forceHybridBase || isEditable;
   
   // Render the template component with props and theme
   const TemplateComponent = template.component;

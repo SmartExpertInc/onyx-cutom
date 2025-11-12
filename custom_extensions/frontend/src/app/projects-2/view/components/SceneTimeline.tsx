@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import { LayoutGrid, Gem, LayoutDashboard } from 'lucide-react';
+import { LayoutGrid, Gem, LayoutDashboard, Settings, Zap, Trash2 } from 'lucide-react';
 
 interface Scene {
   id: string;
@@ -26,6 +26,8 @@ interface SceneTimelineProps {
   // Transition props
   onTransitionClick?: (transitionIndex: number) => void;
   activeTransitionIndex?: number | null;
+  onTransitionApplyEverywhere?: (transitionIndex: number) => void;
+  onTransitionDelete?: (transitionIndex: number) => void;
   showReady?: boolean;
 }
 
@@ -48,6 +50,8 @@ export default function SceneTimeline({
   onOpenTemplateSelector,
   onTransitionClick,
   activeTransitionIndex,
+  onTransitionApplyEverywhere,
+  onTransitionDelete,
   showReady
 }: SceneTimelineProps) {
   const slideRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -59,6 +63,9 @@ export default function SceneTimeline({
   const [playheadPosition, setPlayheadPosition] = useState(0); // x position in pixels
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
   const addDropdownRef = useRef<HTMLDivElement | null>(null);
+  const [openTransitionMenuIndex, setOpenTransitionMenuIndex] = useState<number | null>(null);
+  const [transitionMenuPosition, setTransitionMenuPosition] = useState<{ x: number; y: number } | null>(null);
+  const transitionMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = (() => {
@@ -121,6 +128,62 @@ export default function SceneTimeline({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isAddDropdownOpen]);
+
+  useEffect(() => {
+    if (openTransitionMenuIndex === null) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (transitionMenuRef.current && transitionMenuRef.current.contains(event.target as Node)) {
+        return;
+      }
+      setOpenTransitionMenuIndex(null);
+      setTransitionMenuPosition(null);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpenTransitionMenuIndex(null);
+        setTransitionMenuPosition(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openTransitionMenuIndex]);
+
+  const formatTransitionLabel = (type?: string) => {
+    if (!type || type === 'none') return 'No transition';
+    return type
+      .replace(/[-_]/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const handleTransitionButtonClick = (event: React.MouseEvent<HTMLButtonElement>, index: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const menuWidth = 220;
+    const horizontalPadding = 12;
+    const verticalOffset = 8;
+    const leftBoundary = typeof window !== 'undefined' ? window.innerWidth : rect.left + menuWidth;
+    const left = Math.min(rect.left, leftBoundary - menuWidth - horizontalPadding);
+    const top = rect.bottom + verticalOffset;
+    setTransitionMenuPosition({ x: left, y: top });
+    setOpenTransitionMenuIndex(index);
+  };
+
+  const closeTransitionMenu = () => {
+    setOpenTransitionMenuIndex(null);
+    setTransitionMenuPosition(null);
+  };
 
   // Playback timer
   useEffect(() => {
@@ -421,7 +484,67 @@ export default function SceneTimeline({
           </div>
         </div>
       </div>
-      
+
+      {openTransitionMenuIndex !== null && transitionMenuPosition && typeof window !== 'undefined' &&
+        ReactDOM.createPortal(
+          <>
+            <div className="fixed inset-0 z-[9997]" onClick={closeTransitionMenu}></div>
+            <div
+              ref={transitionMenuRef}
+              className="fixed z-[9998] w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl py-2"
+              style={{
+                top: transitionMenuPosition.y,
+                left: transitionMenuPosition.x
+              }}
+            >
+              <div className="px-4 pb-2">
+                <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#EEF4FF] text-[#0F58F9] text-xs font-medium">
+                    {(componentBasedSlideDeck?.transitions?.[openTransitionMenuIndex]?.type || 'N').charAt(0).toUpperCase()}
+                  </span>
+                  {formatTransitionLabel(componentBasedSlideDeck?.transitions?.[openTransitionMenuIndex]?.type)}
+                </div>
+              </div>
+              <div className="h-px bg-[#F1F5F9] mb-1"></div>
+              <button
+                type="button"
+                className="w-full px-4 py-2 flex items-center gap-3 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors"
+                onClick={() => {
+                  onTransitionClick?.(openTransitionMenuIndex);
+                  closeTransitionMenu();
+                }}
+              >
+                <Settings size={16} />
+                Modify
+              </button>
+              <button
+                type="button"
+                className="w-full px-4 py-2 flex items-center gap-3 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors"
+                onClick={() => {
+                  onTransitionApplyEverywhere?.(openTransitionMenuIndex);
+                  closeTransitionMenu();
+                }}
+              >
+                <Zap size={16} />
+                Apply everywhere
+              </button>
+              <button
+                type="button"
+                className="w-full px-4 py-2 flex items-center gap-3 text-sm text-[#E11900] hover:bg-[#FFF2F0] transition-colors"
+                onClick={() => {
+                  onTransitionDelete?.(openTransitionMenuIndex);
+                  closeTransitionMenu();
+                }}
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
+            </div>
+          </>,
+          document.body
+        )
+      }
+
       {/* Portal for playhead line - rendered outside to avoid overflow clipping */}
       {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && (isPlaying || currentTime > 0) && (() => {
         // Check if playhead is within visible bounds of timeline container
@@ -505,7 +628,8 @@ export default function SceneTimeline({
                         ? 'bg-blue-500 border-blue-500'
                         : 'bg-white border-gray-300 hover:bg-gray-50'
                     }`}
-                    onClick={() => onTransitionClick?.(index)}
+                    onClick={(event) => handleTransitionButtonClick(event, index)}
+                    onContextMenu={(event) => handleTransitionButtonClick(event, index)}
                   >
                     <svg 
                       width="13" 
