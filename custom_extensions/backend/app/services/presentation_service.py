@@ -1071,7 +1071,7 @@ class ProfessionalPresentationService:
         """
         Detect if slide contains an uploaded video asset.
         
-        Checks slide props for video files (identified by extension in imagePath).
+        Checks ALL props ending with 'Path' for video files (e.g., imagePath, rightImagePath, leftImagePath).
         This is additive logic that doesn't modify existing code paths.
         
         Args:
@@ -1086,16 +1086,19 @@ class ProfessionalPresentationService:
             if not slide_props:
                 slide_props = slide_data  # Try slide_data itself if no props key
             
-            # Check imagePath for video files (videos are stored in imagePath but detected as videos)
-            image_path = slide_props.get('imagePath')
-            if image_path and self._is_video_file(image_path):
-                logger.info(f"🎬 [UPLOADED_VIDEO] Detected video in imagePath: {image_path}")
-                resolved_path = self._resolve_uploaded_video_path(image_path)
-                if resolved_path:
-                    logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Uploaded video detected and resolved: {resolved_path}")
-                    return resolved_path
-                else:
-                    logger.warning(f"🎬 [UPLOADED_VIDEO] ⚠️ Video detected but path resolution failed: {image_path}")
+            # Check ALL props ending with 'Path' for video files
+            # This covers: imagePath, rightImagePath, leftImagePath, centerImagePath, etc.
+            for prop_key, prop_value in slide_props.items():
+                if prop_key.endswith('Path') and prop_value:
+                    prop_value_str = str(prop_value)
+                    if self._is_video_file(prop_value_str):
+                        logger.info(f"🎬 [UPLOADED_VIDEO] Detected video in {prop_key}: {prop_value_str}")
+                        resolved_path = self._resolve_uploaded_video_path(prop_value_str)
+                        if resolved_path:
+                            logger.info(f"🎬 [UPLOADED_VIDEO] ✅ Uploaded video detected and resolved: {resolved_path}")
+                            return resolved_path
+                        else:
+                            logger.warning(f"🎬 [UPLOADED_VIDEO] ⚠️ Video detected in {prop_key} but path resolution failed: {prop_value_str}")
             
             # Also check for explicit videoPath prop (if added in future)
             video_path = slide_props.get('videoPath')
@@ -1149,16 +1152,30 @@ class ProfessionalPresentationService:
             uploaded_video_position = None
             slide_props = slide_data.get('props', {})
             
+            # Find the video path first (check all *Path props)
+            detected_video_path = None
+            detected_prop_key = None
+            for prop_key, prop_value in slide_props.items():
+                if prop_key.endswith('Path') and prop_value:
+                    prop_value_str = str(prop_value)
+                    if self._is_video_file(prop_value_str):
+                        detected_video_path = prop_value_str
+                        detected_prop_key = prop_key
+                        break
+            
             # Check if there's position info in props or metadata
-            # Look for element with video path
-            image_path = slide_props.get('imagePath')
-            if image_path and self._is_video_file(image_path):
-                # Find element ID that matches this video
+            # Look for element with matching video path in any *Path prop
+            if detected_video_path:
+                # Find element ID that matches this video path
                 for element_id, position_data in element_positions.items():
                     element_props = position_data.get('props', {})
-                    if element_props.get('imagePath') == image_path:
-                        uploaded_video_position = position_data
-                        logger.info(f"🎬 [UPLOADED_VIDEO] Found position data for element: {element_id}")
+                    # Check all *Path props in element position data
+                    for path_prop_key, path_prop_value in element_props.items():
+                        if path_prop_key.endswith('Path') and str(path_prop_value) == detected_video_path:
+                            uploaded_video_position = position_data
+                            logger.info(f"🎬 [UPLOADED_VIDEO] Found position data for element: {element_id} (matched via {path_prop_key})")
+                            break
+                    if uploaded_video_position:
                         break
             
             # Use SimpleVideoComposer for composition (same as avatar)
