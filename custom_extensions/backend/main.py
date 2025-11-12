@@ -12975,7 +12975,7 @@ Return the corrected JSON without any markdown formatting or explanations."""
         raise ValueError(f"Failed to generate skeleton: {e}")
 
 
-async def collect_agentic_context_with_streaming(
+async def collect_agentic_context_streaming(
     file_ids: List[int],
     original_prompt: str,
     product_type: str,
@@ -12983,53 +12983,195 @@ async def collect_agentic_context_with_streaming(
     model: str = "gpt-4o-mini"
 ):
     """
-    Generator version of collect_agentic_context that yields progress updates.
-    Yields progress messages, then yields the final context as ('complete', context).
+    Streaming version that yields progress updates and final context.
+    Yields tuples: ("progress", message_str) or ("complete", context_dict) or ("error", error_str)
     """
+    import time
+    import hashlib
     import json
     
-    progress_messages = []
-    
-    async def capture_progress(message: str):
-        progress_messages.append(message)
-        yield ("progress", message)
-    
-    # Use a queue to handle progress messages
-    from asyncio import Queue
-    progress_queue = Queue()
-    
-    async def progress_callback(message: str):
-        await progress_queue.put(message)
-    
-    # Start the agentic collection in background
-    import asyncio
-    task = asyncio.create_task(collect_agentic_context(
-        file_ids=file_ids,
-        original_prompt=original_prompt,
-        product_type=product_type,
-        cookies=cookies,
-        model=model,
-        progress_callback=progress_callback
-    ))
-    
-    # Yield progress messages as they arrive
-    while not task.done():
-        try:
-            message = await asyncio.wait_for(progress_queue.get(), timeout=0.1)
-            yield ("progress", message)
-        except asyncio.TimeoutError:
-            continue
-    
-    # Drain remaining messages
-    while not progress_queue.empty():
-        message = await progress_queue.get()
-        yield ("progress", message)
-    
-    # Get the result
     try:
-        context = await task
-        yield ("complete", context)
+        stage1_start = time.time()
+        
+        # STAGE 1: Generate lightweight skeleton
+        logger.info(f"[AGENTIC_STAGE1_START] product_type={product_type}")
+        logger.info(f"[AGENTIC_STAGE1_START] file_count={len(file_ids)}")
+        
+        yield ("progress", f"📄 Analyzing document structure from {len(file_ids)} file(s)...")
+        
+        # Extract broad context
+        yield ("progress", "🔍 Performing initial content scan...")
+        
+        broad_context = await extract_file_content_direct(
+            file_ids=file_ids,
+            prompt="",
+            cookies=cookies,
+            max_chunks_per_file=50
+        )
+        
+        yield ("progress", "🧠 Generating content outline...")
+        
+        # Generate skeleton
+        skeleton_prompt = build_skeleton_prompt("", broad_context, product_type)
+        skeleton = await generate_skeleton(skeleton_prompt, product_type, model)
+        
+        stage1_time = time.time() - stage1_start
+        
+        # Determine skeleton items
+        if product_type == "Course Outline":
+            skeleton_items = skeleton.get('modules', [])
+        elif product_type in ["Lesson Presentation", "Text Presentation"]:
+            skeleton_items = skeleton.get('slides') or skeleton.get('sections', [])
+        elif product_type == "Quiz":
+            skeleton_items = skeleton.get('quiz_topics', [])
+        else:
+            skeleton_items = []
+        
+        logger.info(f"[AGENTIC_STAGE1_COMPLETE] skeleton_items={len(skeleton_items)} time={stage1_time:.2f}s")
+        yield ("progress", f"✅ Generated outline with {len(skeleton_items)} sections")
+        
+        # STAGE 2: Collect focused chunks
+        logger.info(f"[AGENTIC_STAGE2_START] collecting chunks for {len(skeleton_items)} items")
+        
+        all_focused_chunks = []
+        seen_chunk_keys: Set[Tuple[Any, Any]] = set()
+        stage2_start = time.time()
+        
+        for i, item in enumerate(skeleton_items):
+            item_start = time.time()
+            
+            # Build focused query
+            focused_query = build_focused_query(item, product_type)
+            logger.info(f"[AGENTIC_STAGE2_ITEM] {i+1}/{len(skeleton_items)}: {focused_query[:80]}...")
+            
+            title = item.get('title') or item.get('module_name') or item.get('topic_name', f'Item {i+1}')
+            yield ("progress", f"📑 Finding content for section {i+1}/{len(skeleton_items)}: {title}")
+            yield ("progress", f"🔎 Assessing relevance and ranking chunks...")
+            
+            # Extract focused chunks
+            try:
+                focused_context = await extract_file_content_direct(
+                    file_ids=file_ids,
+                    prompt=focused_query,
+                    cookies=cookies,
+                    max_chunks_per_file=12,  # INCREASED from 5 to 12
+                    combine_chunks=False,
+                    include_chunk_metadata=True
+                )
+                
+                chunk_entries = focused_context.get('file_chunks') or []
+                
+                # Fallback for missing metadata
+                if not chunk_entries:
+                    fallback_contents = focused_context.get('file_contents', []) or []
+                    for idx, content in enumerate(fallback_contents):
+                        chunk_entries.append({
+                            "file_id": None,
+                            "chunk_id": f"fallback_{i}_{idx}",
+                            "semantic_identifier": None,
+                            "relevance_score": None,
+                            "content": content
+                        })
+                
+                raw_chunk_count = len(chunk_entries)
+                unique_added = 0
+                
+                if raw_chunk_count > 0:
+                    section_title = item.get('title') or item.get('module_name') or item.get('topic_name') or f'Item {i+1}'
+                    
+                    for chunk_entry in chunk_entries:
+                        chunk_content = (chunk_entry or {}).get("content") or ""
+                        if not chunk_content.strip():
+                            continue
+                        
+                        file_id_for_chunk = chunk_entry.get("file_id")
+                        chunk_id = chunk_entry.get("chunk_id")
+                        
+                        if chunk_id is not None and file_id_for_chunk is not None:
+                            chunk_key = (file_id_for_chunk, chunk_id)
+                        else:
+                            chunk_key = (file_id_for_chunk, hashlib.md5(chunk_content.encode("utf-8")).hexdigest())
+                        
+                        if chunk_key in seen_chunk_keys:
+                            continue
+                        
+                        seen_chunk_keys.add(chunk_key)
+                        unique_added += 1
+                        
+                        source_name = chunk_entry.get("semantic_identifier") or f"File {file_id_for_chunk or 'unknown'}"
+                        relevance_score = chunk_entry.get("relevance_score")
+                        
+                        header_lines = [
+                            f"## Section: {section_title}",
+                            f"Source: {source_name}"
+                        ]
+                        if relevance_score is not None:
+                            header_lines.append(f"Relevance Score: {relevance_score:.3f}")
+                        header_lines.append(f"Focus Query: {focused_query}")
+                        
+                        chunk_with_header = "\n".join(header_lines) + "\n\n" + chunk_content
+                        
+                        all_focused_chunks.append({
+                            'content': chunk_with_header,
+                            'file_id': file_id_for_chunk,
+                            'chunk_id': chunk_id,
+                            'section_title': section_title,
+                            'source_name': source_name,
+                            'query': focused_query,
+                            'relevance_score': relevance_score
+                        })
+                
+                logger.info(f"[AGENTIC_STAGE2_ITEM] chunks_retrieved={raw_chunk_count} unique_added={unique_added} time={(time.time() - item_start):.2f}s")
+                
+            except Exception as e:
+                logger.error(f"[AGENTIC_STAGE2_ITEM] Error for item {i+1}: {e}")
+                continue
+        
+        stage2_time = time.time() - stage2_start
+        total_chunks = len(all_focused_chunks)
+        total_time = time.time() - stage1_start
+        
+        logger.info(f"[AGENTIC_STAGE2_COMPLETE] total_chunks={total_chunks} avg={total_chunks/len(skeleton_items) if skeleton_items else 0:.1f} time={stage2_time:.2f}s")
+        logger.info(f"[AGENTIC_COMPLETE] vespa_queries={1 + len(skeleton_items)} total_time={total_time:.2f}s")
+        
+        yield ("progress", f"✅ Context collection complete! Collected {total_chunks} unique chunks")
+        yield ("progress", f"🚀 Generating final content...")
+        
+        # Build result
+        chunk_metadata = [
+            {
+                'index': idx,
+                'file_id': chunk.get('file_id'),
+                'chunk_id': chunk.get('chunk_id'),
+                'source_name': chunk.get('source_name'),
+                'section_title': chunk.get('section_title'),
+                'query': chunk.get('query'),
+                'relevance_score': chunk.get('relevance_score')
+            }
+            for idx, chunk in enumerate(all_focused_chunks)
+        ]
+        
+        enhanced_context = {
+            'file_contents': [chunk['content'] for chunk in all_focused_chunks],
+            'file_summaries': [],
+            'key_topics': [],
+            'metadata': {
+                'method': 'agentic',
+                'skeleton': skeleton,
+                'total_items': len(skeleton_items),
+                'chunks_per_item': total_chunks / len(skeleton_items) if skeleton_items else 0,
+                'stage1_time': stage1_time,
+                'stage2_time': stage2_time,
+                'total_time': total_time,
+                'unique_chunk_count': total_chunks,
+                'chunk_metadata': chunk_metadata
+            }
+        }
+        
+        yield ("complete", enhanced_context)
+        
     except Exception as e:
+        logger.error(f"[AGENTIC_ERROR] {str(e)}", exc_info=True)
         yield ("error", str(e))
         raise
 
@@ -13143,7 +13285,7 @@ async def collect_agentic_context(
                 file_ids=file_ids,
                 prompt=focused_query,
                 cookies=cookies,
-                max_chunks_per_file=5,  # Reduced for focus
+                max_chunks_per_file=12,  # INCREASED from 5 to 12 for better coverage
                 combine_chunks=False,
                 include_chunk_metadata=True
             )
@@ -20733,7 +20875,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         try:
                             file_context = None
-                            async for update_type, update_data in collect_agentic_context_with_streaming(
+                            async for update_type, update_data in collect_agentic_context_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
@@ -28704,7 +28846,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         
                         try:
                             file_context = None
-                            async for update_type, update_data in collect_agentic_context_with_streaming(
+                            async for update_type, update_data in collect_agentic_context_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
@@ -34264,7 +34406,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         
                         try:
                             file_context = None
-                            async for update_type, update_data in collect_agentic_context_with_streaming(
+                            async for update_type, update_data in collect_agentic_context_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
@@ -36172,7 +36314,7 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         
                         try:
                             file_context = None
-                            async for update_type, update_data in collect_agentic_context_with_streaming(
+                            async for update_type, update_data in collect_agentic_context_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
@@ -36270,7 +36412,7 @@ FULL FILE CONTENT:
                         
                         try:
                             file_context = None
-                            async for update_type, update_data in collect_agentic_context_with_streaming(
+                            async for update_type, update_data in collect_agentic_context_streaming(
                                 file_ids=file_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Text Presentation",
