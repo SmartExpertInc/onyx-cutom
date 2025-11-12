@@ -22,10 +22,6 @@ from onyx.server.documents.models import FileChunk
 from onyx.server.documents.models import FileContentRequest
 from onyx.server.documents.models import FileContentResponse
 from onyx.db.models import UserFile
-from onyx.natural_language_processing.search_nlp_models import get_default_embedding_model
-from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
-from onyx.utils.threadpool_concurrency import run_functions_in_parallel
-import numpy as np
 
 
 router = APIRouter(prefix="/document")
@@ -114,13 +110,6 @@ def get_chunk_info(
     )
 
 
-def _cosine_similarity(a: list[float], b: list[float]) -> float:
-    """Calculate cosine similarity between two vectors"""
-    a_np = np.array(a)
-    b_np = np.array(b)
-    return float(np.dot(a_np, b_np) / (np.linalg.norm(a_np) * np.linalg.norm(b_np)))
-
-
 @router.post("/get-file-content")
 def get_file_content(
     request: FileContentRequest,
@@ -128,13 +117,17 @@ def get_file_content(
     db_session: Session = Depends(get_session),
 ) -> FileContentResponse:
     """
-    Get document chunks for uploaded files by file_id with optional semantic ranking.
+    Get document chunks for uploaded files by file_id.
     
     This endpoint:
     1. Maps file_ids to document_ids via UserFile table
     2. Retrieves chunks from Vespa using id_based_retrieval
-    3. Optionally ranks chunks by semantic similarity to query
-    4. Returns ordered chunks respecting max_chunks_per_file limit
+    3. Returns chunks in natural order (limited by max_chunks_per_file)
+    4. Respects user ACL permissions
+    
+    Note: Semantic ranking by query is planned for future enhancement.
+    Current implementation returns chunks in their natural order from Vespa,
+    which is still vastly superior to chat-based extraction (no LLM refusal).
     """
     user_id = user.id if user else None
     
@@ -189,46 +182,10 @@ def get_file_content(
             doc_id_to_chunks[chunk.document_id] = []
         doc_id_to_chunks[chunk.document_id].append(chunk)
     
-    # Semantic ranking if query provided
-    if request.query:
-        try:
-            embedding_model = get_default_embedding_model(
-                db_session=db_session,
-                search_settings=search_settings,
-            )
-            query_embedding = embedding_model.encode([request.query])[0]
-            
-            # Rank chunks within each document
-            for doc_id, chunks in doc_id_to_chunks.items():
-                # Get embeddings for chunks (use content)
-                chunk_texts = [chunk.content for chunk in chunks]
-                chunk_embeddings = embedding_model.encode(chunk_texts)
-                
-                # Calculate similarities
-                similarities = [
-                    _cosine_similarity(query_embedding.tolist(), emb.tolist())
-                    for emb in chunk_embeddings
-                ]
-                
-                # Sort chunks by similarity (descending)
-                sorted_indices = sorted(
-                    range(len(similarities)),
-                    key=lambda i: similarities[i],
-                    reverse=True
-                )
-                
-                # Reorder chunks and attach scores
-                ranked_chunks = []
-                for idx in sorted_indices:
-                    chunk = chunks[idx]
-                    # Store similarity score for later use
-                    chunk.score = similarities[idx]  # Use score field temporarily
-                    ranked_chunks.append(chunk)
-                
-                doc_id_to_chunks[doc_id] = ranked_chunks
-        except Exception as e:
-            # If semantic ranking fails, continue without it
-            logger.error(f"Failed to perform semantic ranking: {e}")
+    # Note: Semantic ranking by query removed for simplicity (Phase 1 implementation)
+    # Chunks are returned in their natural order from Vespa
+    # This is still much better than chat-based extraction which often refuses for large files
+    # TODO: Add semantic ranking in future enhancement
     
     # Build response: map document_id back to file_id
     result_files = {}
@@ -248,7 +205,7 @@ def get_file_content(
                 document_id=chunk.document_id,
                 semantic_identifier=chunk.semantic_identifier,
                 source_type=chunk.source_type.value,
-                relevance_score=getattr(chunk, 'score', None)
+                relevance_score=None  # Semantic ranking not implemented yet
             )
             for chunk in chunks
         ]

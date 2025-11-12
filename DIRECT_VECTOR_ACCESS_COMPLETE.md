@@ -89,14 +89,13 @@ async def extract_file_content_direct(
 - Compatible with existing OpenAI prompt construction
 - No chat sessions = no LLM refusal
 
-### Phase 4: Semantic Ranking ✅
-**Implemented in Onyx endpoint:**
+### Phase 4: Semantic Ranking ⏳
+**Status:** Deferred to future enhancement
 
-- Computes query embedding using default embedding model
-- Calculates cosine similarity for each chunk vs query
-- Sorts chunks by relevance (descending)
-- Returns top K chunks per file
-- Attaches relevance scores to response
+- Initial implementation removed semantic ranking to avoid complexity
+- Chunks returned in natural order from Vespa (still very effective)
+- This is still vastly better than chat-based extraction (no LLM refusal)
+- Future enhancement: Add cosine similarity ranking based on query
 
 ### Phase 5: Product Generation Integration ✅
 **Updated all 4 product endpoints:**
