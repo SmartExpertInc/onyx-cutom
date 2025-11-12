@@ -20052,21 +20052,35 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            # Extract context using DIRECT API METHOD
                             file_context_from_smartdrive = None
                             
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                if update["type"] == "progress":
-                                    progress_packet = {"type": "info", "message": update["message"]}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update["type"] == "complete":
-                                    file_context_from_smartdrive = update["context"]
-                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
-                                    break
-                                elif update["type"] == "error":
-                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            # USE NEW DIRECT EXTRACTION METHOD
+                            logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
+                            progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            
+                            try:
+                                file_context_from_smartdrive = await extract_file_content_direct(
+                                    file_ids, 
+                                    payload.prompt,
+                                    cookies,
+                                    max_chunks_per_file=50
+                                )
+                                logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context_from_smartdrive.get('file_contents', []))} files")
+                            except Exception as e:
+                                logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
+                                # Fall back to old method
+                                async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                    if update["type"] == "progress":
+                                        progress_packet = {"type": "info", "message": update["message"]}
+                                        yield (json.dumps(progress_packet) + "\n").encode()
+                                        last_send = asyncio.get_event_loop().time()
+                                    elif update["type"] == "complete":
+                                        file_context_from_smartdrive = update["context"]
+                                        break
+                                    elif update["type"] == "error":
+                                        logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -20161,21 +20175,35 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Successfully mapped {len(file_ids)} SmartDrive files to Onyx file IDs: {file_ids}")
-                        # Extract context from the mapped file IDs WITH PROGRESS UPDATES
+                        # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                            if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        # USE NEW DIRECT EXTRACTION METHOD
+                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                         
                         if not file_context:
                             file_context = f"Selected files: {', '.join(raw_paths)}\nNote: File extraction completed but no context was returned."
@@ -28005,21 +28033,35 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            # Extract context using DIRECT API METHOD
                             file_context_from_smartdrive = None
                             
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                if update["type"] == "progress":
-                                    progress_packet = {"type": "info", "message": update["message"]}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update["type"] == "complete":
-                                    file_context_from_smartdrive = update["context"]
-                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
-                                    break
-                                elif update["type"] == "error":
-                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            # USE NEW DIRECT EXTRACTION METHOD
+                            logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
+                            progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            
+                            try:
+                                file_context_from_smartdrive = await extract_file_content_direct(
+                                    file_ids, 
+                                    payload.prompt,
+                                    cookies,
+                                    max_chunks_per_file=50
+                                )
+                                logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context_from_smartdrive.get('file_contents', []))} files")
+                            except Exception as e:
+                                logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
+                                # Fall back to old method
+                                async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                    if update["type"] == "progress":
+                                        progress_packet = {"type": "info", "message": update["message"]}
+                                        yield (json.dumps(progress_packet) + "\n").encode()
+                                        last_send = asyncio.get_event_loop().time()
+                                    elif update["type"] == "complete":
+                                        file_context_from_smartdrive = update["context"]
+                                        break
+                                    elif update["type"] == "error":
+                                        logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -28092,21 +28134,35 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                            if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        # USE NEW DIRECT EXTRACTION METHOD
+                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -33626,21 +33682,35 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                            if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        # USE NEW DIRECT EXTRACTION METHOD
+                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -35508,21 +35578,35 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        # Extract context using DIRECT API METHOD
                         file_context = None
                         
-                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                            if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        # USE NEW DIRECT EXTRACTION METHOD
+                        logger.info(f"[SMARTDRIVE] Using DIRECT extraction for {len(file_ids)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[SMARTDRIVE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""

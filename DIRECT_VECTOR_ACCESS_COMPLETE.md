@@ -105,6 +105,12 @@ async def extract_file_content_direct(
 3. **Quiz** (lines 33704-33746) ✅
 4. **Text Presentation** (lines 35586-35628) ✅
 
+**ALSO Updated SmartDrive Connector Paths:** (Nov 12, 2025)
+- **All 6 SmartDrive file extraction paths** now use direct extraction
+- Includes: `fromConnectors=true` with `selectedFiles` path
+- Previously these paths were missed and still used chat-based extraction
+- Now ALL file extraction paths use the new direct method
+
 **Strategy Applied:**
 ```python
 if file_ids_list and not folder_ids_list:
@@ -128,6 +134,7 @@ else:
 - Automatic fallback to chat extraction if direct method fails
 - Chat extraction still used for folders (expected behavior)
 - Graceful error handling with logging
+- **Now covers ALL file extraction paths** including SmartDrive connectors
 
 ---
 
