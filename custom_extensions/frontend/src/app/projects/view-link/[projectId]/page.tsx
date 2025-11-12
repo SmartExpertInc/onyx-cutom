@@ -2082,6 +2082,48 @@ export default function ProjectInstanceViewPage() {
       : 'bg-transparent'
   ].filter(Boolean).join(' ');
 
+  const isVideoProductComponent = projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
+  const videoProductData = isVideoProductComponent ? (editableData as any) : null;
+
+  const handleVideoDraftClick = useCallback(() => {
+    if (projectId) {
+      router.push(`/projects-2/view/${projectId}`);
+    }
+  }, [router, projectId]);
+
+  const handleVideoExportClick = useCallback(async () => {
+    try {
+      const videoUrl = videoProductData?.videoUrl;
+      if (!videoUrl) {
+        throw new Error('Video URL is not available');
+      }
+
+      const fullVideoUrl = videoUrl.startsWith('http') ? videoUrl : `${CUSTOM_BACKEND_URL}${videoUrl}`;
+      const response = await fetch(fullVideoUrl, {
+        method: 'GET',
+        headers: { Accept: 'video/mp4' },
+        credentials: 'same-origin'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `video_product_${projectId || 'download'}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Video export failed:', error);
+      alert(t('videoProductDisplay.downloadFailed', 'Download failed. Please try again.'));
+    }
+  }, [videoProductData, projectId, t]);
+
   return (
     <>
       <ProductViewHeader
@@ -2095,10 +2137,13 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_SLIDE_DECK,
           COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
           COMPONENT_NAME_QUIZ,
-          COMPONENT_NAME_TEXT_PRESENTATION
+          COMPONENT_NAME_TEXT_PRESENTATION,
+          COMPONENT_NAME_VIDEO_PRODUCT
         ]}
         t={t}
         onPdfExport={handlePdfDownload}
+        onDraftClick={isVideoProductComponent ? handleVideoDraftClick : undefined}
+        onExportClick={isVideoProductComponent ? handleVideoExportClick : undefined}
         isEditing={isEditing}
         onEditOrSave={handleToggleEdit}
         isAuthorized={isAuthorized}

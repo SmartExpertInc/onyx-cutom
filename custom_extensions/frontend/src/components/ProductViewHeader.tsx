@@ -90,8 +90,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isVideoLesson = projectData?.component_name === 'VideoLessonDisplay' || 
                         projectData?.component_name === 'VideoLessonPresentationDisplay';
   const isCourse = projectData?.component_name === 'TrainingPlanTable';
-  const isPresentation = projectData?.component_name === 'SlideDeckDisplay';
-  const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation);
+  const isPresentation = projectData?.component_name === 'SlideDeckDisplay' || projectData?.component_name === 'VideoProductDisplay';
+  const isVideoProduct = projectData?.component_name === 'VideoProductDisplay';
+  const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation || isVideoProduct);
 
   const getOrdinalSuffix = (day: number) => {
     const j = day % 10;
@@ -285,7 +286,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
           {shouldShowLinkButtons && (
             <div className="flex items-center space-x-2">
-              {isPresentation && currentIsAuthorized && (
+              {(isPresentation || isVideoProduct) && currentIsAuthorized && (
                 <button
                   onClick={handleDraft}
                   className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
