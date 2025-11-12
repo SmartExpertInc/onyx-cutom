@@ -161,7 +161,6 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
 
   const handleIntroTextSave = (newIntroText: string) => {
     setCurrentHeaderTitle(newIntroText);
-    setEditingIntroText(false);
     if (onUpdate) {
       onUpdate({ 
         headerTitle: newIntroText,
@@ -342,7 +341,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       <div style={{
         position: 'absolute',
         top: '135px',
-        left: '49%',
+        left: '50%',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -367,7 +366,10 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           {isEditable && editingIntroText ? (
             <ImprovedInlineEditor
               initialValue={currentHeaderTitle.replace(/\n/g, ' ')}
-              onSave={handleIntroTextSave}
+              onSave={(value) => {
+                handleIntroTextSave(value);
+                setEditingIntroText(false);
+              }}
               onCancel={() => setEditingIntroText(false)}
               className="intro-text-editor"
               style={{
@@ -383,10 +385,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             />
           ) : (
             <div
-              onClick={() => isEditable && setEditingIntroText(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isEditable) {
+                  setEditingIntroText(true);
+                }
+              }}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                userSelect: 'none',
+                minHeight: '20px'
               }}
             >
               {currentHeaderTitle.replace(/\n/g, ' ')}
