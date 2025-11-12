@@ -7475,7 +7475,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         <!-- Chart with bars -->
                         {% if bars %}
                             {% set num_bars = bars|length %}
-                            {% set chart_gap = 16 if num_bars == 6 else 20 %}
+                            {% set gap = 16 if num_bars == 6 else 20 %}
                             {% set total_available_space = 442 %}
                             {% set total_gap_space = (6 - 1) * (16 if num_bars == 6 else 20) %}
                             {% set available_for_bars = total_available_space - total_gap_space %}
@@ -7483,11 +7483,11 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 {% set bar_width = (available_for_bars / 3)|int %}
                                 {% set justify_content = 'center' %}
                             {% else %}
-                                {% set saved_gaps = (6 - num_bars) * chart_gap %}
+                                {% set saved_gaps = (6 - num_bars) * gap %}
                                 {% set bar_width = ((available_for_bars + saved_gaps) / num_bars)|int %}
                                 {% set justify_content = 'flex-start' %}
                             {% endif %}
-                            <div class="chart" style="gap: {{ chart_gap }}px; justify-content: {{ justify_content }};">
+                            <div class="chart" style="gap: {{ gap }}px; justify-content: {{ justify_content }};">
                                 {% for bar in bars %}
                                     <div class="bar-container">
                                         <div class="bar-label">{{ bar.valueLabel or '' }}</div>
@@ -7506,13 +7506,13 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 {'year': '2024', 'valueLabel': '35M$', 'height': 210}
                             ] %}
                             {% set num_bars = default_bars|length %}
-                            {% set chart_gap = 16 %}
+                            {% set gap = 16 %}
                             {% set total_available_space = 442 %}
                             {% set total_gap_space = (6 - 1) * 16 %}
                             {% set available_for_bars = total_available_space - total_gap_space %}
-                            {% set saved_gaps = (6 - num_bars) * chart_gap %}
+                            {% set saved_gaps = (6 - num_bars) * gap %}
                             {% set bar_width = ((available_for_bars + saved_gaps) / num_bars)|int %}
-                            <div class="chart" style="gap: {{ chart_gap }}px;">
+                            <div class="chart" style="gap: {{ gap }}px;">
                                 {% for bar in default_bars %}
                                     <div class="bar-container">
                                         <div class="bar-label">{{ bar.valueLabel }}</div>
