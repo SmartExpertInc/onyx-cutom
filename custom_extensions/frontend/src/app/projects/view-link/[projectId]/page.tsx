@@ -1981,7 +1981,7 @@ export default function ProjectInstanceViewPage() {
             rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
             rightSidebar={
               <div className="space-y-6 w-full">
-                <div className="w-full">
+                <div className="w-full h-[550px] flex">
                   <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
                 </div>
                 <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
@@ -2004,7 +2004,7 @@ export default function ProjectInstanceViewPage() {
             rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
             rightSidebar={
               <div className="space-y-6 w-full">
-                <div className="w-full">
+                <div className="w-full h-[550px] flex">
                   <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
                 </div>
                 <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
