@@ -336,23 +336,45 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   Draft
                 </button>
               )}
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  color: '#0F58F9',
-                  border: '1px solid #0F58F9',
-                  fontSize: '14px',
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Export
-              </button>
+              <div className="relative">
+                <button
+                  ref={exportButtonRef}
+                  type="button"
+                  onClick={handleExport}
+                  className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#0F58F9',
+                    border: '1px solid #0F58F9',
+                    fontSize: '14px',
+                    lineHeight: '140%',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Export
+                </button>
+                {exportOptions && exportOptions.length > 0 && showExportMenu && (
+                  <div
+                    ref={exportMenuRef}
+                    className="absolute right-0 mt-2 w-56 rounded-lg border border-[#E4E4E7] bg-white py-1 shadow-xl z-[60]"
+                  >
+                    {exportOptions.map((option) => (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => handleExportOptionSelect(option.onSelect)}
+                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[#171718] transition-colors hover:bg-[#F2F2F4]"
+                      >
+                        {option.icon && <span className="flex h-4 w-4 items-center justify-center">{option.icon}</span>}
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button
                 onClick={handleCopyLink}
                 className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
