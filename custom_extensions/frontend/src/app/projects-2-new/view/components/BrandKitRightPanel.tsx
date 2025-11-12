@@ -225,7 +225,7 @@ export default function BrandKitRightPanel({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showTransitionDropdown, setShowTransitionDropdown, setIsColorPaletteOpen]);
-
+  
   const transitionOptions = [
     { value: 'None', label: t('rightPanel.transitions.none', 'None') },
     { value: 'Fade', label: t('rightPanel.transitions.fade', 'Fade') },
